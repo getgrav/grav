@@ -19,6 +19,7 @@ require_once(SYSTEM_DIR .'autoload.php');
 // Create Required Folders if they don't exist
 if (!file_exists(LOG_DIR)) mkdir(LOG_DIR);
 if (!file_exists(CACHE_DIR)) mkdir(CACHE_DIR);
+if (!file_exists(IMAGES_DIR)) mkdir(IMAGES_DIR);
 
 // Start the timer and enable debugger in production mode as we do not have system configuration yet.
 // Debugger catches all errors and logs them, for example if the script doesn't have write permissions.
