@@ -1,0 +1,29 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# access site
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.php [L]
+
+# block various user files from being accessed directly
+RewriteRule ^user/accounts/(.*)$ error [R=301,L]
+RewriteRule ^user/config/(.*)$ error [R=301,L]
+RewriteRule ^user/(.*)\.(txt|md|html|php|yaml|json|twig|sh|bat)$ error [R=301,L]
+
+# block cache
+RewriteRule ^cache/(.*) error [R=301,L]
+
+# block bin
+RewriteRule ^bin/(.*)$ error [R=301,L]
+
+# block system
+RewriteRule ^system/(.*)$ error [R=301,L]
+
+# block vendor
+RewriteRule ^vendor/(.*)$ error [R=301,L]
+
+</IfModule>
+
+# Prevent file browsing
+Options -Indexes

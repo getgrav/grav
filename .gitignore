@@ -1,0 +1,22 @@
+# Composer
+composer.lock
+
+# Sass
+.sass-cache
+
+# OS Generated
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.swp
+
+# Grav Specific
+/cache
+/logs
+/images
+/user/data/*
+!/user/data/index.html
+
+# phpstorm
+.idea/*
