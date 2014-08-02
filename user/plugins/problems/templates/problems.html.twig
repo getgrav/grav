@@ -1,0 +1,55 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+    {{ page.content }}
+
+    <p class="center">
+        <a href="{{ base_url_relative }}" class="button big"><i class="fa fa-refresh"></i> Reload Page</a>
+    </p>
+
+    <ul class="problems">
+    {% for key, result in results %}
+
+        {% if key == 'files' %}
+
+            {% for file, file_result in result %}
+
+                {% for status, description in file_result %}
+                    {% if status == 1 %}
+                    <li class="success clearfix">
+                        <i class="fa fa-check"></i>
+                    {% else %}
+                    <li class="error clearfix">
+                        <i class="fa fa-times"></i>
+                    {% endif %}
+                        <p>
+                            <b>{{ file }}</b> {{ description }}
+                        </p>
+                    </li>
+                {% endfor %}
+
+            {% endfor %}
+
+        {% else %}
+
+            {% for status, description in result %}
+                {% if status == 1 %}
+                <li class="success clearfix">
+                    <i class="fa fa-check"></i>
+                {% else %}
+                <li class="error clearfix">
+                    <i class="fa fa-times"></i>
+                {% endif %}
+                    <p>
+                        {{ description }}
+                    </p>
+                </li>
+            {% endfor %}
+
+        {% endif %}
+
+    {% endfor %}
+
+
+
+{% endblock %}

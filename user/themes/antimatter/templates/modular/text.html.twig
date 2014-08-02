@@ -1,0 +1,7 @@
+<div class="modular-row callout">
+    {% set image = page.assets.images|first %}
+    {% if image %}
+        {{ image.cropResize(400,400).html('','align-'~page.header.image_align) }}
+    {% endif %}
+{{ content }}
+</div>

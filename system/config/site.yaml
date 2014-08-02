@@ -1,0 +1,13 @@
+title: Grav                             # Name of the site
+author:
+  name: John Appleseed                  # Default author name
+  email: 'john@email.com'               # Default author email
+taxonomies: [category,tag]              # Arbitrary list of taxonomy types
+blog:
+  route: '/blog'                        # Route to blog
+description: 'Grav Site Description'    # Site description
+summary:
+  size: 300                             # Maximum length of summary (characters)
+routes:
+  /something/else: '/blog/sample-3'     # Alias for /blog/sample-3
+  /another/one/here: '/blog/sample-3'   # Another alias for /blog/sample-3

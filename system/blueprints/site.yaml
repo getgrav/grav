@@ -1,0 +1,42 @@
+title: Site settings
+validation: strict
+
+form:
+  fields:
+    title:
+      type: text
+      label: Site title
+
+    description:
+      type: textarea
+      label: Description
+
+    summary.size:
+      type: text
+      label: Summary size
+      validate:
+        type: int
+        min: 0
+        max: 65536
+
+    author.name:
+      type: text
+      label: Default author
+
+    author.email:
+      type: text
+      label: Default email
+
+    taxonomies:
+      type: text
+      label: Taxonomy types
+      validate:
+        type: commalist
+
+    blog.route:
+      type: text
+      label: Blog URL
+
+    routes:
+      type: array
+      label: Custom routes

@@ -1,0 +1,67 @@
+title: Blog
+@extends: default
+
+child_type: item
+
+form:
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        blog:
+          type: tab
+          title: Blog List
+
+          fields:
+            header.content.items:
+              type: select
+              label: Items
+              default: @self.children
+              options:
+                @self.children: Children
+
+            header.content.limit:
+              type: text
+              label: Max Item Count
+              default: 5
+              validate:
+                required: true
+                pattern: "[1-9][0-9]*"
+              validate:
+                type: int
+
+            header.content.order.by:
+              type: select
+              label: Order By
+              default: date
+              options:
+                folder: Folder
+                title: Title
+                date: Date
+                default: Default
+
+            header.content.order.dir:
+              type: select
+              label: Order
+              default: desc
+              options:
+                asc: Ascending
+                desc: Descending
+
+            header.content.pagination:
+              type: toggle
+              label: Order
+              default: 1
+              options:
+                1: Enabled
+                0: Disabled
+
+            header.pagination:
+              type: hidden
+              default: true
+
+            header.blog_url:
+              type: hidden
+              default: ''

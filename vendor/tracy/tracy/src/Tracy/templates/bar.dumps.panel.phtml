@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Debug Bar: panel "dumps" template.
+ *
+ * This file is part of the Tracy (http://tracy.nette.org)
+ * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
+ */
+
+namespace Tracy;
+
+use Tracy;
+
+?>
+<style class="tracy-debug">
+
+	#tracy-debug .tracy-DumpPanel h2 {
+		font: 11pt/1.5 sans-serif;
+		margin: 0;
+		padding: 2px 8px;
+		background: #3484d2;
+		color: white;
+	}
+
+	#tracy-debug .tracy-DumpPanel table {
+		width: 100%;
+	}
+
+</style>
+
+
+<h1>Dumped variables</h1>
+
+<div class="tracy-inner tracy-DumpPanel">
+<?php foreach ($this->data as $item): ?>
+	<?php if ($item['title']):?>
+	<h2><?php echo htmlspecialchars($item['title']) ?></h2>
+	<?php endif ?>
+
+	<table>
+	<?php $i = 0 ?>
+	<tr class="<?php echo $i++ % 2 ? 'tracy-alt' : '' ?>">
+		<td><?php echo $item['dump'] ?></td>
+	</tr>
+	</table>
+<?php endforeach ?>
+</div>

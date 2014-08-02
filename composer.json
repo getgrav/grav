@@ -1,0 +1,25 @@
+{
+    "name": "rhuk/grav",
+    "type": "library",
+    "description": "Grav is a powerful flat CMS influenced by Pico, Stacey, Kirby and others...",
+    "keywords": ["cms"],
+    "homepage": "http://getgrav.org",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andy Miller",
+            "email": "rhuk@getgrav.org"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.10",
+        "twig/twig": "1.16.*@dev",
+        "erusev/parsedown": "dev-master",
+        "symfony/yaml": "2.5.*@dev",
+        "symfony/console": "2.5.*@dev",
+        "doctrine/cache": "1.4.*@dev",
+        "tracy/tracy": "dev-master",
+        "gregwar/image": "dev-master",
+        "ircmaxell/password-compat": "1.0.*"
+    }
+}

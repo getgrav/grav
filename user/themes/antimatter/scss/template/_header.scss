@@ -1,0 +1,161 @@
+// Header styling
+
+#header {
+	@extend .default-animation;
+	@extend .padding-horiz;
+	position: fixed;
+	z-index: 10;
+	width: 100%;
+	height: $header-height;
+	background-color: rgba(255,255,255,0.90);
+	box-shadow: 0 0.05rem 1rem rgba(0,0,0, 0.15);
+
+	// scroll based changes
+	&.scrolled {
+		height: $header-height - 2rem;
+		background-color: rgba(255,255,255,0.90) !important;
+		box-shadow: 0 0.05rem 1rem rgba(0,0,0, 0.15) !important;
+
+		#logo h3 {
+			color: $core-text !important;
+			font-size: 1.6rem !important;
+		}
+		#logo a {
+			color: $core-text !important;
+		}
+		#navbar a {
+			color: $core-accent !important;
+		}
+		#navbar a:before, #navbar a:after {
+			background-color: $core-accent !important;
+		}
+	}
+
+	// set heights for vertical centering
+	> .grid, #logo, #navbar {
+		height: 100%;
+	}
+
+	#logo {
+		float: left;
+		h3 {
+			@extend .default-animation;
+			@extend %vertical-align;
+			font-size: 2rem;
+			line-height: 2rem;
+			margin: 0;
+			text-transform: uppercase;
+			a {
+				color: $core-text;
+			}
+		}
+	}
+
+	#navbar {
+		font-size: $core-font-size - 0.1rem;
+		ul {
+			@extend %vertical-align;
+			display: inline-block;
+			margin: 0;
+			list-style: none;
+			float: right;
+			li {
+				float: left;
+				position: relative;
+
+				a {
+					font-family: $font-family-header;
+					display: inline-block;
+					padding: 0.1rem 0.8rem;
+
+					&:before, &:after {
+						content: "";
+						position: absolute;
+						width: 100%;
+						height: 1px;
+						bottom: 0;
+						left: 0;
+						background-color: $core-accent;
+						visibility: hidden;
+						@include transform(scaleX(0));
+						@include transition(all 0.2s ease);
+					}
+
+					&:hover:before {
+						visibility: visible;
+						@include transform(scaleX(0.75));
+					}
+				}
+
+				&.active {
+					a:after {
+						top: 0;
+						visibility: visible;
+						@include transform(scaleX(0.75));
+					}
+				}
+			}
+			@include breakpoint(desktop-only) {
+				display: none;
+			}
+		}
+
+		.panel-activation {
+			@extend %vertical-align;
+			display: none;
+			font-size: 2rem;
+			cursor: pointer;
+			float: right;
+			@include breakpoint(desktop-only) {
+				display: inline-block;
+			}
+		}
+
+	}
+
+}
+
+// Header Image
+.header-image {
+    &.fullwidth {
+        #body {
+            padding-left: 0;
+            padding-right: 0;
+
+            >.listing-row {
+                padding-left: $padding-horiz;
+                padding-right: $padding-horiz;
+            }
+        }
+    }
+    .listing-row:last-child {
+    	margin-bottom: 2rem;
+    }
+
+    #body {
+        >.blog-header {
+            margin-top: - $header-height - $padding-vert - 1.5rem;
+            padding-top: $header-height + 4rem;
+        }
+    }
+
+    #breadcrumbs {
+    	margin-top: 1rem;
+    }
+
+    #header {
+        background-color: rgba($header-text,0);
+        box-shadow: none;
+
+        #logo h3, #logo a {
+            color: $header-text;
+        }
+        a, .menu-btn {
+            color: $header-text;
+        }
+        a:before, a:after {
+        	background-color: rgba($header-text,0.7) !important;
+        }
+    }
+
+}

@@ -1,0 +1,48 @@
+html, body {
+	height: 100%;
+}
+
+body {
+	background: $page-bg;
+	color: $core-text;
+	-webkit-font-smoothing: antialiased;
+  	-moz-osx-font-smoothing: grayscale;
+}
+
+a {
+	color: $core-accent;
+	&:hover {
+		color: darken($core-accent, 20%);
+	}
+}
+
+b, strong {
+	font-weight: $font-weight-bold
+}
+
+// Global Container
+#container {
+ 	min-height: 100%;
+  	position: relative;
+}
+
+// Fullwidth styles
+.fullwidth {
+	#body {
+		padding-left: 0;
+		padding-right: 0;
+	}
+	#header, #breadcrumbs, .blog-header, .blog-content-item, .blog-content-list, ul.pagination, #body > .modular-row {
+		@extend .padding-horiz;
+	}
+}
+
+// Global body styling
+#body {
+	@extend .default-animation;
+	@extend .padding-horiz;
+
+	padding-top: $header-height + $padding-vert;
+	padding-bottom: $footer-height + $padding-vert + 2rem;
+}
+

@@ -1,0 +1,163 @@
+title: Default
+
+rules:
+  slug:
+    pattern: "[a-z][a-z0-9_\-]+"
+    min: 2
+    max: 80
+
+form:
+  fields:
+    type:
+      type: hidden
+      label: Page Type
+      default: default
+
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            route:
+              type: select
+              label: Parent
+              @data-options: '\Grav\Common\Page\Pages::parents'
+              @data-default: '\Grav\Plugin\admin::route'
+              options:
+                '': '- Root -'
+
+            order:
+              type: text
+              label: Ordering
+              validate:
+                type: int
+                min: 0
+
+            folder:
+              type: text
+              label: Folder
+              validate:
+                type: slug
+#                required: true
+
+            header.title:
+              type: text
+              label: Title
+              validate:
+                required: true
+
+            content:
+              type: textarea
+              label: Content
+
+            header.processing:
+              type: checkboxes
+              label: Process
+              default: [markdown: true, twig: true]
+              options:
+                markdown: Markdown
+                twig: Twig
+              use: keys
+
+
+        meta:
+          type: tab
+          title: Meta
+
+          fields:
+            header.description:
+              type: textarea
+              label: Description
+              validate:
+                max: 120
+
+            header.keywords:
+              type: text
+              label: Keywords
+              validate:
+                max: 120
+
+            header.robots:
+              type: checkboxes
+              label: Robots
+              options:
+                noindex: No index
+                nofollow: No follow
+              use: keys
+
+        overrides:
+          type: tab
+          title: Overrides
+
+          fields:
+            header.menu:
+              type: text
+              label: Menu
+
+            header.slug:
+              type: text
+              label: Alias
+              validate:
+                rule: slug
+
+            header.cache_enable:
+              type: toggle
+              label: Caching
+              highlight: 1
+              options:
+                '': Global
+                1: Enabled
+                0: Disabled
+              validate:
+                type: bool
+
+            header.template:
+              type: themeselect
+              label: Theme override
+              options:
+                '': - Select theme -
+
+            header.routable:
+              type: toggle
+              label: Access by URL
+              highlight: 1
+              default: ''
+              options:
+                '': Global
+                1: Enabled
+                0: Disabled
+              validate:
+                type: bool
+
+            header.child_type:
+              type: select
+              label: Default Child Type
+              default: default
+              @data-options: '\Grav\Common\Page\Pages::types'
+
+            header.order_by:
+              type: hidden
+
+            header.order_manual:
+              type: hidden
+              validate:
+                type: commalist
+
+        assets:
+          type: tab
+          title: Assets
+
+          fields:
+            files:
+              type: spacer
+              title: Files
+
+            assets:
+              type: list
+              add: Add file
+              @import: 'asset/file'

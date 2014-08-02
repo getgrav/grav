@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+
+date_default_timezone_set('UTC');
+
+require_once(__DIR__ . '/../system/defines.php');
+require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__ . '/../system/autoload.php');
+
+use Symfony\Component\Console\Application;
+
+if (!file_exists(ROOT_DIR . 'index.php')) {
+    exit('FATAL: Must be run from ROOT directory of Grav!');
+}
+
+$app = new Application('Grav CLI Application', '0.1.0');
+$app->addCommands(array(
+    new Grav\Console\InstallCommand(),
+    new Grav\Console\PackageCommand(),
+));
+$app->run();

@@ -1,0 +1,31 @@
+home:
+  alias: '/home'
+
+pages:
+  theme: antimatter
+  process:
+    markdown: true
+    twig: false
+  events:
+    page: false
+    twig: true
+
+cache:
+  enabled: true
+  check:
+    pages: true
+  driver: auto
+  prefix: 'g'
+
+twig:
+  cache: true
+  debug: true
+  auto_reload: true
+  autoescape: false
+
+debugger:
+  enabled: true
+  max_depth: 10
+  log:
+    enabled: false
+    timing: false

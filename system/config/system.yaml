@@ -1,0 +1,39 @@
+home:
+  alias: '/home'                       # Default path for home, ie /
+
+pages:
+  theme: antimatter                    # Default theme (defaults to "antimatter" theme)
+  order:
+    by: defaults                       # Order pages by "default", "alpha" or "date"
+    dir: asc                           # Default ordering direction, "asc" or "desc"
+  list:
+    count: 20                          # Default item count per page
+  dateformat:
+    short: 'jS M Y'                    # Short date format
+    long: 'F jS \a\t g:ia'             # Long date format
+  process:
+    markdown: true                     # Process Markdown
+    twig: false                        # Process Twig
+  events:
+    page: false                        # Enable page level events
+    twig: true                         # Enable twig level events
+
+cache:
+  enabled: true                        # Set to true to enable caching
+  check:
+    pages: true                        # Check to see if page has been modifying to flush the cache
+  driver: auto                         # One of: auto|file|apc|xcache|memcache|memcached|wincache
+  prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
+
+twig:
+  cache: false                          # Set to true to enable twig caching
+  debug: true                           # Enable Twig debug
+  auto_reload: true                     # Refresh cache on changes
+  autoescape: false                     # Autoescape Twig vars
+
+debugger:
+  enabled: true                         # Enable Grav debugger
+  max_depth: 10                         # How many nested levels to display for objects or arrays
+  log:
+    enabled: true                       # Enable logging
+    timing: false                       # Enable timing logging

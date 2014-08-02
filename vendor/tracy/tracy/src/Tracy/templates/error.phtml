@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Default error page.
+ * @param  string $error
+ */
+
+namespace Tracy;
+
+?>
+<!DOCTYPE html><!-- "' --></script></style></noscript></xmp>
+<meta charset="utf-8">
+<meta name=robots content=noindex>
+<meta name=generator content="Tracy">
+<title>Server Error</title>
+
+<div id="tracy-error-body">
+<style>
+	body { color: #333; background: white; width: 500px; margin: 100px auto }
+	h1 { font: bold 47px/1.5 sans-serif; margin: .6em 0 }
+	p { font: 21px/1.5 Georgia,serif; margin: 1.5em 0 }
+	small { font-size: 70%; color: gray }
+</style>
+
+<h1>Server Error</h1>
+
+<p>We're sorry! The server encountered an internal error and
+was unable to complete your request. Please try again later.</p>
+
+<p><small>error 500<?php if (!empty($error)) echo "<br>Tracy says: ", htmlspecialchars($error) ?></small></p>
+<div>
+
+<script>
+document.documentElement.innerHTML = '<title>Server Error<\/title>' +
+	document.getElementById('tracy-error-body').innerHTML;
+</script>

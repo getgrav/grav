@@ -1,0 +1,87 @@
+// Modular Showcase styling
+.modular {
+    .features {
+        padding: 3rem 0;
+        text-align: center;
+        @include clearfix;
+
+        h2 {
+            margin: 0;
+            line-height: 100%;
+        }
+
+        p {
+            margin: 1rem 0;
+            font-size: $core-font-size + 0.2rem;
+            @include breakpoint(mobile-only) {
+                font-size: $core-font-size;
+            }
+        }
+
+        .feature-items {
+            margin-top: 2rem;
+        }
+
+        .feature {
+            display:block;
+            float: left;
+            width: 25%;
+            @include breakpoint(mobile-only) {
+                width: 100%;
+            }
+            vertical-align: top;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+
+            i.fa {
+                font-size: 2rem;
+                color: $core-accent;
+            }
+
+            h4 {
+                margin: 0;
+                font-size: 1.1rem;
+            }
+
+            p {
+                display: inline-block;
+                font-size: $core-font-size;
+                margin: 0.2rem 0 1rem;
+            }
+        }
+
+        &.big {
+
+            text-align: center;
+
+            .feature {
+                width: 50%;
+            }
+
+            i.fa {
+                font-size: 3rem;
+                float: left;
+            }
+
+            .feature-content {
+                padding-right: 2rem;
+
+                &.push {
+                    margin-left: 5rem;
+                }
+
+                h4 {
+                    font-size: 1.3rem;
+                    text-align: left;
+                }
+
+                p {
+                    padding: 0;
+                    text-align: left;
+                }
+            }
+        }
+
+    }
+
+}

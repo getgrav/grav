@@ -1,0 +1,24 @@
+// variables
+$text-bg:        #f6f6f6;
+$text-padding:   3rem;
+$image-margin:      2rem;
+
+
+// styling
+.callout {
+    background: $text-bg;
+    padding: $text-padding $content-padding;
+
+    .align-left {
+        float: left;
+        margin-right: $image-margin;
+    }
+
+    .align-right {
+        float: right;
+        margin-left: $image-margin;
+    }
+    img {
+        border-radius: $border-radius;
+    }
+}

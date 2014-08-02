@@ -1,0 +1,87 @@
+$sidebar-width: 250px;
+$sidebar-color: #333;
+$panel-padding:         2rem;
+$panel-text: #fff;
+
+#panel {
+    color: $panel-text;
+    .navigation {
+        list-style: none;
+        padding: 0;
+
+        li {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid lighten($sidebar-color,5%);
+            font-weight: 600;
+
+            &.active {
+                background: #fff;
+                a {
+                    color: $core-text;
+                    &:hover {
+                        color: $core-text;
+                    }
+                }
+            }
+
+            &:last-child {
+                border-bottom: 0;
+            }
+
+            a {
+                &:hover {
+                    color: $white;
+                }
+            }
+        }
+    }
+}
+
+
+/* Menu Appearance */
+.pushy {
+    position: fixed;
+    width: $sidebar-width;
+    height: 100%;
+    top: 0;
+    z-index: 9999;
+    background: $sidebar-color;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch; /* enables momentum scrolling in iOS overflow elements */
+}
+
+
+/* Menu Movement */
+.pushy-left {
+    @include transform(translate3d(- $sidebar-width,0,0));
+}
+
+.pushy-open {
+    @include transform(translate3d(0,0,0));
+}
+
+.container-push, .push-push {
+    @include transform(translate3d($sidebar-width,0,0));
+}
+
+/* Menu Transitions */
+.pushy, #container, .push{
+    @include transition(transform .2s cubic-bezier(.16, .68, .43, .99));
+    /* improves performance issues on mobile*/
+    -webkit-perspective: 1000;
+}
+
+/* Site Overlay */
+.site-overlay{
+    display: none;
+}
+
+.pushy-active .site-overlay{
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: $sidebar-width;
+    z-index: 9999;
+}

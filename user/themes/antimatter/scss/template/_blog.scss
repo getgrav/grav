@@ -1,0 +1,148 @@
+.blog-header {
+
+	padding-top: 2rem;
+	padding-bottom: 2rem;
+
+	&.blog-header-image {
+		background-size: cover;
+    	background-position: center;
+
+    	h1,h2 {
+    		color: $header-text;
+    	}
+
+	}
+
+	h1 {
+        font-size: 4rem;
+        margin-top: 0;
+        @include breakpoint(tablet-range) {
+            font-size: 3rem;
+        }
+        @include breakpoint(mobile-only) {
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 2.5rem;
+        }
+    }
+
+	& + .blog-content {
+		padding-top: $padding-vert;
+	}
+}
+
+// List Blog Item
+.list-item {
+
+	border-bottom: 1px solid $border-color;
+	margin-bottom: $padding-vert;
+
+	&:last-child {
+		border-bottom: 0;
+	}
+
+	.list-blog-header {
+		position: relative;
+		h4 {
+
+			margin-bottom: 0.5rem;
+			a {
+				color: $core-text;
+				&:hover {
+					color: $core-accent;
+				}
+			}
+		}
+
+		img {
+			display: block;
+			margin-top: 1rem;
+			border-radius: $border-radius;
+		}
+	}
+
+	.list-blog-date {
+		float: right;
+		text-align: center;
+		span {
+			display: block;
+			font-size: 1.75rem;
+			font-weight: $font-weight-bold;
+			line-height: 110%;
+		}
+		em {
+			display: block;
+			border-top: 1px solid $border-color;
+			font-style: normal;
+			text-transform: uppercase;
+		}
+	}
+}
+
+// Bigger first para
+.blog-content-item {
+	.list-blog-padding > p:nth-child(2) {
+		font-size: $core-font-size + 0.2rem;
+	}
+}
+
+// Tags
+.tags {
+	a {
+		display: inline-block;
+		font-size: $core-font-size - 0.2rem;
+		border: 1px solid $core-accent;
+		border-radius: $border-radius;
+		padding: 0.1rem 0.4rem;
+		margin-bottom: 0.2rem;
+		text-transform: uppercase;
+	}
+}
+
+// Archives
+.archives {
+	padding: 0;
+	list-style: none;
+	li {
+		border-bottom: 1px solid $border-color;
+		line-height: $core-font-size + 1rem;
+		&:last-child {
+			border-bottom: 0;
+		}
+	}
+}
+
+// Syndicate
+.syndicate {
+	a {
+		margin-bottom: 1rem;
+	}
+}
+
+// Breadcrumbs
+div#breadcrumbs {
+	padding-left: 0;
+}
+
+// Sidebar
+#sidebar {
+	padding-left: 3rem;
+	@include breakpoint(mobile-only) {
+		padding-left: 0;
+	}
+	.sidebar-content {
+		h4 {
+			margin-bottom: 1rem;
+		}
+		p, ul {
+			margin-top: 1rem;
+		}
+		margin-bottom: $padding-vert;
+	}
+}
+
+// Pagination
+ul.pagination {
+	margin: 0 0 $padding-vert;
+	text-align: left;
+}

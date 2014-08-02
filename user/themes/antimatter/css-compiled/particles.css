@@ -1,0 +1,98 @@
+.text-left {
+  text-align: left !important; }
+
+.text-right {
+  text-align: right !important; }
+
+.text-center {
+  text-align: center !important; }
+
+.text-justify {
+  text-align: justify !important; }
+
+@media all and (min-width: 75rem) {
+  .large-desktop-text-left {
+    text-align: left !important; }
+
+  .large-desktop-text-right {
+    text-align: right !important; }
+
+  .large-desktop-text-center {
+    text-align: center !important; }
+
+  .large-desktop-text-justify {
+    text-align: justify !important; } }
+@media all and (min-width: 60rem) and (max-width: 74.938rem) {
+  .desktop-text-left {
+    text-align: left !important; }
+
+  .desktop-text-right {
+    text-align: right !important; }
+
+  .desktop-text-center {
+    text-align: center !important; }
+
+  .desktop-text-justify {
+    text-align: justify !important; } }
+@media all and (min-width: 48rem) and (max-width: 59.938rem) {
+  .tablet-text-left {
+    text-align: left !important; }
+
+  .tablet-text-right {
+    text-align: right !important; }
+
+  .tablet-text-center {
+    text-align: center !important; }
+
+  .tablet-text-justify {
+    text-align: justify !important; } }
+@media all and (min-width: 30.063rem) and (max-width: 47.938rem) {
+  .large-mobile-text-left {
+    text-align: left !important; }
+
+  .large-mobile-text-right {
+    text-align: right !important; }
+
+  .large-mobile-text-center {
+    text-align: center !important; }
+
+  .large-mobile-text-justify {
+    text-align: justify !important; } }
+@media all and (max-width: 30rem) {
+  .small-mobile-text-left {
+    text-align: left !important; }
+
+  .small-mobile-text-right {
+    text-align: right !important; }
+
+  .small-mobile-text-center {
+    text-align: center !important; }
+
+  .small-mobile-text-justify {
+    text-align: justify !important; } }
+@media all and (min-width: 48rem) {
+  .no-mobile-text-left {
+    text-align: left !important; }
+
+  .no-mobile-text-right {
+    text-align: right !important; }
+
+  .no-mobile-text-center {
+    text-align: center !important; }
+
+  .no-mobile-text-justify {
+    text-align: justify !important; } }
+@media all and (max-width: 47.938rem) {
+  .mobile-only-text-left {
+    text-align: left !important; }
+
+  .mobile-only-text-right {
+    text-align: right !important; }
+
+  .mobile-only-text-center {
+    text-align: center !important; }
+
+  .mobile-only-text-justify {
+    text-align: justify !important; } }
+
+/*# sourceMappingURL=particles.css.map */

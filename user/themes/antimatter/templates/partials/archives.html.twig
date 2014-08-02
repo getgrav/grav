@@ -1,0 +1,7 @@
+<ul class="archives">
+{% set month = "now"|date("m/d/Y") %}
+{% for j in range(1, 12) %}
+	{% set month = month|date_modify('-1 month') %}
+    <li><a href="{{ base_url }}/month:{{ month|date('M_Y')|lower }}">{{ month|date('F Y') }}</a></li>
+{% endfor %}
+</ul>

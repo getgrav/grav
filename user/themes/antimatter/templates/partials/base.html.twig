@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block head %}
+    <meta charset="utf-8" />
+    <title>{% if header.title %}{{ header.title }} | {% endif %}{{ site.title }}</title>
+    {% if header.description %}
+        <meta name="description" content="{{ header.description }}">
+    {% else %}
+        <meta name="description" content="{{ site.description }}">
+    {% endif %}
+    {% if header.robots %}
+        <meta name="robots" content="{{ header.robots }}">
+    {% endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="alternate" type="application/atom+xml" href="{{ base_url_absolute}}/feed:atom" title="Atom Feed" />
+    <link rel="alternate" type="application/rss+xml" href="{{ base_url_absolute}}/feed:rss" title="RSS Feed" />
+    <link rel="icon" type="image/png" href="{{ theme_url }}/images/favicon.png">
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/nucleus.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/template.css" type="text/css" />
+    <!--[if (gte IE 8)&(lte IE 9)]>
+        <script type="text/javascript" src="{{ theme_url }}/js/html5shiv-printshiv.min.js"></script>
+        <link rel="stylesheet" href="{{ theme_url }}/css/nucleus-ie9.css" type="text/css" />
+        <link rel="stylesheet" href="{{ theme_url }}/css/pure-0.5.0/grids-min.css" type="text/css" />
+    <![endif]-->
+    {% block stylesheets %}
+        {% if page.header.lightbox %}
+        <link rel="stylesheet" href="{{ theme_url }}/css/featherlight.min.css" />
+        {% endif %}
+    {% endblock %}
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ base_url_relative }}/{{ stylesheet }}" type="text/css" />
+    {% endfor %}
+    <script src="{{ theme_url }}/js/jquery-2.1.1.min.js"></script>
+    <script src="{{ theme_url }}/js/nova-theme.js"></script>
+    <script src="{{ theme_url }}/js/modernizr.custom.71422.js"></script>
+    {% block javascripts %}
+        {% if page.header.lightbox %}
+        <script src="{{ theme_url }}/js/featherlight.min.js"></script>
+        <script>
+        $(function () {
+            $('a[rel="lightbox"]').featherlight();
+        });
+        </script>
+        {% endif %}
+    {% endblock %}
+{% endblock %}
+</head>
+<body id="top" class="{{ page.header.body_classes }}">
+    <nav class="pushy pushy-left">
+        <div id="panel">
+        {% include 'partials/navigation.html.twig' %}
+        </div>
+    </nav>
+    <div class="site-overlay"></div>
+    <div id="container">
+        {% block header %}
+        <header id="header">
+
+                <div id="logo">
+                    <h3><a href="{{ base_url_absolute}}">{{ config.site.title }}</a></h3>
+                </div>
+                <div id="navbar">
+                    {% include 'partials/navigation.html.twig' %}
+                    <span class="panel-activation menu-btn">&#9776;</span>
+                </div>
+
+        </header>
+        {% endblock %}
+
+        {% block body %}
+        <section id="body" class="{{ class }}">
+            {% block sidebar %}{% endblock %}
+            {% block content %}{% endblock %}
+            {% block pagination %}{% endblock %}
+        </section>
+        {% endblock %}
+
+        {% block footer %}
+        <footer id="footer">
+            <div class="totop">
+                <span><a href="#" id="toTop"><i class="fa fa-arrow-up"></i></a></span>
+            </div>
+            <p><a href="http://getgrav.org">Grav</a> was <i class="fa fa-code"></i> with <i class="fa fa-heart"></i> by <a href="http://www.rockettheme.com">RocketTheme</a>.</p>
+        </footer>
+        {% endblock %}
+    </div>
+    <script src="{{ theme_url }}/js/pushy.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+// Modular Showcase styling
+.modular {
+
+    // special case for header
+    &.header-image {
+        #body {
+            >.showcase {
+                margin-top: - $header-height - $padding-vert - 1.5rem;
+                padding-top: $header-height + 4rem;
+            }
+        }
+        #header {
+            background-color: rgba(255,255,255,0);
+            box-shadow: none;
+
+            #logo h3 {
+                color: $header-text;
+            }
+            #navbar a {
+                color: $header-text;
+            }
+        }
+    }
+
+    .showcase {
+
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+        background-color: #666;
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+
+        text-align: center;
+        color: $header-text;
+        h1 {
+            font-size: 4rem;
+            margin-top: 0;
+            @include breakpoint(tablet-range) {
+                font-size: 3rem;
+            }
+            @include breakpoint(mobile-only) {
+                font-size: 2.5rem;
+                line-height: 1.2;
+                margin-bottom: 2.5rem;
+            }
+        }
+
+        .button {
+            @extend .default-animation;
+            color: $header-text;
+            padding: 0.7rem 2rem;
+            margin-top: 2rem;
+            background: rgba(255,255,255,0);
+            border: 1px solid $header-text;
+            border-radius: $border-radius;
+            box-shadow: none;
+            font-size: $core-font-size + 0.3rem;
+
+            &:hover {
+                background: rgba(255,255,255,0.2);
+            }
+        }
+    }
+
+}

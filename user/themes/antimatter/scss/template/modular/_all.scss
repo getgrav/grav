@@ -1,0 +1,9 @@
+@import "showcase";
+@import "features";
+@import "text";
+
+.modular {
+    .modular-row:last-child {
+    	margin-bottom: 2rem;
+    }
+}

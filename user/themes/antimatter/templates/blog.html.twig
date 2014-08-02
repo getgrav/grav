@@ -1,0 +1,39 @@
+{% embed 'partials/base.html.twig' %}
+
+	{% set collection = page.collection() %}
+	{% set base_url = base_url_relative ~ site.blog.route %}
+
+	{% block content %}
+		{% set blog_image = page.assets.images|first.grayscale().contrast(20).brightness(-100).colorize(-35,81,122) %}
+
+		{% if blog_image %}
+			<div class="blog-header blog-header-image" style="background-image: url({{ blog_image.url }});">
+		{% else %}
+		<div class="blog-header">
+		{% endif %}
+			{{ page.content }}
+		</div>
+
+		{% include 'breadcrumbs.html.twig' %}
+
+		<div class="blog-content-list grid pure-g-r">
+			<div id="listing" class="block pure-u-2-3">
+				{% for child in collection %}
+			        {% include 'partials/blog_item.html.twig' with {'page':child, 'truncate':true} %}
+			    {% endfor %}
+			</div>
+			<div id="sidebar" class="block size-1-3 pure-u-1-3">
+				{% include 'partials/sidebar.html.twig' %}
+			</div>
+		</div>
+	{% endblock %}
+
+	{% block pagination %}
+	    {% if collection.params.pagination %}
+	    {% include 'pagination.html.twig' with {'pagination':collection.params.pagination} %}
+	    {% endif %}
+	{% endblock %}
+
+{% endembed %}
+
+

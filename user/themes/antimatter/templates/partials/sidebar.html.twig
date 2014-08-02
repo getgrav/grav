@@ -1,0 +1,17 @@
+<div class="sidebar-content">
+	<h4>Some Text Widget</h4>
+	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.</p>
+</div>
+<div class="sidebar-content">
+    <h4>Popular Tags</h4>
+    {% include 'taxonomylist.html.twig' with {'taxonomy':'tag'} %}
+</div>
+<div class="sidebar-content">
+    <h4>Archives</h4>
+	{% include 'partials/archives.html.twig' %}
+</div>
+<div class="sidebar-content syndicate">
+    <h4>Syndicate</h4>
+    <a class="button" href="{{ base_url }}.atom"><i class="fa fa-rss-square"></i> Atom 1.0</a>
+    <a class="button" href="{{ base_url }}.rss"><i class="fa fa-rss-square"></i> RSS</a>
+</div>

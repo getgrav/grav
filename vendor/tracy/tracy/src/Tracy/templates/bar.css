@@ -1,0 +1,318 @@
+/**
+ * Debugger Bar
+ *
+ * This file is part of the Tracy (http://tracy.nette.org)
+ * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
+ */
+
+/* common styles */
+#tracy-debug {
+	display: none;
+	direction: ltr;
+}
+
+body#tracy-debug {
+	margin: 5px 5px 0;
+	display: block;
+}
+
+body #tracy-debug {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+
+#tracy-debug * {
+	font: inherit;
+	color: inherit;
+	background: transparent;
+	margin: 0;
+	padding: 0;
+	border: none;
+	text-align: inherit;
+	list-style: inherit;
+	opacity: 1;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+#tracy-debug b, #tracy-debug strong {
+	font-weight: bold;
+}
+
+#tracy-debug i, #tracy-debug em {
+	font-style: italic;
+}
+
+#tracy-debug a {
+	color: #125EAE;
+	text-decoration: none;
+}
+
+#tracy-debug .tracy-panel a {
+	color: #125EAE;
+	text-decoration: none;
+}
+
+#tracy-debug a:hover, #tracy-debug a:active, #tracy-debug a:focus {
+	background-color: #125EAE;
+	color: white;
+}
+
+#tracy-debug .tracy-panel h2, #tracy-debug .tracy-panel h3, #tracy-debug .tracy-panel p {
+	margin: .4em 0;
+}
+
+#tracy-debug .tracy-panel table {
+	border-collapse: collapse;
+	background: #FDF5CE;
+}
+
+#tracy-debug .tracy-panel tr:nth-child(2n) td {
+	background: #F7F0CB;
+}
+
+#tracy-debug .tracy-panel td, #tracy-debug .tracy-panel th {
+	border: 1px solid #E6DFBF;
+	padding: 2px 5px;
+	vertical-align: top;
+	text-align: left;
+}
+
+#tracy-debug .tracy-panel th {
+	background: #F4F3F1;
+	color: #655E5E;
+	font-size: 90%;
+	font-weight: bold;
+}
+
+#tracy-debug .tracy-panel pre, #tracy-debug .tracy-panel code {
+	font: 9pt/1.5 Consolas, monospace;
+}
+
+#tracy-debug table .tracy-right {
+	text-align: right;
+}
+
+
+/* bar */
+#tracy-debug-bar {
+	font: normal normal 12px/21px Tahoma, sans-serif;
+	color: #333;
+	border: 1px solid #c9c9c9;
+	background: #EDEAE0 url('data:image/png;base64,R0lGODlhAQAVALMAAOTh1/Px6eHe1fHv5e/s4vLw6Ofk2u3q4PPw6PPx6PDt5PLw5+Dd1OXi2Ojm3Orn3iH5BAAAAAAALAAAAAABABUAAAQPMISEyhpYkfOcaQAgCEwEADs=') top;
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	min-height: 21px;
+
+	min-width: 50px;
+	white-space: nowrap;
+
+	z-index: 30000;
+	opacity: .9;
+	transition: opacity 0.2s;
+
+	border-radius: 3px;
+	box-shadow: 1px 1px 10px rgba(0, 0, 0, .15);
+}
+
+#tracy-debug-bar:hover {
+	opacity: 1;
+	transition: opacity 0.1s;
+}
+
+#tracy-debug-bar ul {
+	list-style: none none;
+	margin-left: 4px;
+	clear: left;
+}
+
+#tracy-debug-bar li {
+	float: left;
+}
+
+#tracy-debug-bar ul.tracy-previous li {
+	font-size: 90%;
+	opacity: .6;
+	background: #F5F3EE;
+}
+
+#tracy-debug-bar ul.tracy-previous li:first-child {
+	width: 45px;
+}
+
+#tracy-debug-bar img {
+	vertical-align: middle;
+	position: relative;
+	top: -1px;
+	margin-right: 3px;
+}
+
+#tracy-debug-bar li a {
+	color: #000;
+	display: block;
+	padding: 0 4px;
+}
+
+#tracy-debug-bar li a:hover {
+	color: black;
+	background: #c3c1b8;
+}
+
+#tracy-debug-bar li .tracy-warning {
+	color: #D32B2B;
+	font-weight: bold;
+}
+
+#tracy-debug-bar li > span {
+	padding: 0 4px;
+}
+
+#tracy-debug-logo {
+	background: url('data:image/gif;base64,R0lGODlhLgALANU/AO3r4v7+/P79+pSSjeTi2vDu5ysrKllYVvPx6razraqoovr49YqJhJyalN3b1Pz69fb07oSCfdTRyaWinPf17/799kZFQ8bEvWRjYfTy6+3r57y6s4aFgfr48W5safTy7Xp4daGfmejl2peVkODd1cvJwXZ0cZCOio2Mh2ppZvLx7Ovo3vj28Xh2c317eIF/e4iGgbGvqHBvbOnn4HJxbZ+dmF9dWvLw6Pj27/z79/38+lJRT/379OTi1////////yH5BAEAAD8ALAAAAAAuAAsAAAb/QFZmSMxAhEQEy/dr/gQLRMD5CwQoiOEiN8s5dR1NgPQaoBo184CgGLhRp9K0ChhFSoJmoBAbnAYwEyoDI1M+NyhrMyMNCmk1IxMaE2cNEyMmJV4BCi4jIA5TGScmIyGQNTcSGBc+nB4bRhkFD309BSwUDDE8PAE4HDUZPgURMT0vCTk+GyYJIjcFBTcLAjEpFAQeCgBzTw0nAE0QDAozDgQXLRNLJbAVIRwIAiEwJHlUPxQwbyQ6VDkGcFghakALGS8i0IAhQYCAEyBE+JBwQIKPEwy65ftBTIYLCR3y5eAAguCPDy44uDiAgkQFAT5I7NjA40GBFCN8NKBBYaOenYQImABskUKjChtrTlgw4YCjAgspMNjAcADDAw0GSPhw5coJixQgMmzUccCCxg8GUlTgUcKGgQkLLBwg2SICh7cBDhjwCCJFBApM4toQmy9AChsrAu9oAVhABgYnLhgI0YEFhAcIDth4AOCFhc8GDiT+QTZFgY0LABC40YTCCgIQ9FQAQEIEgH9NchRwUEAADwA9CAhn/YOFasI/ggAAOw==') 0 50% no-repeat;
+	min-width: 47px;
+	cursor: move;
+}
+
+#tracy-debug-logo span {
+	display: none;
+}
+
+
+/* panels */
+#tracy-debug .tracy-panel {
+	font: normal normal 12px/1.5 sans-serif;
+	background: white;
+	color: #333;
+	text-align: left;
+}
+
+#tracy-debug h1 {
+	font: normal normal 23px/1.4 Tahoma, sans-serif;
+	color: #575753;
+	margin: -5px -5px 5px;
+	padding: 0 25px 5px 5px;
+}
+
+#tracy-debug .tracy-mode-peek .tracy-inner, #tracy-debug .tracy-mode-float .tracy-inner {
+	max-width: 700px;
+	max-height: 500px;
+	overflow: auto;
+}
+
+#tracy-debug .tracy-panel .tracy-icons {
+	display: none;
+}
+
+#tracy-debug .tracy-mode-peek {
+	display: none;
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	padding: 10px;
+	min-width: 150px;
+	min-height: 50px;
+	border-radius: 5px;
+	box-shadow: 1px 1px 20px rgba(102, 102, 102, 0.36);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#tracy-debug .tracy-mode-peek h1 {
+	cursor: move;
+}
+
+#tracy-debug .tracy-mode-float {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	padding: 10px;
+	min-width: 150px;
+	min-height: 50px;
+	border-radius: 5px;
+	opacity: .95;
+	transition: opacity 0.2s;
+	box-shadow: 1px 1px 30px rgba(102, 102, 102, 0.36);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#tracy-debug .tracy-focused {
+	opacity: 1;
+	transition: opacity 0.1s;
+}
+
+#tracy-debug .tracy-mode-float h1 {
+	cursor: move;
+}
+
+#tracy-debug .tracy-mode-float .tracy-icons {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 5px;
+	font-size: 18px;
+}
+
+#tracy-debug .tracy-icons a {
+	color: #575753;
+}
+
+#tracy-debug .tracy-icons a:hover {
+	color: white;
+}
+
+
+/* dump */
+#tracy-debug pre.tracy-dump div {
+	padding-left: 3ex;
+}
+
+#tracy-debug pre.tracy-dump div div {
+	border-left: 1px solid rgba(0, 0, 0, .1);
+	margin-left: .5ex;
+}
+
+#tracy-debug pre.tracy-dump {
+	background: #FDF5CE;
+	padding: .4em .7em;
+	border: 1px dotted silver;
+	overflow: auto;
+}
+
+#tracy-debug table pre.tracy-dump {
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+
+#tracy-debug .tracy-dump-array, #tracy-debug .tracy-dump-object {
+	color: #C22;
+}
+
+#tracy-debug .tracy-dump-string {
+	color: #35D;
+}
+
+#tracy-debug .tracy-dump-number {
+	color: #090;
+}
+
+#tracy-debug .tracy-dump-null, #tracy-debug .tracy-dump-bool {
+	color: #850;
+}
+
+#tracy-debug .tracy-dump-visibility, #tracy-debug .tracy-dump-hash {
+	font-size: 85%; color: #999;
+}
+
+#tracy-debug .tracy-dump-indent {
+	display: none;
+}
+
+
+@media print {
+	#tracy-debug * {
+		display: none;
+	}
+}
