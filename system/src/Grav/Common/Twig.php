@@ -54,6 +54,11 @@ class Twig
     protected $loader;
 
     /**
+     * @var \Twig_Loader_Array
+     */
+    protected $loaderArray;
+
+    /**
      * Twig initialization that sets the twig loader chain, then the environment, then extensions
      * and also the base set of twig vars
      */
@@ -72,7 +77,8 @@ class Twig
             $this->grav->fireEvent('onAfterTwigTemplatesPaths');
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
-            $loader_chain = new \Twig_Loader_Chain(array($this->loader, new \Twig_Loader_String()));
+            $this->loaderArray = new \Twig_Loader_Array(array());
+            $loader_chain = new \Twig_Loader_Chain(array($this->loaderArray, $this->loader));
 
             $params = $this->config->get('system.twig');
             if (!empty($params['cache'])) {
@@ -133,6 +139,17 @@ class Twig
     }
 
     /**
+     * Adds or overrides a template.
+     *
+     * @param string $name     The template name
+     * @param string $template The template source
+     */
+    public function setTemplate($name, $template)
+    {
+        $this->loaderArray->setTemplate($name, $template);
+    }
+
+    /**
      * Twig process that renders a page item. It supports two variations:
      * 1) Handles modular pages by rendering a specific page based on its modular twig template
      * 2) Renders individual page items for twig processing before the site rendering
@@ -140,7 +157,7 @@ class Twig
      * @param  Page   $item    The page item to render
      * @param  string $content Optional content override
      * @return string          The rendered output
-     * @throws \RuntimeException
+     * @throws \Twig_Error_Loader
      */
     public function processPage(Page $item, $content = null)
     {
@@ -161,12 +178,10 @@ class Twig
             // FIXME: this is inconsistent with main page.
             $template = $this->template('modular/' . $item->template()) . TEMPLATE_EXT;
             $output = $this->twig->render($template, $twig_vars);
-
-            if ($template == $output) {
-                throw new \RuntimeException("Template file '{$template}' cannot be found.", 404);
-            }
         } else {
-            $output = $this->twig->render($content, $twig_vars);
+            $name = '@Page:' . $item->path();
+            $this->setTemplate($name, $content);
+            $output = $this->twig->render($name, $twig_vars);
         }
 
         return $output;
@@ -185,7 +200,11 @@ class Twig
         $this->grav->fireEvent('onAfterStringTwigVars');
         $vars += $this->twig_vars;
 
-        return $this->twig->render($string, $vars);
+        $name = '@Var:' . $string;
+        $this->setTemplate($name, $string);
+        $output = $this->twig->render($name, $vars);
+
+        return $output;
     }
 
     /**
@@ -194,7 +213,7 @@ class Twig
      *
      * @param string $format Output format (defaults to HTML).
      * @return string the rendered output
-     * @throws \RuntimeException
+     * @throws \Twig_Error_Loader
      */
     public function processSite($format = null)
     {
@@ -215,10 +234,6 @@ class Twig
         // Get Twig template layout
         $template = $this->template($page->template() . $ext);
         $output = $this->twig->render($template, $twig_vars);
-
-        if ($template == $output) {
-            throw new \RuntimeException("Template file '{$template}' cannot be found.", 404);
-        }
 
         return $output;
     }
