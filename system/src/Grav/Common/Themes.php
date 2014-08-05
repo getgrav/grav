@@ -83,12 +83,14 @@ class Themes
 
         $file = THEMES_DIR . "{$name}/{$name}.php";
         if (file_exists($file)) {
-            require_once $file;
+            $class = require_once $file;
 
-            $className = '\\Grav\\Theme\\' . ucfirst($name);
+            if (!is_object($class)) {
+                $className = '\\Grav\\Theme\\' . ucfirst($name);
 
-            if (class_exists($className)) {
-                $class = new $className;
+                if (class_exists($className)) {
+                    $class = new $className;
+                }
             }
         }
 
