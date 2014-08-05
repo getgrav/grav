@@ -1,0 +1,23 @@
+// This function is required and used by the background-image mixin.
+@function radial-gradient($G1,        $G2,
+                          $G3: null,  $G4: null,
+                          $G5: null,  $G6: null,
+                          $G7: null,  $G8: null,
+                          $G9: null,  $G10: null,
+                          $pos: null,
+                          $shape-size: null) {
+
+  $data: _radial-arg-parser($G1, $G2, $pos, $shape-size);
+  $G1:  nth($data, 1);
+  $G2:  nth($data, 2);
+  $pos: nth($data, 3);
+  $shape-size: nth($data, 4);
+
+  $type: radial;
+  $gradient: $G1, $G2, $G3, $G4, $G5, $G6, $G7, $G8, $G9, $G10;
+
+  $type-gradient: $type, $shape-size $pos, $gradient;
+  @return $type-gradient;
+}
+
+

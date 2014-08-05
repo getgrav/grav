@@ -1,0 +1,11 @@
+<ul class="grav-menu">
+    {% for page in pages.children %}
+    <li class="{{ (admin.route and page.route == context.route) ? 'Selected' : '' }} {{ page.children.count > 0 ? 'hasChildren' : '' }}">
+        <a href="{{ base_url_relative }}/pages/{{ page.route|trim('/') }}"><em class="status {{ page.visible ? 'visible' : '' }}"></em>{{ page.menu }}</a>
+        {% if page.children.count > 0 %}
+        {% include 'partials/page-children.html.twig' with {pages: page} %}
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+

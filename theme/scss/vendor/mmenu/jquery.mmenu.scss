@@ -1,0 +1,356 @@
+/*
+	jQuery.mmenu CSS
+*/
+@import "inc/variables";
+
+
+//	Animations
+.mm-page,
+.mm-fixed-top,
+.mm-fixed-bottom,
+.mm-menu.mm-horizontal > .mm-panel
+{
+	@include vendor-prefix( "transition", none $transitionDuration $transitionFunction );
+
+	// border is needed to force transitionend event even if no other value changed
+	@include vendor-prefix( "transition-property", ( top, right, bottom, left, border ) );
+}
+html.mm-opened
+{
+	.mm-page,
+	#mm-blocker
+	{
+		left: 0;
+		top: 0;
+		margin: 0;
+		border: 0px solid rgba( 0, 0, 0, 0 );
+	}
+}
+
+html.mm-opening
+{
+	.mm-page,
+	#mm-blocker
+	{
+		border: 0px solid rgba( 100, 100, 100, 0 );
+	}
+}
+
+
+//	Generic classes
+.mm-menu .mm-hidden
+{
+	display: none;
+}
+
+//	Fixed elements
+.mm-fixed-top,
+.mm-fixed-bottom
+{
+	position: fixed;
+	left: 0;
+}
+.mm-fixed-top
+{
+	top: 0;
+}
+.mm-fixed-bottom
+{
+	bottom: 0;
+}
+
+
+//	Menu, submenus, items
+html.mm-opened .mm-page,
+.mm-menu > .mm-panel
+{
+	@include vendor-prefix( "box-sizing", border-box );
+}
+
+// html/body
+html.mm-opened,
+html.mm-opened body
+{
+	overflow-x: hidden;
+	position: relative;
+}
+
+// page + blocker
+html.mm-opened .mm-page
+{
+	position: relative;
+}
+html.mm-background .mm-page
+{
+	background: inherit;
+}
+#mm-blocker
+{
+	background: url( data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw== ) transparent;
+	display: none;
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	z-index: 999999;
+}
+html.mm-opened,
+html.mm-blocking
+{
+	#mm-blocker
+	{
+		display: block;
+	}
+}
+
+// menu
+.mm-menu.mm-current
+{
+	display: block;
+}
+.mm-menu
+{
+	background: inherit;
+	display: none;
+	overflow: hidden;
+	height: 100%;
+	padding: 0;
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 0;
+	
+	> .mm-panel
+	{
+		background: inherit;
+	
+		-webkit-overflow-scrolling: touch;
+		overflow: scroll;
+		overflow-x: hidden;
+		overflow-y: auto;
+	
+		width: 100%;
+		height: 100%;
+		padding: $padding * 2;
+		position: absolute;
+		top: 0;
+		left: 100%;
+		z-index: 0;
+		
+		&.mm-opened
+		{
+			left: 0%;
+		}
+		&.mm-subopened
+		{
+			left: -$subOffset;
+		}
+		&.mm-highest
+		{
+			z-index: 1;
+		}
+		&.mm-hidden
+		{
+			display: block;
+			visibility: hidden;
+		}
+	}
+}
+
+//	Lists
+.mm-menu
+{
+	.mm-list
+	{
+		padding: ( $btnSize / 2 ) 0;
+	}
+	> .mm-list
+	{
+		padding: ( $btnSize / 2 ) 0 $btnSize 0;
+	}
+}
+.mm-panel > .mm-list
+{
+	margin-left: -( $padding * 2 );
+	margin-right: -( $padding * 2 );
+	
+	&:first-child
+	{
+		padding-top: 0;
+	}
+}
+
+.mm-list,
+.mm-list > li
+{
+	list-style: none;
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+.mm-list
+{
+	font: inherit;
+	font-size: $fontSize;
+
+	a,
+	a:hover
+	{
+		text-decoration: none;
+	}
+
+	> li
+	{
+		position: relative;
+
+		> a,
+		> span
+		{
+			@include ellipsis;
+			color: inherit;
+			line-height: $btnSize - ( $padding * 2 );
+			display: block;
+			padding: $padding $padding $padding ( $padding * 2 );
+			margin: 0;
+		}
+	}
+	
+	> li:not(.mm-subtitle):not(.mm-label):not(.mm-noresults)
+	{
+		@include border-bottom;
+		&:after
+		{
+			width: auto;
+			margin-left: ( $padding * 2 );
+			position: relative;
+			left: auto;
+		}
+	}
+
+	// subopen/close
+	a.mm-subopen
+	{
+		@include border-left;
+
+		width: $btnSize;
+		height: 100%;
+		padding: 0;
+		position: absolute;
+		right: 0;
+		top: 0;
+		z-index: 2;
+		
+		&.mm-fullsubopen
+		{
+			width: 100%;
+			
+			&:before
+			{
+				border-left: none;
+			}
+		}
+
+		+ a,
+		+ span
+		{
+			padding-right: ( $padding / 2 );
+			margin-right: $btnSize;
+		}
+	}
+
+	> li.mm-selected
+	{
+		> a.mm-subopen
+		{
+			background: transparent;
+		}
+		> a.mm-fullsubopen
+		{
+			+ a,
+			+ span
+			{
+				padding-right: $btnSize + ( $padding / 2 );
+				margin-right: 0;
+			}
+		}
+	}
+	
+	a.mm-subclose
+	{
+		text-indent: $btnSize - ( $padding * 2 );
+		padding-top: ( $btnSize / 2 ) + $padding;
+		margin-top: -( $btnSize / 2 );
+	}
+
+	// Labels
+	$labelSize: ( $btnSize / 2 ) + ( $padding / 2 );
+	> li.mm-label
+	{
+		@include ellipsis;
+		font-size: 10px;
+		text-transform: uppercase;
+		text-indent: $padding * 2;
+		line-height: $labelSize;
+		padding-right: $padding / 2;
+	}
+
+	// Spacers
+	> li.mm-spacer
+	{
+		padding-top: $btnSize;
+		
+		&.mm-label
+		{
+			padding-top: $labelSize;
+		}
+	}
+
+	// Arrows
+	a.mm-subopen:after,
+	a.mm-subclose:before
+	{
+		@include arrow;
+	}
+	a.mm-subopen:after
+	{
+		@include arrow-next;
+		right: 18px;
+	}
+	a.mm-subclose:before
+	{
+		@include arrow-prev;
+		margin-bottom: -( $padding * 2 ) + 5;
+		left: 22px;
+	}
+}
+
+// vertical submenu
+.mm-menu.mm-vertical .mm-list
+{
+	.mm-panel
+	{
+		display: none;
+		padding: $padding 0 $padding $padding;
+		
+		li:last-child:after
+		{
+			border-color: transparent;
+		}
+	}
+	li.mm-opened > .mm-panel
+	{
+		display: block;
+	}
+	> li.mm-opened > a.mm-subopen
+	{
+		height: $btnSize;
+		&:after
+		{
+			@include vendor-prefix( "transform", rotate( 45deg ) );
+			top: 16px;
+			right: 16px;
+		}
+	}
+}
+
+@include colors;
+@include sizing;

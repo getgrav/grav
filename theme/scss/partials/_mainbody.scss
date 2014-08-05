@@ -1,0 +1,321 @@
+#main {
+
+}
+
+body {
+    background: $mainbody-bg;
+}
+
+.error {
+    text-align: center;
+    padding: 5rem 0;
+
+    h1 {
+        font-size: 4rem;
+    }
+}
+
+// Forms
+$form-label-color: #888;
+$form-label-width: 30%;
+$form-border: #e3e3e3;
+$form-border-width: 3px;
+$form-input-pad: 5px 10px;
+$form-select-pad: 5px 30px 5px 10px;
+
+form {
+
+    .form-field {
+        margin-bottom: 10px;
+    }
+
+    h3 {
+        margin-top: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    hr {
+        border: 0;
+        width: 100%;
+        background: $form-border;
+        height: $form-border-width;
+        margin-bottom: 2rem;
+    }
+
+    .inline {
+
+        > span:first-child {
+            display: block;
+            float: left;
+            width: $form-label-width;
+            color: $form-label-color;
+        }
+    }
+
+    input, select, textarea, button {
+        font-family: $font-family-body;
+        font-size: $core-font-size;
+        line-height: $core-line-height;
+    }
+
+    .select {
+        position: relative;
+
+        &:after {
+            position: absolute;
+            content: '\f078';
+            font-family: 'FontAwesome';
+            right: 12px;
+            top: -6px;
+            color: lighten($form-label-color,15%);
+            pointer-events: none;
+        }
+    }
+
+    select {
+        border: $form-border-width solid $form-border;
+        background: lighten($form-border,7%);
+        -webkit-appearance:none;
+        -moz-appearance:none;
+        appearance:none;
+        padding: $form-select-pad;
+        border-radius: 0;
+        cursor: pointer;
+        margin: 0;
+
+    }
+
+
+    input[type=text] {
+        width: 65%;
+        border: $form-border-width solid $form-border;
+        padding: $form-input-pad;
+    }
+
+    input[type=date] {
+        width: 200px;
+        border: $form-border-width solid $form-border;
+        padding: $form-input-pad;
+    }
+
+    .radio, .checkboxes {
+        display: inline-block;
+        padding: $form-input-pad;
+    }
+
+    textarea {
+        width: 65%;
+        height: 100px;
+        border: $form-border-width solid $form-border;
+        padding: $form-input-pad;
+    }
+
+
+    .switch-toggle {
+        // margin-left: 30%;
+
+        label {
+            cursor: pointer;
+        }
+
+        a,label {
+            outline: none !important;
+        }
+    }
+
+    .dynfields {
+
+        input[type=text] {
+            width: 40%;
+        }
+        .inline > div {
+            margin-left: 30%;
+        }
+
+        .button {
+            padding: 0.5rem;
+            display: inline-block;
+            background: #999;
+        }
+    }
+
+    .button-bar {
+        margin-top: 50px;
+        background: lighten($form-border,7%);
+        padding: $form-input-pad;
+        padding-left: $form-label-width;
+    }
+
+}
+
+#toolbar {
+    background: #fff;
+    position: fixed;
+    width: 100%;
+    height: $toolbar-height+5px;
+    border-bottom: 5px solid $core-link;
+    z-index: 100;
+
+    .menu-toggle {
+        position: absolute;
+        font-size: 20px;
+        padding-left: 8px;
+        line-height: $toolbar-height;
+        color: $core-text;
+
+        @include mediaquery(large) {
+            display: none;
+        }
+    }
+
+    .user-details {
+        display: block;
+        float: right;
+        padding-right: $content-padding;
+        margin-top: 10px;
+        position: relative;
+
+        img {
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 15px;
+        }
+
+        .badge {
+            position: absolute;
+            display: inline-block;
+            background: #E23D3C;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            width: 20px;
+            border-radius: 50%;
+            top: 0;
+            left: 35px;
+            color: $white;
+            font-size: 14px;
+        }
+    }
+
+    h2 {
+        display: inline-block;
+        margin: 0;
+        line-height: $toolbar-height;
+        padding-left: $content-padding;
+
+        @include mediaquery(large) {
+            padding-left: 20px;
+        }
+
+
+        span {
+            font-size: 26px;
+            color: $core-link;
+            i:nth-child(2) {
+                color: white;
+                font-size: 34px;
+            }
+        }
+    }
+}
+
+nav {
+
+    background: #333 !important;
+    color: #ccc;
+
+    h2 {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    > ul {
+        top: 30px !important;
+
+        @include mediaquery(large) {
+            top: $toolbar-height+40px !important;
+        }
+    }
+
+
+
+    ul {
+        margin: 0;
+        padding-top: 0 !Important;
+
+        li {
+            font-size: 16px;
+
+            i.fa {
+                width: 25px;
+            }
+        }
+    }
+
+    em.status {
+        display: inline-block;
+        background: #900;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        padding: 0;
+        margin: 0 10px 0 0;
+
+        &.visible {
+            background: green;
+        }
+    }
+}
+
+.admin-block {
+    background: $white;
+    padding: $content-padding;
+}
+
+// Pages Nestables
+.dd-item {
+
+    // .dd-handle {
+    //     display: inline-block;
+    // }
+
+    .notice {
+        background: #FCF8F2;
+        border: 1px solid darken(#FCF8F2,10%);
+        color: darken(#F0AD4E, 10%);
+        height: 30px;
+        margin: 5px 0;
+        padding: 5px 10px;
+        border-radius: 3px;
+    }
+
+    .row {
+        display: block;
+        height: 30px;
+        margin: 5px 0;
+        padding: 5px 10px;
+        color: #666;
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+        background: #fff;
+    }
+
+    &:last-child {
+        .row {
+            border: 0;
+        }
+    }
+
+    .edit {
+        display: block;
+        float: right;
+    }
+}
+
+// Themes list
+.themes {
+    .thumbnail {
+        max-width: 150px;
+    }
+}
+

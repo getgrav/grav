@@ -1,0 +1,14 @@
+/*	
+ * jQuery mmenu dragOpen addon
+ * @requires mmenu 4.0.0 or later
+ *
+ * mmenu.frebsite.nl
+ *	
+ * Copyright (c) Fred Heusschen
+ * www.frebsite.nl
+ *
+ * Dual licensed under the MIT and GPL licenses.
+ * http://en.wikipedia.org/wiki/MIT_License
+ * http://en.wikipedia.org/wiki/GNU_General_Public_License
+ */
+!function(e){function t(e,t,a){return t>e&&(e=t),e>a&&(e=a),e}var a="mmenu",o="dragOpen";e[a].prototype["_addon_"+o]=function(){var n=this,r=this.opts[o];if(e.fn.hammer){var i=e[a]._c,s=(e[a]._d,e[a]._e);i.add("dragging"),s.add("dragleft dragright dragup dragdown dragend");var d=e[a].glbl;if("boolean"==typeof r&&(r={open:r}),"object"!=typeof r&&(r={}),"number"!=typeof r.maxStartPos&&(r.maxStartPos="left"==this.opts.position||"right"==this.opts.position?150:75),r=e.extend(!0,{},e[a].defaults[o],r),r.open){var p=0,g=!1,c=0,h=0,l="width";switch(this.opts.position){case"left":case"right":l="width";break;default:l="height"}switch(this.opts.position){case"left":var f={events:s.dragleft+" "+s.dragright,open_dir:"right",close_dir:"left",delta:"deltaX",page:"pageX",negative:!1};break;case"right":var f={events:s.dragleft+" "+s.dragright,open_dir:"left",close_dir:"right",delta:"deltaX",page:"pageX",negative:!0};break;case"top":var f={events:s.dragup+" "+s.dragdown,open_dir:"down",close_dir:"up",delta:"deltaY",page:"pageY",negative:!1};break;case"bottom":var f={events:s.dragup+" "+s.dragdown,open_dir:"up",close_dir:"down",delta:"deltaY",page:"pageY",negative:!0}}var u=this.__valueOrFn(r.pageNode,this.$menu,d.$page);"string"==typeof u&&(u=e(u));var m=d.$page.find("."+i.mm("fixed-top")+", ."+i.mm("fixed-bottom")),v=d.$page;switch(n.opts.zposition){case"back":v=v.add(m);break;case"front":v=n.$menu;break;case"next":v=v.add(n.$menu).add(m)}u.hammer().on(s.touchstart+" "+s.mousedown,function(e){if("touchstart"==e.type)var t=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0],a=t[f.page];else if("mousedown"==e.type)var a=e[f.page];switch(n.opts.position){case"right":case"bottom":a>=d.$wndw[l]()-r.maxStartPos&&(p=1);break;default:a<=r.maxStartPos&&(p=1)}}).on(f.events+" "+s.dragend,function(e){p>0&&(e.gesture.preventDefault(),e.stopPropagation())}).on(f.events,function(e){var a=f.negative?-e.gesture[f.delta]:e.gesture[f.delta];if(g=a>c?f.open_dir:f.close_dir,c=a,c>r.threshold&&1==p){if(d.$html.hasClass(i.opened))return;p=2,n._openSetup(),d.$html.addClass(i.dragging),h=t(d.$wndw[l]()*n.conf[o][l].perc,n.conf[o][l].min,n.conf[o][l].max)}2==p&&v.css(n.opts.position,t(c,10,h)-("front"==n.opts.zposition?h:0))}).on(s.dragend,function(){2==p&&(d.$html.removeClass(i.dragging),v.css(n.opts.position,""),g==f.open_dir?n._openFinish():n.close()),p=0})}}},e[a].defaults[o]={open:!1,threshold:50},e[a].configuration[o]={width:{perc:.8,min:140,max:440},height:{perc:.8,min:140,max:880}},e[a].addons=e[a].addons||[],e[a].addons.push(o)}(jQuery);

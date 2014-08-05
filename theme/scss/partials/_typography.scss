@@ -1,0 +1,160 @@
+// Core
+html {
+    font-size: 100%;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: $font-family-body;
+    font-size: $core-font-size;
+    line-height: $core-line-height;
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    font-family: $font-family-header;
+    margin: 0 0 $core-line-height 0;
+}
+
+h1 {
+    font-size: $core-h1;
+    line-height: $core-line-height + 1.313;
+}
+
+h2 {
+    font-size: $core-h2;
+    line-height: $core-line-height + 0.875;
+}
+
+h3 {
+    font-size: $core-h3;
+    line-height: $core-line-height + 0.440;
+}
+
+h4 {
+    font-size: $core-h4;
+    line-height: $core-line-height + 0.063;
+}
+
+h5 {
+    font-size: $core-h5;
+}
+
+h6 {
+    font-size: $core-h6;
+}
+
+strong, b, th {
+    font-family: $font-family-body-bold;
+    font-weight: 500;
+}
+
+// Paragraph
+p {
+    margin: 0 0 $core-line-height 0;
+}
+
+// Code and Pre
+pre {
+    overflow: auto;
+    margin: $content-padding  (-$content-padding);
+    padding: ($content-padding/2) $content-padding;
+    background: $codeblock-bg;
+
+    code {
+        background: inherit;
+    }
+}
+
+code,
+kbd,
+pre,
+samp {
+    font-family: $font-family-mono;
+    font-size: $mono-font-size;
+}
+
+code {
+    background: $code-bg;
+}
+
+// Extras
+small {
+    font-size: $core-font-size - 0.125;
+}
+
+sub,
+sup {
+    font-size: $core-font-size - 0.250;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+// Tables
+table {
+    border: 1px solid $border-color;
+    margin: 3.0rem 0;
+    width: 100%;
+    border-collapse: collapse;
+    tr:last-child {
+        td {
+            border-bottom: 0;
+        }
+    }
+}
+
+th {
+    text-align: left;
+    background: $table-head-bg;
+    border-bottom: 1px solid $border-color;
+    padding: 0.5rem;
+}
+
+td {
+    border-bottom: 1px solid $border-color;
+    padding: 0.5rem;
+}
+
+// Buttons
+.button {
+    padding: 0.5rem 1.4rem;
+    background: $button-primary-bg;
+    color: $button-primary-text;
+    border: 0;
+
+    &:hover {
+        background: darken($button-primary-bg,5%);
+        color: $button-primary-text;
+    }
+    &:active {
+        background: darken($button-primary-bg,10%);
+        color: darken($button-primary-text,5%);
+    }
+}
+
+// Tags
+.tags {
+    a {
+        display: inline-block;
+        background: $tags-bg;
+        padding: 0 0.5rem;
+        margin-bottom: 4px;
+        font-size: $tags-font-size;
+        color: $tags-text;
+        &:hover {
+            background: darken($tags-bg,3%);
+        }
+    }
+}
+

@@ -1,0 +1,9 @@
+// Media Queries
+@mixin mediaquery($point) {
+	@if $point == large {
+		@media only screen and (min-width: $mobile-break) { @content; }
+	}
+	@else if $point == small {
+		@media only screen and (max-width: $mobile-break) { @content; }
+	}
+}

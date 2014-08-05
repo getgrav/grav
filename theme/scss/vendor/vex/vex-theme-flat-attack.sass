@@ -1,0 +1,168 @@
+@import compass/css3
+@import compass/utilities/general/clearfix
+
+@import mixins
+@import keyframes
+
++keyframes-vex-flipin-horizontal
++keyframes-vex-flipout-horizontal
+
+$green: #34b989
+$pink: #ff7ea7
+$red: #ce4a55
+$blue: #477FA5
+
+=vex-theme-flat-attack-color($color)
+    .vex-close:before
+        background: $color
+
+    .vex-dialog-form
+
+        .vex-dialog-input
+
+            textarea, input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="email"], input[type="month"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="text"], input[type="time"], input[type="url"], input[type="week"]
+
+                &:focus
+                    +box-shadow(inset 0 0 0 2px $color)
+
+        .vex-dialog-buttons .vex-dialog-button.vex-dialog-button-primary
+            background: $color
+
+.vex.vex-theme-flat-attack
+    +perspective(1300px)
+    +perspective-origin(50% 150px)
+    padding-top: 100px
+    padding-bottom: 100px
+    font-size: 1.5em
+
+    &.vex-closing .vex-content
+        +vex-animation(vex-flipout-horizontal .5s)
+
+    .vex-content
+        +vex-preserve-3d
+        +vex-animation(vex-flipin-horizontal .5s)
+
+    .vex-content
+        font-family: "Helvetica Neue", sans-serif
+        font-weight: 200
+        background: #fff
+        color: #444
+        padding: 2em 2em 3em 2em
+        line-height: 1.5em
+        position: relative
+        margin: 0 auto
+        max-width: 100%
+        width: 600px
+
+        h1, h2, h3, h4, h5, h6, p, ul, li
+            color: inherit
+
+    .vex-close
+        position: absolute
+        top: 0
+        right: 0
+        cursor: pointer
+
+        &:before
+            font-family: "Helvetica Neue", sans-serif
+            font-weight: 100
+            line-height: 1px
+            padding-top: .5em
+            display: block
+            font-size: 2em
+            text-indent: 1px
+            overflow: hidden
+            height: 1.25em
+            width: 1.25em
+            text-align: center
+            top: 0
+            right: 0
+            color: #fff
+            background: #666
+
+    .vex-dialog-form
+
+        .vex-dialog-message
+            margin-bottom: .5em
+
+        .vex-dialog-input
+            margin-bottom: .5em
+
+            textarea, input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="email"], input[type="month"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="text"], input[type="time"], input[type="url"], input[type="week"]
+                +border-radius(3px)
+                background: #f0f0f0
+                width: 100%
+                padding: .25em .67em
+                border: 0
+                font-family: inherit
+                font-weight: inherit
+                font-size: inherit
+                min-height: 2.5em
+                margin: 0 0 .25em
+
+                &:focus
+                    +box-shadow(inset 0 0 0 2px #666)
+                    outline: none
+
+        .vex-dialog-buttons
+            +pie-clearfix()
+            padding-top: 1em
+            margin-bottom: -3em
+            margin-left: -2em
+            margin-right: -2em
+
+    .vex-dialog-button
+        +border-radius(0)
+        border: 0
+        margin: 0
+        float: right
+        padding: .5em 1em
+        font-size: 1.13em
+        text-transform: uppercase
+        font-weight: 200
+        letter-spacing: .1em
+        line-height: 1em
+        font-family: inherit
+
+        &.vex-last
+            margin-left: 0
+
+        &:focus
+            outline: none
+
+        &.vex-dialog-button-primary
+            background: #666
+            color: #fff
+
+            &:focus
+                +box-shadow(inset 0 3px rgba(0, 0, 0, .2))
+
+        &.vex-dialog-button-secondary
+            background: #fff
+            color: #ccc
+
+            &:focus
+                +box-shadow(inset 0 3px #aaa)
+                background: #eee
+                color: #777
+
+            &:hover, &:active
+                color: #777
+
+    // Theme colors
+
+    &.vex-theme-flat-attack-pink
+        +vex-theme-flat-attack-color($pink)
+
+    &.vex-theme-flat-attack-red
+        +vex-theme-flat-attack-color($red)
+
+    &.vex-theme-flat-attack-green
+        +vex-theme-flat-attack-color($green)
+
+    &.vex-theme-flat-attack-blue
+        +vex-theme-flat-attack-color($blue)
+
+.vex-loading-spinner.vex-theme-flat-attack
+    height: 4em
+    width: 4em

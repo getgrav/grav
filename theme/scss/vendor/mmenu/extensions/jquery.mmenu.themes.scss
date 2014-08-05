@@ -1,0 +1,102 @@
+/*
+	jQuery.mmenu themes extension CSS
+*/
+//	To use on widescreens only, include it using a mediaquery:
+//	<link type="text/css" href="mmenu-widescreen.css" media="all and (min-width: 900px)"/>
+
+@import "../inc/variables";
+
+//	Light
+$cls			: ".mm-light";
+$baseBg			: #f3f3f3;
+$pageShadow		: 0 0 10px rgba( 0, 0, 0, 0.3 );
+$text			: rgba( 0, 0, 0, 0.6 );
+$dimmedText		: rgba( 0, 0, 0, 0.3 );
+$emphasizedBg	: rgba( 255, 255, 255, 0.6 );
+$highlightedBg	: rgba( 0, 0, 0, 0.03 );
+$border			: rgba( 0, 0, 0, 0.1 );
+$inputBg		: rgba( 0, 0, 0, 0.1 );
+
+@include colors( $cls,
+	$baseBg, $pageShadow,
+	$text, $dimmedText,
+	$emphasizedBg, $highlightedBg,
+	$border );
+
+@include colors_search( $cls,
+	$inputBg, $text,
+	$dimmedText );
+	
+@include colors_counters( $cls,
+	$dimmedText );
+
+@include colors_labels( $cls,
+	$highlightedBg );
+	
+@include colors_header( $cls,
+	$dimmedText,
+	$border );
+	
+
+//	White
+$cls			: ".mm-white";
+$baseBg			: #fff;
+$pageShadow		: 0 0 10px rgba( 0, 0, 0, 0.3 );
+$text			: rgba( 0, 0, 0, 0.6 );
+$dimmedText		: rgba( 0, 0, 0, 0.3 );
+$emphasizedBg	: rgba( 0, 0, 0, 0.08 );
+$highlightedBg	: rgba( 0, 0, 0, 0.03 );
+$border			: rgba( 0, 0, 0, 0.1 );
+$inputBg		: rgba( 0, 0, 0, 0.1 );
+
+@include colors( $cls,
+	$baseBg, $pageShadow,
+	$text, $dimmedText,
+	$emphasizedBg, $highlightedBg,
+	$border );
+
+@include colors_search( $cls,
+	$inputBg, $text,
+	$dimmedText );
+	
+@include colors_counters( $cls,
+	$dimmedText );
+
+@include colors_labels( $cls,
+	$highlightedBg );
+
+@include colors_header( $cls,
+	$dimmedText,
+	$border );
+
+
+//	Black
+$cls			: ".mm-black";
+$baseBg			: #000;
+$pageShadow		: none;
+$text			: rgba( 255, 255, 255, 0.6 );
+$dimmedText		: rgba( 255, 255, 255, 0.3 );
+$emphasizedBg	: rgba( 255, 255, 255, 0.25 );
+$highlightedBg	: rgba( 255, 255, 255, 0.15 );
+$border			: rgba( 255, 255, 255, 0.2 );
+$inputBg		: rgba( 255, 255, 255, 0.3 );
+
+@include colors( $cls,
+	$baseBg, $pageShadow,
+	$text, $dimmedText,
+	$emphasizedBg, $highlightedBg,
+	$border );
+
+@include colors_search( $cls,
+	$inputBg, $text,
+	$dimmedText );
+	
+@include colors_counters( $cls,
+	$dimmedText );
+
+@include colors_labels( $cls,
+	$highlightedBg );
+
+@include colors_header( $cls,
+	$dimmedText,
+	$border );

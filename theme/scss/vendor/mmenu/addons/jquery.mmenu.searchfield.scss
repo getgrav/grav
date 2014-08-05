@@ -1,0 +1,73 @@
+/*
+	jQuery.mmenu searchfield addon CSS
+*/
+
+@import "../inc/variables";
+
+.mm-search,
+.mm-search input
+{
+	@include vendor-prefix( "box-sizing", border-box );
+}
+.mm-search
+{
+
+	background: inherit;
+	width: 100%;
+	height: $btnSize + $padding;
+	padding: $padding;
+	position: relative;
+	top: 0;
+	z-index: 2;
+
+	input
+	{		
+		border: none;
+		border-radius: ( $btnSize - $padding ) / 2;
+		font: inherit;
+		font-size: $fontSize;
+		line-height: $btnSize - $padding;
+		outline: none;
+		display: block;
+		width: 100%;
+		height: $btnSize - $padding;
+		margin: 0;
+		padding: 0 $padding;
+	}
+}
+.mm-menu
+{
+	li.mm-nosubresults > a.mm-subopen
+	{
+		display: none;
+	
+		+ a, 
+		+ span
+		{
+			padding-right: 10px;
+		}
+	}
+	li.mm-noresults
+	{
+		text-align: center;
+		font-size: round( $fontSize * 1.5 );
+		display: none;
+		padding-top: $btnSize * 2;
+		
+		&:after
+		{
+			border: none;
+		}
+	}
+	&.mm-noresults li.mm-noresults
+	{
+		display: block;
+	}
+
+	&.mm-hassearch > .mm-panel
+	{
+		padding-top: $btnSize + ( $padding * 2 )
+	}
+}
+
+@include colors_search;

@@ -1,0 +1,50 @@
+{% extends 'partials/base.html.twig' %}
+
+
+{% block content %}
+
+    <div class="admin-block">
+        {% if not admin.route %}
+        <h1>
+            Plugins
+        </h1>
+
+        {% include 'partials/messages.html.twig' %}
+
+        <table>
+            {% for plugin in plugins %}
+            {% set blueprints = plugin.blueprints() %}
+
+            <tr>
+                <td>
+                    <a href="{{ base_url_relative }}/plugins/{{ blueprints.name|url_encode }}">{{ blueprints.get('name') }}</a>
+                </td>
+                <td>
+                    <form action="{{ base_url_relative }}/plugins/{{ blueprints.name }}" method="post">
+                        <input type="hidden" name="enabled" value="{{ plugin.get('enabled') ? 0 : 1 }}" />
+                        <input type="hidden" name="_redirect" value="plugins" />
+                        <button class="button" name="task" value="enable"{{ blueprints.name == 'admin' ? ' disabled="disabled"' }}>
+                            {{ plugin.get('enabled') ? 'Enabled' : 'Disabled' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        {% set plugin = plugins[admin.route] %}
+        {% set blueprints = plugin.blueprints() %}
+
+        <h1>
+            {{ blueprints.get('name')|e }}
+            <small>{{ blueprints.get('version') ? 'v' ~ blueprints.get('version')|e }}</small>
+        </h1>
+
+        {% include 'partials/messages.html.twig' %}
+        <p>{{ blueprints.get('description') }}</p>
+
+        {% include 'partials/blueprints.html.twig' with { data: plugin } %}
+        {% endif %}
+    </div>
+{% endblock %}
+

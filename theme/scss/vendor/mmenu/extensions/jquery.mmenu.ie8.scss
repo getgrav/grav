@@ -1,0 +1,73 @@
+/*
+	jQuery.mmenu IE8 fallback extension CSS
+*/
+//	To use on earlier versions of IE only, include it using conditional comments:
+//	<!--[if lt IE 9]>
+//	<link type="text/css" href="mmenu-widescreen.css" media="all and (min-width: 900px)"/>
+//	<![endif]-->
+
+@import "../inc/variables";
+
+
+//	Default
+$cls			: "";
+$baseBg			: #333;
+$pageShadow		: none;
+$text			: mix( #fff, $baseBg, 60%);
+$dimmedText		: mix( #fff, $baseBg, 30%);
+$emphasizedBg	: mix( #000, $baseBg, 10%);
+$highlightedBg	: mix( #fff, $baseBg, 5%);
+$border			: mix( #000, $baseBg, 15%);
+$inputBg		: mix( #fff, $baseBg, 10%);
+
+@include colors( $cls,
+	$baseBg, $pageShadow,
+	$text, $dimmedText,
+	$emphasizedBg, $highlightedBg,
+	$border );
+
+@include colors_search( $cls,
+	$inputBg, $text,
+	$dimmedText );
+	
+@include colors_counters( $cls,
+	$dimmedText );
+
+@include colors_labels( $cls,
+	$highlightedBg );
+	
+@include colors_header( $cls,
+	$dimmedText,
+	$border );
+	
+	
+//	Light
+$cls			: ".mm-light";
+$baseBg			: #f3f3f3;
+$pageShadow		: none;
+$text			: mix( #000, $baseBg, 60%);
+$dimmedText		: mix( #000, $baseBg, 30%);
+$emphasizedBg	: mix( #fff, $baseBg, 60%);
+$highlightedBg	: mix( #000, $baseBg, 3%);
+$border			: mix( #000, $baseBg, 10%);
+$inputBg		: mix( #000, $baseBg, 10%);
+
+@include colors( $cls,
+	$baseBg, $pageShadow,
+	$text, $dimmedText,
+	$emphasizedBg, $highlightedBg,
+	$border );
+
+@include colors_search( $cls,
+	$inputBg, $text,
+	$dimmedText );
+	
+@include colors_counters( $cls,
+	$dimmedText );
+
+@include colors_labels( $cls,
+	$highlightedBg );
+	
+@include colors_header( $cls,
+	$dimmedText,
+	$border );

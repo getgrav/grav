@@ -1,0 +1,81 @@
+$background: #444;
+$foreground: #ddd;
+
+.tooltip_skin-dream {
+  position: relative;
+  display: inline-block;
+  line-height: 140%;
+  font-weight: normal;
+}
+
+.tooltip_skin-dream .tooltip-arrow {
+  position: absolute;
+  z-index: -1;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: $background;
+  -webkit-transform: rotate(45deg);
+     -moz-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+       -o-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+
+.tooltip_skin-dream .tooltip-content {
+  display: inline-block;
+  max-width: 199px;
+  padding: 10px;
+  font-size: 15px;
+  color: $foreground;
+  background-color: $background;
+  border-radius: 2px;
+}
+
+.tooltip_skin-dream.tooltip-n .tooltip-arrow {
+  bottom: -4px;
+  left: 50%;
+  margin-left: -10px;
+}
+
+.tooltip_skin-dream.tooltip-s .tooltip-arrow {
+  top: -4px;
+  left: 50%;
+  margin-left: -10px;
+}
+
+.tooltip_skin-dream.tooltip-w .tooltip-arrow {
+  top: 50%;
+  right: -4px;
+  margin-top: -10px;
+}
+
+.tooltip_skin-dream.tooltip-e .tooltip-arrow {
+  top: 50%;
+  left: -4px;
+  margin-top: -10px;
+}
+
+.tooltip_skin-dream.tooltip-ne .tooltip-arrow {
+  bottom: -4px;
+  left: 9px;
+}
+
+.tooltip_skin-dream.tooltip-nw .tooltip-arrow {
+  right: 9px;
+  bottom: -4px;
+}
+
+.tooltip_skin-dream.tooltip-se .tooltip-arrow {
+  top: -4px;
+  left: 9px;
+}
+
+.tooltip_skin-dream.tooltip-sw .tooltip-arrow {
+  top: -4px;
+  right: 9px;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}

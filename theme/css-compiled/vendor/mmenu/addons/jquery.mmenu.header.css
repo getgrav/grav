@@ -1,0 +1,96 @@
+/*
+	jQuery.mmenu header addon CSS
+*/
+.mm-header {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  background: inherit;
+  border-bottom: 1px solid transparent;
+  text-align: center;
+  line-height: 20px;
+  width: 100%;
+  height: 60px;
+  padding: 30px 40px 0 40px;
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0; }
+  .mm-header .mm-title {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+    position: relative;
+    z-index: 1; }
+  .mm-header .mm-prev,
+  .mm-header .mm-next {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+    text-decoration: none;
+    display: block;
+    width: 40px;
+    height: 100%;
+    position: absolute;
+    bottom: 0; }
+    .mm-header .mm-prev:before,
+    .mm-header .mm-next:before {
+      content: '';
+      border: 2px solid transparent;
+      display: block;
+      width: 7px;
+      height: 7px;
+      margin-bottom: -5px;
+      position: absolute;
+      bottom: 50%;
+      -webkit-transform: rotate(-45deg);
+      -moz-transform: rotate(-45deg);
+      -ms-transform: rotate(-45deg);
+      -o-transform: rotate(-45deg);
+      transform: rotate(-45deg);
+      margin-bottom: -15px; }
+  .mm-header .mm-prev {
+    left: 0; }
+    .mm-header .mm-prev:before {
+      border-right: none;
+      border-bottom: none;
+      left: 22px; }
+  .mm-header .mm-next {
+    right: 0; }
+    .mm-header .mm-next:before {
+      border-top: none;
+      border-left: none;
+      right: 18px; }
+
+.mm-menu.mm-hassearch .mm-header {
+  height: 50px;
+  padding-top: 20px;
+  top: 50px; }
+  .mm-menu.mm-hassearch .mm-header .mm-prev:before,
+  .mm-menu.mm-hassearch .mm-header .mm-mext:before {
+    margin-bottom: -10px; }
+
+.mm-menu.mm-hasheader li.mm-subtitle {
+  display: none; }
+.mm-menu.mm-hasheader .mm-panel {
+  padding-top: 80px; }
+.mm-menu.mm-hasheader.mm-hassearch > .mm-panel {
+  padding-top: 120px; }
+.mm-menu.mm-hasheader.mm-ismenu > .mm-panel {
+  padding-top: 60px; }
+.mm-menu.mm-hasheader.mm-ismenu.mm-hassearch > .mm-panel {
+  padding-top: 100px; }
+
+.mm-menu .mm-header {
+  border-color: rgba(0, 0, 0, 0.15);
+  color: rgba(255, 255, 255, 0.3); }
+  .mm-menu .mm-header a:before {
+    border-color: rgba(255, 255, 255, 0.3); }
+
+/*# sourceMappingURL=jquery.mmenu.header.css.map */

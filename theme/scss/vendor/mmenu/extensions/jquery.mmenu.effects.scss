@@ -1,0 +1,188 @@
+/*
+	jQuery.mmenu effects extension CSS
+*/
+
+@import "../inc/variables";
+
+
+//	Slide
+html.mm-slide
+{
+	.mm-menu
+	{
+		-webkit-transition: -webkit-transform $transitionDuration $transitionFunction;
+		-moz-transition: -moz-transform $transitionDuration $transitionFunction;
+		-o-transition: -o-transform $transitionDuration $transitionFunction;
+		transition: transform $transitionDuration $transitionFunction;
+	}
+
+	//	Left
+	&.mm-opened .mm-menu
+	{
+		@include vendor-prefix( 'transform', translateX( -$subOffset ) );
+	}
+	&.mm-opening .mm-menu
+	{
+		@include vendor-prefix( 'transform', translateX( 0% ) );
+	}
+
+	//	Right
+	&.mm-right
+	{
+		&.mm-opened .mm-menu
+		{
+			@include vendor-prefix( 'transform', translateX( $subOffset ) );
+		}
+		&.mm-opening .mm-menu
+		{
+			@include vendor-prefix( 'transform', translateX( 0% ) );
+		}
+	}
+
+	//	Top
+	&.mm-top
+	{
+		&.mm-opened .mm-menu
+		{
+			@include vendor-prefix( 'transform', translateY( -$subOffset ) );
+		}
+		&.mm-opening .mm-menu
+		{
+			@include vendor-prefix( 'transform', translateY( 0% ) );
+		}
+	}
+
+	//	Bottom
+	&.mm-bottom
+	{
+		&.mm-opened .mm-menu
+		{
+			@include vendor-prefix( 'transform', translateY( $subOffset ) );
+		}
+		&.mm-opening .mm-menu
+		{
+			@include vendor-prefix( 'transform', translateY( 0% ) );
+		}
+	}
+}
+
+
+//	Zoom menu
+$scaleDown: 0.7;
+$scaleUp: 1.5;
+html.mm-zoom-menu
+{
+	.mm-menu
+	{
+		-webkit-transition: -webkit-transform $transitionDuration $transitionFunction;
+		-moz-transition: -moz-transform $transitionDuration $transitionFunction;
+		-o-transition: -o-transform $transitionDuration $transitionFunction;
+		transition: transform $transitionDuration $transitionFunction;
+	}
+
+	//	Left
+	&.mm-opened .mm-menu
+	{
+		@include vendor-prefix( 'transform', scale( $scaleDown, $scaleDown ) translateX( -$subOffset ) );
+		@include vendor-prefix( 'transform-origin', left center );
+	}
+	&.mm-opening .mm-menu
+	{
+		@include vendor-prefix( 'transform', scale( 1, 1 ) translateX( 0% ) );
+	}
+
+	//	Right
+	&.mm-right
+	{
+		&.mm-opened .mm-menu
+		{
+			@include vendor-prefix( 'transform', scale( $scaleDown, $scaleDown) translateX( $subOffset ) );
+			@include vendor-prefix( 'transform-origin', right center );
+		}
+		&.mm-opening .mm-menu
+		{
+			@include vendor-prefix( 'transform', scale( 1, 1 ) translateX( 0% ) );
+		}
+	}
+
+	//	Top
+	&.mm-top
+	{
+		&.mm-opened .mm-menu
+		{
+			@include vendor-prefix( 'transform', scale( $scaleDown, $scaleDown ) translateY( -$subOffset ) );
+			@include vendor-prefix( 'transform-origin', center top );
+		}
+		&.mm-opening .mm-menu
+		{
+			@include vendor-prefix( 'transform', scale( 1, 1 ) translateY( 0% ) );
+		}
+	}
+
+	//	Bottom
+	&.mm-bottom
+	{
+		&.mm-opened .mm-menu
+		{
+			@include vendor-prefix( 'transform', scale( $scaleDown, $scaleDown ) translateY( $subOffset ) );
+			@include vendor-prefix( 'transform-origin', center bottom );
+		}
+		&.mm-opening .mm-menu
+		{
+			@include vendor-prefix( 'transform', scale( 1, 1 ) translateY( 0% ) );
+		}
+	}
+}
+
+
+//	Zoom page
+html.mm-zoom-page
+{
+
+	//	Left
+	&.mm-opened .mm-page
+	{
+		@include vendor-prefix( 'transform', scale( 1, 1 ) );
+		@include vendor-prefix( 'transform-origin', left center );
+	}
+	&.mm-opening .mm-page
+	{
+		@include vendor-prefix( 'transform', scale( $scaleUp, $scaleUp ) );
+	}
+
+	//	Right
+	&.mm-right.mm-opened .mm-page
+	{
+		@include vendor-prefix( 'transform-origin', right center );
+	}
+
+	//	Top
+	&.mm-top.mm-opened .mm-page
+	{
+		@include vendor-prefix( 'transform-origin', center top );
+	}
+
+	//	Bottom
+	&.mm-bottom.mm-opened .mm-page
+	{
+		@include vendor-prefix( 'transform-origin', center bottom );
+	}
+}
+
+
+//	Zoom panels
+html.mm-zoom-panels .mm-panel
+{
+	@include vendor-prefix( 'transform', scale( $scaleUp, $scaleUp ) );
+	@include vendor-prefix( 'transform-origin', left center );
+	
+	&.mm-opened
+	{
+		@include vendor-prefix( 'transform', scale( 1, 1 ) );
+		
+		&.mm-subopened
+		{
+			@include vendor-prefix( 'transform', scale( $scaleDown, $scaleDown ) );
+		}
+	}
+}

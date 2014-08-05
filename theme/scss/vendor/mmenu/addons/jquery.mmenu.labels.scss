@@ -1,0 +1,66 @@
+/*
+	jQuery.mmenu labels addon CSS
+*/
+
+@import "../inc/variables";
+
+
+.mm-menu.mm-fixedlabels
+{
+	.mm-list
+	{
+		background: inherit;
+
+		> li.mm-label
+		{
+			background: inherit !important;
+			opacity: 0.97;
+			height: 25px;
+			overflow: visible;
+			position: relative;
+			z-index: 1;
+
+			> div
+			{
+				background: inherit;
+				width: 100%;
+				position: absolute;
+				left: 0;
+
+				> div
+				{
+					@include ellipsis;
+				}
+			}
+			
+			&.mm-spacer > div > div
+			{
+				padding-top: ( $btnSize / 2 ) + ( $padding / 2 );
+			}
+		}
+	}
+}
+
+.mm-list
+{
+	> li.mm-label
+	{
+		> span
+		{
+			@include ellipsis;
+			padding: 0;
+		}
+
+		&.mm-opened a.mm-subopen:after
+		{
+			@include vendor-prefix( "transform", rotate( 45deg ) );
+			right: 17px;
+		}
+	}
+	> li.mm-collapsed
+	{
+		display: none;
+	}
+}
+
+@include colors_labels;

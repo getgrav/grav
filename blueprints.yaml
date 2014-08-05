@@ -1,0 +1,23 @@
+name: Administration Panel
+version: 1.0.0
+description: Enables administration panel.
+validation: strict
+
+form:
+  fields:
+    enabled:
+        type: toggle
+        label: Plugin status
+        highlight: 1
+        default: 1
+        options:
+          1: Enabled
+          0: Disabled
+        validate:
+          type: bool
+
+    route:
+      type: text
+      label: Administrator path
+      placeholder: "Default route for administrator (relative to base)"
+      help: If you want to change the URL for the administrator, you can provide a path here

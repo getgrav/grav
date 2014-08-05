@@ -1,0 +1,376 @@
+//	Variables
+$defaultWidth		: 0.8 !default;
+$defaultMinWidth	: 140px !default;
+$defaultMaxWidth	: 300px !default;
+
+$defaultHeight		: 0.8 !default;
+$defaultMinHeight	: 140px !default;
+$defaultMaxHeight	: 880px !default;
+
+//	Sizing left
+@mixin sizing( $cls: "",
+	$width: $defaultWidth, $minWidth: $defaultMinWidth, $maxWidth: $defaultMaxWidth,
+	$height: $defaultHeight, $minHeight: $defaultMinHeight, $maxHeight: $defaultMaxHeight
+) {
+	html.mm-opening#{$cls}
+	{
+		.mm-page,
+		#mm-blocker,
+		.mm-fixed-top,
+		.mm-fixed-bottom
+		{
+			left: percentage( $width );
+		}
+	}
+	.mm-menu#{$cls}
+	{
+		width: percentage( $width );
+	}
+	@media all and (max-width: $minWidth / $width ) {
+		.mm-menu#{$cls}
+		{
+			width: $minWidth;
+		}
+		html.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-top,
+			.mm-fixed-bottom
+			{
+				left: $minWidth;
+			}
+		}
+	}
+	@media all and (min-width: $maxWidth / $width ) {
+		.mm-menu#{$cls}
+		{
+			width: $maxWidth;
+		}
+		html.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-top,
+			.mm-fixed-bottom
+			{
+				left: $maxWidth;
+			}
+		}
+	}
+}
+
+//	Sizing top/right/bottom
+@mixin sizing_position( $cls: "",
+	$width: $defaultWidth, $minWidth: $defaultMinWidth, $maxWidth: $defaultMaxWidth,
+	$height: $defaultHeight, $minHeight: $defaultMinHeight, $maxHeight: $defaultMaxHeight
+) {
+	// top
+	.mm-menu.mm-top#{$cls}
+	{
+		height: percentage( $height );
+	}
+	html.mm-top.mm-opening#{$cls}
+	{
+		.mm-page,
+		#mm-blocker,
+		.mm-fixed-top
+		{
+			top: percentage( $height );
+		}
+		.mm-fixed-bottom
+		{
+			bottom: -( percentage( $height ) );
+		}
+	}
+	@media all and ( max-height: $minHeight / $height ) {
+		.mm-menu.mm-top#{$cls}
+		{
+			height: $minHeight;
+		}
+		html.mm-top.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-top
+			{
+				top: $minHeight;
+			}
+			.mm-fixed-bottom
+			{
+				bottom: -$minHeight;
+			}
+		}
+	}
+	@media all and ( min-height: $maxHeight / $height ) {
+		.mm-menu.mm-top#{$cls}
+		{
+			height: $maxHeight;
+		}
+		html.mm-top.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-top
+			{
+				top: $maxHeight;
+			}
+			.mm-fixed-bottom
+			{
+				bottom: -$maxHeight;
+			}
+		}
+	}
+
+	// right
+	.mm-menu.mm-right#{$cls}
+	{
+		width: percentage( $width );
+	}
+	html.mm-right.mm-opening#{$cls}
+	{
+		.mm-page,
+		#mm-blocker,
+		.mm-fixed-top,
+		.mm-fixed-bottom
+		{
+			right: percentage( $width );
+		}
+	}
+	@media all and ( max-width: $minWidth / $width ) {
+		.mm-menu.mm-right#{$cls}
+		{
+			width: $minWidth;
+		}
+		html.mm-right.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-top,
+			.mm-fixed-bottom
+			{
+				right: $minWidth;
+			}
+		}
+	}
+	@media all and ( min-width: $maxWidth / $width ) {
+		.mm-menu.mm-right#{$cls}
+		{
+			width: $maxWidth;
+		}
+		html.mm-right.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-top,
+			.mm-fixed-bottom
+			{
+				right: $maxWidth;
+			}
+		}
+	}
+
+	// bottom
+	.mm-menu.mm-bottom#{$cls}
+	{
+		height: percentage( $height );
+	}
+	html.mm-bottom.mm-opening#{$cls}
+	{
+		.mm-page,
+		#mm-blocker,
+		.mm-fixed-bottom
+		{
+			bottom: percentage( $height );
+		}
+		.mm-fixed-top
+		{
+			top: -( percentage( $height ) );
+		}
+	}
+	@media all and ( max-height: $minHeight / $height ) {
+		.mm-menu.mm-bottom#{$cls}
+		{
+			height: $minHeight;
+		}
+		html.mm-bottom.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-bottom
+			{
+				bottom: $minHeight;
+			}
+			.mm-fixed-top
+			{
+				top: -$minHeight;
+			}
+		}
+	}
+	@media all and ( min-height: $maxHeight / $height ) {
+		.mm-menu.mm-bottom#{$cls}
+		{
+			height: $maxHeight;
+		}
+		html.mm-bottom.mm-opening#{$cls}
+		{
+			.mm-page,
+			#mm-blocker,
+			.mm-fixed-bottom
+			{
+				bottom: $maxHeight;
+			}
+			.mm-fixed-top
+			{
+				top: -$maxHeight;
+			}
+		}
+	}
+}
+
+//	Sizing z-position
+@mixin sizing_zposition( $cls: "",
+	$width: $defaultWidth, $minWidth: $defaultMinWidth, $maxWidth: $defaultMaxWidth,
+	$height: $defaultHeight, $minHeight: $defaultMinHeight, $maxHeight: $defaultMaxHeight
+) {
+	// left
+	.mm-menu#{$cls}
+	{
+		&.mm-front,
+		&.mm-next
+		{
+			left: -( percentage( $width ) );
+		}
+	}
+	@media all and ( max-width: $minWidth / $width ) {
+		.mm-menu#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				left: -$minWidth;
+			}
+		}
+	}
+	@media all and ( min-width: $maxWidth / $width ) {
+		.mm-menu#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				left: -$maxWidth;
+			}
+		}
+	}
+
+	// top
+	.mm-menu.mm-top#{$cls}
+	{
+		&.mm-front,
+		&.mm-next
+		{
+			top: -( percentage( $height ) );
+		}
+	}
+	@media all and ( max-height: $minHeight / $height ) {
+		.mm-menu.mm-top#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				top: -$minHeight;
+			}
+		}
+	}
+	@media all and ( min-height: $maxHeight / $height ) {
+		.mm-menu.mm-top#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				top: -$maxHeight;
+			}
+		}
+	}
+
+	// right
+	.mm-menu.mm-right#{$cls}
+	{
+		&.mm-front,
+		&.mm-next
+		{
+			right: -( percentage( $width ) );
+		}
+	}
+	@media all and ( max-width: $minWidth / $width ) {
+		.mm-menu.mm-right#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				right: -$minWidth;
+			}
+		}
+	}
+	@media all and ( min-width: $maxWidth / $width ) {
+		.mm-menu.mm-right#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				right: -$maxWidth;
+			}
+		}
+	}
+
+	// bottom
+	.mm-menu.mm-bottom#{$cls}
+	{
+		&.mm-front,
+		&.mm-next
+		{
+			bottom: -( percentage( $height ) );
+		}
+	}
+	@media all and ( max-height: $minHeight / $height ) {
+		.mm-menu.mm-bottom#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				bottom: -$minHeight;
+			}
+		}
+	}
+	@media all and ( min-height: $maxHeight / $height ) {
+		.mm-menu.mm-bottom#{$cls}
+		{
+			&.mm-front,
+			&.mm-next
+			{
+				bottom: -$maxHeight;
+			}
+		}
+	}
+
+
+	//	Fixed elements
+	html.mm-front,
+	html.mm-opening.mm-front
+	{
+		.mm-fixed-top,
+		.mm-fixed-bottom
+		{
+			left: 0;
+			right: auto;
+		}
+		.mm-fixed-top
+		{
+			top: 0;
+		}
+		.mm-fixed-bottom
+		{
+			bottom: 0;
+		}
+	}
+}

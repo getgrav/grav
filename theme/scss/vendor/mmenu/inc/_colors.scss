@@ -1,0 +1,125 @@
+//	Colors
+@mixin colors( $cls: "",
+	$baseBg: #333, $pageShadow: 0 0 20px rgba( 0, 0, 0, 0.5 ),
+	$text: rgba( 255, 255, 255, 0.6 ), $dimmedText: rgba( 255, 255, 255, 0.3 ),
+	$emphasizedBg: rgba( 0, 0, 0, 0.1 ), $highlightedBg: rgba( 255, 255, 255, 0.05 ),
+	$border: rgba( 0, 0, 0, 0.15 )
+) {
+	html.mm-opened#{$cls} .mm-page
+	{
+		box-shadow: $pageShadow;
+	}
+	.mm-ismenu#{$cls}
+	{
+		background: $baseBg;
+		color: $text;
+	}
+	.mm-menu#{$cls}
+	{
+		.mm-list
+		{
+			> li:after
+			{
+				border-color: $border;
+			}
+			> li
+			{
+				> a
+				{
+					&.mm-subclose
+					{
+						background: $emphasizedBg;
+						color: $dimmedText;
+					}
+					&.mm-subopen:after,
+					&.mm-subclose:before
+					{
+						border-color: $dimmedText;
+					}
+					&.mm-subopen:before
+					{
+						border-color: $border;
+					}
+				}
+			}
+			> li.mm-selected
+			{
+				> a:not(.mm-subopen),
+				> span
+				{
+					background: $emphasizedBg;
+				}
+			}
+			> li.mm-label 
+			{
+				background: $highlightedBg;
+			}
+		}
+		
+		&.mm-vertical .mm-list
+		{
+			li.mm-opened
+			{
+				> a.mm-subopen,
+				> ul
+				{
+					background: $highlightedBg;
+				}
+			}
+		}
+	}
+}
+@mixin colors_labels( $cls: "",
+	$highlightedBg: rgba( 255, 255, 255, 0.05 )
+) {
+	.mm-menu#{$cls}
+	{
+		.mm-list li.mm-label > div > div
+		{
+			background: $highlightedBg;
+		}
+	}
+}
+@mixin colors_search( $cls: "",
+	$inputBg: rgba( 255, 255, 255, 0.3 ), $inputText: rgba( 255, 255, 255, 0.6 ),
+	$dimmedText: rgba( 255, 255, 255, 0.3 )
+) {
+	.mm-menu#{$cls}
+	{
+		.mm-search input
+		{
+			background: $inputBg;
+			color: $inputText;
+		}
+		li.mm-noresults
+		{
+			color: $dimmedText;
+		}
+	}
+}
+@mixin colors_counters( $cls: "",
+	$dimmedText: rgba( 255, 255, 255, 0.3 )
+) {
+	.mm-menu#{$cls} em.mm-counter
+	{
+		color: $dimmedText;
+	}
+}
+@mixin colors_header( $cls: "",
+	$dimmedText: rgba( 255, 255, 255, 0.3 ),
+	$border: rgba( 0, 0, 0, 0.15 )
+) {
+	.mm-menu#{$cls}
+	{
+		.mm-header
+		{
+			border-color: $border;
+			color: $dimmedText;
+
+			a:before
+			{
+				border-color: $dimmedText;
+			}
+		}
+	}
+}

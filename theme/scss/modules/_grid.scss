@@ -1,0 +1,29 @@
+%flexcontainer {
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+}
+
+@mixin flexwrap($value) {
+	-webkit-flex-wrap: $value;
+	-ms-flex-wrap: $value;
+	flex-wrap: $value;
+}
+
+@mixin flexblock($number) {
+	-webkit-box-flex: $number;
+	-moz-box-flex: $number;
+	-webkit-flex: $number;
+	-ms-flex: $number;
+	flex: $number;
+}
+
+@mixin flexblock-important($number) {
+	-webkit-box-flex: $number !important;
+	-moz-box-flex: $number !important;
+	-webkit-flex: $number !important;
+	-ms-flex: $number !important;
+	flex: $number !important;
+}

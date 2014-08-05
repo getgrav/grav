@@ -1,0 +1,35 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field">
+    <label class="inline select">
+        <span>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+            {% else %}
+            {{ field.label }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </span>
+
+
+        <select name="{{ (scope ~ field.name)|fieldName }}"
+                {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+                {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+                {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+                >
+            {% for option, name in field.options %}
+            <option {% if key in option %}selected="selected"{% endif %} value="{{ option }}">
+                {{ name }}
+            </option>
+            {% endfor %}
+            {% for theme in admin.themes %}
+            {% set blueprints = theme.blueprints %}
+            <option
+                {% if config.system.pages.theme == blueprints.name %}selected="selected"{% endif %}
+                value="{{ blueprints.name }}">
+                {{ blueprints.get('name') }}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+</div>

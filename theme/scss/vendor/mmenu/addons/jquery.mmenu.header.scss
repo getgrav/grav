@@ -1,0 +1,121 @@
+/*
+	jQuery.mmenu header addon CSS
+*/
+
+@import "../inc/variables";
+
+$height: 60px;
+$padding: 10px;
+$paddingTop: $height / 2;
+
+.mm-header
+{
+	@include vendor-prefix( "box-sizing", border-box );
+
+	background: inherit;
+	border-bottom: 1px solid transparent;
+	text-align: center;
+	line-height: $padding * 2;
+	width: 100%;
+	height: $height;
+	padding: $paddingTop $btnSize 0 $btnSize;
+	position: absolute;
+	z-index: 2;
+	top: 0;
+	left: 0;
+
+	.mm-title
+	{
+		@include ellipsis;
+
+		display: inline-block;
+		width: 100%;
+		position: relative;
+		z-index: 1;
+	}
+
+	.mm-prev,
+	.mm-next
+	{
+		@include vendor-prefix( 'box-sizing', border-box );
+
+		text-decoration: none;
+		display: block;
+		width: $btnSize;
+		height: 100%;
+		position: absolute;
+		bottom: 0;
+
+		&:before
+		{
+			@include arrow;
+			margin-bottom: -( $padding + 5 );
+		}
+	}
+	.mm-prev
+	{
+		left: 0;
+
+		&:before
+		{
+			@include arrow-prev;
+			left: 22px;
+		}
+	}
+	.mm-next
+	{
+		right: 0;
+
+		&:before
+		{
+			@include arrow-next;
+			right: 18px;
+		}
+	}
+}
+
+.mm-menu.mm-hassearch .mm-header
+{
+	height: $height - $padding;
+	padding-top: $paddingTop - $padding;
+	top: $btnSize + $padding;
+
+	.mm-prev:before,
+	.mm-mext:before
+	{
+		margin-bottom: -( ( $padding / 2 ) + 5 );
+	}
+}
+
+$hTop: $height;
+$sTop: $height + $btnSize;
+.mm-menu.mm-hasheader
+{
+	li.mm-subtitle
+	{
+		display: none;
+	}
+	.mm-panel
+	{
+		padding-top: $hTop + ( $padding * 2 );
+	}
+	&.mm-hassearch > .mm-panel
+	{
+		padding-top: $sTop + ( $padding * 2 );
+	}
+	&.mm-ismenu
+	{
+		> .mm-panel
+		{
+			padding-top: $hTop;
+		}
+		&.mm-hassearch > .mm-panel
+		{
+			padding-top: $sTop;
+		}
+	}
+}
+
+
+
+@include colors_header;

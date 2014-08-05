@@ -1,0 +1,34 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field">
+    <div class="dynfields" data-grav-dynfields="{{ field.name|fieldName }}">
+        <span class="inline">
+            <span>
+                {% if field.help %}
+                <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+                {% else %}
+                {{ field.label }}
+                {% endif %}
+            </span>
+
+
+            {% if value|length %}
+            {% for key, text in value %}
+            <div>
+                <input type="text" value="{{ (scope ~ key)|fieldName }}" placeholder="" />
+                <input type="text" name="{{ (scope ~ field.name)|fieldName }}[{{ key }}]" value="{{ text|join(', ') }}" placeholder="{{ field.placeholder }}" />
+                <span data-grav-remfield class="button fa fa-minus"></span>
+                <span data-grav-addfield class="button fa fa-plus"></span>
+            </div>
+            {% endfor %}
+            {% else %}
+                <div>
+                    <input type="text" placeholder="" />
+                    <input type="text" placeholder="{{ field.placeholder }}" />
+                    <span data-grav-remfield class="button fa fa-minus"></span>
+                    <span data-grav-addfield class="button fa fa-plus"></span>
+                </div>
+            {% endif %}
+        </span>
+    </div>
+</div>

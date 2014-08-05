@@ -1,0 +1,204 @@
+/*
+	jQuery.mmenu position extension CSS
+*/
+
+@import "../inc/variables";
+
+// top
+.mm-menu.mm-top
+{
+	width: 100%;
+}
+html.mm-top.mm-opened
+{
+	.mm-page,
+	#mm-blocker
+	{
+		top: 0%;
+	}
+}
+html.mm-top.mm-opened.mm-opening
+{
+	.mm-page,
+	#mm-blocker,
+	.mm-fixed-top,
+	.mm-fixed-bottom
+	{
+		left: 0;
+	}
+}
+
+// right
+.mm-menu.mm-right
+{
+	left: auto;
+	right: 0;
+}
+html.mm-right.mm-opened
+{
+	.mm-page,
+	#mm-blocker,
+	.mm-fixed-top,
+	.mm-fixed-bottom
+	{
+		left: auto;
+		right: 0%;
+	}
+}
+html.mm-right.mm-opened.mm-opening
+{
+	.mm-page,
+	#mm-blocker,
+	.mm-fixed-top,
+	.mm-fixed-bottom
+	{
+		left: auto;
+	}
+}
+
+// bottom
+.mm-menu.mm-bottom
+{
+	width: 100%;
+	top: auto;
+	bottom: 0;
+}
+html.mm-bottom.mm-opened
+{
+	.mm-page,
+	#mm-blocker
+	{
+		bottom: 0%;
+		top: auto;
+	}
+}
+html.mm-bottom.mm-opened.mm-opening
+{
+	.mm-page,
+	#mm-blocker,
+	.mm-fixed-top,
+	.mm-fixed-bottom
+	{
+		top: auto;
+		left: 0;
+	}
+}
+
+@include sizing_position;
+
+
+
+/*
+	jQuery.mmenu z-position extension CSS
+*/
+
+// reset defaults
+html.mm-front.mm-opened .mm-page
+{
+	top: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	left: 0 !important;
+}
+
+// animations
+.mm-menu.mm-front,
+.mm-menu.mm-next
+{
+	@include vendor-prefix( "transition", none $transitionDuration $transitionFunction );
+
+	-webkit-transition-property: top, right, bottom, left, -webkit-transform;
+	-moz-transition-property: top, right, bottom, left, -moz-transform;
+	-ms-transition-property: top, right, bottom, left, -o-transform;
+	-o-transition-property: top, right, bottom, left, -o-transform;
+	transition-property: top, right, bottom, left, transform;
+}
+
+// styling
+html.mm-front
+{
+	.mm-page,
+	#mm-blocker
+	{
+		z-index: 0;
+	}
+}
+.mm-menu.mm-front
+{
+	z-index: 1;
+	box-shadow: 0 0 15px rgba( 0, 0, 0, 0.5 );
+}
+html.mm-opened.mm-next .mm-page
+{
+	box-shadow: none;
+}
+
+// left
+html.mm-opening .mm-menu
+{
+	&.mm-front,
+	&.mm-next
+	{
+		left: 0%;
+	}
+}
+
+// top
+.mm-menu.mm-top
+{
+	&.mm-front,
+	&.mm-next
+	{
+		left: 0;
+	}
+}
+html.mm-opening .mm-menu.mm-top
+{
+	&.mm-front,
+	&.mm-next
+	{
+		left: 0;
+		top: 0%;
+	}
+}
+
+// right
+.mm-menu.mm-right
+{
+	&.mm-front,
+	&.mm-next
+	{
+		left: auto;
+	}
+}
+html.mm-opening .mm-menu.mm-right
+{
+	&.mm-front,
+	&.mm-next
+	{
+		left: auto;
+		right: 0%;
+	}
+}
+
+// bottom
+.mm-menu.mm-bottom
+{
+	&.mm-front,
+	&.mm-next
+	{
+		top: auto;
+		left: 0;
+	}
+}
+html.mm-opening .mm-menu.mm-bottom
+{
+	&.mm-front,
+	&.mm-next
+	{
+		left: 0;
+		bottom: 0%;
+	}
+}
+
+@include sizing_zposition;

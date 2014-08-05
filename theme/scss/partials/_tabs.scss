@@ -1,0 +1,100 @@
+$tab-head-color:#F5F5F5;
+$tab-checked-border-color:#63A6D7;
+$tab-border-color:#dadada;
+$tab-text-color:#333333;
+$tab-checked-text-color:#ffffff;
+$tab-hover-color:#dfdfdf;
+$tab-body-wrapper-color:#ffffff;
+$tab-delimiter-line-height:5px;
+$tab-label-height:3em;
+
+/* used for wrapper animation after the load of the page */
+@include keyframes(show) {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+
+.form-tabs {
+
+    > input[type=radio] {
+        display:none;
+
+        &:checked{
+            + label {
+                background:$tab-checked-border-color;
+                color:$tab-checked-text-color;
+            }
+        }
+    }
+    > label {
+        transition: background 0.4s ease-in-out, height 0.2s linear;
+        display:inline-block;
+        cursor:pointer;
+        color:$tab-text-color;
+        height:$tab-label-height;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        background:$tab-head-color;
+        text-align:center;
+        line-height:3em;
+        padding: 0px 15px;
+
+        &:last-of-type {
+            border-bottom:none;
+        }
+
+        &:hover {
+            background:$tab-hover-color;
+        }
+        @include mediaquery(large){
+
+        }
+        @include mediaquery(small){
+            width:100%;
+            display:block;
+            border-bottom:2px solid $tab-border-color;
+            border-radius:0;
+        }
+    }
+    @include mediaquery(small){margin:0;}
+}
+
+
+.tab-body {
+    position:absolute;
+    top:-9999px;
+    opacity:0;
+}
+
+.tab-body-wrapper {
+    padding-top: 3rem;
+    background:$tab-body-wrapper-color;
+    border-top:$tab-checked-border-color $tab-delimiter-line-height solid;
+    border-bottom-right-radius:3px;
+    border-bottom-left-radius:3px;
+    border-top-right-radius:3px;
+
+    @include mediaquery(small){
+        border:none;
+        border-radius:0;
+    };
+}
+
+#tab1:checked ~ .tab-body-wrapper #tab-body-1, 
+#tab2:checked ~ .tab-body-wrapper #tab-body-2, 
+#tab3:checked ~ .tab-body-wrapper #tab-body-3, 
+#tab4:checked ~ .tab-body-wrapper #tab-body-4, 
+#tab5:checked ~ .tab-body-wrapper #tab-body-5, 
+#tab6:checked ~ .tab-body-wrapper #tab-body-6, 
+#tab7:checked ~ .tab-body-wrapper #tab-body-7, 
+#tab8:checked ~ .tab-body-wrapper #tab-body-8, 
+#tab9:checked ~ .tab-body-wrapper #tab-body-9, 
+#tab10:checked ~ .tab-body-wrapper #tab-body-10 {
+    position:relative;
+    top:0px;
+    opacity: 1;
+}

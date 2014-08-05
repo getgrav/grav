@@ -1,0 +1,17 @@
+/*
+	jQuery.mmenu dragOpen addon CSS
+*/
+
+@import "../inc/variables";
+
+html.mm-opened.mm-dragging
+{
+	.mm-menu,
+	.mm-page,
+	.mm-fixed-top,
+	.mm-fixed-bottom,
+	#mm-blocker
+	{
+		@include vendor-prefix( "transition-duration", 0s );
+	}
+}

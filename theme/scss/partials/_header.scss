@@ -1,0 +1,41 @@
+#header {
+	background: $header-bg;
+
+	h1 {
+		margin: 1.563rem;
+		font-size: $logo-font-size;
+		color: #eee;
+	}
+
+	a {
+		color: #ddd;
+		&:hover {
+			color: #fff;
+		}
+	}
+
+}
+
+#nav {
+    margin: 1.563rem 0 0;
+    font-size: $menu-font-size;
+    
+    ul {
+	    margin: 0;
+	    padding: 0;
+	    display: inline-block;
+	    list-style: none;
+	}
+
+	li {
+		margin: 0;
+		padding: 0;
+		display: block;
+		float: left;
+	}
+
+	a {
+		display: block;
+		padding: 0.5rem 1.0rem;
+	}
+}

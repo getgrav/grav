@@ -1,0 +1,90 @@
+/*
+	jQuery.mmenu IE8 fallback extension CSS
+*/
+html.mm-opened .mm-page {
+  box-shadow: none; }
+
+.mm-ismenu {
+  background: #333333;
+  color: #adadad; }
+
+.mm-menu .mm-list > li:after {
+  border-color: #2b2b2b; }
+.mm-menu .mm-list > li > a.mm-subclose {
+  background: #2d2d2d;
+  color: #707070; }
+.mm-menu .mm-list > li > a.mm-subopen:after, .mm-menu .mm-list > li > a.mm-subclose:before {
+  border-color: #707070; }
+.mm-menu .mm-list > li > a.mm-subopen:before {
+  border-color: #2b2b2b; }
+.mm-menu .mm-list > li.mm-selected > a:not(.mm-subopen),
+.mm-menu .mm-list > li.mm-selected > span {
+  background: #2d2d2d; }
+.mm-menu .mm-list > li.mm-label {
+  background: #3d3d3d; }
+.mm-menu.mm-vertical .mm-list li.mm-opened > a.mm-subopen,
+.mm-menu.mm-vertical .mm-list li.mm-opened > ul {
+  background: #3d3d3d; }
+
+.mm-menu .mm-search input {
+  background: #474747;
+  color: #adadad; }
+.mm-menu li.mm-noresults {
+  color: #707070; }
+
+.mm-menu em.mm-counter {
+  color: #707070; }
+
+.mm-menu .mm-list li.mm-label > div > div {
+  background: #3d3d3d; }
+
+.mm-menu .mm-header {
+  border-color: #2b2b2b;
+  color: #707070; }
+  .mm-menu .mm-header a:before {
+    border-color: #707070; }
+
+html.mm-opened.mm-light .mm-page {
+  box-shadow: none; }
+
+.mm-ismenu.mm-light {
+  background: #f3f3f3;
+  color: #616161; }
+
+.mm-menu.mm-light .mm-list > li:after {
+  border-color: #dadada; }
+.mm-menu.mm-light .mm-list > li > a.mm-subclose {
+  background: #fafafa;
+  color: #aaaaaa; }
+.mm-menu.mm-light .mm-list > li > a.mm-subopen:after, .mm-menu.mm-light .mm-list > li > a.mm-subclose:before {
+  border-color: #aaaaaa; }
+.mm-menu.mm-light .mm-list > li > a.mm-subopen:before {
+  border-color: #dadada; }
+.mm-menu.mm-light .mm-list > li.mm-selected > a:not(.mm-subopen),
+.mm-menu.mm-light .mm-list > li.mm-selected > span {
+  background: #fafafa; }
+.mm-menu.mm-light .mm-list > li.mm-label {
+  background: #ebebeb; }
+.mm-menu.mm-light.mm-vertical .mm-list li.mm-opened > a.mm-subopen,
+.mm-menu.mm-light.mm-vertical .mm-list li.mm-opened > ul {
+  background: #ebebeb; }
+
+.mm-menu.mm-light .mm-search input {
+  background: #dadada;
+  color: #616161; }
+.mm-menu.mm-light li.mm-noresults {
+  color: #aaaaaa; }
+
+.mm-menu.mm-light em.mm-counter {
+  color: #aaaaaa; }
+
+.mm-menu.mm-light .mm-list li.mm-label > div > div {
+  background: #ebebeb; }
+
+.mm-menu.mm-light .mm-header {
+  border-color: #dadada;
+  color: #aaaaaa; }
+  .mm-menu.mm-light .mm-header a:before {
+    border-color: #aaaaaa; }
+
+/*# sourceMappingURL=jquery.mmenu.ie8.css.map */
