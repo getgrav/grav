@@ -143,6 +143,9 @@ class General implements FileInterface
     public function lock($block = true)
     {
         if (!$this->handle) {
+            if (!$this->mkdir(dirname($this->filename))) {
+                throw new \RuntimeException('Creating directory failed for ' . $this->filename);
+            }
             $this->handle = fopen($this->filename, 'wb+');
         }
         $lock = $block ? LOCK_EX : LOCK_EX | LOCK_NB;
@@ -253,9 +256,6 @@ class General implements FileInterface
             $this->content($data);
         }
 
-        if (!$this->mkdir(dirname($this->filename))) {
-            throw new \RuntimeException('Creating directory failed for ' . $this->filename);
-        }
         if (!$this->locked) {
             // Obtain blocking lock or fail.
             if (!$this->lock()) {
