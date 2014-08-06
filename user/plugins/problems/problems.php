@@ -15,10 +15,14 @@ class ProblemsPlugin extends Plugin
 
     protected $results = array();
 
+    public function onFatalException($e)
+    {
+        // Run through potential issues
+        if ($this->problemChecker()) {
+            $this->renderProblems();
+        }
+    }
 
-    /**
-     * Enable sitemap only if url matches to the configuration.
-     */
     public function onAfterInitPlugins()
     {
         $cache = Registry::get('Cache');
@@ -28,11 +32,8 @@ class ProblemsPlugin extends Plugin
 
         if(!file_exists($this->check)) {
 
-            // Run through potential issues
-            $this->active = $this->problemChecker();
-
             // If no issues remain, save a state file in the cache
-            if (!$this->active) {
+            if (!$this->problemChecker()) {
                 // delete any exising validated files
                 foreach (glob(CACHE_DIR . $validated_prefix. '*') as $filename) {
                      unlink($filename);
@@ -40,6 +41,9 @@ class ProblemsPlugin extends Plugin
 
                 // create a file in the cache dir so it only runs on cache changes
                 touch($this->check);
+
+            } else {
+                $this->renderProblems();
             }
 
         }
@@ -47,88 +51,54 @@ class ProblemsPlugin extends Plugin
 
     }
 
-    public function onAfterGetPage()
+    protected function renderProblems()
     {
-        if (!$this->active) {
-            return;
-        }
+        $theme = 'antimatter';
+        $baseUrlRelative = rtrim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), '/'); //make this dynamic
+        $themeUrl = $baseUrlRelative .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
+        $problemsUrl = $baseUrlRelative . '/user/plugins/problems';
 
-        /** @var Grav $grav */
-        $grav = Registry::get('Grav');
-        $grav->page->content("# Issues Found\n##Please **Review** and **Resolve** before continuing...");
+        $html = file_get_contents(__DIR__ . '/html/problems.html');
 
-    }
+        $problems = '';
+        foreach ($this->results as $key => $result) {
 
-    /**
-     * Add current directory to twig lookup paths.
-     */
-    public function onAfterTwigTemplatesPaths()
-    {
-        if (!$this->active) {
-            return;
-        }
-
-        Registry::get('Twig')->twig_paths[] = __DIR__ . '/templates';
-    }
-
-    /**
-     *
-     */
-    public function onFatalException($e)
-    {
-        // Run through potential issues
-        if ($this->problemChecker()) {
-            foreach ($this->results as $key => $result) {
-                if ($key == 'files') {
-                    foreach ($result as $filename => $status) {
-                        if (key($status)) {
-                            continue;
-                        }
-                        $text = reset($status);
-                        echo "<div>{$filename} {$text}</div>";
+            if ($key == 'files') {
+                foreach ($result as $filename => $file_result) {
+                    foreach ($file_result as $status => $text) {
+                        $problems .= $this->getListRow($status, '<b>' . $filename . '</b> ' . $text);
                     }
-                } else {
-                    if (key($status)) {
-                        continue;
-                    }
-                    $text = reset($status);
-                    echo "<div>{$text}</div>";
+                }
+            } else {
+                foreach ($result as $status => $text) {
+                    $problems .= $this->getListRow($status, $text);
                 }
             }
-
-            // Create Required Folders if they don't exist
-            if (!is_dir(LOG_DIR)) mkdir(LOG_DIR);
-            if (!is_dir(CACHE_DIR)) mkdir(CACHE_DIR);
-            if (!is_dir(IMAGES_DIR)) mkdir(IMAGES_DIR);
-            if (!is_dir(DATA_DIR)) mkdir(DATA_DIR);
-
-            exit();
         }
+
+        $html = str_replace('%%BASE_URL%%', $baseUrlRelative, $html);
+        $html = str_replace('%%THEME_URL%%', $themeUrl, $html);
+        $html = str_replace('%%PROBLEMS_URL%%', $problemsUrl, $html);
+        $html = str_replace('%%PROBLEMS%%', $problems, $html);
+
+        echo $html;
+
+        exit();
+
+
     }
 
-    /**
-     * Set needed variables to display the problems.
-     */
-    public function onAfterSiteTwigVars()
+    protected function getListRow($status, $text)
     {
-        if (!$this->active) {
-            return;
-        }
-
-        $twig = Registry::get('Twig');
-        $twig->template = 'problems.html.twig';
-        $twig->twig_vars['results'] = $this->results;
-
-        if ($this->config->get('plugins.problems.built_in_css')) {
-            $twig->twig_vars['stylesheets'][] = 'user/plugins/problems/problems.css';
-        }
+        $output = "\n";
+        $output .= '<li class="' . ($status ? 'success' : 'error') . ' clearfix"><i class="fa fa-' . ($status ? 'check' : 'times') . '"></i><p>'. $text . '</p></li>';
+        return $output;
     }
 
     protected function problemChecker()
     {
         $min_php_version = '5.4.0';
         $problems_found = false;
-
 
         $essential_files = [
             'index.php' => false,
@@ -168,6 +138,24 @@ class ProblemsPlugin extends Plugin
             $gd_status = false;
         }
         $this->results['gd'] = [$gd_status => 'PHP GD (Image Manipulation Library) is '. $gd_adjective . 'installed'];
+
+
+
+        // Check if Root is writeable and essential folders Exist
+        if (is_writable(ROOT_DIR)) {
+            // Create Required Folders if they don't exist
+            if (!is_dir(LOG_DIR)) mkdir(LOG_DIR);
+            if (!is_dir(CACHE_DIR)) mkdir(CACHE_DIR);
+            if (!is_dir(IMAGES_DIR)) mkdir(IMAGES_DIR);
+            if (!is_dir(DATA_DIR)) mkdir(DATA_DIR);
+            $root_status = true;
+            $root_adjective = '';
+        } else {
+            $problems_found = true;
+            $root_status = false;
+            $root_adjective = 'not ';
+        }
+        $this->results['root'] = [$root_status => '<b>' . ROOT_DIR . '</b> is '. $root_adjective . 'writable'];
 
         // Check for essential files & perms
         $file_problems = [];

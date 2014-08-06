@@ -1,3 +1,7 @@
+section#body {
+    padding-top: 3rem;
+}
+
 ul.problems {
     list-style: none;
     padding: 0;

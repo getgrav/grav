@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Grav Problems</title>
+        <meta name="description" content="Grav is an easy to use, yet powerful, open source flat-file CMS">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="%%THEME_URL%%/images/favicon.png">
+        <link rel="stylesheet" href="%%THEME_URL%%/css-compiled/nucleus.css" type="text/css" />
+        <link rel="stylesheet" href="%%THEME_URL%%/css-compiled/template.css" type="text/css" />
+        <!--[if (gte IE 8)&(lte IE 9)]>
+            <script type="text/javascript" src="%%THEME_URL%%/js/html5shiv-printshiv.min.js"></script>
+            <link rel="stylesheet" href="%%THEME_URL%%/css/nucleus-ie9.css" type="text/css" />
+            <link rel="stylesheet" href="%%THEME_URL%%/css/pure-0.5.0/grids-min.css" type="text/css" />
+        <![endif]-->
+        <link rel="stylesheet" href="%%PROBLEMS_URL%%/problems.css" type="text/css" />
+    </head>
+    <body id="top" class="">
+        <div id="container">
+            <section id="body" class="">
+                <h1>Issues Found</h1>
+                <h2>Please <strong>Review</strong> and <strong>Resolve</strong> before continuing...</h2>
+
+                <p class="center">
+                    <a href="%%BASE_URL%%" class="button big"><i class="fa fa-refresh"></i> Reload Page</a>
+                </p>
+
+                <ul class="problems">
+                    %%PROBLEMS%%
+                </ul>
+            </section>
+        </div>
+    </body>
+</html>
