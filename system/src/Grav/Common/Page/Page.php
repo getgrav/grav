@@ -837,6 +837,16 @@ class Page
     }
 
     /**
+     * Gets the relative path to the .md file
+     *
+     * @return string The relative file path
+     */
+    public function filePathClean()
+    {
+        return str_replace(ROOT_DIR, '', $this->filePath());
+    }
+
+    /**
      * Gets and sets the path to the folder where the .md for this Page object resides.
      * This is equivalent to the filePath but without the filename.
      *
