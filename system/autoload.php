@@ -1,10 +1,8 @@
 <?php
+require_once(__DIR__ . '/../system/defines.php');
 
-// Initiate Autoload of Grav classes
-spl_autoload_register(function ($class) {
+// Use composer auto-loader and just add our namespace into it.
+$loader = require_once(__DIR__ . '/../vendor/autoload.php');
+$loader->addPsr4('Grav\\', LIB_DIR . 'Grav');
 
-    if (strpos($class, 'Grav\\Common') === 0 || strpos($class, 'Grav\\Console') === 0) {
-        $filename = str_replace('\\', '/', LIB_DIR.$class.'.php');
-        include($filename);
-    }
-});
+return $loader;

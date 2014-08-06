@@ -207,7 +207,7 @@ class Grav extends Getters
             }
         }
 
-        if ($this->config->get('system.debugger.log.timing') && !in_array($hook_id, $no_timing_hooks)) {
+        if ($this->config && $this->config->get('system.debugger.log.timing') && !in_array($hook_id, $no_timing_hooks)) {
             static::log($hook_id.': %f ms');
         }
     }

@@ -1,13 +1,13 @@
 #!/usr/bin/env php
 <?php
 
-date_default_timezone_set('UTC');
+use Symfony\Component\Console\Application;
 
-require_once(__DIR__ . '/../system/defines.php');
-require_once(__DIR__ . '/../vendor/autoload.php');
 require_once(__DIR__ . '/../system/autoload.php');
 
-use Symfony\Component\Console\Application;
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('UTC');
+}
 
 if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');

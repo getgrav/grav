@@ -72,6 +72,41 @@ class ProblemsPlugin extends Plugin
     }
 
     /**
+     *
+     */
+    public function onFatalException($e)
+    {
+        // Run through potential issues
+        if ($this->problemChecker()) {
+            foreach ($this->results as $key => $result) {
+                if ($key == 'files') {
+                    foreach ($result as $filename => $status) {
+                        if (key($status)) {
+                            continue;
+                        }
+                        $text = reset($status);
+                        echo "<div>{$filename} {$text}</div>";
+                    }
+                } else {
+                    if (key($status)) {
+                        continue;
+                    }
+                    $text = reset($status);
+                    echo "<div>{$text}</div>";
+                }
+            }
+
+            // Create Required Folders if they don't exist
+            if (!is_dir(LOG_DIR)) mkdir(LOG_DIR);
+            if (!is_dir(CACHE_DIR)) mkdir(CACHE_DIR);
+            if (!is_dir(IMAGES_DIR)) mkdir(IMAGES_DIR);
+            if (!is_dir(DATA_DIR)) mkdir(DATA_DIR);
+
+            exit();
+        }
+    }
+
+    /**
      * Set needed variables to display the problems.
      */
     public function onAfterSiteTwigVars()

@@ -33,6 +33,7 @@ class Config extends Data
      * @var bool Flag to tell if configuration needs to be saved.
      */
     public $updated = false;
+    public $issues = array();
 
     /**
      * Constructor.
@@ -92,7 +93,8 @@ class Config extends Data
             }
             $this->updated = false;
         } catch (\Exception $e) {
-            throw new \RuntimeException('Writing to cache folder failed (configuration).', 500, $e);
+            $this->issues[] = 'Writing configuration into cache failed.';
+            //throw new \RuntimeException('Writing configuration into cache failed.', 500, $e);
         }
 
         return $this;
