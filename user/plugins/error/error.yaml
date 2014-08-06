@@ -1,6 +1,0 @@
-name: 404 Not Found
-description: 404 Not found
-
-enabled: true
-routes:
-  404: '/error'
