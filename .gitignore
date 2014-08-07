@@ -12,6 +12,9 @@ Thumbs.db
 *.swp
 
 # Grav Specific
+/cache/*
+/logs/*
+/images/*
 /user/data/*
 !/user/data/index.html
 user/plugins/**/
