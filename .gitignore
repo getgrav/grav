@@ -16,9 +16,8 @@ cache/*
 logs/*
 images/*
 user/data/*
-user/plugins/error
-user/plugins/problems
-user/themes/antimatter
+user/plugins/*
+user/themes/*
 
 # phpstorm
 .idea/*
