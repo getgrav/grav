@@ -13,11 +13,14 @@ git:
         branch: develop
 links:
     problems:
-        src: ../grav-plugin-problems
+        src: grav-plugin-problems
         path: user/plugins/problems
+        scm: github
     error:
-        src: ../grav-plugin-error
+        src: grav-plugin-error
         path: user/plugins/error
+        scm: github
     antimatter:
-        src: ../grav-theme-antimatter
+        src: grav-theme-antimatter
         path: user/themes/antimatter
+        scm: github
