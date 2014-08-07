@@ -12,11 +12,10 @@ Thumbs.db
 *.swp
 
 # Grav Specific
-/cache/*
-/logs/*
-/images/*
-/user/data/*
-!/user/data/index.html
+cache/*
+logs/*
+images/*
+user/data/*
 user/plugins/error
 user/plugins/problems
 user/themes/antimatter
