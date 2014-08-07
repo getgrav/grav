@@ -1,0 +1,23 @@
+git:
+    problems:
+        url: git@github.com:getgrav/grav-plugin-problems.git
+        path: user/plugins/problems
+        branch: develop
+    error:
+        url: git@github.com:getgrav/grav-plugin-error.git
+        path: user/plugins/error
+        branch: develop
+    antimatter:
+        url: git@github.com:getgrav/grav-theme-antimatter.git
+        path: user/themes/antimatter
+        branch: develop
+links:
+    problems:
+        src: ../grav-plugin-problems
+        path: user/plugins/problems
+    error:
+        src: ../grav-plugin-error
+        path: user/plugins/error
+    antimatter:
+        src: ../grav-theme-antimatter
+        path: user/themes/antimatter

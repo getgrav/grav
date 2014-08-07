@@ -15,7 +15,7 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
 
 $app = new Application('Grav CLI Application', '0.1.0');
 $app->addCommands(array(
-    new Grav\Console\InstallCommand(),
-    new Grav\Console\PackageCommand(),
+    new Grav\Console\SetupCommand(),
+    new Grav\Console\CleanCommand(),
 ));
 $app->run();

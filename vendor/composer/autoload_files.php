@@ -6,6 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    $vendorDir . '/ircmaxell/password-compat/lib/password.php',
     $vendorDir . '/tracy/tracy/src/shortcuts.php',
+    $vendorDir . '/ircmaxell/password-compat/lib/password.php',
 );

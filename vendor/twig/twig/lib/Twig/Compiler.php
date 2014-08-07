@@ -267,4 +267,9 @@ class Twig_Compiler implements Twig_CompilerInterface
 
         return $this;
     }
+
+    public function getVarName()
+    {
+        return sprintf('__internal_%s', hash('sha256', uniqid(mt_rand(), true), false));
+    }
 }

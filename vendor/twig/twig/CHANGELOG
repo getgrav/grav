@@ -1,6 +1,7 @@
 * 1.16.1 (2014-XX-XX)
 
- * n/a
+ * fixed for mb function overload mb_substr acting different
+ * fixed the attribute() function when passing a variable for the arguments
 
 * 1.16.0 (2014-07-05)
 

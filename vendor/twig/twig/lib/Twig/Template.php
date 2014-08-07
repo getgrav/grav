@@ -379,7 +379,11 @@ abstract class Twig_Template implements Twig_TemplateInterface
                 } elseif (is_object($object)) {
                     $message = sprintf('Impossible to access a key "%s" on an object of class "%s" that does not implement ArrayAccess interface', $item, get_class($object));
                 } elseif (is_array($object)) {
-                    $message = sprintf('Key "%s" for array with keys "%s" does not exist', $arrayItem, implode(', ', array_keys($object)));
+                    if (empty($object)) {
+                        $message = sprintf('Key "%s" does not exist as the array is empty', $arrayItem);
+                    } else {
+                        $message = sprintf('Key "%s" for array with keys "%s" does not exist', $arrayItem, implode(', ', array_keys($object)));
+                    }
                 } elseif (Twig_Template::ARRAY_CALL === $type) {
                     $message = sprintf('Impossible to access a key ("%s") on a %s variable ("%s")', $item, gettype($object), $object);
                 } else {

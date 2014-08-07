@@ -8,20 +8,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-class PackageCommand extends Command {
+class CleanCommand extends Command {
 
     protected $destination_dir = 'distribution';
 
-    protected $paths_to_create = [
-        'cache',
-        'logs',
-        'images',
-    ];
-
     protected $paths_to_remove = [
-        'cache',
-        'logs',
-        'images',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/.travis.yml',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/build.xml',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/composer.json',
@@ -96,15 +87,9 @@ class PackageCommand extends Command {
 
     protected function configure() {
         $this
-        ->setName("package")
-        ->setDescription("Handles packaging chores for Grav")
-        ->addOption(
-            'clean',
-            'c',
-            InputOption::VALUE_NONE,
-            'Clean out extra files in vendor folder'
-        )
-        ->setHelp('The <info>package</info> command does things and stuff');
+        ->setName("clean")
+        ->setDescription("Handles cl chores for Grav")
+        ->setHelp('The <info>clean</info> clean extraneous folders and data');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -117,9 +102,8 @@ class PackageCommand extends Command {
         $output->getFormatter()->setStyle('green', new OutputFormatterStyle('green'));
         $output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
 
-        if ($input->getOption('clean')) {
-            $this->cleanPaths($output);
-        }
+        $this->cleanPaths($output);
+
 
     }
 
@@ -129,25 +113,25 @@ class PackageCommand extends Command {
         $output->writeln('');
         $output->writeln('<red>DELETING</red>');
 
+        $anything = false;
+
         foreach($this->paths_to_remove as $path) {
             $path = ROOT_DIR . $path;
 
             if (is_dir($path) && @$this->rrmdir($path)) {
+                $anything = true;
                 $output->writeln('<red>dir:  </red>' . $path);
             } elseif (is_file($path) && @unlink($path)) {
+                $anything = true;
                 $output->writeln('<red>file: </red>' . $path);
             }
         }
 
-        $output->writeln('');
-        $output->writeln('<green>CREATING</green>');
-
-        foreach($this->paths_to_create as $path) {
-            $path = ROOT_DIR . $path;
-            if (@mkdir($path)) {
-               $output->writeln('<green>dir:  </green>' . $path);
-            }
+        if (!$anything) {
+            $output->writeln('');
+            $output->writeln('<green>Nothing to clean...</green>');
         }
+
     }
 
     // Recursively Delete folder - DANGEROUS! USE WITH CARE!!!!

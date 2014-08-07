@@ -944,7 +944,7 @@ function twig_escape_filter(Twig_Environment $env, $string, $strategy = 'html', 
             static $htmlspecialcharsCharsets;
 
             if (null === $htmlspecialcharsCharsets) {
-                if ('hiphop' === substr(PHP_VERSION, -6)) {
+                if (defined('HHVM_VERSION')) {
                     $htmlspecialcharsCharsets = array('utf-8' => true, 'UTF-8' => true);
                 } else {
                     $htmlspecialcharsCharsets = array(
