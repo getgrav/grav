@@ -17,6 +17,8 @@ Thumbs.db
 /images
 /user/data/*
 !/user/data/index.html
+user/plugins/**/
+user/themes/**/
 
 # phpstorm
 .idea/*
