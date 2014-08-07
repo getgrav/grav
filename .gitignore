@@ -4,20 +4,26 @@ composer.lock
 # Sass
 .sass-cache
 
+# Grav Specific
+cache/*
+!cache/.*
+logs/*
+!logs/.*
+images/*
+!images/.*
+user/data/*
+!user/data/.*
+user/plugins/*
+!user/plugins/.*
+user/themes/*
+!user/themes/.*
+
 # OS Generated
 .DS_Store*
 ehthumbs.db
 Icon?
 Thumbs.db
 *.swp
-
-# Grav Specific
-cache/*
-logs/*
-images/*
-user/data/*
-user/plugins/*
-user/themes/*
 
 # phpstorm
 .idea/*
