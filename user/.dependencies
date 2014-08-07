@@ -1,14 +1,14 @@
 git:
     problems:
-        url: git@github.com:getgrav/grav-plugin-problems.git
+        url: https://github.com/getgrav/grav-plugin-problems
         path: user/plugins/problems
         branch: develop
     error:
-        url: git@github.com:getgrav/grav-plugin-error.git
+        url: https://github.com/getgrav/grav-plugin-error
         path: user/plugins/error
         branch: develop
     antimatter:
-        url: git@github.com:getgrav/grav-theme-antimatter.git
+        url: https://github.com/getgrav/grav-theme-antimatter
         path: user/themes/antimatter
         branch: develop
 links:

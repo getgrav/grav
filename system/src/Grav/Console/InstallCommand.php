@@ -29,7 +29,7 @@ class InstallCommand extends Command {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $dependencies_file = ROOT_DIR . '/.dependencies';
+        $dependencies_file = USER_DIR . '/.dependencies';
 
 
         // Create a red output option
@@ -47,7 +47,7 @@ class InstallCommand extends Command {
                 $this->symlink($output);
             }
         } else {
-            $output->writeln('<red>ERROR</red> Missing .dependencies file');
+            $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
         }
 
 
