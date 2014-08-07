@@ -88,7 +88,7 @@ class CleanCommand extends Command {
     protected function configure() {
         $this
         ->setName("clean")
-        ->setDescription("Handles cl chores for Grav")
+        ->setDescription("Handles cleaning chores for Grav")
         ->setHelp('The <info>clean</info> clean extraneous folders and data');
     }
 
