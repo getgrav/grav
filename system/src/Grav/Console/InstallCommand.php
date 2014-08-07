@@ -30,7 +30,7 @@ class InstallCommand extends Command {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $dependencies_file = USER_DIR . '/.dependencies';
+        $dependencies_file = '.dependencies';
         $local_config_file = exec('eval echo ~/.grav/config');
 
         // Create a red output option
@@ -45,21 +45,25 @@ class InstallCommand extends Command {
             $output->writeln('read local config from <cyan>' . $local_config_file . '</cyan>');
         }
 
+        // Look for dependencies file in ROOT and USER dir
+        if (file_exists(USER_DIR . $dependencies_file)) {
+            $this->config = Yaml::parse(USER_DIR . $dependencies_file);
+        } elseif (file_exists(ROOT_DIR . $dependencies_file )) {
+            $this->config = Yaml::parse(ROOT_DIR . $dependencies_file);
+        } else {
+            $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
+        }
 
-
-        if (is_file($dependencies_file)) {
-            $this->config = Yaml::parse($dependencies_file);
-
+        // If yaml config, process
+        if ($this->config) {
             if (!$input->getOption('symlink')) {
                 $this->gitclone($output);
             } else {
                 $this->symlink($output);
             }
         } else {
-            $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
+            $output->writeln('<red>ERROR</red> invalid YAML in '. $dependencies_file);
         }
-
-
 
 
     }
