@@ -66,7 +66,7 @@ class InstallCommand extends Command {
         exec('cd ' . ROOT_DIR);
         foreach($this->configuration['git'] as $repo => $data) {
             if (!file_exists($data['path'])) {
-                exec('git clone ' . $data['url'] . ' ' . $data['path']);
+                exec('git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
                 $output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
                 $output->writeln('');
             } else {
