@@ -1,58 +1,58 @@
 jpg:
   type: image
-  thumb: thumb-jpg.png
+  thumb: media/thumb-jpg.png
   mime: image/jpeg
 jpeg:
   type: image
-  thumb: thumb-jpeg.png
+  thumb: media/thumb-jpeg.png
   mime: image/jpeg
 png:
   type: image
-  thumb: thumb-png.png
+  thumb: media/thumb-png.png
   mime: image/png
 gif:
   type: image
-  thumb: thumb-gif.png
+  thumb: media/thumb-gif.png
   mime: image/gif
 
 mp4:
   type: video
-  thumb: thumb-mp4.png
+  thumb: media/thumb-mp4.png
   mime: video/mp4
 mov:
   type: video
-  thumb: thumb-mov.png
+  thumb: media/thumb-mov.png
   mime: video/quicktime
 m4v:
   type: video
-  thumb: thumb-m4v.png
+  thumb: media/thumb-m4v.png
   mime: video/x-m4v
 swf:
   type: video
-  thumb: thumb-swf.png
+  thumb: media/thumb-swf.png
   mime: video/x-flv
 
 txt:
   type: file
-  thumb: thumb-txt.png
+  thumb: media/thumb-txt.png
   mime: text/plain
 doc:
   type: file
-  thumb: thumb-doc.png
+  thumb: media/thumb-doc.png
   mime: application/msword
 html:
   type: file
-  thumb: thumb-html.png
+  thumb: media/thumb-html.png
   mime: text/html
 pdf:
   type: file
-  thumb: thumb-pdf.png
+  thumb: media/thumb-pdf.png
   mime: application/pdf
 zip:
   type: file
-  thumb: thumb-zip.png
+  thumb: media/thumb-zip.png
   mime: application/zip
 gz:
   type: file
-  thumb: thumb-gz.png
+  thumb: media/thumb-gz.png
   mime: application/gzip
