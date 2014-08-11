@@ -169,7 +169,7 @@ class Twig
         $twig_vars = $this->twig_vars;
 
         $twig_vars['page'] = $item;
-        $twig_vars['assets'] = $item->assets();
+        $twig_vars['media'] = $item->media();
         $twig_vars['header'] = $item->header();
 
         // Get Twig template layout

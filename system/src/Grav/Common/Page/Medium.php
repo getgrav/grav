@@ -9,7 +9,7 @@ use Grav\Common\Registry;
 use Gregwar\Image\Image as ImageFile;
 
 /**
- * The Image asset holds information related to an individual image. These are then stored in the Assets object.
+ * The Image medium holds information related to an individual image. These are then stored in the Media object.
  *
  * @author RocketTheme
  * @license MIT
@@ -26,13 +26,13 @@ use Gregwar\Image\Image as ImageFile;
  * @property string $mime
  * @property int    $modified
  *
- * Asset can have up to 3 files:
- * - video.mov              Asset file itself.
- * - video.mov.meta.yaml    Metadata for the asset.
- * - video.mov.thumb.jpg    Thumbnail image for the asset.
+ * Medium can have up to 3 files:
+ * - video.mov              Medium file itself.
+ * - video.mov.meta.yaml    Metadata for the medium.
+ * - video.mov.thumb.jpg    Thumbnail image for the medium.
  *
  */
-class Asset extends Data
+class Medium extends Data
 {
     /**
      * @var string
@@ -126,7 +126,7 @@ class Asset extends Data
     }
 
     /**
-     * Returns <img> tag from the asset.
+     * Returns <img> tag from the medium.
      *
      * @param string $title
      * @param string $class
@@ -146,7 +146,7 @@ class Asset extends Data
     }
 
     /**
-     * Return HTML markup from the asset.
+     * Return HTML markup from the medium.
      *
      * @param string $title
      * @param string $class
@@ -184,7 +184,7 @@ class Asset extends Data
     }
 
     /**
-     * Return lightbox HTML for the asset.
+     * Return lightbox HTML for the medium.
      *
      * @param int $width
      * @param int $height
@@ -198,7 +198,7 @@ class Asset extends Data
     }
 
     /**
-     * Return link HTML for the asset.
+     * Return link HTML for the medium.
      *
      * @param int $width
      * @param int $height
@@ -264,7 +264,7 @@ class Asset extends Data
     }
 
     /**
-     * Gets asset image, resets image manipulation operations.
+     * Gets medium image, resets image manipulation operations.
      *
      * @param string $variable
      * @return $this
@@ -284,7 +284,7 @@ class Asset extends Data
     }
 
     /**
-     * Add meta file for the asset.
+     * Add meta file for the medium.
      *
      * @param $type
      * @return $this

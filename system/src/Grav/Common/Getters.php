@@ -20,8 +20,8 @@ abstract class Getters implements \ArrayAccess, \Countable
     /**
      * Magic setter method
      *
-     * @param mixed $offset Asset name value
-     * @param mixed $value  Asset value
+     * @param mixed $offset Medium name value
+     * @param mixed $value  Medium value
      */
     public function __set($offset, $value)
     {
@@ -31,8 +31,8 @@ abstract class Getters implements \ArrayAccess, \Countable
     /**
      * Magic getter method
      *
-     * @param  mixed $offset Asset name value
-     * @return mixed         Asset value
+     * @param  mixed $offset Medium name value
+     * @return mixed         Medium value
      */
     public function __get($offset)
     {
@@ -42,7 +42,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     /**
      * Magic method to determine if the attribute is set
      *
-     * @param  mixed   $offset Asset name value
+     * @param  mixed   $offset Medium name value
      * @return boolean         True if the value is set
      */
     public function __isset($offset)

@@ -7,13 +7,13 @@ use Grav\Config;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Assets is a holder object that contains references to the assets of page. This object is created and
- * populated during the getAssets() method in the Pages object
+ * Media is a holder object that contains references to the media of page. This object is created and
+ * populated during the getMedia() method in the Pages object
  *
  * @author RocketTheme
  * @license MIT
  */
-class Assets extends Getters
+class Media extends Getters
 {
     protected $gettersVariable = 'instances';
     protected $path;
@@ -48,25 +48,25 @@ class Assets extends Getters
             $filename = $info->getFilename();
             list($basename, $ext, $meta) = $this->getFileParts($filename);
 
-            // Get asset instance creating it if it didn't exist.
-            $asset = $this->get("{$basename}.{$ext}", true);
-            if (!$asset) {
+            // Get medium instance creating it if it didn't exist.
+            $medium = $this->get("{$basename}.{$ext}", true);
+            if (!$medium) {
                 continue;
             }
 
-            // Assign meta files to the asset.
+            // Assign meta files to the medium.
             if ($meta) {
-                $asset->addMetaFile($meta);
+                $medium->addMetaFile($meta);
             }
         }
     }
 
     /**
-     * Get asset by basename and extension.
+     * Get medium by basename and extension.
      *
      * @param string $filename
      * @param bool   $create
-     * @return Asset|null
+     * @return Medium|null
      */
     public function get($filename, $create = false)
     {
@@ -78,8 +78,8 @@ class Assets extends Getters
             /** @var Config $config */
             $config = Registry::get('Config');
 
-            // Check if asset type has been configured.
-            $params = $config->get("assets.{$ext}");
+            // Check if medium type has been configured.
+            $params = $config->get("media.{$ext}");
             if (!$params) {
                 return null;
             }
@@ -87,7 +87,7 @@ class Assets extends Getters
             $filePath = $this->path . '/' . $filename;
             $params += array(
                 'type' => 'file',
-                'thumb' => 'assets/thumb.png',
+                'thumb' => 'media/thumb.png',
                 'mime' => 'application/octet-stream',
                 'name' => $filename,
                 'filename' => $filename,
@@ -108,16 +108,16 @@ class Assets extends Getters
                 }
             }
 
-            $this->add(new Asset($params));
+            $this->add(new Medium($params));
         }
 
         return isset($this->instances[$filename]) ? $this->instances[$filename] : null;
     }
 
     /**
-     * Get a list of all assets.
+     * Get a list of all media.
      *
-     * @return array|Asset[]
+     * @return array|Medium[]
      */
     public function all()
     {
@@ -125,9 +125,9 @@ class Assets extends Getters
     }
 
     /**
-     * Get a list of all image assets.
+     * Get a list of all image media.
      *
-     * @return array|Asset[]
+     * @return array|Medium[]
      */
     public function images()
     {
@@ -135,9 +135,9 @@ class Assets extends Getters
     }
 
     /**
-     * Get a list of all video assets.
+     * Get a list of all video media.
      *
-     * @return array|Asset[]
+     * @return array|Medium[]
      */
     public function videos()
     {
@@ -145,9 +145,9 @@ class Assets extends Getters
     }
 
     /**
-     * Get a list of all file assets.
+     * Get a list of all file media.
      *
-     * @return array|Asset[]
+     * @return array|Medium[]
      */
     public function files()
     {

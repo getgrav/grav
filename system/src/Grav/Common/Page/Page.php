@@ -52,7 +52,7 @@ class Page
     protected $content;
     protected $raw_content;
     protected $pagination;
-    protected $assets;
+    protected $media;
     protected $title;
     protected $max_count;
     protected $menu;
@@ -316,7 +316,7 @@ class Page
 
             $this->content = $content;
 
-            $this->assets();
+            $this->media();
         }
 
         return $this->content;
@@ -348,17 +348,17 @@ class Page
         if ($name == 'type') {
             return basename($this->name(), '.md');
         }
-        if ($name == 'assets') {
-            return $this->assets()->all();
+        if ($name == 'media') {
+            return $this->media()->all();
         }
-        if ($name == 'assets.file') {
-            return $this->assets()->files();
+        if ($name == 'media.file') {
+            return $this->media()->files();
         }
-        if ($name == 'assets.video') {
-            return $this->assets()->videos();
+        if ($name == 'media.video') {
+            return $this->media()->videos();
         }
-        if ($name == 'assets.image') {
-            return $this->assets()->images();
+        if ($name == 'media.image') {
+            return $this->media()->images();
         }
 
         $path = explode('.', $name);
@@ -536,29 +536,29 @@ class Page
     }
 
     /**
-     * Gets and sets the associated assets as found in the page folder.
+     * Gets and sets the associated media as found in the page folder.
      *
-     * @param  Assets $var Representation of associated assets.
-     * @return Assets      Representation of associated assets.
+     * @param  Media $var Representation of associated media.
+     * @return Media      Representation of associated media.
      */
-    public function assets($var = null)
+    public function media($var = null)
     {
         /** @var Cache $cache */
         $cache = Registry::get('Cache');
 
         if ($var) {
-            $this->assets = $var;
+            $this->media = $var;
         }
-        if ($this->assets === null) {
-            // Use cached assets if possible.
-            $assets_cache_id = md5('assets'.$this->id());
-            if (!$assets = $cache->fetch($assets_cache_id)) {
-                $assets = new Assets($this->path());
-                $cache->save($assets_cache_id, $assets);
+        if ($this->media === null) {
+            // Use cached media if possible.
+            $media_cache_id = md5('media'.$this->id());
+            if (!$media = $cache->fetch($media_cache_id)) {
+                $media = new Media($this->path());
+                $cache->save($media_cache_id, $media);
             }
-            $this->assets = $assets;
+            $this->media = $media;
         }
-        return $this->assets;
+        return $this->media;
     }
 
     /**
