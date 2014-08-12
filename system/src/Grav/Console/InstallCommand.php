@@ -13,6 +13,8 @@ class InstallCommand extends Command {
 
     protected $config;
     protected $local_config;
+    protected $destination;
+    protected $user_path;
 
     protected function configure() {
         $this
@@ -23,6 +25,12 @@ class InstallCommand extends Command {
             InputOption::VALUE_NONE,
             'Symlink the required bits'
         )
+        ->addArgument(
+            'destination',
+            InputArgument::OPTIONAL,
+            'Where to install the required bits (default to current project)'
+
+        )
         ->setDescription("Handles cloning and symlinking for Grav")
         ->setHelp('The <info>install</info> provides clone and symlink installation chores');
     }
@@ -32,6 +40,11 @@ class InstallCommand extends Command {
 
         $dependencies_file = '.dependencies';
         $local_config_file = exec('eval echo ~/.grav/config');
+        $this->destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : ROOT_DIR;
+
+        // fix trailing slash
+        $this->destination = rtrim($this->destination, '/') . '/';
+        $this->user_path   = $this->destination . USER_PATH;
 
         // Create a red output option
         $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
@@ -46,10 +59,10 @@ class InstallCommand extends Command {
         }
 
         // Look for dependencies file in ROOT and USER dir
-        if (file_exists(USER_DIR . $dependencies_file)) {
-            $this->config = Yaml::parse(USER_DIR . $dependencies_file);
-        } elseif (file_exists(ROOT_DIR . $dependencies_file )) {
-            $this->config = Yaml::parse(ROOT_DIR . $dependencies_file);
+        if (file_exists($this->user_path . $dependencies_file)) {
+            $this->config = Yaml::parse($this->user_path . $dependencies_file);
+        } elseif (file_exists($this->destination . $dependencies_file )) {
+            $this->config = Yaml::parse($this->destination . $dependencies_file);
         } else {
             $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
         }
@@ -76,14 +89,14 @@ class InstallCommand extends Command {
         $output->writeln('============');
         $output->writeln('');
 
-        exec('cd ' . ROOT_DIR);
         foreach($this->config['git'] as $repo => $data) {
-            if (!file_exists($data['path'])) {
-                exec('git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
-                $output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
+            $path = $this->destination . '/' . $data['path'];
+            if (!file_exists($path)) {
+                exec('cd ' . $this->destination . ' && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
+                $output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
                 $output->writeln('');
             } else {
-                $output->writeln('<red>' . $data['path'] . ' already exists, skipping...</red>');
+                $output->writeln('<red>' . $path . ' already exists, skipping...</red>');
                 $output->writeln('');
             }
 
@@ -104,10 +117,10 @@ class InstallCommand extends Command {
             exit;
         }
 
-        exec('cd ' . ROOT_DIR);
+        exec('cd ' . $this->destination);
         foreach($this->config['links'] as $repo => $data) {
             $from = $this->local_config[$data['scm'].'_repos'] . $data['src'];
-            $to = ROOT_DIR . $data['path'];
+            $to = $this->destination . $data['path'];
 
             if (file_exists($from)) {
                 if (!file_exists($to)) {
