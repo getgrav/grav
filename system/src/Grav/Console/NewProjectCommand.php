@@ -10,12 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use \Symfony\Component\Yaml\Yaml;
 
-class NewCommand extends Command {
+class NewProjectCommand extends Command {
 
     protected function configure() {
         $this
-        ->setName("new")
-        ->setAliases(array('new-project'))
+        ->setName("new-project")
         ->addArgument(
             'destination',
             InputArgument::REQUIRED,
@@ -27,7 +26,7 @@ class NewCommand extends Command {
             InputOption::VALUE_NONE,
             'Symlink the required bits'
         )
-        ->setDescription("Handles setting up a new Instance of Grav")
+        ->setDescription("Creates a new Grav project with all the dependencies included")
         ->setHelp('The <info>new</info> command provides clone and symlink installation chores');
     }
 
