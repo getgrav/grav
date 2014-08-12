@@ -18,5 +18,6 @@ $app->addCommands(array(
     new Grav\Console\InstallCommand(),
     new Grav\Console\SetupCommand(),
     new Grav\Console\CleanCommand(),
+    new Grav\Console\NewCommand(),
 ));
 $app->run();
