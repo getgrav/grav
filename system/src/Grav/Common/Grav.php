@@ -88,7 +88,6 @@ class Grav extends Getters
                 ini_set('display_errors', true);
             }
             Debugger::$productionMode = Debugger::DEVELOPMENT;
-            $this->fireEvent('onAfterInitDebug');
         }
 
         // Get the Caching setup

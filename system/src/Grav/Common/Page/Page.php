@@ -63,7 +63,7 @@ class Page
     protected $order_manual;
     protected $modular;
     protected $modular_twig;
-    protected $processing;
+    protected $process;
     protected $summary_size;
 
     /**
@@ -88,7 +88,7 @@ class Page
 
         $this->routable = true;
         $this->taxonomy = array();
-        $this->processing = $config->get('system.pages.process');
+        $this->process = $config->get('system.pages.process');
     }
 
     /**
@@ -204,9 +204,9 @@ class Page
             if (isset($this->header->max_count)) {
                 $this->max_count = intval($this->header->max_count);
             }
-            if (isset($this->header->processing)) {
-                foreach ($this->header->processing as $process => $status) {
-                    $this->processing[$process] = $status;
+            if (isset($this->header->process)) {
+                foreach ($this->header->process as $process => $status) {
+                    $this->process[$process] = $status;
                 }
             }
         }
@@ -677,18 +677,18 @@ class Page
     }
 
     /**
-     * Gets and Sets the processing setup for this Page. This is multi-dimensional array that consists of
+     * Gets and Sets the process setup for this Page. This is multi-dimensional array that consists of
      * a simple array of arrays with the form array("markdown"=>true) for example
      *
      * @param  array $var an Array of name value pairs where the name is the process and value is true or false
      * @return array      an Array of name value pairs where the name is the process and value is true or false
      */
-    public function processing($var = null)
+    public function process($var = null)
     {
         if ($var !== null) {
-            $this->processing = (array) $var;
+            $this->process = (array) $var;
         }
-        return $this->processing;
+        return $this->process;
     }
 
     /**
@@ -1004,7 +1004,7 @@ class Page
         if ($var !== null) {
             $this->modular_twig = (bool) $var;
             if ($var) {
-                $this->processing['twig'] = true;
+                $this->process['twig'] = true;
             }
         }
         return $this->modular_twig;
@@ -1018,7 +1018,7 @@ class Page
      */
     public function shouldProcess($process)
     {
-        return isset($this->processing[$process]) ? (bool) $this->processing[$process] : false;
+        return isset($this->process[$process]) ? (bool) $this->process[$process] : false;
     }
 
     /**

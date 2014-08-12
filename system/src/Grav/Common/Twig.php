@@ -165,7 +165,7 @@ class Twig
         $content = $content !== null ? $content : $item->content();
 
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onAfterPageTwigVars');
+        $this->grav->fireEvent('onAfterTwigPageVars');
         $twig_vars = $this->twig_vars;
 
         $twig_vars['page'] = $item;
@@ -197,7 +197,7 @@ class Twig
         $this->init();
 
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onAfterStringTwigVars');
+        $this->grav->fireEvent('onAfterTwigVars');
         $vars += $this->twig_vars;
 
         $name = '@Var:' . $string;
@@ -220,7 +220,7 @@ class Twig
         $this->init();
 
         // set the page now its been processed
-        $this->grav->fireEvent('onAfterSiteTwigVars');
+        $this->grav->fireEvent('onAfterTwigSiteVars');
         $twig_vars = $this->twig_vars;
         $pages = $this->grav->pages;
         $page = $this->grav->page;
