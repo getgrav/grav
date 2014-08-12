@@ -10,6 +10,31 @@ The underlying architecture of Grav has been designed to use well-established an
 * [YAML](http://yaml.org): for simple configuration
 * [Doctrine Cache](http://docs.doctrine-project.org/en/2.0.x/reference/caching.html): layer for incredible performance
 
+QuickStart
+==========
+
+You have two options to get Grav:
+
+### Downloading a Grav Package
+
+You can download a **ready-built** package from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads)
+
+### From GitHub
+
+1. Clone the Grav repository from [https://github.com/getgrav/grav]() to a folder in the webroot of your server, e.g. `~/webroot/grav`. Launch a **terminal** or **console** and navigate to the webroot folder:
+   ```
+   $ cd ~/webroot
+   $ git clone https://github.com/getgrav/grav.git
+   ```
+
+2. Install the **plugin** and **theme dependencies** by using the [Grav CLI application](http://learn.getgrav.org/advanced/grav-cli) `bin/grav`:
+   ```
+   $ cd ~/webroot/grav
+   $ bin/grav install
+   ```
+
+Check out the [install procedures](http://learn.getgrav.org/basics/installation) for more information.
+
 
 Getting Started
 ===============
