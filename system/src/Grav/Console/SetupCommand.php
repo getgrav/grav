@@ -26,7 +26,7 @@ class SetupCommand extends Command
                                     '/user/themes',
                                     );
 
-    protected $files        = array(
+    protected $files        = array('/.dependencies',
                                     '/.htaccess',
                                     '/user/config/site.yaml',
                                     '/user/config/system.yaml',
