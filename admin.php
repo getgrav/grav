@@ -157,7 +157,7 @@ class AdminPlugin extends Plugin
     /**
      * Set all twig variables for generating output.
      */
-    public function onAfterSiteTwigVars()
+    public function onAfterTwigSiteVars()
     {
         if (!$this->active) {
             return;
