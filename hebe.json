@@ -1,0 +1,15 @@
+{
+   "project":"grav-plugin-admin",
+   "platforms":{
+      "grav":{
+         "nodes":{
+            "plugin":[
+               {
+                  "source":"/",
+                  "destination":"/user/plugins/admin"
+               }
+            ]
+         }
+      }
+   }
+}
