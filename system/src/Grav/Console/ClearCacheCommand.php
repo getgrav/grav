@@ -12,7 +12,7 @@ use \Symfony\Component\Yaml\Yaml;
 class ClearCacheCommand extends Command {
 
     protected $paths_to_remove = [
-        'cache/'
+        'cache'
     ];
 
     protected function configure() {
@@ -47,7 +47,7 @@ class ClearCacheCommand extends Command {
         $anything = false;
 
         foreach($this->paths_to_remove as $path) {
-            $files = glob(ROOT_DIR . rtrim($path, '/') . '/*');
+            $files = glob(ROOT_DIR . rtrim($path, DS) . DS .'*');
 
             foreach ($files as $file) {
                 if     (is_file($file) && @unlink($file))       $anything = true;

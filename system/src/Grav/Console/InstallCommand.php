@@ -43,7 +43,7 @@ class InstallCommand extends Command {
         $this->destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : ROOT_DIR;
 
         // fix trailing slash
-        $this->destination = rtrim($this->destination, '/') . '/';
+        $this->destination = rtrim($this->destination, DS) . DS;
         $this->user_path   = $this->destination . USER_PATH;
 
         // Create a red output option
@@ -90,7 +90,7 @@ class InstallCommand extends Command {
         $output->writeln('');
 
         foreach($this->config['git'] as $repo => $data) {
-            $path = $this->destination . '/' . $data['path'];
+            $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
                 exec('cd ' . $this->destination . ' && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
                 $output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
