@@ -19,6 +19,7 @@ $app->addCommands(array(
     new Grav\Console\SetupCommand(),
     new Grav\Console\CleanCommand(),
     new Grav\Console\ClearCacheCommand(),
+    new Grav\Console\BackupCommand(),
     new Grav\Console\NewProjectCommand(),
 ));
 $app->run();
