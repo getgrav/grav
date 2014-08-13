@@ -12,7 +12,8 @@ use \Symfony\Component\Yaml\Yaml;
 class ClearCacheCommand extends Command {
 
     protected $paths_to_remove = [
-        'cache'
+        'cache',
+        'images'
     ];
 
     protected function configure() {
@@ -44,6 +45,8 @@ class ClearCacheCommand extends Command {
         $output->writeln('<magenta>Clearing cache</magenta>');
         $output->writeln('');
 
+        $user_config = USER_DIR . 'config/system.yaml';
+
         $anything = false;
 
         foreach($this->paths_to_remove as $path) {
@@ -55,6 +58,13 @@ class ClearCacheCommand extends Command {
             }
 
             if ($anything) $output->writeln('<red>Cleared:  </red>' . $path . '*');
+        }
+
+        if (file_exists($user_config)) {
+            touch ($user_config);
+            $output->writeln('');
+            $output->writeln('<red>Touched: </red>' . $user_config);
+            $output->writeln('');
         }
 
         if (!$anything) {
