@@ -25,8 +25,6 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('safe_email', array($this,'safeEmailFilter')),
             new \Twig_SimpleFilter('randomize', array($this,'randomizeFilter')),
             new \Twig_SimpleFilter('truncate', array($this,'truncateFilter')),
-            new \Twig_SimpleFilter('removeDisabled', array($this,'removeDisabledFilter')),
-            new \Twig_SimpleFilter('growText', array($this, 'growTextFilter')),
             new \Twig_SimpleFilter('*ize', array($this,'inflectorFilter')),
             new \Twig_SimpleFilter('md5', array($this,'md5Filter')),
         );
@@ -98,44 +96,6 @@ class TwigExtension extends \Twig_Extension
         return $string;
     }
 
-    /**
-     * Add HTML markup to grow the text size. Effect depends on the text length.
-     *
-     * @param $text
-     * @return string
-     */
-    public function growTextFilter($text)
-    {
-        $count = str_word_count($text);
-        if ($count < 20) {
-            return '<span class="text-grow-more">'.$text.'</span>';
-        } elseif ($count < 40) {
-            return '<span class="text-grow">'.$text.'</span>';
-        } else {
-            return $text;
-        }
-    }
-
-    /**
-     * Remove disabled objects from the array. If input isn't array, do nothing.
-     *
-     * @param  array  $original
-     * @return array
-     */
-    public function removeDisabledFilter($original)
-    {
-        if (!is_array($original)) {
-            return $original;
-        }
-        $new = array();
-
-        foreach ($original as $entry) {
-            if (is_object($entry) && !isset($entry->disabled)) {
-                $new[] = $entry;
-            }
-        }
-        return $new;
-    }
 
     /**
      * Returns array in a random order.
