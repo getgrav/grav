@@ -32,6 +32,9 @@ class Debugger
 	/** @var bool {@link Debugger::enable()} */
 	private static $enabled = FALSE;
 
+	/** @var bool prevent double rendering */
+	private static $done;
+
 	/********************* errors and exceptions reporting ****************d*g**/
 
 	/** @var bool|int determines whether any error will cause immediate death; if integer that it's matched against error severity */
@@ -58,6 +61,9 @@ class Debugger
 
 	/** @var string name of the directory where errors should be logged */
 	public static $logDirectory;
+
+	/** @var int  log bluescreen in production mode for this error severity */
+	public static $logSeverity = 0;
 
 	/** @var string|array email(s) to which send error notifications */
 	public static $email;
@@ -117,7 +123,6 @@ class Debugger
 	 */
 	public static function enable($mode = NULL, $logDirectory = NULL, $email = NULL)
 	{
-		self::$enabled = TRUE;
 		self::$time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(TRUE);
 		error_reporting(E_ALL | E_STRICT);
 
@@ -159,13 +164,17 @@ class Debugger
 			self::exceptionHandler(new \RuntimeException("Unable to set 'display_errors' because function ini_set() is disabled."));
 		}
 
-		register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
-		set_exception_handler(array(__CLASS__, 'exceptionHandler'));
-		set_error_handler(array(__CLASS__, 'errorHandler'));
+		if (!self::$enabled) {
+			register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
+			set_exception_handler(array(__CLASS__, 'exceptionHandler'));
+			set_error_handler(array(__CLASS__, 'errorHandler'));
 
-		foreach (array('Tracy\Bar', 'Tracy\BlueScreen', 'Tracy\DefaultBarPanel', 'Tracy\Dumper',
-			'Tracy\FireLogger', 'Tracy\Helpers', 'Tracy\Logger', ) as $class) {
-			class_exists($class);
+			foreach (array('Tracy\Bar', 'Tracy\BlueScreen', 'Tracy\DefaultBarPanel', 'Tracy\Dumper',
+				'Tracy\FireLogger', 'Tracy\Helpers', 'Tracy\Logger', ) as $class) {
+				class_exists($class);
+			}
+
+			self::$enabled = TRUE;
 		}
 	}
 
@@ -186,7 +195,7 @@ class Debugger
 	 */
 	public static function shutdownHandler()
 	{
-		if (!self::$enabled) {
+		if (self::$done) {
 			return;
 		}
 
@@ -207,10 +216,10 @@ class Debugger
 	 */
 	public static function exceptionHandler(\Exception $exception, $exit = TRUE)
 	{
-		if (!self::$enabled) {
+		if (self::$done) {
 			return;
 		}
-		self::$enabled = FALSE; // prevent double rendering
+		self::$done = TRUE;
 
 		if (!headers_sent()) {
 			$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
@@ -297,9 +306,18 @@ class Debugger
 		} elseif (($severity & error_reporting()) !== $severity) {
 			return FALSE; // calls normal error handler to fill-in error_get_last()
 
-		} elseif (!self::$productionMode && (is_bool(self::$strictMode) ? self::$strictMode : ((self::$strictMode & $severity) === $severity))) {
+		} elseif (($severity & self::$logSeverity) === $severity) {
 			$e = new ErrorException($message, 0, $severity, $file, $line);
 			$e->context = $context;
+			self::log($e, self::ERROR);
+			return NULL;
+
+		} elseif (!self::$productionMode && !isset($_GET['_tracy_skip_error'])
+			&& (is_bool(self::$strictMode) ? self::$strictMode : ((self::$strictMode & $severity) === $severity))
+		) {
+			$e = new ErrorException($message, 0, $severity, $file, $line);
+			$e->context = $context;
+			$e->skippable = TRUE;
 			self::exceptionHandler($e);
 		}
 
@@ -476,7 +494,7 @@ class Debugger
 
 
 	/**
-	 * Logs message or exception to file .
+	 * Logs message or exception to file.
 	 * @param  string|Exception
 	 * @return string logged error filename
 	 */

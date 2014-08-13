@@ -118,12 +118,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/nette/tracy.git",
-            "reference": "398e58b429a67a2ec826663ab8b3a34c0c73dbc9"
+            "reference": "1250ac4907947b28ec66d6e00a337dadaddaad4c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/nette/tracy/zipball/398e58b429a67a2ec826663ab8b3a34c0c73dbc9",
-            "reference": "398e58b429a67a2ec826663ab8b3a34c0c73dbc9",
+            "url": "https://api.github.com/repos/nette/tracy/zipball/1250ac4907947b28ec66d6e00a337dadaddaad4c",
+            "reference": "1250ac4907947b28ec66d6e00a337dadaddaad4c",
             "shasum": ""
         },
         "require": {
@@ -132,7 +132,7 @@
         "require-dev": {
             "nette/tester": "~1.0"
         },
-        "time": "2014-07-22 09:00:36",
+        "time": "2014-08-07 17:19:48",
         "type": "library",
         "extra": {
             "branch-alias": {

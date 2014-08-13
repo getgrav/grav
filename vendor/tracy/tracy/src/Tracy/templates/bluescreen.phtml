@@ -12,6 +12,7 @@
  * @param  string $title
  * @param  string $source
  * @param  bool $sourceIsUrl
+ * @param  string $skipError
  * @return void
  */
 
@@ -48,7 +49,8 @@ $counter = 0;
 			<h1><?php echo htmlspecialchars($title), ($exception->getCode() ? ' #' . $exception->getCode() : '') ?></h1>
 
 			<p><?php echo htmlspecialchars($exception->getMessage(), ENT_IGNORE) ?>
-			<a href="https://www.google.com/search?sourceid=tracy&amp;q=<?php echo urlencode($title . ' ' . preg_replace('#\'.*\'|".*"#Us', '', $exception->getMessage())) ?>" rel="noreferrer">search&#x25ba;</a></p>
+			<a href="https://www.google.com/search?sourceid=tracy&amp;q=<?php echo urlencode($title . ' ' . preg_replace('#\'.*\'|".*"#Us', '', $exception->getMessage())) ?>" rel="noreferrer">search&#x25ba;</a>
+			<?php if ($skipError): ?><a href="<?php echo htmlSpecialChars($skipError, ENT_IGNORE | ENT_QUOTES) ?>">skip error&#x25ba;</a><?php endif ?></p>
 		</div>
 
 		<?php if ($prev = $exception->getPrevious()): ?>

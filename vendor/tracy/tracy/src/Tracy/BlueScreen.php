@@ -55,6 +55,9 @@ class BlueScreen
 		$title = $exception instanceof \ErrorException
 			? Helpers::errorTypeToString($exception->getSeverity())
 			: get_class($exception);
+		$skipError = $sourceIsUrl && $exception instanceof \ErrorException && !empty($exception->skippable)
+			? $source . (strpos($source, '?') ? '&' : '?') . '_tracy_skip_error'
+			: NULL;
 
 		require __DIR__ . '/templates/bluescreen.phtml';
 	}
