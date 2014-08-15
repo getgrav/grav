@@ -149,7 +149,7 @@ class General implements FileInterface
             $this->handle = fopen($this->filename, 'wb+');
         }
         $lock = $block ? LOCK_EX : LOCK_EX | LOCK_NB;
-        return $this->locked = flock($this->handle, $lock);
+        return $this->locked = $this->handle ? flock($this->handle, $lock) : false;
     }
 
     /**
