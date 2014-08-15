@@ -85,6 +85,9 @@ class Media extends Getters
             }
 
             $filePath = $this->path . '/' . $filename;
+
+            // Add default settings for undefined variables.
+            $params += $config->get('media.defaults');
             $params += array(
                 'type' => 'file',
                 'thumb' => 'media/thumb.png',
