@@ -25,6 +25,7 @@ twig:
 
 debugger:
   enabled: true
+  strict: false
   max_depth: 10
   log:
     enabled: false

@@ -26,14 +26,15 @@ cache:
   prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
 
 twig:
-  cache: false                          # Set to true to enable twig caching
-  debug: true                           # Enable Twig debug
-  auto_reload: true                     # Refresh cache on changes
-  autoescape: false                     # Autoescape Twig vars
+  cache: true                          # Set to true to enable twig caching
+  debug: false                         # Enable Twig debug
+  auto_reload: true                    # Refresh cache on changes
+  autoescape: false                    # Autoescape Twig vars
 
 debugger:
-  enabled: true                         # Enable Grav debugger
-  max_depth: 10                         # How many nested levels to display for objects or arrays
+  enabled: false                       # Enable Grav debugger and following settings
+  strict: false                        # Throw fatal error also on PHP warnings and notices
+  max_depth: 10                        # How many nested levels to display for objects or arrays
   log:
-    enabled: true                       # Enable logging
-    timing: false                       # Enable timing logging
+    enabled: true                      # Enable logging
+    timing: false                      # Enable timing logging

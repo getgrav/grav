@@ -12,7 +12,7 @@ use \Grav\Common\Page\Pages;
  * @author Andy Miller
  * @link http://www.rockettheme.com
  * @license http://opensource.org/licenses/MIT
- * @version 0.1
+ * @version 0.8.0
  *
  * Originally based on Pico by Gilbert Pellegrom - http://pico.dev7studios.com
  * Influeced by Pico, Stacey, Kirby, PieCrust and other great platforms...
@@ -84,6 +84,10 @@ class Grav extends Getters
 
         // Switch debugger into development mode if configured
         if ($this->config->get('system.debugger.enabled')) {
+            if ($this->config->get('system.debugger.strict')) {
+                Debugger::$strictMode = true;
+            }
+
             if (function_exists('ini_set')) {
                 ini_set('display_errors', true);
             }
