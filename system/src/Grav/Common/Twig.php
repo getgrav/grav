@@ -233,7 +233,12 @@ class Twig
 
         // Get Twig template layout
         $template = $this->template($page->template() . $ext);
-        $output = $this->twig->render($template, $twig_vars);
+
+        try {
+            $output = $this->twig->render($template, $twig_vars);
+        } catch (\Twig_Error_Loader $e) {
+            throw new \RuntimeException('Resource not found.', 404, $e);
+        }
 
         return $output;
     }
