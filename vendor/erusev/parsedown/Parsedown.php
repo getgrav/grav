@@ -619,7 +619,7 @@ class Parsedown
 
     protected function identifyMarkup($Line)
     {
-        if (preg_match('/^<(\w[\w\d]*)(?:[ ][^>\/]*)?(\/?)[ ]*>/', $Line['text'], $matches))
+        if (preg_match('/^<(\w[\w\d]*)(?:[ ][^>]*)?(\/?)[ ]*>/', $Line['text'], $matches))
         {
             if (in_array($matches[1], $this->textLevelElements))
             {

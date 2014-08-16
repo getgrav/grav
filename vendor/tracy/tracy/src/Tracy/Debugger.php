@@ -23,6 +23,8 @@ class Debugger
 		PRODUCTION = TRUE,
 		DETECT = NULL;
 
+	const COOKIE_SECRET = 'tracy-debug';
+
 	/** @var string */
 	public static $version = '2.3-dev';
 
@@ -126,18 +128,7 @@ class Debugger
 		self::$time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(TRUE);
 		error_reporting(E_ALL | E_STRICT);
 
-		// production/development mode detection
-		if (is_bool($mode)) {
-			self::$productionMode = $mode;
-
-		} elseif ($mode !== self::DETECT || self::$productionMode === NULL) { // IP addresses or computer names whitelist detection
-			$list = is_string($mode) ? preg_split('#[,\s]+#', $mode) : (array) $mode;
-			if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-				$list[] = '127.0.0.1';
-				$list[] = '::1';
-			}
-			self::$productionMode = !in_array(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n'), $list, TRUE);
-		}
+		self::$productionMode = is_bool($mode) ? $mode : !self::detectDebugMode($mode);
 
 		// logging configuration
 		if ($email !== NULL) {
@@ -516,6 +507,30 @@ class Debugger
 		if (!self::$productionMode) {
 			return self::getFireLogger()->log($message);
 		}
+	}
+
+
+	/**
+	 * Detects debug mode by IP address.
+	 * @param  string|array  IP addresses or computer names whitelist detection
+	 * @return bool
+	 */
+	public static function detectDebugMode($list = NULL)
+	{
+		$addr = isset($_SERVER['REMOTE_ADDR'])
+			? $_SERVER['REMOTE_ADDR']
+			: php_uname('n');
+		$secret = isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])
+			? $_COOKIE[self::COOKIE_SECRET]
+			: NULL;
+		$list = is_string($list)
+			? preg_split('#[,\s]+#', $list)
+			: (array) $list;
+		if (!isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			$list[] = '127.0.0.1';
+			$list[] = '::1';
+		}
+		return in_array($addr, $list, TRUE) || in_array("$secret@$addr", $list, TRUE);
 	}
 
 }

@@ -35,6 +35,7 @@ try {
     $registry->store('Twig', new Twig);
     $registry->store('Pages', new Page\Pages);
     $registry->store('Taxonomy', new Taxonomy);
+    $registry->store('Assets', new Assets);
 
     $grav->process();
 
