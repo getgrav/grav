@@ -20,7 +20,7 @@ ob_start();
 // Start the timer and enable debugger in production mode as we do not have system configuration yet.
 // Debugger catches all errors and logs them, for example if the script doesn't have write permissions.
 Debugger::timer();
-Debugger::enable(Debugger::DEVELOPMENT, is_dir(LOG_DIR) ? LOG_DIR : null);
+Debugger::enable(Debugger::PRODUCTION, is_dir(LOG_DIR) ? LOG_DIR : null);
 
 $grav = new Grav;
 
