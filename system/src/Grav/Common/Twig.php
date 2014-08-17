@@ -29,6 +29,11 @@ class Twig
     protected $config;
 
     /**
+     * @var Useragent
+     */
+    protected $user_agent;
+
+    /**
      * @var Uri
      */
     protected $uri;
@@ -69,9 +74,10 @@ class Twig
             // get Grav and Config
             $this->grav = Registry::get('Grav');
             $this->config = $this->grav->config;
+            $this->user_agent = $this->grav->user_agent;
             $this->uri = Registry::get('Uri');
             $this->taxonomy = Registry::get('Taxonomy');
-
+            $this->assets = Registry::get('Assets');
 
             $this->twig_paths = array(THEMES_DIR . $this->config->get('system.pages.theme') . '/templates');
             $this->grav->fireEvent('onAfterTwigTemplatesPaths');
@@ -114,9 +120,9 @@ class Twig
                 'theme_dir' => THEMES_DIR . $theme,
                 'theme_url' => $themeUrl,
                 'site' => $this->config->get('site'),
-                'stylesheets' => array(),
-                'scripts' => array(),
+                'assets' => $this->assets,
                 'taxonomy' => $this->taxonomy,
+                'user_agent' => $this->user_agent,
             );
 
         }

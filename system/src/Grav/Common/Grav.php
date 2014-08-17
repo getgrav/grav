@@ -67,6 +67,11 @@ class Grav extends Getters
     protected $twig;
 
     /**
+     * @var  Assets
+     */
+    protected $assets;
+
+    /**
      * @var Taxonomy
      */
     protected $taxonomy;
@@ -78,6 +83,9 @@ class Grav extends Getters
 
         // Get the Configuration settings and caching
         $this->config = Registry::get('Config');
+
+        // Get User Agent
+        $this->user_agent = new \phpUserAgent();
 
         Debugger::$logDirectory = $this->config->get('system.debugger.log.enabled') ? LOG_DIR : null;
         Debugger::$maxDepth = $this->config->get('system.debugger.max_depth');
@@ -106,6 +114,11 @@ class Grav extends Getters
         // Get current theme and hook it into plugins.
         $themes = new Themes();
         $this->plugins['Theme'] = $themes->load();
+
+        // Get assets and fire event to hook onto
+        $this->assets = Registry::get('Assets');
+        $this->assets->init();
+        $this->fireEvent('onAfterGetAssets');
 
         // Get twig object
         $this->twig = Registry::get('Twig');

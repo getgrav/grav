@@ -12,6 +12,9 @@ use \Grav\Common\Taxonomy;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
+ *
+ * @author RocketTheme
+ * @license MIT
  */
 class Pages
 {
