@@ -503,8 +503,6 @@ class Assets
      */
     protected function cssRewrite($file, $relative_path)
     {
-        xdebug_break();
-
         // Strip any sourcemap comments
         $file = preg_replace(self::CSS_SOURCEMAP_REGEX, '', $file);
 
