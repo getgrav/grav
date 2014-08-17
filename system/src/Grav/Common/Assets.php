@@ -98,13 +98,13 @@ class Assets
     {
 
         $config = Registry::get('Config');
-        $base_url = $config->get('system.base_url_relative');
+        $base_url = trim($config->get('system.base_url_relative'));
         $theme = $config->get('system.pages.theme');
         $asset_config = (array)$config->get('system.assets');
 
         $this->config($asset_config);
-        $this->base_url = $base_url;
-        $this->theme_url = $base_url .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
+        $this->base_url = $base_url . '/';
+        $this->theme_url = $base_url . '/' . USER_PATH . basename(THEMES_DIR) .'/'. $theme;
 
     }
 
@@ -403,9 +403,8 @@ class Assets
             }
         }
 
-        $relative_path = "{$this->base_url}/".basename(ASSETS_DIR)."/{$file}";
+        $relative_path = "{$this->base_url}".basename(ASSETS_DIR)."/{$file}";
         $absolute_path = ASSETS_DIR.$file;
-
 
         // If pipeline exist return it
         if(file_exists($absolute_path))
@@ -439,19 +438,26 @@ class Assets
      */
     protected function gatherLinks(array $links, $css = true)
     {
+
+
         $buffer = '';
         $local = true;
 
         foreach($links as $asset)
         {
             $link = $asset['asset'];
+            $relative_path = $link;
 
             if($this->isRemoteLink($link)) {
                 $local = false;
                 if('//' === substr($link, 0, 2))
                     $link = 'http:' . $link;
             } else {
-                $relative_path = str_replace($this->base_url.'/', '', $link);
+                // Fix to remove relative dir if grav is in one
+                if (($this->base_url != '/') && (strpos($this->base_url, $link) == 0)) {
+                    $relative_path = str_replace($this->base_url, '/', $link);
+                }
+
                 $relative_dir = dirname ($relative_path);
                 $link = ROOT_DIR . $relative_path;
             }
@@ -523,7 +529,7 @@ class Assets
                         }
                     }
 
-                    $new_url = $this->base_url . '/' . $relative_path . '/' . implode('/', $newpath);
+                    $new_url = rtrim($this->base_url,'/') . $relative_path . '/' . implode('/', $newpath);
 
                     return str_replace($old_url, $new_url, $matches[0]);
                 },
@@ -545,16 +551,18 @@ class Assets
         $matches = $this->assetIsGravPackage($asset);
         $base_url = $this->base_url;
 
+
         if($matches === false)
-            return $base_url . '/' . $asset;
+            return $base_url . $asset;
 
         if($matches[1] == 'theme') {
             return $this->theme_url . '/' . $matches[2] . '/' . $matches[3];
         } elseif ($matches[1] == 'plugin') {
-            return $base_url . '/user/plugins/' . $matches[2] . '/' . $matches[3];
+            return $base_url . 'user/plugins/' . $matches[2] . '/' . $matches[3];
         } else {
-            return $base_url . '/' . $asset;
+            return $base_url . $asset;
         }
+
 
     }
 
