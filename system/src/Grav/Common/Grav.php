@@ -15,7 +15,7 @@ use \Grav\Common\Page\Pages;
  * @version 0.8.0
  *
  * Originally based on Pico by Gilbert Pellegrom - http://pico.dev7studios.com
- * Influeced by Pico, Stacey, Kirby, PieCrust and other great platforms...
+ * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
  *
  * @property  Plugins  $plugins
  * @property  Config   $config

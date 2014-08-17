@@ -15,7 +15,7 @@ abstract class Authentication
      * @param string $password  Plaintext password.
      * @return string|bool
      */
-    static public function create($password)
+    public static function create($password)
     {
         return password_hash($password, PASSWORD_DEFAULT);
     }
@@ -27,7 +27,7 @@ abstract class Authentication
      * @param string $hash      Hash to verify against.
      * @return int              Returns 0 if the check fails, 1 if password matches, 2 if hash needs to be updated.
      */
-    static public function verify($password, $hash)
+    public static function verify($password, $hash)
     {
         // Always accept plaintext passwords (needs an update).
         // FIXME: not safe to do this...
