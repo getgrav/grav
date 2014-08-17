@@ -492,7 +492,7 @@ class Pages
 
             $child = isset($this->instances[$key]) ? $this->instances[$key] : null;
             if (!$child) {
-               throw new \RuntimeException("Page does not exist: {$key}");
+                throw new \RuntimeException("Page does not exist: {$key}");
             }
 
             switch ($order_by) {

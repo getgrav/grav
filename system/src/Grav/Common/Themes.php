@@ -16,7 +16,7 @@ class Themes
      *
      * @return array|Data\Data[]
      */
-    static public function all()
+    public static function all()
     {
         $list = array();
         $iterator = new \DirectoryIterator(THEMES_DIR);
@@ -43,7 +43,7 @@ class Themes
      * @return Data\Data
      * @throws \RuntimeException
      */
-    static public function get($type)
+    public static function get($type)
     {
         if (!$type) {
             throw new \RuntimeException('Theme name not provided.');

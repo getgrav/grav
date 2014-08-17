@@ -85,7 +85,7 @@ class Config extends General
         }
         $vars = implode("\n", $vars);
 
-       return "<?php\nnamespace Grav;\n\nclass Config extends \\Grav\\Common\\Config {\n {$vars}\n}";
+        return "<?php\nnamespace Grav;\n\nclass Config extends \\Grav\\Common\\Config {\n {$vars}\n}";
     }
 
     /**
