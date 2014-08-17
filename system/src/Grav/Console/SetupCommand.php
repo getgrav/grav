@@ -86,7 +86,6 @@ EOT
 
         // Copy the Core STuff
         } else {
-            $options = true;
             // Create Some core stuff if it doesn't exist
             $this->createDirectories($output);
 

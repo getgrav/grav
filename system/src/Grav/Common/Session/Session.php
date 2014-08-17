@@ -79,7 +79,7 @@ class Session implements \IteratorAggregate
         $this->started = true;
 
         return $this;
-     }
+    }
 
     /**
      * Get session ID
