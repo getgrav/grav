@@ -13,10 +13,9 @@ define('CSS_ASSET', true);
 define('JS_ASSET', false);
 
 /**
- * The Wrapper object for handling JS, CSS assets
+ * Handles Asset management (CSS & JS) and also pipelining (combining into a single file for each asset)
  *
- * Based on stolz/assets package modified for use with Grav
- *
+ * Based on stolz/assets (https://github.com/Stolz/Assets) package modified for use with Grav
  *
  * @author RocketTheme
  * @license MIT
@@ -24,6 +23,9 @@ define('JS_ASSET', false);
 
 class Assets
 {
+    /** @const Regex to match grav asset shortcodes */
+    const GRAV_ASSET_REGEX = '/@(plugin|theme)\/(.*?):(.*)/i';
+
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
 
@@ -34,10 +36,14 @@ class Assets
     const JS_REGEX = '/.\.js$/i';
 
     /** @const Regex to match CSS urls */
-    const CSS_URL_REGEX = '{url\([\'\"]((?!http|//).*?)[\'\"]\)}';
+    const CSS_URL_REGEX = '{url\([\'\"]?((?!http|//).*?)[\'\"]?\)}';
 
     /** @const Regex to match CSS sourcemap comments */
     const CSS_SOURCEMAP_REGEX = '{\/\*# (.*) \*\/}';
+
+    /** @const Regex to match CSS import content */
+    const CSS_IMPORT_REGEX = '{@import(.*);}';
+
 
     /**
      * Closure used by the pipeline to fetch assets.
@@ -52,21 +58,26 @@ class Assets
      */
     protected $fetch_command;
 
+    // Configuration toggles to enable/disable the pipelining feature
     protected $css_pipeline = false;
     protected $js_pipeline = false;
 
+    // The asset holding arrays
     protected $collections = array();
     protected $css = array();
     protected $js = array();
 
+    // Some configuration variables
     protected $config;
     protected $theme_url;
     protected $base_url;
 
+    // Default values for pipeline settings
     protected $css_minify = true;
     protected $css_rewrite = true;
     protected $js_minify = true;
 
+    // Arrays to hold assets that should NOT be pipelined
     protected $css_no_pipeline = array();
     protected $js_no_pipeline = array();
 
@@ -75,17 +86,21 @@ class Assets
     {
         // Forward config options
         if($options)
-            $this->config($options);
+            $this->config((array)$options);
     }
 
+    /**
+     * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
+     *
+     * @return [type] [description]
+     */
     public function init()
     {
-        // $this->config = $config;
 
-        $this->config = Registry::get('Config');
-        $base_url = $this->config->get('system.base_url_relative');
-        $theme = $this->config->get('system.pages.theme');
-        $asset_config = (array)$this->config->get('system.assets');
+        $config = Registry::get('Config');
+        $base_url = $config->get('system.base_url_relative');
+        $theme = $config->get('system.pages.theme');
+        $asset_config = (array)$config->get('system.assets');
 
         $this->config($asset_config);
         $this->base_url = $base_url;
@@ -442,12 +457,13 @@ class Assets
             }
 
             $file = ($this->fetch_command instanceof Closure) ? $this->fetch_command->__invoke($link) : file_get_contents($link);
-            $buffer .= $file;
-        }
 
-        // If this is CSS + the file is local + rewrite enabled
-        if ($css && $local && $this->css_rewrite) {
-            $buffer = $this->cssRewrite($buffer, $relative_dir);
+            // If this is CSS + the file is local + rewrite enabled
+            if ($css && $local && $this->css_rewrite) {
+                $file = $this->cssRewrite($file, $relative_dir);
+            }
+
+            $buffer .= $file;
         }
 
         // Pull out @imports and move to top
@@ -458,11 +474,17 @@ class Assets
         return $buffer;
     }
 
+    /**
+     * Moves @import statements to the top of the file per the CSS specification
+     *
+     * @param  string $file the file containing the combined CSS files
+     * @return string       the modified file with any @imports at the top of the file
+     */
     protected function moveImports($file)
     {
         $this->imports = array();
 
-        $file = preg_replace_callback('{@import(.*);}',
+        $file = preg_replace_callback(self::CSS_IMPORT_REGEX,
             function($matches) {
                 $this->imports[] = $matches[0];
                 return '';
@@ -481,6 +503,7 @@ class Assets
      */
     protected function cssRewrite($file, $relative_path)
     {
+        xdebug_break();
 
         // Strip any sourcemap comments
         $file = preg_replace(self::CSS_SOURCEMAP_REGEX, '', $file);
@@ -512,11 +535,17 @@ class Assets
         return $file;
     }
 
+    /**
+     * Build local links including grav asset shortcodes
+     *
+     * @param  string $asset the asset string reference
+     * @return string        the final link url to the asset
+     */
     protected function buildLocalLink($asset)
     {
 
         $matches = $this->assetIsGravPackage($asset);
-        $base_url = $this->config->get('system.base_url_relative');
+        $base_url = $this->base_url;
 
         if($matches === false)
             return $base_url . '/' . $asset;
@@ -531,9 +560,18 @@ class Assets
 
     }
 
+    /**
+     * Determines if an asset contains a valid grav asset shortcode
+     * Currently supported formats are:
+     * @plugin/plugin_name/directories:assetname.js|css
+     * @theme/directories:assetname.js|css
+     *
+     * @param  string $asset    the asset string reference
+     * @return matches|false    if there are matches, those regex matches are returned, else return false
+     */
     protected function assetIsGravPackage($asset)
     {
-        if(preg_match('{^@([a-z]+)/(.*?):(.*)$}', $asset, $matches))
+        if(preg_match(self::GRAV_ASSET_REGEX, $asset, $matches))
             return $matches;
         return false;
     }

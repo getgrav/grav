@@ -1,6 +1,12 @@
 <?php
 namespace Grav\Common;
 
+/**
+ * The URI object provides information about the current URL
+ *
+ * @author RocketTheme
+ * @license MIT
+ */
 class Uri
 {
     protected $base;
