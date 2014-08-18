@@ -91,8 +91,6 @@ class Assets
 
     /**
      * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
-     *
-     * @return [type] [description]
      */
     public function init()
     {
@@ -116,8 +114,8 @@ class Assets
      * assets and/or collections that will be automatically added on startup.
      *
      * @param  array $options Configurable options.
-     * @return Manager
-     * @throws Exception
+     * @return $this
+     * @throws \Exception
      */
     public function config(array $config)
     {
@@ -130,7 +128,7 @@ class Assets
 
         // Pipeline requires public dir
         if(($this->js_pipeline || $this->css_pipeline) && ! is_dir(ASSETS_DIR))
-            throw new Exception('Assets: Public dir not found');
+            throw new \Exception('Assets: Public dir not found');
 
         // Set custom pipeline fetch command
         if(isset($config['fetch_command']) and ($config['fetch_command'] instanceof Closure))
@@ -172,7 +170,7 @@ class Assets
      * @param  mixed   $asset
      * @param  int     $priority the priority, bigger comes first
      * @param  bool    $pipeline false if this should not be pipelined
-     * @return Manager
+     * @return $this
      */
     public function add($asset, $priority = 10, $pipeline = true)
     {
@@ -213,7 +211,7 @@ class Assets
      * @param  mixed   $asset
      * @param  int     $priority the priority, bigger comes first
      * @param  bool    $pipeline false if this should not be pipelined
-     * @return Manager
+     * @return $this
      */
     public function addCss($asset, $priority = 10, $pipeline = true)
     {
@@ -243,7 +241,7 @@ class Assets
      * @param  mixed   $asset
      * @param  int     $priority the priority, bigger comes first
      * @param  bool    $pipeline false if this should not be pipelined
-     * @return Manager
+     * @return $this
      */
     public function addJs($asset, $priority = 10, $pipeline = true)
     {
@@ -332,7 +330,7 @@ class Assets
      *
      * @param  string  $collectionName
      * @param  array   $assets
-     * @return Manager
+     * @return $this
      */
     public function registerCollection($collectionName, Array $assets)
     {
@@ -344,7 +342,7 @@ class Assets
     /**
      * Reset all assets.
      *
-     * @return Manager
+     * @return $this
      */
     public function reset()
     {
@@ -354,7 +352,7 @@ class Assets
     /**
      * Reset CSS assets.
      *
-     * @return Manager
+     * @return $this
      */
     public function resetCss()
     {
@@ -366,7 +364,7 @@ class Assets
     /**
      * Reset JavaScript assets.
      *
-     * @return Manager
+     * @return $this
      */
     public function resetJs()
     {
@@ -574,7 +572,7 @@ class Assets
      * @theme/directories:assetname.js|css
      *
      * @param  string $asset    the asset string reference
-     * @return matches|false    if there are matches, those regex matches are returned, else return false
+     * @return array|bool    if there are matches, those regex matches are returned, else return false
      */
     protected function assetIsGravPackage($asset)
     {
@@ -623,7 +621,7 @@ class Assets
      *
      * @param  string $directory Relative to $this->public_dir
      * @param  string $pattern (regex)
-     * @return Manager
+     * @return $this
      * @throws Exception
      */
     public function addDir($directory, $pattern = self::DEFAULT_REGEX)
@@ -674,7 +672,7 @@ class Assets
      * Add all CSS assets within $directory (relative to public dir).
      *
      * @param  string $directory Relative to $this->public_dir
-     * @return Manager
+     * @return $this
      */
     public function addDirCss($directory)
     {
@@ -685,7 +683,7 @@ class Assets
      * Add all JavaScript assets within $directory.
      *
      * @param  string $directory Relative to $this->public_dir
-     * @return Manager
+     * @return $this
      */
     public function addDirJs($directory)
     {
@@ -713,7 +711,9 @@ class Assets
     }
 
     /**
-     * @var Config
+     * @param $a
+     * @param $b
+     * @return mixed
      */
     protected function priorityCompare($a, $b)
     {
