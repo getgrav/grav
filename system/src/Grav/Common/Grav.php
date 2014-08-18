@@ -1,7 +1,9 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Service\StreamsServiceProvider;
 use Grav\Component\DI\Container;
+use Grav\Component\Filesystem\ResourceLocator;
 
 /**
  * Grav
@@ -88,11 +90,16 @@ class Grav extends Container
             return new \phpUserAgent();
         };
 
+        $container->register(new StreamsServiceProvider);
+
         return $container;
     }
 
     public function process()
     {
+        // Initialize stream wrappers.
+        $this['locator'];
+
         $this['plugins']->init();
 
         $this->fireEvent('onAfterInitPlugins');

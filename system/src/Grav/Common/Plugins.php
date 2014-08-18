@@ -37,8 +37,7 @@ class Plugins extends Iterator
                 continue;
             }
 
-            $folder = PLUGINS_DIR . $plugin;
-            $filePath = $folder . DS . $plugin . PLUGIN_EXT;
+            $filePath = 'plugin://' . $plugin . DS . $plugin . PLUGIN_EXT;
             if (!is_file($filePath)) {
                 throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found!", $filePath, $plugin));
             }
@@ -72,7 +71,7 @@ class Plugins extends Iterator
     static public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator(PLUGINS_DIR);
+        $iterator = new \DirectoryIterator('plugin://');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
@@ -91,16 +90,16 @@ class Plugins extends Iterator
 
     static public function get($type)
     {
-        $blueprints = new Data\Blueprints(PLUGINS_DIR . $type);
+        $blueprints = new Data\Blueprints('plugin://' . $type);
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $type;
 
         // Load default configuration.
-        $file = File\Yaml::instance(PLUGINS_DIR . "{$type}/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance('plugin://' . "{$type}/{$type}" . YAML_EXT);
         $obj = new Data\Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance(USER_DIR . "config/plugins/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance('plugin://' . "config/plugins/{$type}" . YAML_EXT);
         $obj->merge($file->content());
 
         // Save configuration always to user/config.

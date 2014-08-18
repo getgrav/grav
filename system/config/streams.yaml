@@ -1,0 +1,6 @@
+schemes:
+  plugin:
+    type: ReadOnlyStream
+    paths:
+      - user/plugins
+      - system/plugins
