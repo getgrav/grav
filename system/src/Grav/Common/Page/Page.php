@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common\Page;
 
-use \Grav\Common\Registry;
 use \Grav\Common\Config;
 use \Grav\Common\Utils;
 use \Grav\Common\Cache;
@@ -1508,7 +1507,13 @@ class Page
      */
     protected function parseMarkdownContent($content)
     {
-        $parsedown = new \Parsedown();
+        /** @var Config $config */
+        $config = Grav::instance()['Config'];
+        if ($config->get('system.pages.markdown_extra')) {
+            $parsedown = new \ParsedownExtra();
+        } else {
+            $parsedown = new \Parsedown();
+        }
         $content = $parsedown->parse($content);
         return $content;
     }

@@ -9,6 +9,7 @@ return array(
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
     'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
+    'ParsedownExtra' => array($vendorDir . '/erusev/parsedown-extra'),
     'Parsedown' => array($vendorDir . '/erusev/parsedown'),
     'Gregwar\\Image' => array($vendorDir . '/gregwar/image'),
     'Gregwar\\Cache' => array($vendorDir . '/gregwar/cache'),

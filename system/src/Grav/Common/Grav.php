@@ -12,7 +12,7 @@ use Grav\Component\DI\Container;
  * @version 0.8.0
  *
  * Originally based on Pico by Gilbert Pellegrom - http://pico.dev7studios.com
- * Influeced by Pico, Stacey, Kirby, PieCrust and other great platforms...
+ * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
  *
  * @property  Uri           $uri
  * @property  Config        $config
@@ -20,6 +20,8 @@ use Grav\Component\DI\Container;
  * @property  Cache         $cache
  * @property  Page\Pages    $pages
  * @property  Page\Page     $page
+ * @property  Assets        $assets
+ * @property  Taxonomy      $taxonomy
  */
 class Grav extends Container
 {
@@ -79,8 +81,14 @@ class Grav extends Container
         $container['Pages'] = function ($c) {
             return new Page\Pages($c);
         };
+        $container['Assets'] = function ($c) {
+            return new Assets();
+        };
         $container['Page'] = function ($c) {
             return $c['Pages']->dispatch($c['Uri']->route());
+        };
+        $container['UserAgent'] = function ($c) {
+            return new \phpUserAgent();
         };
 
         return $container;
@@ -91,6 +99,10 @@ class Grav extends Container
         $this['Plugins']->init();
 
         $this->fireEvent('onAfterInitPlugins');
+
+        $this['Assets']->init();
+
+        $this->fireEvent('onAfterGetAssets');
 
         $this['Twig']->init();
         $this['Pages']->init();

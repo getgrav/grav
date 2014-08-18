@@ -1,6 +1,12 @@
 <?php
 namespace Grav\Common;
 
+/**
+ * The URI object provides information about the current URL
+ *
+ * @author RocketTheme
+ * @license MIT
+ */
 class Uri
 {
     protected $base;
@@ -57,7 +63,7 @@ class Uri
                 if (strpos($bit, ':') !== false) {
                     $param = explode(':', $bit);
                     if (count($param) == 2) {
-                        $this->params[$param[0]] = str_replace('%7C', '/', $param[1]);
+                        $this->params[$param[0]] = str_replace('%7C', '/', filter_var($param[1], FILTER_SANITIZE_STRING));
                     }
                 } else {
                     $path[] = $bit;
@@ -128,7 +134,7 @@ class Uri
     public function query($id = null)
     {
         if (isset($id)) {
-            return $this->query[$id];
+            return filter_var($this->query[$id], FILTER_SANITIZE_STRING) ;
         } else {
             return http_build_query($this->query);
         }

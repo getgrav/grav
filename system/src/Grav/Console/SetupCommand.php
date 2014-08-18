@@ -8,11 +8,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-//Use the Composer classes
-// use Composer\Console\Application;
-// use Composer\Command\UpdateCommand;
-// use Symfony\Component\Console\Input\ArrayInput;
-
 class SetupCommand extends Command
 {
     protected $directories  = array('/cache',
@@ -86,7 +81,6 @@ EOT
 
         // Copy the Core STuff
         } else {
-            $options = true;
             // Create Some core stuff if it doesn't exist
             $this->createDirectories($output);
 

@@ -14,13 +14,15 @@
     "require": {
         "php": ">=5.4.0",
         "twig/twig": "1.16.*@dev",
-        "erusev/parsedown": "dev-master",
+        "erusev/parsedown-extra": "dev-master",
         "symfony/yaml": "2.5.*@dev",
         "symfony/console": "2.5.*@dev",
         "doctrine/cache": "1.4.*@dev",
         "tracy/tracy": "dev-master",
         "gregwar/image": "dev-master",
         "ircmaxell/password-compat": "1.0.*",
+        "mrclay/minify": "dev-master",
+        "ornicar/php-user-agent": "1.0.*@dev",
         "pimple/pimple": "~3.0"
     }
 }

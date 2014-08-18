@@ -14,29 +14,14 @@ use \Grav\Common\Page\Page;
 class Twig
 {
     /**
-     * @var \Twig_Environment
-     */
-    protected $twig;
-
-    /**
      * @var Grav
      */
     protected $grav;
 
     /**
-     * @var Config
+     * @var \Twig_Environment
      */
-    protected $config;
-
-    /**
-     * @var Uri
-     */
-    protected $uri;
-
-    /**
-     * @var Taxonomy
-     */
-    protected $taxonomy;
+    protected $twig;
 
     /**
      * @var array
@@ -77,56 +62,58 @@ class Twig
      */
     public function init()
     {
-        // get Grav and Config
-        $this->config = $this->grav['Config'];
-        $this->uri = $this->grav['Uri'];
-        $this->taxonomy = $this->grav['Taxonomy'];
+        if (!isset($this->twig)) {
+            /** @var Config $config */
+            $config = $this->grav['Config'];
 
-        $this->twig_paths = array(THEMES_DIR . $this->config->get('system.pages.theme') . '/templates');
-        $this->grav->fireEvent('onAfterTwigTemplatesPaths');
+            $this->twig_paths = array(THEMES_DIR . $config->get('system.pages.theme') . '/templates');
+            $this->grav->fireEvent('onAfterTwigTemplatesPaths');
 
-        $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
-        $this->loaderArray = new \Twig_Loader_Array(array());
-        $loader_chain = new \Twig_Loader_Chain(array($this->loaderArray, $this->loader));
+            $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
+            $this->loaderArray = new \Twig_Loader_Array(array());
+            $loader_chain = new \Twig_Loader_Chain(array($this->loaderArray, $this->loader));
 
-        $params = $this->config->get('system.twig');
-        if (!empty($params['cache'])) {
-            $params['cache'] = CACHE_DIR;
+            $params = $config->get('system.twig');
+            if (!empty($params['cache'])) {
+                $params['cache'] = CACHE_DIR;
+            }
+
+            $this->twig = new \Twig_Environment($loader_chain, $params);
+            $this->grav->fireEvent('onAfterTwigInit');
+
+            // set default date format if set in config
+            if ($config->get('system.pages.dateformat.long')) {
+                $this->twig->getExtension('core')->setDateFormat($config->get('system.pages.dateformat.long'));
+            }
+            // enable the debug extension if required
+            if ($config->get('system.twig.debug')) {
+                $this->twig->addExtension(new \Twig_Extension_Debug());
+            }
+            $this->twig->addExtension(new TwigExtension());
+            $this->grav->fireEvent('onAfterTwigExtensions');
+
+            $baseUrlAbsolute = $config->get('system.base_url_absolute');
+            $baseUrlRelative = $config->get('system.base_url_relative');
+            $theme = $config->get('system.pages.theme');
+            $themeUrl = $baseUrlRelative .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
+
+            // Set some standard variables for twig
+            $this->twig_vars = array(
+                'grav_version' => GRAV_VERSION,
+                'config' => $config,
+                'uri' => $this->grav['Uri'],
+                'base_dir' => rtrim(ROOT_DIR, '/'),
+                'base_url_absolute' => $baseUrlAbsolute,
+                'base_url_relative' => $baseUrlRelative,
+                'theme_dir' => THEMES_DIR . $theme,
+                'theme_url' => $themeUrl,
+                'site' => $config->get('site'),
+                'assets' => $this->grav['Assets'],
+                'taxonomy' => $this->grav['Taxonomy'],
+                'user_agent' => $this->grav['UserAgent'],
+            );
+
         }
-
-        $this->twig = new \Twig_Environment($loader_chain, $params);
-        $this->grav->fireEvent('onAfterTwigInit');
-
-        // set default date format if set in config
-        if ($this->config->get('system.pages.dateformat.long')) {
-            $this->twig->getExtension('core')->setDateFormat($this->config->get('system.pages.dateformat.long'));
-        }
-        // enable the debug extension if required
-        if ($this->config->get('system.twig.debug')) {
-            $this->twig->addExtension(new \Twig_Extension_Debug());
-        }
-        $this->twig->addExtension(new TwigExtension());
-        $this->grav->fireEvent('onAfterTwigExtensions');
-
-        $baseUrlAbsolute = $this->config->get('system.base_url_absolute');
-        $baseUrlRelative = $this->config->get('system.base_url_relative');
-        $theme = $this->config->get('system.pages.theme');
-        $themeUrl = $baseUrlRelative .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
-
-        // Set some standard variables for twig
-        $this->twig_vars = array(
-            'config' => $this->config,
-            'uri' => $this->uri,
-            'base_dir' => rtrim(ROOT_DIR, '/'),
-            'base_url_absolute' => $baseUrlAbsolute,
-            'base_url_relative' => $baseUrlRelative,
-            'theme_dir' => THEMES_DIR . $theme,
-            'theme_url' => $themeUrl,
-            'site' => $this->config->get('site'),
-            'stylesheets' => array(),
-            'scripts' => array(),
-            'taxonomy' => $this->taxonomy,
-        );
     }
 
     /**

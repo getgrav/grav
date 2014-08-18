@@ -1,22 +1,22 @@
 [
     {
         "name": "erusev/parsedown",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/erusev/parsedown.git",
-            "reference": "e33ac1c56ea591f21b9cf2fa74356ef708d4e130"
+            "reference": "d24439ada0704948deef0d3eda2ea20fd8db1747"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/erusev/parsedown/zipball/e33ac1c56ea591f21b9cf2fa74356ef708d4e130",
-            "reference": "e33ac1c56ea591f21b9cf2fa74356ef708d4e130",
+            "url": "https://api.github.com/repos/erusev/parsedown/zipball/d24439ada0704948deef0d3eda2ea20fd8db1747",
+            "reference": "d24439ada0704948deef0d3eda2ea20fd8db1747",
             "shasum": ""
         },
-        "time": "2014-06-18 09:27:25",
+        "time": "2014-05-21 20:20:46",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Parsedown": ""
@@ -37,6 +37,52 @@
         "homepage": "http://parsedown.org",
         "keywords": [
             "markdown",
+            "parser"
+        ]
+    },
+    {
+        "name": "erusev/parsedown-extra",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/erusev/parsedown-extra.git",
+            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
+            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
+            "shasum": ""
+        },
+        "require": {
+            "erusev/parsedown": "~1.0"
+        },
+        "time": "2014-08-16 11:20:35",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "ParsedownExtra": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Emanuil Rusev",
+                "email": "hello@erusev.com",
+                "homepage": "http://erusev.com"
+            }
+        ],
+        "description": "An extension of Parsedown that adds support for Markdown Extra.",
+        "homepage": "https://github.com/erusev/parsedown-extra",
+        "keywords": [
+            "markdown",
+            "markdown extra",
+            "parsedown",
             "parser"
         ]
     },
@@ -118,12 +164,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/nette/tracy.git",
-            "reference": "1250ac4907947b28ec66d6e00a337dadaddaad4c"
+            "reference": "5b62cb55e904ba1a1325803686a9f90959c99585"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/nette/tracy/zipball/1250ac4907947b28ec66d6e00a337dadaddaad4c",
-            "reference": "1250ac4907947b28ec66d6e00a337dadaddaad4c",
+            "url": "https://api.github.com/repos/nette/tracy/zipball/5b62cb55e904ba1a1325803686a9f90959c99585",
+            "reference": "5b62cb55e904ba1a1325803686a9f90959c99585",
             "shasum": ""
         },
         "require": {
@@ -132,7 +178,7 @@
         "require-dev": {
             "nette/tester": "~1.0"
         },
-        "time": "2014-08-07 17:19:48",
+        "time": "2014-08-17 22:39:47",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -266,6 +312,48 @@
         ]
     },
     {
+        "name": "mrclay/minify",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/mrclay/minify.git",
+            "reference": "fb3931f8cd54a637b2a42170c3a9a1c4da9e69a9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/mrclay/minify/zipball/fb3931f8cd54a637b2a42170c3a9a1c4da9e69a9",
+            "reference": "fb3931f8cd54a637b2a42170c3a9a1c4da9e69a9",
+            "shasum": ""
+        },
+        "require": {
+            "ext-pcre": "*",
+            "php": ">=5.2.1"
+        },
+        "time": "2014-04-03 23:53:48",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "min/lib/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Steve Clay",
+                "email": "steve@mrclay.org",
+                "homepage": "http://www.mrclay.org/",
+                "role": "Developer"
+            }
+        ],
+        "description": "Minify is a PHP5 app that helps you follow several rules for client-side performance. It combines multiple CSS or Javascript files, removes unnecessary whitespace and comments, and serves them with gzip encoding and optimal client-side cache headers",
+        "homepage": "http://code.google.com/p/minify/"
+    },
+    {
         "name": "twig/twig",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -381,12 +469,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/Console.git",
-            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63"
+            "reference": "748beed2a1e73179c3f5154d33fe6ae100c1aeb1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/Console/zipball/cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
-            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
+            "url": "https://api.github.com/repos/symfony/Console/zipball/748beed2a1e73179c3f5154d33fe6ae100c1aeb1",
+            "reference": "748beed2a1e73179c3f5154d33fe6ae100c1aeb1",
             "shasum": ""
         },
         "require": {
@@ -400,7 +488,7 @@
             "psr/log": "For using the console logger",
             "symfony/event-dispatcher": ""
         },
-        "time": "2014-08-05 09:00:40",
+        "time": "2014-08-14 16:10:54",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -469,6 +557,53 @@
         "keywords": [
             "hashing",
             "password"
+        ]
+    },
+    {
+        "name": "ornicar/php-user-agent",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ornicar/php-user-agent.git",
+            "reference": "91f648fc5080ac1e8a8b51bcd90867b6ddeaf633"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ornicar/php-user-agent/zipball/91f648fc5080ac1e8a8b51bcd90867b6ddeaf633",
+            "reference": "91f648fc5080ac1e8a8b51bcd90867b6ddeaf633",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2013-07-09 13:04:43",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "lib/phpUserAgent.php",
+                "lib/phpUserAgentStringParser.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Thibault Duplessis",
+                "email": "thibault.duplessis@gmail.com",
+                "homepage": "http://ornicar.github.com"
+            }
+        ],
+        "keywords": [
+            "user-agent"
         ]
     }
 ]
