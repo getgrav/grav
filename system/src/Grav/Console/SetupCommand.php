@@ -150,8 +150,13 @@ EOT
             $to = $this->destination . $target;
 
             $output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
-            @unlink ($to);
-            symlink ($from, $to);
+
+            if (is_dir($to)) {
+                $this->rmdir($to);
+            } else {
+                @unlink($to);
+            }
+            symlink($from, $to);
         }
     }
 
@@ -270,5 +275,22 @@ EOT
                 $this->rcopy($f->getRealPath(), "$dest/$f");
             }
         }
+    }
+
+    private function rmdir($dir) {
+        $files = new \RecursiveIteratorIterator(
+                       new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                       \RecursiveIteratorIterator::CHILD_FIRST
+                    );
+
+        foreach ($files as $fileinfo) {
+            if ($fileinfo->isDir()) {
+                if (false === rmdir($fileinfo->getRealPath())) return false;
+            } else {
+                if (false === unlink($fileinfo->getRealPath())) return false;
+            }
+        }
+
+        return rmdir($dir);
     }
 }
