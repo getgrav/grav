@@ -9,12 +9,15 @@ use \Tracy\Debugger as TracyDebugger;
  */
 class Debugger
 {
-    public function __construct()
+    const PRODUCTION = TracyDebugger::PRODUCTION;
+    const DEVELOPMENT = TracyDebugger::DEVELOPMENT;
+
+    public function __construct($mode = self::PRODUCTION)
     {
         // Start the timer and enable debugger in production mode as we do not have system configuration yet.
         // Debugger catches all errors and logs them, for example if the script doesn't have write permissions.
         TracyDebugger::timer();
-        TracyDebugger::enable(TracyDebugger::DEVELOPMENT, is_dir(LOG_DIR) ? LOG_DIR : null);
+        TracyDebugger::enable($mode, is_dir(LOG_DIR) ? LOG_DIR : null);
     }
 
     public function init()
