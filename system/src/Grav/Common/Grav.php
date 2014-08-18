@@ -30,6 +30,9 @@ class Grav extends Container
     {
         if (!self::$instance) {
             self::$instance = static::load($values);
+
+            GravTrait::setGrav(self::$instance);
+
         } elseif ($values) {
             $instance = self::$instance;
             foreach ($values as $key => $value) {

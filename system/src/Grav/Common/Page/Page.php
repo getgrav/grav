@@ -2,6 +2,7 @@
 namespace Grav\Common\Page;
 
 use \Grav\Common\Config;
+use Grav\Common\GravTrait;
 use \Grav\Common\Utils;
 use \Grav\Common\Cache;
 use \Grav\Common\Twig;
@@ -24,6 +25,8 @@ use \Symfony\Component\Yaml\Yaml;
  */
 class Page
 {
+    use GravTrait;
+
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -83,7 +86,7 @@ class Page
     public function __construct($array = array())
     {
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::$grav['config'];
 
         $this->routable = true;
         $this->taxonomy = array();
@@ -230,7 +233,7 @@ class Page
 
         // Return calculated summary based on setting in site config file
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::$grav['config'];
         if (!$size && $config->get('site.summary.size')) {
             $size = $config->get('site.summary.size');
         }
@@ -270,7 +273,7 @@ class Page
 
             // Load cached content
             /** @var Cache $cache */
-            $cache = Grav::instance()['cache'];
+            $cache = self::$grav['cache'];
             $cache_id = md5('page'.$this->id());
             $content = $cache->fetch($cache_id);
 
@@ -296,7 +299,7 @@ class Page
                 // Do we need to process twig this time?
                 if ($update_cache || $process_twig) {
                     /** @var Twig $twig */
-                    $twig = Grav::instance()['twig'];
+                    $twig = self::$grav['twig'];
                     $content = $twig->processPage($this, $content);
                 }
             }
@@ -464,7 +467,7 @@ class Page
     public function blueprints()
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::$grav['pages'];
 
         return $pages->blueprints($this->template());
     }
@@ -543,7 +546,7 @@ class Page
     public function media($var = null)
     {
         /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
+        $cache = self::$grav['cache'];
 
         if ($var) {
             $this->media = $var;
@@ -761,7 +764,7 @@ class Page
     public function url($include_host = false)
     {
         /** @var Uri $uri */
-        $uri = Grav::instance()['uri'];
+        $uri = self::$grav['uri'];
         $rootUrl = $uri->rootUrl($include_host);
         $url = $rootUrl.'/'.trim($this->route(), '/');
 
@@ -957,7 +960,7 @@ class Page
         }
         if (empty($this->max_count)) {
             /** @var Config $config */
-            $config = Grav::instance()['config'];
+            $config = self::$grav['config'];
             $this->max_count = (int) $config->get('system.pages.list.count');
         }
         return $this->max_count;
@@ -1034,7 +1037,7 @@ class Page
         }
 
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::$grav['pages'];
 
         return $pages->get($this->parent);
     }
@@ -1047,7 +1050,7 @@ class Page
     public function children()
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::$grav['pages'];
 
         return $pages->children($this->path());
     }
@@ -1127,7 +1130,7 @@ class Page
     public function isFirst()
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::$grav['pages'];
         $parent = $pages->get($this->parent);
 
         if ($this->path() == array_values($parent->items)[0]) {
@@ -1145,7 +1148,7 @@ class Page
     public function isLast()
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::$grav['pages'];
         $parent = $pages->get($this->parent);
 
         if ($this->path() == array_values($parent->items)[count($parent->items)-1]) {
@@ -1184,7 +1187,7 @@ class Page
     public function adjacentSibling($direction = 1)
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::$grav['pages'];
         $parent = $pages->get($this->parent);
         $current = $this->slug();
 
@@ -1203,7 +1206,7 @@ class Page
     public function active()
     {
         /** @var Uri $uri */
-        $uri = Grav::instance()['uri'];
+        $uri = self::$grav['uri'];
         if ($this->url() == $uri->url()) {
             return true;
         }
@@ -1218,7 +1221,7 @@ class Page
      */
     public function activeChild()
     {
-        $uri = Grav::instance()['uri'];
+        $uri = self::$grav['uri'];
         if (!$this->home() && (strpos($uri->url(), $this->url()) !== false)) {
             return true;
         }
@@ -1259,7 +1262,7 @@ class Page
     public function find($url)
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::$grav['pages'];
         return $pages->dispatch($url);
     }
 
@@ -1290,9 +1293,9 @@ class Page
 
         // TODO: MOVE THIS INTO SOMEWHERE ELSE?
         /** @var Uri $uri */
-        $uri = Grav::instance()['uri'];
+        $uri = self::$grav['uri'];
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::$grav['config'];
 
         foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
             if ($uri->param($taxonomy)) {
@@ -1324,7 +1327,7 @@ class Page
         }
 
         /** @var Grav $grav */
-        $grav = Grav::instance()['grav'];
+        $grav = self::$grav['grav'];
 
         // New Custom event to handle things like pagination.
         $grav->fireEvent('onAfterCollectionProcessed', $collection);
@@ -1392,7 +1395,7 @@ class Page
                 // @taxonomy: { category: [ blog, featured ], level: 1 }
 
                 /** @var Taxonomy $taxonomy_map */
-                $taxonomy_map = Grav::instance()['taxonomy'];
+                $taxonomy_map = self::$grav['taxonomy'];
 
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
@@ -1508,7 +1511,7 @@ class Page
     protected function parseMarkdownContent($content)
     {
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::$grav['config'];
         if ($config->get('system.pages.markdown_extra')) {
             $parsedown = new \ParsedownExtra();
         } else {
@@ -1547,7 +1550,7 @@ class Page
         // Do reordering.
         if ($reorder && $this->order() != $this->_original->order()) {
             /** @var Pages $pages */
-            $pages = Grav::instance()['pages'];
+            $pages = self::$grav['pages'];
 
             $parent = $this->parent();
 

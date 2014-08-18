@@ -6,6 +6,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Filesystem\File\Yaml;
 use Grav\Common\Grav;
+use Grav\Common\GravTrait;
 use Gregwar\Image\Image as ImageFile;
 
 /**
@@ -34,6 +35,8 @@ use Gregwar\Image\Image as ImageFile;
  */
 class Medium extends Data
 {
+    use GravTrait;
+
     /**
      * @var string
      */
@@ -97,7 +100,7 @@ class Medium extends Data
     public function url()
     {
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::$grav['config'];
 
         if ($this->image) {
             $output = $this->image->cacheFile($this->type, $this->quality);
@@ -174,7 +177,7 @@ class Medium extends Data
 
         if ($this->linkTarget) {
             /** @var Config $config */
-            $config = Grav::instance()['config'];
+            $config = self::$grav['config'];
 
             $output = '<a href="' . $config->get('system.base_url_relative') . '/'. $this->linkTarget
                 . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';

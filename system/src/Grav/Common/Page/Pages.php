@@ -313,8 +313,10 @@ class Pages
      */
     static public function types()
     {
+        $grav = Grav::instance();
+
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = $grav['config'];
 
         $blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
 
@@ -328,8 +330,11 @@ class Pages
      */
     static public function parents()
     {
+        $grav = Grav::instance();
+
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = $grav['pages'];
+
         return $pages->getList();
     }
 

@@ -23,6 +23,8 @@ define('JS_ASSET', false);
 
 class Assets
 {
+    use GravTrait;
+
     /** @const Regex to match grav asset shortcodes */
     const GRAV_ASSET_REGEX = '/@(plugin|theme)\/(.*?):(.*)/i';
 
@@ -95,7 +97,7 @@ class Assets
     public function init()
     {
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::$grav['config'];
         $base_url = trim($config->get('system.base_url_relative'));
         $theme = $config->get('system.pages.theme');
         $asset_config = (array)$config->get('system.assets');
@@ -381,7 +383,7 @@ class Assets
     protected function pipeline($css = true)
     {
         /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
+        $cache = self::$grav['cache'];
         $key = '?'.$cache->getKey();
 
         if ($css) {
