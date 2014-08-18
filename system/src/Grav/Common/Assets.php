@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common;
 
-use \Tracy\Debugger;
 use Closure;
 use Exception;
 use FilesystemIterator;
