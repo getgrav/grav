@@ -51,7 +51,7 @@ class Taxonomy
         }
 
         /** @var Config $config */
-        $config = $this->grav['Config'];
+        $config = $this->grav['config'];
         if ($config->get('site.taxonomies') && count($page_taxonomy) > 0) {
             foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {

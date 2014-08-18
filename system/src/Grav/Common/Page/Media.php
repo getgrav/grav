@@ -75,7 +75,7 @@ class Media extends Getters
             $basename = implode('.', $parts);
 
             /** @var Config $config */
-            $config = Grav::instance()['Config'];
+            $config = Grav::instance()['config'];
 
             // Check if medium type has been configured.
             $params = $config->get("media.{$ext}");

@@ -53,10 +53,10 @@ class Cache extends Getters
     public function init(Grav $c)
     {
         /** @var Config $config */
-        $config = $c['Config'];
+        $config = $c['config'];
 
         /** @var Uri $uri */
-        $uri = $c['Uri'];
+        $uri = $c['uri'];
 
         $prefix = $config->get('system.cache.prefix');
 

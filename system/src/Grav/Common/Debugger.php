@@ -23,7 +23,7 @@ class Debugger
     public function init()
     {
         /** @var Config $config */
-        $config = Grav::instance()['Config'];
+        $config = Grav::instance()['config'];
 
         TracyDebugger::$logDirectory = $config->get('system.debugger.log.enabled') ? LOG_DIR : null;
         TracyDebugger::$maxDepth = $config->get('system.debugger.max_depth');

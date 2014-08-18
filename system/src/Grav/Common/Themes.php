@@ -88,7 +88,7 @@ class Themes
     {
         if (!$name) {
             /** @var Config $config */
-            $config = $this->grav['Config'];
+            $config = $this->grav['config'];
             $name = $config->get('system.pages.theme');
         }
 

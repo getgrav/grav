@@ -97,7 +97,7 @@ class Assets
     public function init()
     {
         /** @var Config $config */
-        $config = Grav::instance()['Config'];
+        $config = Grav::instance()['config'];
         $base_url = trim($config->get('system.base_url_relative'));
         $theme = $config->get('system.pages.theme');
         $asset_config = (array)$config->get('system.assets');
@@ -383,7 +383,7 @@ class Assets
     protected function pipeline($css = true)
     {
         /** @var Cache $cache */
-        $cache = Grav::instance()['Cache'];
+        $cache = Grav::instance()['cache'];
         $key = '?'.$cache->getKey();
 
         if ($css) {

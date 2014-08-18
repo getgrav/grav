@@ -64,7 +64,7 @@ class Twig
     {
         if (!isset($this->twig)) {
             /** @var Config $config */
-            $config = $this->grav['Config'];
+            $config = $this->grav['config'];
 
             $this->twig_paths = array(THEMES_DIR . $config->get('system.pages.theme') . '/templates');
             $this->grav->fireEvent('onAfterTwigTemplatesPaths');
@@ -101,16 +101,16 @@ class Twig
             $this->twig_vars = array(
                 'grav_version' => GRAV_VERSION,
                 'config' => $config,
-                'uri' => $this->grav['Uri'],
+                'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
                 'base_url_absolute' => $baseUrlAbsolute,
                 'base_url_relative' => $baseUrlRelative,
                 'theme_dir' => THEMES_DIR . $theme,
                 'theme_url' => $themeUrl,
                 'site' => $config->get('site'),
-                'assets' => $this->grav['Assets'],
-                'taxonomy' => $this->grav['Taxonomy'],
-                'user_agent' => $this->grav['UserAgent'],
+                'assets' => $this->grav['assets'],
+                'taxonomy' => $this->grav['taxonomy'],
+                'user_agent' => $this->grav['user_agent'],
             );
 
         }
@@ -211,8 +211,8 @@ class Twig
         // set the page now its been processed
         $this->grav->fireEvent('onAfterTwigSiteVars');
         $twig_vars = $this->twig_vars;
-        $pages = $this->grav['Pages'];
-        $page = $this->grav['Page'];
+        $pages = $this->grav['pages'];
+        $page = $this->grav['page'];
 
         $twig_vars['pages'] = $pages->root();
         $twig_vars['page'] = $page;

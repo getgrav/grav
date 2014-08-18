@@ -34,7 +34,7 @@ class Registry
     {
         user_error(__METHOD__ . '()', E_USER_DEPRECATED);
         $instance = Grav::instance();
-        return $instance[$key];
+        return $instance[strtolower($key)];
     }
 
     /**
@@ -62,7 +62,7 @@ class Registry
     {
         user_error(__CLASS__ . '::' . __METHOD__ . '()', E_USER_DEPRECATED);
         $instance = Grav::instance();
-        $instance[$key] = $value;
+        $instance[strtolower($key)] = $value;
     }
 
     /**
@@ -76,6 +76,6 @@ class Registry
     {
         user_error(__CLASS__ . '::' . __METHOD__ . '()', E_USER_DEPRECATED);
         $instance = Grav::instance();
-        return $instance[$key];
+        return $instance[strtolower($key)];
     }
 }

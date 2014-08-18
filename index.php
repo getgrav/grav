@@ -17,8 +17,8 @@ if (!ini_get('date.timezone')) {
 
 $grav = Grav::instance(
     [
-        'Loader' => $loader,
-        'Debugger' => new Debugger(Debugger::PRODUCTION)
+        'loader' => $loader,
+        'debugger' => new Debugger(Debugger::PRODUCTION)
     ]
 );
 
@@ -26,7 +26,7 @@ $grav = Grav::instance(
 ob_start();
 
 try {
-    $grav['Debugger']->init();
+    $grav['debugger']->init();
     $grav->process();
 
 } catch (\Exception $e) {

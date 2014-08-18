@@ -132,11 +132,11 @@ class Config extends Data
 
         // If not set, add manually current base url.
         if (empty($instance->items['system']['base_url_absolute'])) {
-            $instance->items['system']['base_url_absolute'] = $grav['Uri']->rootUrl(true);
+            $instance->items['system']['base_url_absolute'] = $grav['uri']->rootUrl(true);
         }
 
         if (empty($instance->items['system']['base_url_relative'])) {
-            $instance->items['system']['base_url_relative'] = $grav['Uri']->rootUrl(false);
+            $instance->items['system']['base_url_relative'] = $grav['uri']->rootUrl(false);
         }
 
         return $instance;

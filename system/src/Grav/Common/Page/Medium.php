@@ -97,7 +97,7 @@ class Medium extends Data
     public function url()
     {
         /** @var Config $config */
-        $config = Grav::instance()['Config'];
+        $config = Grav::instance()['config'];
 
         if ($this->image) {
             $output = $this->image->cacheFile($this->type, $this->quality);
@@ -174,7 +174,7 @@ class Medium extends Data
 
         if ($this->linkTarget) {
             /** @var Config $config */
-            $config = Grav::instance()['Config'];
+            $config = Grav::instance()['config'];
 
             $output = '<a href="' . $config->get('system.base_url_relative') . '/'. $this->linkTarget
                 . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';

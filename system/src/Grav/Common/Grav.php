@@ -13,15 +13,6 @@ use Grav\Component\DI\Container;
  *
  * Originally based on Pico by Gilbert Pellegrom - http://pico.dev7studios.com
  * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
- *
- * @property  Uri           $uri
- * @property  Config        $config
- * @property  Plugins       $plugins
- * @property  Cache         $cache
- * @property  Page\Pages    $pages
- * @property  Page\Page     $page
- * @property  Assets        $assets
- * @property  Taxonomy      $taxonomy
  */
 class Grav extends Container
 {
@@ -55,39 +46,42 @@ class Grav extends Container
 
         $container['config_path'] = CACHE_DIR . 'config.php';
 
-        $container['Grav'] = $container;
+        $container['grav'] = $container;
 
-        $container['Uri'] = function ($c) {
+        $container['uri'] = function ($c) {
             return new Uri($c);
         };
-        $container['Config'] = function ($c) {
+        $container['config'] = function ($c) {
             return Config::instance($c);
         };
-        $container['Cache'] = function ($c) {
+        $container['cache'] = function ($c) {
             return new Cache($c);
         };
-        $container['Plugins'] = function ($c) {
+        $container['plugins'] = function ($c) {
             return new Plugins($c);
         };
-        $container['Themes'] = function ($c) {
+        $container['themes'] = function ($c) {
             return new Themes($c);
         };
-        $container['Twig'] = function ($c) {
+        $container['twig'] = function ($c) {
             return new Twig($c);
         };
-        $container['Taxonomy'] = function ($c) {
+        $container['taxonomy'] = function ($c) {
             return new Taxonomy($c);
         };
-        $container['Pages'] = function ($c) {
+        $container['pages'] = function ($c) {
             return new Page\Pages($c);
         };
-        $container['Assets'] = function ($c) {
+        $container['assets'] = function ($c) {
             return new Assets();
         };
-        $container['Page'] = function ($c) {
-            return $c['Pages']->dispatch($c['Uri']->route());
+        $container['page'] = function ($c) {
+            return $c['pages']->dispatch($c['uri']->route());
         };
-        $container['UserAgent'] = function ($c) {
+        $container['output'] = function ($c) {
+            return $c['twig']->processSite($c['uri']->extension());
+        };
+        $container['user_agent'] = function ($c) {
             return new \phpUserAgent();
         };
 
@@ -96,28 +90,28 @@ class Grav extends Container
 
     public function process()
     {
-        $this['Plugins']->init();
+        $this['plugins']->init();
 
         $this->fireEvent('onAfterInitPlugins');
 
-        $this['Assets']->init();
+        $this['assets']->init();
 
         $this->fireEvent('onAfterGetAssets');
 
-        $this['Twig']->init();
-        $this['Pages']->init();
+        $this['twig']->init();
+        $this['pages']->init();
 
         $this->fireEvent('onAfterGetPages');
 
         $this->fireEvent('onAfterGetPage');
 
         // If there's no page, throw exception
-        if (!$this['Page']) {
+        if (!$this['page']) {
             throw new \RuntimeException('Page Not Found', 404);
         }
 
         // Process whole page as required
-        $this->output = $this['Twig']->processSite($this['Uri']->extension());
+        $this->output = $this['output'];
 
         $this->fireEvent('onAfterGetOutput');
 
@@ -136,7 +130,7 @@ class Grav extends Container
     public function redirect($route, $code = 303)
     {
         /** @var Uri $uri */
-        $uri = $this['Uri'];
+        $uri = $this['uri'];
         header("Location: " . rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'), true, $code);
         exit();
     }
@@ -170,7 +164,7 @@ class Grav extends Container
     public function header()
     {
         /** @var Uri $uri */
-        $uri = $this['Uri'];
+        $uri = $this['uri'];
         header('Content-type: ' . $this->mime($uri->extension()));
     }
 
@@ -184,7 +178,7 @@ class Grav extends Container
         $no_timing_hooks = array('onAfterPageProcessed','onAfterFolderProcessed', 'onAfterCollectionProcessed');
 
         /** @var Plugins $plugins */
-        $plugins = $this['Plugins'];
+        $plugins = $this['plugins'];
 
         if (!empty($plugins)) {
             foreach ($plugins as $plugin) {
@@ -194,13 +188,13 @@ class Grav extends Container
             }
         }
 
-        if (isset($this['Debugger'])) {
-            /** @var Config $config */
-            $config = $this['Config'];
+        /** @var Config $config */
+        $config = $this['config'];
 
-            if ($config && $config->get('system.debugger.log.timing') && !in_array($hook_id, $no_timing_hooks)) {
-                /** @var Debugger $debugger */
-                $debugger = $this['Debugger'];
+        if ($config && $config->get('system.debugger.log.timing') && !in_array($hook_id, $no_timing_hooks)) {
+            /** @var Debugger $debugger */
+            $debugger = isset($this['debugger']) ? $this['debugger'] : null;
+            if ($debugger) {
                 $debugger->log($hook_id.': %f ms');
             }
         }

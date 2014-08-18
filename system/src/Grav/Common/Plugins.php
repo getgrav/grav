@@ -27,10 +27,10 @@ class Plugins extends Iterator
     public function init()
     {
         /** @var Config $config */
-        $config = $this->grav['Config'];
+        $config = $this->grav['config'];
         $plugins = (array) $config->get('plugins');
 
-        $instances = ['Theme' => $this->grav['Themes']->load()];
+        $instances = ['theme' => $this->grav['themes']->load()];
         foreach ($plugins as $plugin => $data) {
             if (empty($data['enabled'])) {
                 // Only load enabled plugins.

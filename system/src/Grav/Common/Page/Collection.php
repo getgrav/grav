@@ -26,7 +26,7 @@ class Collection extends Iterator
         parent::__construct($items);
 
         $this->params = $params;
-        $this->pages = $pages ? $pages : Grav::instance()['Pages'];
+        $this->pages = $pages ? $pages : Grav::instance()['pages'];
     }
 
     public function params()

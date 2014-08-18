@@ -226,7 +226,7 @@ class Pages
         // If the page cannot be reached, look into site wide routes.
         if (!$all && (!$page || !$page->routable())) {
             /** @var Config $config */
-            $config = $this->grav['Config'];
+            $config = $this->grav['config'];
 
             $route = $config->get("site.routes.{$url}");
             if ($route) {
@@ -257,7 +257,7 @@ class Pages
     {
         if (!isset($this->blueprints)) {
             /** @var Config $config */
-            $config = $this->grav['Config'];
+            $config = $this->grav['config'];
 
             $this->blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
         }
@@ -314,7 +314,7 @@ class Pages
     static public function types()
     {
         /** @var Config $config */
-        $config = Grav::instance()['Config'];
+        $config = Grav::instance()['config'];
 
         $blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
 
@@ -329,7 +329,7 @@ class Pages
     static public function parents()
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['Pages'];
+        $pages = Grav::instance()['pages'];
         return $pages->getList();
     }
 
@@ -343,13 +343,13 @@ class Pages
         $this->sort = array();
 
         /** @var Config $config */
-        $config = $this->grav['Config'];
+        $config = $this->grav['config'];
 
         if ($config->get('system.cache.enabled')) {
             /** @var Cache $cache */
-            $cache = $this->grav['Cache'];
+            $cache = $this->grav['cache'];
             /** @var Taxonomy $taxonomy */
-            $taxonomy = $this->grav['Taxonomy'];
+            $taxonomy = $this->grav['taxonomy'];
             $last_modified = $config->get('system.cache.check.pages', true)
                 ? Folder::lastModified(PAGES_DIR) : 0;
             $page_cache_id = md5(USER_DIR.$last_modified);
@@ -388,7 +388,7 @@ class Pages
         $directory  = rtrim($directory, DS);
         $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
-        $config     = $this->grav['Config'];
+        $config     = $this->grav['config'];
 
         $page->path($directory);
         if ($parent) $page->parent($parent);
@@ -459,7 +459,7 @@ class Pages
     protected function buildRoutes()
     {
         /** @var $taxonomy Taxonomy */
-        $taxonomy = $this->grav['Taxonomy'];
+        $taxonomy = $this->grav['taxonomy'];
 
         // Build routes and taxonomy map.
         /** @var $page Page */
@@ -481,7 +481,7 @@ class Pages
         }
 
         /** @var Config $config */
-        $config = $this->grav['Config'];
+        $config = $this->grav['config'];
 
         // Alias and set default route to home page.
         $home = trim($config->get('system.home.alias'), '/');
