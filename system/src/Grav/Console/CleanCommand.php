@@ -40,6 +40,8 @@ class CleanCommand extends Command {
         'vendor/erusev/parsedown/.travis.yml',
         'vendor/erusev/parsedown/.git',
         'vendor/erusev/parsedown/test',
+        'vendor/erusev/parsedown-extra/composer.json',
+        'vendor/erusev/parsedown-extra/.git',
         'vendor/gregwar/image/Gregwar/Image/composer.json',
         'vendor/gregwar/image/Gregwar/Image/phpunit.xml',
         'vendor/gregwar/image/Gregwar/Image/.gitignore',

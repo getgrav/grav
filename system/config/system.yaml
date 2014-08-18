@@ -3,6 +3,7 @@ home:
 
 pages:
   theme: antimatter                    # Default theme (defaults to "antimatter" theme)
+  markdown_extra: false                # Enable support for Markdown Extra support (GFM by default)
   order:
     by: defaults                       # Order pages by "default", "alpha" or "date"
     dir: asc                           # Default ordering direction, "asc" or "desc"

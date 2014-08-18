@@ -128,7 +128,9 @@ class Debugger
 		self::$time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(TRUE);
 		error_reporting(E_ALL | E_STRICT);
 
-		self::$productionMode = is_bool($mode) ? $mode : !self::detectDebugMode($mode);
+		if ($mode !== NULL || self::$productionMode === NULL) {
+			self::$productionMode = is_bool($mode) ? $mode : !self::detectDebugMode($mode);
+		}
 
 		// logging configuration
 		if ($email !== NULL) {

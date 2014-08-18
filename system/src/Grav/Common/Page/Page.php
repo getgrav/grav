@@ -1506,7 +1506,11 @@ class Page
      */
     protected function parseMarkdownContent($content)
     {
-        $parsedown = new \Parsedown();
+        if (Registry::get('Config')->get('system.pages.markdown_extra')) {
+            $parsedown = new \ParsedownExtra();
+        } else {
+            $parsedown = new \Parsedown();
+        }
         $content = $parsedown->parse($content);
         return $content;
     }

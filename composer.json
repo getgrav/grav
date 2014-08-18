@@ -14,7 +14,7 @@
     "require": {
         "php": ">=5.3.10",
         "twig/twig": "1.16.*@dev",
-        "erusev/parsedown": "dev-master",
+        "erusev/parsedown-extra": "dev-master",
         "symfony/yaml": "2.5.*@dev",
         "symfony/console": "2.5.*@dev",
         "doctrine/cache": "1.4.*@dev",

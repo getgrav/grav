@@ -6,8 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    $vendorDir . '/ircmaxell/password-compat/lib/password.php',
     $vendorDir . '/tracy/tracy/src/shortcuts.php',
+    $vendorDir . '/ircmaxell/password-compat/lib/password.php',
     $vendorDir . '/ornicar/php-user-agent/lib/phpUserAgent.php',
     $vendorDir . '/ornicar/php-user-agent/lib/phpUserAgentStringParser.php',
 );
