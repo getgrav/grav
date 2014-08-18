@@ -10,13 +10,13 @@ use Grav\Common\Filesystem\File;
  * @author RocketTheme
  * @license MIT
  */
-class Plugins
+class Plugins extends Iterator
 {
-    /**
-     * @var array|Plugin[]
-     */
-    protected $plugins;
+    protected $grav;
 
+    public function __construct(Grav $grav) {
+        $this->grav = $grav;
+    }
 
     /**
      * Recurses through the plugins directory creating Plugin objects for each plugin it finds.
@@ -24,12 +24,13 @@ class Plugins
      * @return array|Plugin[] array of Plugin objects
      * @throws \RuntimeException
      */
-    public function load()
+    public function init()
     {
         /** @var Config $config */
-        $config = Registry::get('Config');
+        $config = $this->grav['config'];
         $plugins = (array) $config->get('plugins');
 
+        $instances = ['theme' => $this->grav['themes']->load()];
         foreach ($plugins as $plugin => $data) {
             if (empty($data['enabled'])) {
                 // Only load enabled plugins.
@@ -50,16 +51,16 @@ class Plugins
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found!", $plugin));
             }
 
-            $this->plugins[$pluginClass] = new $pluginClass($config);
+            $instances[$pluginClass] = new $pluginClass($config);
         }
 
-        return $this->plugins;
+        return $instances;
     }
 
     public function add($plugin)
     {
         if (is_object($plugin)) {
-            $this->plugins[get_class($plugin)] = $plugin;
+            $this->items[get_class($plugin)] = $plugin;
         }
     }
 

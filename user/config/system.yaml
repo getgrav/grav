@@ -12,7 +12,7 @@ pages:
     twig: true
 
 cache:
-  enabled: true
+  enabled: false
   check:
     pages: true
   driver: auto

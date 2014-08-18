@@ -12,11 +12,21 @@ use Grav\Common\Filesystem\File;
 class Themes
 {
     /**
+     * @var Grav
+     */
+    protected $grav;
+
+    public function __construct(Grav $grav)
+    {
+        $this->grav = $grav;
+    }
+
+    /**
      * Return list of all theme data with their blueprints.
      *
      * @return array|Data\Data[]
      */
-    public static function all()
+    public function all()
     {
         $list = array();
         $iterator = new \DirectoryIterator(THEMES_DIR);
@@ -43,7 +53,7 @@ class Themes
      * @return Data\Data
      * @throws \RuntimeException
      */
-    public static function get($type)
+    public function get($type)
     {
         if (!$type) {
             throw new \RuntimeException('Theme name not provided.');
@@ -77,7 +87,8 @@ class Themes
     public function load($name = null)
     {
         if (!$name) {
-            $config = Registry::get('Config');
+            /** @var Config $config */
+            $config = $this->grav['config'];
             $name = $config->get('system.pages.theme');
         }
 
