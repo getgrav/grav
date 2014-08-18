@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common\Data;
 
-use \Grav\Common\Registry;
 use \Symfony\Component\Yaml\Yaml;
 
 /**

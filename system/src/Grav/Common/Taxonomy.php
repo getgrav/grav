@@ -26,13 +26,15 @@ use \Grav\Common\Page;
 class Taxonomy
 {
     protected $taxonomy_map;
+    protected $grav;
 
     /**
      * Constructor that resets the map
      */
-    public function __construct()
+    public function __construct(Grav $grav)
     {
         $this->taxonomy_map = array();
+        $this->grav = $grav;
     }
 
     /**
@@ -48,7 +50,8 @@ class Taxonomy
             $page_taxonomy = $page->taxonomy();
         }
 
-        $config = Registry::get('Config');
+        /** @var Config $config */
+        $config = $this->grav['Config'];
         if ($config->get('site.taxonomies') && count($page_taxonomy) > 0) {
             foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {

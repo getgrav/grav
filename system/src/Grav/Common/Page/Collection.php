@@ -1,7 +1,8 @@
 <?php
 namespace Grav\Common\Page;
+
+use Grav\Common\Grav;
 use Grav\Common\Iterator;
-use Grav\Common\Registry;
 
 /**
  * Collection of Pages.
@@ -25,7 +26,7 @@ class Collection extends Iterator
         parent::__construct($items);
 
         $this->params = $params;
-        $this->pages = $pages ? $pages : Registry::get('Pages');
+        $this->pages = $pages ? $pages : Grav::instance()['Pages'];
     }
 
     public function params()

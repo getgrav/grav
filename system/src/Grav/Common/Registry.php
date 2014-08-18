@@ -7,18 +7,10 @@ namespace Grav\Common;
  *
  * @author RocketTheme
  * @license MIT
+ * @deprecated
  */
 class Registry
 {
-    /**
-     * @var array
-     */
-    private $registry = array();
-
-    /**
-     * @var Registry
-     */
-    private static $instance = null;
 
     /**
      * Return global instance.
@@ -27,11 +19,8 @@ class Registry
      */
     public static function instance()
     {
-        if (self::$instance === null) {
-            self::$instance = new Registry();
-        }
-
-        return self::$instance;
+        user_error(__METHOD__ . '()', E_USER_DEPRECATED);
+        return new Registry;
     }
 
     /**
@@ -43,11 +32,9 @@ class Registry
      */
     public static function get($key)
     {
-        if (!isset(self::$instance->registry[$key])) {
-            throw new \Exception("There is no entry for key " . $key);
-        }
-
-        return self::$instance->registry[$key];
+        user_error(__METHOD__ . '()', E_USER_DEPRECATED);
+        $instance = Grav::instance();
+        return $instance[$key];
     }
 
     /**
@@ -73,11 +60,9 @@ class Registry
      */
     public function store($key, $value)
     {
-        if (isset($this->registry[$key])) {
-            throw new \Exception("There is already an entry for key " . $key);
-        }
-
-        $this->registry[$key] = $value;
+        user_error(__CLASS__ . '::' . __METHOD__ . '()', E_USER_DEPRECATED);
+        $instance = Grav::instance();
+        $instance[$key] = $value;
     }
 
     /**
@@ -89,10 +74,8 @@ class Registry
      */
     public function retrieve($key)
     {
-        if (!isset($this->registry[$key])) {
-            throw new \Exception("There is no entry for key " . $key);
-        }
-
-        return $this->registry[$key];
+        user_error(__CLASS__ . '::' . __METHOD__ . '()', E_USER_DEPRECATED);
+        $instance = Grav::instance();
+        return $instance[$key];
     }
 }

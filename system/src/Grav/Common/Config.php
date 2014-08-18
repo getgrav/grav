@@ -101,16 +101,17 @@ class Config extends Data
     }
 
     /**
-     * Gets configuration instance.
+     * Load configuration.
      *
-     * @param  string  $filename
+     * @param  Grav $grav
      * @return \Grav\Common\Config
      */
-    public static function instance($filename)
+    public static function instance(Grav $grav)
     {
+        $filename = $grav['config_path'];
+
         // Load cached version if available..
         if (file_exists($filename)) {
-            clearstatcache(true, $filename);
             require_once $filename;
 
             if (class_exists('\Grav\Config')) {
@@ -131,11 +132,11 @@ class Config extends Data
 
         // If not set, add manually current base url.
         if (empty($instance->items['system']['base_url_absolute'])) {
-            $instance->items['system']['base_url_absolute'] = Registry::get('Uri')->rootUrl(true);
+            $instance->items['system']['base_url_absolute'] = $grav['Uri']->rootUrl(true);
         }
 
         if (empty($instance->items['system']['base_url_relative'])) {
-            $instance->items['system']['base_url_relative'] = Registry::get('Uri')->rootUrl(false);
+            $instance->items['system']['base_url_relative'] = $grav['Uri']->rootUrl(false);
         }
 
         return $instance;

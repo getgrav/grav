@@ -2,9 +2,8 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Getters;
-use Grav\Common\Registry;
-use Grav\Config;
-use Symfony\Component\Yaml\Yaml;
+use Grav\Common\Grav;
+use Grav\Common\Config;
 
 /**
  * Media is a holder object that contains references to the media of page. This object is created and
@@ -76,7 +75,7 @@ class Media extends Getters
             $basename = implode('.', $parts);
 
             /** @var Config $config */
-            $config = Registry::get('Config');
+            $config = Grav::instance()['Config'];
 
             // Check if medium type has been configured.
             $params = $config->get("media.{$ext}");

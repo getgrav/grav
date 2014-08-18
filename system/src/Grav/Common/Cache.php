@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use \Doctrine\Common\Cache\Cache as DoctrineCache;
+
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
  * It uses DoctrineCache library and supports a variety of caching mechanisms. Those include:
@@ -23,7 +25,7 @@ class Cache extends Getters
     protected $key;
 
     /**
-     * @var \Doctrine\Common\Cache\Cache
+     * @var DoctrineCache
      */
     protected $driver;
 
@@ -33,17 +35,30 @@ class Cache extends Getters
     protected $enabled;
 
     /**
+     * Constructor
+     *
+     * @params Grav $c
+     */
+    public function __construct(Grav $c)
+    {
+        $this->init($c);
+    }
+
+    /**
      * Initialization that sets a base key and the driver based on configuration settings
      *
+     * @param  Grav $c
      * @return void
      */
-    public function init()
+    public function init(Grav $c)
     {
         /** @var Config $config */
-        $config = Registry::get('Config');
-        $prefix = $config->get('system.cache.prefix');
+        $config = $c['Config'];
+
         /** @var Uri $uri */
-        $uri = Registry::get('Uri');
+        $uri = $c['Uri'];
+
+        $prefix = $config->get('system.cache.prefix');
 
         $this->enabled = (bool) $config->get('system.cache.enabled');
 
