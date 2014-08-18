@@ -21,7 +21,6 @@ define('LIB_DIR', SYSTEM_DIR .'src/');
 define('ACCOUNTS_DIR', USER_DIR .'accounts/');
 define('DATA_DIR', USER_DIR .'data/');
 define('PAGES_DIR', USER_DIR .'pages/');
-define('BLOCKS_DIR', USER_DIR .'blocks/');
 
 define('PLUGINS_DIR', USER_DIR .'plugins/');
 define('THEMES_DIR', USER_DIR .'themes/');
