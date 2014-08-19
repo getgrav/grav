@@ -1,6 +1,6 @@
 <?php
 namespace Grav\Common;
 
-class Theme
+class Theme extends Plugin
 {
 }

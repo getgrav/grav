@@ -2,6 +2,8 @@
 namespace Grav\Common;
 
 use Grav\Component\DI\Container;
+use Grav\Component\EventDispatcher\Event;
+use Grav\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Grav
@@ -51,6 +53,9 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
+        $container['events'] = function ($c) {
+            return new EventDispatcher;
+        };
         $container['uri'] = function ($c) {
             return new Uri($c);
         };
@@ -79,7 +84,18 @@ class Grav extends Container
             return new Assets();
         };
         $container['page'] = function ($c) {
-            return $c['pages']->dispatch($c['uri']->route());
+            $page = $c['pages']->dispatch($c['uri']->route());
+
+            if (!$page || !$page->routable()) {
+                $event = $c->fireEvent('onPageNotFound');
+
+                if (isset($event->page)) {
+                    $page = $event->page;
+                } else {
+                    throw new \RuntimeException('Page Not Found', 404);
+                }
+            }
+            return $page;
         };
         $container['output'] = function ($c) {
             return $c['twig']->processSite($c['uri']->extension());
@@ -107,11 +123,6 @@ class Grav extends Container
         $this->fireEvent('onAfterGetPages');
 
         $this->fireEvent('onAfterGetPage');
-
-        // If there's no page, throw exception
-        if (!$this['page']) {
-            throw new \RuntimeException('Page Not Found', 404);
-        }
 
         // Process whole page as required
         $this->output = $this['output'];
@@ -172,34 +183,16 @@ class Grav extends Container
     }
 
     /**
-     * Processes any hooks and runs them.
+     * Fires an event with optional parameters.
+     *
+     * @param  string $eventName
+     * @param  Event  $event
+     * @return Event
      */
-    public function fireEvent()
+    public function fireEvent($eventName, Event $event = null)
     {
-        $args = func_get_args();
-        $hook_id = array_shift($args);
-        $no_timing_hooks = array('onAfterPageProcessed','onAfterFolderProcessed', 'onAfterCollectionProcessed');
-
-        /** @var Plugins $plugins */
-        $plugins = $this['plugins'];
-
-        if (!empty($plugins)) {
-            foreach ($plugins as $plugin) {
-                if (is_callable(array($plugin, $hook_id))) {
-                    call_user_func_array(array($plugin, $hook_id), $args);
-                }
-            }
-        }
-
-        /** @var Config $config */
-        $config = $this['config'];
-
-        if ($config && $config->get('system.debugger.log.timing') && !in_array($hook_id, $no_timing_hooks)) {
-            /** @var Debugger $debugger */
-            $debugger = isset($this['debugger']) ? $this['debugger'] : null;
-            if ($debugger) {
-                $debugger->log($hook_id.': %f ms');
-            }
-        }
+        /** @var EventDispatcher $events */
+        $events = $this['events'];
+        return $events->dispatch($eventName, $event);
     }
 }

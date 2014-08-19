@@ -2,6 +2,8 @@
 namespace Grav\Common;
 
 use Grav\Common\Filesystem\File;
+use Grav\Component\EventDispatcher\EventDispatcher;
+use Grav\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * The Plugins object holds an array of all the plugin objects that
@@ -30,7 +32,9 @@ class Plugins extends Iterator
         $config = $this->grav['config'];
         $plugins = (array) $config->get('plugins');
 
-        $instances = ['theme' => $this->grav['themes']->load()];
+        /** @var EventDispatcher $events */
+        $events = $this->grav['events'];
+
         foreach ($plugins as $plugin => $data) {
             if (empty($data['enabled'])) {
                 // Only load enabled plugins.
@@ -51,7 +55,15 @@ class Plugins extends Iterator
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found!", $plugin));
             }
 
-            $this->add(new $pluginClass($config));
+            $instance = new $pluginClass($this->grav, $config);
+            if ($instance instanceof EventSubscriberInterface) {
+                $events->addSubscriber($instance);
+            }
+        }
+
+        $instance = $this->grav['themes']->load();
+        if ($instance instanceof EventSubscriberInterface) {
+            $events->addSubscriber($instance);
         }
 
         return $this->items;

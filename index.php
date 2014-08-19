@@ -30,7 +30,7 @@ try {
     $grav->process();
 
 } catch (\Exception $e) {
-    $grav->fireEvent('onFatalException', $e);
+    $grav->fireEvent('onFatalException');
     throw $e;
 }
 

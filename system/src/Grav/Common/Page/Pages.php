@@ -1,13 +1,14 @@
 <?php
 namespace Grav\Common\Page;
 
-use \Grav\Common\Filesystem\Folder;
-use \Grav\Common\Grav;
-use \Grav\Common\Config;
-use \Grav\Common\Data;
-use \Grav\Common\Utils;
-use \Grav\Common\Cache;
-use \Grav\Common\Taxonomy;
+use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
+use Grav\Common\Config;
+use Grav\Common\Data;
+use Grav\Common\Utils;
+use Grav\Common\Cache;
+use Grav\Common\Taxonomy;
+use Grav\Component\EventDispatcher\Event;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
@@ -269,7 +270,7 @@ class Pages
         }
 
         if (!$blueprint->initialized) {
-            $this->grav->fireEvent('onCreateBlueprint', $blueprint);
+            $this->grav->fireEvent('onCreateBlueprint', new Event(['blueprint' => $blueprint]));
             $blueprint->initialized = true;
         }
 
@@ -420,7 +421,7 @@ class Pages
                 $page->init($file);
 
                 if ($config->get('system.pages.events.page')) {
-                    $this->grav->fireEvent('onAfterPageProcessed', $page);
+                    $this->grav->fireEvent('onAfterPageProcessed', new Event(['page' => $page]));
                 }
 
             } elseif ($file->isDir() && !$file->isDot()) {
@@ -447,7 +448,7 @@ class Pages
                 $this->lastModified($file->getMTime());
 
                 if ($config->get('system.pages.events.page')) {
-                    $this->grav->fireEvent('onAfterFolderProcessed', $page);
+                    $this->grav->fireEvent('onAfterFolderProcessed', new Event(['page' => $page]));
                 }
             }
         }

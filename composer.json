@@ -17,6 +17,7 @@
         "erusev/parsedown-extra": "dev-master",
         "symfony/yaml": "2.5.*@dev",
         "symfony/console": "2.5.*@dev",
+        "symfony/event-dispatcher": "2.5.*@dev",
         "doctrine/cache": "1.4.*@dev",
         "tracy/tracy": "dev-master",
         "gregwar/image": "dev-master",
