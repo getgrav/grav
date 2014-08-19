@@ -1,18 +1,19 @@
 <?php
 namespace Grav\Common\Page;
 
-use \Grav\Common\Config;
+use Grav\Common\Config;
 use Grav\Common\GravTrait;
-use \Grav\Common\Utils;
-use \Grav\Common\Cache;
-use \Grav\Common\Twig;
-use \Grav\Common\Filesystem\File;
-use \Grav\Common\Filesystem\Folder;
-use \Grav\Common\Data;
-use \Grav\Common\Uri;
-use \Grav\Common\Grav;
-use \Grav\Common\Taxonomy;
-use \Symfony\Component\Yaml\Yaml;
+use Grav\Common\Utils;
+use Grav\Common\Cache;
+use Grav\Common\Twig;
+use Grav\Common\Filesystem\File;
+use Grav\Common\Filesystem\Folder;
+use Grav\Common\Data;
+use Grav\Common\Uri;
+use Grav\Common\Grav;
+use Grav\Common\Taxonomy;
+use Grav\Component\EventDispatcher\Event;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * The Page object, or "Page" object is the main powerhouse of Grav.  It contains all the information
@@ -1330,7 +1331,7 @@ class Page
         $grav = self::$grav['grav'];
 
         // New Custom event to handle things like pagination.
-        $grav->fireEvent('onAfterCollectionProcessed', $collection);
+        $grav->fireEvent('onAfterCollectionProcessed', new Event(['collection' => $collection]));
 
         $params = $collection->params();
 

@@ -86,9 +86,10 @@ class Themes
 
     public function load($name = null)
     {
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
         if (!$name) {
-            /** @var Config $config */
-            $config = $this->grav['config'];
             $name = $config->get('system.pages.theme');
         }
 
@@ -100,13 +101,13 @@ class Themes
                 $className = '\\Grav\\Theme\\' . ucfirst($name);
 
                 if (class_exists($className)) {
-                    $class = new $className;
+                    $class = new $className($this->grav, $config);
                 }
             }
         }
 
         if (empty($class)) {
-            $class = new Theme;
+            $class = new Theme($this->grav, $config);
         }
 
         return $class;
