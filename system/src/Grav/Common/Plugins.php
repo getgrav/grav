@@ -51,10 +51,10 @@ class Plugins extends Iterator
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found!", $plugin));
             }
 
-            $instances[$pluginClass] = new $pluginClass($config);
+            $this->add(new $pluginClass($config));
         }
 
-        return $instances;
+        return $this->items;
     }
 
     public function add($plugin)
