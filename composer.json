@@ -31,5 +31,8 @@
             "Grav\\": "system/src/"
         },
         "files": ["system/defines.php"]
+    },
+    "archive": {
+        "exclude": ["VERSION"]
     }
 }
