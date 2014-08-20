@@ -130,7 +130,7 @@ abstract class FileCache extends CacheProvider
     protected function doGetStats()
     {
         $usage = 0;
-        foreach ($this->getIterator() as $file) {
+        foreach ($this->getIterator() as $name => $file) {
             $usage += $file->getSize();
         }
 

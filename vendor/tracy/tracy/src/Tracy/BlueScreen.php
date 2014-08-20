@@ -50,15 +50,6 @@ class BlueScreen
 	{
 		$panels = $this->panels;
 		$info = array_filter($this->info);
-		$source = Helpers::getSource();
-		$sourceIsUrl = preg_match('#^https?://#', $source);
-		$title = $exception instanceof \ErrorException
-			? Helpers::errorTypeToString($exception->getSeverity())
-			: get_class($exception);
-		$skipError = $sourceIsUrl && $exception instanceof \ErrorException && !empty($exception->skippable)
-			? $source . (strpos($source, '?') ? '&' : '?') . '_tracy_skip_error'
-			: NULL;
-
 		require __DIR__ . '/templates/bluescreen.phtml';
 	}
 

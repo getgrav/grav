@@ -181,14 +181,14 @@ class Twig_Compiler implements Twig_CompilerInterface
         } elseif (is_array($value)) {
             $this->raw('array(');
             $first = true;
-            foreach ($value as $key => $v) {
+            foreach ($value as $key => $value) {
                 if (!$first) {
                     $this->raw(', ');
                 }
                 $first = false;
                 $this->repr($key);
                 $this->raw(' => ');
-                $this->repr($v);
+                $this->repr($value);
             }
             $this->raw(')');
         } else {
@@ -266,10 +266,5 @@ class Twig_Compiler implements Twig_CompilerInterface
         $this->indentation -= $step;
 
         return $this;
-    }
-
-    public function getVarName()
-    {
-        return sprintf('__internal_%s', hash('sha256', uniqid(mt_rand(), true), false));
     }
 }

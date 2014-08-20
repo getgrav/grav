@@ -30,7 +30,7 @@ class Helpers
 			if (substr($dir, 0, strlen($base)) === $base) {
 				$dir = '...' . substr($dir, strlen($base));
 			}
-			return self::formatHtml('<a href="%" title="%">%<b>%</b>%</a>',
+			return self::createHtml('<a href="%" title="%">%<b>%</b>%</a>',
 				$editor,
 				"$file:$line",
 				rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR,
@@ -38,7 +38,7 @@ class Helpers
 				$line ? ":$line" : ''
 			);
 		} else {
-			return self::formatHtml('<span>%</span>', $file . ($line ? ":$line" : ''));
+			return self::createHtml('<span>%</span>', $file . ($line ? ":$line" : ''));
 		}
 	}
 
@@ -55,7 +55,7 @@ class Helpers
 	}
 
 
-	public static function formatHtml($mask)
+	public static function createHtml($mask)
 	{
 		$args = func_get_args();
 		return preg_replace_callback('#%#', function() use (& $args, & $count) {
@@ -79,7 +79,6 @@ class Helpers
 	}
 
 
-	/** @internal */
 	public static function fixStack($exception)
 	{
 		if (function_exists('xdebug_get_function_stack')) {
@@ -105,50 +104,17 @@ class Helpers
 	}
 
 
-	/** @internal */
+	/**
+	 * Returns correctly UTF-8 encoded string.
+	 * @param  string  byte stream to fix
+	 * @return string
+	 */
 	public static function fixEncoding($s)
 	{
 		if (PHP_VERSION_ID < 50400) {
 			return @iconv('UTF-16', 'UTF-8//IGNORE', iconv('UTF-8', 'UTF-16//IGNORE', $s)); // intentionally @
 		} else {
 			return htmlspecialchars_decode(htmlspecialchars($s, ENT_NOQUOTES | ENT_IGNORE, 'UTF-8'), ENT_NOQUOTES);
-		}
-	}
-
-
-	/** @internal */
-	public static function errorTypeToString($type)
-	{
-		$types = array(
-			E_ERROR => 'Fatal Error',
-			E_USER_ERROR => 'User Error',
-			E_RECOVERABLE_ERROR => 'Recoverable Error',
-			E_CORE_ERROR => 'Core Error',
-			E_COMPILE_ERROR => 'Compile Error',
-			E_PARSE => 'Parse Error',
-			E_WARNING => 'Warning',
-			E_CORE_WARNING => 'Core Warning',
-			E_COMPILE_WARNING => 'Compile Warning',
-			E_USER_WARNING => 'User Warning',
-			E_NOTICE => 'Notice',
-			E_USER_NOTICE => 'User Notice',
-			E_STRICT => 'Strict standards',
-			E_DEPRECATED => 'Deprecated',
-			E_USER_DEPRECATED => 'User Deprecated',
-		);
-		return isset($types[$type]) ? $types[$type] : 'Unknown error';
-	}
-
-
-	/** @internal */
-	public static function getSource()
-	{
-		if (isset($_SERVER['REQUEST_URI'])) {
-			return (!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
-				. (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '')
-				. $_SERVER['REQUEST_URI'];
-		} else {
-			return empty($_SERVER['argv']) ? 'CLI' : 'CLI: ' . implode(' ', $_SERVER['argv']);
 		}
 	}
 

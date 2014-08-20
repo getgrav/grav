@@ -1,5 +1,64 @@
 [
     {
+        "name": "twig/twig",
+        "version": "v1.16.0",
+        "version_normalized": "1.16.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fabpot/Twig.git",
+            "reference": "8ce37115802e257a984a82d38254884085060024"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fabpot/Twig/zipball/8ce37115802e257a984a82d38254884085060024",
+            "reference": "8ce37115802e257a984a82d38254884085060024",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2.4"
+        },
+        "time": "2014-07-05 12:19:05",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.16-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Twig_": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com",
+                "homepage": "http://fabien.potencier.org",
+                "role": "Lead Developer"
+            },
+            {
+                "name": "Armin Ronacher",
+                "email": "armin.ronacher@active-4.com",
+                "role": "Project Founder"
+            },
+            {
+                "name": "Twig Team",
+                "homepage": "https://github.com/fabpot/Twig/graphs/contributors",
+                "role": "Contributors"
+            }
+        ],
+        "description": "Twig, the flexible, fast, and secure template language for PHP",
+        "homepage": "http://twig.sensiolabs.org",
+        "keywords": [
+            "templating"
+        ]
+    },
+    {
         "name": "erusev/parsedown",
         "version": "1.0.1",
         "version_normalized": "1.0.1.0",
@@ -42,8 +101,8 @@
     },
     {
         "name": "erusev/parsedown-extra",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "0.2.0",
+        "version_normalized": "0.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/erusev/parsedown-extra.git",
@@ -60,7 +119,7 @@
         },
         "time": "2014-08-16 11:20:35",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "ParsedownExtra": ""
@@ -88,17 +147,17 @@
     },
     {
         "name": "doctrine/cache",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "v1.3.0",
+        "version_normalized": "1.3.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/doctrine/cache.git",
-            "reference": "72121e68265cd8b37f9b69778308251f6c5133e4"
+            "reference": "e16d7adf45664a50fa86f515b6d5e7f670130449"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/doctrine/cache/zipball/72121e68265cd8b37f9b69778308251f6c5133e4",
-            "reference": "72121e68265cd8b37f9b69778308251f6c5133e4",
+            "url": "https://api.github.com/repos/doctrine/cache/zipball/e16d7adf45664a50fa86f515b6d5e7f670130449",
+            "reference": "e16d7adf45664a50fa86f515b6d5e7f670130449",
             "shasum": ""
         },
         "require": {
@@ -111,14 +170,14 @@
             "phpunit/phpunit": ">=3.7",
             "satooshi/php-coveralls": "~0.6"
         },
-        "time": "2014-08-05 12:51:19",
+        "time": "2013-10-25 19:04:14",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.4.x-dev"
+                "dev-master": "1.0.x-dev"
             }
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Doctrine\\Common\\Cache\\": "lib/"
@@ -130,6 +189,17 @@
         ],
         "authors": [
             {
+                "name": "Jonathan Wage",
+                "email": "jonwage@gmail.com",
+                "homepage": "http://www.jwage.com/",
+                "role": "Creator"
+            },
+            {
+                "name": "Guilherme Blanco",
+                "email": "guilhermeblanco@gmail.com",
+                "homepage": "http://www.instaclick.com"
+            },
+            {
                 "name": "Roman Borschel",
                 "email": "roman@code-factory.org"
             },
@@ -138,16 +208,10 @@
                 "email": "kontakt@beberlei.de"
             },
             {
-                "name": "Guilherme Blanco",
-                "email": "guilhermeblanco@gmail.com"
-            },
-            {
-                "name": "Jonathan Wage",
-                "email": "jonwage@gmail.com"
-            },
-            {
                 "name": "Johannes Schmitt",
-                "email": "schmittjoh@gmail.com"
+                "email": "schmittjoh@gmail.com",
+                "homepage": "https://github.com/schmittjoh",
+                "role": "Developer of wrapped JMSSerializerBundle"
             }
         ],
         "description": "Caching library offering an object-oriented API for many cache backends",
@@ -158,181 +222,27 @@
         ]
     },
     {
-        "name": "tracy/tracy",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/nette/tracy.git",
-            "reference": "5b62cb55e904ba1a1325803686a9f90959c99585"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/nette/tracy/zipball/5b62cb55e904ba1a1325803686a9f90959c99585",
-            "reference": "5b62cb55e904ba1a1325803686a9f90959c99585",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.1"
-        },
-        "require-dev": {
-            "nette/tester": "~1.0"
-        },
-        "time": "2014-08-17 22:39:47",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.3-dev"
-            }
-        },
-        "installation-source": "source",
-        "autoload": {
-            "classmap": [
-                "src/Tracy"
-            ],
-            "files": [
-                "src/shortcuts.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause",
-            "GPL-2.0",
-            "GPL-3.0"
-        ],
-        "authors": [
-            {
-                "name": "David Grudl",
-                "homepage": "http://davidgrudl.com"
-            },
-            {
-                "name": "Nette Community",
-                "homepage": "http://nette.org/contributors"
-            }
-        ],
-        "description": "Tracy: useful PHP debugger",
-        "homepage": "http://tracy.nette.org",
-        "keywords": [
-            "debug",
-            "debugger",
-            "nette"
-        ]
-    },
-    {
-        "name": "gregwar/cache",
-        "version": "v1.0.9",
-        "version_normalized": "1.0.9.0",
-        "target-dir": "Gregwar/Cache",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Gregwar/Cache.git",
-            "reference": "514b9b469082028d094e33e4a059c863c546b14e"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Gregwar/Cache/zipball/514b9b469082028d094e33e4a059c863c546b14e",
-            "reference": "514b9b469082028d094e33e4a059c863c546b14e",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3"
-        },
-        "time": "2014-07-05 17:42:36",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Gregwar\\Cache": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Grégoire Passault",
-                "email": "g.passault@gmail.com",
-                "homepage": "http://www.gregwar.com/"
-            }
-        ],
-        "description": "A lightweight file-system cache system",
-        "keywords": [
-            "cache",
-            "caching",
-            "file-system",
-            "system"
-        ]
-    },
-    {
-        "name": "gregwar/image",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "target-dir": "Gregwar/Image",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Gregwar/Image.git",
-            "reference": "31cf30151015d66f320011ea8646e90bb62ffb13"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Gregwar/Image/zipball/31cf30151015d66f320011ea8646e90bb62ffb13",
-            "reference": "31cf30151015d66f320011ea8646e90bb62ffb13",
-            "shasum": ""
-        },
-        "require": {
-            "ext-gd": "*",
-            "gregwar/cache": "1.*",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-06-30 15:00:37",
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "Gregwar\\Image": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Grégoire Passault",
-                "email": "g.passault@gmail.com",
-                "homepage": "http://www.gregwar.com/"
-            }
-        ],
-        "description": "Image handling",
-        "homepage": "https://github.com/Gregwar/Image",
-        "keywords": [
-            "gd",
-            "image"
-        ]
-    },
-    {
         "name": "mrclay/minify",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "2.2.0",
+        "version_normalized": "2.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/mrclay/minify.git",
-            "reference": "fb3931f8cd54a637b2a42170c3a9a1c4da9e69a9"
+            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/mrclay/minify/zipball/fb3931f8cd54a637b2a42170c3a9a1c4da9e69a9",
-            "reference": "fb3931f8cd54a637b2a42170c3a9a1c4da9e69a9",
+            "url": "https://api.github.com/repos/mrclay/minify/zipball/d245bca4987dec197d1e6d7dc117614b60ff7494",
+            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494",
             "shasum": ""
         },
         "require": {
             "ext-pcre": "*",
             "php": ">=5.2.1"
         },
-        "time": "2014-04-03 23:53:48",
+        "time": "2014-03-12 12:54:23",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "classmap": [
                 "min/lib/"
@@ -352,6 +262,48 @@
         ],
         "description": "Minify is a PHP5 app that helps you follow several rules for client-side performance. It combines multiple CSS or Javascript files, removes unnecessary whitespace and comments, and serves them with gzip encoding and optimal client-side cache headers",
         "homepage": "http://code.google.com/p/minify/"
+    },
+    {
+        "name": "ornicar/php-user-agent",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ornicar/php-user-agent.git",
+            "reference": "9c6ae1274642695bffe57cd80228e5158ccbcf21"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ornicar/php-user-agent/zipball/9c6ae1274642695bffe57cd80228e5158ccbcf21",
+            "reference": "9c6ae1274642695bffe57cd80228e5158ccbcf21",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2013-07-09 13:01:41",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "lib/phpUserAgent.php",
+                "lib/phpUserAgentStringParser.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Thibault Duplessis",
+                "email": "thibault.duplessis@gmail.com",
+                "homepage": "http://ornicar.github.com"
+            }
+        ],
+        "keywords": [
+            "user-agent"
+        ]
     },
     {
         "name": "pimple/pimple",
@@ -402,68 +354,9 @@
         ]
     },
     {
-        "name": "twig/twig",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/fabpot/Twig.git",
-            "reference": "e2d2a250d963dd5bba4ad23fc01c7282fc042946"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/fabpot/Twig/zipball/e2d2a250d963dd5bba4ad23fc01c7282fc042946",
-            "reference": "e2d2a250d963dd5bba4ad23fc01c7282fc042946",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.2.4"
-        },
-        "time": "2014-08-06 06:46:32",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.16-dev"
-            }
-        },
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "Twig_": "lib/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com",
-                "homepage": "http://fabien.potencier.org",
-                "role": "Lead Developer"
-            },
-            {
-                "name": "Armin Ronacher",
-                "email": "armin.ronacher@active-4.com",
-                "role": "Project Founder"
-            },
-            {
-                "name": "Twig Team",
-                "homepage": "https://github.com/fabpot/Twig/graphs/contributors",
-                "role": "Contributors"
-            }
-        ],
-        "description": "Twig, the flexible, fast, and secure template language for PHP",
-        "homepage": "http://twig.sensiolabs.org",
-        "keywords": [
-            "templating"
-        ]
-    },
-    {
         "name": "symfony/yaml",
-        "version": "2.5.x-dev",
-        "version_normalized": "2.5.9999999.9999999-dev",
+        "version": "v2.5.3",
+        "version_normalized": "2.5.3.0",
         "target-dir": "Symfony/Component/Yaml",
         "source": {
             "type": "git",
@@ -486,7 +379,7 @@
                 "dev-master": "2.5-dev"
             }
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Symfony\\Component\\Yaml\\": ""
@@ -511,18 +404,18 @@
     },
     {
         "name": "symfony/console",
-        "version": "2.5.x-dev",
-        "version_normalized": "2.5.9999999.9999999-dev",
+        "version": "v2.5.3",
+        "version_normalized": "2.5.3.0",
         "target-dir": "Symfony/Component/Console",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/Console.git",
-            "reference": "748beed2a1e73179c3f5154d33fe6ae100c1aeb1"
+            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/Console/zipball/748beed2a1e73179c3f5154d33fe6ae100c1aeb1",
-            "reference": "748beed2a1e73179c3f5154d33fe6ae100c1aeb1",
+            "url": "https://api.github.com/repos/symfony/Console/zipball/cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
+            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
             "shasum": ""
         },
         "require": {
@@ -536,14 +429,14 @@
             "psr/log": "For using the console logger",
             "symfony/event-dispatcher": ""
         },
-        "time": "2014-08-14 16:10:54",
+        "time": "2014-08-05 09:00:40",
         "type": "library",
         "extra": {
             "branch-alias": {
                 "dev-master": "2.5-dev"
             }
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Symfony\\Component\\Console\\": ""
@@ -568,8 +461,8 @@
     },
     {
         "name": "symfony/event-dispatcher",
-        "version": "2.5.x-dev",
-        "version_normalized": "2.5.9999999.9999999-dev",
+        "version": "v2.5.3",
+        "version_normalized": "2.5.3.0",
         "target-dir": "Symfony/Component/EventDispatcher",
         "source": {
             "type": "git",
@@ -602,7 +495,7 @@
                 "dev-master": "2.5-dev"
             }
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Symfony\\Component\\EventDispatcher\\": ""
@@ -624,6 +517,152 @@
         ],
         "description": "Symfony EventDispatcher Component",
         "homepage": "http://symfony.com"
+    },
+    {
+        "name": "tracy/tracy",
+        "version": "v2.2.2",
+        "version_normalized": "2.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nette/tracy.git",
+            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nette/tracy/zipball/f5a2647c9d0174d218d626eab3952ea3a523c6e7",
+            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.1"
+        },
+        "require-dev": {
+            "nette/tester": "~1.0"
+        },
+        "time": "2014-06-24 01:18:03",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/Tracy"
+            ],
+            "files": [
+                "src/shortcuts.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "GPL-2.0",
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "David Grudl",
+                "homepage": "http://davidgrudl.com"
+            },
+            {
+                "name": "Nette Community",
+                "homepage": "http://nette.org/contributors"
+            }
+        ],
+        "description": "Tracy: useful PHP debugger",
+        "homepage": "http://tracy.nette.org",
+        "keywords": [
+            "debug",
+            "debugger",
+            "nette"
+        ]
+    },
+    {
+        "name": "gregwar/cache",
+        "version": "v1.0.7",
+        "version_normalized": "1.0.7.0",
+        "target-dir": "Gregwar/Cache",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Gregwar/Cache.git",
+            "reference": "b2d0197c07cc1ccf7436e1ae7bf64f9948e02052"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Gregwar/Cache/zipball/b2d0197c07cc1ccf7436e1ae7bf64f9948e02052",
+            "reference": "b2d0197c07cc1ccf7436e1ae7bf64f9948e02052",
+            "shasum": ""
+        },
+        "time": "2014-02-20 20:04:58",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Gregwar\\Cache": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Grégoire Passault",
+                "email": "g.passault@gmail.com",
+                "homepage": "http://www.gregwar.com/"
+            }
+        ],
+        "description": "A lightweight file-system cache system",
+        "keywords": [
+            "cache",
+            "caching",
+            "file-system",
+            "system"
+        ]
+    },
+    {
+        "name": "gregwar/image",
+        "version": "v2.0.17",
+        "version_normalized": "2.0.17.0",
+        "target-dir": "Gregwar/Image",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Gregwar/Image.git",
+            "reference": "a7bba10ed0e3004c098bb7fde3a3e5bcafca8a2c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Gregwar/Image/zipball/a7bba10ed0e3004c098bb7fde3a3e5bcafca8a2c",
+            "reference": "a7bba10ed0e3004c098bb7fde3a3e5bcafca8a2c",
+            "shasum": ""
+        },
+        "require": {
+            "ext-gd": "*",
+            "gregwar/cache": "v1.0.7",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-02-20 22:20:45",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Gregwar\\Image": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Grégoire Passault",
+                "email": "g.passault@gmail.com",
+                "homepage": "http://www.gregwar.com/"
+            }
+        ],
+        "description": "Image handling",
+        "homepage": "https://github.com/Gregwar/Image",
+        "keywords": [
+            "gd",
+            "image"
+        ]
     },
     {
         "name": "ircmaxell/password-compat",
@@ -664,53 +703,6 @@
         "keywords": [
             "hashing",
             "password"
-        ]
-    },
-    {
-        "name": "ornicar/php-user-agent",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ornicar/php-user-agent.git",
-            "reference": "91f648fc5080ac1e8a8b51bcd90867b6ddeaf633"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ornicar/php-user-agent/zipball/91f648fc5080ac1e8a8b51bcd90867b6ddeaf633",
-            "reference": "91f648fc5080ac1e8a8b51bcd90867b6ddeaf633",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2013-07-09 13:04:43",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0-dev"
-            }
-        },
-        "installation-source": "source",
-        "autoload": {
-            "files": [
-                "lib/phpUserAgent.php",
-                "lib/phpUserAgentStringParser.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Thibault Duplessis",
-                "email": "thibault.duplessis@gmail.com",
-                "homepage": "http://ornicar.github.com"
-            }
-        ],
-        "keywords": [
-            "user-agent"
         ]
     }
 ]

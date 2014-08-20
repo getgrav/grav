@@ -2,7 +2,7 @@
 ==============================================
 
 [![Downloads this Month](https://img.shields.io/packagist/dm/tracy/tracy.svg)](https://packagist.org/packages/tracy/tracy)
-[![Build Status](https://travis-ci.org/nette/tracy.svg?branch=master)](https://travis-ci.org/nette/tracy)
+[![Build Status](https://travis-ci.org/nette/tracy.svg?branch=v2.2)](https://travis-ci.org/nette/tracy)
 
 Tracy library is a useful PHP everyday programmer's helper. It helps you to:
 

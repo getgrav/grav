@@ -42,7 +42,6 @@ class OutputDebugger
 	}
 
 
-	/** @internal */
 	public function handler($s, $phase)
 	{
 		$trace = debug_backtrace(FALSE);

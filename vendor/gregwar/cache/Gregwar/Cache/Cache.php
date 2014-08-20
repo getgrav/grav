@@ -35,7 +35,7 @@ class Cache
      */
     public function __construct($cacheDirectory = 'cache')
     {
-        $this->cacheDirectory = $cacheDirectory;
+	$this->cacheDirectory = $cacheDirectory;
     }
 
     /**
@@ -45,9 +45,9 @@ class Cache
      */
     public function setCacheDirectory($cacheDirectory)
     {
-        $this->cacheDirectory = $cacheDirectory;
+	$this->cacheDirectory = $cacheDirectory;
 
-        return $this;
+	return $this;
     }
 
     /**
@@ -57,7 +57,7 @@ class Cache
      */
     public function getCacheDirectory()
     {
-        return $this->cacheDirectory;
+	return $this->cacheDirectory;
     }
 
     /**
@@ -112,24 +112,24 @@ class Cache
      */
     public function getCacheFile($filename, $actual = false, $mkdir = false)
     {
-        $path = array();
+	$path = array();
 
-        // Getting the length of the filename before the extension
-        $parts = explode('.', $filename);
-        $len = strlen($parts[0]);
+	// Getting the length of the filename before the extension
+	$parts = explode('.', $filename);
+	$len = strlen($parts[0]);
 
-        for ($i=0; $i<min($len, $this->prefixSize); $i++) {
-            $path[] = $filename[$i];
+	for ($i=0; $i<min($len, $this->prefixSize); $i++) {
+	    $path[] = $filename[$i];
 
         }
-        $path = implode('/', $path);
+	$path = implode('/', $path);
 
         $actualDir = $this->getActualCacheDirectory() . '/' . $path;
         if ($mkdir && !is_dir($actualDir)) {
-            mkdir($actualDir, 0755, true);
-        }
+	    mkdir($actualDir, 0755, true);
+	}
 
-        $path .= '/' . $filename;
+	$path .= '/' . $filename;
 
         if ($actual) {
             return $this->getActualCacheDirectory() . '/' . $path;
@@ -148,20 +148,20 @@ class Cache
     {
         // Implicit condition: the cache file should exist
         if (!file_exists($cacheFile)) {
-            return false;
-        }
+	    return false;
+	}
 
-        foreach ($conditions as $type => $value) {
-            switch ($type) {
-            case 'maxage':
+	foreach ($conditions as $type => $value) {
+	    switch ($type) {
+	    case 'maxage':
             case 'max-age':
-                // Return false if the file is older than $value
+		// Return false if the file is older than $value
                 $age = time() - filectime($cacheFile);
                 if ($age > $value) {
                     return false;
                 }
-                break;
-            case 'younger-than':
+		break;
+	    case 'younger-than':
             case 'youngerthan':
                 // Return false if the file is older than the file $value, or the files $value
                 $check = function($filename) use ($cacheFile) {
@@ -179,13 +179,13 @@ class Cache
                         }
                     }
                 }
-                break;
-            default:
-                throw new \Exception('Cache condition '.$type.' not supported');
-            }
-        }
+		break;
+	    default:
+		throw new \Exception('Cache condition '.$type.' not supported');
+	    }
+	}
 
-        return true;
+	return true;
     }
 
     /**
@@ -199,7 +199,7 @@ class Cache
     {
         $cacheFile = $this->getCacheFile($filename, true);
 
-        return $this->checkConditions($cacheFile, $conditions);
+	return $this->checkConditions($cacheFile, $conditions);
     }
 
     /**
@@ -215,7 +215,7 @@ class Cache
      */
     public function set($filename, $contents = '')
     {
-        $cacheFile = $this->getCacheFile($filename, true, true);
+	$cacheFile = $this->getCacheFile($filename, true, true);
 
         file_put_contents($cacheFile, $contents);
 
@@ -235,11 +235,11 @@ class Cache
      */
     public function get($filename, array $conditions = array())
     {
-        if ($this->exists($filename, $conditions)) {
-            return file_get_contents($this->getCacheFile($filename, true));
-        } else {
-            return null;
-        }
+	if ($this->exists($filename, $conditions)) {
+	    return file_get_contents($this->getCacheFile($filename, true));
+	} else {
+	    return null;
+	}
     }
 
     /**
@@ -259,12 +259,8 @@ class Cache
      * @param $file returns the cache file or the file contents
      * @param $actual returns the actual cache file
      */
-    public function getOrCreate($filename, array $conditions = array(), $function, $file = false, $actual = false)
+    public function getOrCreate($filename, array $conditions = array(), \Closure $function, $file = false, $actual = false)
     {
-        if (!is_callable($function)) {
-            throw new InvalidArgumentException('The argument $function should be callable');
-        }
-
         $cacheFile = $this->getCacheFile($filename, true, true);
         $data = null;
 
@@ -272,7 +268,7 @@ class Cache
             $data = file_get_contents($cacheFile);
         } else {
             @unlink($cacheFile);
-            $data = call_user_func($function, $cacheFile);
+            $data = $function($cacheFile);
 
             // Test if the closure wrote the file or if it returned the data
             if (!file_exists($cacheFile)) {
@@ -288,7 +284,7 @@ class Cache
     /**
      * Alias to getOrCreate with $file = true
      */
-    public function getOrCreateFile($filename, array $conditions = array(), $function, $actual = false)
+    public function getOrCreateFile($filename, array $conditions = array(), \Closure $function, $actual = false)
     {
         return $this->getOrCreate($filename, $conditions, $function, true, $actual);
     }

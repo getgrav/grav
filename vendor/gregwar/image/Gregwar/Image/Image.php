@@ -682,7 +682,7 @@ class Image
      */
     public static function open($file = '')
     {
-        return new static($file);
+        return new self($file);
     }
 
     /**
@@ -690,7 +690,7 @@ class Image
      */
     public static function create($width, $height)
     {
-        return new static(null, $width, $height);
+        return new self(null, $width, $height);
     }
 
     /**
@@ -698,7 +698,7 @@ class Image
      */
     public static function fromData($data)
     {
-        $image = new static();
+        $image = new self();
         $image->setData($data);
 
         return $image;
@@ -709,7 +709,7 @@ class Image
      */
     public static function fromResource($resource)
     {
-        $image = new static();
+        $image = new self();
         $image->setResource($resource);
 
         return $image;
