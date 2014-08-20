@@ -1,16 +1,10 @@
 {
-    "name": "rhuk/grav",
+    "name": "getgrav/grav",
     "type": "library",
-    "description": "Grav is a powerful flat CMS influenced by Pico, Stacey, Kirby and others...",
-    "keywords": ["cms"],
+    "description": "Modern, Crazy Fast, Ridiculously Easy and Amazingly Powerful Flat-File CMS",
+    "keywords": ["cms","flat-file cms","flat cms","flatfile cms","php"],
     "homepage": "http://getgrav.org",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Andy Miller",
-            "email": "rhuk@getgrav.org"
-        }
-    ],
     "require": {
         "php": ">=5.4.0",
         "twig/twig": "~1.16",
