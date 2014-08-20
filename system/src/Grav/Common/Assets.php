@@ -24,9 +24,6 @@ class Assets
 {
     use GravTrait;
 
-    /** @const Regex to match grav asset shortcodes */
-    const GRAV_ASSET_REGEX = '/@(plugin|theme)\/(.*?):(.*)/i';
-
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
 
@@ -70,7 +67,6 @@ class Assets
 
     // Some configuration variables
     protected $config;
-    protected $theme_url;
     protected $base_url;
 
     // Default values for pipeline settings
@@ -103,8 +99,6 @@ class Assets
 
         $this->config($asset_config);
         $this->base_url = $base_url . '/';
-        $this->theme_url = $base_url . '/' . USER_PATH . basename(THEMES_DIR) .'/'. $theme;
-
     }
 
     /**
@@ -548,43 +542,11 @@ class Assets
     protected function buildLocalLink($asset)
     {
         try {
-            return self::$grav['uri']->rootUrl() . '/' . self::$grav['locator']->findResource($asset, false);
+            return $this->base_url . self::$grav['locator']->findResource($asset, false);
         } catch (\Exception $e) {}
 
-        $matches = $this->assetIsGravPackage($asset);
-        $base_url = $this->base_url;
-
-
-        if($matches === false)
-            return $base_url . $asset;
-
-        if($matches[1] == 'theme') {
-            return $this->theme_url . '/' . $matches[2] . '/' . $matches[3];
-        } elseif ($matches[1] == 'plugin') {
-            return $base_url . 'user/plugins/' . $matches[2] . '/' . $matches[3];
-        } else {
-            return $base_url . $asset;
-        }
-
-
+        return $this->base_url . $asset;
     }
-
-    /**
-     * Determines if an asset contains a valid grav asset shortcode
-     * Currently supported formats are:
-     * @plugin/plugin_name/directories:assetname.js|css
-     * @theme/directories:assetname.js|css
-     *
-     * @param  string $asset    the asset string reference
-     * @return array|bool    if there are matches, those regex matches are returned, else return false
-     */
-    protected function assetIsGravPackage($asset)
-    {
-        if(preg_match(self::GRAV_ASSET_REGEX, $asset, $matches))
-            return $matches;
-        return false;
-    }
-
 
 
     /**
