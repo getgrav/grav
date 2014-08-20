@@ -14,14 +14,9 @@ use \Grav\Common\Page\Page;
 class Twig
 {
     /**
-     * @var Grav
-     */
-    protected $grav;
-
-    /**
      * @var \Twig_Environment
      */
-    protected $twig;
+    public $twig;
 
     /**
      * @var array
@@ -39,6 +34,11 @@ class Twig
     public $template;
 
     /**
+     * @var Grav
+     */
+    protected $grav;
+
+    /**
      * @var \Twig_Loader_Filesystem
      */
     protected $loader;
@@ -47,6 +47,7 @@ class Twig
      * @var \Twig_Loader_Array
      */
     protected $loaderArray;
+
 
     /**
      * Constructor
