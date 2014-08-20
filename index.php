@@ -8,8 +8,8 @@ if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
 use Grav\Common\Grav;
 use Grav\Common\Debugger;
 
-// Register system libraries to the auto-loader.
-$loader = require_once __DIR__ . '/system/autoload.php';
+// Register the auto-loader.
+$loader = require_once __DIR__ . '/vendor/autoload.php';
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
@@ -22,9 +22,6 @@ $grav = Grav::instance(
     ]
 );
 
-// Use output buffering to prevent headers from being sent too early.
-ob_start();
-
 try {
     $grav['debugger']->init();
     $grav->process();
@@ -34,4 +31,3 @@ try {
     throw $e;
 }
 
-ob_end_flush();

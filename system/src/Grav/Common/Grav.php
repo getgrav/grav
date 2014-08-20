@@ -113,6 +113,9 @@ class Grav extends Container
 
     public function process()
     {
+        // Use output buffering to prevent headers from being sent too early.
+        ob_start();
+
         // Initialize stream wrappers.
         $this['locator'];
 
@@ -140,6 +143,11 @@ class Grav extends Container
         $this->header();
 
         echo $this->output;
+
+        ob_end_flush();
+        flush();
+
+        $this->fireEvent('onOutputRendered');
     }
 
     /**

@@ -41,7 +41,7 @@ class Plugins extends Iterator
                 continue;
             }
 
-            $filePath = 'plugin://' . $plugin . DS . $plugin . PLUGIN_EXT;
+            $filePath = $this->grav['locator']('plugin://' . $plugin . DS . $plugin . PLUGIN_EXT);
             if (!is_file($filePath)) {
                 throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found!", $filePath, $plugin));
             }
