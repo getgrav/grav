@@ -37,35 +37,64 @@ class Cache extends Getters
     /**
      * Constructor
      *
-     * @params Grav $c
+     * @params Grav $grav
      */
-    public function __construct(Grav $c)
+    public function __construct(Grav $grav)
     {
-        $this->init($c);
+        $this->init($grav);
     }
 
     /**
      * Initialization that sets a base key and the driver based on configuration settings
      *
-     * @param  Grav $c
+     * @param  Grav $grav
      * @return void
      */
-    public function init(Grav $c)
+    public function init(Grav $grav)
     {
         /** @var Config $config */
-        $config = $c['config'];
+        $this->config = $grav['config'];
 
         /** @var Uri $uri */
-        $uri = $c['uri'];
+        $uri = $grav['uri'];
 
-        $prefix = $config->get('system.cache.prefix');
+        $prefix = $this->config->get('system.cache.prefix');
 
-        $this->enabled = (bool) $config->get('system.cache.enabled');
+        $this->enabled = (bool) $this->config->get('system.cache.enabled');
 
         // Cache key allows us to invalidate all cache on configuration changes.
-        $this->key = substr(md5(($prefix ? $prefix : 'g') . $uri->rootUrl(true) . $config->key . GRAV_VERSION), 2, 8);
+        $this->key = substr(md5(($prefix ? $prefix : 'g') . $uri->rootUrl(true) . $this->config->key . GRAV_VERSION), 2, 8);
 
-        switch ($this->getCacheDriverName($config->get('system.cache.driver'))) {
+        $this->driver = $this->getCacheDriver();
+    }
+
+    /**
+     * Automatically picks the cache mechanism to use.  If you pick one manually it will use that
+     * If there is no config option for $driver in the config, or it's set to 'auto', it will
+     * pick the best option based on which cache extensions are installed.
+     *
+     * @return DoctrineCacheDriver  The cache driver to use
+     */
+    public function getCacheDriver()
+    {
+        $setting = $this->config->get('system.cache.driver');
+        $driver_name = 'file';
+
+        if (!$setting || $setting == 'auto') {
+            if (extension_loaded('apc')) {
+                $driver_name = 'apc';
+            } elseif (extension_loaded('wincache')) {
+                $driver_name = 'wincache';
+            } elseif (extension_loaded('xcache')) {
+                $driver_name = 'xcache';
+            } elseif (extension_loaded('memcache')) {
+                $driver_name = 'memcache';
+            }
+        } else {
+            $driver_name = $setting;
+        }
+
+        switch ($driver_name) {
             case 'apc':
                 $driver = new \Doctrine\Common\Cache\ApcCache();
                 break;
@@ -90,33 +119,8 @@ class Cache extends Getters
                 $driver = new \Doctrine\Common\Cache\FilesystemCache(CACHE_DIR);
                 break;
         }
-        $this->driver = $driver;
-    }
 
-    /**
-     * Automatically picks the cache mechanism to use.  If you pick one manually it will use that
-     * If there is no config option for $driver in the config, or it's set to 'auto', it will
-     * pick the best option based on which cache extensions are installed.
-     *
-     * @param  string  $setting
-     * @return string  The name of the best cache driver to use
-     */
-    protected function getCacheDriverName($setting = null)
-    {
-
-        if (!$setting || $setting == 'auto') {
-            if (extension_loaded('apc') && ini_get('apc.enabled')) {
-                return 'apc';
-            } elseif (extension_loaded('wincache')) {
-                return 'wincache';
-            } elseif (extension_loaded('xcache') && ini_get('xcache.size') && ini_get('xcache.cacher')) {
-                return 'xcache';
-            } else {
-                return 'file';
-            }
-        } else {
-            return $setting;
-        }
+        return $driver;
     }
 
     /**
