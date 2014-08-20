@@ -61,6 +61,7 @@ class Plugins extends Iterator
         }
 
         $instance = $this->grav['themes']->load();
+        $instance->configure();
         if ($instance instanceof EventSubscriberInterface) {
             $events->addSubscriber($instance);
         }

@@ -101,13 +101,13 @@ class Themes
                 $className = '\\Grav\\Theme\\' . ucfirst($name);
 
                 if (class_exists($className)) {
-                    $class = new $className($this->grav, $config);
+                    $class = new $className($this->grav, $config, $name);
                 }
             }
         }
 
         if (empty($class)) {
-            $class = new Theme($this->grav, $config);
+            $class = new Theme($this->grav, $config, $name);
         }
 
         return $class;

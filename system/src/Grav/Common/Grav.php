@@ -5,7 +5,6 @@ use Grav\Common\Service\StreamsServiceProvider;
 use Grav\Component\DI\Container;
 use Grav\Component\EventDispatcher\Event;
 use Grav\Component\EventDispatcher\EventDispatcher;
-use Grav\Component\Filesystem\ResourceLocator;
 
 /**
  * Grav
