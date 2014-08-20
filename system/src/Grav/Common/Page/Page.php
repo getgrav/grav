@@ -1331,7 +1331,7 @@ class Page
         $grav = self::$grav['grav'];
 
         // New Custom event to handle things like pagination.
-        $grav->fireEvent('onAfterCollectionProcessed', new Event(['collection' => $collection]));
+        $grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));
 
         $params = $collection->params();
 

@@ -118,23 +118,23 @@ class Grav extends Container
 
         $this['plugins']->init();
 
-        $this->fireEvent('onAfterInitPlugins');
+        $this->fireEvent('onPluginsInitialized');
 
         $this['assets']->init();
 
-        $this->fireEvent('onAfterGetAssets');
+        $this->fireEvent('onAssetsInitialized');
 
         $this['twig']->init();
         $this['pages']->init();
 
-        $this->fireEvent('onAfterGetPages');
+        $this->fireEvent('onPagesInitialized');
 
-        $this->fireEvent('onAfterGetPage');
+        $this->fireEvent('onPageInitialized');
 
         // Process whole page as required
         $this->output = $this['output'];
 
-        $this->fireEvent('onAfterGetOutput');
+        $this->fireEvent('onOutputGenerated');
 
         // Set the header type
         $this->header();

@@ -67,7 +67,7 @@ class Twig
             $config = $this->grav['config'];
 
             $this->twig_paths = array(THEMES_DIR . $config->get('system.pages.theme') . '/templates');
-            $this->grav->fireEvent('onAfterTwigTemplatesPaths');
+            $this->grav->fireEvent('onTwigTemplatePaths');
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
             $this->loaderArray = new \Twig_Loader_Array(array());
@@ -79,7 +79,7 @@ class Twig
             }
 
             $this->twig = new \Twig_Environment($loader_chain, $params);
-            $this->grav->fireEvent('onAfterTwigInit');
+            $this->grav->fireEvent('onTwigInitialized');
 
             // set default date format if set in config
             if ($config->get('system.pages.dateformat.long')) {
@@ -90,7 +90,7 @@ class Twig
                 $this->twig->addExtension(new \Twig_Extension_Debug());
             }
             $this->twig->addExtension(new TwigExtension());
-            $this->grav->fireEvent('onAfterTwigExtensions');
+            $this->grav->fireEvent('onTwigExtensions');
 
             $baseUrlAbsolute = $config->get('system.base_url_absolute');
             $baseUrlRelative = $config->get('system.base_url_relative');
@@ -158,7 +158,7 @@ class Twig
         $content = $content !== null ? $content : $item->content();
 
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onAfterTwigPageVars');
+        $this->grav->fireEvent('onTwigPageVariables');
         $twig_vars = $this->twig_vars;
 
         $twig_vars['page'] = $item;
@@ -188,7 +188,7 @@ class Twig
     public function processString($string, array $vars = array())
     {
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onAfterTwigVars');
+        $this->grav->fireEvent('onTwigStringVariables');
         $vars += $this->twig_vars;
 
         $name = '@Var:' . $string;
@@ -209,7 +209,7 @@ class Twig
     public function processSite($format = null)
     {
         // set the page now its been processed
-        $this->grav->fireEvent('onAfterTwigSiteVars');
+        $this->grav->fireEvent('onTwigSiteVariables');
         $twig_vars = $this->twig_vars;
         $pages = $this->grav['pages'];
         $page = $this->grav['page'];

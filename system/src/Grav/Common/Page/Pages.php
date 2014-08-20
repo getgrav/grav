@@ -270,7 +270,7 @@ class Pages
         }
 
         if (!$blueprint->initialized) {
-            $this->grav->fireEvent('onCreateBlueprint', new Event(['blueprint' => $blueprint]));
+            $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint]));
             $blueprint->initialized = true;
         }
 
@@ -421,7 +421,7 @@ class Pages
                 $page->init($file);
 
                 if ($config->get('system.pages.events.page')) {
-                    $this->grav->fireEvent('onAfterPageProcessed', new Event(['page' => $page]));
+                    $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
                 }
 
             } elseif ($file->isDir() && !$file->isDot()) {
@@ -448,7 +448,7 @@ class Pages
                 $this->lastModified($file->getMTime());
 
                 if ($config->get('system.pages.events.page')) {
-                    $this->grav->fireEvent('onAfterFolderProcessed', new Event(['page' => $page]));
+                    $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
             }
         }
