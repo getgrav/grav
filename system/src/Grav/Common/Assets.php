@@ -547,6 +547,9 @@ class Assets
      */
     protected function buildLocalLink($asset)
     {
+        try {
+            return self::$grav['uri']->rootUrl() . '/' . self::$grav['locator']->findResource($asset, false);
+        } catch (\Exception $e) {}
 
         $matches = $this->assetIsGravPackage($asset);
         $base_url = $this->base_url;

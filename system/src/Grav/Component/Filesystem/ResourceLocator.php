@@ -42,34 +42,38 @@ class ResourceLocator
      */
     public function __invoke($uri)
     {
-        return $this->find($uri, false);
+        return $this->find($uri, false, true);
     }
 
     /**
      * @param  string $uri
+     * @param  bool   $absolute
      * @return string|bool
      */
-    public function findResource($uri)
+    public function findResource($uri, $absolute = true)
     {
-        return $this->find($uri, false);
+        return $this->find($uri, false, $absolute);
     }
 
     /**
      * @param  string $uri
+     * @param  bool   $absolute
      * @return array
      */
-    public function findResources($uri)
+    public function findResources($uri, $absolute = true)
     {
-        return $this->find($uri, true);
+        return $this->find($uri, true, $absolute);
     }
 
     /**
      * @param  string $uri
+     * @param  bool   $absolute
      * @param  bool $array
+     *
      * @throws \InvalidArgumentException
      * @return array|string|bool
      */
-    protected function find($uri, $array)
+    protected function find($uri, $array, $absolute)
     {
         $segments = explode('://', $uri, 2);
         $file = array_pop($segments);
@@ -93,13 +97,14 @@ class ResourceLocator
             }
 
             foreach ($paths as $path) {
-                $filename = ROOT_DIR . '/' . $path . '/' . ltrim(substr($file, strlen($prefix)), '\/');
+                $filename = $path . '/' . ltrim(substr($file, strlen($prefix)), '\/');
+                $lookup = ROOT_DIR . '/' . $filename;
 
-                if (file_exists($filename)) {
+                if (file_exists($lookup)) {
                     if (!$array) {
-                        return $filename;
+                        return $absolute ? $lookup : $filename;
                     }
-                    $paths[] = $filename;
+                    $paths[] = $absolute ? $lookup : $filename;
                 }
             }
         }
