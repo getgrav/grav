@@ -54,4 +54,9 @@ class Debugger
             TracyDebugger::log(sprintf($message, TracyDebugger::timer() * 1000));
         }
     }
+
+    public static function dump($var)
+    {
+        TracyDebugger::dump($var);
+    }
 }
