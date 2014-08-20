@@ -32,7 +32,10 @@ class Theme extends Plugin
 
         // TODO: move
         $registered = stream_get_wrappers();
-        $schemes = $this->config->get("themes.{$this->name}.streams.scheme");
+        $schemes = $this->config->get(
+            "themes.{$this->name}.streams.scheme",
+            ['theme' => ['paths' => ["user/themes/{$this->name}"]]]
+        );
 
         foreach ($schemes as $scheme => $config) {
             if (isset($config['paths'])) {
