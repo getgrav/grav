@@ -2,7 +2,7 @@
 namespace Grav\Component\ArrayTraits;
 
 /**
- * Class ArrayAccess
+ * Implements ArrayAccess interface
  * @package Grav\Component\ArrayTraits
  *
  * @property array $items
@@ -10,8 +10,10 @@ namespace Grav\Component\ArrayTraits;
 trait ArrayAccess
 {
     /**
-     * @param mixed $offset
-     * @return bool
+     * Whether or not an offset exists.
+     *
+     * @param mixed $offset  An offset to check for.
+     * @return bool          Returns TRUE on success or FALSE on failure.
      */
     public function offsetExists($offset)
     {
@@ -19,8 +21,10 @@ trait ArrayAccess
     }
 
     /**
-     * @param mixed $offset
-     * @return mixed
+     * Returns the value at specified offset.
+     *
+     * @param mixed $offset  The offset to retrieve.
+     * @return mixed         Can return all value types.
      */
     public function offsetGet($offset)
     {
@@ -28,19 +32,32 @@ trait ArrayAccess
     }
 
     /**
-     * @param mixed $offset
-     * @param mixed $value
+     * Assigns a value to the specified offset.
+     *
+     * @param mixed $offset  The offset to assign the value to.
+     * @param mixed $value   The value to set.
      */
     public function offsetSet($offset, $value)
     {
-        $this->items[$offset] = $value;
+        if (is_null($offset)) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
+        }
     }
 
     /**
-     * @param mixed $offset
+     * Unsets an offset.
+     *
+     * @param mixed $offset  The offset to unset.
      */
     public function offsetUnset($offset)
     {
+        // Hack to make Iterator trait work together with unset.
+        if (isset($this->iteratorUnset) && $offset == key($this->items)) {
+            $this->iteratorUnset = true;
+        }
+
         unset($this->items[$offset]);
     }
 }

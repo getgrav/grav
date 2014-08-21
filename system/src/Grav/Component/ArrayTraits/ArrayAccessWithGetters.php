@@ -1,7 +1,11 @@
 <?php
 namespace Grav\Component\ArrayTraits;
 
-trait Getters
+/**
+ * Implements all getters and setters
+ * @package Grav\Component\ArrayTraits
+ */
+trait ArrayAccessWithGetters
 {
     use ArrayAccess;
 

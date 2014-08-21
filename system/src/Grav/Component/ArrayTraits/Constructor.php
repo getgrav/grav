@@ -2,7 +2,7 @@
 namespace Grav\Component\ArrayTraits;
 
 /**
- * Class Constructor
+ * Implements Constructor
  * @package Grav\Component\ArrayTraits
  *
  * @property array $items
@@ -10,7 +10,7 @@ namespace Grav\Component\ArrayTraits;
 trait Constructor
 {
     /**
-     * Constructor.
+     * Constructor to initialize array.
      *
      * @param  array  $items  Initial items inside the iterator.
      */

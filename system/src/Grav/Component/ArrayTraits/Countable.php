@@ -2,7 +2,7 @@
 namespace Grav\Component\ArrayTraits;
 
 /**
- * Class Countable
+ * Implements Countable interface
  * @package Grav\Component\ArrayTraits
  *
  * @property array $items;
@@ -10,10 +10,12 @@ namespace Grav\Component\ArrayTraits;
 trait Countable
 {
     /**
+     * Implements Countable interface.
+     *
      * @return int
      */
     public function count()
     {
-        count($this->items);
+        return count($this->items);
     }
 }
