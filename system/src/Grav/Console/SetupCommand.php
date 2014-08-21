@@ -13,6 +13,7 @@ class SetupCommand extends Command
     protected $directories  = array('/cache',
                                     '/logs',
                                     '/images',
+                                    '/assets',
                                     '/user/accounts',
                                     '/user/config',
                                     '/user/pages',
