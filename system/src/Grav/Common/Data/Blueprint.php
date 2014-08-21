@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
-use \Symfony\Component\Yaml\Yaml;
+use Grav\Component\ArrayTraits\Export;
 
 /**
  * Blueprint handles the inside logic of blueprints.
@@ -11,9 +11,11 @@ use \Symfony\Component\Yaml\Yaml;
  */
 class Blueprint
 {
+    use Export;
+
     public $name;
     public $initialized = false;
-    protected $blueprints;
+    protected $items;
     protected $context;
     protected $fields;
     protected $rules = array();
@@ -27,7 +29,7 @@ class Blueprint
     public function __construct($name, array $data, Blueprints $context)
     {
         $this->name = $name;
-        $this->blueprints = $data;
+        $this->items = $data;
         $this->context = $context;
     }
 
@@ -45,7 +47,7 @@ class Blueprint
     public function get($name, $default = null, $separator = '.')
     {
         $path = explode($separator, $name);
-        $current = $this->blueprints;
+        $current = $this->items;
         foreach ($path as $field) {
             if (is_object($current) && isset($current->{$field})) {
                 $current = $current->{$field};
@@ -71,7 +73,7 @@ class Blueprint
     public function set($name, $value, $separator = '.')
     {
         $path = explode($separator, $name);
-        $current = &$this->blueprints;
+        $current = &$this->items;
         foreach ($path as $field) {
             if (is_object($current)) {
                 // Handle objects.
@@ -101,7 +103,7 @@ class Blueprint
     public function fields()
     {
         if (!isset($this->fields)) {
-            $this->fields = isset($this->blueprints['form']['fields']) ? $this->blueprints['form']['fields'] : array();
+            $this->fields = isset($this->items['form']['fields']) ? $this->items['form']['fields'] : array();
             $this->getFields($this->fields);
         }
 
@@ -187,7 +189,7 @@ class Blueprint
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $this->validateArray($field, $val);
-            } elseif (isset($this->blueprints['validation']) && $this->blueprints['validation'] == 'strict') {
+            } elseif (isset($this->items['validation']) && $this->items['validation'] == 'strict') {
                  // Undefined/extra item.
                  throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }
@@ -213,7 +215,7 @@ class Blueprint
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $field = $this->filterArray($field, $val);
-            } elseif (isset($this->blueprints['validation']) && $this->blueprints['validation'] == 'strict') {
+            } elseif (isset($this->items['validation']) && $this->items['validation'] == 'strict') {
                 $field = null;
             }
 
@@ -379,8 +381,8 @@ class Blueprint
      */
     protected function getRule($rule)
     {
-        if (isset($this->blueprints['rules'][$rule]) && is_array($this->blueprints['rules'][$rule])) {
-            return $this->blueprints['rules'][$rule];
+        if (isset($this->items['rules'][$rule]) && is_array($this->items['rules'][$rule])) {
+            return $this->items['rules'][$rule];
         }
         return array();
     }
@@ -406,36 +408,6 @@ class Blueprint
     }
 
     /**
-     * Convert blueprints into an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->blueprints;
-    }
-
-    /**
-     * Convert blueprints into YAML string.
-     *
-     * @return string
-     */
-    public function toYaml()
-    {
-        return Yaml::dump($this->blueprints);
-    }
-
-    /**
-     * Convert blueprints into JSON string.
-     *
-     * @return string
-     */
-    public function toJson()
-    {
-        return json_encode($this->blueprints);
-    }
-
-    /**
      * Extend blueprint with another blueprint.
      *
      * @param Blueprint $extends
@@ -443,8 +415,8 @@ class Blueprint
      */
     public function extend(Blueprint $extends, $append = false)
     {
-        $blueprints = $append ? $this->blueprints : $extends->toArray();
-        $appended = $append ? $extends->toArray() : $this->blueprints;
+        $blueprints = $append ? $this->items : $extends->toArray();
+        $appended = $append ? $extends->toArray() : $this->items;
 
         $bref_stack = array(&$blueprints);
         $head_stack = array($appended);
@@ -467,6 +439,6 @@ class Blueprint
             }
         } while(count($head_stack));
 
-        $this->blueprints = $blueprints;
+        $this->items = $blueprints;
     }
 }
