@@ -5,6 +5,11 @@ schemes:
       - user/plugins
       - system/plugins
 
+  user:
+    type: ReadOnlyStream
+    paths:
+      - user
+
 #  asset:
 #    type: ReadOnlyStream
 #    paths:

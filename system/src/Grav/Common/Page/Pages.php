@@ -257,10 +257,7 @@ class Pages
     public function blueprints($type)
     {
         if (!isset($this->blueprints)) {
-            /** @var Config $config */
-            $config = $this->grav['config'];
-
-            $this->blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
+            $this->blueprints = new Data\Blueprints('theme://blueprints/');
         }
 
         try {
@@ -314,12 +311,7 @@ class Pages
      */
     static public function types()
     {
-        $grav = Grav::instance();
-
-        /** @var Config $config */
-        $config = $grav['config'];
-
-        $blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
+        $blueprints = new Data\Blueprints('theme://blueprints/');
 
         return $blueprints->types();
     }

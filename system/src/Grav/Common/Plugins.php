@@ -101,18 +101,18 @@ class Plugins extends Iterator
         return $list;
     }
 
-    static public function get($type)
+    static public function get($name)
     {
-        $blueprints = new Data\Blueprints('plugin://' . $type);
+        $blueprints = new Data\Blueprints("plugin://{$name}");
         $blueprint = $blueprints->get('blueprints');
-        $blueprint->name = $type;
+        $blueprint->name = $name;
 
         // Load default configuration.
-        $file = File\Yaml::instance('plugin://' . "{$type}/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance("plugin://{$name}/{$name}.yaml");
         $obj = new Data\Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance('plugin://' . "config/plugins/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance("user://config/plugins/{$name}.yaml");
         $obj->merge($file->content());
 
         // Save configuration always to user/config.

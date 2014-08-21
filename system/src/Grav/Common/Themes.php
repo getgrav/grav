@@ -49,33 +49,33 @@ class Themes
     /**
      * Get theme or throw exception if it cannot be found.
      *
-     * @param string $type
+     * @param string $name
      * @return Data\Data
      * @throws \RuntimeException
      */
-    public function get($type)
+    public function get($name)
     {
-        if (!$type) {
+        if (!$name) {
             throw new \RuntimeException('Theme name not provided.');
         }
 
-        $blueprints = new Data\Blueprints(THEMES_DIR . $type);
+        $blueprints = new Data\Blueprints("theme://{$name}");
         $blueprint = $blueprints->get('blueprints');
-        $blueprint->name = $type;
+        $blueprint->name = $name;
 
         // Find thumbnail.
-        $thumb = THEMES_DIR . "{$type}/thumbnail.jpg";
+        $thumb = THEMES_DIR . "{$name}/thumbnail.jpg";
         if (file_exists($thumb)) {
             // TODO: use real URL with base path.
-            $blueprint->set('thumbnail', "/user/themes/{$type}/thumbnail.jpg");
+            $blueprint->set('thumbnail', "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.
-        $file = File\Yaml::instance(THEMES_DIR . "{$type}/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance("theme://{$name}.yaml");
         $obj = new Data\Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance(USER_DIR . "config/themes/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance("user://config/themes/{$name}.yaml");
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
