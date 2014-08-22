@@ -90,7 +90,7 @@ class ResourceLocator
             throw new \InvalidArgumentException("Invalid resource {$scheme}://");
         }
 
-        $paths = $array ? [] : false;
+        $results = $array ? [] : false;
         foreach ($this->schemes[$scheme] as $prefix => $paths) {
             if ($prefix && strpos($file, $prefix) !== 0) {
                 continue;
@@ -104,11 +104,11 @@ class ResourceLocator
                     if (!$array) {
                         return $absolute ? $lookup : $filename;
                     }
-                    $paths[] = $absolute ? $lookup : $filename;
+                    $results[] = $absolute ? $lookup : $filename;
                 }
             }
         }
 
-        return $paths;
+        return $results;
     }
 }

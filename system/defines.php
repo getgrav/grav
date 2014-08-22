@@ -9,6 +9,7 @@ define('DS', '/');
 if (!defined('ROOT_DIR')) {
     define('ROOT_DIR', getcwd() .'/');
 }
+define('GRAV_ROOT', ROOT_DIR);
 define('USER_PATH', 'user/');
 define('USER_DIR', ROOT_DIR . USER_PATH);
 define('SYSTEM_DIR', ROOT_DIR .'system/');

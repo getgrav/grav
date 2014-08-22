@@ -170,6 +170,42 @@ class Blueprint
     }
 
     /**
+     * Extend blueprint with another blueprint.
+     *
+     * @param Blueprint $extends
+     * @param bool $append
+     */
+    public function extend(Blueprint $extends, $append = false)
+    {
+        $blueprints = $append ? $this->items : $extends->toArray();
+        $appended = $append ? $extends->toArray() : $this->items;
+
+        $bref_stack = array(&$blueprints);
+        $head_stack = array($appended);
+
+        do {
+            end($bref_stack);
+
+            $bref = &$bref_stack[key($bref_stack)];
+            $head = array_pop($head_stack);
+
+            unset($bref_stack[key($bref_stack)]);
+
+            foreach (array_keys($head) as $key) {
+                if (isset($key, $bref[$key]) && is_array($bref[$key]) && is_array($head[$key])) {
+                    $bref_stack[] = &$bref[$key];
+                    $head_stack[] = $head[$key];
+                } else {
+                    $bref = array_merge($bref, array($key => $head[$key]));
+                }
+            }
+        } while(count($head_stack));
+
+        $this->items = $blueprints;
+    }
+
+
+    /**
      * @param array $data
      * @param array $rules
      * @throws \RuntimeException
@@ -405,40 +441,5 @@ class Blueprint
                 throw new \RuntimeException("Missing required field: {$field['name']}");
             }
         }
-    }
-
-    /**
-     * Extend blueprint with another blueprint.
-     *
-     * @param Blueprint $extends
-     * @param bool $append
-     */
-    public function extend(Blueprint $extends, $append = false)
-    {
-        $blueprints = $append ? $this->items : $extends->toArray();
-        $appended = $append ? $extends->toArray() : $this->items;
-
-        $bref_stack = array(&$blueprints);
-        $head_stack = array($appended);
-
-        do {
-            end($bref_stack);
-
-            $bref = &$bref_stack[key($bref_stack)];
-            $head = array_pop($head_stack);
-
-            unset($bref_stack[key($bref_stack)]);
-
-            foreach (array_keys($head) as $key) {
-                if (isset($key, $bref[$key]) && is_array($bref[$key]) && is_array($head[$key])) {
-                    $bref_stack[] = &$bref[$key];
-                    $head_stack[] = $head[$key];
-                } else {
-                    $bref = array_merge($bref, array($key => $head[$key]));
-                }
-            }
-        } while(count($head_stack));
-
-        $this->items = $blueprints;
     }
 }
