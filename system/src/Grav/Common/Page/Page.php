@@ -12,6 +12,8 @@ use Grav\Common\Data;
 use Grav\Common\Uri;
 use Grav\Common\Grav;
 use Grav\Common\Taxonomy;
+use Grav\Common\Markdown\Markdown;
+use Grav\Common\Markdown\MarkdownExtra;
 use Grav\Component\EventDispatcher\Event;
 use Symfony\Component\Yaml\Yaml;
 
@@ -272,6 +274,9 @@ class Page
         // If no content, process it
         if ($this->content === null) {
 
+            // Get media
+            $this->media();
+
             // Load cached content
             /** @var Cache $cache */
             $cache = self::$grav['cache'];
@@ -319,7 +324,6 @@ class Page
 
             $this->content = $content;
 
-            $this->media();
         }
 
         return $this->content;
@@ -1514,9 +1518,9 @@ class Page
         /** @var Config $config */
         $config = self::$grav['config'];
         if ($config->get('system.pages.markdown_extra')) {
-            $parsedown = new \ParsedownExtra();
+            $parsedown = new MarkdownExtra($this);
         } else {
-            $parsedown = new \Parsedown();
+            $parsedown = new Markdown($this);
         }
         $content = $parsedown->parse($content);
         return $content;

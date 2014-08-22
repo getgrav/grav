@@ -202,6 +202,15 @@ class Medium extends Data
         return $this->link($width, $height);
     }
 
+    public function lightboxRaw($width = null, $height = null)
+    {
+        $url = $this->url();
+        $this->link($width, $height);
+        $lightbox_url = self::$grav['config']->get('system.base_url_relative') . '/'. $this->linkTarget;
+
+        return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
+    }
+
     /**
      * Return link HTML for the medium.
      *
