@@ -17,7 +17,7 @@
         "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "~2.2",
-        "ornicar/php-user-agent": "1.0.*",
+        "donatj/phpuseragentparser": "dev-master",
         "pimple/pimple": "~3.0"
     },
     "autoload": {

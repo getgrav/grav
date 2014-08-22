@@ -111,7 +111,7 @@ class Twig
                 'site' => $config->get('site'),
                 'assets' => $this->grav['assets'],
                 'taxonomy' => $this->grav['taxonomy'],
-                'user_agent' => $this->grav['user_agent'],
+                'browser' => $this->grav['browser'],
             );
 
         }

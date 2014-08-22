@@ -27,6 +27,7 @@ return array(
     'DooDigestAuth' => $vendorDir . '/mrclay/minify/min/lib/DooDigestAuth.php',
     'FirePHP' => $vendorDir . '/mrclay/minify/min/lib/FirePHP.php',
     'Grav\\Common\\Assets' => $baseDir . '/system/src/Grav/Common/Assets.php',
+    'Grav\\Common\\Browser' => $baseDir . '/system/src/Grav/Browser.php',
     'Grav\\Common\\Cache' => $baseDir . '/system/src/Grav/Common/Cache.php',
     'Grav\\Common\\Config' => $baseDir . '/system/src/Grav/Common/Config.php',
     'Grav\\Common\\Data\\Blueprint' => $baseDir . '/system/src/Grav/Common/Data/Blueprint.php',

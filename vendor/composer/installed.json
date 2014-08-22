@@ -205,48 +205,6 @@
         "homepage": "http://code.google.com/p/minify/"
     },
     {
-        "name": "ornicar/php-user-agent",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ornicar/php-user-agent.git",
-            "reference": "9c6ae1274642695bffe57cd80228e5158ccbcf21"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ornicar/php-user-agent/zipball/9c6ae1274642695bffe57cd80228e5158ccbcf21",
-            "reference": "9c6ae1274642695bffe57cd80228e5158ccbcf21",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2013-07-09 13:01:41",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "lib/phpUserAgent.php",
-                "lib/phpUserAgentStringParser.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Thibault Duplessis",
-                "email": "thibault.duplessis@gmail.com",
-                "homepage": "http://ornicar.github.com"
-            }
-        ],
-        "keywords": [
-            "user-agent"
-        ]
-    },
-    {
         "name": "pimple/pimple",
         "version": "v3.0.0",
         "version_normalized": "3.0.0.0",
@@ -703,6 +661,55 @@
         "homepage": "http://twig.sensiolabs.org",
         "keywords": [
             "templating"
+        ]
+    },
+    {
+        "name": "donatj/phpuseragentparser",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/donatj/PhpUserAgent.git",
+            "reference": "abbd69a119f067e4afc3c4baf28d04646114a668"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/abbd69a119f067e4afc3c4baf28d04646114a668",
+            "reference": "abbd69a119f067e4afc3c4baf28d04646114a668",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "camspiers/json-pretty": "0.1.*"
+        },
+        "time": "2014-08-06 03:39:39",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "Source/UserAgentParser.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jesse G. Donat",
+                "email": "donatj@gmail.com",
+                "homepage": "http://donatstudios.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Simple, streamlined PHP user-agent parser",
+        "homepage": "http://donatstudios.com/PHP-Parser-HTTP_USER_AGENT",
+        "keywords": [
+            "parser",
+            "user agent",
+            "useragent"
         ]
     }
 ]
