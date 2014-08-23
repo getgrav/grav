@@ -25,17 +25,6 @@ trait MarkdownGravLinkTrait
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['src']));
 
-            // if there is a query, then parse it and build action calls
-            if (isset($url['query'])) {
-                parse_str($url['query'], $actions);
-
-                foreach ($actions as $action => $params) {
-                    // ignore any url or html actions
-                    if (!in_array($action, ['html','url']))
-                    $command .= '->' . $action . '(' . $params . ')';
-                }
-            }
-
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
                 // get the media objects for this page
@@ -46,15 +35,26 @@ trait MarkdownGravLinkTrait
                     // get the medium object
                     $medium = $media->images()[$url['path']];
 
-                    // unless one of the actions is lightbox method get the url
-                    if (!isset($actions['lightbox'])) {
-                        $command .= '->url()';
-                    } else {
-                        $command .= '->lightboxRaw()';
+                    // if there is a query, then parse it and build action calls
+                    if (isset($url['query'])) {
+                        parse_str($url['query'], $actions);
                     }
 
-                    // evaluate the commands to run against the media object
-                    eval ('$src = $medium'.$command.';');
+                    // loop through actions for the image and call them
+                    foreach ($actions as $action => $params) {
+                        // as long as it's not an html, url or ligtbox action
+                        if (!in_array($action, ['html','url','lightbox'])) {
+                            call_user_func_array(array(&$medium, $action), explode(',', $params));
+                        }
+                    }
+
+                    // Get the URL for regular images, or an array of bits needed to put together
+                    // the lightbox HTML
+                    if (!isset($actions['lightbox'])) {
+                        $src = $medium->url();
+                    } else {
+                        $src = $medium->lightboxRaw();
+                    }
 
                     // set the src element with the new generated url
                     if (!isset($actions['lightbox']) && !is_array($src)) {
