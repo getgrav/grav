@@ -1,6 +1,10 @@
 #!/usr/bin/env php
 <?php
 
+if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
+    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
+}
+
 use Symfony\Component\Console\Application;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
