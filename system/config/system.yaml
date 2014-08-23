@@ -16,7 +16,7 @@ pages:
     markdown: true                     # Process Markdown
     twig: false                        # Process Twig
   events:
-    page: false                        # Enable page level events
+    page: true                         # Enable page level events
     twig: true                         # Enable twig level events
 
 cache:
