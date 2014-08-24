@@ -1,35 +1,39 @@
 <IfModule mod_rewrite.c>
+
 Options -Multiviews
 
 RewriteEngine On
 
+##
 # If you are getting 404 errors on subpages, you may have to uncomment the RewriteBase entry
 # You should change the '/' to your appropriate subfolder. For example if you have
 # your Grav install at the root of your site '/' should work, else it might be something
 # along the lines of: RewriteBase /<your_sub_folder>
+##
 
-#RewriteBase /
+# RewriteBase /
 
-# access site
+# Access site
+RewriteCond %{REQUEST_URI} !^/index\.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule .* index.php [L]
 
-# block various user files from being accessed directly
+# Block various user files from being accessed directly
 RewriteRule ^user/accounts/(.*)$ error [R=301,L]
 RewriteRule ^user/config/(.*)$ error [R=301,L]
 RewriteRule ^user/(.*)\.(txt|md|html|php|yaml|json|twig|sh|bat)$ error [R=301,L]
 
-# block cache
+# Block cache/
 RewriteRule ^cache/(.*) error [R=301,L]
 
-# block bin
+# Block bin/
 RewriteRule ^bin/(.*)$ error [R=301,L]
 
-# block system
+# Block system/
 RewriteRule ^system/(.*)$ error [R=301,L]
 
-# block vendor
+# Block vendor/
 RewriteRule ^vendor/(.*)$ error [R=301,L]
 
 </IfModule>
