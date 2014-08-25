@@ -1,22 +1,22 @@
 [
     {
         "name": "erusev/parsedown",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/erusev/parsedown.git",
-            "reference": "e33ac1c56ea591f21b9cf2fa74356ef708d4e130"
+            "reference": "d24439ada0704948deef0d3eda2ea20fd8db1747"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/erusev/parsedown/zipball/e33ac1c56ea591f21b9cf2fa74356ef708d4e130",
-            "reference": "e33ac1c56ea591f21b9cf2fa74356ef708d4e130",
+            "url": "https://api.github.com/repos/erusev/parsedown/zipball/d24439ada0704948deef0d3eda2ea20fd8db1747",
+            "reference": "d24439ada0704948deef0d3eda2ea20fd8db1747",
             "shasum": ""
         },
-        "time": "2014-06-18 09:27:25",
+        "time": "2014-05-21 20:20:46",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Parsedown": ""
@@ -42,17 +42,17 @@
     },
     {
         "name": "doctrine/cache",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "v1.3.0",
+        "version_normalized": "1.3.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/doctrine/cache.git",
-            "reference": "72121e68265cd8b37f9b69778308251f6c5133e4"
+            "reference": "e16d7adf45664a50fa86f515b6d5e7f670130449"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/doctrine/cache/zipball/72121e68265cd8b37f9b69778308251f6c5133e4",
-            "reference": "72121e68265cd8b37f9b69778308251f6c5133e4",
+            "url": "https://api.github.com/repos/doctrine/cache/zipball/e16d7adf45664a50fa86f515b6d5e7f670130449",
+            "reference": "e16d7adf45664a50fa86f515b6d5e7f670130449",
             "shasum": ""
         },
         "require": {
@@ -65,14 +65,14 @@
             "phpunit/phpunit": ">=3.7",
             "satooshi/php-coveralls": "~0.6"
         },
-        "time": "2014-08-05 12:51:19",
+        "time": "2013-10-25 19:04:14",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.4.x-dev"
+                "dev-master": "1.0.x-dev"
             }
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Doctrine\\Common\\Cache\\": "lib/"
@@ -84,6 +84,17 @@
         ],
         "authors": [
             {
+                "name": "Jonathan Wage",
+                "email": "jonwage@gmail.com",
+                "homepage": "http://www.jwage.com/",
+                "role": "Creator"
+            },
+            {
+                "name": "Guilherme Blanco",
+                "email": "guilhermeblanco@gmail.com",
+                "homepage": "http://www.instaclick.com"
+            },
+            {
                 "name": "Roman Borschel",
                 "email": "roman@code-factory.org"
             },
@@ -92,16 +103,10 @@
                 "email": "kontakt@beberlei.de"
             },
             {
-                "name": "Guilherme Blanco",
-                "email": "guilhermeblanco@gmail.com"
-            },
-            {
-                "name": "Jonathan Wage",
-                "email": "jonwage@gmail.com"
-            },
-            {
                 "name": "Johannes Schmitt",
-                "email": "schmittjoh@gmail.com"
+                "email": "schmittjoh@gmail.com",
+                "homepage": "https://github.com/schmittjoh",
+                "role": "Developer of wrapped JMSSerializerBundle"
             }
         ],
         "description": "Caching library offering an object-oriented API for many cache backends",
@@ -112,18 +117,273 @@
         ]
     },
     {
-        "name": "tracy/tracy",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "name": "mrclay/minify",
+        "version": "2.2.0",
+        "version_normalized": "2.2.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/nette/tracy.git",
-            "reference": "1250ac4907947b28ec66d6e00a337dadaddaad4c"
+            "url": "https://github.com/mrclay/minify.git",
+            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/nette/tracy/zipball/1250ac4907947b28ec66d6e00a337dadaddaad4c",
-            "reference": "1250ac4907947b28ec66d6e00a337dadaddaad4c",
+            "url": "https://api.github.com/repos/mrclay/minify/zipball/d245bca4987dec197d1e6d7dc117614b60ff7494",
+            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494",
+            "shasum": ""
+        },
+        "require": {
+            "ext-pcre": "*",
+            "php": ">=5.2.1"
+        },
+        "time": "2014-03-12 12:54:23",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "min/lib/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Steve Clay",
+                "email": "steve@mrclay.org",
+                "homepage": "http://www.mrclay.org/",
+                "role": "Developer"
+            }
+        ],
+        "description": "Minify is a PHP5 app that helps you follow several rules for client-side performance. It combines multiple CSS or Javascript files, removes unnecessary whitespace and comments, and serves them with gzip encoding and optimal client-side cache headers",
+        "homepage": "http://code.google.com/p/minify/"
+    },
+    {
+        "name": "pimple/pimple",
+        "version": "v3.0.0",
+        "version_normalized": "3.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fabpot/Pimple.git",
+            "reference": "876bf0899d01feacd2a2e83f04641e51350099ef"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fabpot/Pimple/zipball/876bf0899d01feacd2a2e83f04641e51350099ef",
+            "reference": "876bf0899d01feacd2a2e83f04641e51350099ef",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2014-07-24 09:48:15",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Pimple": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            }
+        ],
+        "description": "Pimple is a simple Dependency Injection Container for PHP 5.3",
+        "homepage": "http://pimple.sensiolabs.org",
+        "keywords": [
+            "container",
+            "dependency injection"
+        ]
+    },
+    {
+        "name": "symfony/yaml",
+        "version": "v2.5.3",
+        "version_normalized": "2.5.3.0",
+        "target-dir": "Symfony/Component/Yaml",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/Yaml.git",
+            "reference": "5a75366ae9ca8b4792cd0083e4ca4dff9fe96f1f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/Yaml/zipball/5a75366ae9ca8b4792cd0083e4ca4dff9fe96f1f",
+            "reference": "5a75366ae9ca8b4792cd0083e4ca4dff9fe96f1f",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "time": "2014-08-05 09:00:40",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.5-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Symfony\\Component\\Yaml\\": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Symfony Community",
+                "homepage": "http://symfony.com/contributors"
+            },
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            }
+        ],
+        "description": "Symfony Yaml Component",
+        "homepage": "http://symfony.com"
+    },
+    {
+        "name": "symfony/console",
+        "version": "v2.5.3",
+        "version_normalized": "2.5.3.0",
+        "target-dir": "Symfony/Component/Console",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/Console.git",
+            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/Console/zipball/cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
+            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "require-dev": {
+            "psr/log": "~1.0",
+            "symfony/event-dispatcher": "~2.1"
+        },
+        "suggest": {
+            "psr/log": "For using the console logger",
+            "symfony/event-dispatcher": ""
+        },
+        "time": "2014-08-05 09:00:40",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.5-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Symfony\\Component\\Console\\": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Symfony Community",
+                "homepage": "http://symfony.com/contributors"
+            },
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            }
+        ],
+        "description": "Symfony Console Component",
+        "homepage": "http://symfony.com"
+    },
+    {
+        "name": "symfony/event-dispatcher",
+        "version": "v2.5.3",
+        "version_normalized": "2.5.3.0",
+        "target-dir": "Symfony/Component/EventDispatcher",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/EventDispatcher.git",
+            "reference": "8faf5cc7e80fde74a650a36e60d32ce3c3e0457b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/8faf5cc7e80fde74a650a36e60d32ce3c3e0457b",
+            "reference": "8faf5cc7e80fde74a650a36e60d32ce3c3e0457b",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "require-dev": {
+            "psr/log": "~1.0",
+            "symfony/config": "~2.0",
+            "symfony/dependency-injection": "~2.0",
+            "symfony/stopwatch": "~2.2"
+        },
+        "suggest": {
+            "symfony/dependency-injection": "",
+            "symfony/http-kernel": ""
+        },
+        "time": "2014-07-28 13:20:46",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.5-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Symfony\\Component\\EventDispatcher\\": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Symfony Community",
+                "homepage": "http://symfony.com/contributors"
+            },
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            }
+        ],
+        "description": "Symfony EventDispatcher Component",
+        "homepage": "http://symfony.com"
+    },
+    {
+        "name": "tracy/tracy",
+        "version": "v2.2.2",
+        "version_normalized": "2.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nette/tracy.git",
+            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nette/tracy/zipball/f5a2647c9d0174d218d626eab3952ea3a523c6e7",
+            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7",
             "shasum": ""
         },
         "require": {
@@ -132,14 +392,9 @@
         "require-dev": {
             "nette/tester": "~1.0"
         },
-        "time": "2014-08-07 17:19:48",
+        "time": "2014-06-24 01:18:03",
         "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.3-dev"
-            }
-        },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "classmap": [
                 "src/Tracy"
@@ -174,24 +429,21 @@
     },
     {
         "name": "gregwar/cache",
-        "version": "v1.0.9",
-        "version_normalized": "1.0.9.0",
+        "version": "v1.0.7",
+        "version_normalized": "1.0.7.0",
         "target-dir": "Gregwar/Cache",
         "source": {
             "type": "git",
             "url": "https://github.com/Gregwar/Cache.git",
-            "reference": "514b9b469082028d094e33e4a059c863c546b14e"
+            "reference": "b2d0197c07cc1ccf7436e1ae7bf64f9948e02052"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Gregwar/Cache/zipball/514b9b469082028d094e33e4a059c863c546b14e",
-            "reference": "514b9b469082028d094e33e4a059c863c546b14e",
+            "url": "https://api.github.com/repos/Gregwar/Cache/zipball/b2d0197c07cc1ccf7436e1ae7bf64f9948e02052",
+            "reference": "b2d0197c07cc1ccf7436e1ae7bf64f9948e02052",
             "shasum": ""
         },
-        "require": {
-            "php": ">=5.3"
-        },
-        "time": "2014-07-05 17:42:36",
+        "time": "2014-02-20 20:04:58",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -220,28 +472,28 @@
     },
     {
         "name": "gregwar/image",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "v2.0.17",
+        "version_normalized": "2.0.17.0",
         "target-dir": "Gregwar/Image",
         "source": {
             "type": "git",
             "url": "https://github.com/Gregwar/Image.git",
-            "reference": "31cf30151015d66f320011ea8646e90bb62ffb13"
+            "reference": "a7bba10ed0e3004c098bb7fde3a3e5bcafca8a2c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Gregwar/Image/zipball/31cf30151015d66f320011ea8646e90bb62ffb13",
-            "reference": "31cf30151015d66f320011ea8646e90bb62ffb13",
+            "url": "https://api.github.com/repos/Gregwar/Image/zipball/a7bba10ed0e3004c098bb7fde3a3e5bcafca8a2c",
+            "reference": "a7bba10ed0e3004c098bb7fde3a3e5bcafca8a2c",
             "shasum": ""
         },
         "require": {
             "ext-gd": "*",
-            "gregwar/cache": "1.*",
+            "gregwar/cache": "v1.0.7",
             "php": ">=5.3.0"
         },
-        "time": "2014-06-30 15:00:37",
+        "time": "2014-02-20 22:20:45",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-0": {
                 "Gregwar\\Image": ""
@@ -266,24 +518,65 @@
         ]
     },
     {
-        "name": "twig/twig",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "name": "ircmaxell/password-compat",
+        "version": "1.0.3",
+        "version_normalized": "1.0.3.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/fabpot/Twig.git",
-            "reference": "e2d2a250d963dd5bba4ad23fc01c7282fc042946"
+            "url": "https://github.com/ircmaxell/password_compat.git",
+            "reference": "1fc1521b5e9794ea77e4eca30717be9635f1d4f4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/fabpot/Twig/zipball/e2d2a250d963dd5bba4ad23fc01c7282fc042946",
-            "reference": "e2d2a250d963dd5bba4ad23fc01c7282fc042946",
+            "url": "https://api.github.com/repos/ircmaxell/password_compat/zipball/1fc1521b5e9794ea77e4eca30717be9635f1d4f4",
+            "reference": "1fc1521b5e9794ea77e4eca30717be9635f1d4f4",
+            "shasum": ""
+        },
+        "time": "2013-04-30 19:58:08",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "lib/password.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Anthony Ferrara",
+                "email": "ircmaxell@ircmaxell.com",
+                "homepage": "http://blog.ircmaxell.com"
+            }
+        ],
+        "description": "A compatibility library for the proposed simplified password hashing algorithm: https://wiki.php.net/rfc/password_hash",
+        "homepage": "https://github.com/ircmaxell/password_compat",
+        "keywords": [
+            "hashing",
+            "password"
+        ]
+    },
+    {
+        "name": "twig/twig",
+        "version": "v1.16.0",
+        "version_normalized": "1.16.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fabpot/Twig.git",
+            "reference": "8ce37115802e257a984a82d38254884085060024"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fabpot/Twig/zipball/8ce37115802e257a984a82d38254884085060024",
+            "reference": "8ce37115802e257a984a82d38254884085060024",
             "shasum": ""
         },
         "require": {
             "php": ">=5.2.4"
         },
-        "time": "2014-08-06 06:46:32",
+        "time": "2014-07-05 12:19:05",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -325,132 +618,32 @@
         ]
     },
     {
-        "name": "symfony/yaml",
-        "version": "2.5.x-dev",
-        "version_normalized": "2.5.9999999.9999999-dev",
-        "target-dir": "Symfony/Component/Yaml",
+        "name": "donatj/phpuseragentparser",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
-            "url": "https://github.com/symfony/Yaml.git",
-            "reference": "5a75366ae9ca8b4792cd0083e4ca4dff9fe96f1f"
+            "url": "https://github.com/donatj/PhpUserAgent.git",
+            "reference": "abbd69a119f067e4afc3c4baf28d04646114a668"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/Yaml/zipball/5a75366ae9ca8b4792cd0083e4ca4dff9fe96f1f",
-            "reference": "5a75366ae9ca8b4792cd0083e4ca4dff9fe96f1f",
+            "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/abbd69a119f067e4afc3c4baf28d04646114a668",
+            "reference": "abbd69a119f067e4afc3c4baf28d04646114a668",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.3.3"
-        },
-        "time": "2014-08-05 09:00:40",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.5-dev"
-            }
-        },
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "Symfony\\Component\\Yaml\\": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Symfony Community",
-                "homepage": "http://symfony.com/contributors"
-            },
-            {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com"
-            }
-        ],
-        "description": "Symfony Yaml Component",
-        "homepage": "http://symfony.com"
-    },
-    {
-        "name": "symfony/console",
-        "version": "2.5.x-dev",
-        "version_normalized": "2.5.9999999.9999999-dev",
-        "target-dir": "Symfony/Component/Console",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/symfony/Console.git",
-            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/symfony/Console/zipball/cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
-            "reference": "cd2d1e4bac2206b337326b0140ff475fe9ad5f63",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.3"
+            "php": ">=5.3.0"
         },
         "require-dev": {
-            "psr/log": "~1.0",
-            "symfony/event-dispatcher": "~2.1"
+            "camspiers/json-pretty": "0.1.*"
         },
-        "suggest": {
-            "psr/log": "For using the console logger",
-            "symfony/event-dispatcher": ""
-        },
-        "time": "2014-08-05 09:00:40",
+        "time": "2014-08-06 03:39:39",
         "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.5-dev"
-            }
-        },
         "installation-source": "source",
         "autoload": {
-            "psr-0": {
-                "Symfony\\Component\\Console\\": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Symfony Community",
-                "homepage": "http://symfony.com/contributors"
-            },
-            {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com"
-            }
-        ],
-        "description": "Symfony Console Component",
-        "homepage": "http://symfony.com"
-    },
-    {
-        "name": "ircmaxell/password-compat",
-        "version": "1.0.3",
-        "version_normalized": "1.0.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ircmaxell/password_compat.git",
-            "reference": "1fc1521b5e9794ea77e4eca30717be9635f1d4f4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ircmaxell/password_compat/zipball/1fc1521b5e9794ea77e4eca30717be9635f1d4f4",
-            "reference": "1fc1521b5e9794ea77e4eca30717be9635f1d4f4",
-            "shasum": ""
-        },
-        "time": "2013-04-30 19:58:08",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
             "files": [
-                "lib/password.php"
+                "Source/UserAgentParser.php"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -459,16 +652,64 @@
         ],
         "authors": [
             {
-                "name": "Anthony Ferrara",
-                "email": "ircmaxell@ircmaxell.com",
-                "homepage": "http://blog.ircmaxell.com"
+                "name": "Jesse G. Donat",
+                "email": "donatj@gmail.com",
+                "homepage": "http://donatstudios.com",
+                "role": "Developer"
             }
         ],
-        "description": "A compatibility library for the proposed simplified password hashing algorithm: https://wiki.php.net/rfc/password_hash",
-        "homepage": "https://github.com/ircmaxell/password_compat",
+        "description": "Simple, streamlined PHP user-agent parser",
+        "homepage": "http://donatstudios.com/PHP-Parser-HTTP_USER_AGENT",
         "keywords": [
-            "hashing",
-            "password"
+            "parser",
+            "user agent",
+            "useragent"
+        ]
+    },
+    {
+        "name": "erusev/parsedown-extra",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/erusev/parsedown-extra.git",
+            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
+            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
+            "shasum": ""
+        },
+        "require": {
+            "erusev/parsedown": "~1.0"
+        },
+        "time": "2014-08-16 11:20:35",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "ParsedownExtra": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Emanuil Rusev",
+                "email": "hello@erusev.com",
+                "homepage": "http://erusev.com"
+            }
+        ],
+        "description": "An extension of Parsedown that adds support for Markdown Extra.",
+        "homepage": "https://github.com/erusev/parsedown-extra",
+        "keywords": [
+            "markdown",
+            "markdown extra",
+            "parsedown",
+            "parser"
         ]
     }
 ]

@@ -32,6 +32,13 @@ use Tracy;
 <?php require __DIR__ . '/dumper.css' ?>
 </style>
 
+<!--[if lt IE 8]><style class="tracy-debug">
+	#tracy-debug-bar img { display: none }
+	#tracy-debug-bar li { border-left: 1px solid #DCD7C8; padding: 0 3px }
+	#tracy-debug-logo span { background: #edeae0; display: inline }
+</style><![endif]-->
+
+
 <script id="tracy-debug-script">
 /* <![CDATA[ */
 <?php require __DIR__ . '/tracyQ.js' ?>

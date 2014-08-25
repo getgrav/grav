@@ -8,16 +8,12 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-//Use the Composer classes
-// use Composer\Console\Application;
-// use Composer\Command\UpdateCommand;
-// use Symfony\Component\Console\Input\ArrayInput;
-
 class SetupCommand extends Command
 {
     protected $directories  = array('/cache',
                                     '/logs',
                                     '/images',
+                                    '/assets',
                                     '/user/accounts',
                                     '/user/config',
                                     '/user/pages',
@@ -86,7 +82,6 @@ EOT
 
         // Copy the Core STuff
         } else {
-            $options = true;
             // Create Some core stuff if it doesn't exist
             $this->createDirectories($output);
 
@@ -156,8 +151,13 @@ EOT
             $to = $this->destination . $target;
 
             $output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
-            @unlink ($to);
-            symlink ($from, $to);
+
+            if (is_dir($to)) {
+                $this->rmdir($to);
+            } else {
+                @unlink($to);
+            }
+            symlink($from, $to);
         }
     }
 
@@ -276,5 +276,22 @@ EOT
                 $this->rcopy($f->getRealPath(), "$dest/$f");
             }
         }
+    }
+
+    private function rmdir($dir) {
+        $files = new \RecursiveIteratorIterator(
+                       new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                       \RecursiveIteratorIterator::CHILD_FIRST
+                    );
+
+        foreach ($files as $fileinfo) {
+            if ($fileinfo->isDir()) {
+                if (false === rmdir($fileinfo->getRealPath())) return false;
+            } else {
+                if (false === unlink($fileinfo->getRealPath())) return false;
+            }
+        }
+
+        return rmdir($dir);
     }
 }

@@ -1,7 +1,8 @@
 <?php
 namespace Grav\Common\Page;
+
+use Grav\Common\Grav;
 use Grav\Common\Iterator;
-use Grav\Common\Registry;
 
 /**
  * Collection of Pages.
@@ -25,7 +26,7 @@ class Collection extends Iterator
         parent::__construct($items);
 
         $this->params = $params;
-        $this->pages = $pages ? $pages : Registry::get('Pages');
+        $this->pages = $pages ? $pages : Grav::instance()->offsetGet('pages');
     }
 
     public function params()
@@ -114,9 +115,10 @@ class Collection extends Iterator
     }
 
     /**
-     * Check to see if this item is the first in the collection
+     * Check to see if this item is the first in the collection.
+     *
      * @param  string $path
-     * @return boolean True if item is first
+     * @return boolean True if item is first.
      */
     public function isFirst($path)
     {
@@ -128,9 +130,10 @@ class Collection extends Iterator
     }
 
     /**
-     * Check to see if this item is the last in the collection
+     * Check to see if this item is the last in the collection.
+     *
      * @param  string $path
-     * @return boolean True if item is last
+     * @return boolean True if item is last.
      */
     public function isLast($path)
     {
@@ -142,9 +145,10 @@ class Collection extends Iterator
     }
 
     /**
-     * Gets the previous sibling based on current position
+     * Gets the previous sibling based on current position.
      *
-     * @return Object the previous item
+     * @param  string  $path
+     * @return Page  The previous item.
      */
     public function prevSibling($path)
     {
@@ -152,9 +156,10 @@ class Collection extends Iterator
     }
 
     /**
-     * Gets the next sibling based on current position
+     * Gets the next sibling based on current position.
      *
-     * @return Object the next item
+     * @param  string  $path
+     * @return Page The next item.
      */
     public function nextSibling($path)
     {
@@ -162,9 +167,11 @@ class Collection extends Iterator
     }
 
     /**
-     * Returns the adjacent sibling based on a direction
+     * Returns the adjacent sibling based on a direction.
+     *
+     * @param  string  $path
      * @param  integer $direction either -1 or +1
-     * @return Object             the sibling item
+     * @return Page    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {
@@ -177,11 +184,12 @@ class Collection extends Iterator
     }
 
     /**
-     * Returns the item in the current position
-     * @param  String $path the path the item
-     * @return Object       item in the array the the current position
+     * Returns the item in the current position.
+     *
+     * @param  string  $path  the path the item
+     * @return Page    Item in the array the the current position.
      */
     public function currentPosition($path) {
-        return array_search($path,array_keys($this->items));
+        return array_search($path, array_keys($this->items));
     }
 }

@@ -1,18 +1,21 @@
 <?php
 namespace Grav\Common\Page;
 
-use \Grav\Common\Registry;
-use \Grav\Common\Config;
-use \Grav\Common\Utils;
-use \Grav\Common\Cache;
-use \Grav\Common\Twig;
-use \Grav\Common\Filesystem\File;
-use \Grav\Common\Filesystem\Folder;
-use \Grav\Common\Data;
-use \Grav\Common\Uri;
-use \Grav\Common\Grav;
-use \Grav\Common\Taxonomy;
-use \Symfony\Component\Yaml\Yaml;
+use Grav\Common\Config;
+use Grav\Common\GravTrait;
+use Grav\Common\Utils;
+use Grav\Common\Cache;
+use Grav\Common\Twig;
+use Grav\Common\Filesystem\File;
+use Grav\Common\Filesystem\Folder;
+use Grav\Common\Data;
+use Grav\Common\Uri;
+use Grav\Common\Grav;
+use Grav\Common\Taxonomy;
+use Grav\Common\Markdown\Markdown;
+use Grav\Common\Markdown\MarkdownExtra;
+use Grav\Component\EventDispatcher\Event;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * The Page object, or "Page" object is the main powerhouse of Grav.  It contains all the information
@@ -25,6 +28,8 @@ use \Symfony\Component\Yaml\Yaml;
  */
 class Page
 {
+    use GravTrait;
+
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -65,6 +70,7 @@ class Page
     protected $modular_twig;
     protected $process;
     protected $summary_size;
+    protected $markdown_extra;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -84,7 +90,7 @@ class Page
     public function __construct($array = array())
     {
         /** @var Config $config */
-        $config = Registry::get('Config');
+        $config = self::$grav['config'];
 
         $this->routable = true;
         $this->taxonomy = array();
@@ -196,6 +202,9 @@ class Page
             if (isset($this->header->date)) {
                 $this->date = strtotime($this->header->date);
             }
+            if (isset($this->header->markdown_extra)) {
+                $this->markdown_extra = (bool)$this->header->markdown_extra;
+            } 
             if (isset($this->header->taxonomy)) {
                 foreach ($this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
@@ -209,7 +218,9 @@ class Page
                     $this->process[$process] = $status;
                 }
             }
+            
         }
+
         return $this->header;
     }
 
@@ -231,7 +242,7 @@ class Page
 
         // Return calculated summary based on setting in site config file
         /** @var Config $config */
-        $config = Registry::get('Config');
+        $config = self::$grav['config'];
         if (!$size && $config->get('site.summary.size')) {
             $size = $config->get('site.summary.size');
         }
@@ -269,9 +280,12 @@ class Page
         // If no content, process it
         if ($this->content === null) {
 
+            // Get media
+            $this->media();
+
             // Load cached content
             /** @var Cache $cache */
-            $cache = Registry::get('Cache');
+            $cache = self::$grav['cache'];
             $cache_id = md5('page'.$this->id());
             $content = $cache->fetch($cache_id);
 
@@ -297,7 +311,7 @@ class Page
                 // Do we need to process twig this time?
                 if ($update_cache || $process_twig) {
                     /** @var Twig $twig */
-                    $twig = Registry::get('Twig');
+                    $twig = self::$grav['twig'];
                     $content = $twig->processPage($this, $content);
                 }
             }
@@ -316,7 +330,6 @@ class Page
 
             $this->content = $content;
 
-            $this->media();
         }
 
         return $this->content;
@@ -465,7 +478,7 @@ class Page
     public function blueprints()
     {
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = self::$grav['pages'];
 
         return $pages->blueprints($this->template());
     }
@@ -544,7 +557,7 @@ class Page
     public function media($var = null)
     {
         /** @var Cache $cache */
-        $cache = Registry::get('Cache');
+        $cache = self::$grav['cache'];
 
         if ($var) {
             $this->media = $var;
@@ -762,7 +775,7 @@ class Page
     public function url($include_host = false)
     {
         /** @var Uri $uri */
-        $uri = Registry::get('Uri');
+        $uri = self::$grav['uri'];
         $rootUrl = $uri->rootUrl($include_host);
         $url = $rootUrl.'/'.trim($this->route(), '/');
 
@@ -958,7 +971,7 @@ class Page
         }
         if (empty($this->max_count)) {
             /** @var Config $config */
-            $config = Registry::get('Config');
+            $config = self::$grav['config'];
             $this->max_count = (int) $config->get('system.pages.list.count');
         }
         return $this->max_count;
@@ -1029,11 +1042,13 @@ class Page
      */
     public function parent(Page $var = null)
     {
-        if ($var !== null) {
-            $this->parent = $var ? $var->path() : '';
+        if ($var) {
+            $this->parent = $var->path();
+            return $var;
         }
+
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = self::$grav['pages'];
 
         return $pages->get($this->parent);
     }
@@ -1046,7 +1061,7 @@ class Page
     public function children()
     {
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = self::$grav['pages'];
 
         return $pages->children($this->path());
     }
@@ -1126,7 +1141,7 @@ class Page
     public function isFirst()
     {
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = self::$grav['pages'];
         $parent = $pages->get($this->parent);
 
         if ($this->path() == array_values($parent->items)[0]) {
@@ -1144,7 +1159,7 @@ class Page
     public function isLast()
     {
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = self::$grav['pages'];
         $parent = $pages->get($this->parent);
 
         if ($this->path() == array_values($parent->items)[count($parent->items)-1]) {
@@ -1183,7 +1198,7 @@ class Page
     public function adjacentSibling($direction = 1)
     {
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = self::$grav['pages'];
         $parent = $pages->get($this->parent);
         $current = $this->slug();
 
@@ -1202,7 +1217,7 @@ class Page
     public function active()
     {
         /** @var Uri $uri */
-        $uri = Registry::get('Uri');
+        $uri = self::$grav['uri'];
         if ($this->url() == $uri->url()) {
             return true;
         }
@@ -1217,7 +1232,7 @@ class Page
      */
     public function activeChild()
     {
-        $uri = Registry::get('Uri');
+        $uri = self::$grav['uri'];
         if (!$this->home() && (strpos($uri->url(), $this->url()) !== false)) {
             return true;
         }
@@ -1258,7 +1273,7 @@ class Page
     public function find($url)
     {
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = self::$grav['pages'];
         return $pages->dispatch($url);
     }
 
@@ -1289,9 +1304,9 @@ class Page
 
         // TODO: MOVE THIS INTO SOMEWHERE ELSE?
         /** @var Uri $uri */
-        $uri = Registry::get('Uri');
+        $uri = self::$grav['uri'];
         /** @var Config $config */
-        $config = Registry::get('Config');
+        $config = self::$grav['config'];
 
         foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
             if ($uri->param($taxonomy)) {
@@ -1310,7 +1325,7 @@ class Page
                     }
                 }
 
-                $config->set('system.cache.enabled', false);
+                $config->set('system.cache.enabled', false); // TODO: Do we still need this?
             }
         }
         // TODO: END OF MOVE
@@ -1323,10 +1338,10 @@ class Page
         }
 
         /** @var Grav $grav */
-        $grav = Registry::get('Grav');
+        $grav = self::$grav['grav'];
 
         // New Custom event to handle things like pagination.
-        $grav->fireEvent('onAfterCollectionProcessed', $collection);
+        $grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));
 
         $params = $collection->params();
 
@@ -1391,7 +1406,7 @@ class Page
                 // @taxonomy: { category: [ blog, featured ], level: 1 }
 
                 /** @var Taxonomy $taxonomy_map */
-                $taxonomy_map = Registry::get('Taxonomy');
+                $taxonomy_map = self::$grav['taxonomy'];
 
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
@@ -1506,7 +1521,15 @@ class Page
      */
     protected function parseMarkdownContent($content)
     {
-        $parsedown = new \Parsedown();
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        // get the appropriate setting for markdown extra
+        if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
+            $parsedown = new MarkdownExtra($this);
+        } else {
+            $parsedown = new Markdown($this);
+        }
         $content = $parsedown->parse($content);
         return $content;
     }
@@ -1540,7 +1563,7 @@ class Page
         // Do reordering.
         if ($reorder && $this->order() != $this->_original->order()) {
             /** @var Pages $pages */
-            $pages = Registry::get('Pages');
+            $pages = self::$grav['pages'];
 
             $parent = $this->parent();
 

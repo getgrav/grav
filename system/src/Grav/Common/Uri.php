@@ -1,6 +1,12 @@
 <?php
 namespace Grav\Common;
 
+/**
+ * The URI object provides information about the current URL
+ *
+ * @author RocketTheme
+ * @license MIT
+ */
 class Uri
 {
     protected $base;
@@ -20,21 +26,29 @@ class Uri
      */
     public function __construct()
     {
-        $base = 'http://';
-        $uri = $_SERVER["REQUEST_URI"];
 
-        if (isset($_SERVER["HTTPS"])) {
-            $base = (@$_SERVER["HTTPS"] == "on") ? "https://" : "http://";
+        $base = 'http://';
+        $uri = $_SERVER['REQUEST_URI'];
+        $root_path = rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/');
+
+
+        if (isset($_SERVER['HTTPS'])) {
+            $base = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
         }
 
-        $base .= $_SERVER["SERVER_NAME"];
+        $base .= $_SERVER['SERVER_NAME'];
 
-        if ($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") {
-            $base .= ":".$_SERVER["SERVER_PORT"];
+        if ($_SERVER['SERVER_PORT'] != '80' && $_SERVER['SERVER_PORT'] != '443') {
+            $base .= ":".$_SERVER['SERVER_PORT'];
+        }
+
+        // check if userdir in the path and workaround PHP bug with PHP_SELF
+        if (strpos($_SERVER['REQUEST_URI'], '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
+            $root_path = substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], '/', 1)) . $root_path;
         }
 
         $this->base = $base;
-        $this->root = $base . rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/');
+        $this->root = $base . $root_path;
         $this->url = $base . $uri;
 
         $this->init();
@@ -57,7 +71,7 @@ class Uri
                 if (strpos($bit, ':') !== false) {
                     $param = explode(':', $bit);
                     if (count($param) == 2) {
-                        $this->params[$param[0]] = str_replace('%7C', '/', $param[1]);
+                        $this->params[$param[0]] = str_replace('%7C', '/', filter_var($param[1], FILTER_SANITIZE_STRING));
                     }
                 } else {
                     $path[] = $bit;
@@ -128,7 +142,7 @@ class Uri
     public function query($id = null)
     {
         if (isset($id)) {
-            return $this->query[$id];
+            return filter_var($this->query[$id], FILTER_SANITIZE_STRING) ;
         } else {
             return http_build_query($this->query);
         }

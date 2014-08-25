@@ -3,12 +3,10 @@ home:
 
 pages:
   theme: antimatter
+  markdown_extra: false
   process:
     markdown: true
     twig: false
-  events:
-    page: false
-    twig: true
 
 cache:
   enabled: true
@@ -23,8 +21,16 @@ twig:
   auto_reload: true
   autoescape: false
 
+assets:
+  css_pipeline: false
+  css_minify: true
+  css_rewrite: true
+  js_pipeline: false
+  js_minify: true
+
 debugger:
   enabled: true
+  strict: false
   max_depth: 10
   log:
     enabled: false

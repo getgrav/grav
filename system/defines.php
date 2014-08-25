@@ -2,7 +2,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '0.8.0');
+define('GRAV_VERSION', '0.9.0');
 define('DS', '/');
 
 // Directories and Paths
@@ -12,6 +12,7 @@ if (!defined('ROOT_DIR')) {
 define('USER_PATH', 'user/');
 define('USER_DIR', ROOT_DIR . USER_PATH);
 define('SYSTEM_DIR', ROOT_DIR .'system/');
+define('ASSETS_DIR', ROOT_DIR . 'assets/');
 define('CACHE_DIR', ROOT_DIR .'cache/');
 define('IMAGES_DIR', ROOT_DIR . 'images/');
 define('LOG_DIR', ROOT_DIR .'logs/');
@@ -20,7 +21,6 @@ define('LIB_DIR', SYSTEM_DIR .'src/');
 define('ACCOUNTS_DIR', USER_DIR .'accounts/');
 define('DATA_DIR', USER_DIR .'data/');
 define('PAGES_DIR', USER_DIR .'pages/');
-define('BLOCKS_DIR', USER_DIR .'blocks/');
 
 define('PLUGINS_DIR', USER_DIR .'plugins/');
 define('THEMES_DIR', USER_DIR .'themes/');

@@ -36,7 +36,7 @@ abstract class Getters implements \ArrayAccess, \Countable
      */
     public function __get($offset)
     {
-       return $this->offsetGet($offset);
+        return $this->offsetGet($offset);
     }
 
     /**

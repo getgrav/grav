@@ -12,14 +12,14 @@ class Twig_Node_Expression_Binary_EndsWith extends Twig_Node_Expression_Binary
 {
     public function compile(Twig_Compiler $compiler)
     {
-        $left = $compiler->getVarName();
-        $right = $compiler->getVarName();
         $compiler
-            ->raw(sprintf('(is_string($%s = ', $left))
+            ->raw('(0 === substr_compare(')
             ->subcompile($this->getNode('left'))
-            ->raw(sprintf(') && is_string($%s = ', $right))
+            ->raw(', ')
             ->subcompile($this->getNode('right'))
-            ->raw(sprintf(') && (\'\' === $%2$s || $%2$s === substr($%1$s, -strlen($%2$s))))', $left, $right))
+            ->raw(', -strlen(')
+            ->subcompile($this->getNode('right'))
+            ->raw(')))')
         ;
     }
 

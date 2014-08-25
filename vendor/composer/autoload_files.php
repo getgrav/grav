@@ -8,4 +8,6 @@ $baseDir = dirname($vendorDir);
 return array(
     $vendorDir . '/tracy/tracy/src/shortcuts.php',
     $vendorDir . '/ircmaxell/password-compat/lib/password.php',
+    $vendorDir . '/donatj/phpuseragentparser/Source/UserAgentParser.php',
+    $baseDir . '/system/defines.php',
 );

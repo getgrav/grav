@@ -1,25 +1,32 @@
 {
-    "name": "rhuk/grav",
+    "name": "getgrav/grav",
     "type": "library",
-    "description": "Grav is a powerful flat CMS influenced by Pico, Stacey, Kirby and others...",
-    "keywords": ["cms"],
+    "description": "Modern, Crazy Fast, Ridiculously Easy and Amazingly Powerful Flat-File CMS",
+    "keywords": ["cms","flat-file cms","flat cms","flatfile cms","php"],
     "homepage": "http://getgrav.org",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Andy Miller",
-            "email": "rhuk@getgrav.org"
-        }
-    ],
     "require": {
-        "php": ">=5.3.10",
-        "twig/twig": "1.16.*@dev",
-        "erusev/parsedown": "dev-master",
-        "symfony/yaml": "2.5.*@dev",
-        "symfony/console": "2.5.*@dev",
-        "doctrine/cache": "1.4.*@dev",
-        "tracy/tracy": "dev-master",
-        "gregwar/image": "dev-master",
-        "ircmaxell/password-compat": "1.0.*"
+        "php": ">=5.4.0",
+        "twig/twig": "~1.16",
+        "erusev/parsedown-extra": "dev-master",
+        "symfony/yaml": "~2.5",
+        "symfony/console": "~2.5",
+        "symfony/event-dispatcher": "~2.5",
+        "doctrine/cache": "~1.3",
+        "tracy/tracy": "~2.2",
+        "gregwar/image": "~2.0",
+        "ircmaxell/password-compat": "1.0.*",
+        "mrclay/minify": "~2.2",
+        "donatj/phpuseragentparser": "dev-master",
+        "pimple/pimple": "~3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Grav\\": "system/src/"
+        },
+        "files": ["system/defines.php"]
+    },
+    "archive": {
+        "exclude": ["VERSION"]
     }
 }

@@ -1,6 +1,12 @@
 <?php
 namespace Grav\Common;
 
+/**
+ * The Twig extension adds some filters and functions that are useful for Grav
+ *
+ * @author RocketTheme
+ * @license MIT
+ */
 class TwigExtension extends \Twig_Extension
 {
     /**

@@ -51,6 +51,7 @@ abstract class Utils
      * @return string
      */
     public static function truncateHtml($text, $length = 100, $ending = '...', $exact = false, $considerHtml = true) {
+        $open_tags = array();
         if ($considerHtml) {
             // if the plain text is shorter than the maximum length, return the whole text
             if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
@@ -59,7 +60,6 @@ abstract class Utils
             // splits all html-tags to scanable lines
             preg_match_all('/(<.+?>)?([^<>]*)/s', $text, $lines, PREG_SET_ORDER);
             $total_length = strlen($ending);
-            $open_tags = array();
             $truncate = '';
             foreach ($lines as $line_matchings) {
                 // if there is any html-tag in this line, handle it and add it (uncounted) to the output
@@ -72,7 +72,7 @@ abstract class Utils
                         // delete tag from $open_tags list
                         $pos = array_search($tag_matchings[1], $open_tags);
                         if ($pos !== false) {
-                        unset($open_tags[$pos]);
+                            unset($open_tags[$pos]);
                         }
                     // if tag is an opening tag
                     } else if (preg_match('/^<\s*([^\s>!]+).*?>$/s', $line_matchings[1], $tag_matchings)) {
@@ -102,14 +102,14 @@ abstract class Utils
                         }
                     }
                     $truncate .= substr($line_matchings[2], 0, $left+$entities_length);
-                    // maximum lenght is reached, so get off the loop
+                    // maximum length is reached, so get off the loop
                     break;
                 } else {
                     $truncate .= $line_matchings[2];
                     $total_length += $content_length;
                 }
                 // if the maximum length is reached, get off the loop
-                if($total_length>= $length) {
+                if ($total_length >= $length) {
                     break;
                 }
             }
@@ -131,7 +131,7 @@ abstract class Utils
         }
         // add the defined ending to the text
         $truncate .= $ending;
-        if($considerHtml) {
+        if ($considerHtml) {
             // close all unclosed html-tags
             foreach ($open_tags as $tag) {
                 $truncate .= '</' . $tag . '>';

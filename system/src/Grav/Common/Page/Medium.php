@@ -1,11 +1,12 @@
 <?php
 namespace Grav\Common\Page;
 
+use Grav\Common\Config;
 use Grav\Common\Data\Blueprint;
-use Grav\Common\Uri;
 use Grav\Common\Data\Data;
 use Grav\Common\Filesystem\File\Yaml;
-use Grav\Common\Registry;
+use Grav\Common\Grav;
+use Grav\Common\GravTrait;
 use Gregwar\Image\Image as ImageFile;
 
 /**
@@ -34,6 +35,8 @@ use Gregwar\Image\Image as ImageFile;
  */
 class Medium extends Data
 {
+    use GravTrait;
+
     /**
      * @var string
      */
@@ -96,7 +99,8 @@ class Medium extends Data
      */
     public function url()
     {
-        $config = Registry::get('Config');
+        /** @var Config $config */
+        $config = self::$grav['config'];
 
         if ($this->image) {
             $output = $this->image->cacheFile($this->type, $this->quality);
@@ -172,7 +176,8 @@ class Medium extends Data
         }
 
         if ($this->linkTarget) {
-            $config = Registry::get('Config');
+            /** @var Config $config */
+            $config = self::$grav['config'];
 
             $output = '<a href="' . $config->get('system.base_url_relative') . '/'. $this->linkTarget
                 . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';
@@ -195,6 +200,15 @@ class Medium extends Data
         $this->linkAttributes = ' rel="lightbox"';
 
         return $this->link($width, $height);
+    }
+
+    public function lightboxRaw($width = null, $height = null)
+    {
+        $url = $this->url();
+        $this->link($width, $height);
+        $lightbox_url = self::$grav['config']->get('system.base_url_relative') . '/'. $this->linkTarget;
+
+        return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
     }
 
     /**

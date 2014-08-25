@@ -2,9 +2,9 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Getters;
-use Grav\Common\Registry;
-use Grav\Config;
-use Symfony\Component\Yaml\Yaml;
+use Grav\Common\Grav;
+use Grav\Common\Config;
+use Grav\Common\GravTrait;
 
 /**
  * Media is a holder object that contains references to the media of page. This object is created and
@@ -15,6 +15,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 class Media extends Getters
 {
+    use GravTrait;
+
     protected $gettersVariable = 'instances';
     protected $path;
 
@@ -76,7 +78,7 @@ class Media extends Getters
             $basename = implode('.', $parts);
 
             /** @var Config $config */
-            $config = Registry::get('Config');
+            $config = self::$grav['config'];
 
             // Check if medium type has been configured.
             $params = $config->get("media.{$ext}");
@@ -85,6 +87,9 @@ class Media extends Getters
             }
 
             $filePath = $this->path . '/' . $filename;
+
+            // Add default settings for undefined variables.
+            $params += $config->get('media.defaults');
             $params += array(
                 'type' => 'file',
                 'thumb' => 'media/thumb.png',

@@ -13,7 +13,8 @@ class ClearCacheCommand extends Command {
 
     protected $paths_to_remove = [
         'cache',
-        'images'
+        'images',
+        'assets'
     ];
 
     protected function configure() {

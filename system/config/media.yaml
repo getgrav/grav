@@ -1,3 +1,12 @@
+defaults:
+  type: file
+  thumb: media/thumb.png
+  mime: application/octet-stream
+  image:
+    filters:
+      default:
+        - enableProgressive
+
 jpg:
   type: image
   thumb: media/thumb-jpg.png

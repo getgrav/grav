@@ -1,17 +1,20 @@
 <?php
 namespace Grav\Common\Page;
 
-use \Grav\Common\Filesystem\Folder;
-use \Grav\Common\Grav;
-use \Grav\Common\Config;
-use \Grav\Common\Data;
-use \Grav\Common\Registry;
-use \Grav\Common\Utils;
-use \Grav\Common\Cache;
-use \Grav\Common\Taxonomy;
+use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
+use Grav\Common\Config;
+use Grav\Common\Data;
+use Grav\Common\Utils;
+use Grav\Common\Cache;
+use Grav\Common\Taxonomy;
+use Grav\Component\EventDispatcher\Event;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
+ *
+ * @author RocketTheme
+ * @license MIT
  */
 class Pages
 {
@@ -19,11 +22,6 @@ class Pages
      * @var Grav
      */
     protected $grav;
-
-    /**
-     * @var Config
-     */
-    protected $config;
 
     /**
      * @var array|Page[]
@@ -56,13 +54,20 @@ class Pages
     protected $last_modified;
 
     /**
+     * Constructor
+     *
+     * @params Grav $c
+     */
+    public function __construct(Grav $c)
+    {
+        $this->grav = $c;
+    }
+
+    /**
      * Class initialization. Must be called before using this class.
      */
     public function init()
     {
-        $this->grav = Registry::get('Grav');
-        $this->config = Registry::get('Config');
-
         $this->buildPages();
     }
 
@@ -221,7 +226,10 @@ class Pages
 
         // If the page cannot be reached, look into site wide routes.
         if (!$all && (!$page || !$page->routable())) {
-            $route = $this->config->get("site.routes.{$url}");
+            /** @var Config $config */
+            $config = $this->grav['config'];
+
+            $route = $config->get("site.routes.{$url}");
             if ($route) {
                 $page = $this->dispatch($route, $all);
             }
@@ -249,7 +257,10 @@ class Pages
     public function blueprints($type)
     {
         if (!isset($this->blueprints)) {
-            $this->blueprints = new Data\Blueprints(THEMES_DIR . $this->config->get('system.pages.theme') . '/blueprints/');
+            /** @var Config $config */
+            $config = $this->grav['config'];
+
+            $this->blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
         }
 
         try {
@@ -259,9 +270,7 @@ class Pages
         }
 
         if (!$blueprint->initialized) {
-            /** @var Grav $grav */
-            $grav = Registry::get('Grav');
-            $grav->fireEvent('onCreateBlueprint', $blueprint);
+            $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint]));
             $blueprint->initialized = true;
         }
 
@@ -305,8 +314,11 @@ class Pages
      */
     static public function types()
     {
+        $grav = Grav::instance();
+
         /** @var Config $config */
-        $config = Registry::get('Config');
+        $config = $grav['config'];
+
         $blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
 
         return $blueprints->types();
@@ -319,8 +331,11 @@ class Pages
      */
     static public function parents()
     {
+        $grav = Grav::instance();
+
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = $grav['pages'];
+
         return $pages->getList();
     }
 
@@ -332,12 +347,16 @@ class Pages
     protected function buildPages()
     {
         $this->sort = array();
-        if ($this->config->get('system.cache.enabled')) {
+
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        if ($config->get('system.cache.enabled')) {
             /** @var Cache $cache */
-            $cache = Registry::get('Cache');
+            $cache = $this->grav['cache'];
             /** @var Taxonomy $taxonomy */
-            $taxonomy = Registry::get('Taxonomy');
-            $last_modified = $this->config->get('system.cache.check.pages', true)
+            $taxonomy = $this->grav['taxonomy'];
+            $last_modified = $config->get('system.cache.check.pages', true)
                 ? Folder::lastModified(PAGES_DIR) : 0;
             $page_cache_id = md5(USER_DIR.$last_modified);
 
@@ -370,16 +389,18 @@ class Pages
      * @throws \RuntimeException
      * @internal
      */
-    protected function recurse($directory = PAGES_DIR, &$parent = null)
+    protected function recurse($directory = PAGES_DIR, Page &$parent = null)
     {
         $directory  = rtrim($directory, DS);
         $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
+        $config     = $this->grav['config'];
 
         $page->path($directory);
-        $page->parent($parent);
-        $page->orderDir($this->config->get('system.pages.order.dir'));
-        $page->orderBy($this->config->get('system.pages.order.by'));
+        if ($parent) $page->parent($parent);
+
+        $page->orderDir($config->get('system.pages.order.dir'));
+        $page->orderBy($config->get('system.pages.order.by'));
 
         // Add into instances
         if (!isset($this->instances[$page->path()])) {
@@ -399,8 +420,8 @@ class Pages
 
                 $page->init($file);
 
-                if ($this->config->get('system.pages.events.page')) {
-                    $this->grav->fireEvent('onAfterPageProcessed', $page);
+                if ($config->get('system.pages.events.page')) {
+                    $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
                 }
 
             } elseif ($file->isDir() && !$file->isDot()) {
@@ -426,8 +447,8 @@ class Pages
                 // set the last modified time on pages
                 $this->lastModified($file->getMTime());
 
-                if ($this->config->get('system.pages.events.page')) {
-                    $this->grav->fireEvent('onAfterFolderProcessed', $page);
+                if ($config->get('system.pages.events.page')) {
+                    $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
             }
         }
@@ -444,7 +465,7 @@ class Pages
     protected function buildRoutes()
     {
         /** @var $taxonomy Taxonomy */
-        $taxonomy = Registry::get('Taxonomy');
+        $taxonomy = $this->grav['taxonomy'];
 
         // Build routes and taxonomy map.
         /** @var $page Page */
@@ -465,8 +486,11 @@ class Pages
             }
         }
 
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
         // Alias and set default route to home page.
-        $home = trim($this->config->get('system.home.alias'), '/');
+        $home = trim($config->get('system.home.alias'), '/');
         if ($home && isset($this->routes['/' . $home])) {
             $this->routes['/'] = $this->routes['/' . $home];
             $this->get($this->routes['/' . $home])->route('/');
@@ -489,7 +513,7 @@ class Pages
 
             $child = isset($this->instances[$key]) ? $this->instances[$key] : null;
             if (!$child) {
-               throw new \RuntimeException("Page does not exist: {$key}");
+                throw new \RuntimeException("Page does not exist: {$key}");
             }
 
             switch ($order_by) {
@@ -515,8 +539,14 @@ class Pages
             }
         }
 
-        // Sort by the new list.
-        asort($list);
+        // handle special case when order_by is random
+        if ($order_by == 'random') {
+            $list = $this->array_shuffle($list);
+        } else {
+            // else just sort the list according to specified key
+            asort($list);
+        }
+        
 
         // Move manually ordered items into the beginning of the list. Order of the unlisted items does not change.
         if (is_array($manual) && !empty($manual)) {
@@ -543,5 +573,18 @@ class Pages
             // TODO: order by manual needs a hash from the passed variables if we make this more general.
             $this->sort[$path][$order_by][$key] = $info;
         }
+    }
+
+    // Shuffles and associative array
+    protected function array_shuffle($list) {
+        $keys = array_keys($list);
+        shuffle($keys);
+
+        $new = array();
+        foreach($keys as $key) {
+            $new[$key] = $list[$key];
+        }
+
+        return $new;
     }
 }

@@ -672,7 +672,7 @@ function _twig_markup2string(&$value)
 function twig_array_merge($arr1, $arr2)
 {
     if (!is_array($arr1) || !is_array($arr2)) {
-        throw new Twig_Error_Runtime(sprintf('The merge filter only works with arrays or hashes; %s and %s given.', gettype($arr1), gettype($arr2)));
+        throw new Twig_Error_Runtime('The merge filter only works with arrays or hashes.');
     }
 
     return array_merge($arr1, $arr2);
@@ -702,7 +702,7 @@ function twig_slice(Twig_Environment $env, $item, $start, $length = null, $prese
     $item = (string) $item;
 
     if (function_exists('mb_get_info') && null !== $charset = $env->getCharset()) {
-        return (string) mb_substr($item, $start, null === $length ? mb_strlen($item, $charset) - $start : $length, $charset);
+        return mb_substr($item, $start, null === $length ? mb_strlen($item, $charset) - $start : $length, $charset);
     }
 
     return null === $length ? substr($item, $start) : substr($item, $start, $length);
@@ -944,7 +944,7 @@ function twig_escape_filter(Twig_Environment $env, $string, $strategy = 'html', 
             static $htmlspecialcharsCharsets;
 
             if (null === $htmlspecialcharsCharsets) {
-                if (defined('HHVM_VERSION')) {
+                if ('hiphop' === substr(PHP_VERSION, -6)) {
                     $htmlspecialcharsCharsets = array('utf-8' => true, 'UTF-8' => true);
                 } else {
                     $htmlspecialcharsCharsets = array(

@@ -1,10 +1,10 @@
 <?php
 namespace Grav\Common;
 
-use \Tracy\Debugger;
-use \Grav\Common\Page\Page;
-use \Grav\Common\Page\Pages;
-
+use Grav\Common\Service\StreamsServiceProvider;
+use Grav\Component\DI\Container;
+use Grav\Component\EventDispatcher\Event;
+use Grav\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Grav
@@ -12,126 +12,141 @@ use \Grav\Common\Page\Pages;
  * @author Andy Miller
  * @link http://www.rockettheme.com
  * @license http://opensource.org/licenses/MIT
- * @version 0.1
+ * @version 0.8.0
  *
  * Originally based on Pico by Gilbert Pellegrom - http://pico.dev7studios.com
- * Influeced by Pico, Stacey, Kirby, PieCrust and other great platforms...
- *
- * @property  Plugins  $plugins
- * @property  Config   $config
- * @property  Cache    $cache
- * @property  Uri      $uri
- * @property  Pages    $pages
- * @property  Page     $page
+ * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
  */
-class Grav extends Getters
+class Grav extends Container
 {
     /**
-     * @var string  Grav output.
+     * @var string
      */
     protected $output;
 
     /**
-     * @var array
+     * @var static
      */
-    protected $plugins;
+    protected static $instance;
 
-    /**
-     * @var Config
-     */
-    protected $config;
+    public static function instance(array $values = array())
+    {
+        if (!self::$instance) {
+            self::$instance = static::load($values);
 
-    /**
-     * @var Cache
-     */
-    protected $cache;
+            GravTrait::setGrav(self::$instance);
 
-    /**
-     * @var Uri
-     */
-    protected $uri;
+        } elseif ($values) {
+            $instance = self::$instance;
+            foreach ($values as $key => $value) {
+                $instance->offsetSet($key, $value);
+            }
+        }
 
-    /**
-     * @var Pages
-     */
-    protected $pages;
+        return self::$instance;
+    }
 
-    /**
-     * @var Page
-     */
-    protected $page;
+    protected static function load(array $values)
+    {
+        $container = new static($values);
 
-    /**
-     * @var Twig
-     */
-    protected $twig;
+        $container['config_path'] = CACHE_DIR . 'config.php';
 
-    /**
-     * @var Taxonomy
-     */
-    protected $taxonomy;
+        $container['grav'] = $container;
+
+        $container['events'] = function ($c) {
+            return new EventDispatcher;
+        };
+        $container['uri'] = function ($c) {
+            return new Uri($c);
+        };
+        $container['config'] = function ($c) {
+            return Config::instance($c);
+        };
+        $container['cache'] = function ($c) {
+            return new Cache($c);
+        };
+        $container['plugins'] = function ($c) {
+            return new Plugins($c);
+        };
+        $container['themes'] = function ($c) {
+            return new Themes($c);
+        };
+        $container['twig'] = function ($c) {
+            return new Twig($c);
+        };
+        $container['taxonomy'] = function ($c) {
+            return new Taxonomy($c);
+        };
+        $container['pages'] = function ($c) {
+            return new Page\Pages($c);
+        };
+        $container['assets'] = function ($c) {
+            return new Assets();
+        };
+        $container['page'] = function ($c) {
+            $page = $c['pages']->dispatch($c['uri']->route());
+
+            if (!$page || !$page->routable()) {
+                $event = $c->fireEvent('onPageNotFound');
+
+                if (isset($event->page)) {
+                    $page = $event->page;
+                } else {
+                    throw new \RuntimeException('Page Not Found', 404);
+                }
+            }
+            return $page;
+        };
+        $container['output'] = function ($c) {
+            return $c['twig']->processSite($c['uri']->extension());
+        };
+        $container['browser'] = function ($c) {
+            return new Browser();
+        };
+
+        $container->register(new StreamsServiceProvider);
+
+        return $container;
+    }
 
     public function process()
     {
-        // Get the URI and URL (needed for configuration)
-        $this->uri = Registry::get('Uri');
+        // Use output buffering to prevent headers from being sent too early.
+        ob_start();
 
-        // Get the Configuration settings and caching
-        $this->config = Registry::get('Config');
+        // Initialize stream wrappers.
+        $this['locator'];
 
-        Debugger::$logDirectory = $this->config->get('system.debugger.log.enabled') ? LOG_DIR : null;
-        Debugger::$maxDepth = $this->config->get('system.debugger.max_depth');
+        $this['plugins']->init();
 
-        // Switch debugger into development mode if configured
-        if ($this->config->get('system.debugger.enabled')) {
-            if (function_exists('ini_set')) {
-                ini_set('display_errors', true);
-            }
-            Debugger::$productionMode = Debugger::DEVELOPMENT;
-        }
+        $this->fireEvent('onPluginsInitialized');
 
-        // Get the Caching setup
-        $this->cache = Registry::get('Cache');
-        $this->cache->init();
+        $this['assets']->init();
 
-        // Get Plugins
-        $plugins = new Plugins();
-        $this->plugins = $plugins->load();
-        $this->fireEvent('onAfterInitPlugins');
+        $this->fireEvent('onAssetsInitialized');
 
-        // Get current theme and hook it into plugins.
-        $themes = new Themes();
-        $this->plugins['Theme'] = $themes->load();
+        $this['twig']->init();
+        $this['pages']->init();
 
-        // Get twig object
-        $this->twig = Registry::get('Twig');
-        $this->twig->init();
+        $this->fireEvent('onPagesInitialized');
 
-        // Get all the Pages that Grav knows about
-        $this->pages = Registry::get('Pages');
-        $this->pages->init();
-        $this->fireEvent('onAfterGetPages');
-
-        // Get the taxonomy and set it on the grav object
-        $this->taxonomy = Registry::get('Taxonomy');
-
-        // Get current page
-        $this->page = $this->pages->dispatch($this->uri->route());
-        $this->fireEvent('onAfterGetPage');
-
-        // If there's no page, throw exception
-        if (!$this->page) {
-            throw new \RuntimeException('Page Not Found', 404);
-        }
+        $this->fireEvent('onPageInitialized');
 
         // Process whole page as required
-        $this->output = $this->twig->processSite($this->uri->extension());
-        $this->fireEvent('onAfterGetOutput');
+        $this->output = $this['output'];
+
+        $this->fireEvent('onOutputGenerated');
 
         // Set the header type
         $this->header();
 
         echo $this->output;
+
+        ob_end_flush();
+        flush();
+
+        $this->fireEvent('onOutputRendered');
     }
 
     /**
@@ -142,7 +157,9 @@ class Grav extends Getters
      */
     public function redirect($route, $code = 303)
     {
-        header("Location: " . rtrim($this->uri->rootUrl(), '/') .'/'. trim($route, '/'), true, $code);
+        /** @var Uri $uri */
+        $uri = $this['uri'];
+        header("Location: " . rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'), true, $code);
         exit();
     }
 
@@ -174,40 +191,22 @@ class Grav extends Getters
      */
     public function header()
     {
-        header('Content-type: ' . $this->mime($this->uri->extension()));
+        /** @var Uri $uri */
+        $uri = $this['uri'];
+        header('Content-type: ' . $this->mime($uri->extension()));
     }
 
     /**
-     * Log a message.
+     * Fires an event with optional parameters.
      *
-     * @param string $message
+     * @param  string $eventName
+     * @param  Event  $event
+     * @return Event
      */
-    protected static function log($message)
+    public function fireEvent($eventName, Event $event = null)
     {
-        if (Debugger::$logDirectory) {
-            Debugger::log(sprintf($message, Debugger::timer() * 1000));
-        }
-    }
-
-    /**
-     * Processes any hooks and runs them.
-     */
-    public function fireEvent()
-    {
-        $args = func_get_args();
-        $hook_id = array_shift($args);
-        $no_timing_hooks = array('onAfterPageProcessed','onAfterFolderProcessed', 'onAfterCollectionProcessed');
-
-        if (!empty($this->plugins)) {
-            foreach ($this->plugins as $plugin) {
-                if (is_callable(array($plugin, $hook_id))) {
-                    call_user_func_array(array($plugin, $hook_id), $args);
-                }
-            }
-        }
-
-        if ($this->config && $this->config->get('system.debugger.log.timing') && !in_array($hook_id, $no_timing_hooks)) {
-            static::log($hook_id.': %f ms');
-        }
+        /** @var EventDispatcher $events */
+        $events = $this['events'];
+        return $events->dispatch($eventName, $event);
     }
 }

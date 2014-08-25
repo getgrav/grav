@@ -16,27 +16,7 @@ class Twig
     /**
      * @var \Twig_Environment
      */
-    protected $twig;
-
-    /**
-     * @var Grav
-     */
-    protected $grav;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var Uri
-     */
-    protected $uri;
-
-    /**
-     * @var Taxonomy
-     */
-    protected $taxonomy;
+    public $twig;
 
     /**
      * @var array
@@ -44,9 +24,19 @@ class Twig
     public $twig_vars;
 
     /**
+     * @var array
+     */
+    public $twig_paths;
+
+    /**
      * @var string
      */
     public $template;
+
+    /**
+     * @var Grav
+     */
+    protected $grav;
 
     /**
      * @var \Twig_Loader_Filesystem
@@ -58,6 +48,15 @@ class Twig
      */
     protected $loaderArray;
 
+
+    /**
+     * Constructor
+     */
+    public function __construct(Grav $grav)
+    {
+        $this->grav = $grav;
+    }
+
     /**
      * Twig initialization that sets the twig loader chain, then the environment, then extensions
      * and also the base set of twig vars
@@ -65,58 +64,54 @@ class Twig
     public function init()
     {
         if (!isset($this->twig)) {
+            /** @var Config $config */
+            $config = $this->grav['config'];
 
-            // get Grav and Config
-            $this->grav = Registry::get('Grav');
-            $this->config = $this->grav->config;
-            $this->uri = Registry::get('Uri');
-            $this->taxonomy = Registry::get('Taxonomy');
-
-
-            $this->twig_paths = array(THEMES_DIR . $this->config->get('system.pages.theme') . '/templates');
-            $this->grav->fireEvent('onAfterTwigTemplatesPaths');
+            $this->twig_paths = array(THEMES_DIR . $config->get('system.pages.theme') . '/templates');
+            $this->grav->fireEvent('onTwigTemplatePaths');
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
             $this->loaderArray = new \Twig_Loader_Array(array());
             $loader_chain = new \Twig_Loader_Chain(array($this->loaderArray, $this->loader));
 
-            $params = $this->config->get('system.twig');
+            $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
                 $params['cache'] = CACHE_DIR;
             }
 
             $this->twig = new \Twig_Environment($loader_chain, $params);
-            $this->grav->fireEvent('onAfterTwigInit');
+            $this->grav->fireEvent('onTwigInitialized');
 
             // set default date format if set in config
-            if ($this->config->get('system.pages.dateformat.long')) {
-                $this->twig->getExtension('core')->setDateFormat($this->config->get('system.pages.dateformat.long'));
+            if ($config->get('system.pages.dateformat.long')) {
+                $this->twig->getExtension('core')->setDateFormat($config->get('system.pages.dateformat.long'));
             }
             // enable the debug extension if required
-            if ($this->config->get('system.twig.debug')) {
+            if ($config->get('system.twig.debug')) {
                 $this->twig->addExtension(new \Twig_Extension_Debug());
             }
             $this->twig->addExtension(new TwigExtension());
-            $this->grav->fireEvent('onAfterTwigExtensions');
+            $this->grav->fireEvent('onTwigExtensions');
 
-            $baseUrlAbsolute = $this->config->get('system.base_url_absolute');
-            $baseUrlRelative = $this->config->get('system.base_url_relative');
-            $theme = $this->config->get('system.pages.theme');
+            $baseUrlAbsolute = $config->get('system.base_url_absolute');
+            $baseUrlRelative = $config->get('system.base_url_relative');
+            $theme = $config->get('system.pages.theme');
             $themeUrl = $baseUrlRelative .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
 
             // Set some standard variables for twig
             $this->twig_vars = array(
-                'config' => $this->config,
-                'uri' => $this->uri,
+                'grav_version' => GRAV_VERSION,
+                'config' => $config,
+                'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
                 'base_url_absolute' => $baseUrlAbsolute,
                 'base_url_relative' => $baseUrlRelative,
                 'theme_dir' => THEMES_DIR . $theme,
                 'theme_url' => $themeUrl,
-                'site' => $this->config->get('site'),
-                'stylesheets' => array(),
-                'scripts' => array(),
-                'taxonomy' => $this->taxonomy,
+                'site' => $config->get('site'),
+                'assets' => $this->grav['assets'],
+                'taxonomy' => $this->grav['taxonomy'],
+                'browser' => $this->grav['browser'],
             );
 
         }
@@ -161,11 +156,10 @@ class Twig
      */
     public function processPage(Page $item, $content = null)
     {
-        $this->init();
         $content = $content !== null ? $content : $item->content();
 
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onAfterTwigPageVars');
+        $this->grav->fireEvent('onTwigPageVariables');
         $twig_vars = $this->twig_vars;
 
         $twig_vars['page'] = $item;
@@ -194,10 +188,8 @@ class Twig
      */
     public function processString($string, array $vars = array())
     {
-        $this->init();
-
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onAfterTwigVars');
+        $this->grav->fireEvent('onTwigStringVariables');
         $vars += $this->twig_vars;
 
         $name = '@Var:' . $string;
@@ -213,17 +205,15 @@ class Twig
      *
      * @param string $format Output format (defaults to HTML).
      * @return string the rendered output
-     * @throws \Twig_Error_Loader
+     * @throws \RuntimeException
      */
     public function processSite($format = null)
     {
-        $this->init();
-
         // set the page now its been processed
-        $this->grav->fireEvent('onAfterTwigSiteVars');
+        $this->grav->fireEvent('onTwigSiteVariables');
         $twig_vars = $this->twig_vars;
-        $pages = $this->grav->pages;
-        $page = $this->grav->page;
+        $pages = $this->grav['pages'];
+        $page = $this->grav['page'];
 
         $twig_vars['pages'] = $pages->root();
         $twig_vars['page'] = $page;
@@ -233,7 +223,12 @@ class Twig
 
         // Get Twig template layout
         $template = $this->template($page->template() . $ext);
-        $output = $this->twig->render($template, $twig_vars);
+
+        try {
+            $output = $this->twig->render($template, $twig_vars);
+        } catch (\Twig_Error_Loader $e) {
+            throw new \RuntimeException('Resource not found.', 404, $e);
+        }
 
         return $output;
     }

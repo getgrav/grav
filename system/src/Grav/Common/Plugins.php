@@ -2,6 +2,8 @@
 namespace Grav\Common;
 
 use Grav\Common\Filesystem\File;
+use Grav\Component\EventDispatcher\EventDispatcher;
+use Grav\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * The Plugins object holds an array of all the plugin objects that
@@ -10,13 +12,13 @@ use Grav\Common\Filesystem\File;
  * @author RocketTheme
  * @license MIT
  */
-class Plugins
+class Plugins extends Iterator
 {
-    /**
-     * @var array|Plugin[]
-     */
-    protected $plugins;
+    protected $grav;
 
+    public function __construct(Grav $grav) {
+        $this->grav = $grav;
+    }
 
     /**
      * Recurses through the plugins directory creating Plugin objects for each plugin it finds.
@@ -24,11 +26,14 @@ class Plugins
      * @return array|Plugin[] array of Plugin objects
      * @throws \RuntimeException
      */
-    public function load()
+    public function init()
     {
         /** @var Config $config */
-        $config = Registry::get('Config');
+        $config = $this->grav['config'];
         $plugins = (array) $config->get('plugins');
+
+        /** @var EventDispatcher $events */
+        $events = $this->grav['events'];
 
         foreach ($plugins as $plugin => $data) {
             if (empty($data['enabled'])) {
@@ -36,8 +41,7 @@ class Plugins
                 continue;
             }
 
-            $folder = PLUGINS_DIR . $plugin;
-            $filePath = $folder . DS . $plugin . PLUGIN_EXT;
+            $filePath = $this->grav['locator']('plugin://' . $plugin . DS . $plugin . PLUGIN_EXT);
             if (!is_file($filePath)) {
                 throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found!", $filePath, $plugin));
             }
@@ -50,16 +54,25 @@ class Plugins
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found!", $plugin));
             }
 
-            $this->plugins[$pluginClass] = new $pluginClass($config);
+            $instance = new $pluginClass($this->grav, $config);
+            if ($instance instanceof EventSubscriberInterface) {
+                $events->addSubscriber($instance);
+            }
         }
 
-        return $this->plugins;
+        $instance = $this->grav['themes']->load();
+        $instance->configure();
+        if ($instance instanceof EventSubscriberInterface) {
+            $events->addSubscriber($instance);
+        }
+
+        return $this->items;
     }
 
     public function add($plugin)
     {
         if (is_object($plugin)) {
-            $this->plugins[get_class($plugin)] = $plugin;
+            $this->items[get_class($plugin)] = $plugin;
         }
     }
 
@@ -71,7 +84,7 @@ class Plugins
     static public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator(PLUGINS_DIR);
+        $iterator = new \DirectoryIterator('plugin://');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
@@ -90,16 +103,16 @@ class Plugins
 
     static public function get($type)
     {
-        $blueprints = new Data\Blueprints(PLUGINS_DIR . $type);
+        $blueprints = new Data\Blueprints('plugin://' . $type);
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $type;
 
         // Load default configuration.
-        $file = File\Yaml::instance(PLUGINS_DIR . "{$type}/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance('plugin://' . "{$type}/{$type}" . YAML_EXT);
         $obj = new Data\Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance(USER_DIR . "config/plugins/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance('plugin://' . "config/plugins/{$type}" . YAML_EXT);
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
