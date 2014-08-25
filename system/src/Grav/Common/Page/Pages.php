@@ -539,8 +539,14 @@ class Pages
             }
         }
 
-        // Sort by the new list.
-        asort($list);
+        // handle special case when order_by is random
+        if ($order_by == 'random') {
+            $list = $this->array_shuffle($list);
+        } else {
+            // else just sort the list according to specified key
+            asort($list);
+        }
+        
 
         // Move manually ordered items into the beginning of the list. Order of the unlisted items does not change.
         if (is_array($manual) && !empty($manual)) {
@@ -567,5 +573,18 @@ class Pages
             // TODO: order by manual needs a hash from the passed variables if we make this more general.
             $this->sort[$path][$order_by][$key] = $info;
         }
+    }
+
+    // Shuffles and associative array
+    protected function array_shuffle($list) {
+        $keys = array_keys($list);
+        shuffle($keys);
+
+        $new = array();
+        foreach($keys as $key) {
+            $new[$key] = $list[$key];
+        }
+
+        return $new;
     }
 }

@@ -11,6 +11,7 @@ class Debugger
 {
     const PRODUCTION = TracyDebugger::PRODUCTION;
     const DEVELOPMENT = TracyDebugger::DEVELOPMENT;
+    const DETECT = TracyDebugger::DETECT;
 
     public function __construct($mode = self::PRODUCTION)
     {
@@ -27,6 +28,7 @@ class Debugger
         /** @var Config $config */
         $config = $grav['config'];
 
+        $mode = $config->get('system.debugger.mode');
         TracyDebugger::$logDirectory = $config->get('system.debugger.log.enabled') ? LOG_DIR : null;
         TracyDebugger::$maxDepth = $config->get('system.debugger.max_depth');
 
@@ -39,7 +41,16 @@ class Debugger
             if (function_exists('ini_set')) {
                 ini_set('display_errors', true);
             }
-            TracyDebugger::$productionMode = TracyDebugger::DEVELOPMENT;
+
+            if ($mode == strtolower('detect')) {
+                TracyDebugger::$productionMode = self::DETECT;
+            } elseif ($mode == strtolower('production')) {
+                TracyDebugger::$productionMode = self::PRODUCTION;
+            } else {
+                TracyDebugger::$productionMode = self::DEVELOPMENT;
+            }
+
+            
         }
     }
 

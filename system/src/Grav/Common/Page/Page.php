@@ -70,6 +70,7 @@ class Page
     protected $modular_twig;
     protected $process;
     protected $summary_size;
+    protected $markdown_extra;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -201,6 +202,9 @@ class Page
             if (isset($this->header->date)) {
                 $this->date = strtotime($this->header->date);
             }
+            if (isset($this->header->markdown_extra)) {
+                $this->markdown_extra = (bool)$this->header->markdown_extra;
+            } 
             if (isset($this->header->taxonomy)) {
                 foreach ($this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
@@ -214,7 +218,9 @@ class Page
                     $this->process[$process] = $status;
                 }
             }
+            
         }
+
         return $this->header;
     }
 
@@ -1517,7 +1523,9 @@ class Page
     {
         /** @var Config $config */
         $config = self::$grav['config'];
-        if ($config->get('system.pages.markdown_extra')) {
+
+        // get the appropriate setting for markdown extra
+        if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
             $parsedown = new MarkdownExtra($this);
         } else {
             $parsedown = new Markdown($this);
