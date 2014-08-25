@@ -7,9 +7,6 @@ pages:
   process:
     markdown: true
     twig: false
-  events:
-    page: true
-    twig: true
 
 cache:
   enabled: true
