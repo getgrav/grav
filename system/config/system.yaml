@@ -32,15 +32,16 @@ twig:
   auto_reload: true                    # Refresh cache on changes
   autoescape: false                    # Autoescape Twig vars
 
-assets:                                 # Configuration for Assets Manager (JS, CSS)
-  css_pipeline: false                   # The CSS pipeline is the unification of multiple CSS resources into one file
-  css_minify: true                      # Minify the CSS during pipelining
-  css_rewrite: true                     # Rewrite any CSS relative URLs during pipelining
-  js_pipeline: false                    # The JS pipeline is the unification of multiple JS resources into one file
-  js_minify: true                       # Minify the JS during pipelining
+assets:                                # Configuration for Assets Manager (JS, CSS)
+  css_pipeline: false                  # The CSS pipeline is the unification of multiple CSS resources into one file
+  css_minify: true                     # Minify the CSS during pipelining
+  css_rewrite: true                    # Rewrite any CSS relative URLs during pipelining
+  js_pipeline: false                   # The JS pipeline is the unification of multiple JS resources into one file
+  js_minify: true                      # Minify the JS during pipelining
 
 debugger:
   enabled: false                       # Enable Grav debugger and following settings
+  mode: detect                         # Mode tracy Debugger should be set to when enabled: detect|development|production
   strict: false                        # Throw fatal error also on PHP warnings and notices
   max_depth: 10                        # How many nested levels to display for objects or arrays
   log:
