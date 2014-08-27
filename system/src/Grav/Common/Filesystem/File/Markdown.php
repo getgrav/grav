@@ -109,7 +109,7 @@ class Markdown extends General
         $var = preg_replace("/(\r\n|\r)/", "\n", $var);
 
         // Parse header.
-        preg_match("/---\n(.+?)\n---(\n\n|$)/uism", $this->raw(), $m);
+        preg_match("/---\n(.+?)\n---(\n\n|$)/uism", $var, $m);
         $content['header'] = isset($m[1]) ? YamlParser::parse(preg_replace("/\n\t/", "\n    ", $m[1])) : array();
 
         // Strip header to get content.
