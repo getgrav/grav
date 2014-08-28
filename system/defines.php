@@ -6,9 +6,10 @@ define('GRAV_VERSION', '0.9.0');
 define('DS', '/');
 
 // Directories and Paths
-if (!defined('ROOT_DIR')) {
-    define('ROOT_DIR', getcwd() .'/');
+if (!defined('GRAV_ROOT')) {
+    define('GRAV_ROOT', getcwd());
 }
+define('ROOT_DIR', GRAV_ROOT . '/');
 define('USER_PATH', 'user/');
 define('USER_DIR', ROOT_DIR . USER_PATH);
 define('SYSTEM_DIR', ROOT_DIR .'system/');

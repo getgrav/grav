@@ -49,33 +49,33 @@ class Themes
     /**
      * Get theme or throw exception if it cannot be found.
      *
-     * @param string $type
-     * @return Data\Data
+     * @param string $name
+     * @return Data
      * @throws \RuntimeException
      */
-    public function get($type)
+    public function get($name)
     {
-        if (!$type) {
+        if (!$name) {
             throw new \RuntimeException('Theme name not provided.');
         }
 
-        $blueprints = new Data\Blueprints(THEMES_DIR . $type);
+        $blueprints = new Blueprints("theme://{$name}");
         $blueprint = $blueprints->get('blueprints');
-        $blueprint->name = $type;
+        $blueprint->name = $name;
 
         // Find thumbnail.
-        $thumb = THEMES_DIR . "{$type}/thumbnail.jpg";
+        $thumb = THEMES_DIR . "{$name}/thumbnail.jpg";
         if (file_exists($thumb)) {
             // TODO: use real URL with base path.
-            $blueprint->set('thumbnail', "/user/themes/{$type}/thumbnail.jpg");
+            $blueprint->set('thumbnail', "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.
-        $file = File\Yaml::instance(THEMES_DIR . "{$type}/{$type}" . YAML_EXT);
-        $obj = new Data\Data($file->content(), $blueprint);
+        $file = File\Yaml::instance("theme://{$name}.yaml");
+        $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance(USER_DIR . "config/themes/{$type}" . YAML_EXT);
+        $file = File\Yaml::instance("user://config/themes/{$name}.yaml");
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
@@ -86,28 +86,32 @@ class Themes
 
     public function load($name = null)
     {
+        $grav = $this->grav;
         /** @var Config $config */
-        $config = $this->grav['config'];
+        $config = $grav['config'];
 
         if (!$name) {
             $name = $config->get('system.pages.theme');
         }
 
-        $file = THEMES_DIR . "{$name}/{$name}.php";
+        $path = THEMES_DIR . $name;
+        $file = "{$path}/{$name}.php";
+
         if (file_exists($file)) {
-            $class = require_once $file;
+            // Local variables available in the file: $grav, $config, $name, $path, $file
+            $class = include $file;
 
             if (!is_object($class)) {
                 $className = '\\Grav\\Theme\\' . ucfirst($name);
 
                 if (class_exists($className)) {
-                    $class = new $className($this->grav, $config, $name);
+                    $class = new $className($grav, $config, $name);
                 }
             }
         }
 
         if (empty($class)) {
-            $class = new Theme($this->grav, $config, $name);
+            $class = new Theme($grav, $config, $name);
         }
 
         return $class;
