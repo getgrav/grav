@@ -11,7 +11,7 @@ pages:
 cache:
   enabled: true
   check:
-    pages: true
+    method: page
   driver: auto
   prefix: 'g'
 

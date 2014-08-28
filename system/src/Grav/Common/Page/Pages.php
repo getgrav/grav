@@ -356,8 +356,19 @@ class Pages
             $cache = $this->grav['cache'];
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
-            $last_modified = $config->get('system.cache.check.pages', true)
-                ? Folder::lastModified(PAGES_DIR) : 0;
+
+            // how should we check for last modified? Default is by page
+            switch ($config->get('system.cache.check.method', 'page')) {
+                case 'page':
+                    $last_modified = Folder::lastModifiedFile(PAGES_DIR);
+                    break;
+                case 'folder':
+                    $last_modified = Folder::lastModifiedFolder(PAGES_DIR);
+                    break;
+                default:
+                    $last_modified = 0;
+            }
+
             $page_cache_id = md5(USER_DIR.$last_modified);
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
@@ -546,7 +557,7 @@ class Pages
             // else just sort the list according to specified key
             asort($list);
         }
-        
+
 
         // Move manually ordered items into the beginning of the list. Order of the unlisted items does not change.
         if (is_array($manual) && !empty($manual)) {

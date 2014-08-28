@@ -15,12 +15,12 @@ abstract class Folder
      * @param string $path
      * @return int
      */
-    public static function lastModified($path)
+    public static function lastModifiedFolder($path)
     {
+        $last_modified = 0;
+
         $directory = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
         $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
-
-        $last_modified = 0;
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {
@@ -31,6 +31,35 @@ abstract class Folder
         }
         return $last_modified;
     }
+
+    /**
+     * Recursively find the last modified time under given path by file.
+     *
+     * @param string $path
+     * @return int
+     */
+    public static function lastModifiedFile($path)
+    {
+        $last_modified = 0;
+
+        $dirItr    = new \RecursiveDirectoryIterator($path);
+        $filterItr = new GravRecursiveFilterIterator($dirItr);
+        $itr       = new \RecursiveIteratorIterator($filterItr, \RecursiveIteratorIterator::SELF_FIRST);
+
+        /** @var \RecursiveDirectoryIterator $file */
+        foreach ($itr as $file) {
+
+            if (!$file->isDir()) {
+
+                $dir_modified = $file->getMTime();
+                if ($dir_modified > $last_modified) {
+                    $last_modified = $dir_modified;
+                }
+            }
+
+        }
+    }
+
 
     /**
      * Return recursive list of all files and directories under given path.
@@ -218,4 +247,20 @@ abstract class Folder
             throw new \RuntimeException($error['message']);
         }
     }
+}
+
+class GravRecursiveFilterIterator extends \RecursiveFilterIterator {
+
+    public static $FILTERS = array(
+        '.', '..', '.DS_Store'
+    );
+
+    public function accept() {
+        return !in_array(
+            $this->current()->getFilename(),
+            self::$FILTERS,
+            true
+        );
+    }
+
 }

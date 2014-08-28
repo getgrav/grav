@@ -22,7 +22,7 @@ pages:
 cache:
   enabled: true                        # Set to true to enable caching
   check:
-    pages: true                        # Check to see if page has been modifying to flush the cache
+    method: page                       # Method to check for updates in pages: page|folder|none
   driver: auto                         # One of: auto|file|apc|xcache|memcache|memcached|wincache
   prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
 
