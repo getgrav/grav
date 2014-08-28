@@ -117,7 +117,7 @@ $counter = 0;
 						<i>inner-code</i><?php if (isset($row['line'])) echo ':', $row['line'] ?>
 					<?php endif ?>
 
-					<?php if (isset($row['file']) && is_file($row['file'])): ?><a href="#tracyBsSrc<?php echo "$level-$key" ?>" class="tracy-toggle tracy-collapsed">source</a>&nbsp; <?php endif ?>
+					<?php if (isset($row['file']) && is_file($row['file'])): ?><a href="#tracyBsSrc<?php echo "$level-$key" ?>" class="tracy-toggle<?php if ($expanded !== $key) echo ' tracy-collapsed' ?>">source</a>&nbsp; <?php endif ?>
 
 					<?php if (isset($row['object'])) echo "<a href='#tracyBsObj$level-$key' class='tracy-toggle tracy-collapsed'>" ?>
 					<?php if (isset($row['class'])) echo htmlspecialchars($row['class'] . $row['type']) ?>
@@ -128,11 +128,11 @@ $counter = 0;
 					</p>
 
 					<?php if (isset($row['file']) && is_file($row['file'])): ?>
-						<div <?php if ($expanded !== $key) echo 'class="tracy-collapsed"'; ?> id="tracyBsSrc<?php echo "$level-$key" ?>"><?php echo self::highlightFile($row['file'], $row['line']) ?></div>
+						<div <?php if ($expanded !== $key) echo 'class="tracy-collapsed"' ?> id="tracyBsSrc<?php echo "$level-$key" ?>"><?php echo self::highlightFile($row['file'], $row['line']) ?></div>
 					<?php endif ?>
 
 					<?php if (isset($row['object'])): ?>
-						<div class="tracy-collapsed outer" id="tracyBsObj<?php echo "$level-$key" ?>"><?php echo Dumper::toHtml($row['object']); ?></div>
+						<div class="tracy-collapsed outer" id="tracyBsObj<?php echo "$level-$key" ?>"><?php echo Dumper::toHtml($row['object']) ?></div>
 					<?php endif ?>
 
 					<?php if (!empty($row['args'])): ?>

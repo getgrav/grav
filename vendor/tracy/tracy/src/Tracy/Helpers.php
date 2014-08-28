@@ -79,6 +79,7 @@ class Helpers
 	}
 
 
+	/** @internal */
 	public static function fixStack($exception)
 	{
 		if (function_exists('xdebug_get_function_stack')) {
@@ -104,11 +105,7 @@ class Helpers
 	}
 
 
-	/**
-	 * Returns correctly UTF-8 encoded string.
-	 * @param  string  byte stream to fix
-	 * @return string
-	 */
+	/** @internal */
 	public static function fixEncoding($s)
 	{
 		if (PHP_VERSION_ID < 50400) {

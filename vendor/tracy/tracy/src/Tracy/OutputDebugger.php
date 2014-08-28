@@ -42,6 +42,7 @@ class OutputDebugger
 	}
 
 
+	/** @internal */
 	public function handler($s, $phase)
 	{
 		$trace = debug_backtrace(FALSE);
@@ -62,7 +63,6 @@ class OutputDebugger
 	{
 		$res = '<style>code, pre {white-space:nowrap} a {text-decoration:none} pre {color:gray;display:inline} big {color:red}</style><code>';
 		foreach ($this->list as $item) {
-			list($file, $line, $s) = $item;
 			$res .= Helpers::editorLink($item[0], $item[1]) . ' '
 				. str_replace(self::BOM, '<big>BOM</big>', Dumper::toHtml($item[2])) . "<br>\n";
 		}

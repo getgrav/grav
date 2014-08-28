@@ -1,0 +1,21 @@
+{
+    "name": "erusev/parsedown-extra",
+    "description": "An extension of Parsedown that adds support for Markdown Extra.",
+    "keywords": ["markdown", "markdown extra", "parser", "parsedown"],
+    "homepage": "https://github.com/erusev/parsedown-extra",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Emanuil Rusev",
+            "email": "hello@erusev.com",
+            "homepage": "http://erusev.com"
+        }
+    ],
+    "require": {
+        "erusev/parsedown": "~1.0"
+    },
+    "autoload": {
+        "psr-0": {"ParsedownExtra": ""}
+    }
+}

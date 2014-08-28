@@ -166,7 +166,12 @@ class ParsedownExtra extends Parsedown
     {
         $DOMDocument = new DOMDocument;
 
-        $DOMDocument->loadXML($Block['element']);
+        $DOMDocument->loadXML($Block['element'], LIBXML_NOERROR | LIBXML_NOWARNING);
+
+        if ($DOMDocument->documentElement === null)
+        {
+            return $Block;
+        }
 
         $result = $DOMDocument->documentElement->getAttribute('markdown');
 
