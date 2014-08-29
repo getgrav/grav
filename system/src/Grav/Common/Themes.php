@@ -65,11 +65,13 @@ class Themes
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
         // Find thumbnail.
         $thumb = "theme:///{$name}/thumbnail.jpg";
         if (file_exists($thumb)) {
-            // TODO: use real URL with base path.
-            $blueprint->set('thumbnail', "/user/themes/{$name}/thumbnail.jpg");
+            $blueprint->set('thumbnail', $config->get('system.base_url_relative') . "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.
