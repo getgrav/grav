@@ -40,3 +40,9 @@ schemes:
     type: ReadOnlyStream
     paths:
       - user/data
+
+  theme:
+    type: ReadOnlyStream
+    prefixes:
+      '/':
+        - user/themes

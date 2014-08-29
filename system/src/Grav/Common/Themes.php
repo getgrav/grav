@@ -61,19 +61,19 @@ class Themes
             throw new \RuntimeException('Theme name not provided.');
         }
 
-        $blueprints = new Blueprints("theme://{$name}");
+        $blueprints = new Blueprints("theme:///{$name}");
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
         // Find thumbnail.
-        $thumb = THEMES_DIR . "{$name}/thumbnail.jpg";
+        $thumb = "theme:///{$name}/thumbnail.jpg";
         if (file_exists($thumb)) {
             // TODO: use real URL with base path.
             $blueprint->set('thumbnail', "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.
-        $file = File\Yaml::instance("theme://{$name}.yaml");
+        $file = File\Yaml::instance("theme:///{$name}/{$name}.yaml");
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
