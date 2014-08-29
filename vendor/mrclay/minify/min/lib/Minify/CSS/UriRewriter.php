@@ -70,7 +70,7 @@ class Minify_CSS_UriRewriter {
         // rewrite
         $css = preg_replace_callback('/@import\\s+([\'"])(.*?)[\'"]/'
             ,array(self::$className, '_processUriCB'), $css);
-        $css = preg_replace_callback('/url\\(\\s*([^\\)\\s]+)\\s*\\)/'
+        $css = preg_replace_callback('/url\\(\\s*([\'"](.*?)[\'"]|[^\\)\\s]+)\\s*\\)/'
             ,array(self::$className, '_processUriCB'), $css);
 
         return $css;
@@ -94,7 +94,7 @@ class Minify_CSS_UriRewriter {
         // append
         $css = preg_replace_callback('/@import\\s+([\'"])(.*?)[\'"]/'
             ,array(self::$className, '_processUriCB'), $css);
-        $css = preg_replace_callback('/url\\(\\s*([^\\)\\s]+)\\s*\\)/'
+        $css = preg_replace_callback('/url\\(\\s*([\'"](.*?)[\'"]|[^\\)\\s]+)\\s*\\)/'
             ,array(self::$className, '_processUriCB'), $css);
 
         self::$_prependPath = null;

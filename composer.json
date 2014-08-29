@@ -16,7 +16,7 @@
         "tracy/tracy": "~2.2",
         "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
-        "mrclay/minify": "~2.2",
+        "mrclay/minify": "dev-master",
         "donatj/phpuseragentparser": "dev-master",
         "pimple/pimple": "~3.0"
     },
@@ -28,5 +28,11 @@
     },
     "archive": {
         "exclude": ["VERSION"]
-    }
+    },
+    "repositories": [
+        {
+           "type": "vcs",
+           "url": "https://github.com/rhukster/minify"
+        }
+    ]
 }
