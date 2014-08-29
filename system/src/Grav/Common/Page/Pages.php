@@ -357,16 +357,19 @@ class Pages
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
 
+            $last_modified = 0;
+
             // how should we check for last modified? Default is by page
-            switch ($config->get('system.cache.check.method', 'page')) {
-                case 'page':
-                    $last_modified = Folder::lastModifiedFile(PAGES_DIR);
+            switch (strtolower($config->get('system.cache.check.method', 'page'))) {
+                case 'none':
+                case 'off':
+                    $last_modified = 0;
                     break;
                 case 'folder':
                     $last_modified = Folder::lastModifiedFolder(PAGES_DIR);
                     break;
                 default:
-                    $last_modified = 0;
+                    $last_modified = Folder::lastModifiedFile(PAGES_DIR);
             }
 
             $page_cache_id = md5(USER_DIR.$last_modified);

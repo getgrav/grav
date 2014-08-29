@@ -48,16 +48,16 @@ abstract class Folder
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($itr as $file) {
-
             if (!$file->isDir()) {
-
-                $dir_modified = $file->getMTime();
-                if ($dir_modified > $last_modified) {
-                    $last_modified = $dir_modified;
+                $file_modified = $file->getMTime();
+                if ($file_modified > $last_modified) {
+                    $last_modified = $file_modified;
                 }
             }
 
         }
+
+        return $last_modified;
     }
 
 
