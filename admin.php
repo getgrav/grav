@@ -175,7 +175,7 @@ class AdminPlugin extends Plugin
 
         switch ($this->template) {
             case 'plugins':
-                $twig->twig_vars['plugins'] = \Grav\Common\Plugins::all();
+                $twig->twig_vars['plugins'] = $this->grav['plugins']->all();
                 break;
             case 'pages':
                 $twig->twig_vars['file'] = File\General::instance($this->admin->page(true)->filePath());

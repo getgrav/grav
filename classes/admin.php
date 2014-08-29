@@ -254,12 +254,12 @@ class Admin
 
             default:
                 if (preg_match('|plugins/|', $type)) {
-                    $obj = Plugins::get(preg_replace('|plugins/|', '', $type));
+                    $obj = $this->grav['plugins']->get(preg_replace('|plugins/|', '', $type));
                     $obj->merge($post);
 
                     $data[$type] = $obj;
                 } elseif (preg_match('|themes/|', $type)) {
-                    $obj = Themes::get(preg_replace('|themes/|', '', $type));
+                    $obj = $this->grav['themes']->get(preg_replace('|themes/|', '', $type));
                     $obj->merge($post);
 
                     $data[$type] = $obj;
