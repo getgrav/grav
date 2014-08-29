@@ -56,7 +56,6 @@ abstract class Folder
             }
 
         }
-
         return $last_modified;
     }
 

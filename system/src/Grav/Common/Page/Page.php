@@ -106,7 +106,7 @@ class Page
     public function init($file)
     {
         $this->filePath($file->getPathName());
-        $this->modified(filemtime($file->getPath()));
+        $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
         $this->header();
         $this->slug();
