@@ -6,7 +6,6 @@ use Grav\Common\User\Authentication;
 use Grav\Common\Filesystem\File;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
-use Grav\Common\Registry;
 use Grav\Common\Session;
 use Grav\Common\Themes;
 use Grav\Common\Uri;
@@ -16,6 +15,11 @@ use Grav\Common\Data;
 
 class Admin
 {
+    /**
+     * @var Grav
+     */
+    public $grav;
+
     /**
      * @var Uri $uri
      */
@@ -64,18 +68,20 @@ class Admin
     /**
      * Constructor.
      *
+     * @param Grav   $grav
      * @param string $base
      * @param string $location
      * @param string $route
      */
-    public function __construct($base, $location, $route)
+    public function __construct(Grav $grav, $base, $location, $route)
     {
+        $this->grav = $grav;
         $this->base = $base;
         $this->location = $location;
         $this->route = $route;
 
         /** @var Uri uri */
-        $this->uri = Registry::get('Uri');
+        $this->uri = $this->grav['uri'];
 
         // TODO: add session timeout into configuration
         $this->session = new Session\Session(1800, $this->uri->rootUrl(false) . $base);
@@ -148,7 +154,7 @@ class Admin
                     $this->user = $this->session->user = $user;
 
                     /** @var Grav $grav */
-                    $grav = Registry::get('Grav');
+                    $grav = $this->grav;
                     $grav->redirect($this->uri->route());
                 }
             }
@@ -285,7 +291,7 @@ class Admin
      */
     public function themes()
     {
-        return Themes::all();
+        return $this->grav['themes']->all();
     }
 
     /**
@@ -324,7 +330,7 @@ class Admin
     protected function getPage($path)
     {
         /** @var Pages $pages */
-        $pages = Registry::get('Pages');
+        $pages = $this->grav['pages'];
 
         if ($path && $path[0] != '/') {
             $path = "/{$path}";
@@ -371,6 +377,6 @@ class Admin
      */
     public static function route()
     {
-        return dirname('/' . Registry::get('Admin')->route);
+        return dirname('/' . Grav::instance()['admin']->route);
     }
 }
