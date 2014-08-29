@@ -359,8 +359,8 @@ class Pages
 
             $last_modified = 0;
 
-            // how should we check for last modified? Default is by page
-            switch (strtolower($config->get('system.cache.check.method', 'page'))) {
+            // how should we check for last modified? Default is by file
+            switch (strtolower($config->get('system.cache.check.method', 'file'))) {
                 case 'none':
                 case 'off':
                     $last_modified = 0;
