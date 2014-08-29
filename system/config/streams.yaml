@@ -20,6 +20,12 @@ schemes:
 #    paths:
 #      - logs
 
+
+  user:
+    type: ReadOnlyStream
+    paths:
+      - user
+
   page:
     type: ReadOnlyStream
     paths:

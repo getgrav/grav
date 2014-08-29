@@ -84,7 +84,7 @@ class Plugins extends Iterator
     static public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator('plugin://');
+        $iterator = new \DirectoryIterator('plugin:///');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {

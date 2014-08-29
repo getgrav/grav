@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Data\Data;
+use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\File;
 
 /**
@@ -24,7 +26,7 @@ class Themes
     /**
      * Return list of all theme data with their blueprints.
      *
-     * @return array|Data\Data[]
+     * @return array|Data[]
      */
     public function all()
     {
