@@ -114,8 +114,11 @@ class AdminController
      */
     protected function taskLogin()
     {
-        $this->admin->authenticate($this->post);
-        $this->admin->setMessage('You have been logged in.');
+        if ($this->admin->authenticate($this->post)) {
+            $this->admin->setMessage('You have been logged in.');
+        } else {
+            $this->admin->setMessage('Login failed.');
+        }
 
         return true;
     }
@@ -167,7 +170,7 @@ class AdminController
 
         // Make sure theme exists (throws exception)
         $name = !empty($this->post['theme']) ? $this->post['theme'] : '';
-        Themes::get($name);
+        $this->grav['themes']->get($name);
 
         // Store system configuration.
         $system = $this->admin->data('system');
