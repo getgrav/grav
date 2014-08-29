@@ -194,7 +194,6 @@ class Grav extends Container
         /** @var Uri $uri */
         $uri = $this['uri'];
         header('Content-type: ' . $this->mime($uri->extension()));
-        header('Content-length: ' . strlen($this->output));
     }
 
     /**
