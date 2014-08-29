@@ -3,7 +3,7 @@ namespace Grav\Plugin;
 
 use Grav\Common\Config;
 use Grav\Common\Filesystem\Folder;
-use Grav\Common\Registry;
+use Grav\Common\Grav;
 use Grav\Common\Themes;
 use Grav\Common\Uri;
 use Grav\Common\Data;
@@ -11,6 +11,11 @@ use Grav\Common\Page;
 
 class AdminController
 {
+    /**
+     * @var Grav
+     */
+    public $grav;
+
     /**
      * @var string
      */
@@ -47,18 +52,20 @@ class AdminController
     protected $redirectCode;
 
     /**
+     * @param Grav   $grav
      * @param string $view
      * @param string $task
      * @param string $route
      * @param array  $post
      */
-    public function __construct($view, $task, $route, $post)
+    public function __construct(Grav $grav, $view, $task, $route, $post)
     {
+        $this->grav = $grav;
         $this->view = $view;
         $this->task = $task ? $task : 'display';
         $this->post = $this->getPost($post);
         $this->route = $route;
-        $this->admin = Registry::get('Admin');
+        $this->admin = $this->grav['admin'];
     }
 
     /**
@@ -97,8 +104,7 @@ class AdminController
         $path = trim(substr($this->redirect, 0, strlen($base)) == $base
             ? substr($this->redirect, strlen($base)) : $this->redirect, '/');
 
-        $grav = Registry::get('Grav');
-        $grav->redirect($base . '/' . preg_replace('|/+|', '/', $path), $this->redirectCode);
+        $this->grav->redirect($base . '/' . preg_replace('|/+|', '/', $path), $this->redirectCode);
     }
 
     /**
@@ -170,7 +176,7 @@ class AdminController
 
         // Force configuration reload and save.
         /** @var Config $config */
-        $config = Registry::get('Config');
+        $config = $this->grav['config'];
         $config->reload()->save();
 
         // TODO: find out why reload and save doesn't always update the object itself (and remove this workaround).
@@ -193,7 +199,7 @@ class AdminController
         // Special handler for pages data.
         if ($this->view == 'pages') {
             /** @var Page\Pages $pages */
-            $pages = Registry::get('Pages');
+            $pages = $this->grav['pages'];
 
             // Find new parent page in order to build the path.
             $route = !isset($data['route']) ? dirname($this->admin->route) : $data['route'];
@@ -267,7 +273,7 @@ class AdminController
 
         try {
             /** @var Page\Pages $pages */
-            $pages = Registry::get('Pages');
+            $pages = $this->grav['pages'];
             $data = $this->post;
 
             // Find new parent page in order to build the path.
@@ -336,7 +342,7 @@ class AdminController
         }
 
         /** @var Uri $uri */
-        $uri = Registry::get('Uri');
+        $uri = $this->grav['uri'];
 
         try {
             $page = $this->admin->page();
