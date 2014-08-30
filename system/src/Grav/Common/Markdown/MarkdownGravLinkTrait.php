@@ -2,12 +2,14 @@
 namespace Grav\Common\Markdown;
 
 use Grav\Common\Debugger;
+use Grav\Common\GravTrait;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
  */
 trait MarkdownGravLinkTrait
 {
+    use GravTrait;
 
     protected function identifyLink($Excerpt)
     {
@@ -15,6 +17,65 @@ trait MarkdownGravLinkTrait
         $Excerpt = parent::identifyLink($Excerpt);
         $actions = array();
         $command = '';
+        $config = self::$grav['config'];
+        $base_url = trim($config->get('system.base_url_relative'));
+        $base_url_full = trim($config->get('system.base_url_absolute'));
+
+        // if this is a link
+        if (isset($Excerpt['element']['attributes']['href'])) {
+
+            $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['href']));
+
+            // if there is no host set but there is a path, the file is local
+            if (!isset($url['host']) && isset($url['path'])) {
+
+                $markdown_url = $url['path'];
+                $not_relative_urls = ['/','http://','https://'];
+                $valid = true;
+
+                // make sure the url is relative
+                foreach ($not_relative_urls as $needle) {
+                    if (strpos($markdown_url, $needle) === 0) {
+                        $valid = false;
+                        break;
+                    }
+                }
+
+                // if it is a valid relative url being the transformation
+                if ($valid) {
+
+                    $relative_path = rtrim($base_url, '/') . $this->page->route();
+
+                    // If this is a 'real' filepath clean it up
+                    if (file_exists($this->page->path().'/'.$markdown_url)) {
+                        $relative_path = rtrim($base_url, '/') .
+                                         preg_replace('/\/([\d]+.)/', '/',
+                                         str_replace(PAGES_DIR, '/', $this->page->path()));
+                        $markdown_url = preg_replace('/^([\d]+.)/', '',
+                                        preg_replace('/\/([\d]+.)/', '/', $markdown_url));
+                    }
+
+                    // else its a relative path already
+                    $newpath = array();
+                    $paths = explode('/', $markdown_url);
+
+                    // remove the updirectory references (..)
+                    foreach ($paths as $path) {
+                        if ($path == '..') {
+                            $relative_path = dirname($relative_path);
+                        } else {
+                            $newpath[] = $path;
+                        }
+                    }
+
+                    // build the new url
+                    $new_url = $relative_path . '/' . implode('/', $newpath);
+
+                    // set the new url back on the Excerpt
+                    $Excerpt['element']['attributes']['href'] = $new_url;
+                }
+            }
+        }
 
         // if this is an image
         if (isset($Excerpt['element']['attributes']['src'])) {
