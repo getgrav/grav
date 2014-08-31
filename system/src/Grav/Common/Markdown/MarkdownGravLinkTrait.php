@@ -121,7 +121,8 @@ trait MarkdownGravLinkTrait
                                  preg_replace('/\/([\d]+.)/', '/',
                                  str_replace(PAGES_DIR, '/', $this->page->path()));
                 $markdown_url = preg_replace('/^([\d]+.)/', '',
-                                preg_replace('/\/([\d]+.)/', '/', $markdown_url));
+                                preg_replace('/\/([\d]+.)/', '/',
+                                trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
             }
 
             // else its a relative path already
