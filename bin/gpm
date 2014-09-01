@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+
+if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
+    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
+}
+
+use Symfony\Component\Console\Application;
+use Grav\Common\Grav;
+
+$autoload = require_once(__DIR__ . '/../vendor/autoload.php');
+
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('UTC');
+}
+
+if (!file_exists(ROOT_DIR . 'index.php')) {
+    exit('FATAL: Must be run from ROOT directory of Grav!');
+}
+
+$grav = Grav::instance(['loader' => $autoload]);
+
+$app = new Application('Grav Package Manager', '0.1.0');
+$app->addCommands(array());
+$app->run();
