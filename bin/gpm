@@ -24,5 +24,6 @@ $app = new Application('Grav Package Manager', '0.1.0');
 $app->addCommands(array(
     new \Grav\Console\Gpm\FetchCommand($grav),
     new \Grav\Console\Gpm\IndexCommand($grav),
+    new \Grav\Console\Gpm\InfoCommand($grav),
 ));
 $app->run();
