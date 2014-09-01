@@ -19,11 +19,11 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
 
 $app = new Application('Grav CLI Application', '0.1.0');
 $app->addCommands(array(
-    new Grav\Console\InstallCommand(),
-    new Grav\Console\SetupCommand(),
-    new Grav\Console\CleanCommand(),
-    new Grav\Console\ClearCacheCommand(),
-    new Grav\Console\BackupCommand(),
-    new Grav\Console\NewProjectCommand(),
+    new Grav\Console\Cli\InstallCommand(),
+    new Grav\Console\Cli\SetupCommand(),
+    new Grav\Console\Cli\CleanCommand(),
+    new Grav\Console\Cli\ClearCacheCommand(),
+    new Grav\Console\Cli\BackupCommand(),
+    new Grav\Console\Cli\NewProjectCommand(),
 ));
 $app->run();

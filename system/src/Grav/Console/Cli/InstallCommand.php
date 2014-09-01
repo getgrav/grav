@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Console;
+namespace Grav\Console\Cli;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -114,7 +114,7 @@ class InstallCommand extends Command {
         if (!$this->local_config) {
             $output->writeln('<red>No local configuration available, aborting...</red>');
             $output->writeln('');
-            exit;
+            return;
         }
 
         exec('cd ' . $this->destination);
