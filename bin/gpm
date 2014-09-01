@@ -21,5 +21,7 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
 $grav = Grav::instance(['loader' => $autoload]);
 
 $app = new Application('Grav Package Manager', '0.1.0');
-$app->addCommands(array());
+$app->addCommands(array(
+    new \Grav\Console\Gpm\FetchCommand($grav),
+));
 $app->run();
