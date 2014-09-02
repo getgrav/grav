@@ -117,48 +117,6 @@
         ]
     },
     {
-        "name": "mrclay/minify",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/mrclay/minify.git",
-            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/mrclay/minify/zipball/d245bca4987dec197d1e6d7dc117614b60ff7494",
-            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494",
-            "shasum": ""
-        },
-        "require": {
-            "ext-pcre": "*",
-            "php": ">=5.2.1"
-        },
-        "time": "2014-03-12 12:54:23",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "min/lib/"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Steve Clay",
-                "email": "steve@mrclay.org",
-                "homepage": "http://www.mrclay.org/",
-                "role": "Developer"
-            }
-        ],
-        "description": "Minify is a PHP5 app that helps you follow several rules for client-side performance. It combines multiple CSS or Javascript files, removes unnecessary whitespace and comments, and serves them with gzip encoding and optimal client-side cache headers",
-        "homepage": "http://code.google.com/p/minify/"
-    },
-    {
         "name": "pimple/pimple",
         "version": "v3.0.0",
         "version_normalized": "3.0.0.0",
@@ -370,62 +328,6 @@
         ],
         "description": "Symfony EventDispatcher Component",
         "homepage": "http://symfony.com"
-    },
-    {
-        "name": "tracy/tracy",
-        "version": "v2.2.2",
-        "version_normalized": "2.2.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/nette/tracy.git",
-            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/nette/tracy/zipball/f5a2647c9d0174d218d626eab3952ea3a523c6e7",
-            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.1"
-        },
-        "require-dev": {
-            "nette/tester": "~1.0"
-        },
-        "time": "2014-06-24 01:18:03",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "src/Tracy"
-            ],
-            "files": [
-                "src/shortcuts.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause",
-            "GPL-2.0",
-            "GPL-3.0"
-        ],
-        "authors": [
-            {
-                "name": "David Grudl",
-                "homepage": "http://davidgrudl.com"
-            },
-            {
-                "name": "Nette Community",
-                "homepage": "http://nette.org/contributors"
-            }
-        ],
-        "description": "Tracy: useful PHP debugger",
-        "homepage": "http://tracy.nette.org",
-        "keywords": [
-            "debug",
-            "debugger",
-            "nette"
-        ]
     },
     {
         "name": "gregwar/cache",
@@ -667,24 +569,80 @@
         ]
     },
     {
+        "name": "tracy/tracy",
+        "version": "v2.2.3",
+        "version_normalized": "2.2.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nette/tracy.git",
+            "reference": "97889d2b8cfb7607cc370ca0ddb97c6f5b43deb9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nette/tracy/zipball/97889d2b8cfb7607cc370ca0ddb97c6f5b43deb9",
+            "reference": "97889d2b8cfb7607cc370ca0ddb97c6f5b43deb9",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.1"
+        },
+        "require-dev": {
+            "nette/tester": "~1.0"
+        },
+        "time": "2014-08-24 23:36:30",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/Tracy"
+            ],
+            "files": [
+                "src/shortcuts.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "GPL-2.0",
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "David Grudl",
+                "homepage": "http://davidgrudl.com"
+            },
+            {
+                "name": "Nette Community",
+                "homepage": "http://nette.org/contributors"
+            }
+        ],
+        "description": "Tracy: useful PHP debugger",
+        "homepage": "http://tracy.nette.org",
+        "keywords": [
+            "debug",
+            "debugger",
+            "nette"
+        ]
+    },
+    {
         "name": "erusev/parsedown-extra",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/erusev/parsedown-extra.git",
-            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b"
+            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
-            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
+            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/424e63fef5299f2a5a0464cd22a666b7a7b48657",
+            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657",
             "shasum": ""
         },
         "require": {
             "erusev/parsedown": "~1.0"
         },
-        "time": "2014-08-16 11:20:35",
+        "time": "2014-08-25 10:49:57",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -711,5 +669,51 @@
             "parsedown",
             "parser"
         ]
+    },
+    {
+        "name": "mrclay/minify",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/rhukster/minify.git",
+            "reference": "fdf68abf30ccd86a65f66fa6eb98434eb29bef74"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/rhukster/minify/zipball/fdf68abf30ccd86a65f66fa6eb98434eb29bef74",
+            "reference": "fdf68abf30ccd86a65f66fa6eb98434eb29bef74",
+            "shasum": ""
+        },
+        "require": {
+            "ext-pcre": "*",
+            "php": ">=5.2.1"
+        },
+        "time": "2014-08-29 23:07:55",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "min/lib/"
+            ]
+        },
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Stephen Clay",
+                "email": "steve@mrclay.org",
+                "role": "Developer"
+            }
+        ],
+        "description": "Minify is a PHP5 app that helps you follow several rules for client-side performance. It combines multiple CSS or Javascript files, removes unnecessary whitespace and comments, and serves them with gzip encoding and optimal client-side cache headers",
+        "homepage": "http://code.google.com/p/minify/",
+        "support": {
+            "email": "minify@googlegroups.com",
+            "issues": "http://code.google.com/p/minify/issues/list",
+            "wiki": "http://code.google.com/p/minify/w/list",
+            "source": "https://github.com/rhukster/minify/tree/master"
+        }
     }
 ]

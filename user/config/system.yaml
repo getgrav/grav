@@ -11,7 +11,7 @@ pages:
 cache:
   enabled: true
   check:
-    pages: true
+    method: file
   driver: auto
   prefix: 'g'
 
@@ -22,7 +22,7 @@ twig:
   autoescape: false
 
 assets:
-  css_pipeline: false
+  css_pipeline: true
   css_minify: true
   css_rewrite: true
   js_pipeline: false

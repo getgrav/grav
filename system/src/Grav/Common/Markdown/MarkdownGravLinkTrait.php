@@ -2,19 +2,34 @@
 namespace Grav\Common\Markdown;
 
 use Grav\Common\Debugger;
+use Grav\Common\GravTrait;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
  */
 trait MarkdownGravLinkTrait
 {
+    use GravTrait;
 
     protected function identifyLink($Excerpt)
     {
         // Run the parent method to get the actual results
         $Excerpt = parent::identifyLink($Excerpt);
         $actions = array();
-        $command = '';
+        $this->base_url = trim(self::$grav['config']->get('system.base_url_relative'));
+
+        // if this is a link
+        if (isset($Excerpt['element']['attributes']['href'])) {
+
+            $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['href']));
+
+            // if there is no host set but there is a path, the file is local
+            if (!isset($url['host']) && isset($url['path'])) {
+
+                // convert the URl is required
+                $Excerpt['element']['attributes']['href'] = $this->convertUrl($url['path']);
+            }
+        }
 
         // if this is an image
         if (isset($Excerpt['element']['attributes']['src'])) {
@@ -75,9 +90,58 @@ trait MarkdownGravLinkTrait
                         // Set the lightbox element on the Excerpt
                         $Excerpt['element'] = $Element;
                     }
+                } else {
+                    // not a current page media file, see if it needs converting to relative
+                    $Excerpt['element']['attributes']['src'] = $this->convertUrl($url['path']);
                 }
             }
         }
         return $Excerpt;
+    }
+
+    /**
+     * Converts links from absolute '/' or relative (../..) to a grav friendly format
+     * @param  string $markdown_url the URL as it was written in the markdown
+     * @return string               the more friendly formatted url
+     */
+    protected function convertUrl($markdown_url)
+    {
+        // if absolue and starts with a base_url move on
+        if (strpos($markdown_url, $this->base_url) === 0) {
+            $new_url = $markdown_url;
+        // if its absolute with /
+        } elseif (strpos($markdown_url, '/') === 0) {
+            $new_url = rtrim($this->base_url, '/') . $markdown_url;
+        } else {
+           $relative_path = rtrim($this->base_url, '/') . $this->page->route();
+
+            // If this is a 'real' filepath clean it up
+            if (file_exists($this->page->path().'/'.$markdown_url)) {
+                $relative_path = rtrim($this->base_url, '/') .
+                                 preg_replace('/\/([\d]+.)/', '/',
+                                 str_replace(PAGES_DIR, '/', $this->page->path()));
+                $markdown_url = preg_replace('/^([\d]+.)/', '',
+                                preg_replace('/\/([\d]+.)/', '/',
+                                trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
+            }
+
+            // else its a relative path already
+            $newpath = array();
+            $paths = explode('/', $markdown_url);
+
+            // remove the updirectory references (..)
+            foreach ($paths as $path) {
+                if ($path == '..') {
+                    $relative_path = dirname($relative_path);
+                } else {
+                    $newpath[] = $path;
+                }
+            }
+
+            // build the new url
+            $new_url = $relative_path . '/' . implode('/', $newpath);
+        }
+
+        return $new_url;
     }
 }

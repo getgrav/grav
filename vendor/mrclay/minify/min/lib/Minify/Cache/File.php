@@ -98,6 +98,9 @@ class Minify_Cache_File {
     {
         if ($this->_locking) {
             $fp = fopen($this->_path . '/' . $id, 'rb');
+            if (!$fp) {
+                return false;
+            }
             flock($fp, LOCK_SH);
             $ret = stream_get_contents($fp);
             flock($fp, LOCK_UN);

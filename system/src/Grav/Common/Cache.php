@@ -66,6 +66,9 @@ class Cache extends Getters
         $this->key = substr(md5(($prefix ? $prefix : 'g') . $uri->rootUrl(true) . $this->config->key . GRAV_VERSION), 2, 8);
 
         $this->driver = $this->getCacheDriver();
+
+        // Set the cache namespace to our unique key
+        $this->driver->setNamespace($this->key);
     }
 
     /**
@@ -132,7 +135,6 @@ class Cache extends Getters
     public function fetch($id)
     {
         if ($this->enabled) {
-            $id = $this->key . $id;
             return $this->driver->fetch($id);
         } else {
             return false;
@@ -149,7 +151,6 @@ class Cache extends Getters
     public function save($id, $data, $lifetime = null)
     {
         if ($this->enabled) {
-            $id = $this->key . $id;
             $this->driver->save($id, $data, $lifetime);
         }
     }

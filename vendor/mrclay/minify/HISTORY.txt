@@ -1,5 +1,8 @@
 Minify Release History
 
+(master)
+    * Builder styled with Bootstrap (thanks to help from acidvertigo)
+
 Version 2.2.0
     * Fix handling of RegEx in certain situations in JSMin
       * Thanks to Vovan-VE for reporting this

@@ -1,7 +1,5 @@
 <IfModule mod_rewrite.c>
 
-Options -Multiviews
-
 RewriteEngine On
 
 ##

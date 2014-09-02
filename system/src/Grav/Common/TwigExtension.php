@@ -1,5 +1,6 @@
 <?php
 namespace Grav\Common;
+use Grav\Component\Filesystem\ResourceLocator;
 
 /**
  * The Twig extension adds some filters and functions that are useful for Grav
@@ -44,7 +45,8 @@ class TwigExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('repeat', array($this, 'repeatFunc'))
+            new \Twig_SimpleFunction('repeat', array($this, 'repeatFunc')),
+            new \Twig_SimpleFunction('url', array($this, 'urlFunc'))
         );
     }
 
@@ -194,5 +196,23 @@ class TwigExtension extends \Twig_Extension
     public function repeatFunc($input, $multiplier)
     {
         return str_repeat($input, $multiplier);
+    }
+
+    /**
+     * Return URL to the resource.
+     *
+     * @param  string $input
+     * @param  bool $domain
+     * @return string
+     */
+    public function urlFunc($input, $domain = false)
+    {
+        $grav = Grav::instance();
+        /** @var ResourceLocator $locator */
+        $locator = $grav['locator'];
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+
+        return $uri->rootUrl($domain) . $locator->findResource($input, false);
     }
 }
