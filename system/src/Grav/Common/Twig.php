@@ -2,6 +2,7 @@
 namespace Grav\Common;
 
 use \Grav\Common\Page\Page;
+use Grav\Component\Filesystem\ResourceLocator;
 
 /**
  * The Twig object handles all the Twig template rendering for Grav. It's a singleton object
@@ -66,8 +67,10 @@ class Twig
         if (!isset($this->twig)) {
             /** @var Config $config */
             $config = $this->grav['config'];
+            /** @var ResourceLocator $locator */
+            $locator = $this->grav['locator'];
 
-            $this->twig_paths = array(THEMES_DIR . $config->get('system.pages.theme') . '/templates');
+            $this->twig_paths = $locator->findResources('theme://templates');
             $this->grav->fireEvent('onTwigTemplatePaths');
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
@@ -76,7 +79,7 @@ class Twig
 
             $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
-                $params['cache'] = CACHE_DIR;
+                $params['cache'] = $locator->findResource('cache://');
             }
 
             $this->twig = new \Twig_Environment($loader_chain, $params);
@@ -106,7 +109,7 @@ class Twig
                 'base_dir' => rtrim(ROOT_DIR, '/'),
                 'base_url_absolute' => $baseUrlAbsolute,
                 'base_url_relative' => $baseUrlRelative,
-                'theme_dir' => THEMES_DIR . $theme,
+                'theme_dir' => $locator->findResource('theme://'),
                 'theme_url' => $themeUrl,
                 'site' => $config->get('site'),
                 'assets' => $this->grav['assets'],

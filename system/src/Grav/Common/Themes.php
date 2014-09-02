@@ -112,7 +112,7 @@ class Themes
         /** @var ResourceLocator $locator */
         $locator = $grav['locator'];
 
-        $file = $locator("theme://{$name}.php");
+        $file = $locator("theme://theme.php") ?: $locator("theme://{$name}.php");
         if ($file) {
             // Local variables available in the file: $grav, $config, $name, $path, $file
             $class = include $file;
