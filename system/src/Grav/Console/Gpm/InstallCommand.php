@@ -121,6 +121,7 @@ class InstallCommand extends Command {
         }
 
         $this->output->writeln('');
+        $this->rrmdir($this->destination.DS.'tmp-gpm');
     }
 
     private function setColors()
