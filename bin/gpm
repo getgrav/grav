@@ -25,5 +25,6 @@ $app->addCommands(array(
     new \Grav\Console\Gpm\FetchCommand($grav),
     new \Grav\Console\Gpm\IndexCommand($grav),
     new \Grav\Console\Gpm\InfoCommand($grav),
+    new \Grav\Console\Gpm\InstallCommand($grav),
 ));
 $app->run();
