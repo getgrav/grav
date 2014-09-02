@@ -3,7 +3,8 @@ namespace Grav\Common;
 
 use Grav\Common\Data\Data;
 use Grav\Common\Data\Blueprints;
-use Grav\Common\Filesystem\File;
+use Grav\Common\Filesystem\File\Yaml;
+use Grav\Component\Filesystem\ResourceLocator;
 
 /**
  * The Themes object holds an array of all the theme objects that Grav knows about.
@@ -75,11 +76,11 @@ class Themes
         }
 
         // Load default configuration.
-        $file = File\Yaml::instance("theme:///{$name}/{$name}.yaml");
+        $file = Yaml::instance("theme:///{$name}/{$name}.yaml");
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance("user://config/themes/{$name}.yaml");
+        $file = Yaml::instance("user://config/themes/{$name}.yaml");
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
@@ -88,20 +89,31 @@ class Themes
         return $obj;
     }
 
-    public function load($name = null)
+    public function current($name = null)
     {
-        $grav = $this->grav;
         /** @var Config $config */
-        $config = $grav['config'];
+        $config = $this->grav['config'];
 
         if (!$name) {
             $name = $config->get('system.pages.theme');
         }
 
-        $path = THEMES_DIR . $name;
-        $file = "{$path}/{$name}.php";
+        return $name;
+    }
 
-        if (file_exists($file)) {
+    public function load($name = null)
+    {
+        $name = $this->current($name);
+        $grav = $this->grav;
+
+        /** @var Config $config */
+        $config = $grav['config'];
+
+        /** @var ResourceLocator $locator */
+        $locator = $grav['locator'];
+
+        $file = $locator("theme://{$name}.php");
+        if ($file) {
             // Local variables available in the file: $grav, $config, $name, $path, $file
             $class = include $file;
 
@@ -119,5 +131,50 @@ class Themes
         }
 
         return $class;
+    }
+
+    public function configure($name = null) {
+        $name = $this->current($name);
+
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        $themeConfig = Yaml::instance(THEMES_DIR . "{$name}/{$name}.yaml")->content();
+
+        $config->merge(['themes' => [$name => $themeConfig]]);
+
+        /** @var ResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        // TODO: move
+        $registered = stream_get_wrappers();
+        $schemes = $config->get(
+            "themes.{$name}.streams.schemes",
+            ['theme' => ['paths' => ["user/themes/{$name}"]]]
+        );
+
+        foreach ($schemes as $scheme => $config) {
+            if (isset($config['paths'])) {
+                $locator->addPath($scheme, '', $config['paths']);
+            }
+            if (isset($config['prefixes'])) {
+                foreach ($config['prefixes'] as $prefix => $paths) {
+                    $locator->addPath($scheme, $prefix, $paths);
+                }
+            }
+
+            if (in_array($scheme, $registered)) {
+                stream_wrapper_unregister($scheme);
+            }
+            $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
+            if ($type[0] != '\\') {
+                $type = '\\Grav\\Component\\Filesystem\\StreamWrapper\\' . $type;
+            }
+
+            if (!stream_wrapper_register($scheme, $type)) {
+                throw new \InvalidArgumentException("Stream '{$type}' could not be initialized.");
+            }
+
+        }
     }
 }

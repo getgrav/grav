@@ -83,14 +83,14 @@ class ResourceLocator
             $scheme = 'file';
         }
 
-        if (!$file || $uri[0] == ':') {
-            throw new \InvalidArgumentException('Invalid resource URI');
-        }
         if (!isset($this->schemes[$scheme])) {
             throw new \InvalidArgumentException("Invalid resource {$scheme}://");
         }
+        if (!$file && $scheme == 'file') {
+            $file = getcwd();
+        }
 
-        $paths = $array ? [] : false;
+        $results = $array ? [] : false;
         foreach ($this->schemes[$scheme] as $prefix => $paths) {
             if ($prefix && strpos($file, $prefix) !== 0) {
                 continue;
@@ -104,11 +104,11 @@ class ResourceLocator
                     if (!$array) {
                         return $absolute ? $lookup : $filename;
                     }
-                    $paths[] = $absolute ? $lookup : $filename;
+                    $results[] = $absolute ? $lookup : $filename;
                 }
             }
         }
 
-        return $paths;
+        return $results;
     }
 }
