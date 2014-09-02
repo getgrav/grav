@@ -221,6 +221,7 @@ class InstallCommand extends Command {
 
         if (!$openZip){
             $this->output->write("\x0D");
+            // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing package...    <red>error</red>                             ");
             $this->output->writeln("  |  '- Unable to open the downloaded package: <yellow>".$package->download."</yellow>");
 
@@ -235,6 +236,7 @@ class InstallCommand extends Command {
         rename($tmp.DS.$innerFolder, $destination);
 
         $this->output->write("\x0D");
+        // extra white spaces to clear out the buffer properly
         $this->output->writeln("  |- Installing package...    <green>ok</green>                             ");
         return true;
     }

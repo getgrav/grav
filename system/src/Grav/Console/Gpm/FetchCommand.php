@@ -18,7 +18,7 @@ class FetchCommand extends Command {
     protected $cache;
     protected $argv;
     protected $progress;
-    protected $repository = 'http://rt.djamil.it/grav-site/downloads';//'http://getgrav.org/downloads';
+    protected $repository = 'http://getgrav.org/downloads';
     protected $pkg_types = array('plugins', 'themes');
 
     public function __construct(Grav $grav){
@@ -75,7 +75,6 @@ class FetchCommand extends Command {
 
         $this->progress = new ProgressBar($this->output, count($this->pkg_types));
         $this->progress->setFormat("<normal>%message%</normal>\n<cyan>%current%</cyan><normal>/</normal><cyan>%max%</cyan> <white>[%bar%]</white> <green>%percent:3s%%</green>");
-        //$progress->setFormat('Downloading <cyan>%current%</cyan> files [<green>%bar%</green>] %elapsed:6s% %memory:6s%');
 
         $this->progress->setMessage('Task in progress');
         $this->progress->start();
