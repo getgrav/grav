@@ -28,7 +28,6 @@ class Debugger
         /** @var Config $config */
         $config = $grav['config'];
 
-        $mode = $config->get('system.debugger.mode');
         TracyDebugger::$logDirectory = $config->get('system.debugger.log.enabled') ? LOG_DIR : null;
         TracyDebugger::$maxDepth = $config->get('system.debugger.max_depth');
 
@@ -42,6 +41,7 @@ class Debugger
                 ini_set('display_errors', true);
             }
 
+            $mode = $config->get('system.debugger.mode');
             if ($mode === 'detect') {
                 TracyDebugger::$productionMode = self::DETECT;
             } elseif ($mode === 'production') {
