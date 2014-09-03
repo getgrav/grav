@@ -42,15 +42,14 @@ class Debugger
                 ini_set('display_errors', true);
             }
 
-            if ($mode == strtolower('detect')) {
+            if ($mode === 'detect') {
                 TracyDebugger::$productionMode = self::DETECT;
-            } elseif ($mode == strtolower('production')) {
+            } elseif ($mode === 'production') {
                 TracyDebugger::$productionMode = self::PRODUCTION;
             } else {
                 TracyDebugger::$productionMode = self::DEVELOPMENT;
             }
 
-            
         }
     }
 
