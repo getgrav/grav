@@ -73,11 +73,10 @@ class UpdateCommand extends Command {
 
         if (!$this->extensions['total']){
             $packages = array_map('strtolower', $this->input->getArgument('package'));
-            $this->output->writeln("No extension has been installed in <red>".$this->destination."</red>");
+            $this->output->writeln("Nothing to update.");
             if (count($packages)){
                 $this->output->writeln("Packages not found: <red>".implode('</red>, <red>', $packages)."</red>");
-                }
-            $this->output->writeln("Nothing to update");
+            }
             exit;
         }
 
