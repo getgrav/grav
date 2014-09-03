@@ -3,10 +3,10 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
-use Grav\Component\Blueprints\Blueprints;
 use Grav\Component\Filesystem\Folder;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use RocketTheme\Toolbox\Blueprints\Blueprints;
 
 /**
  * The Config class contains configuration information.

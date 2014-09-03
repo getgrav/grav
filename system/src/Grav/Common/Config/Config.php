@@ -5,9 +5,9 @@ use Grav\Common\File\CompiledYaml;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Common\Uri;
-use Grav\Component\Blueprints\Blueprints;
 use Grav\Component\Data\Data;
 use Grav\Component\Filesystem\Folder;
+use RocketTheme\Toolbox\Blueprints\Blueprints;
 use RocketTheme\Toolbox\File\PhpFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -187,7 +187,7 @@ class Config extends Data
             $file->lock(false);
 
             // Load blueprints.
-            $this->blueprints = new Blueprints();
+            $this->blueprints = new Blueprints;
             foreach ($blueprintFiles as $key => $files) {
                 $this->loadBlueprints($key);
             }
