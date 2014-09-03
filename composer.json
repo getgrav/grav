@@ -21,8 +21,8 @@
         "pimple/pimple": "~3.0"
     },
     "autoload": {
-        "psr-0": {
-            "Grav\\": "system/src/"
+        "psr-4": {
+            "Grav\\": "system/src/Grav"
         },
         "files": ["system/defines.php"]
     },
