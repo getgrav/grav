@@ -116,11 +116,11 @@ class IndexCommand extends Command {
 
 
         if ($compare < 0){
-            return " [v<red>$localVersion</red> <cyan>-></cyan> v<green>$remoteVersion</green>]";
+            return " [v<red>$localVersion</red> <cyan>➜</cyan> v<green>$remoteVersion</green>]";
         }
 
         if ($compare > 0){
-            return " [Great Scott! -> local: v<yellow>$localVersion</yellow> | remote: v<yellow>$remoteVersion</yellow>]";
+            return " [Great Scott! ➜ local: v<yellow>$localVersion</yellow> | remote: v<yellow>$remoteVersion</yellow>]";
         }
         var_dump($localVersion, $remoteVersion, version_compare($localVersion, $remoteVersion));
     }
