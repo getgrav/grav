@@ -52,8 +52,8 @@ class InstallCommand extends Command {
             InputArgument::IS_ARRAY | InputArgument::REQUIRED,
             'The package of which more informations are desired. Use the "index" command for a list of packages'
         )
-        ->setDescription("Lists the plugins and themes available for installation")
-        ->setHelp('The <info>index</info> command lists the plugins and themes available for installation');
+        ->setDescription("Performs the installation of plugins and themes")
+        ->setHelp('The <info>install</info> command allows to install plugins and themes');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
