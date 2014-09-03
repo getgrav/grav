@@ -225,7 +225,6 @@ class Config extends Data
 
         $configFiles = $this->getConfigFiles($configs, $plugins);
         $checksum .= ':'.md5(serialize($configFiles));
-        echo $cache['checksum'].' '.$checksum;
         $class = get_class($this);
 
         // Load real file if cache isn't up to date (or is invalid).
