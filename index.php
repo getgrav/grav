@@ -22,7 +22,7 @@ if (!ini_get('date.timezone')) {
 $grav = Grav::instance(
     [
         'loader' => $loader,
-        'debugger' => new Debugger(Debugger::DEVELOPMENT)
+        'debugger' => new Debugger(Debugger::PRODUCTION)
     ]
 );
 
