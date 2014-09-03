@@ -1,8 +1,8 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Config\ConfigServiceProvider;
 use Grav\Common\Page\Pages;
+use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\EventDispatcher;

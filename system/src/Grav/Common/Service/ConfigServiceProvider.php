@@ -1,6 +1,7 @@
 <?php
-namespace Grav\Common\Config;
+namespace Grav\Common\Service;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Component\Blueprints\Blueprints;
 use Grav\Component\Filesystem\Folder;

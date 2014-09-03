@@ -29,19 +29,14 @@ trait CompiledFile
             $modified = $this->modified();
             $class = get_class($this);
 
-            if ($file->exists()) {
-                $cache = $file->exists() ? $file->content() : null;
-            } else {
-                $cache = null;
-            }
-
+            $cache = $file->exists() ? $file->content() : null;
 
             // Load real file if cache isn't up to date (or is invalid).
             if (
-                !is_array($cache)
+                !isset($cache['@class'])
+                || $cache['@class'] != $class
                 || $cache['modified'] != $modified
                 || $cache['filename'] != $this->filename
-                || $cache['@class'] != $class
             ) {
                 // Attempt to lock the file for writing.
                 $file->lock(false);
