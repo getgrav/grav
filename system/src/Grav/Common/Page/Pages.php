@@ -349,8 +349,22 @@ class Pages
             $cache = $this->grav['cache'];
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
-            $last_modified = $config->get('system.cache.check.pages', true)
-                ? Folder::lastModified(PAGES_DIR) : 0;
+
+            $last_modified = 0;
+
+            // how should we check for last modified? Default is by file
+            switch (strtolower($config->get('system.cache.check.method', 'file'))) {
+                case 'none':
+                case 'off':
+                    $last_modified = 0;
+                    break;
+                case 'folder':
+                    $last_modified = Folder::lastModifiedFolder(PAGES_DIR);
+                    break;
+                default:
+                    $last_modified = Folder::lastModifiedFile(PAGES_DIR);
+            }
+
             $page_cache_id = md5(USER_DIR.$last_modified);
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
@@ -405,9 +419,16 @@ class Pages
             throw new \RuntimeException('Fatal error when creating page instances.');
         }
 
+        $last_modified = 0;
+
         /** @var \DirectoryIterator $file */
         foreach ($iterator as $file) {
             $name = $file->getFilename();
+
+            $date = $file->getMTime();
+            if ($date > $last_modified) {
+                $last_modified = $date;
+            }
 
             if ($file->isFile() && Utils::endsWith($name, CONTENT_EXT)) {
 
@@ -444,7 +465,13 @@ class Pages
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
             }
+
         }
+
+        // Override the modified and ID so that it takes the latest change
+        // into account
+        $page->modified($last_modified);
+        $page->id($last_modified.md5($page->filePath()));
 
         // Sort based on Defaults or Page Overridden sort order
         $this->children[$page->path()] = $this->sort($page);
@@ -532,8 +559,14 @@ class Pages
             }
         }
 
-        // Sort by the new list.
-        asort($list);
+        // handle special case when order_by is random
+        if ($order_by == 'random') {
+            $list = $this->array_shuffle($list);
+        } else {
+            // else just sort the list according to specified key
+            asort($list);
+        }
+
 
         // Move manually ordered items into the beginning of the list. Order of the unlisted items does not change.
         if (is_array($manual) && !empty($manual)) {
@@ -560,5 +593,18 @@ class Pages
             // TODO: order by manual needs a hash from the passed variables if we make this more general.
             $this->sort[$path][$order_by][$key] = $info;
         }
+    }
+
+    // Shuffles and associative array
+    protected function array_shuffle($list) {
+        $keys = array_keys($list);
+        shuffle($keys);
+
+        $new = array();
+        foreach($keys as $key) {
+            $new[$key] = $list[$key];
+        }
+
+        return $new;
     }
 }

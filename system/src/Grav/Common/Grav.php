@@ -99,8 +99,8 @@ class Grav extends Container
         $container['output'] = function ($c) {
             return $c['twig']->processSite($c['uri']->extension());
         };
-        $container['user_agent'] = function ($c) {
-            return new \phpUserAgent();
+        $container['browser'] = function ($c) {
+            return new Browser();
         };
 
         $container->register(new StreamsServiceProvider);

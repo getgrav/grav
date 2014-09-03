@@ -3,18 +3,15 @@ home:
 
 pages:
   theme: antimatter
-  markdown_extra: true
+  markdown_extra: false
   process:
     markdown: true
     twig: false
-  events:
-    page: false
-    twig: true
 
 cache:
   enabled: true
   check:
-    pages: true
+    method: file
   driver: auto
   prefix: 'g'
 
@@ -25,7 +22,7 @@ twig:
   autoescape: false
 
 assets:
-  css_pipeline: false
+  css_pipeline: true
   css_minify: true
   css_rewrite: true
   js_pipeline: false

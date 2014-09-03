@@ -62,8 +62,10 @@ class Plugins extends Iterator
             }
         }
 
-        $instance = $this->grav['themes']->load();
-        $instance->configure();
+        /** @var Themes $themes */
+        $themes = $this->grav['themes'];
+        $themes->configure();
+        $instance = $themes->load();
         if ($instance instanceof EventSubscriberInterface) {
             $events->addSubscriber($instance);
         }
@@ -86,7 +88,7 @@ class Plugins extends Iterator
     static public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator('plugin://');
+        $iterator = new \DirectoryIterator('plugin:///');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {

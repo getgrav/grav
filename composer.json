@@ -8,7 +8,7 @@
     "require": {
         "php": ">=5.4.0",
         "twig/twig": "~1.16",
-        "erusev/parsedown-extra": "~0.2",
+        "erusev/parsedown-extra": "dev-master",
         "symfony/yaml": "~2.5",
         "symfony/console": "~2.5",
         "symfony/event-dispatcher": "~2.5",
@@ -16,8 +16,8 @@
         "tracy/tracy": "~2.2",
         "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
-        "mrclay/minify": "~2.2",
-        "ornicar/php-user-agent": "1.0.*",
+        "mrclay/minify": "dev-master",
+        "donatj/phpuseragentparser": "dev-master",
         "pimple/pimple": "~3.0",
         "rockettheme/toolbox": "dev-develop"
     },
@@ -25,11 +25,15 @@
         {
             "type": "vcs",
             "url": "https://github.com/rockettheme/toolbox"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/rhukster/minify"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Grav\\": "system/src/"
+            "Grav\\": "system/src/Grav"
         },
         "files": ["system/defines.php"]
     },

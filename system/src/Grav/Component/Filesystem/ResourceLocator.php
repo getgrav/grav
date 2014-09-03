@@ -87,11 +87,12 @@ class ResourceLocator
             $scheme = 'file';
         }
 
-        if (!$file || $uri[0] == ':') {
-            throw new \InvalidArgumentException('Invalid resource URI');
-        }
         if (!isset($this->schemes[$scheme])) {
             throw new \InvalidArgumentException("Invalid resource {$scheme}://");
+        }
+
+        if (!$file && $scheme == 'file') {
+            $file = getcwd();
         }
 
         return [$file, $scheme];

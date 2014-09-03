@@ -9,6 +9,8 @@ use Grav\Common\Twig;
 use Grav\Common\Uri;
 use Grav\Common\Grav;
 use Grav\Common\Taxonomy;
+use Grav\Common\Markdown\Markdown;
+use Grav\Common\Markdown\MarkdownExtra;
 use Grav\Component\Data\Blueprint;
 use Grav\Component\Filesystem\File;
 use Grav\Component\Filesystem\Folder;
@@ -68,6 +70,7 @@ class Page
     protected $modular_twig;
     protected $process;
     protected $summary_size;
+    protected $markdown_extra;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -103,7 +106,7 @@ class Page
     public function init($file)
     {
         $this->filePath($file->getPathName());
-        $this->modified(filemtime($file->getPath()));
+        $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
         $this->header();
         $this->slug();
@@ -199,6 +202,9 @@ class Page
             if (isset($this->header->date)) {
                 $this->date = strtotime($this->header->date);
             }
+            if (isset($this->header->markdown_extra)) {
+                $this->markdown_extra = (bool)$this->header->markdown_extra;
+            }
             if (isset($this->header->taxonomy)) {
                 foreach ($this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
@@ -212,7 +218,9 @@ class Page
                     $this->process[$process] = $status;
                 }
             }
+
         }
+
         return $this->header;
     }
 
@@ -272,6 +280,9 @@ class Page
         // If no content, process it
         if ($this->content === null) {
 
+            // Get media
+            $this->media();
+
             // Load cached content
             /** @var Cache $cache */
             $cache = self::$grav['cache'];
@@ -319,7 +330,6 @@ class Page
 
             $this->content = $content;
 
-            $this->media();
         }
 
         return $this->content;
@@ -1315,7 +1325,7 @@ class Page
                     }
                 }
 
-                $config->set('system.cache.enabled', false);
+                $config->set('system.cache.enabled', false); // TODO: Do we still need this?
             }
         }
         // TODO: END OF MOVE
@@ -1513,10 +1523,12 @@ class Page
     {
         /** @var Config $config */
         $config = self::$grav['config'];
-        if ($config->get('system.pages.markdown_extra')) {
-            $parsedown = new \ParsedownExtra();
+
+        // get the appropriate setting for markdown extra
+        if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
+            $parsedown = new MarkdownExtra($this);
         } else {
-            $parsedown = new \Parsedown();
+            $parsedown = new Markdown($this);
         }
         $content = $parsedown->parse($content);
         return $content;
