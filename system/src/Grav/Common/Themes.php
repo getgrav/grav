@@ -1,10 +1,9 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\File\CompiledYaml;
 use Grav\Component\Data\Blueprints;
 use Grav\Component\Data\Data;
-use Grav\Component\Filesystem\File;
-use Grav\Common\Filesystem\File\Yaml;
 use Grav\Component\Filesystem\ResourceLocator;
 
 /**
@@ -77,11 +76,11 @@ class Themes
         }
 
         // Load default configuration.
-        $file = Yaml::instance("theme:///{$name}/{$name}.yaml");
+        $file = CompiledYaml::instance("theme:///{$name}/{$name}.yaml");
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = Yaml::instance("user://config/themes/{$name}.yaml");
+        $file = CompiledYaml::instance("user://config/themes/{$name}.yaml");
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
@@ -140,9 +139,7 @@ class Themes
         /** @var Config $config */
         $config = $this->grav['config'];
 
-        $themeConfig = Yaml::instance(THEMES_DIR . "{$name}/{$name}.yaml")->content();
-
-        $config->merge(['themes' => [$name => $themeConfig]]);
+        $this->loadConfiguration($name, $config);
 
         /** @var ResourceLocator $locator */
         $locator = $this->grav['locator'];
@@ -151,7 +148,7 @@ class Themes
         $registered = stream_get_wrappers();
         $schemes = $config->get(
             "themes.{$name}.streams.schemes",
-            ['theme' => ['paths' => ["user/themes/{$name}"]]]
+            ['theme' => ['paths' => $locator->findResources("theme:///{$name}")]]
         );
 
         foreach ($schemes as $scheme => $config) {
@@ -177,5 +174,12 @@ class Themes
             }
 
         }
+    }
+
+    protected function loadConfiguration($name, Config $config)
+    {
+        $themeConfig = CompiledYaml::instance(THEMES_DIR . "{$name}/{$name}.yaml")->content();
+
+        $config->merge(['themes' => [$name => $themeConfig]]);
     }
 }
