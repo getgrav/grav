@@ -176,90 +176,6 @@
         ]
     },
     {
-        "name": "mrclay/minify",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/mrclay/minify.git",
-            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/mrclay/minify/zipball/d245bca4987dec197d1e6d7dc117614b60ff7494",
-            "reference": "d245bca4987dec197d1e6d7dc117614b60ff7494",
-            "shasum": ""
-        },
-        "require": {
-            "ext-pcre": "*",
-            "php": ">=5.2.1"
-        },
-        "time": "2014-03-12 12:54:23",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "min/lib/"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Steve Clay",
-                "email": "steve@mrclay.org",
-                "homepage": "http://www.mrclay.org/",
-                "role": "Developer"
-            }
-        ],
-        "description": "Minify is a PHP5 app that helps you follow several rules for client-side performance. It combines multiple CSS or Javascript files, removes unnecessary whitespace and comments, and serves them with gzip encoding and optimal client-side cache headers",
-        "homepage": "http://code.google.com/p/minify/"
-    },
-    {
-        "name": "ornicar/php-user-agent",
-        "version": "1.0.0",
-        "version_normalized": "1.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ornicar/php-user-agent.git",
-            "reference": "9c6ae1274642695bffe57cd80228e5158ccbcf21"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ornicar/php-user-agent/zipball/9c6ae1274642695bffe57cd80228e5158ccbcf21",
-            "reference": "9c6ae1274642695bffe57cd80228e5158ccbcf21",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "time": "2013-07-09 13:01:41",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "lib/phpUserAgent.php",
-                "lib/phpUserAgentStringParser.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Thibault Duplessis",
-                "email": "thibault.duplessis@gmail.com",
-                "homepage": "http://ornicar.github.com"
-            }
-        ],
-        "keywords": [
-            "user-agent"
-        ]
-    },
-    {
         "name": "pimple/pimple",
         "version": "v3.0.0",
         "version_normalized": "3.0.0.0",
@@ -604,52 +520,6 @@
         ]
     },
     {
-        "name": "erusev/parsedown-extra",
-        "version": "0.2.1",
-        "version_normalized": "0.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/erusev/parsedown-extra.git",
-            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/424e63fef5299f2a5a0464cd22a666b7a7b48657",
-            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657",
-            "shasum": ""
-        },
-        "require": {
-            "erusev/parsedown": "~1.0"
-        },
-        "time": "2014-08-25 10:49:57",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "ParsedownExtra": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Emanuil Rusev",
-                "email": "hello@erusev.com",
-                "homepage": "http://erusev.com"
-            }
-        ],
-        "description": "An extension of Parsedown that adds support for Markdown Extra.",
-        "homepage": "https://github.com/erusev/parsedown-extra",
-        "keywords": [
-            "markdown",
-            "markdown extra",
-            "parsedown",
-            "parser"
-        ]
-    },
-    {
         "name": "tracy/tracy",
         "version": "v2.2.3",
         "version_normalized": "2.2.3.0",
@@ -706,18 +576,159 @@
         ]
     },
     {
+        "name": "erusev/parsedown-extra",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/erusev/parsedown-extra.git",
+            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/424e63fef5299f2a5a0464cd22a666b7a7b48657",
+            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657",
+            "shasum": ""
+        },
+        "require": {
+            "erusev/parsedown": "~1.0"
+        },
+        "time": "2014-08-25 10:49:57",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "ParsedownExtra": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Emanuil Rusev",
+                "email": "hello@erusev.com",
+                "homepage": "http://erusev.com"
+            }
+        ],
+        "description": "An extension of Parsedown that adds support for Markdown Extra.",
+        "homepage": "https://github.com/erusev/parsedown-extra",
+        "keywords": [
+            "markdown",
+            "markdown extra",
+            "parsedown",
+            "parser"
+        ]
+    },
+    {
+        "name": "mrclay/minify",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/rhukster/minify.git",
+            "reference": "fdf68abf30ccd86a65f66fa6eb98434eb29bef74"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/rhukster/minify/zipball/fdf68abf30ccd86a65f66fa6eb98434eb29bef74",
+            "reference": "fdf68abf30ccd86a65f66fa6eb98434eb29bef74",
+            "shasum": ""
+        },
+        "require": {
+            "ext-pcre": "*",
+            "php": ">=5.2.1"
+        },
+        "time": "2014-08-29 23:07:55",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "classmap": [
+                "min/lib/"
+            ]
+        },
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Stephen Clay",
+                "email": "steve@mrclay.org",
+                "role": "Developer"
+            }
+        ],
+        "description": "Minify is a PHP5 app that helps you follow several rules for client-side performance. It combines multiple CSS or Javascript files, removes unnecessary whitespace and comments, and serves them with gzip encoding and optimal client-side cache headers",
+        "homepage": "http://code.google.com/p/minify/",
+        "support": {
+            "email": "minify@googlegroups.com",
+            "issues": "http://code.google.com/p/minify/issues/list",
+            "wiki": "http://code.google.com/p/minify/w/list",
+            "source": "https://github.com/rhukster/minify/tree/master"
+        }
+    },
+    {
+        "name": "donatj/phpuseragentparser",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/donatj/PhpUserAgent.git",
+            "reference": "abbd69a119f067e4afc3c4baf28d04646114a668"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/abbd69a119f067e4afc3c4baf28d04646114a668",
+            "reference": "abbd69a119f067e4afc3c4baf28d04646114a668",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "camspiers/json-pretty": "0.1.*"
+        },
+        "time": "2014-08-06 03:39:39",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "files": [
+                "Source/UserAgentParser.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jesse G. Donat",
+                "email": "donatj@gmail.com",
+                "homepage": "http://donatstudios.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Simple, streamlined PHP user-agent parser",
+        "homepage": "http://donatstudios.com/PHP-Parser-HTTP_USER_AGENT",
+        "keywords": [
+            "parser",
+            "user agent",
+            "useragent"
+        ]
+    },
+    {
         "name": "rockettheme/toolbox",
         "version": "dev-develop",
         "version_normalized": "dev-develop",
         "source": {
             "type": "git",
             "url": "https://github.com/rockettheme/toolbox.git",
-            "reference": "5f26caed7527e1b30ac9f8200af79017c109a79c"
+            "reference": "f2590d14a1bf5fdab422676df35c42677708d3cc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/5f26caed7527e1b30ac9f8200af79017c109a79c",
-            "reference": "5f26caed7527e1b30ac9f8200af79017c109a79c",
+            "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/f2590d14a1bf5fdab422676df35c42677708d3cc",
+            "reference": "f2590d14a1bf5fdab422676df35c42677708d3cc",
             "shasum": ""
         },
         "require": {
@@ -730,7 +741,7 @@
         "require-dev": {
             "phpunit/phpunit": "4.0.*"
         },
-        "time": "2014-08-28 14:25:14",
+        "time": "2014-09-01 12:01:11",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -739,7 +750,7 @@
                 "RocketTheme\\Toolbox\\DI\\": "DI/src",
                 "RocketTheme\\Toolbox\\Event\\": "Event/src",
                 "RocketTheme\\Toolbox\\File\\": "File/src",
-                "RocketTheme\\Toolbox\\ResourceLocation\\": "ResourceLocation/src",
+                "RocketTheme\\Toolbox\\ResourceLocator\\": "ResourceLocator/src",
                 "RocketTheme\\Toolbox\\Session\\": "Session/src",
                 "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
             }

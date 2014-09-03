@@ -15,6 +15,5 @@ return array(
     'Parsedown' => array($vendorDir . '/erusev/parsedown'),
     'Gregwar\\Image' => array($vendorDir . '/gregwar/image'),
     'Gregwar\\Cache' => array($vendorDir . '/gregwar/cache'),
-    'Grav\\' => array($baseDir . '/system/src'),
     'Doctrine\\Common\\Cache\\' => array($vendorDir . '/doctrine/cache/lib'),
 );

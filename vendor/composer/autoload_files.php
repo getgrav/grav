@@ -7,8 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     $vendorDir . '/ircmaxell/password-compat/lib/password.php',
-    $vendorDir . '/ornicar/php-user-agent/lib/phpUserAgent.php',
-    $vendorDir . '/ornicar/php-user-agent/lib/phpUserAgentStringParser.php',
     $vendorDir . '/tracy/tracy/src/shortcuts.php',
+    $vendorDir . '/donatj/phpuseragentparser/Source/UserAgentParser.php',
     $baseDir . '/system/defines.php',
 );
