@@ -1,6 +1,9 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Config\Blueprints;
+use Grav\Common\Config\Config;
+use Grav\Common\Config\ConfigServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
 use Grav\Component\DI\Container;
 use Grav\Component\EventDispatcher\Event;
@@ -50,8 +53,6 @@ class Grav extends Container
     {
         $container = new static($values);
 
-        $container['config_path'] = CACHE_DIR . 'config.php';
-
         $container['grav'] = $container;
 
         $container['events'] = function ($c) {
@@ -59,9 +60,6 @@ class Grav extends Container
         };
         $container['uri'] = function ($c) {
             return new Uri($c);
-        };
-        $container['config'] = function ($c) {
-            return Config::instance($c);
         };
         $container['cache'] = function ($c) {
             return new Cache($c);
@@ -106,6 +104,7 @@ class Grav extends Container
         };
 
         $container->register(new StreamsServiceProvider);
+        $container->register(new ConfigServiceProvider);
 
         return $container;
     }
@@ -115,8 +114,8 @@ class Grav extends Container
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
 
-        // Initialize stream wrappers.
-        $this['locator'];
+        // Initialize configuration.
+        $this['config']->init();
 
         $this['plugins']->init();
 

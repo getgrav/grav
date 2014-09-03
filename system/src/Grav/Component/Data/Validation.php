@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Data;
+namespace Grav\Component\Data;
 
 /**
  * Data validation.

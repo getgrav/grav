@@ -12,7 +12,7 @@ use Symfony\Component\Yaml\Yaml;
 trait Export
 {
     /**
-     * Convert blueprints into an array.
+     * Convert object into an array.
      *
      * @return array
      */
@@ -22,22 +22,22 @@ trait Export
     }
 
     /**
-     * Convert blueprints into YAML string.
+     * Convert object into YAML string.
      *
      * @return string
      */
     public function toYaml()
     {
-        return Yaml::dump($this->items);
+        return Yaml::dump($this->toArray());
     }
 
     /**
-     * Convert blueprints into JSON string.
+     * Convert object into JSON string.
      *
      * @return string
      */
     public function toJson()
     {
-        return json_encode($this->items);
+        return json_encode($this->toArray());
     }
 }

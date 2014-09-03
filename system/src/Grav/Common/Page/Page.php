@@ -6,12 +6,12 @@ use Grav\Common\GravTrait;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Twig;
-use Grav\Common\Filesystem\File;
-use Grav\Common\Filesystem\Folder;
-use Grav\Common\Data;
 use Grav\Common\Uri;
 use Grav\Common\Grav;
 use Grav\Common\Taxonomy;
+use Grav\Component\Data\Blueprint;
+use Grav\Component\Filesystem\File;
+use Grav\Component\Filesystem\Folder;
 use Grav\Component\EventDispatcher\Event;
 use Symfony\Component\Yaml\Yaml;
 
@@ -463,7 +463,7 @@ class Page
     /**
      * Get blueprints for the page.
      *
-     * @return Data\Blueprint
+     * @return Blueprint
      */
     public function blueprints()
     {

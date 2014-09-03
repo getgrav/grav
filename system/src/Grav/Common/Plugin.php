@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Config\Config;
 use Grav\Component\EventDispatcher\EventDispatcher;
 use Grav\Component\EventDispatcher\EventSubscriberInterface;
 

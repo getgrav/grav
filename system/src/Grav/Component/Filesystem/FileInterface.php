@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Filesystem;
+namespace Grav\Component\Filesystem;
 
 /**
  * File interface.

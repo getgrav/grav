@@ -1,13 +1,14 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Config;
-use Grav\Common\Data;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Taxonomy;
+use Grav\Component\Data\Blueprint;
+use Grav\Component\Data\Blueprints;
+use Grav\Component\Filesystem\Folder;
 use Grav\Component\EventDispatcher\Event;
 
 /**
@@ -44,7 +45,7 @@ class Pages
     protected $sort;
 
     /**
-     * @var Data\Blueprints
+     * @var Blueprints
      */
     protected $blueprints;
 
@@ -252,12 +253,12 @@ class Pages
      * Get a blueprint for a page type.
      *
      * @param  string  $type
-     * @return Data\Blueprint
+     * @return Blueprint
      */
     public function blueprints($type)
     {
         if (!isset($this->blueprints)) {
-            $this->blueprints = new Data\Blueprints('theme://blueprints/');
+            $this->blueprints = new Blueprints('theme://blueprints/');
         }
 
         try {
@@ -311,7 +312,7 @@ class Pages
      */
     static public function types()
     {
-        $blueprints = new Data\Blueprints('theme://blueprints/');
+        $blueprints = new Blueprints('theme://blueprints/');
 
         return $blueprints->types();
     }

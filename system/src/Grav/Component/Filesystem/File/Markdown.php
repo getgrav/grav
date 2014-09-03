@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Filesystem\File;
+namespace Grav\Component\Filesystem\File;
 
 use \Symfony\Component\Yaml\Yaml as YamlParser;
 

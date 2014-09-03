@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\User;
 
-use Grav\Common\Data\Data;
+use Grav\Component\Data\Data;
 
 /**
  * User object

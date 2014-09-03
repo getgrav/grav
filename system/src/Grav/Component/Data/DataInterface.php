@@ -1,8 +1,8 @@
 <?php
-namespace Grav\Common\Data;
+namespace Grav\Component\Data;
 
-use Grav\Common\Filesystem\FileInterface;
-use \Grav\Common\Filesystem\File;
+use Grav\Component\Filesystem\FileInterface;
+use Grav\Component\Filesystem\File;
 
 /**
  * Data interface

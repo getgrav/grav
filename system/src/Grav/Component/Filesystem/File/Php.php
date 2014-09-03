@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Filesystem\File;
+namespace Grav\Component\Filesystem\File;
 
 /**
  * File handling class.
@@ -7,7 +7,7 @@ namespace Grav\Common\Filesystem\File;
  * @author RocketTheme
  * @license MIT
  */
-class Config extends General
+class Php extends General
 {
     /**
      * @var string
@@ -20,7 +20,7 @@ class Config extends General
     static protected $instances = array();
 
     /**
-     * Saves configuration file and invalidates opcache.
+     * Saves PHP file and invalidates opcache.
      *
      * @param  mixed  $data  Optional data to be saved, usually array.
      * @throws \RuntimeException
@@ -42,14 +42,14 @@ class Config extends General
     /**
      * Check contents and make sure it is in correct format.
      *
-     * @param \Grav\Common\Config $var
-     * @return \Grav\Common\Config
+     * @param array $var
+     * @return array
      * @throws \RuntimeException
      */
     protected function check($var)
     {
-        if (!($var instanceof \Grav\Common\Config)) {
-            throw new \RuntimeException('Provided data is not configuration');
+        if (!(is_array($var) || is_object($var))) {
+            throw new \RuntimeException('Provided data is not an array');
         }
 
         return $var;
@@ -58,34 +58,14 @@ class Config extends General
     /**
      * Encode configuration object into RAW string (PHP class).
      *
-     * @param \Grav\Common\Config $var
+     * @param array $var
      * @return string
      * @throws \RuntimeException
      */
     protected function encode($var)
     {
-        if (!($var instanceof \Grav\Common\Config)) {
-            throw new \RuntimeException('Provided data is not configuration');
-        }
-
         // Build the object variables string
-        $vars = array();
-        $options = $var->toArray();
-
-        foreach ($options as $k => $v) {
-            if (is_int($v)) {
-                $vars[] = "\tpublic $" . $k . " = " . $v . ";";
-            } elseif (is_bool($v)) {
-                $vars[] = "\tpublic $" . $k . " = " . ($v ? 'true' : 'false') . ";";
-            } elseif (is_scalar($v)) {
-                $vars[] = "\tpublic $" . $k . " = '" . addcslashes($v, '\\\'') . "';";
-            } elseif (is_array($v) || is_object($v)) {
-                $vars[] = "\tpublic $" . $k . " = " . $this->encodeArray((array) $v) . ";";
-            }
-        }
-        $vars = implode("\n", $vars);
-
-        return "<?php\nnamespace Grav;\n\nclass Config extends \\Grav\\Common\\Config {\n {$vars}\n}";
+        return "<?php\nreturn {$this->encodeArray((array) $var)};\n";
     }
 
     /**
@@ -96,12 +76,12 @@ class Config extends General
      *
      * @return array
      */
-    protected function encodeArray($a, $level = 1)
+    protected function encodeArray(array $a, $level = 0)
     {
-        $r = array();
+        $r = [];
         foreach ($a as $k => $v) {
             if (is_array($v) || is_object($v)) {
-                $r[] = '"' . $k . '" => ' . $this->encodeArray((array) $v, $level+1);
+                $r[] = "'" . $k . "' => " . $this->encodeArray((array) $v, $level + 1);
             } elseif (is_int($v)) {
                 $r[] = "'" . $k . "' => " . $v;
             } elseif (is_bool($v)) {
@@ -111,19 +91,19 @@ class Config extends General
             }
         }
 
-        $tabs = str_repeat("\t", $level);
-        return "array(\n\t{$tabs}" . implode(",\n\t{$tabs}", $r) . "\n{$tabs})";
+        $space = str_repeat("    ", $level);
+        return "[\n    {$space}" . implode(",\n    {$space}", $r) . "\n{$space}]";
     }
 
     /**
-     * Decode RAW string into contents.
+     * Decode PHP file into contents.
      *
      * @param string $var
-     * @return \Grav\Common\Config
+     * @return array
      */
     protected function decode($var)
     {
-        // TODO: improve this one later, works only for single file...
-        return class_exists('\Grav\Config') ? new \Grav\Config($this->filename) : new Config($this->filename);
+        $var = (array) include $this->filename;
+        return $var;
     }
 }

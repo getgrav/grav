@@ -100,52 +100,6 @@
         ]
     },
     {
-        "name": "erusev/parsedown-extra",
-        "version": "0.2.0",
-        "version_normalized": "0.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/erusev/parsedown-extra.git",
-            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
-            "reference": "7578fe28ce42e7a1fff4ba2aada3807c4c03d04b",
-            "shasum": ""
-        },
-        "require": {
-            "erusev/parsedown": "~1.0"
-        },
-        "time": "2014-08-16 11:20:35",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "ParsedownExtra": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Emanuil Rusev",
-                "email": "hello@erusev.com",
-                "homepage": "http://erusev.com"
-            }
-        ],
-        "description": "An extension of Parsedown that adds support for Markdown Extra.",
-        "homepage": "https://github.com/erusev/parsedown-extra",
-        "keywords": [
-            "markdown",
-            "markdown extra",
-            "parsedown",
-            "parser"
-        ]
-    },
-    {
         "name": "doctrine/cache",
         "version": "v1.3.0",
         "version_normalized": "1.3.0.0",
@@ -519,62 +473,6 @@
         "homepage": "http://symfony.com"
     },
     {
-        "name": "tracy/tracy",
-        "version": "v2.2.2",
-        "version_normalized": "2.2.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/nette/tracy.git",
-            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/nette/tracy/zipball/f5a2647c9d0174d218d626eab3952ea3a523c6e7",
-            "reference": "f5a2647c9d0174d218d626eab3952ea3a523c6e7",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.1"
-        },
-        "require-dev": {
-            "nette/tester": "~1.0"
-        },
-        "time": "2014-06-24 01:18:03",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "src/Tracy"
-            ],
-            "files": [
-                "src/shortcuts.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause",
-            "GPL-2.0",
-            "GPL-3.0"
-        ],
-        "authors": [
-            {
-                "name": "David Grudl",
-                "homepage": "http://davidgrudl.com"
-            },
-            {
-                "name": "Nette Community",
-                "homepage": "http://nette.org/contributors"
-            }
-        ],
-        "description": "Tracy: useful PHP debugger",
-        "homepage": "http://tracy.nette.org",
-        "keywords": [
-            "debug",
-            "debugger",
-            "nette"
-        ]
-    },
-    {
         "name": "gregwar/cache",
         "version": "v1.0.7",
         "version_normalized": "1.0.7.0",
@@ -704,5 +602,160 @@
             "hashing",
             "password"
         ]
+    },
+    {
+        "name": "erusev/parsedown-extra",
+        "version": "0.2.1",
+        "version_normalized": "0.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/erusev/parsedown-extra.git",
+            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/424e63fef5299f2a5a0464cd22a666b7a7b48657",
+            "reference": "424e63fef5299f2a5a0464cd22a666b7a7b48657",
+            "shasum": ""
+        },
+        "require": {
+            "erusev/parsedown": "~1.0"
+        },
+        "time": "2014-08-25 10:49:57",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "ParsedownExtra": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Emanuil Rusev",
+                "email": "hello@erusev.com",
+                "homepage": "http://erusev.com"
+            }
+        ],
+        "description": "An extension of Parsedown that adds support for Markdown Extra.",
+        "homepage": "https://github.com/erusev/parsedown-extra",
+        "keywords": [
+            "markdown",
+            "markdown extra",
+            "parsedown",
+            "parser"
+        ]
+    },
+    {
+        "name": "tracy/tracy",
+        "version": "v2.2.3",
+        "version_normalized": "2.2.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nette/tracy.git",
+            "reference": "97889d2b8cfb7607cc370ca0ddb97c6f5b43deb9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nette/tracy/zipball/97889d2b8cfb7607cc370ca0ddb97c6f5b43deb9",
+            "reference": "97889d2b8cfb7607cc370ca0ddb97c6f5b43deb9",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.1"
+        },
+        "require-dev": {
+            "nette/tester": "~1.0"
+        },
+        "time": "2014-08-24 23:36:30",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/Tracy"
+            ],
+            "files": [
+                "src/shortcuts.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "GPL-2.0",
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "David Grudl",
+                "homepage": "http://davidgrudl.com"
+            },
+            {
+                "name": "Nette Community",
+                "homepage": "http://nette.org/contributors"
+            }
+        ],
+        "description": "Tracy: useful PHP debugger",
+        "homepage": "http://tracy.nette.org",
+        "keywords": [
+            "debug",
+            "debugger",
+            "nette"
+        ]
+    },
+    {
+        "name": "rockettheme/toolbox",
+        "version": "dev-develop",
+        "version_normalized": "dev-develop",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/rockettheme/toolbox.git",
+            "reference": "5f26caed7527e1b30ac9f8200af79017c109a79c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/5f26caed7527e1b30ac9f8200af79017c109a79c",
+            "reference": "5f26caed7527e1b30ac9f8200af79017c109a79c",
+            "shasum": ""
+        },
+        "require": {
+            "ircmaxell/password-compat": "1.0.*",
+            "php": ">=5.4.0",
+            "pimple/pimple": "~3.0",
+            "symfony/event-dispatcher": "~2.5",
+            "symfony/yaml": "~2.5"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "4.0.*"
+        },
+        "time": "2014-08-28 14:25:14",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "RocketTheme\\Toolbox\\ArrayTraits\\": "ArrayTraits/src",
+                "RocketTheme\\Toolbox\\DI\\": "DI/src",
+                "RocketTheme\\Toolbox\\Event\\": "Event/src",
+                "RocketTheme\\Toolbox\\File\\": "File/src",
+                "RocketTheme\\Toolbox\\ResourceLocation\\": "ResourceLocation/src",
+                "RocketTheme\\Toolbox\\Session\\": "Session/src",
+                "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
+            }
+        },
+        "license": [
+            "MIT"
+        ],
+        "description": "RocketTheme Toolbox Library",
+        "homepage": "http://www.rockettheme.com",
+        "keywords": [
+            "php",
+            "rockettheme"
+        ],
+        "support": {
+            "source": "https://github.com/rockettheme/toolbox/tree/develop",
+            "issues": "https://github.com/rockettheme/toolbox/issues"
+        }
     }
 ]

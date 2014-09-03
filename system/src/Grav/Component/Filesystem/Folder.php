@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Filesystem;
+namespace Grav\Component\Filesystem;
 
 /**
  * Folder helper class.
@@ -86,12 +86,12 @@ abstract class Folder
                         $filePath = call_user_func($filter, $file);
                     } else {
                         $filePath = preg_replace($filter, '', $filePath);
-                    }
                 }
+            }
             }
 
             if ($fileKey !== null) {
-                $results[$fileKey] = $filePath;
+            $results[$fileKey] = $filePath;
             } else {
                 $results[] = $filePath;
             }

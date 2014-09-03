@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Session;
+namespace Grav\Component\Session;
 
 /**
  * Session handling.
@@ -22,9 +22,11 @@ class Session implements \IteratorAggregate
     /**
      * @param int    $lifetime Defaults to 1800 seconds.
      * @param string $path     Cookie path.
+     * @throws \RuntimeException
      */
     public function __construct($lifetime, $path)
     {
+        // Session is a singleton.
         if (isset(self::$instance)) {
             throw new \RuntimeException("Session has already been initialized.", 500);
         }
@@ -73,7 +75,7 @@ class Session implements \IteratorAggregate
     public function start()
     {
         if (!session_start()) {
-            throw new \RuntimeException('Failed to start session');
+            throw new \RuntimeException('Failed to start session.', 500);
         }
 
         $this->started = true;

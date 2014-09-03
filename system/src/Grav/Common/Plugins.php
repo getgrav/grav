@@ -1,7 +1,9 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Filesystem\File;
+use Grav\Component\Data\Blueprints;
+use Grav\Component\Data\Data;
+use Grav\Component\Filesystem\File;
 use Grav\Component\EventDispatcher\EventDispatcher;
 use Grav\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -103,13 +105,13 @@ class Plugins extends Iterator
 
     static public function get($name)
     {
-        $blueprints = new Data\Blueprints("plugin://{$name}");
+        $blueprints = new Blueprints("plugin://{$name}");
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
         // Load default configuration.
         $file = File\Yaml::instance("plugin://{$name}/{$name}.yaml");
-        $obj = new Data\Data($file->content(), $blueprint);
+        $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
         $file = File\Yaml::instance("user://config/plugins/{$name}.yaml");

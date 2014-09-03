@@ -6,5 +6,11 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Grav\\' => array($baseDir . '/system/src'),
+    'RocketTheme\\Toolbox\\StreamWrapper\\' => array($vendorDir . '/rockettheme/toolbox/StreamWrapper/src'),
+    'RocketTheme\\Toolbox\\Session\\' => array($vendorDir . '/rockettheme/toolbox/Session/src'),
+    'RocketTheme\\Toolbox\\ResourceLocation\\' => array($vendorDir . '/rockettheme/toolbox/ResourceLocation/src'),
+    'RocketTheme\\Toolbox\\File\\' => array($vendorDir . '/rockettheme/toolbox/File/src'),
+    'RocketTheme\\Toolbox\\Event\\' => array($vendorDir . '/rockettheme/toolbox/Event/src'),
+    'RocketTheme\\Toolbox\\DI\\' => array($vendorDir . '/rockettheme/toolbox/DI/src'),
+    'RocketTheme\\Toolbox\\ArrayTraits\\' => array($vendorDir . '/rockettheme/toolbox/ArrayTraits/src'),
 );

@@ -1,7 +1,7 @@
 <?php
-namespace Grav\Common\Filesystem\File;
+namespace Grav\Component\Filesystem\File;
 
-use Grav\Common\Filesystem\FileInterface;
+use Grav\Component\Filesystem\FileInterface;
 
 /**
  * General file handling class.

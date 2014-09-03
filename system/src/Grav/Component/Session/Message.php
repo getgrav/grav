@@ -1,7 +1,5 @@
 <?php
-namespace Grav\Common\Session;
-
-use Grav\Common\Getters;
+namespace Grav\Component\Session;
 
 /**
  * Session wide messages.

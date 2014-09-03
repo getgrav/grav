@@ -14,6 +14,8 @@ class ResourceLocator
      */
     protected $schemes = [];
 
+    protected $cache = [];
+
     /**
      * @param string $scheme
      * @param string $prefix
@@ -34,6 +36,8 @@ class ResourceLocator
 
         // Sort in reverse order to get longer prefixes to be matched first.
         krsort($this->schemes[$scheme]);
+
+        $this->cache = [];
     }
 
     /**
@@ -66,14 +70,14 @@ class ResourceLocator
     }
 
     /**
-     * @param  string $uri
-     * @param  bool   $absolute
-     * @param  bool $array
+     * Parse resource.
      *
+     * @param $uri
+     * @return array
      * @throws \InvalidArgumentException
-     * @return array|string|bool
+     * @internal
      */
-    protected function find($uri, $array, $absolute)
+    protected function parseResource($uri)
     {
         $segments = explode('://', $uri, 2);
         $file = array_pop($segments);
@@ -90,6 +94,28 @@ class ResourceLocator
             throw new \InvalidArgumentException("Invalid resource {$scheme}://");
         }
 
+        return [$file, $scheme];
+    }
+
+    /**
+     * @param  string $uri
+     * @param  bool   $absolute
+     * @param  bool $array
+     *
+     * @throws \InvalidArgumentException
+     * @return array|string|bool
+     * @internal
+     */
+    protected function find($uri, $array, $absolute)
+    {
+        // Local caching: make sure that the function gets only called at once for each file.
+        $key = $uri .'@'. (int) $array . (int) $absolute;
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
+        }
+
+        list ($file, $scheme) = $this->parseResource($uri);
+
         $results = $array ? [] : false;
         foreach ($this->schemes[$scheme] as $prefix => $paths) {
             if ($prefix && strpos($file, $prefix) !== 0) {
@@ -98,17 +124,19 @@ class ResourceLocator
 
             foreach ($paths as $path) {
                 $filename = $path . '/' . ltrim(substr($file, strlen($prefix)), '\/');
-                $lookup = ROOT_DIR . '/' . $filename;
+                $lookup = GRAV_ROOT . '/' . $filename;
 
                 if (file_exists($lookup)) {
                     if (!$array) {
-                        return $absolute ? $lookup : $filename;
+                        $results = $absolute ? $lookup : $filename;
+                        break;
                     }
                     $results[] = $absolute ? $lookup : $filename;
                 }
             }
         }
 
+        $this->cache[$key] = $results;
         return $results;
     }
 }

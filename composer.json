@@ -18,8 +18,15 @@
         "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "~2.2",
         "ornicar/php-user-agent": "1.0.*",
-        "pimple/pimple": "~3.0"
+        "pimple/pimple": "~3.0",
+        "rockettheme/toolbox": "dev-develop"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/rockettheme/toolbox"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/"

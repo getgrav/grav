@@ -72,6 +72,7 @@ class Logger
 	 * @param  string
 	 * @param  string
 	 * @return void
+	 * @internal
 	 */
 	public static function defaultMailer($message, $email)
 	{

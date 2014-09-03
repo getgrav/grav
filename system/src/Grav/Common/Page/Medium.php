@@ -2,11 +2,11 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Config;
-use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\Data;
-use Grav\Common\Filesystem\File\Yaml;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
+use Grav\Component\Data\Blueprint;
+use Grav\Component\Data\Data;
+use Grav\Component\Filesystem\File\Yaml;
 use Gregwar\Image\Image as ImageFile;
 
 /**

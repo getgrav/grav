@@ -1,9 +1,11 @@
 <?php
-namespace Grav\Common\Data;
+namespace Grav\Component\Data;
 
-use Grav\Common\Filesystem\FileInterface;
-use \Grav\Common\Getters;
-use \Grav\Common\Filesystem\File;
+use Grav\Component\ArrayTraits\ArrayAccessWithGetters;
+use Grav\Component\ArrayTraits\Countable;
+use Grav\Component\ArrayTraits\Export;
+use Grav\Component\Filesystem\FileInterface;
+use Grav\Component\Filesystem\File;
 
 /**
  * Recursive data object
@@ -11,8 +13,10 @@ use \Grav\Common\Filesystem\File;
  * @author RocketTheme
  * @license MIT
  */
-class Data extends Getters implements DataInterface
+class Data implements DataInterface
 {
+    use ArrayAccessWithGetters, Countable, Export;
+
     protected $gettersVariable = 'items';
     protected $items;
 
@@ -121,11 +125,35 @@ class Data extends Getters implements DataInterface
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
      * @param string  $separator  Separator, defaults to '.'
-     * @return mixed  Value.
      */
     public function def($name, $default = null, $separator = '.')
     {
         $this->set($name, $this->get($name, $default, $separator), $separator);
+    }
+
+    /**
+     * Join two values together by using blueprints if available.
+     *
+     * @example $data->def('this.is.my.nested.variable', 'default');
+     *
+     * @param string  $name       Dot separated path to the requested value.
+     * @param mixed   $value      Value to be joined.
+     * @param string  $separator  Separator, defaults to '.'
+     */
+    public function join($name, $value, $separator = '.')
+    {
+        $old = $this->get($name, null, $separator);
+        if ($old === null) {
+            // Variable does not exist yet: just use the incoming value.
+        } elseif ($this->blueprints) {
+            // Blueprints: join values by using blueprints.
+            $value = $this->blueprints->mergeData($old, $value, $name, $separator);
+        } else {
+            // No blueprints: replace existing top level variables with the new ones.
+            $value =array_merge($old, $value);
+        }
+
+        $this->set($name, $value, $separator);
     }
 
     /**

@@ -1,13 +1,15 @@
 <?php
-namespace Grav\Common\Filesystem\File;
+namespace Grav\Component\Filesystem\File;
+
+use \Symfony\Component\Yaml\Yaml as YamlParser;
 
 /**
- * File handling class for Log files.
+ * File handling class for YAML.
  *
  * @author RocketTheme
  * @license MIT
  */
-class Log extends General
+class Yaml extends General
 {
     /**
      * @var array|General[]
@@ -21,7 +23,7 @@ class Log extends General
     {
         parent::__construct();
 
-        $this->extension = '.log';
+        $this->extension = '.yaml';
     }
 
     /**
@@ -36,14 +38,14 @@ class Log extends General
     }
 
     /**
-     * Encode contents into RAW string (unsupported).
+     * Encode contents into RAW string.
      *
      * @param string $var
-     * @throws \Exception
+     * @return string
      */
     protected function encode($var)
     {
-        throw new \Exception('Saving log file is forbidden.');
+        return (string) YamlParser::dump($var);
     }
 
     /**
@@ -54,16 +56,6 @@ class Log extends General
      */
     protected function decode($var)
     {
-        $lines = (array) preg_split('#(\r\n|\n|\r)#', $var);
-
-        $results = array();
-        foreach ($lines as $line) {
-            preg_match('#^\[(.*)\] (.*)  @  (.*)  @@  (.*)$#', $line, $matches);
-            if ($matches) {
-                $results[] = ['date' => $matches[1], 'message' => $matches[2], 'url' => $matches[3], 'file' => $matches[4]];
-            }
-        }
-
-        return $results;
+        return (array) YamlParser::parse($var);
     }
 }

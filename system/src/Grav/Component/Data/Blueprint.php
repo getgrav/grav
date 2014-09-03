@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Data;
+namespace Grav\Component\Data;
 
 use Grav\Component\ArrayTraits\Export;
 
@@ -14,23 +14,33 @@ class Blueprint
     use Export;
 
     public $name;
-    public $initialized = false;
     protected $items;
     protected $context;
     protected $fields;
     protected $rules = array();
     protected $nested = array();
+    protected $filter = ['validation' => 1];
 
     /**
      * @param string $name
      * @param array  $data
      * @param Blueprints $context
      */
-    public function __construct($name, array $data, Blueprints $context)
+    public function __construct($name, array $data = array(), Blueprints $context = null)
     {
         $this->name = $name;
         $this->items = $data;
         $this->context = $context;
+    }
+
+    /**
+     * Set filter for inherited properties.
+     *
+     * @param array $filter     List of field names to be inherited.
+     */
+    public function setFilter(array $filter)
+    {
+        $this->filter = array_flip($filter);
     }
 
     /**
@@ -103,8 +113,7 @@ class Blueprint
     public function fields()
     {
         if (!isset($this->fields)) {
-            $this->fields = isset($this->items['form']['fields']) ? $this->items['form']['fields'] : array();
-            $this->getFields($this->fields);
+            $this->embed('', $this->items);
         }
 
         return $this->fields;
@@ -135,7 +144,7 @@ class Blueprint
      * @param  array $data2
      * @return array
      */
-    public function mergeData(array $data1, array $data2)
+    public function mergeData(array $data1, array $data2, $name = null)
     {
         // Initialize data
         $this->fields();
@@ -204,6 +213,35 @@ class Blueprint
         $this->items = $blueprints;
     }
 
+    /**
+     * Convert object into an array.
+     *
+     * @return array
+     */
+    public function getState()
+    {
+        return ['name' => $this->name, 'items' => $this->items, 'rules' => $this->rules, 'nested' => $this->nested];
+    }
+
+    /**
+     * Embed an array to the blueprint.
+     *
+     * @param $name
+     * @param array $value
+     * @param string $separator
+     */
+    public function embed($name, array $value, $separator = '.')
+    {
+
+        if (!isset($value['form']['fields']) || !is_array($value['form']['fields'])) {
+            return;
+        }
+        // Initialize data
+        $this->fields();
+        $prefix = $name ? strtr($name, $separator, '.') . '.' : '';
+        $params = array_intersect_key($this->filter, $value);
+        $this->parseFormFields($value['form']['fields'], $params, $prefix);
+    }
 
     /**
      * @param array $data
@@ -319,26 +357,30 @@ class Blueprint
      * Gets all field definitions from the blueprints.
      *
      * @param array $fields
+     * @param array $params
+     * @param string $prefix
      * @internal
      */
-    protected function getFields(array &$fields)
+    protected function parseFormFields(array &$fields, $params, $prefix)
     {
         // Go though all the fields in current level.
         foreach ($fields as $key => &$field) {
             // Set name from the array key.
-            $field['name'] = $key;
+            $field['name'] = $prefix . $key;
+            $field += $params;
 
             if (isset($field['fields'])) {
                 // Recursively get all the nested fields.
-                $this->getFields($field['fields']);
+                $newParams = array_intersect_key($this->filter, $field);
+                $this->parseFormFields($field['fields'], $newParams, $prefix);
             } else {
                 // Add rule.
-                $this->rules[$key] = &$field;
-                $this->addProperty($key);
+                $this->rules[$prefix . $key] = &$field;
+                $this->addProperty($prefix . $key);
 
                 foreach ($field as $name => $value) {
                     // Support nested blueprints.
-                    if ($name == '@import') {
+                    if ($this->context && $name == '@import') {
                         $values = (array) $value;
                         if (!isset($field['fields'])) {
                             $field['fields'] = array();

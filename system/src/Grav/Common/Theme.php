@@ -1,7 +1,8 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Filesystem\File\Yaml;
+use Grav\Common\Config\Config;
+use Grav\Component\Filesystem\File\Yaml;
 use Grav\Component\Filesystem\ResourceLocator;
 
 class Theme extends Plugin
@@ -23,9 +24,7 @@ class Theme extends Plugin
     }
 
     public function configure() {
-        $themeConfig = Yaml::instance(THEMES_DIR . "{$this->name}/{$this->name}.yaml")->content();
-
-        $this->config->merge(['themes' => [$this->name => $themeConfig]]);
+        $this->loadConfiguration();
 
         /** @var ResourceLocator $locator */
         $locator = $this->grav['locator'];
@@ -60,5 +59,12 @@ class Theme extends Plugin
             }
 
         }
+    }
+
+    protected function loadConfiguration()
+    {
+        $themeConfig = Yaml::instance(THEMES_DIR . "{$this->name}/{$this->name}.yaml")->content();
+
+        $this->config->merge(['themes' => [$this->name => $themeConfig]]);
     }
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Filesystem\File;
+namespace Grav\Component\Filesystem\File;
 
 /**
  * File handling class for JSON.
