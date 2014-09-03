@@ -41,6 +41,12 @@ class InstallCommand extends Command {
             'Force re-fetching the data from remote'
         )
         ->addOption(
+            'all-yes',
+            'y',
+            InputOption::VALUE_NONE,
+            'Assumes yes (or best approach) instead of prompting'
+        )
+        ->addOption(
             'destination',
             'd',
             InputOption::VALUE_OPTIONAL,
@@ -67,17 +73,7 @@ class InstallCommand extends Command {
         $this->setColors();
         $this->isGravRoot($this->destination);
 
-        $fetchCommand = $this->getApplication()->find('fetch');
-        $args         = new ArrayInput(array('command' => 'fetch', '-f' => $input->getOption('force')));
-        $commandExec = $fetchCommand->run($args, $output);
-
-        if ($commandExec != 0){
-            $output->writeln("<red>Error:</red> An error occured while trying to fetch data from <cyan>getgrav.org</cyan>");
-            exit;
-        }
-
-        $this->data = $this->grav['cache']->fetch(md5('cli:gpm'));
-
+        $this->data = $this->fetchData();
         $this->output->writeln('');
 
         $found_packages = $this->findPackages($packages_to_install);
@@ -106,12 +102,12 @@ class InstallCommand extends Command {
             $checks = $this->checkDestination($found_packages[$package]);
 
             if (!$checks){
-                $this->output->writeln("  '- <red>Installation failed or aborted. See errors above</red>");
+                $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
             } else {
                 $this->output->write("  |- Installing package...  ");
                 $installation = $this->installPackage($found_packages[$package]);
                 if (!$installation){
-                    $this->output->writeln("  '- <red>Installation failed or aborted. See errors above</red>");
+                    $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                     $this->output->writeln('');
                 } else {
                     $this->output->writeln("  '- <green>Success!</green>  ");
@@ -174,19 +170,22 @@ class InstallCommand extends Command {
 
     private function checkDestination($package)
     {
-        $destination = $this->destination . DS . $package->install_path;
-        $helper = $this->getHelper('question');
+        $destination    = $this->destination . DS . $package->install_path;
+        $questionHelper = $this->getHelper('question');
+        $skipPrompt     = $this->input->getOption('all-yes');
 
         if (is_dir($destination) && !is_link($destination)){
-            $this->output->write("\x0D");
-            $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
+            if (!$skipPrompt){
+                $this->output->write("\x0D");
+                $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
 
-            $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ", false);
-            $answer   = $helper->ask($this->input, $this->output, $question);
+                $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ", false);
+                $answer   = $questionHelper->ask($this->input, $this->output, $question);
 
-            if (!$answer){
-                $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
-                return false;
+                if (!$answer){
+                    $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
+                    return false;
+                }
             }
 
             $this->rrmdir($destination);
@@ -197,8 +196,13 @@ class InstallCommand extends Command {
             $this->output->write("\x0D");
             $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
 
+            if ($skipPrompt){
+                $this->output->writeln("  |     '- <yellow>Skipped automatically.</yellow>");
+                return false;
+            }
+
             $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ", false);
-            $answer   = $helper->ask($this->input, $this->output, $question);
+            $answer   = $questionHelper->ask($this->input, $this->output, $question);
 
             if (!$answer){
                 $this->output->writeln("  |     '- <red>You decided to not delete the symlink automatically.</red>");
@@ -207,6 +211,9 @@ class InstallCommand extends Command {
 
             @unlink($destination);
         }
+
+        $this->output->write("\x0D");
+        $this->output->writeln("  |- Checking destination...  <green>ok</green>");
 
         return true;
     }
@@ -241,12 +248,6 @@ class InstallCommand extends Command {
         return true;
     }
 
-
-    private function unpackPackage($package)
-    {
-
-    }
-
     private function isGravRoot($path)
     {
         if (!file_exists($path)){
@@ -274,6 +275,19 @@ class InstallCommand extends Command {
         }
     }
 
+    private function fetchData()
+    {
+        $fetchCommand = $this->getApplication()->find('fetch');
+        $args         = new ArrayInput(array('command' => 'fetch', '-f' => $this->input->getOption('force')));
+        $commandExec = $fetchCommand->run($args, $this->output);
+
+        if ($commandExec != 0){
+            $this->output->writeln("<red>Error:</red> An error occured while trying to fetch data from <cyan>getgrav.org</cyan>");
+            exit;
+        }
+
+        return $this->grav['cache']->fetch(md5('cli:gpm'));
+    }
 
     private function getCurl($url)
     {
