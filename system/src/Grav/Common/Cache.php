@@ -2,6 +2,7 @@
 namespace Grav\Common;
 
 use \Doctrine\Common\Cache\Cache as DoctrineCache;
+use Grav\Common\Config\Config;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.

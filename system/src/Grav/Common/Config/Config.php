@@ -7,9 +7,9 @@ use Grav\Common\GravTrait;
 use Grav\Common\Uri;
 use Grav\Component\Blueprints\Blueprints;
 use Grav\Component\Data\Data;
-use Grav\Component\Filesystem\File\Php;
 use Grav\Component\Filesystem\Folder;
-use Grav\Component\Filesystem\ResourceLocator;
+use RocketTheme\Toolbox\File\PhpFile;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Config class contains configuration information.
@@ -20,41 +20,43 @@ use Grav\Component\Filesystem\ResourceLocator;
 class Config extends Data
 {
     protected $grav;
-    protected $default = [
-        'streams' => [
-            'schemes' => [
-                'blueprints' => [
-                    'type' => 'ReadOnlyStream',
-                    'prefixes' => [
-                        '/' => ['user/blueprints', 'system/blueprints'],
-                    ]
-                ],
-                'config' => [
-                    'type' => 'ReadOnlyStream',
-                    'prefixes' => [
-                        '/' => ['user/config', 'system/config'],
-                    ]
-                ],
-                'plugin' => [
-                    'type' => 'ReadOnlyStream',
-                    'prefixes' => [
-                        '' => ['user/plugins'],
-                     ]
-                ],
-                'cache' => [
-                    'type' => 'Stream',
-                    'prefixes' => [
-                        '' => ['cache']
-                    ]
-                ],
-                'logs' => [
-                    'type' => 'Stream',
-                    'prefixes' => [
-                        '' => ['logs']
-                    ]
-                ]
-            ],
+    protected $streams = [
+        'blueprints' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '/' => ['user/blueprints', 'system/blueprints'],
+            ]
         ],
+        'config' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '/' => ['user/config', 'system/config'],
+            ]
+        ],
+        'plugin' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['user/plugins'],
+             ]
+        ],
+        'theme' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '/' => ['user/themes'],
+            ]
+        ],
+        'cache' => [
+            'type' => 'Stream',
+            'prefixes' => [
+                '' => ['cache']
+            ]
+        ],
+        'log' => [
+            'type' => 'Stream',
+            'prefixes' => [
+                '' => ['logs']
+            ]
+        ]
     ];
 
     protected $blueprintFiles = [];
@@ -62,22 +64,58 @@ class Config extends Data
     protected $checksum;
     protected $timestamp;
 
+    protected $configLookup;
+    protected $blueprintLookup;
+    protected $pluginLookup;
+
+
     public function __construct(array $items = array(), Grav $grav = null)
     {
         $this->grav = $grav ?: Grav::instance();
 
-        if (isset($items['@class']) && $items['@class'] = get_class($this)) {
+        if (isset($items['@class'])) {
+            if ($items['@class'] != get_class($this)) {
+                throw new \InvalidArgumentException('Unrecognized config cache file!');
+            }
             // Loading pre-compiled configuration.
             $this->timestamp = (int) $items['timestamp'];
             $this->checksum = (string) $items['checksum'];
             $this->items = (array) $items['data'];
         } else {
-            parent::__construct($items + $this->default);
+            // Make sure that
+            if (!isset($items['streams']['schemes'])) {
+                $items['streams']['schemes'] = [];
+            }
+            $items['streams']['schemes'] += $this->streams;
+
+            parent::__construct($items);
+        }
+        $this->check();
+    }
+
+    protected function check()
+    {
+        $streams = isset($this->items['streams']['schemes']) ? $this->items['streams']['schemes'] : null;
+        if (!is_array($streams)) {
+            throw new \InvalidArgumentException('Configuration is missing streams.schemes!');
+        }
+        $diff = array_keys(array_diff_key($this->streams, $streams));
+        if ($diff) {
+            throw new \InvalidArgumentException(
+                sprintf('Configuration is missing keys %s from streams.schemes!', implode(', ', $diff))
+            );
         }
     }
 
     public function init()
     {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        $this->configLookup = $locator->findResources('config:///');
+        $this->blueprintLookup = $locator->findResources('blueprints:///config');
+        $this->pluginLookup = $locator->findResources('plugin:///');
+
         $checksum = $this->checksum();
         if ($checksum == $this->checksum) {
             return;
@@ -92,14 +130,8 @@ class Config extends Data
         $this->def('system.base_url_absolute', $uri->rootUrl(true));
         $this->def('system.base_url_relative', $uri->rootUrl(false));
 
-        /** @var ResourceLocator $locator */
-        $locator = $this->grav['locator'];
-        $configs = $locator->findResources('config:///');
-        $blueprints = $locator->findResources('blueprints:///config');
-        $plugins = $locator->findResources('plugin:///');
-
-        $this->loadCompiledBlueprints($blueprints, $plugins, 'master');
-        $this->loadCompiledConfig($configs, $plugins, 'master');
+        $this->loadCompiledBlueprints($this->blueprintLookup, $this->pluginLookup, 'master');
+        $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
     }
 
     public function checksum()
@@ -112,21 +144,15 @@ class Config extends Data
             return false;
         }
 
-        /** @var ResourceLocator $locator */
-        $locator = $this->grav['locator'];
-        $configs = $locator->findResources('config:///');
-        $blueprints = $locator->findResources('blueprints:///config');
-        $plugins = $locator->findResources('plugin:///');
-
         // Generate checksum according to the configuration settings.
         if (!$checkConfig) {
             // Just check changes in system.yaml files and ignore all the other files.
-            $cc = $checkSystem ? $this->detectFile($configs, 'system') : [];
+            $cc = $checkSystem ? $this->detectFile($this->configLookup, 'system') : [];
         } else {
             // Check changes in all configuration files.
-            $cc = $this->getConfigFiles($configs, $plugins);
+            $cc = $this->getConfigFiles($this->configLookup, $this->pluginLookup);
         }
-        $cb = $checkBlueprints ? $this->getBlueprintFiles($blueprints, $plugins) : [];
+        $cb = $checkBlueprints ? $this->getBlueprintFiles($this->blueprintLookup, $this->pluginLookup) : [];
 
         return md5(serialize([$cc, $cb]));
     }
@@ -137,7 +163,7 @@ class Config extends Data
         $filename = $filename
             ? CACHE_DIR . 'compiled/blueprints/' . $filename .'.php'
             : CACHE_DIR . 'compiled/blueprints/' . $checksum .'.php';
-        $file = Php::instance($filename);
+        $file = PhpFile::instance($filename);
 
         if ($file->exists()) {
             $cache = $file->exists() ? $file->content() : null;
@@ -189,7 +215,7 @@ class Config extends Data
         $filename = $filename
             ? CACHE_DIR . 'compiled/config/' . $filename .'.php'
             : CACHE_DIR . 'compiled/config/' . $checksum .'.php';
-        $file = Php::instance($filename);
+        $file = PhpFile::instance($filename);
 
         if ($file->exists()) {
             $cache = $file->exists() ? $file->content() : null;
@@ -199,7 +225,6 @@ class Config extends Data
 
         $configFiles = $this->getConfigFiles($configs, $plugins);
         $checksum .= ':'.md5(serialize($configFiles));
-        print_r($configFiles);
         echo $cache['checksum'].' '.$checksum;
         $class = get_class($this);
 
@@ -389,7 +414,7 @@ class Config extends Data
     /**
      * Detects all instances of the file and returns last modification time.
      *
-     * @param  string $lookups Locations to look up from.
+     * @param  array $lookups Locations to look up from.
      * @param  string $name
      * @return array
      * @internal

@@ -1,11 +1,11 @@
 <?php
 namespace Grav\Component\Data;
 
-use Grav\Component\ArrayTraits\ArrayAccessWithGetters;
-use Grav\Component\ArrayTraits\Countable;
-use Grav\Component\ArrayTraits\Export;
-use Grav\Component\Filesystem\FileInterface;
-use Grav\Component\Filesystem\File;
+use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
+use RocketTheme\Toolbox\ArrayTraits\Countable;
+use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\File\FileInterface;
 
 /**
  * Recursive data object
@@ -26,7 +26,7 @@ class Data implements DataInterface
     protected $blueprints;
 
     /**
-     * @var File\General
+     * @var File
      */
     protected $storage;
 
@@ -160,6 +160,7 @@ class Data implements DataInterface
      * Merge two sets of data together.
      *
      * @param array $data
+     * @return void
      */
     public function merge(array $data)
     {

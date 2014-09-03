@@ -5,9 +5,9 @@ use Grav\Common\File\CompiledYaml;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Component\Blueprints\Blueprints as BaseBlueprints;
-use Grav\Component\Filesystem\File\Php;
 use Grav\Component\Filesystem\Folder;
-use Grav\Component\Filesystem\ResourceLocator;
+use RocketTheme\Toolbox\File\PhpFile;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Blueprints class contains configuration rules.
@@ -19,6 +19,7 @@ class Blueprints extends BaseBlueprints
 {
     protected $grav;
     protected $files = [];
+    protected $blueprints;
 
     public function __construct(array $serialized = null, Grav $grav = null)
     {
@@ -28,7 +29,7 @@ class Blueprints extends BaseBlueprints
 
     public function init()
     {
-        /** @var ResourceLocator $locator */
+        /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
         $blueprints = $locator->findResources('blueprints:///config');
@@ -45,7 +46,7 @@ class Blueprints extends BaseBlueprints
         $filename = CACHE_DIR . 'compiled/blueprints/' . $checksum .'.php';
         $checksum .= ':'.md5(serialize($blueprintFiles));
         $class = get_class($this);
-        $file = Php::instance($filename);
+        $file = PhpFile::instance($filename);
 
         if ($file->exists()) {
             $cache = $file->exists() ? $file->content() : null;

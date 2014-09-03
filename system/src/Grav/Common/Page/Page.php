@@ -1,7 +1,8 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\Config;
+use Gantry\Component\Filesystem\Folder;
+use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
@@ -12,9 +13,8 @@ use Grav\Common\Taxonomy;
 use Grav\Common\Markdown\Markdown;
 use Grav\Common\Markdown\MarkdownExtra;
 use Grav\Component\Data\Blueprint;
-use Grav\Component\Filesystem\File;
-use Grav\Component\Filesystem\Folder;
-use Grav\Component\EventDispatcher\Event;
+use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\File\MarkdownFile;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -398,12 +398,12 @@ class Page
     /**
      * Get file object to the page.
      *
-     * @return File\Markdown|null
+     * @return MarkdownFile|null
      */
     public function file()
     {
         if ($this->name) {
-            return File\Markdown::instance($this->filePath());
+            return MarkdownFile::instance($this->filePath());
         }
         return null;
     }
@@ -1232,6 +1232,7 @@ class Page
      */
     public function activeChild()
     {
+        /** @var Uri $uri */
         $uri = self::$grav['uri'];
         if (!$this->home() && (strpos($uri->url(), $this->url()) !== false)) {
             return true;

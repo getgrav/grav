@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Markdown;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
 
@@ -13,10 +14,13 @@ trait MarkdownGravLinkTrait
 
     protected function identifyLink($Excerpt)
     {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
         // Run the parent method to get the actual results
         $Excerpt = parent::identifyLink($Excerpt);
         $actions = array();
-        $this->base_url = trim(self::$grav['config']->get('system.base_url_relative'));
+        $this->base_url = trim($config->get('system.base_url_relative'));
 
         // if this is a link
         if (isset($Excerpt['element']['attributes']['href'])) {

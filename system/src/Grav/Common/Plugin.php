@@ -2,8 +2,8 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
-use Grav\Component\EventDispatcher\EventDispatcher;
-use Grav\Component\EventDispatcher\EventSubscriberInterface;
+use RocketTheme\Toolbox\Event\EventDispatcher;
+use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 
 /**
  * The Plugin object just holds the id and path to a plugin.

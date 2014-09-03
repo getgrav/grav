@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Component\Data;
 
-use Grav\Component\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\Export;
 
 /**
  * Blueprint handles the inside logic of blueprints.
@@ -142,6 +142,7 @@ class Blueprint
      *
      * @param  array $data1
      * @param  array $data2
+     * @param  string $name
      * @return array
      */
     public function mergeData(array $data1, array $data2, $name = null)

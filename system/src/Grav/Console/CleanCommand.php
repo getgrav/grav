@@ -182,5 +182,6 @@ class CleanCommand extends Command {
             rmdir($dir);
             return true;
         }
+        return false;
     }
 }

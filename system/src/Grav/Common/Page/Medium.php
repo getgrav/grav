@@ -1,13 +1,13 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\Config;
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Component\Data\Blueprint;
 use Grav\Component\Data\Data;
-use Grav\Component\Filesystem\File\Yaml;
 use Gregwar\Image\Image as ImageFile;
+use RocketTheme\Toolbox\File\YamlFile;
 
 /**
  * The Image medium holds information related to an individual image. These are then stored in the Media object.
@@ -204,9 +204,11 @@ class Medium extends Data
 
     public function lightboxRaw($width = null, $height = null)
     {
+        /** @var Config $config */
+        $config = self::$grav['config'];
         $url = $this->url();
         $this->link($width, $height);
-        $lightbox_url = self::$grav['config']->get('system.base_url_relative') . '/'. $this->linkTarget;
+        $lightbox_url = $config->get('system.base_url_relative') . '/'. $this->linkTarget;
 
         return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
     }
@@ -309,7 +311,7 @@ class Medium extends Data
 
         $path = $this->get('path') . '/' . $this->get('filename') . '.meta.' . $type;
         if ($type == 'yaml') {
-            $this->merge(Yaml::instance($path)->content());
+            $this->merge(YamlFile::instance($path)->content());
         } elseif (in_array($type, array('jpg', 'jpeg', 'png', 'gif'))) {
             $this->set('thumb', $path);
         }

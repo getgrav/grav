@@ -1,24 +1,8 @@
 schemes:
-  plugin:
-    type: ReadOnlyStream
-    paths:
-      - user/plugins
-      - system/plugins
-
   asset:
     type: ReadOnlyStream
     paths:
       - assets
-
-  cache:
-    type: ReadOnlyStream
-    paths:
-      - cache
-
-  log:
-    type: ReadOnlyStream
-    paths:
-      - logs
 
   image:
     type: ReadOnlyStream
@@ -44,9 +28,3 @@ schemes:
     type: ReadOnlyStream
     paths:
       - user/data
-
-  theme:
-    type: ReadOnlyStream
-    prefixes:
-      '/':
-        - user/themes

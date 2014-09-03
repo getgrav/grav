@@ -32,13 +32,20 @@ class ConfigServiceProvider implements ServiceProviderInterface
     {
         $file = CACHE_DIR . 'compiled/config/master.php';
         $data = is_file($file) ? (array) include $file : [];
-
-        if (!$data) {
-            $file = GRAV_ROOT . '/config.php';
-            $data = is_file($file) ? (array) include $file : [];
+        if ($data) {
+            try {
+                $config = new Config($data, $container);
+            } catch (\Exception $e) {
+            }
         }
 
-        return new Config($data, $container);
+        if (!isset($config)) {
+            $file = GRAV_ROOT . '/config.php';
+            $data = is_file($file) ? (array) include $file : [];
+            $config = new Config($data, $container);
+        }
+
+        return $config;
     }
 
     public function loadMasterBlueprints(Container $container)

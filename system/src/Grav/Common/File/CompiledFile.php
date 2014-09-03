@@ -1,8 +1,17 @@
 <?php
 namespace Grav\Common\File;
 
-use Grav\Component\Filesystem\File\Php;
+use RocketTheme\Toolbox\File\PhpFile;
 
+/**
+ * Class CompiledFile
+ * @package Grav\Common\File
+ *
+ * @property string $filename
+ * @property string $extension
+ * @property string $raw
+ * @property array|string $content
+ */
 trait CompiledFile
 {
     /**
@@ -16,7 +25,7 @@ trait CompiledFile
         // If nothing has been loaded, attempt to get pre-compiled version of the file first.
         if ($var === null && $this->raw === null && $this->content === null) {
             $key = md5($this->filename);
-            $file = Php::instance(CACHE_DIR . "/compiled/files/{$key}{$this->extension}.php");
+            $file = PhpFile::instance(CACHE_DIR . "/compiled/files/{$key}{$this->extension}.php");
             $modified = $this->modified();
             $class = get_class($this);
 

@@ -1,13 +1,11 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Config\Blueprints;
-use Grav\Common\Config\Config;
 use Grav\Common\Config\ConfigServiceProvider;
+use Grav\Common\Page\Pages;
 use Grav\Common\Service\StreamsServiceProvider;
-use Grav\Component\DI\Container;
-use Grav\Component\EventDispatcher\Event;
-use Grav\Component\EventDispatcher\EventDispatcher;
+use RocketTheme\Toolbox\DI\Container;
+use RocketTheme\Toolbox\Event\EventDispatcher;
 
 /**
  * Grav
@@ -83,7 +81,9 @@ class Grav extends Container
             return new Assets();
         };
         $container['page'] = function ($c) {
-            $page = $c['pages']->dispatch($c['uri']->route());
+            /** @var Pages $pages */
+            $pages = $c['pages'];
+            $page = $pages->dispatch($c['uri']->route());
 
             if (!$page || !$page->routable()) {
                 $event = $c->fireEvent('onPageNotFound');

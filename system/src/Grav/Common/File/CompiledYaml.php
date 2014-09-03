@@ -1,9 +1,9 @@
 <?php
 namespace Grav\Common\File;
 
-use Grav\Component\Filesystem\File\Yaml;
+use RocketTheme\Toolbox\File\YamlFile;
 
-class CompiledYaml extends Yaml
+class CompiledYaml extends YamlFile
 {
     use CompiledFile;
 }

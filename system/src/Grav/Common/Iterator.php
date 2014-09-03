@@ -1,12 +1,11 @@
 <?php
 namespace Grav\Common;
-
-use Grav\Component\ArrayTraits\Constructor;
-use Grav\Component\ArrayTraits\ArrayAccessWithGetters;
-use Grav\Component\ArrayTraits\Iterator as ArrayIterator;
-use Grav\Component\ArrayTraits\Countable;
-use Grav\Component\ArrayTraits\Serializable;
-use Grav\Component\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
+use RocketTheme\Toolbox\ArrayTraits\Iterator as ArrayIterator;
+use RocketTheme\Toolbox\ArrayTraits\Constructor;
+use RocketTheme\Toolbox\ArrayTraits\Countable;
+use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\Serializable;
 
 /**
  * Class Iterator

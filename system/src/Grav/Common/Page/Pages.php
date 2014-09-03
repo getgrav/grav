@@ -2,14 +2,14 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
-use Grav\Common\Config;
+use Grav\Common\Config\Config;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Taxonomy;
 use Grav\Component\Data\Blueprint;
 use Grav\Component\Data\Blueprints;
 use Grav\Component\Filesystem\Folder;
-use Grav\Component\EventDispatcher\Event;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
@@ -194,6 +194,7 @@ class Pages
      *
      * @param  string  $path
      * @return Page
+     * @throws \Exception
      */
     public function get($path)
     {
@@ -401,6 +402,8 @@ class Pages
         $directory  = rtrim($directory, DS);
         $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
+
+        /** @var Config $config */
         $config     = $this->grav['config'];
 
         $page->path($directory);

@@ -1,10 +1,11 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYaml;
 use Grav\Component\Data\Blueprints;
 use Grav\Component\Data\Data;
-use Grav\Component\Filesystem\ResourceLocator;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Themes object holds an array of all the theme objects that Grav knows about.
@@ -109,7 +110,7 @@ class Themes
         /** @var Config $config */
         $config = $grav['config'];
 
-        /** @var ResourceLocator $locator */
+        /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
         $file = $locator("theme://theme.php") ?: $locator("theme://{$name}.php");
@@ -141,14 +142,14 @@ class Themes
 
         $this->loadConfiguration($name, $config);
 
-        /** @var ResourceLocator $locator */
+        /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
         // TODO: move
         $registered = stream_get_wrappers();
         $schemes = $config->get(
             "themes.{$name}.streams.schemes",
-            ['theme' => ['paths' => $locator->findResources("theme:///{$name}")]]
+            ['theme' => ['paths' => $locator->findResources("theme:///{$name}", false)]]
         );
 
         foreach ($schemes as $scheme => $config) {
@@ -166,13 +167,12 @@ class Themes
             }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
             if ($type[0] != '\\') {
-                $type = '\\Grav\\Component\\Filesystem\\StreamWrapper\\' . $type;
+                $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
 
             if (!stream_wrapper_register($scheme, $type)) {
                 throw new \InvalidArgumentException("Stream '{$type}' could not be initialized.");
             }
-
         }
     }
 

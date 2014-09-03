@@ -1,8 +1,9 @@
 <?php
 namespace Grav\Common;
 
-use \Grav\Common\Page\Page;
-use Grav\Component\Filesystem\ResourceLocator;
+use Grav\Common\Config\Config;
+use Grav\Common\Page\Page;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Twig object handles all the Twig template rendering for Grav. It's a singleton object
@@ -67,7 +68,7 @@ class Twig
         if (!isset($this->twig)) {
             /** @var Config $config */
             $config = $this->grav['config'];
-            /** @var ResourceLocator $locator */
+            /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
 
             $this->twig_paths = $locator->findResources('theme://templates');
