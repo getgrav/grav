@@ -146,6 +146,7 @@ class Admin
             $file = File\Yaml::instance(ACCOUNTS_DIR . $form['username'] . YAML_EXT);
             if ($file->exists()) {
                 $user = new User($file->content());
+                print_r($user);
 
                 // Authenticate user.
                 $result = $user->authenticate($form['password']);
