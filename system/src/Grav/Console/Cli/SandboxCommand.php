@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-class SetupCommand extends Command
+class SandboxCommand extends Command
 {
     protected $directories  = array('/cache',
                                     '/logs',
@@ -43,8 +43,8 @@ class SetupCommand extends Command
     protected function configure()
     {
         $this
-        ->setName('setup')
-        ->setDescription('Setup of a base Grav system in your webroot')
+        ->setName('sandbox')
+        ->setDescription('Setup of a base Grav system in your webroot, good for development, playing around or starting fresh')
         ->addArgument(
             'destination',
             InputArgument::REQUIRED,
@@ -56,10 +56,7 @@ class SetupCommand extends Command
             InputOption::VALUE_NONE,
             'Symlink the base grav system'
         )
-        ->setHelp(<<<EOT
-The <info>setup</info> command help create a development environment that uses symbolic links to link the core of grav to the git cloned repository
-EOT
-        );
+        ->setHelp("The <info>sandbox</info> command help create a development environment that can optionally use symbolic links to link the core of grav to the git cloned repository.\nGood for development, playing around or starting fresh");
         $this->source = getcwd();
     }
 
