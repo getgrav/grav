@@ -1,0 +1,12 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content_full %}
+    <div class="error">
+        {% include 'partials/messages.html.twig' %}
+        {{ content }}
+    </div>
+{% endblock %}
+
+{% block footer_section %}
+<br /><br /><br />
+{% endblock %}

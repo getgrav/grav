@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block head %}
+    <meta charset="utf-8" />
+    <title>{% if header.title %}{{ header.title }} | {% endif %}{{ site.title }}</title>
+    {% if header.description %}
+        <meta name="description" content="{{ header.description }}">
+    {% else %}
+        <meta name="description" content="{{ site.description }}">
+    {% endif %}
+    {% if header.robots %}
+        <meta name="robots" content="{{ header.robots }}">
+    {% endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ theme_url }}/images/favicon.png">
+    {% block stylesheets %}
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/nucleus.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/template.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css/font-awesome.min.css" type="text/css" />
+    <!--[if IE 9]>
+        <link rel="stylesheet" href="{{ theme_url }}/css/nucleus-ie9.css" type="text/css" />
+        <link rel="stylesheet" href="{{ theme_url }}/css/pure-0.5.0/grids-min.css" type="text/css" />
+    <![endif]-->
+    {% endblock %}
+
+    {% block javascript %}
+    <script type="text/javascript" src="{{ theme_url }}/js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/modernizr.custom.71422.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/jquery.astooltip.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function()
+        {
+            // tooltips
+            $(".tooltip").asTooltip({
+               namespace: 'tooltip',
+               skin: 'skin-dream',
+               trigger: 'hover'    // hover click
+            });
+        });
+
+    </script>
+    {% endblock %}
+{% endblock %}
+</head>
+<body>
+    {% block page %}
+    {% block navigation %}
+        {% include 'partials/nav.html.twig' %}
+    {% endblock %}
+    <div>
+        <section id="main">
+            <div id="toolbar" class="mm-fixed-top">
+                {% block toolbar %}
+                    {% include 'partials/toolbar.html.twig' %}
+                {% endblock %}
+            </div>
+            <div class="content-padding">
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+
+        {% block footer_section %}
+        <footer id="footer">
+            <a href="http://getgrav.org">Grav</a> was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
+        </footer>
+        {% endblock %}
+    </div>
+    {% endblock page %}
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block javascript %}
+    {{ parent() }}
+    <script src="{{ theme_url }}/js/dynfields/dynfields.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="admin-block">
+        <h1>
+            Site Settings
+        </h1>
+
+        {% include 'partials/messages.html.twig' %}
+        {% include 'partials/blueprints.html.twig' with { blueprints: admin.blueprints('site'), data: admin.data('site') } %}
+    </div>
+{% endblock %}
+

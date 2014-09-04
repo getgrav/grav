@@ -21,6 +21,11 @@ class AdminPlugin extends Plugin
     protected $template;
 
     /**
+     * @var  string
+     */
+    protected $theme;
+
+    /**
      * @var string
      */
     protected $route;
@@ -51,49 +56,16 @@ class AdminPlugin extends Plugin
      */
     public function onPluginsInitialized()
     {
-        $route = $this->config->get('plugins.admin.route');
 
-        if (!$route) {
-            return;
-        }
+        // Check for Pro version and disable this plugin if found
+        // if (file_exists(PLUGINS_DIR . 'admin_pro/admin_pro.php')) {
+        //     $this->enabled = false;
+        //     return;
+        // }
 
-        $this->uri = $this->grav['uri'];
-        $base = '/' . trim($route, '/');
+        // echo "<h1>Admin Free</h1>";
 
-        // Only activate admin if we're inside the admin path.
-        if (substr($this->uri->route(), 0, strlen($base)) == $base) {
-            $this->enable([
-                'onPagesInitialized' => ['onPagesInitialized', 1000],
-                'onPageInitialized' => ['onPageInitialized', 1000],
-                'onTwigTemplatePaths' => ['onTwigTemplatePaths', 1000],
-                'onTwigSiteVariables' => ['onTwigSiteVariables', 1000]
-            ]);
-
-            // Disable system caching.
-            $this->config->set('system.cache.enabled', false);
-
-            // Decide admin template and route.
-            $path = trim(substr($this->uri->route(), strlen($base)), '/');
-            $this->template = 'dashboard';
-
-            if ($path) {
-                $array = explode('/', $path, 2);
-                $this->template = array_shift($array);
-                $this->route = array_shift($array);
-
-                // Set path for new page.
-                if ($this->uri->param('new')) {
-                    $this->route .= '/new';
-                }
-            }
-
-            // Initialize admin class.
-            require_once __DIR__ . '/classes/admin.php';
-            $this->admin = new Admin($this->grav, $base, $this->template, $this->route);
-
-            // And store the class into DI container.
-            $this->grav['admin'] = $this->admin;
-        }
+        $this->initializeAdmin();
     }
 
     /**
@@ -118,6 +90,8 @@ class AdminPlugin extends Plugin
         if (!$this->admin->authorise()) {
             $this->template = $this->admin->user ? 'denied' : 'login';
         }
+
+
 
         // Make local copy of POST.
         $post = !empty($_POST) ? $_POST : array();
@@ -152,8 +126,8 @@ class AdminPlugin extends Plugin
      */
     public function onTwigTemplatePaths()
     {
-        $twig = $this->grav['twig'];
-        $twig->twig_paths = array(__DIR__ . '/theme/templates');
+        $this->theme = $this->config->get('plugins.admin.theme', 'grav');
+        $this->grav['twig']->twig_paths = array(__DIR__ . '/themes/'.$this->theme.'/templates');
     }
 
     /**
@@ -162,7 +136,7 @@ class AdminPlugin extends Plugin
     public function onTwigSiteVariables()
     {
         // TODO: use real plugin name instead
-        $theme_url = $this->config->get('system.base_url_relative') . '/user/plugins/admin/theme';
+        $theme_url = $this->config->get('system.base_url_relative') . '/user/plugins/admin/themes/'.$this->theme;
         $twig = $this->grav['twig'];
 
         $twig->template = $this->template . '.html.twig';
@@ -180,6 +154,53 @@ class AdminPlugin extends Plugin
             case 'pages':
                 $twig->twig_vars['file'] = File\General::instance($this->admin->page(true)->filePath());
                 break;
+        }
+    }
+
+    protected function initializeAdmin()
+    {
+        $this->route = $this->config->get('plugins.admin.route');
+
+        if (!$this->route) {
+            return;
+        }
+
+        $this->uri = $this->grav['uri'];
+        $base = '/' . trim($this->route, '/');
+
+        // Only activate admin if we're inside the admin path.
+        if (substr($this->uri->route(), 0, strlen($base)) == $base) {
+            $this->enable([
+                'onPagesInitialized' => ['onPagesInitialized', 1000],
+                'onPageInitialized' => ['onPageInitialized', 1000],
+                'onTwigTemplatePaths' => ['onTwigTemplatePaths', 1000],
+                'onTwigSiteVariables' => ['onTwigSiteVariables', 1000]
+            ]);
+
+            // Disable system caching.
+            $this->config->set('system.cache.enabled', false);
+
+            // Decide admin template and route.
+            $path = trim(substr($this->uri->route(), strlen($base)), '/');
+            $this->template = 'dashboard';
+
+            if ($path) {
+                $array = explode('/', $path, 2);
+                $this->template = array_shift($array);
+                $this->route = array_shift($array);
+
+                // Set path for new page.
+                if ($this->uri->param('new')) {
+                    $this->route .= '/new';
+                }
+            }
+
+            // Initialize admin class.
+            require_once PLUGINS_DIR . 'admin/classes/admin.php';
+            $this->admin = new Admin($this->grav, $base, $this->template, $this->route);
+
+            // And store the class into DI container.
+            $this->grav['admin'] = $this->admin;
         }
     }
 }

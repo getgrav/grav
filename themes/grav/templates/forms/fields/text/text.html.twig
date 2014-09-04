@@ -1,0 +1,26 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field">
+    <label class="inline">
+        <span>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+            {% else %}
+            {{ field.label }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </span>
+
+        <input  type="text"
+                class="input"
+                name="{{ (scope ~ field.name)|fieldName }}"
+                value="{{ value|join(', ') }}"
+                {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+                {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+                {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+                {% if field.autocomplete in ['on', 'off'] %}autocomplete="{{ field.autocomplete }}"{% endif %}
+                {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+                {% if field.validate.pattern %}pattern="{{ field.validate.pattern }}"{% endif %}
+        />
+    </label>
+</div>

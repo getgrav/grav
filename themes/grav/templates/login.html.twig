@@ -1,0 +1,23 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block page %}
+    <section id="admin-login">
+        <h1>
+            Login
+        </h1>
+
+        {% include 'partials/messages.html.twig' %}
+
+        <form method="post">
+            {% for field in page.header.form %}
+                {% if field.type %}
+                    <div>
+                        {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button name="task" value="login">Login</button>
+        </form>
+    </section>
+{% endblock %}
+

@@ -1,0 +1,24 @@
+%button {
+	display: inline-block;
+	padding: 7px 20px;
+
+    &.button-small {
+        padding: 3px 10px;
+        font-size: $core-font-size - 0.1rem;
+    }
+
+}
+
+@mixin button-color($color) {
+	background: $white;
+	color: $color;
+	border: 1px solid $color;
+	border-radius: 3px;
+	&:hover {
+		background: $color;
+		color: $white;
+	}
+	&:active {
+		box-shadow: 0 1px 0 darken($color, 12%);
+	}
+}

@@ -1,0 +1,24 @@
+button {
+	overflow: visible;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	box-sizing: border-box;
+	padding: 0;
+}
+
+.fixed-blocks {
+	display: block;
+}
+
+.feature-items {
+    overflow: hidden;
+}
+
+.modular .features .feature {
+	margin: 1%;
+    display: inline-block;
+    vertical-align: top;
+    float: none;
+}

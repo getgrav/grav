@@ -1,0 +1,23 @@
+html, body {
+	height: 100%;
+}
+
+body {
+	background: $page-bg;
+	color: $core-text;
+	-webkit-font-smoothing: antialiased;
+  	-moz-osx-font-smoothing: grayscale;
+}
+
+a {
+	color: $core-accent;
+	&:hover {
+		color: darken($core-accent, 20%);
+	}
+}
+
+b, strong {
+	font-weight: $font-weight-bold
+}
+
+
