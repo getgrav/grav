@@ -37,11 +37,12 @@ class Debugger
                 TracyDebugger::$strictMode = true;
             }
 
+            $mode = $config->get('system.debugger.mode');
+
             if (function_exists('ini_set')) {
-                ini_set('display_errors', true);
+                ini_set('display_errors', !($mode === 'production'));
             }
 
-            $mode = $config->get('system.debugger.mode');
             if ($mode === 'detect') {
                 TracyDebugger::$productionMode = self::DETECT;
             } elseif ($mode === 'production') {
