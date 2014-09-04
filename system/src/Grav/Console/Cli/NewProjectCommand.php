@@ -33,11 +33,11 @@ class NewProjectCommand extends Command {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $setupCommand   = $this->getApplication()->find('setup');
+        $sandboxCommand   = $this->getApplication()->find('sandbox');
         $installCommand = $this->getApplication()->find('install');
 
-        $setupArguments = new ArrayInput(array(
-                                            'command'     => 'setup',
+        $sandboxArguments = new ArrayInput(array(
+                                            'command'     => 'sandbox',
                                             'destination' => $input->getArgument('destination'),
                                             '-s'          => $input->getOption('symlink')
                                             ));
@@ -48,7 +48,7 @@ class NewProjectCommand extends Command {
                                                 '-s'          => $input->getOption('symlink')
                                                 ));
 
-        $setupCommand->run($setupArguments, $output);
+        $sandboxCommand->run($sandboxArguments, $output);
         $installCommand->run($installArguments, $output);
 
     }
