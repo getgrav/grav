@@ -1,17 +1,30 @@
-@import url(//fonts.googleapis.com/css?family=Montserrat:400|Raleway:300,400,600|Inconsolata);
-.button, .button-secondary {
+@import url(//fonts.googleapis.com/css?family=Montserrat:400|Lato:300,400,700);
+#admin-login {
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%); }
+
+.button {
   display: inline-block;
-  padding: 7px 20px; }
-  .button-small.button, .button-small.button-secondary {
-    padding: 3px 10px;
-    font-size: 0.9rem; }
+  padding: 0.3rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 300;
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+  .button i {
+    padding-right: 5px; }
+  .button-small.button {
+    padding: 3px 10px; }
 
 html, body {
   height: 100%; }
 
 body {
-  background: white;
-  color: #444444;
+  background: #314d5b;
+  color: white;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
 
@@ -23,10 +36,25 @@ a {
 b, strong, label, th {
   font-weight: 600; }
 
+.secondary-accent {
+  background: #349886;
+  color: white; }
+
+.info {
+  background: #9055af;
+  color: white;
+  font-size: 1.1rem; }
+
 .default-animation {
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   transition: all 0.5s ease; }
+
+.default-border-radius {
+  border-radius: 4px; }
+
+.default-glow-shadow {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); }
 
 .padding-horiz {
   padding-left: 7rem;
@@ -45,7 +73,7 @@ b, strong, label, th {
   padding-bottom: 3rem; }
 
 body {
-  font-family: "Raleway", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
   font-weight: 400; }
 
 h1, h2, h3, h4, h5, h6 {
@@ -98,7 +126,7 @@ h1 + h2 {
   font-size: 2rem;
   line-height: 1;
   text-align: center;
-  font-family: "Raleway", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
   font-weight: 300; }
   @media only all and (min-width: 48em) and (max-width: 59.938em) {
     h1 + h2 {
@@ -112,7 +140,7 @@ h2 + h3 {
   font-size: 2rem;
   line-height: 1;
   text-align: center;
-  font-family: "Raleway", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
   font-weight: 300; }
   @media only all and (min-width: 48em) and (max-width: 59.938em) {
     h2 + h3 {
@@ -234,27 +262,24 @@ td {
   padding: 0.5rem;
   border: 1px solid #eaeaea; }
 
-.button {
-  background: white;
-  color: #1bb3e9;
-  border: 1px solid #1bb3e9;
-  border-radius: 3px; }
-  .button:hover {
-    background: #1bb3e9;
+.button.primary {
+  background: #41bea8;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 4px; }
+  .button.primary:hover {
+    background: #54c5b0;
     color: white; }
-  .button:active {
-    box-shadow: 0 1px 0 #118ab5; }
-
-.button-secondary {
-  background: white;
-  color: #f6635e;
-  border: 1px solid #f6635e;
-  border-radius: 3px; }
-  .button-secondary:hover {
-    background: #f6635e;
+  .button.primary:active {
+    box-shadow: 0 1px 0 #31907f; }
+.button.secondary {
+  background: #29796b;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 4px; }
+  .button.secondary:hover {
+    background: #2f8c7c;
     color: white; }
-  .button-secondary:active {
-    box-shadow: 0 1px 0 #f32b24; }
+  .button.secondary:active {
+    box-shadow: 0 1px 0 #1a4b43; }
 
 #error {
   text-align: center;
@@ -267,5 +292,44 @@ td {
     font-size: 5rem; }
   #error p {
     margin: 1rem 0; }
+
+#admin-login {
+  background: #253a47;
+  max-width: 28rem;
+  margin: 0 auto; }
+  #admin-login h1 {
+    background: #20333e url(../images/logo.png) 50% 50% no-repeat;
+    font-size: 0;
+    color: transparent;
+    height: 14rem;
+    margin: 0; }
+  #admin-login form {
+    padding: 3rem; }
+    #admin-login form input {
+      margin-bottom: 2rem;
+      background: #314d5b;
+      color: white;
+      font-size: 1.4rem;
+      line-height: 1.5;
+      text-align: center;
+      font-weight: 300;
+      border: 1px solid #1d2e38; }
+      #admin-login form input::-webkit-input-placeholder {
+        color: #83949c; }
+      #admin-login form input::-moz-placeholder {
+        color: #83949c; }
+      #admin-login form input:-moz-placeholder {
+        color: #83949c; }
+      #admin-login form input:-ms-input-placeholder {
+        color: #83949c; }
+    #admin-login form .form-actions {
+      text-align: center;
+      margin: 0 -3rem -3rem -3rem;
+      padding: 1.5rem 3rem; }
+      #admin-login form .form-actions button:first-child {
+        margin-right: 1rem; }
+  #admin-login .info {
+    text-align: center;
+    padding: 1rem 3rem; }
 
 /*# sourceMappingURL=template.css.map */

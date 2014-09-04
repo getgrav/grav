@@ -4,10 +4,10 @@ title: Dashboard Login
 form:
     - name: username
       type: text
-      label: Username
+      placeholder: Username
 
     - name: password
       type: password
-      label: Password
+      placeholder: Password
 ---
 

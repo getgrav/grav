@@ -1,11 +1,23 @@
 // Core
-$core-text:						#444;
+$core-text:						#fff;
 $core-accent:					#1BB3E9;
 $secondary-link:				#F6635E;
 $white:							#fff;
 $black:							#000;
 $light-gray:					#ddd;
 $border-color: 					#EEEEEE;
+
+// Admin colors
+$page-bg:                       #314D5B;
+$accent-bg:                     #253A47;
+$accent-fg:                     #fff;
+$darker-accent-bg:              shade($accent-bg,12%);
+$darker-accent-fg:              shade($accent-fg,10%);
+$secondary-accent-bg:           #349886;
+$secondary-accent-fg:           #fff;
+$info-bg:                       #9055AF;
+$info-fg:                       #fff;
+
 
 // Borders
 $core-border-color:				$light-gray;
@@ -16,8 +28,6 @@ $core-border-color-focus: 		$core-accent;
 $core-box-shadow: 				inset 0 1px 3px hsla(0, 0%, 0%, 0.06);
 $core-box-shadow-focus: 		$core-box-shadow, 0 0 5px rgba(darken($core-border-color-focus, 5), 0.7);
 
-// Background
-$page-bg:						#fff;
 
 // Header
 $header-text: 					#FFFFFF;

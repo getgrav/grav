@@ -1,9 +1,12 @@
 .button {
 	@extend %button;
-	@include button-color($core-accent);
+
+    &.primary {
+        @include button-color(lighten($secondary-accent-bg, 10%));
+    }
+
+    &.secondary {
+        @include button-color(shade($secondary-accent-bg, 20%));
+    }
 }
 
-.button-secondary {
-	@extend %button;
-	@include button-color($secondary-link);
-}

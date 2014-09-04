@@ -1,9 +1,9 @@
 {% extends 'partials/base.html.twig' %}
 
 {% block page %}
-    <section id="admin-login">
+    <section id="admin-login" class="default-glow-shadow">
         <h1>
-            Login
+            Grav Login
         </h1>
 
         {% include 'partials/messages.html.twig' %}
@@ -16,7 +16,10 @@
                     </div>
                 {% endif %}
             {% endfor %}
-            <button name="task" value="login">Login</button>
+            <div class="form-actions secondary-accent">
+                <button class="button secondary" name="task" value="forgot"><i class="fa fa-exclamation-circle"></i> Forgot Password</button>
+                <button type="submit" class="button primary" name="task" value="login"><i class="fa fa-shield"></i> Login</button>
+            </div>
         </form>
     </section>
 {% endblock %}

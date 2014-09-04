@@ -2,6 +2,14 @@
 	@include transition(all 0.5s ease);
 }
 
+.default-border-radius {
+    border-radius: 4px;
+}
+
+.default-glow-shadow {
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
 .padding-horiz {
 	padding-left: $padding-horiz;
 	padding-right: $padding-horiz;

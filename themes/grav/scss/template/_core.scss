@@ -20,4 +20,14 @@ b, strong {
 	font-weight: $font-weight-bold
 }
 
+.secondary-accent {
+    background: $secondary-accent-bg;
+    color: $secondary-accent-fg;
+}
+
+.info {
+    background: $info-bg;
+    color: $info-fg;
+    font-size: 1.1rem;
+}
 
