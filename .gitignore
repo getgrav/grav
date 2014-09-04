@@ -1,5 +1,6 @@
 # Composer
 composer.lock
+vendor/
 
 # Sass
 .sass-cache
