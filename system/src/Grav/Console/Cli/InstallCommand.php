@@ -31,8 +31,8 @@ class InstallCommand extends Command {
             'Where to install the required bits (default to current project)'
 
         )
-        ->setDescription("Handles cloning and symlinking for Grav")
-        ->setHelp('The <info>install</info> provides clone and symlink installation chores');
+        ->setDescription("Installs the dependencies needed by Grav. Optionally can create symbolic links")
+        ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
