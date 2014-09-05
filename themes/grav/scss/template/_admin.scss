@@ -1,0 +1,143 @@
+$sidebar-width: 20%;
+$sidebar-padding: 2rem;
+$topbar-height: 4.2rem;
+
+#admin-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: $sidebar-width;
+
+    background: $accent-bg;
+}
+
+
+#admin-logo {
+    background: $darker-accent-bg;
+    height: $topbar-height;
+
+    h3 {
+        text-transform: uppercase;
+        margin: 0;
+        @extend %vertical-align;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+}
+
+#admin-user-details {
+    padding: $sidebar-padding;
+    border-bottom: 1px solid $darker-accent-bg;
+
+    img {
+        border-radius: 100%;
+        float: left;
+    }
+
+    .admin-user-names {
+        margin-left: 45px;
+
+        h4, h5 {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.3;
+        }
+
+        h5 {
+            font-family: $font-family-default;
+            color: lighten($accent-bg,55%);
+            font-size: 0.9rem;
+        }
+    }
+}
+
+#admin-menu {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+
+    li {
+        font-family: $font-family-header;
+
+
+        a {
+            @include transition(all 0.2s ease);
+            display: block;
+            padding-left: 25px;
+            padding-top: 0.7rem;
+            padding-bottom: 0.7rem;
+
+            color: lighten($accent-bg,65%);
+
+            i {
+                @include transition(all 0.2s ease);
+                color: lighten($accent-bg,55%);
+                margin-right: 8px;
+            }
+
+            &:hover {
+                background: $darker-accent-bg;
+                // padding-left: 30px;
+                color: $accent-fg;
+
+                i {
+                    font-size: 1.2rem;
+                }
+            }
+        }
+
+        &.selected {
+            a {
+                background: $page-bg;
+                color: $accent-fg;
+                padding-left: 16px;
+                border-left: 9px solid $secondary-accent-bg;
+
+                i {
+                    color: lighten($accent-bg,70%);
+                }
+
+            }
+
+        }
+
+    }
+}
+
+
+#admin-main {
+    margin-left: $sidebar-width;
+
+    .titlebar {
+        height: $topbar-height;
+
+        padding: 0 $padding-default;
+
+        h1 {
+            margin: 0;
+            @extend %vertical-align;
+            font-size: 1.5rem;
+            text-align: left;
+            letter-spacing: -1px;
+        }
+    }
+
+    .content-padding {
+        position: absolute;
+        top: $topbar-height;
+        bottom: 0;
+        left: $sidebar-width;
+        right: 0;
+        overflow-y: auto;
+        padding: 2.5rem;
+    }
+
+    .admin-block {
+        background: $content-bg;
+        color: $content-fg;
+        padding: $padding-default;
+    }
+}

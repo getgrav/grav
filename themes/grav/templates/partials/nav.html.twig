@@ -1,26 +1,45 @@
-<nav id="menu">
-    <ul class="grav-menu">
-        <li class="{{ (location == 'dashboard') ? 'Selected' : '' }}">
-            <a href="{{ base_url_relative }}"><i class="fa fa-fw fa-tachometer"></i> Dashboard</a>
+<nav id="admin-sidebar">
+    <div id="admin-logo">
+        <h3>Grav Admin</h3>
+    </div>
+
+    {% if admin.authorise %}
+    <div id="admin-user-details">
+        <img src="http://www.gravatar.com/avatar/{{ admin.user.email|md5 }}?s=32" />
+        <div class="admin-user-names">
+            <h4>{{ admin.user.fullname }}</h4>
+            <h5>{{ admin.user.title }}</h5>
+        </div>
+    </div>
+    {% endif %}
+
+    <ul id="admin-menu">
+        <li class="{{ (location == 'dashboard') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}"><i class="fa fa-fw fa-th"></i> Dashboard</a>
         </li>
-        <li class="{{ (location == 'configuration') ? 'Selected' : '' }}">
-            <a href="{{ base_url_relative }}/configuration"><i class="fa fa-fw fa-cogs"></i> Configuration</a>
+        <li class="{{ (location == 'configuration') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/configuration"><i class="fa fa-fw fa-wrench"></i> Configuration</a>
         </li>
-        <li class="{{ (location == 'settings') ? 'Selected' : '' }}">
-            <a href="{{ base_url_relative }}/settings"><i class="fa fa-fw fa-wrench"></i> Site Settings</a>
+        <li class="{{ (location == 'pages') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/pages"><i class="fa fa-fw fa-file-text-o"></i> Pages</a>
         </li>
-        <li class="{{ (location == 'pages') ? 'Selected' : '' }} {{ pages.children.count > 0 ? 'hasChildren' : '' }}">
-            <a href="{{ base_url_relative }}/pages"><i class="fa fa-fw fa-archive"></i> Pages</a>
-            {% include 'partials/page-children.html.twig' with {'pages': pages} %}
+        <li class="{{ (location == 'plugins') ? 'selected' : '' }} {{ plugins.count > 0 ? 'hasChildren' : '' }}">
+            <a href="{{ base_url_relative }}/plugins"><i class="fa fa-fw fa-puzzle-piece"></i> Plugins</a>
         </li>
-        <li class="{{ (location == 'themes') ? 'Selected' : '' }}">
-            <a href="{{ base_url_relative }}/themes"><i class="fa fa-fw fa-picture-o"></i> Themes</a>
+        <li class="{{ (location == 'themes') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/themes"><i class="fa fa-fw fa-tint"></i> Themes</a>
         </li>
-        <li class="{{ (location == 'plugins') ? 'Selected' : '' }} {{ plugins.count > 0 ? 'hasChildren' : '' }}">
-            <a href="{{ base_url_relative }}/plugins"><i class="fa fa-fw fa-bolt"></i> Plugins</a>
+        <li class="{{ (location == 'installer') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/installer"><i class="fa fa-fw fa-cloud-download"></i> Installer</a>
         </li>
-        <li class="{{ (location == 'logs') ? 'Selected' : '' }}">
-            <a href="{{ base_url_relative }}/logs"><i class="fa fa-fw fa-bolt"></i> Error Log</a>
+        <li class="{{ (location == 'users') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/users"><i class="fa fa-fw fa-child"></i> Users</a>
+        </li>
+        <li class="{{ (location == 'logs') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/logs"><i class="fa fa-fw fa-warning"></i> Error Logs</a>
+        </li>
+        <li>
+            <a href="{{ base_url_relative }}/task:logout"><i class="fa fa-fw fa-power-off"></i> Logout</a>
         </li>
     </ul>
 </nav>

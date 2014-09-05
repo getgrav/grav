@@ -49,7 +49,6 @@ h4 {
 }
 
 h1 {
-	text-align: center;
 	letter-spacing: -3px;
 }
 
@@ -59,36 +58,6 @@ h2 {
 
 h3 {
 	letter-spacing: -1px;
-}
-
-h1 + h2 {
-	margin: -2rem 0 2rem 0;
-	font-size: 2rem;
-	@include breakpoint(tablet-range) {
-		font-size: 1.6rem;
-	}
-	@include breakpoint(mobile-only) {
-		font-size: 1.5rem;
-	}
-	line-height: 1;
-	text-align: center;
-	font-family: $font-family-default;
-	font-weight: 300;
-}
-
-h2 + h3 {
-	margin: 0.5rem 0 2rem 0;
-	font-size: 2rem;
-	@include breakpoint(tablet-range) {
-		font-size: 1.6rem;
-	}
-	@include breakpoint(mobile-only) {
-		font-size: 1.5rem;
-	}
-	line-height: 1;
-	text-align: center;
-	font-family: $font-family-default;
-	font-weight: 300;
 }
 
 

@@ -2,14 +2,12 @@
 
 <div class="form-field">
     <label class="inline">
-        <span>
-            {% if field.help %}
-            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
-            {% else %}
-            {{ field.label }}
-            {% endif %}
-            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
-        </span>
+        {% if field.help %}
+        <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+        {% else %}
+        {{ field.label }}
+        {% endif %}
+        {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
 
         <input  type="text"
                 class="input"

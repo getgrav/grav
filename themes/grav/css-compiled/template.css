@@ -1,5 +1,5 @@
 @import url(//fonts.googleapis.com/css?family=Montserrat:400|Lato:300,400,700);
-#admin-login {
+#admin-login, #admin-logo h3, #admin-main .titlebar h1 {
   position: relative;
   top: 50%;
   -webkit-transform: translateY(-50%);
@@ -55,6 +55,9 @@ b, strong, label, th {
 
 .default-glow-shadow {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); }
+
+.default-box-shadow {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
 
 .padding-horiz {
   padding-left: 7rem;
@@ -112,7 +115,6 @@ h1 {
     font-size: 1.25rem; } }
 
 h1 {
-  text-align: center;
   letter-spacing: -3px; }
 
 h2 {
@@ -120,34 +122,6 @@ h2 {
 
 h3 {
   letter-spacing: -1px; }
-
-h1 + h2 {
-  margin: -2rem 0 2rem 0;
-  font-size: 2rem;
-  line-height: 1;
-  text-align: center;
-  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
-  font-weight: 300; }
-  @media only all and (min-width: 48em) and (max-width: 59.938em) {
-    h1 + h2 {
-      font-size: 1.6rem; } }
-  @media only all and (max-width: 47.938em) {
-    h1 + h2 {
-      font-size: 1.5rem; } }
-
-h2 + h3 {
-  margin: 0.5rem 0 2rem 0;
-  font-size: 2rem;
-  line-height: 1;
-  text-align: center;
-  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
-  font-weight: 300; }
-  @media only all and (min-width: 48em) and (max-width: 59.938em) {
-    h2 + h3 {
-      font-size: 1.6rem; } }
-  @media only all and (max-width: 47.938em) {
-    h2 + h3 {
-      font-size: 1.5rem; } }
 
 blockquote {
   border-left: 10px solid #f0f2f4; }
@@ -331,5 +305,97 @@ td {
   #admin-login .info {
     text-align: center;
     padding: 1rem 3rem; }
+
+#admin-sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 20%;
+  background: #253a47; }
+
+#admin-logo {
+  background: #20333e;
+  height: 4.2rem; }
+  #admin-logo h3 {
+    text-transform: uppercase;
+    margin: 0;
+    text-align: center;
+    font-size: 1.2rem; }
+
+#admin-user-details {
+  padding: 2rem;
+  border-bottom: 1px solid #20333e; }
+  #admin-user-details img {
+    border-radius: 100%;
+    float: left; }
+  #admin-user-details .admin-user-names {
+    margin-left: 45px; }
+    #admin-user-details .admin-user-names h4, #admin-user-details .admin-user-names h5 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.3; }
+    #admin-user-details .admin-user-names h5 {
+      font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+      color: #afc7d5;
+      font-size: 0.9rem; }
+
+#admin-menu {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none; }
+  #admin-menu li {
+    font-family: "Montserrat", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+    #admin-menu li a {
+      -webkit-transition: all 0.2s ease;
+      -moz-transition: all 0.2s ease;
+      transition: all 0.2s ease;
+      display: block;
+      padding-left: 25px;
+      padding-top: 0.7rem;
+      padding-bottom: 0.7rem;
+      color: #d1dee7; }
+      #admin-menu li a i {
+        -webkit-transition: all 0.2s ease;
+        -moz-transition: all 0.2s ease;
+        transition: all 0.2s ease;
+        color: #afc7d5;
+        margin-right: 8px; }
+      #admin-menu li a:hover {
+        background: #20333e;
+        color: white; }
+        #admin-menu li a:hover i {
+          font-size: 1.2rem; }
+    #admin-menu li.selected a {
+      background: #314d5b;
+      color: white;
+      padding-left: 16px;
+      border-left: 9px solid #349886; }
+      #admin-menu li.selected a i {
+        color: #e1eaf0; }
+
+#admin-main {
+  margin-left: 20%; }
+  #admin-main .titlebar {
+    height: 4.2rem;
+    padding: 0 3rem; }
+    #admin-main .titlebar h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      text-align: left;
+      letter-spacing: -1px; }
+  #admin-main .content-padding {
+    position: absolute;
+    top: 4.2rem;
+    bottom: 0;
+    left: 20%;
+    right: 0;
+    overflow-y: auto;
+    padding: 2.5rem; }
+  #admin-main .admin-block {
+    background: #eeeeee;
+    color: #737c81;
+    padding: 3rem; }
 
 /*# sourceMappingURL=template.css.map */

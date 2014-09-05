@@ -45,27 +45,27 @@
 </head>
 <body>
     {% block page %}
+
     {% block navigation %}
         {% include 'partials/nav.html.twig' %}
     {% endblock %}
-    <div>
-        <section id="main">
-            <div id="toolbar" class="mm-fixed-top">
-                {% block toolbar %}
-                    {% include 'partials/toolbar.html.twig' %}
-                {% endblock %}
-            </div>
-            <div class="content-padding">
-                {% block content %}{% endblock %}
-            </div>
-        </section>
 
-        {% block footer_section %}
-        <footer id="footer">
-            <a href="http://getgrav.org">Grav</a> was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
-        </footer>
-        {% endblock %}
-    </div>
+    <section id="admin-main">
+        <div class="titlebar secondary-accent">
+            {% block titlebar %}{% endblock %}
+        </div>
+        <div class="content-padding">
+            {% include 'partials/messages.html.twig' %}
+            <div class="admin-block default-box-shadow">
+            {% block content %}{% endblock %}
+            </div>
+            <footer id="footer">
+                <a href="http://getgrav.org">Grav</a> was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
+            </footer>
+        </div>
+
+    </section>
+
     {% endblock page %}
 </body>
 </html>
