@@ -260,6 +260,7 @@ class Assets
     /**
      * Build the CSS link tags.
      *
+     * @param  array  $attributes
      * @return string
      */
     public function css($attributes = [])
@@ -293,6 +294,7 @@ class Assets
     /**
      * Build the JavaScript script tags.
      *
+     * @param  array  $attributes
      * @return string
      */
     public function js($attributes = [])
