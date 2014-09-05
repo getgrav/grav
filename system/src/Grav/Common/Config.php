@@ -232,10 +232,9 @@ class Config extends Data
         /** @var \DirectoryIterator $plugin */
         foreach ($iterator as $plugin) {
             $name = $plugin->getBasename();
-            $dir = $plugin->getPathname() ;
-            $file = $dir . DS . $name . YAML_EXT;
+            $file = $plugin->getPathname() . DS . $name . YAML_EXT;
 
-            if (!(is_dir($dir) && is_file($file))) {
+            if (!file_exists($file)) {
                 continue;
             }
 
