@@ -234,7 +234,7 @@ class Config extends Data
             $name = $plugin->getBasename();
             $file = $plugin->getPathname() . DS . $name . YAML_EXT;
 
-            if (!is_file($file)) {
+            if (!file_exists($file)) {
                 continue;
             }
 
