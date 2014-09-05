@@ -55,7 +55,7 @@ class Config extends Data
     {
         // Build file map.
         $files = $this->build();
-        $key = md5(serialize($files) . GRAV_VERSION);
+        $key = md5(json_encode($files) . GRAV_VERSION);
 
         if ($force || $key != $this->key) {
             // First take non-blocking lock to the file.

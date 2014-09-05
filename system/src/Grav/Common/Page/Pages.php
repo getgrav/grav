@@ -173,7 +173,7 @@ class Pages
     {
         $items = $collection->toArray();
 
-        $lookup = md5(serialize($items));
+        $lookup = md5(json_encode($items));
         if (!isset($this->sort[$lookup][$orderBy])) {
             $this->buildSort($lookup, $items, $orderBy, $orderManual);
         }
