@@ -1,8 +1,7 @@
 <?php
 namespace Grav\Console\Gpm;
 
-use Grav\Common\Grav;
-use Grav\Common\Cache;
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,21 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class InfoCommand extends Command {
-
-    protected $input;
-    protected $ouput;
-    protected $data;
-    protected $argv;
-
-    public function __construct(Grav $grav){
-        $this->grav = $grav;
-
-        // just for the gpm cli we force the filesystem driver cache
-        $this->grav['config']->set('system.cache.driver', 'default');
-        $this->argv = $_SERVER['argv'][0];
-
-        parent::__construct();
-    }
+    use ConsoleTrait;
 
     protected function configure() {
         $this
@@ -49,23 +34,10 @@ class InfoCommand extends Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->input  = $input;
-        $this->output = $output;
+        $this->setupConsole($input, $output);
 
         $userPackage  = false;
-
-        $this->setColors();
-
-        $fetchCommand = $this->getApplication()->find('fetch');
-        $args         = new ArrayInput(array('command' => 'fetch', '-f' => $input->getOption('force')));
-        $commandExec = $fetchCommand->run($args, $output);
-
-        if ($commandExec != 0){
-            $output->writeln("<red>Error:</red> An error occured while trying to fetch data from <cyan>getgrav.org</cyan>");
-            exit;
-        }
-
-        $this->data = $this->grav['cache']->fetch(md5('cli:gpm'));
+        $this->data   = $this->fetchData();
 
         $this->output->writeln('');
 
@@ -108,15 +80,5 @@ class InfoCommand extends Command {
         $this->output->writeln("    <green>".$this->argv." install</green> <cyan>".$userPackage[$key]->slug."</cyan>");
         $this->output->writeln('');
 
-    }
-
-       private function setColors()
-    {
-        $this->output->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
-        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, array('bold')));
-        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, array('bold')));
-        $this->output->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, array('bold')));
-        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, array('bold')));
-        $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
     }
 }

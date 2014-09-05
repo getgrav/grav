@@ -1,8 +1,7 @@
 <?php
 namespace Grav\Console\Gpm;
 
-use Grav\Common\Grav;
-use Grav\Common\Cache;
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -13,25 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class UpdateCommand extends Command {
-    protected $input;
-    protected $ouput;
+    use ConsoleTrait;
+
     protected $data;
     protected $extensions;
     protected $updatable;
-    protected $argv;
     protected $destination;
     protected $file;
     protected $types = array('plugins', 'themes');
-
-    public function __construct(Grav $grav){
-        $this->grav = $grav;
-
-        // just for the gpm cli we force the filesystem driver cache
-        $this->grav['config']->set('system.cache.driver', 'default');
-        $this->argv = $_SERVER['argv'][0];
-
-        parent::__construct();
-    }
 
     protected function configure() {
         $this
@@ -60,11 +48,10 @@ class UpdateCommand extends Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->input  = $input;
-        $this->output = $output;
+        $this->setupConsole($input, $output);
+
         $this->destination = realpath($this->input->getOption('destination'));
 
-        $this->setColors();
         $this->isGravRoot($this->destination);
 
         // fetch remote data and scan for local extensions
@@ -125,17 +112,6 @@ class UpdateCommand extends Command {
         }
     }
 
-    private function setColors()
-    {
-        $this->output->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
-        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, array('bold')));
-        $this->output->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, array('bold')));
-        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, array('bold')));
-        $this->output->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, array('bold')));
-        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, array('bold')));
-        $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
-    }
-
     private function isGravRoot($path)
     {
         if (!file_exists($path)){
@@ -161,20 +137,6 @@ class UpdateCommand extends Command {
             $this->output->writeln('');
             exit;
         }
-    }
-
-    private function fetchData()
-    {
-        $fetchCommand = $this->getApplication()->find('fetch');
-        $args         = new ArrayInput(array('command' => 'fetch', '-f' => $this->input->getOption('force')));
-        $commandExec = $fetchCommand->run($args, $this->output);
-
-        if ($commandExec != 0){
-            $this->output->writeln("<red>Error:</red> An error occured while trying to fetch data from <cyan>getgrav.org</cyan>");
-            exit;
-        }
-
-        return $this->grav['cache']->fetch(md5('cli:gpm'));
     }
 
     private function scanForExtensions()

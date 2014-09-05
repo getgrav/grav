@@ -1,8 +1,7 @@
 <?php
 namespace Grav\Console\Gpm;
 
-use Grav\Common\Grav;
-use Grav\Common\Cache;
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -13,23 +12,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class InstallCommand extends Command {
+    use ConsoleTrait;
 
-    protected $input;
-    protected $ouput;
     protected $data;
-    protected $argv;
     protected $destination;
     protected $file;
-
-    public function __construct(Grav $grav){
-        $this->grav = $grav;
-
-        // just for the gpm cli we force the filesystem driver cache
-        $this->grav['config']->set('system.cache.driver', 'default');
-        $this->argv = $_SERVER['argv'][0];
-
-        parent::__construct();
-    }
 
     protected function configure() {
         $this
@@ -64,8 +51,8 @@ class InstallCommand extends Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->input  = $input;
-        $this->output = $output;
+        $this->setupConsole($input, $output);
+
         $this->destination = realpath($this->input->getOption('destination'));
 
         $packages_to_install = array_map('strtolower', $this->input->getArgument('package'));
@@ -273,20 +260,6 @@ class InstallCommand extends Command {
             $this->output->writeln('');
             exit;
         }
-    }
-
-    private function fetchData()
-    {
-        $fetchCommand = $this->getApplication()->find('fetch');
-        $args         = new ArrayInput(array('command' => 'fetch', '-f' => $this->input->getOption('force')));
-        $commandExec = $fetchCommand->run($args, $this->output);
-
-        if ($commandExec != 0){
-            $this->output->writeln("<red>Error:</red> An error occured while trying to fetch data from <cyan>getgrav.org</cyan>");
-            exit;
-        }
-
-        return $this->grav['cache']->fetch(md5('cli:gpm'));
     }
 
     private function getCurl($url)

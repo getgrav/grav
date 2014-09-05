@@ -1,8 +1,7 @@
 <?php
 namespace Grav\Console\Gpm;
 
-use Grav\Common\Grav;
-use Grav\Common\Cache;
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,26 +11,14 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class FetchCommand extends Command {
+    use ConsoleTrait;
 
-    protected $input;
-    protected $output;
     protected $cache;
-    protected $argv;
     protected $progress;
-    protected $repository = 'http://getgrav.org/downloads';
     protected $pkg_types = array('plugins', 'themes');
 
-    public function __construct(Grav $grav){
-        $this->grav = $grav;
-
-        // just for the gpm cli we force the filesystem driver cache
-        $this->grav['config']->set('system.cache.driver', 'default');
-        $this->cache = $this->grav['cache']->fetch(md5('cli:gpm'));
-
-        parent::__construct();
-    }
-
-    protected function configure() {
+    protected function configure()
+    {
         $this
         ->setName("fetch")
         ->addOption(
@@ -46,26 +33,25 @@ class FetchCommand extends Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->input  = $input;
-        $this->output = $output;
+        $this->setupConsole($input, $output);
 
-        $this->setColors();
+        $this->cache = self::$grav['cache']->fetch(md5('cli:gpm'));
         $this->fetch($this->output);
     }
 
     private function fetch()
     {
         if (!$this->cache || $this->input->getOption('force')){
-            $data = $this->fetch_data();
+            $data = $this->fetchData();
             $date = new \DateTime();
-            $this->grav['cache']->save(md5('cli:gpm'), $data, 86400);
+            self::$grav['cache']->save(md5('cli:gpm'), $data, 86400);
             $date = $date->modify('+1 day')->format('D, d M Y H:i:s');
             $this->cache = $data;
             $this->output->writeln("Data cached until <cyan>".$date."</cyan>\n");
         }
     }
 
-    private function fetch_data()
+    private function fetchData()
     {
         $this->output->writeln("");
         $this->output->writeln('Fetching data from <cyan>getgrav.org</cyan>');
@@ -94,16 +80,6 @@ class FetchCommand extends Command {
         $this->output->writeln("");
 
         return $response;
-    }
-
-    private function setColors()
-    {
-        $this->output->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
-        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, array('bold')));
-        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, array('bold')));
-        $this->output->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, array('bold')));
-        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, array('bold')));
-        $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
     }
 
     private function getCurl($progress = false)
