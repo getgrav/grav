@@ -10,8 +10,6 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class CleanCommand extends Command {
 
-    protected $destination_dir = 'distribution';
-
     protected $paths_to_remove = [
         'user/plugins/email/vendor/swiftmailer/swiftmailer/.travis.yml',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/build.xml',
