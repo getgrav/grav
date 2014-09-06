@@ -58,7 +58,7 @@ class Themes extends Iterator
             throw new \RuntimeException('Theme name not provided.');
         }
 
-        $blueprints = new Data\Blueprints("theme://{$name}");
+        $blueprints = new Data\Blueprints("theme:///{$name}");
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
@@ -70,7 +70,7 @@ class Themes extends Iterator
         }
 
         // Load default configuration.
-        $file = File\Yaml::instance("theme://{$name}/{$name}" . YAML_EXT);
+        $file = File\Yaml::instance("theme:///{$name}/{$name}" . YAML_EXT);
         $obj = new Data\Data($file->content(), $blueprint);
 
         // Override with user configuration.
