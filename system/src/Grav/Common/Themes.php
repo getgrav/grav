@@ -1,9 +1,7 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Data\Data;
-use Grav\Common\Data\Blueprints;
-use Grav\Common\Filesystem\File\Yaml;
+use Grav\Common\Filesystem\File;
 use Grav\Component\Filesystem\ResourceLocator;
 
 /**
@@ -12,15 +10,11 @@ use Grav\Component\Filesystem\ResourceLocator;
  * @author RocketTheme
  * @license MIT
  */
-class Themes
+class Themes extends Iterator
 {
-    /**
-     * @var Grav
-     */
     protected $grav;
 
-    public function __construct(Grav $grav)
-    {
+    public function __construct(Grav $grav) {
         $this->grav = $grav;
     }
 
@@ -29,10 +23,10 @@ class Themes
      *
      * @return array|Data[]
      */
-    public function all()
+    public static function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator(THEMES_DIR);
+        $iterator = new \DirectoryIterator('themes:///');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
@@ -56,13 +50,13 @@ class Themes
      * @return Data
      * @throws \RuntimeException
      */
-    public function get($name)
+    public static function get($name)
     {
         if (!$name) {
             throw new \RuntimeException('Theme name not provided.');
         }
 
-        $blueprints = new Blueprints("theme:///{$name}");
+        $blueprints = new Data\Blueprints("theme://{$name}");
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
@@ -70,17 +64,17 @@ class Themes
         $config = $this->grav['config'];
 
         // Find thumbnail.
-        $thumb = "theme:///{$name}/thumbnail.jpg";
+        $thumb = "theme://{$name}/thumbnail.jpg";
         if (file_exists($thumb)) {
             $blueprint->set('thumbnail', $config->get('system.base_url_relative') . "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.
-        $file = Yaml::instance("theme:///{$name}/{$name}.yaml");
-        $obj = new Data($file->content(), $blueprint);
+        $file = File\Yaml::instance("theme://{$name}/{$name}" . YAML_EXT);
+        $obj = new Data\Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = Yaml::instance("user://config/themes/{$name}.yaml");
+        $file = File\Yaml::instance("user://config/themes/{$name}" . YAML_EXT);
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
@@ -139,7 +133,7 @@ class Themes
         /** @var Config $config */
         $config = $this->grav['config'];
 
-        $themeConfig = Yaml::instance(THEMES_DIR . "{$name}/{$name}.yaml")->content();
+        $themeConfig = File\Yaml::instance("theme://{$name}/{$name}" . YAML_EXT)->content();
 
         $config->merge(['themes' => [$name => $themeConfig]]);
 
