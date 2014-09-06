@@ -231,13 +231,12 @@ class Config extends Data
 
         /** @var \DirectoryIterator $plugin */
         foreach ($iterator as $plugin) {
-            $name = $plugin->getBasename();
-            $dir = $plugin->getPathname() ;
-            $file = $dir . DS . $name . YAML_EXT;
+            if ($iterator->isFile() || $iterator->isDot()) continue;
 
-            if (!(is_dir($dir) && is_file($file))) {
-                continue;
-            }
+            $name = $plugin->getBasename();
+            $file = $plugin->getPathname() . DS . $name . YAML_EXT;
+
+            if (!file_exists($file)) continue;
 
             $modified = filemtime($file);
             $plugins["plugins/{$name}"] = $modified;
