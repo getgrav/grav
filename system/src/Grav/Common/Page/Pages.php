@@ -426,16 +426,12 @@ class Pages
             throw new \RuntimeException('Fatal error when creating page instances.');
         }
 
-        $last_modified = 0;
+        // set current modified of page
+        $last_modified = $page->modified();
 
         /** @var \DirectoryIterator $file */
         foreach ($iterator as $file) {
             $name = $file->getFilename();
-
-            $date = $file->getMTime();
-            if ($date > $last_modified) {
-                $last_modified = $date;
-            }
 
             if ($file->isFile() && Utils::endsWith($name, CONTENT_EXT)) {
 
@@ -471,12 +467,16 @@ class Pages
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
+            } else {
+                $date = $file->getMTime();
+                if ($date > $last_modified) {
+                    $last_modified = $date;
+                }
             }
 
         }
 
-        // Override the modified and ID so that it takes the latest change
-        // into account
+        // Override the modified and ID so that it takes the latest change into account
         $page->modified($last_modified);
         $page->id($last_modified.md5($page->filePath()));
 
