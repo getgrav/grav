@@ -45,7 +45,8 @@ class AdminPlugin extends Plugin
      */
     public static function getSubscribedEvents() {
         return [
-            'onPluginsInitialized' => ['onPluginsInitialized', 1000]
+            'onPluginsInitialized' => ['onPluginsInitialized', 1000],
+            'onShutdown' => ['onShutdown', 1000]
         ];
     }
 
@@ -155,6 +156,23 @@ class AdminPlugin extends Plugin
         }
     }
 
+    public function onShutdown()
+    {
+        if ($this->config->get('plugins.admin.popularity')) {
+            require_once PLUGINS_DIR . 'admin/classes/popularity.php';
+            $popularity = new Popularity();
+
+            // if in admin, try to flush data
+            if ($this->active) {
+                $popularity->flushData();
+
+            // else track data
+            } else {
+                $popularity->trackHit();
+            }
+        }
+    }
+
     protected function initializeAdmin()
     {
         $this->route = $this->config->get('plugins.admin.route');
@@ -168,6 +186,7 @@ class AdminPlugin extends Plugin
 
         // Only activate admin if we're inside the admin path.
         if (substr($this->uri->route(), 0, strlen($base)) == $base) {
+            $this->active = true;
             $this->enable([
                 'onPagesInitialized' => ['onPagesInitialized', 1000],
                 'onPageInitialized' => ['onPageInitialized', 1000],
@@ -199,6 +218,7 @@ class AdminPlugin extends Plugin
 
             // And store the class into DI container.
             $this->grav['admin'] = $this->admin;
+
         }
     }
 }
