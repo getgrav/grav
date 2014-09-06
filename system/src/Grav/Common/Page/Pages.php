@@ -300,7 +300,7 @@ class Pages
             $list[$current->route()] = str_repeat('&nbsp; ', ($level-1)*2) . $current->title();
         }
 
-        foreach ($current as $next) {
+        foreach ($current->children() as $next) {
             $list = array_merge($list, $this->getList($next, $level + 1));
         }
 
