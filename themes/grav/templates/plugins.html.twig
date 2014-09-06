@@ -12,7 +12,7 @@
         {% include 'partials/messages.html.twig' %}
 
         <table>
-            {% for plugin in plugins %}
+            {% for plugin in admin.plugins %}
             {% set blueprints = plugin.blueprints() %}
 
             <tr>
@@ -32,7 +32,7 @@
             {% endfor %}
         </table>
         {% else %}
-        {% set plugin = plugins[admin.route] %}
+        {% set plugin = admin.plugins[admin.route] %}
         {% set blueprints = plugin.blueprints() %}
 
         <h1>

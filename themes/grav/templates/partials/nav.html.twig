@@ -21,13 +21,23 @@
             <a href="{{ base_url_relative }}/configuration"><i class="fa fa-fw fa-wrench"></i> Configuration</a>
         </li>
         <li class="{{ (location == 'pages') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/pages"><i class="fa fa-fw fa-file-text-o"></i> Pages</a>
+            <a href="{{ base_url_relative }}/pages">
+                <i class="fa fa-fw fa-file-text-o"></i> Pages
+                <span class="badge">{{ admin.routes|length }}</span>
+            </a>
+
         </li>
         <li class="{{ (location == 'plugins') ? 'selected' : '' }} {{ plugins.count > 0 ? 'hasChildren' : '' }}">
-            <a href="{{ base_url_relative }}/plugins"><i class="fa fa-fw fa-puzzle-piece"></i> Plugins</a>
+            <a href="{{ base_url_relative }}/plugins">
+                <i class="fa fa-fw fa-puzzle-piece"></i> Plugins
+                <span class="badge">{{ admin.plugins|length }}</span>
+            </a>
         </li>
         <li class="{{ (location == 'themes') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/themes"><i class="fa fa-fw fa-tint"></i> Themes</a>
+            <a href="{{ base_url_relative }}/themes">
+                <i class="fa fa-fw fa-tint"></i> Themes
+                <span class="badge">{{ admin.themes|length }}</span>
+            </a>
         </li>
         <li class="{{ (location == 'installer') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/installer"><i class="fa fa-fw fa-cloud-download"></i> Installer</a>
@@ -36,7 +46,10 @@
             <a href="{{ base_url_relative }}/users"><i class="fa fa-fw fa-child"></i> Users</a>
         </li>
         <li class="{{ (location == 'logs') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/logs"><i class="fa fa-fw fa-warning"></i> Error Logs</a>
+            <a href="{{ base_url_relative }}/logs">
+                <i class="fa fa-fw fa-warning"></i> Error Logs
+                <span class="badge">{{ admin.logs|length }}</span>
+            </a>
         </li>
         <li>
             <a href="{{ base_url_relative }}/task:logout"><i class="fa fa-fw fa-power-off"></i> Logout</a>

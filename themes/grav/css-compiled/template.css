@@ -45,6 +45,16 @@ b, strong, label, th {
   color: white;
   font-size: 1.1rem; }
 
+.badge {
+  font-size: 0.9rem;
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font-weight: 700;
+  border-radius: 100%;
+  padding: 0px 6px;
+  min-width: 23px;
+  line-height: 23px;
+  text-align: center; }
+
 .default-animation {
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
@@ -269,7 +279,7 @@ td {
 
 #admin-login {
   background: #253a47;
-  max-width: 28rem;
+  max-width: 24rem;
   margin: 0 auto; }
   #admin-login h1 {
     background: #20333e url(../images/logo.png) 50% 50% no-repeat;
@@ -347,6 +357,11 @@ td {
   list-style: none; }
   #admin-menu li {
     font-family: "Montserrat", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+    #admin-menu li .badge {
+      background-color: #141f25;
+      color: #e5e5e5;
+      float: right;
+      margin-right: 1rem; }
     #admin-menu li a {
       -webkit-transition: all 0.2s ease;
       -moz-transition: all 0.2s ease;

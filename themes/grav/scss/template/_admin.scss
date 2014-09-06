@@ -59,9 +59,17 @@ $topbar-height: 4.2rem;
     list-style: none;
 
 
+
+
     li {
         font-family: $font-family-header;
 
+        .badge {
+            background-color: darken($accent-bg, 10%);
+            color: shade($accent-fg,10%);
+            float: right;
+            margin-right:1rem;
+        }
 
         a {
             @include transition(all 0.2s ease);

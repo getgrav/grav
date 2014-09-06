@@ -31,3 +31,14 @@ b, strong {
     font-size: 1.1rem;
 }
 
+.badge {
+    font-size: 0.9rem;
+    font-family: $font-family-default;
+    font-weight: 700;
+    border-radius: 100%;
+    padding: 0px 6px;
+    min-width: 23px;
+    line-height: 23px;
+    text-align: center;
+}
+

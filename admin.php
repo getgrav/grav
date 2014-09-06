@@ -78,6 +78,9 @@ class AdminPlugin extends Plugin
 
         /** @var Pages $pages */
         $pages = $this->grav['pages'];
+
+        $this->grav['admin']->routes = $pages->routes();
+
         $pages->dispatch('/', true)->route($home);
     }
 
@@ -90,8 +93,6 @@ class AdminPlugin extends Plugin
         if (!$this->admin->authorise()) {
             $this->template = $this->admin->user ? 'denied' : 'login';
         }
-
-
 
         // Make local copy of POST.
         $post = !empty($_POST) ? $_POST : array();
@@ -148,9 +149,6 @@ class AdminPlugin extends Plugin
         $twig->twig_vars['admin'] = $this->admin;
 
         switch ($this->template) {
-            case 'plugins':
-                $twig->twig_vars['plugins'] = $this->grav['plugins']->all();
-                break;
             case 'pages':
                 $twig->twig_vars['file'] = File\General::instance($this->admin->page(true)->filePath());
                 break;

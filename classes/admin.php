@@ -65,6 +65,7 @@ class Admin
      */
     public $user;
 
+
     /**
      * Constructor.
      *
@@ -295,17 +296,74 @@ class Admin
     }
 
     /**
+     * Get all routes.
+     *
+     * @return array
+     */
+    public function routes()
+    {
+        return $this->grav['pages']->routes()->all();
+    }
+
+    /**
+     * Get all plugins.
+     *
+     * @return array
+     */
+    public function plugins()
+    {
+        return $this->grav['plugins']->all();
+    }
+
+    /**
      * Get log file for fatal errors.
      *
      * @return string
      */
     public function logs()
     {
-        $file = File\Log::instance(LOG_DIR . 'exception.log');
+        if (!isset($this->logs)) {
+            $file = File\Log::instance(LOG_DIR . 'exception.log');
 
-        $content = $file->content();
+            $content = $file->content();
 
-        return array_reverse($content);
+            $this->logs = array_reverse($content);
+        }
+        return $this->logs;
+    }
+
+    /**
+     * Used by the Dashboard in the admin to display the X latest pages
+     * that have been modified
+     *
+     * @param  integer $count number of pages to pull back
+     * @return [type]         [description]
+     */
+    public function latestPages($count=10)
+    {
+        $latest = array();
+
+        foreach ($this->grav['pages']->routes() as $url => $path) {
+            $page = $this->grav['pages']->dispatch($url);
+            $latest[$page->route()] = ['modified'=>$page->modified(),'page'=>$page];
+        }
+
+        // sort based on modified
+        uasort($latest, function($a, $b) {
+            if ($a['modified'] == $b['modified']) {
+                return 0;
+            }
+            return ($a['modified'] > $b['modified']) ? -1 : 1;
+        });
+
+        // build new array with just pages in it
+        // TODO: Optimized this
+        $pages = array();
+        foreach ($latest as $item) {
+            $pages[] = $item['page'];
+        }
+
+        return array_slice($pages, 0, $count);
     }
 
     /**
@@ -379,4 +437,5 @@ class Admin
     {
         return dirname('/' . Grav::instance()['admin']->route);
     }
+
 }
