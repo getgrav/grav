@@ -141,12 +141,13 @@ class Grav extends Container
         // Set the header type
         $this->header();
 
+        Debugger::barDump($this['plugins']);
+
         echo $this->output;
 
-        ob_end_flush();
-        flush();
-
         $this->fireEvent('onOutputRendered');
+
+        register_shutdown_function([$this, 'shutdown']);
     }
 
     /**
@@ -208,5 +209,16 @@ class Grav extends Container
         /** @var EventDispatcher $events */
         $events = $this['events'];
         return $events->dispatch($eventName, $event);
+    }
+
+    /**
+     * Set the final content length for the page and flush the buffer
+     *
+     */
+    public function shutdown()
+    {
+        header('Content-length: ' . ob_get_length());
+        ob_end_flush();
+        flush();
     }
 }
