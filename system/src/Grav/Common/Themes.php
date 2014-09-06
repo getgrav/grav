@@ -13,9 +13,11 @@ use Grav\Component\Filesystem\ResourceLocator;
 class Themes extends Iterator
 {
     protected $grav;
+    protected $config;
 
     public function __construct(Grav $grav) {
         $this->grav = $grav;
+        $this->config = $grav['config'];
     }
 
     /**
@@ -23,10 +25,10 @@ class Themes extends Iterator
      *
      * @return array|Data[]
      */
-    public static function all()
+    public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator('themes:///');
+        $iterator = new \DirectoryIterator('theme:///');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
@@ -50,7 +52,7 @@ class Themes extends Iterator
      * @return Data
      * @throws \RuntimeException
      */
-    public static function get($name)
+    public function get($name)
     {
         if (!$name) {
             throw new \RuntimeException('Theme name not provided.');
@@ -60,13 +62,11 @@ class Themes extends Iterator
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
-        /** @var Config $config */
-        $config = $this->grav['config'];
-
         // Find thumbnail.
-        $thumb = "theme://{$name}/thumbnail.jpg";
+        $thumb = "theme:///{$name}/thumbnail.jpg";
+
         if (file_exists($thumb)) {
-            $blueprint->set('thumbnail', $config->get('system.base_url_relative') . "/user/themes/{$name}/thumbnail.jpg");
+            $blueprint->set('thumbnail', $this->config->get('system.base_url_relative') . "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.
@@ -85,23 +85,18 @@ class Themes extends Iterator
 
     public function current($name = null)
     {
-        /** @var Config $config */
-        $config = $this->grav['config'];
 
         if (!$name) {
-            $name = $config->get('system.pages.theme');
+            $name = $this->config->get('system.pages.theme');
         }
 
         return $name;
     }
 
-    public function load($name = null)
+    function load($name = null)
     {
         $name = $this->current($name);
         $grav = $this->grav;
-
-        /** @var Config $config */
-        $config = $grav['config'];
 
         /** @var ResourceLocator $locator */
         $locator = $grav['locator'];
@@ -115,13 +110,13 @@ class Themes extends Iterator
                 $className = '\\Grav\\Theme\\' . ucfirst($name);
 
                 if (class_exists($className)) {
-                    $class = new $className($grav, $config, $name);
+                    $class = new $className($grav, $this->config, $name);
                 }
             }
         }
 
         if (empty($class)) {
-            $class = new Theme($grav, $config, $name);
+            $class = new Theme($grav, $this->config, $name);
         }
 
         return $class;
@@ -131,7 +126,7 @@ class Themes extends Iterator
         $name = $this->current($name);
 
         /** @var Config $config */
-        $config = $this->grav['config'];
+        $config = $this->config;
 
         $themeConfig = File\Yaml::instance("theme://{$name}/{$name}" . YAML_EXT)->content();
 
