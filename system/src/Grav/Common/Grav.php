@@ -141,8 +141,6 @@ class Grav extends Container
         // Set the header type
         $this->header();
 
-        Debugger::barDump($this['plugins']);
-
         echo $this->output;
 
         $this->fireEvent('onOutputRendered');
