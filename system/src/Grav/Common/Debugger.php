@@ -70,4 +70,9 @@ class Debugger
     {
         TracyDebugger::dump($var);
     }
+
+    public static function barDump($var, $title = NULL, array $options = NULL)
+    {
+        TracyDebugger::barDump($var, $title, $options);
+    }
 }
