@@ -29,11 +29,16 @@ class Popularity
 
     public function trackHit()
     {
+        $page = self::$grav['page'];
+
+        // make sure this is not an error or an ignored route
+        if ($page->template() == 'error' ||
+            in_array($page->route(), (array) self::$grav['config']->get('plugins.admin.popularity.ignore'))) {
+            return;
+        }
+
+        $url = $page->url();
         $data_filepath = $this->data_path.'/'.$this->data_file;
-        $url = self::$grav['uri']->url();
-
-
-        \Tracy\Debugger::log($data_filepath);
 
         // initial creation if it doesn't exist
         if (!file_exists($this->data_path)) {

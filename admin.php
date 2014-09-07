@@ -158,7 +158,7 @@ class AdminPlugin extends Plugin
 
     public function onShutdown()
     {
-        if ($this->config->get('plugins.admin.popularity')) {
+        if ($this->config->get('plugins.admin.popularity.enabled')) {
             require_once PLUGINS_DIR . 'admin/classes/popularity.php';
             $popularity = new Popularity();
 
