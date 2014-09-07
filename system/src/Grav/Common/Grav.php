@@ -215,17 +215,18 @@ class Grav extends Container
      */
     public function shutdown()
     {
-        set_time_limit(0);
-        ignore_user_abort(true);
+        if($this['config']->get('system.debugger.shutdown.close_connection')) {
+            set_time_limit(0);
+            ignore_user_abort(true);
+            session_write_close();
 
-        header('Content-length: ' . ob_get_length());
-        header("Connection: close\r\n");
+            header('Content-length: ' . ob_get_length());
+            header("Connection: close\r\n");
 
-        ob_end_flush();
-        ob_flush();
-        flush();
-
-        session_write_close();
+            ob_end_flush();
+            ob_flush();
+            flush();
+        }
 
         $this->fireEvent('onShutdown');
     }
