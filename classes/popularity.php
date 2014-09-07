@@ -21,6 +21,9 @@ class Popularity
     protected $data_path;
     protected $data_file;
 
+    const MONTHLY_FILE = 'monthly.json';
+    const TOTALS_FILE = 'totals.json';
+
     public function __construct()
     {
         $this->data_path = LOG_DIR . 'popularity';
@@ -30,24 +33,62 @@ class Popularity
     public function trackHit()
     {
         $page = self::$grav['page'];
+        $config = self::$grav['config'];
+        $relative_url = str_replace($config->get('system.base_url_relative'), '', $page->url());
 
-        // make sure this is not an error or an ignored route
-        if ($page->template() == 'error' ||
-            in_array($page->route(), (array) self::$grav['config']->get('plugins.admin.popularity.ignore'))) {
+        // Don't track error pages or pages that have no route
+        if ($page->template() == 'error' || !$page->route()) {
             return;
         }
 
-        $url = $page->url();
-        $data_filepath = $this->data_path.'/'.$this->data_file;
+        // Make sure no 'widcard-style' ignore matches this url
+        foreach ((array) self::$grav['config']->get('plugins.admin.popularity.ignore') as $ignore) {
+            if (fnmatch($ignore, $relative_url)) {
+                return;
+            }
+        }
+
+        // Used more than once, so make a variable!
+        $monthly_file = $this->data_path.'/'.self::MONTHLY_FILE;
+        $totals_file = $this->data_path.'/'.self::TOTALS_FILE;
 
         // initial creation if it doesn't exist
         if (!file_exists($this->data_path)) {
             mkdir($this->data_path);
-            file_put_contents($data_filepath, array());
+            file_put_contents($monthly_file, array());
+            file_put_contents($totals_file, array());
         }
 
-        // Get the JSON data
-        $data = (array) @json_decode(file_get_contents($data_filepath), true);
+        // Update the data we want to track
+        $this->updateMonthly($monthly_file);
+        $this->updateTotals($totals_file, $relative_url);
+
+    }
+
+    public function flushData($weeks = 52)
+    {
+        // flush data older than 1 year
+
+
+    }
+
+    protected function updateMonthly($path)
+    {
+        $data = (array) @json_decode(file_get_contents($path), true);
+        $month_year = date('m-Y');
+
+        if (array_key_exists($month_year, $data)) {
+            $data[$month_year] = intval($data[$month_year]) + 1;
+        } else {
+            $data[$month_year] = 1;
+        }
+
+        file_put_contents($path, json_encode($data));
+    }
+
+    protected function updateTotals($path, $url)
+    {
+        $data = (array) @json_decode(file_get_contents($path), true);
 
         if (array_key_exists($url, $data)) {
             $data[$url] = intval($data[$url]) + 1;
@@ -55,15 +96,6 @@ class Popularity
             $data[$url] = 1;
         }
 
-        // Store the JSON data again
-        file_put_contents($data_filepath, json_encode($data));
-
-    }
-
-    function flushData($weeks = 52)
-    {
-        // flush data older than 1 year
-
-
+        file_put_contents($path, json_encode($data));
     }
 }
