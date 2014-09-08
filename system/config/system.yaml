@@ -47,3 +47,5 @@ debugger:
   log:
     enabled: true                      # Enable logging
     timing: false                      # Enable timing logging
+  shutdown:
+    close_connection: true             # Close the connection before calling onShutdown(). disable for debugging
