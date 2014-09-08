@@ -7,9 +7,9 @@ class GPM extends Iterator {
     private $installed, $repository;
     protected $cache;
 
-    public function __construct() {
+    public function __construct($refresh = false, $callback = null) {
         $this->installed  = new Local\Packages();
-        $this->repository = new Remote\Packages();
+        $this->repository = new Remote\Packages($refresh, $callback);
     }
 
     public function getInstalled() {

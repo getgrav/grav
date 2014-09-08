@@ -6,14 +6,10 @@ class Plugins extends Collection {
     private $type       = 'plugins';
     private $data;
 
-    public function __construct($repository = null) {
-        if ($repository) {
-            $this->repository = $repository;
-        }
-
+    public function __construct($refresh = false, $callback = null) {
         parent::__construct($this->repository);
 
-        $this->fetch();
+        $this->fetch($refresh, $callback);
         $this->data = json_decode($this->raw)->results->data;
 
         foreach ($this->data as $data) {

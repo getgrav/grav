@@ -52,8 +52,8 @@ class Collection extends Iterator {
         return $items;
     }
 
-    public function fetch($callback = null, $force = false) {
-        if (!$this->raw || $force) {
+    public function fetch($refresh = false, $callback = null) {
+        if (!$this->raw || $refresh) {
             $response  = Response::get($this->repository, [], $callback);
             $this->raw = $response;
             self::$grav['cache']->save(md5($this->repository), $this->raw, $this->lifetime);
