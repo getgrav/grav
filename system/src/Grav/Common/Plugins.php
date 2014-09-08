@@ -60,14 +60,6 @@ class Plugins extends Iterator
             }
         }
 
-        /** @var Themes $themes */
-        $themes = $this->grav['themes'];
-        $themes->configure();
-        $instance = $themes->load();
-        if ($instance instanceof EventSubscriberInterface) {
-            $events->addSubscriber($instance);
-        }
-
         return $this->items;
     }
 

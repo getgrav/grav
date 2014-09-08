@@ -54,11 +54,16 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
-        $container['events'] = function ($c) {
-            return new EventDispatcher;
-        };
         $container['uri'] = function ($c) {
             return new Uri($c);
+        };
+
+        $container['task'] = function ($c) {
+            return !empty($_POST['task']) ? $_POST['task'] : $c['uri']->param('task');
+        };
+
+        $container['events'] = function ($c) {
+            return new EventDispatcher;
         };
         $container['config'] = function ($c) {
             return Config::instance($c);
@@ -121,6 +126,15 @@ class Grav extends Container
         $this['plugins']->init();
 
         $this->fireEvent('onPluginsInitialized');
+
+        $this['themes']->init();
+
+        $this->fireEvent('onThemeInitialized');
+
+        $task = $this['task'];
+        if ($task) {
+            $this->fireEvent('onTask.' . $task);
+        }
 
         $this['assets']->init();
 
