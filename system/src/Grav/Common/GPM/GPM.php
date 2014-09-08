@@ -60,7 +60,7 @@ class GPM extends Iterator {
 
             if (version_compare($local_version, $remote_version) < 0) {
                 $repository[$slug]->current_version = $local_version;
-                $items[]                            = $repository[$slug];
+                $items[$slug]                       = $repository[$slug];
             }
         }
 
@@ -91,7 +91,7 @@ class GPM extends Iterator {
 
             if (version_compare($local_version, $remote_version) < 0) {
                 $repository[$slug]->current_version = $local_version;
-                $items[]                            = $repository[$slug];
+                $items[$slug]                       = $repository[$slug];
             }
         }
 
