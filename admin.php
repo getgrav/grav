@@ -163,10 +163,9 @@ class AdminPlugin extends Plugin
             require_once PLUGINS_DIR . 'admin/classes/popularity.php';
             $popularity = new Popularity();
 
-            // if in admin, try to flush data
+            // if in admin, flush old monthly data
             if ($this->active) {
-                $popularity->flushData();
-
+                $popularity->flushMonthly();
             // else track data
             } else {
                 $popularity->trackHit();

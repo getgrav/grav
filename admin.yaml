@@ -2,5 +2,6 @@ enabled: true
 route: '/admin'
 popularity:
     enabled: true
-    ignore: ['/test/*','/modular']
+    ignore: ['/test*','/modular']
+    visitors: 20
 theme: grav
