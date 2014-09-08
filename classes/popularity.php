@@ -18,18 +18,22 @@ class Popularity
 {
     use GravTrait;
 
-
     protected $config;
     protected $data_path;
 
+    protected $daily_file;
     protected $monthly_file;
     protected $totals_file;
     protected $visitors_file;
 
+    protected $daily_data;
     protected $monthly_data;
     protected $totals_data;
     protected $visitors_data;
 
+    const DAILY_FORMAT = 'd-m-Y';
+    const MONTHLY_FORMAT = 'm-Y';
+    const DAILY_FILE = 'daily.json';
     const MONTHLY_FILE = 'monthly.json';
     const TOTALS_FILE = 'totals.json';
     const VISITORS_FILE = 'visitors.json';
@@ -39,6 +43,7 @@ class Popularity
         $this->config = self::$grav['config'];
 
         $this->data_path = LOG_DIR . 'popularity';
+        $this->daily_file = $this->data_path.'/'.self::DAILY_FILE;
         $this->monthly_file = $this->data_path.'/'.self::MONTHLY_FILE;
         $this->totals_file = $this->data_path.'/'.self::TOTALS_FILE;
         $this->visitors_file = $this->data_path.'/'.self::VISITORS_FILE;
@@ -65,16 +70,39 @@ class Popularity
         // initial creation if it doesn't exist
         if (!file_exists($this->data_path)) {
             mkdir($this->data_path);
-            file_put_contents($this->monthly_file, array());
-            file_put_contents($this->totals_file, array());
-            file_put_contents($this->visitors_file, array());
+            $this->flushPopularity();
         }
 
         // Update the data we want to track
+        $this->updateDaily();
         $this->updateMonthly();
         $this->updateTotals($page->route());
         $this->updateVisitors(self::$grav['uri']->ip());
 
+    }
+
+    protected function updateDaily()
+    {
+
+        if (!$this->daily_data) {
+            $this->daily_data = $this->getData($this->daily_file);
+        }
+
+        $day_month_year = date(self::DAILY_FORMAT);
+
+        // get the daily access count
+        if (array_key_exists($day_month_year, $this->daily_data)) {
+            $this->daily_data[$day_month_year] = intval($this->daily_data[$day_month_year]) + 1;
+        } else {
+            $this->daily_data[$day_month_year] = 1;
+        }
+
+        // keep correct number as set by history
+        $count = intval($this->config->get('plugins.admin.popularity.history.daily', 7));
+        $total = count($this->daily_data);
+        $this->daily_data = array_slice($this->daily_data, $total - $count, $count);
+
+        file_put_contents($this->daily_file, json_encode($this->daily_data));
     }
 
     protected function updateMonthly()
@@ -84,7 +112,7 @@ class Popularity
             $this->monthly_data = $this->getData($this->monthly_file);
         }
 
-        $month_year = date('m-Y');
+        $month_year = date(self::MONTHLY_FORMAT);
 
         // get the monthly access count
         if (array_key_exists($month_year, $this->monthly_data)) {
@@ -92,6 +120,12 @@ class Popularity
         } else {
             $this->monthly_data[$month_year] = 1;
         }
+
+        // keep correct number as set by history
+        $count = intval($this->config->get('plugins.admin.popularity.history.monthly', 12));
+        $total = count($this->monthly_data);
+        $this->monthly_data = array_slice($this->monthly_data, $total - $count, $count);
+
 
         file_put_contents($this->monthly_file, json_encode($this->monthly_data));
     }
@@ -118,14 +152,12 @@ class Popularity
             $this->visitors_data = $this->getData($this->visitors_file);
         }
 
-        $count = intval($this->config->get('plugins.admin.popularity.visitors', 20));
-
         // update with current timestamp
         $this->visitors_data[$ip] = time();
-
         $visitors = $this->visitors_data;
         arsort($visitors);
 
+        $count = intval($this->config->get('plugins.admin.popularity.history.visitors', 20));
         $this->visitors_data = array_slice($visitors, 0, $count);
 
         file_put_contents($this->visitors_file, json_encode($this->visitors_data));
@@ -137,37 +169,11 @@ class Popularity
     }
 
 
-    public function flushMonthly($months = 12)
+    public function flushPopularity()
     {
-        // flush data older than 1 year
-        if (!$this->monthly_data) {
-            $this->monthly_data = $this->getData($this->monthly_file);
-        }
-
-        // If there are more than $months worth of data remove the old
-        if (count($this->monthly_data) > $months) {
-            $new_monthly = array();
-            for ($x = 0; $x < intval($months); $x++) {
-                $date = date('m-Y', strtotime("now - $x month"));
-                if (isset($this->monthly_data[$date])) {
-                    $new_monthly[$date] = $this->monthly_data[$date];
-                }
-            }
-
-            $this->monthly_data = $new_monthly;
-            file_put_contents($this->monthly_file, json_encode($this->monthly_data));
-        }
-    }
-
-    public function flushTotals()
-    {
-        // flush all totals
-        file_put_contents($this->totals_file, json_encode(array()));
-    }
-
-    public function flushVisitors()
-    {
-        // flush all the visitor data
-        file_put_contents($this->visitors_file, json_encode(array()));
+        file_put_contents($this->daily_file, array());
+        file_put_contents($this->monthly_file, array());
+        file_put_contents($this->totals_file, array());
+        file_put_contents($this->visitors_file, array());
     }
 }
