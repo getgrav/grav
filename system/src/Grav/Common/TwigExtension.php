@@ -213,6 +213,6 @@ class TwigExtension extends \Twig_Extension
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
-        return $uri->rootUrl($domain) . $locator->findResource($input, false);
+        return $uri->rootUrl($domain) .'/'. $locator->findResource($input, false);
     }
 }
