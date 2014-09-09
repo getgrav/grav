@@ -126,7 +126,8 @@ class TwigExtension extends \Twig_Extension
         $random = array_slice($original, $offset);
         shuffle($random);
 
-        for ($x=0; $x < sizeof($original); $x++) {
+        $sizeOf = sizeof($original);
+        for ($x=0; $x < $sizeOf; $x++) {
             if ($x < $offset) {
                 $sorted[] = $original[$x];
             } else {
