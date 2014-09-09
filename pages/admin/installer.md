@@ -1,7 +1,7 @@
 ---
-title: Error Log
+title: Users
 
 access:
-    admin.logs: true
+    admin.users: true
     admin.super: true
 ---

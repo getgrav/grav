@@ -1,5 +1,10 @@
 enabled: true
 route: '/admin'
+theme: grav
+login:
+  enabled: true
+  route: null
+  timeout: 1800
 popularity:
     enabled: true
     ignore: ['/test*','/modular']
@@ -7,4 +12,3 @@ popularity:
         daily: 7
         monthly: 12
         visitors: 20
-theme: grav

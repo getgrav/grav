@@ -1,5 +1,9 @@
 ---
 title: Dashboard
+
+access:
+    admin.login: true
+    admin.super: true
 ---
 
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
