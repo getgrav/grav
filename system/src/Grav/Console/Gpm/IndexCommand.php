@@ -48,10 +48,11 @@ class IndexCommand extends Command {
         foreach ($this->data as $type => $packages) {
             $this->output->writeln("<green>" . ucfirst($type) . "</green> [ " . count($packages) . " ]");
 
-            foreach ($packages as $index => $package) {
+            $index = 0;
+            foreach ($packages as $slug => $package) {
                 $this->output->writeln(
                     // index
-                    str_pad($index + 1, 2, '0', STR_PAD_LEFT) . ". " .
+                    str_pad($index+++1, 2, '0', STR_PAD_LEFT) . ". " .
                     // package name
                     "<cyan>" . str_pad($package->name, 15) . "</cyan> " .
                     // slug
