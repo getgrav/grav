@@ -141,4 +141,29 @@ class GPM extends Iterator {
     public function getRepository() {
         return $this->repository;
     }
+
+    public function findPackage($search) {
+        $search = strtolower($search);
+        if ($found = $this->getRepositoryTheme($search)) {
+            return $found;
+        }
+
+        if ($found = $this->getRepositoryPlugin($search)) {
+            return $found;
+        }
+
+        foreach ($this->getRepositoryThemes() as $slug => $theme) {
+            if ($search == $slug || $search == $theme->name) {
+                return $theme;
+            }
+        }
+
+        foreach ($this->getRepositoryPlugins() as $slug => $plugin) {
+            if ($search == $slug || $search == $plugin->name) {
+                return $plugin;
+            }
+        }
+
+        return false;
+    }
 }
