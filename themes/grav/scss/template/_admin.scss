@@ -203,6 +203,8 @@ $update-height: 3rem;
     }
 
     tr {
+        @include transition(all 0.2s ease);
+
         td {
 
             &:first-child {
@@ -219,6 +221,9 @@ $update-height: 3rem;
             td {
                 border-bottom: 0;
             }
+        }
+        &:hover {
+            background: lighten($content-bg,2%);
         }
     }
 }

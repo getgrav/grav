@@ -465,13 +465,19 @@ td {
   #admin-main td {
     border: 0;
     border-bottom: 1px solid #e1e1e1; }
-  #admin-main tr td:first-child {
-    padding-left: 3rem; }
-  #admin-main tr td:last-child {
-    text-align: right;
-    padding-right: 3rem; }
-  #admin-main tr:last-child td {
-    border-bottom: 0; }
+  #admin-main tr {
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease; }
+    #admin-main tr td:first-child {
+      padding-left: 3rem; }
+    #admin-main tr td:last-child {
+      text-align: right;
+      padding-right: 3rem; }
+    #admin-main tr:last-child td {
+      border-bottom: 0; }
+    #admin-main tr:hover {
+      background: #f3f3f3; }
 
 #admin-dashboard:after {
   content: "";
