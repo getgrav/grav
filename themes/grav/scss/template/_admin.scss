@@ -1,6 +1,7 @@
 $sidebar-width: 20%;
 $sidebar-padding: 2rem;
 $topbar-height: 4.2rem;
+$update-height: 3rem;
 
 #admin-sidebar {
     position: absolute;
@@ -119,18 +120,55 @@ $topbar-height: 4.2rem;
 #admin-main {
     margin-left: $sidebar-width;
 
+    h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        text-align: left;
+        letter-spacing: -1px;
+    }
+
     .titlebar {
         height: $topbar-height;
 
         padding: 0 $padding-default;
 
         h1 {
-            margin: 0;
             @extend %vertical-align;
-            font-size: 1.5rem;
-            text-align: left;
-            letter-spacing: -1px;
         }
+
+        .button-bar {
+            @extend %vertical-align;
+            padding: 0;
+        }
+    }
+
+    .grav-update {
+        height: $update-height;
+        padding: 0 $padding-default;
+        background: $info-bg;
+
+        .button {
+            margin-left: 1rem;
+            line-height: 1.5;
+            @include button-color(shade($info-bg, 20%));
+        }
+
+        p {
+            line-height: $update-height;
+            margin: 0;
+        }
+
+        i {
+            padding-right: 0.5rem;
+        }
+
+        .less {
+            color: rgba($white,0.75);
+        }
+    }
+
+    .grav-update + .content-padding {
+        top: $topbar-height + $update-height;
     }
 
     .content-padding {
@@ -146,6 +184,201 @@ $topbar-height: 4.2rem;
     .admin-block {
         background: $content-bg;
         color: $content-fg;
-        padding: $padding-default;
+        padding: 2rem 0;
+
+        h1 {
+            padding: 0 $padding-default 0.5rem;
+            margin: 0 0 1rem;
+            border-bottom: 3px solid darken($content-bg, 5%);
+        }
+
+        .button-bar {
+            margin-right: $padding-default;
+        }
+    }
+
+    td {
+        border: 0;
+        border-bottom: 1px solid darken($content-bg, 5%);
+    }
+
+    tr {
+        td {
+
+            &:first-child {
+                padding-left: $padding-default;
+            }
+
+            &:last-child {
+                text-align: right;
+                padding-right: $padding-default;
+            }
+        }
+
+        &:last-child {
+            td {
+                border-bottom: 0;
+            }
+        }
     }
 }
+
+#admin-dashboard {
+
+    @include clearfix;
+
+    .dashboard-item {
+        float: left;
+        width: 50%;
+        margin-bottom: 2.5rem;
+
+        > div {
+            padding: 1rem 2rem;
+        }
+
+        .button-bar {
+            margin: 1rem -2rem -1rem;
+            height: 70px;
+            padding: 0 1rem;
+            float: none;
+            .button {
+                @extend %vertical-align;
+            }
+        }
+    }
+
+    .dashboard-left {
+        padding-right: 1.25rem;
+    }
+
+    .dashboard-right {
+        padding-left: 1.25rem;
+
+    }
+
+    #updates {
+
+        p {
+            text-align: center;
+            color: rgba($white,0.95);
+            margin: 0;
+        }
+
+        .updates-chart {
+            width: 50%;
+            float: left;
+
+        }
+
+        .chart-wrapper {
+            position: relative;
+        }
+
+        .backups-chart {
+            position: relative;
+            width: 50%;
+            float: left;
+        }
+
+
+        .numeric {
+            display: block;
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 1.7rem;
+            line-height: 1;
+            @extend %vertical-align;
+
+
+            em {
+                display:block;
+                font-style: normal;
+                font-size: 1rem;
+                color: rgba($white, .85);
+            }
+
+        }
+
+        .admin-update-charts {
+            @include clearfix;
+            min-height: 191px;
+        }
+
+        .button {
+            margin-left: 0.5rem;
+        }
+    }
+
+    #popularity {
+        p {
+            text-align: center;
+            color: rgba($white,0.95);
+            margin: 0;
+        }
+        .button-bar {
+            height: 100px;
+            padding: 0 1rem;
+
+        }
+        .stat {
+            @extend %vertical-align;
+            display:block;
+            float: left;
+            width: 33%;
+            text-align: center;
+            b {
+                display: block;
+                font-size: 2.5rem;
+                line-height: 1;
+                font-weight: 300;
+            }
+            i {
+                display: block;
+                font-style: normal;
+                color: rgba($white, 0.75);
+            }
+        }
+    }
+
+
+    .tertiary-accent {
+        @include linear-gradient($tertiary-accent-bg, lighten($tertiary-accent-bg,20%));
+    }
+
+    .secondary-accent {
+        @include linear-gradient($secondary-accent-bg, lighten($secondary-accent-bg,20%));
+    }
+}
+
+#footer {
+    text-align: center;
+    padding: 3rem 0 1rem;
+}
+
+.ct-chart {
+    .ct-series {
+        .ct-bar {
+            stroke-width: 15px;
+
+        }
+        &.ct-series-a {
+            .ct-bar {
+                stroke: rgba($white, 0.85) !important;
+            }
+            .ct-slice.ct-donut {
+                stroke: $white !important;
+            }
+        }
+        &.ct-series-b {
+            .ct-slice.ct-donut {
+                stroke: rgba($white, 0.2) !important;
+            }
+        }
+
+
+    }
+}
+
+
+

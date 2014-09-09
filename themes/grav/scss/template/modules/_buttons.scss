@@ -3,6 +3,7 @@
 	padding: 0.3rem 1.5rem;
     font-size: 1.1rem;
     font-weight: 300;
+    cursor: pointer;
 
     font-family: $font-family-default;
 
@@ -11,8 +12,8 @@
     }
 
     &.button-small {
-        padding: 3px 10px;
-
+        padding: 2px 10px;
+        font-size: 1rem;
     }
 
 }

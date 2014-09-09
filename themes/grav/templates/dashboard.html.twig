@@ -1,74 +1,128 @@
 {% extends 'partials/base.html.twig' %}
 
 {% block titlebar %}
+    <div class="button-bar">
+        <button href="#" class="button"><i class="fa fa-times"></i> Clear Cache</button>
+    </div>
     <h1><i class="fa fa-fw fa-th"></i> Dashboard</h1>
 {% endblock %}
 
+{% block content_top %}
+    <div id="admin-dashboard">
+        <div id="updates" class="dashboard-item dashboard-left">
+            <div class="tertiary-accent default-box-shadow">
+                <h1>Maintenance</h1>
+                <div class="admin-update-charts">
+                    <div class="updates-chart">
+                        <div class="chart-wrapper">
+                            <div class="ct-chart"></div>
+                            <script>
+                                var data = {
+                                  series: [75,25]
+                                };
+                                var options = {
+                                  donut: true,
+                                  donutWidth: 10,
+                                  startAngle: 0,
+                                  total: 100,
+                                  showLabel: false,
+                                  height: 150
+                                };
+                                Chartist.Pie('.updates-chart .ct-chart', data, options);
+                            </script>
+                            <span class="numeric">75%<em>updated</em></span>
+                        </div>
+                        <p>Updates Available</p>
+                    </div>
+                    <div class="backups-chart">
+                        <div class="chart-wrapper">
+                            <div class="ct-chart"></div>
+                            <script>
+                                var data = {
+                                  series: [33,67]
+                                };
+                                var options = {
+                                  donut: true,
+                                  donutWidth: 10,
+                                  startAngle: 0,
+                                  total: 100,
+                                  showLabel: false,
+                                  height: 150
+                                };
+                                Chartist.Pie('.backups-chart .ct-chart', data, options);
+                            </script>
+                            <span class="numeric">13<em>days</em></span>
+                        </div>
+                        <p>Last Backup</p>
+                    </div>
+                </div>
+                <div class="button-bar">
+                    <button href="#" class="button"><i class="fa fa-cloud-download"></i> Update</button>
+                    <button href="#" class="button"><i class="fa fa-database"></i> Backup</button>
+                </div>
+            </div>
+        </div>
+        <div id="popularity" class="dashboard-item dashboard-right">
+            <div class="secondary-accent default-box-shadow">
+                <h1>Statistics</h1>
+                <div class="ct-chart"></div>
+                <script>
+                    var data = {
+                      labels: {{ popularity.getDailyChartData['labels'] }},
+                        series: [
+                            {{ popularity.getDailyChartData['data'] }}
+                      ]
+                    };
+                    var options = {
+                      height: 127,
+                      axisX: {
+                        showGrid: false
+                      },
+                      axisY: {
+                        offset: 10,
+                        showLabel: true,
+                        showGrid: true,
+                        scaleMinSpace: 50
+                      }
+                    };
+                    Chartist.Bar('#popularity .ct-chart', data, options);
+                </script>
+                <p>Daily Activity</p>
+                <div class="button-bar stats-bar">
+                    <span class="stat">
+                        <b>{{ popularity.getDailyTotal }}</b>
+                        <i>Today</i>
+                    </span>
+                    <span class="stat">
+                        <b>{{ popularity.getWeeklyTotal }}</b>
+                        <i>Week</i>
+                    </span>
+                    <span class="stat">
+                        <b>{{ popularity.getMonthlyTotal }}</b>
+                        <i>Month</i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
 {% block content %}
+    <div id="latest">
+        <div class="button-bar">
+            <button class="button"><i class="fa fa-fw fa-file-text-o"></i>Manage Pages</button>
+        </div>
+        <h1>Latest Page Updates</h1>
+        <table>
+        {% for latest in admin.latestPages %}
+            <tr><td><a href="#"><i class="fa fa-fw fa-file-o"></i> {{ latest.title }}</a></td><td>{{ latest.route }}</td><td><b>{{ latest.modified|date('H:i') }}</b> - {{ latest.modified|date('m/d/Y') }}</td></tr>
 
-    <table>
-    {% for latest in admin.latestPages %}
-        <tr><td>{{ latest.title }}</td><td>{{ latest.url }}</td><td>{{ latest.modified|date }}</td></tr>
 
+        {% endfor %}
+        </table>
 
-    {% endfor %}
-    </table>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
 
 {% endblock %}
 

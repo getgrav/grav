@@ -1,5 +1,5 @@
 @import url(//fonts.googleapis.com/css?family=Montserrat:400|Lato:300,400,700);
-#admin-login, #admin-logo h3, #admin-main .titlebar h1 {
+#admin-login, #admin-logo h3, #admin-main .titlebar h1, #admin-main .titlebar .button-bar, #admin-dashboard .dashboard-item .button-bar .button, #admin-dashboard #updates .numeric, #admin-dashboard #popularity .stat {
   position: relative;
   top: 50%;
   -webkit-transform: translateY(-50%);
@@ -13,11 +13,13 @@
   padding: 0.3rem 1.5rem;
   font-size: 1.1rem;
   font-weight: 300;
+  cursor: pointer;
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
   .button i {
     padding-right: 5px; }
   .button-small.button {
-    padding: 3px 10px; }
+    padding: 2px 10px;
+    font-size: 1rem; }
 
 html, body {
   height: 100%; }
@@ -36,9 +38,25 @@ a {
 b, strong, label, th {
   font-weight: 600; }
 
+.button-bar {
+  text-align: right;
+  float: right; }
+
 .secondary-accent {
   background: #349886;
   color: white; }
+  .secondary-accent .button-bar {
+    background: #349886; }
+  .secondary-accent .button {
+    background: #41bea8; }
+
+.tertiary-accent {
+  background: #2693b7;
+  color: white; }
+  .tertiary-accent .button-bar {
+    background: #2693b7; }
+  .tertiary-accent .button {
+    background: #3aafd6; }
 
 .info {
   background: #9055af;
@@ -246,24 +264,24 @@ td {
   padding: 0.5rem;
   border: 1px solid #eaeaea; }
 
-.button.primary {
+.button {
   background: #41bea8;
   color: rgba(255, 255, 255, 0.85);
   border-radius: 4px; }
-  .button.primary:hover {
+  .button:hover {
     background: #54c5b0;
     color: white; }
-  .button.primary:active {
+  .button:active {
     box-shadow: 0 1px 0 #31907f; }
-.button.secondary {
-  background: #29796b;
-  color: rgba(255, 255, 255, 0.85);
-  border-radius: 4px; }
-  .button.secondary:hover {
-    background: #2f8c7c;
-    color: white; }
-  .button.secondary:active {
-    box-shadow: 0 1px 0 #1a4b43; }
+  .button.secondary {
+    background: #29796b;
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 4px; }
+    .button.secondary:hover {
+      background: #2f8c7c;
+      color: white; }
+    .button.secondary:active {
+      box-shadow: 0 1px 0 #1a4b43; }
 
 #error {
   text-align: center;
@@ -392,14 +410,40 @@ td {
 
 #admin-main {
   margin-left: 20%; }
+  #admin-main h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    text-align: left;
+    letter-spacing: -1px; }
   #admin-main .titlebar {
     height: 4.2rem;
     padding: 0 3rem; }
-    #admin-main .titlebar h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      text-align: left;
-      letter-spacing: -1px; }
+    #admin-main .titlebar .button-bar {
+      padding: 0; }
+  #admin-main .grav-update {
+    height: 3rem;
+    padding: 0 3rem;
+    background: #9055af; }
+    #admin-main .grav-update .button {
+      margin-left: 1rem;
+      line-height: 1.5;
+      background: #73448c;
+      color: rgba(255, 255, 255, 0.85);
+      border-radius: 4px; }
+      #admin-main .grav-update .button:hover {
+        background: #814c9d;
+        color: white; }
+      #admin-main .grav-update .button:active {
+        box-shadow: 0 1px 0 #513063; }
+    #admin-main .grav-update p {
+      line-height: 3rem;
+      margin: 0; }
+    #admin-main .grav-update i {
+      padding-right: 0.5rem; }
+    #admin-main .grav-update .less {
+      color: rgba(255, 255, 255, 0.75); }
+  #admin-main .grav-update + .content-padding {
+    top: 7.2rem; }
   #admin-main .content-padding {
     position: absolute;
     top: 4.2rem;
@@ -411,6 +455,117 @@ td {
   #admin-main .admin-block {
     background: #eeeeee;
     color: #737c81;
-    padding: 3rem; }
+    padding: 2rem 0; }
+    #admin-main .admin-block h1 {
+      padding: 0 3rem 0.5rem;
+      margin: 0 0 1rem;
+      border-bottom: 3px solid #e1e1e1; }
+    #admin-main .admin-block .button-bar {
+      margin-right: 3rem; }
+  #admin-main td {
+    border: 0;
+    border-bottom: 1px solid #e1e1e1; }
+  #admin-main tr td:first-child {
+    padding-left: 3rem; }
+  #admin-main tr td:last-child {
+    text-align: right;
+    padding-right: 3rem; }
+  #admin-main tr:last-child td {
+    border-bottom: 0; }
+
+#admin-dashboard:after {
+  content: "";
+  display: table;
+  clear: both; }
+#admin-dashboard .dashboard-item {
+  float: left;
+  width: 50%;
+  margin-bottom: 2.5rem; }
+  #admin-dashboard .dashboard-item > div {
+    padding: 1rem 2rem; }
+  #admin-dashboard .dashboard-item .button-bar {
+    margin: 1rem -2rem -1rem;
+    height: 70px;
+    padding: 0 1rem;
+    float: none; }
+#admin-dashboard .dashboard-left {
+  padding-right: 1.25rem; }
+#admin-dashboard .dashboard-right {
+  padding-left: 1.25rem; }
+#admin-dashboard #updates p {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0; }
+#admin-dashboard #updates .updates-chart {
+  width: 50%;
+  float: left; }
+#admin-dashboard #updates .chart-wrapper {
+  position: relative; }
+#admin-dashboard #updates .backups-chart {
+  position: relative;
+  width: 50%;
+  float: left; }
+#admin-dashboard #updates .numeric {
+  display: block;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 1.7rem;
+  line-height: 1; }
+  #admin-dashboard #updates .numeric em {
+    display: block;
+    font-style: normal;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85); }
+#admin-dashboard #updates .admin-update-charts {
+  min-height: 191px; }
+  #admin-dashboard #updates .admin-update-charts:after {
+    content: "";
+    display: table;
+    clear: both; }
+#admin-dashboard #updates .button {
+  margin-left: 0.5rem; }
+#admin-dashboard #popularity p {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0; }
+#admin-dashboard #popularity .button-bar {
+  height: 100px;
+  padding: 0 1rem; }
+#admin-dashboard #popularity .stat {
+  display: block;
+  float: left;
+  width: 33%;
+  text-align: center; }
+  #admin-dashboard #popularity .stat b {
+    display: block;
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 300; }
+  #admin-dashboard #popularity .stat i {
+    display: block;
+    font-style: normal;
+    color: rgba(255, 255, 255, 0.75); }
+#admin-dashboard .tertiary-accent {
+  background-color: #2693b7;
+  background-image: -webkit-linear-gradient(#2693b7, #64c0df);
+  background-image: linear-gradient(#2693b7, #64c0df); }
+#admin-dashboard .secondary-accent {
+  background-color: #349886;
+  background-image: -webkit-linear-gradient(#349886, #67cbb9);
+  background-image: linear-gradient(#349886, #67cbb9); }
+
+#footer {
+  text-align: center;
+  padding: 3rem 0 1rem; }
+
+.ct-chart .ct-series .ct-bar {
+  stroke-width: 15px; }
+.ct-chart .ct-series.ct-series-a .ct-bar {
+  stroke: rgba(255, 255, 255, 0.85) !important; }
+.ct-chart .ct-series.ct-series-a .ct-slice.ct-donut {
+  stroke: white !important; }
+.ct-chart .ct-series.ct-series-b .ct-slice.ct-donut {
+  stroke: rgba(255, 255, 255, 0.2) !important; }
 
 /*# sourceMappingURL=template.css.map */

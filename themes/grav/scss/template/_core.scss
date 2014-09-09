@@ -20,9 +20,35 @@ b, strong {
 	font-weight: $font-weight-bold
 }
 
+.button-bar {
+    text-align: right;
+    float: right;
+}
+
 .secondary-accent {
     background: $secondary-accent-bg;
     color: $secondary-accent-fg;
+
+    .button-bar {
+        background: $secondary-accent-bg;
+    }
+
+    .button {
+        background: lighten($secondary-accent-bg, 10%);
+    }
+}
+
+.tertiary-accent {
+    background: $tertiary-accent-bg;
+    color: $tertiary-accent-fg;
+
+    .button-bar {
+        background: $tertiary-accent-bg;
+    }
+
+    .button {
+        background: lighten($tertiary-accent-bg, 10%);
+    }
 }
 
 .info {

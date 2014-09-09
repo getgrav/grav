@@ -40,6 +40,8 @@ class AdminPlugin extends Plugin
      */
     protected $admin;
 
+    protected $popularity;
+
     /**
      * @return array
      */
@@ -65,6 +67,9 @@ class AdminPlugin extends Plugin
         // }
 
         // echo "<h1>Admin Free</h1>";
+        //
+        require_once PLUGINS_DIR . 'admin/classes/popularity.php';
+        $this->popularity = new Popularity();
 
         $this->initializeAdmin();
     }
@@ -149,7 +154,13 @@ class AdminPlugin extends Plugin
         $twig->twig_vars['base_url'] = $twig->twig_vars['base_url_relative'];
         $twig->twig_vars['admin'] = $this->admin;
 
+        // fake grav update
+        $twig->twig_vars['grav_update'] = array('current'=>'0.9.1', 'available'=>'0.9.2');
+
         switch ($this->template) {
+            case 'dashboard':
+                $twig->twig_vars['popularity'] = $this->popularity;
+                break;
             case 'pages':
                 $twig->twig_vars['file'] = File\General::instance($this->admin->page(true)->filePath());
                 break;
@@ -160,15 +171,10 @@ class AdminPlugin extends Plugin
     {
         echo '<span style="color:red">system.debugger.shutdown.close_connection = false</span>';
         if ($this->config->get('plugins.admin.popularity.enabled')) {
-            require_once PLUGINS_DIR . 'admin/classes/popularity.php';
-            $popularity = new Popularity();
 
-            // if in admin, flush old monthly data
-            if ($this->active) {
-                $popularity->flushMonthly();
-            // else track data
-            } else {
-                $popularity->trackHit();
+            // Only track non-admin
+            if (!$this->active) {
+                $this->popularity->trackHit();
             }
         }
     }
@@ -215,6 +221,8 @@ class AdminPlugin extends Plugin
             // Initialize admin class.
             require_once PLUGINS_DIR . 'admin/classes/admin.php';
             $this->admin = new Admin($this->grav, $base, $this->template, $this->route);
+
+
 
             // And store the class into DI container.
             $this->grav['admin'] = $this->admin;

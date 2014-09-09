@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ theme_url }}/css-compiled/nucleus.css" type="text/css" />
     <link rel="stylesheet" href="{{ theme_url }}/css-compiled/template.css" type="text/css" />
     <link rel="stylesheet" href="{{ theme_url }}/css/font-awesome.min.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css/chartist.min.css" type="text/css" />
     <!--[if IE 9]>
         <link rel="stylesheet" href="{{ theme_url }}/css/nucleus-ie9.css" type="text/css" />
         <link rel="stylesheet" href="{{ theme_url }}/css/pure-0.5.0/grids-min.css" type="text/css" />
@@ -28,6 +29,7 @@
     <script type="text/javascript" src="{{ theme_url }}/js/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/modernizr.custom.71422.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/jquery.astooltip.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/chartist.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function()
         {
@@ -54,13 +56,26 @@
         <div class="titlebar secondary-accent">
             {% block titlebar %}{% endblock %}
         </div>
+        {% if grav_update %}
+        <div class="grav-update">
+
+            <p>
+            <i class="fa fa-bullhorn"></i>
+            Grav <b>v{{ grav_update['available'] }}</b> is now available! <span class="less">(Current: v.{{ grav_update['current'] }})</span>
+            <button class="button button-small secondary">Update Now</button>
+            </p>
+
+        </div>
+        {% endif %}
         <div class="content-padding">
             {% include 'partials/messages.html.twig' %}
+            {% block content_top %}{% endblock %}
             <div class="admin-block default-box-shadow">
-            {% block content %}{% endblock %}
+                {% block content %}{% endblock %}
             </div>
+            {% block content_bottom %}{% endblock %}
             <footer id="footer">
-                <a href="http://getgrav.org">Grav</a> was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
+                <a href="http://getgrav.org">Grav</a> version {{ grav_update['current'] }} was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
             </footer>
         </div>
 

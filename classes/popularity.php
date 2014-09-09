@@ -105,6 +105,62 @@ class Popularity
         file_put_contents($this->daily_file, json_encode($this->daily_data));
     }
 
+    public function getDailyChartData()
+    {
+        if (!$this->daily_data) {
+            $this->daily_data = $this->getData($this->daily_file);
+        }
+
+        $labels = array();
+        $data = array();
+
+        foreach ($this->daily_data as $date => $count) {
+            $labels[] = date('D',strtotime($date));
+            $data[] = $count;
+        }
+
+        return array('labels' => json_encode($labels), 'data' => json_encode($data));
+    }
+
+    public function getDailyTotal()
+    {
+        if (!$this->daily_data) {
+            $this->daily_data = $this->getData($this->daily_file);
+        }
+
+        if (isset($this->daily_data[date(self::DAILY_FORMAT)])) {
+            return $this->daily_data[date(self::DAILY_FORMAT)];
+        } else {
+            return 0;
+        }
+    }
+
+    public function getWeeklyTotal()
+    {
+        if (!$this->daily_data) {
+            $this->daily_data = $this->getData($this->daily_file);
+        }
+
+        $total = 0;
+        foreach ($this->daily_data as $daily) {
+            $total += $daily;
+        }
+
+        return $total;
+    }
+
+    public function getMonthlyTotal()
+    {
+        if (!$this->monthly_data) {
+            $this->monthly_data = $this->getData($this->monthly_file);
+        }
+        if (isset($this->monthly_data[date(self::MONTHLY_FORMAT)])) {
+            return $this->monthly_data[date(self::MONTHLY_FORMAT)];
+        } else {
+            return 0;
+        }
+    }
+
     protected function updateMonthly()
     {
 
@@ -128,6 +184,22 @@ class Popularity
 
 
         file_put_contents($this->monthly_file, json_encode($this->monthly_data));
+    }
+
+    protected function getMonthyChartData()
+    {
+        if (!$this->monthly_data) {
+            $this->monthly_data = $this->getData($this->monthly_file);
+        }
+
+        $labels = array();
+        $data = array();
+
+        foreach ($this->monthly_data as $date => $count) {
+            $labels[] = date('M',strtotime($date));
+            $data[] = $count;
+        }
+        return array('labels' => $labels, 'data' => $data);
     }
 
     protected function updateTotals($url)

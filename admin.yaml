@@ -3,5 +3,8 @@ route: '/admin'
 popularity:
     enabled: true
     ignore: ['/test*','/modular']
-    visitors: 20
+    history:
+        daily: 7
+        monthly: 12
+        visitors: 20
 theme: grav

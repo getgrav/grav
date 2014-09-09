@@ -29,7 +29,7 @@
         </li>
         <li class="{{ (location == 'plugins') ? 'selected' : '' }} {{ plugins.count > 0 ? 'hasChildren' : '' }}">
             <a href="{{ base_url_relative }}/plugins">
-                <i class="fa fa-fw fa-puzzle-piece"></i> Plugins
+                <i class="fa fa-fw fa-plug"></i> Plugins
                 <span class="badge">{{ admin.plugins|length }}</span>
             </a>
         </li>
@@ -39,11 +39,14 @@
                 <span class="badge">{{ admin.themes|length }}</span>
             </a>
         </li>
+        <li class="{{ (location == 'users') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/users"><i class="fa fa-fw fa-child"></i> Users</a>
+        </li>
         <li class="{{ (location == 'installer') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/installer"><i class="fa fa-fw fa-cloud-download"></i> Installer</a>
         </li>
-        <li class="{{ (location == 'users') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/users"><i class="fa fa-fw fa-child"></i> Users</a>
+        <li class="{{ (location == 'statistics') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/statistics"><i class="fa fa-fw fa-bar-chart"></i> Statistics</a>
         </li>
         <li class="{{ (location == 'logs') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/logs">
