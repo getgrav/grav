@@ -2,12 +2,13 @@
 title: Dashboard Login
 
 form:
-    - name: username
-      type: text
-      label: Username
+    fields:
+        - name: username
+          type: text
+          label: Username
 
-    - name: password
-      type: password
-      label: Password
+        - name: password
+          type: password
+          label: Password
 ---
 

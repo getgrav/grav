@@ -2,7 +2,6 @@
 namespace Grav\Plugin;
 
 use Grav\Common\User\User;
-use Grav\Common\User\Authentication;
 use Grav\Common\Filesystem\File;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
@@ -43,11 +42,6 @@ class Admin
     /**
      * @var string
      */
-    public $message;
-
-    /**
-     * @var string
-     */
     public $base;
 
     /**
@@ -61,7 +55,7 @@ class Admin
     public $route;
 
     /**
-     * @var array
+     * @var User
      */
     public $user;
 
@@ -80,17 +74,9 @@ class Admin
         $this->location = $location;
         $this->route = $route;
 
-        /** @var Uri uri */
         $this->uri = $this->grav['uri'];
-
-        // TODO: add session timeout into configuration
-        $this->session = new Session\Session(1800, $this->uri->rootUrl(false) . $base);
-        $this->session->start();
-
-        // Get current user from the session.
-        if (isset($this->session->user)) {
-            $this->user = $this->session->user;
-        }
+        $this->session = $this->grav['session'];
+        $this->user = $this->grav['user'];
     }
 
     /**
@@ -111,12 +97,8 @@ class Admin
      */
     public function setMessage($msg, $type = 'info')
     {
-        if (!isset($this->session->messages)) {
-            $this->session->messages = new Session\Message;
-        }
-
         /** @var Session\Message $messages */
-        $messages = $this->session->messages;
+        $messages = $this->grav['messages'];
         $messages->add($msg, $type);
     }
 
@@ -124,14 +106,13 @@ class Admin
      * Fetch and delete messages from the session queue.
      *
      * @param string $type
+     * @return array
      */
     public function messages($type = null)
     {
-        if (!isset($this->session->messages)) {
-            $this->session->messages = new Session\Message;
-        }
-
-        return $this->session->messages->fetch($type);
+        /** @var Session\Message $messages */
+        $messages = $this->grav['messages'];
+        return $messages->fetch($type);
     }
 
     /**
@@ -142,11 +123,11 @@ class Admin
      */
     public function authenticate($form)
     {
-        if (!$this->session->user && isset($form['username']) && isset($form['password'])) {
+        if (!$this->user->authenticated && isset($form['username']) && isset($form['password'])) {
             $file = File\Yaml::instance(ACCOUNTS_DIR . $form['username'] . YAML_EXT);
             if ($file->exists()) {
                 $user = new User($file->content());
-                print_r($user);
+                $user->authenticated = true;
 
                 // Authenticate user.
                 $result = $user->authenticate($form['password']);
@@ -172,7 +153,7 @@ class Admin
      */
     public function authorise($action = 'admin.login')
     {
-        return isset($this->user) && $this->user->authorise($action);
+        return $this->user->authorise($action);
     }
 
     /**
@@ -352,9 +333,7 @@ class Admin
             $page->filePath($parent->path().'/'.$slug.'/'.$page->name());
             $page->header();
 
-            // Attach page to parent and add routing information.
-            // FIXME:
-            $parent->{$slug} = $page;
+            // Add routing information.
             $pages->addPage($page, $path);
 
             // Determine page type.

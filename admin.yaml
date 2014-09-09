@@ -1,2 +1,6 @@
 enabled: true
 route: '/admin'
+login:
+  enabled: true
+  route: null
+  timeout: 1800

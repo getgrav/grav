@@ -40,7 +40,7 @@ class AdminPlugin extends Plugin
      */
     public static function getSubscribedEvents() {
         return [
-            'onPluginsInitialized' => ['onPluginsInitialized', 1000]
+            'onPluginsInitialized' => [['login', 100000], ['onPluginsInitialized', 1000]]
         ];
     }
 
@@ -49,22 +49,39 @@ class AdminPlugin extends Plugin
      *
      * Disables system cache.
      */
-    public function onPluginsInitialized()
+    public function login()
     {
         $route = $this->config->get('plugins.admin.route');
-
         if (!$route) {
             return;
         }
 
+        $this->base = '/' . trim($route, '/');
         $this->uri = $this->grav['uri'];
-        $base = '/' . trim($route, '/');
 
         // Only activate admin if we're inside the admin path.
-        if (substr($this->uri->route(), 0, strlen($base)) == $base) {
+        if (substr($this->uri->route(), 0, strlen($this->base)) == $this->base) {
+            // Disable system caching.
+            $this->config->set('system.cache.enabled', false);
+
+            // Change login behavior.
+            $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
+
+            $this->active = true;
+        }
+    }
+
+        /**
+     * Initialize administration plugin if admin path matches.
+     *
+     * Disables system cache.
+     */
+    public function onPluginsInitialized()
+    {
+        // Only activate admin if we're inside the admin path.
+        if ($this->active) {
             $this->enable([
                 'onPagesInitialized' => ['onPagesInitialized', 1000],
-                'onPageInitialized' => ['onPageInitialized', 1000],
                 'onTwigTemplatePaths' => ['onTwigTemplatePaths', 1000],
                 'onTwigSiteVariables' => ['onTwigSiteVariables', 1000]
             ]);
@@ -72,8 +89,11 @@ class AdminPlugin extends Plugin
             // Disable system caching.
             $this->config->set('system.cache.enabled', false);
 
+            // Change login behavior.
+            $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
+
             // Decide admin template and route.
-            $path = trim(substr($this->uri->route(), strlen($base)), '/');
+            $path = trim(substr($this->uri->route(), strlen($this->base)), '/');
             $this->template = 'dashboard';
 
             if ($path) {
@@ -89,7 +109,7 @@ class AdminPlugin extends Plugin
 
             // Initialize admin class.
             require_once __DIR__ . '/classes/admin.php';
-            $this->admin = new Admin($this->grav, $base, $this->template, $this->route);
+            $this->admin = new Admin($this->grav, $this->base, $this->template, $this->route);
 
             // And store the class into DI container.
             $this->grav['admin'] = $this->admin;
@@ -107,18 +127,12 @@ class AdminPlugin extends Plugin
         /** @var Pages $pages */
         $pages = $this->grav['pages'];
         $pages->dispatch('/', true)->route($home);
-    }
 
-    /**
-     * Main administration controller.
-     */
-    public function onPageInitialized()
-    {
         // Set page if user hasn't been authorised.
-        if (!$this->admin->authorise()) {
+/*        if (!$this->admin->authorise()) {
             $this->template = $this->admin->user ? 'denied' : 'login';
         }
-
+*/
         // Make local copy of POST.
         $post = !empty($_POST) ? $_POST : array();
 
@@ -135,16 +149,16 @@ class AdminPlugin extends Plugin
             exit();
         }
 
-        /** @var Grav $grav */
-        $grav = $this->grav;
+        $self = $this;
 
-        // Finally create admin page.
-        $page = new Page;
-        $page->init(new \SplFileInfo(__DIR__ . "/pages/admin/{$this->template}.md"));
-        $page->slug(basename($this->template));
+        // Replace page service with admin.
+        $this->grav['page'] = function ($c) use ($self) {
+            $page = new Page;
+            $page->init(new \SplFileInfo(__DIR__ . "/pages/admin/{$self->template}.md"));
+            $page->slug(basename($self->template));
 
-        unset($grav['page']);
-        $grav['page'] = $page;
+            return $page;
+        };
     }
 
     /**
