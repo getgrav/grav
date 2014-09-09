@@ -16,12 +16,20 @@ class GPM extends Iterator {
         return $this->installed;
     }
 
+    public function getInstalledPlugin($slug) {
+        return $this->installed['plugins'][$slug];
+    }
+
     public function getInstalledPlugins() {
         return $this->installed['plugins'];
     }
 
     public function isPluginInstalled($slug) {
         return isset($this->installed['plugins'][$slug]);
+    }
+
+    public function getInstalledTheme($slug) {
+        return $this->installed['themes'][$slug];
     }
 
     public function getInstalledThemes() {
@@ -41,6 +49,15 @@ class GPM extends Iterator {
         return $count;
     }
 
+    public function getUpdatable() {
+        $items = [
+            'plugins' => $this->getUpdatablePlugins(),
+            'themes'  => $this->getUpdatableThemes()
+        ];
+
+        return $items;
+    }
+
     public function getUpdatablePlugins() {
         $items      = [];
         $repository = $this->repository['plugins'];
@@ -55,12 +72,13 @@ class GPM extends Iterator {
                 continue;
             }
 
-            $local_version  = $plugin->version ? $plugin->version : 'unknown';
+            $local_version  = $plugin->version ? $plugin->version : 'Unknown';
             $remote_version = $repository[$slug]->version;
 
             if (version_compare($local_version, $remote_version) < 0) {
-                $repository[$slug]->current_version = $local_version;
-                $items[$slug]                       = $repository[$slug];
+                $repository[$slug]->available = $remote_version;
+                $repository[$slug]->version   = $local_version;
+                $items[$slug]                 = $repository[$slug];
             }
         }
 
@@ -86,12 +104,13 @@ class GPM extends Iterator {
                 continue;
             }
 
-            $local_version  = $plugin->version ? $plugin->version : 'unknown';
+            $local_version  = $plugin->version ? $plugin->version : 'Unknown';
             $remote_version = $repository[$slug]->version;
 
             if (version_compare($local_version, $remote_version) < 0) {
-                $repository[$slug]->current_version = $local_version;
-                $items[$slug]                       = $repository[$slug];
+                $repository[$slug]->available = $remote_version;
+                $repository[$slug]->version   = $local_version;
+                $items[$slug]                 = $repository[$slug];
             }
         }
 
@@ -103,8 +122,16 @@ class GPM extends Iterator {
         return array_key_exists($theme, $this->getUpdatableThemes());
     }
 
+    public function getRepositoryPlugin($slug) {
+        return $this->repository['plugins'][$slug];
+    }
+
     public function getRepositoryPlugins() {
         return $this->repository['plugins'];
+    }
+
+    public function getRepositoryTheme($slug) {
+        return $this->repository['plugins'][$slug];
     }
 
     public function getRepositoryThemes() {
