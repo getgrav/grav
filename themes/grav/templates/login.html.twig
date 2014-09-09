@@ -9,7 +9,7 @@
         {% include 'partials/messages.html.twig' %}
 
         <form method="post">
-            {% for field in page.header.form %}
+            {% for field in page.header.form.fields %}
                 {% if field.type %}
                     <div>
                         {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}

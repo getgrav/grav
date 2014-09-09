@@ -1,7 +1,7 @@
 ---
-title: Plugins
+title: Users
 
 access:
-    admin.plugins: true
+    admin.users: true
     admin.super: true
 ---

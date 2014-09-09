@@ -1,7 +1,7 @@
 ---
-title: Users
+title: Installer
 
 access:
-    admin.users: true
+    admin.install: true
     admin.super: true
 ---

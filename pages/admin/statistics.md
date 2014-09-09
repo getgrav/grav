@@ -1,7 +1,7 @@
 ---
-title: Installer
+title: Statistics
 
 access:
-    admin.install: true
+    admin.statistics: true
     admin.super: true
 ---
