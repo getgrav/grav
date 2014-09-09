@@ -78,9 +78,18 @@ class UpdateCommand extends Command {
 
         // updates review
         $slugs = [];
+
         foreach ($this->data as $type => $packages) {
+            $index = 0;
             foreach ($packages as $slug => $package) {
-                $this->output->writeln("<cyan>" . str_pad($package->name, 15) . "</cyan> [v<magenta>" . $package->version . "</magenta> ➜ v<green>" . $package->available . "</green>]");
+                $this->output->writeln(
+                    // index
+                    str_pad($index+++1, 2, '0', STR_PAD_LEFT) . ". " .
+                    // name
+                    "<cyan>" . str_pad($package->name, 15) . "</cyan> " .
+                    // version
+                    "[v<magenta>" . $package->version . "</magenta> ➜ v<green>" . $package->available . "</green>]"
+                );
                 $slugs[] = $slug;
             }
         }
