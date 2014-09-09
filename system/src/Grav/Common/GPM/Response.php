@@ -101,7 +101,7 @@ class Response {
                     'code'        => $notification_code,
                     'filesize'    => $filesize,
                     'transferred' => $bytes_transferred,
-                    'percent'     => $filesize <= 0 ? 'unknown' : round(($bytes_transferred * 100) / $filesize, 1)
+                    'percent'     => $filesize <= 0 ? '-' : round(($bytes_transferred * 100) / $filesize, 1)
                 ];
 
                 if (self::$callback !== null) {
@@ -190,7 +190,13 @@ class Response {
             $options['fopen']['notification'] = ['self', 'progress'];
         }
 
-        $stream = stream_context_create(['http' => $options['fopen']], $options['fopen']);
-        return file_get_contents($uri, false, $stream);
+        $stream  = stream_context_create(['http' => $options['fopen']], $options['fopen']);
+        $content = @file_get_contents($uri, false, $stream);
+
+        if ($content === false) {
+            throw new \RuntimeException("Error while trying to download '$uri'");
+        }
+
+        return $content;
     }
 }
