@@ -29,4 +29,30 @@ trait ConsoleTrait {
         $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, array('bold')));
         $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
     }
+
+    private function isGravInstance($path) {
+        if (!file_exists($path)) {
+            $this->output->writeln('');
+            $this->output->writeln("<red>ERROR</red>: Destination doesn't exist:");
+            $this->output->writeln("       <white>$path</white>");
+            $this->output->writeln('');
+            exit;
+        }
+
+        if (!is_dir($path)) {
+            $this->output->writeln('');
+            $this->output->writeln("<red>ERROR</red>: Destination chosen to install is not a directory:");
+            $this->output->writeln("       <white>$path</white>");
+            $this->output->writeln('');
+            exit;
+        }
+
+        if (!file_exists($path . DS . 'index.php') || !file_exists($path . DS . '.dependencies') || !file_exists($path . DS . 'system' . DS . 'config' . DS . 'system.yaml')) {
+            $this->output->writeln('');
+            $this->output->writeln("<red>ERROR</red>: Destination chosen to install does not appear to be a Grav instance:");
+            $this->output->writeln("       <white>$path</white>");
+            $this->output->writeln('');
+            exit;
+        }
+    }
 }

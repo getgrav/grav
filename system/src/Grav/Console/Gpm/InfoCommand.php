@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class InfoCommand extends Command {
     use ConsoleTrait;
 
+    protected $data;
+    protected $gpm;
+
     protected function configure() {
         $this
             ->setName("info")
@@ -34,8 +37,6 @@ class InfoCommand extends Command {
     protected function execute(InputInterface $input, OutputInterface $output) {
         $this->setupConsole($input, $output);
         $this->gpm = new GPM($this->input->getOption('force'));
-
-        $this->output->writeln('');
 
         $foundPackage = $this->gpm->findPackage($input->getArgument('package'));
 
