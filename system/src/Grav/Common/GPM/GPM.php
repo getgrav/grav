@@ -16,6 +16,10 @@ class GPM extends Iterator {
         return $this->installed;
     }
 
+    public function countInstalled() {
+        return count($this->getInstalled());
+    }
+
     public function getInstalledPlugin($slug) {
         return $this->installed['plugins'][$slug];
     }
@@ -50,9 +54,13 @@ class GPM extends Iterator {
     }
 
     public function getUpdatable() {
+        $plugins = $this->getUpdatablePlugins();
+        $themes  = $this->getUpdatableThemes();
+
         $items = [
-            'plugins' => $this->getUpdatablePlugins(),
-            'themes'  => $this->getUpdatableThemes()
+            'total'   => count($plugins) + count($themes),
+            'plugins' => $plugins,
+            'themes'  => $themes
         ];
 
         return $items;
@@ -123,7 +131,7 @@ class GPM extends Iterator {
     }
 
     public function getRepositoryPlugin($slug) {
-        return $this->repository['plugins'][$slug];
+        return @$this->repository['plugins'][$slug];
     }
 
     public function getRepositoryPlugins() {
@@ -131,7 +139,7 @@ class GPM extends Iterator {
     }
 
     public function getRepositoryTheme($slug) {
-        return $this->repository['plugins'][$slug];
+        return @$this->repository['themes'][$slug];
     }
 
     public function getRepositoryThemes() {
@@ -165,5 +173,24 @@ class GPM extends Iterator {
         }
 
         return false;
+    }
+
+    public function findPackages($searches = []) {
+        $packages = ['total' => 0, 'not_found' => []];
+
+        foreach ($searches as $search) {
+            if ($found = $this->findPackage($search)) {
+                if (!isset($packages[$found->package_type])) {
+                    $packages[$found->package_type] = [];
+                }
+
+                $packages[$found->package_type][$found->slug] = $found;
+                $packages['total']++;
+            } else {
+                $packages['not_found'][] = $search;
+            }
+        }
+
+        return $packages;
     }
 }
