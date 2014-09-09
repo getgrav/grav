@@ -29,7 +29,6 @@ $grav = Grav::instance(['loader' => $autoload]);
 
 $app = new Application('Grav Package Manager', '0.1.0');
 $app->addCommands(array(
-    new \Grav\Console\Gpm\FetchCommand(),
     new \Grav\Console\Gpm\IndexCommand(),
     new \Grav\Console\Gpm\InfoCommand(),
     new \Grav\Console\Gpm\InstallCommand(),
