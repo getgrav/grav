@@ -96,6 +96,10 @@ class AdminPlugin extends Plugin
         if ($this->active) {
             $this->initializeAdmin();
         }
+
+        // We need popularity no matter what
+        require_once __DIR__ . '/classes/popularity.php';
+        $this->popularity = new Popularity();
     }
 
     /**
@@ -182,6 +186,7 @@ class AdminPlugin extends Plugin
 
     public function onShutdown()
     {
+        // Just so we know that we're in this debug mode
         echo '<span style="color:red">system.debugger.shutdown.close_connection = false</span>';
         if ($this->config->get('plugins.admin.popularity.enabled')) {
 
@@ -200,8 +205,6 @@ class AdminPlugin extends Plugin
             'onTwigSiteVariables' => ['onTwigSiteVariables', 1000]
         ]);
 
-        require_once PLUGINS_DIR . 'admin/classes/popularity.php';
-        $this->popularity = new Popularity();
 
         // Disable system caching.
         $this->config->set('system.cache.enabled', false);
