@@ -28,9 +28,3 @@ schemes:
     type: ReadOnlyStream
     paths:
       - user/data
-
-  themes:
-    type: ReadOnlyStream
-    paths:
-      - user/themes
-

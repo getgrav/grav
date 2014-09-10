@@ -24,25 +24,25 @@ class Config extends Data
         'blueprints' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '/' => ['user/blueprints', 'system/blueprints'],
+                '' => ['user/blueprints', 'system/blueprints'],
             ]
         ],
         'config' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '/' => ['user/config', 'system/config'],
+                '' => ['user/config', 'system/config'],
             ]
         ],
-        'plugin' => [
+        'plugins' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
                 '' => ['user/plugins'],
              ]
         ],
-        'theme' => [
+        'themes' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '/' => ['user/themes'],
+                '' => ['user/themes'],
             ]
         ],
         'cache' => [
@@ -112,9 +112,9 @@ class Config extends Data
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        $this->configLookup = $locator->findResources('config:///');
-        $this->blueprintLookup = $locator->findResources('blueprints:///config');
-        $this->pluginLookup = $locator->findResources('plugin:///');
+        $this->configLookup = $locator->findResources('config://');
+        $this->blueprintLookup = $locator->findResources('blueprints://config');
+        $this->pluginLookup = $locator->findResources('plugins://');
 
         $checksum = $this->checksum();
         if ($checksum == $this->checksum) {
@@ -154,12 +154,12 @@ class Config extends Data
         }
         $cb = $checkBlueprints ? $this->getBlueprintFiles($this->blueprintLookup, $this->pluginLookup) : [];
 
-        return md5(serialize([$cc, $cb]));
+        return md5(json_encode([$cc, $cb]));
     }
 
     protected function loadCompiledBlueprints($blueprints, $plugins, $filename = null)
     {
-        $checksum = md5(serialize($blueprints));
+        $checksum = md5(json_encode($blueprints));
         $filename = $filename
             ? CACHE_DIR . 'compiled/blueprints/' . $filename .'.php'
             : CACHE_DIR . 'compiled/blueprints/' . $checksum .'.php';
@@ -172,7 +172,7 @@ class Config extends Data
         }
 
         $blueprintFiles = $this->getBlueprintFiles($blueprints, $plugins);
-        $checksum .= ':'.md5(serialize($blueprintFiles));
+        $checksum .= ':'.md5(json_encode($blueprintFiles));
         $class = get_class($this);
 
         // Load real file if cache isn't up to date (or is invalid).
@@ -211,7 +211,7 @@ class Config extends Data
 
     protected function loadCompiledConfig($configs, $plugins, $filename = null)
     {
-        $checksum = md5(serialize($configs));
+        $checksum = md5(json_encode($configs));
         $filename = $filename
             ? CACHE_DIR . 'compiled/config/' . $filename .'.php'
             : CACHE_DIR . 'compiled/config/' . $checksum .'.php';
@@ -224,7 +224,7 @@ class Config extends Data
         }
 
         $configFiles = $this->getConfigFiles($configs, $plugins);
-        $checksum .= ':'.md5(serialize($configFiles));
+        $checksum .= ':'.md5(json_encode($configFiles));
         $class = get_class($this);
 
         // Load real file if cache isn't up to date (or is invalid).
@@ -360,7 +360,7 @@ class Config extends Data
                 $name = $directory->getBasename();
                 $filename = "{$path}/{$name}/" . ($find && $find[0] != '.' ? $find : $name . $find);
 
-                if (is_file($filename)) {
+                if (file_exists($filename)) {
                     $list["plugins/{$name}"] = ['file' => $filename, 'modified' => filemtime($filename)];
                 }
             }

@@ -14,12 +14,7 @@ if (!file_exists(__DIR__ . '/../vendor')){
 
 use Symfony\Component\Console\Application;
 
-$autoload = __DIR__ . '/../vendor/autoload.php';
-if (!is_file($autoload)) {
-    exit('Please run: composer install -o');
-}
-
-require_once $autoload;
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');

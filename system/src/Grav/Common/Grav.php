@@ -5,6 +5,7 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
 use RocketTheme\Toolbox\DI\Container;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 
 /**

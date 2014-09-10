@@ -44,7 +44,7 @@ class Plugins extends Iterator
                 continue;
             }
 
-            $filePath = $this->grav['locator']('plugin://' . $plugin . DS . $plugin . PLUGIN_EXT);
+            $filePath = $this->grav['locator']('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
             if (!is_file($filePath)) {
                 throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found!", $filePath, $plugin));
             }
@@ -81,7 +81,7 @@ class Plugins extends Iterator
     static public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator('plugin:///');
+        $iterator = new \DirectoryIterator('plugins://');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
@@ -100,12 +100,12 @@ class Plugins extends Iterator
 
     static public function get($name)
     {
-        $blueprints = new Blueprints("plugin://{$name}");
+        $blueprints = new Blueprints("plugins://{$name}");
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
         // Load default configuration.
-        $file = YamlFile::instance("plugin://{$name}/{$name}.yaml");
+        $file = YamlFile::instance("plugins://{$name}/{$name}.yaml");
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.

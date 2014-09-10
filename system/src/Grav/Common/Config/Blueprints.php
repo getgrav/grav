@@ -32,8 +32,8 @@ class Blueprints extends BaseBlueprints
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        $blueprints = $locator->findResources('blueprints:///config');
-        $plugins = $locator->findResources('plugin:///');
+        $blueprints = $locator->findResources('blueprints://config');
+        $plugins = $locator->findResources('plugins://');
 
         $blueprintFiles = $this->getBlueprintFiles($blueprints, $plugins);
 

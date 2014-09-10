@@ -1,11 +1,12 @@
 <?php
 namespace Grav\Common;
 
-
 use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYaml;
 use Grav\Component\Data\Blueprints;
 use Grav\Component\Data\Data;
+use RocketTheme\Toolbox\Event\EventDispatcher;
+use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -172,7 +173,7 @@ class Themes extends Iterator
         $registered = stream_get_wrappers();
         $schemes = $config->get(
             "themes.{$name}.streams.schemes",
-            ['theme' => ['paths' => $locator->findResources("theme:///{$name}", false)]]
+            ['theme' => ['paths' => $locator->findResources("themes://{$name}", false)]]
         );
 
         foreach ($schemes as $scheme => $config) {
