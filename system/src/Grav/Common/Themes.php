@@ -132,7 +132,7 @@ class Themes extends Iterator
 
         /** @var ResourceLocator $locator */
         $locator = $grav['locator'];
-        $file = $locator("theme://theme.php") ?: $locator("theme://{$name}.php");
+        $file = $locator('theme://theme.php') ?: $locator("theme://{$name}.php");
 
         if ($file) {
             // Local variables available in the file: $grav, $config, $name, $file
@@ -145,6 +145,8 @@ class Themes extends Iterator
                     $class = new $className($grav, $config, $name);
                 }
             }
+        } elseif (!$locator('theme://')) {
+            exit("Theme '$name' does not exist, unable to display page.");
         }
 
         if (empty($class)) {
