@@ -56,7 +56,7 @@
         <div class="titlebar secondary-accent">
             {% block titlebar %}{% endblock %}
         </div>
-        {% if grav_update %}
+        {% if grav_update and grav_update['available'] > grav_update['current'] %}
         <div class="grav-update">
 
             <p>

@@ -1,43 +1,202 @@
-fieldset {
-	border: 1px solid $core-border-color;
-}
 
-textarea, #{$all-text-inputs}, select[multiple=multiple] {
-	background-color: white;
-	border: 1px solid $core-border-color;
-	box-shadow: $core-box-shadow;
 
-	&:hover {
-		border-color: $core-border-color-hover;
-	}
+// fieldset {
+// 	border: 1px solid $core-border-color;
+// }
 
-	&:focus {
-		border-color: $core-border-color-focus;
-		box-shadow: $core-box-shadow-focus;
-	}
-}
+// textarea, #{$all-text-inputs}, select[multiple=multiple] {
+// 	background-color: white;
+// 	border: 1px solid $core-border-color;
+// 	box-shadow: $core-box-shadow;
 
-label {
-	@extend strong;
-}
+// 	&:hover {
+// 		border-color: $core-border-color-hover;
+// 	}
+
+// 	&:focus {
+// 		border-color: $core-border-color-focus;
+// 		box-shadow: $core-box-shadow-focus;
+// 	}
+// }
+
+// label {
+// 	@extend strong;
+// }
 
 // Forms
-.form-field {
-	.required {
-		color: #F3443F;
-		font-size: $core-font-size + 2rem;
-		line-height: $core-font-size + 2rem;
-		vertical-align: top;
-		height: 1.5rem;
-		display: inline-block;
-	}
-}
+// Forms
+$form-label-width: 30%;
+$form-border: darken($content-bg,10%);
+$form-border-radius: 4px;
+$form-border-width: 1px;
+$form-label-pad: 5px 0 5px 3rem;
+$form-input-pad: 5px 10px;
+$form-select-pad: 5px 30px 5px 10px;
+
+// Load Third Party Libraries
+@import "template/modules/toggle-switch";
 
 form {
-	.buttons {
-		text-align: center;
-	}
-	input {
-		font-weight: 400;
-	}
+
+    .form-field {
+        margin-bottom: 1rem;
+    }
+
+    label {
+        padding: 5px 0 5px $padding-default;
+        font-weight: 400;
+        margin:0;
+    }
+
+    input, select, textarea, button {
+        font-family: $font-family-default;
+        font-size: $core-font-size;
+        line-height: $core-line-height;
+        border-radius: $form-border-radius;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .form-select-wrapper {
+        position: relative;
+        display: inline-block;
+
+        &:after {
+            position: absolute;
+            content: '\f078';
+            font-family: 'FontAwesome';
+            right: 12px;
+            top: 50%;
+            line-height: 0;
+            color: lighten($content-fg,15%);
+            pointer-events: none;
+        }
+    }
+
+    .small {
+        select, input {
+            min-width: 10rem;
+        }
+    }
+
+    .medium {
+        select, input {
+            min-width: 20rem;
+        }
+    }
+
+    .large {
+        select, input {
+            min-width: 30rem;
+        }
+    }
+
+    select {
+        border: $form-border-width solid $form-border;
+        background: $white;
+        -webkit-appearance:none;
+        -moz-appearance:none;
+        appearance:none;
+        padding: $form-select-pad;
+        cursor: pointer;
+        margin: 0;
+    }
+
+
+    // input[type=text] {
+    //     width: 65%;
+    //     border: $form-border-width solid $form-border;
+    //     padding: $form-input-pad;
+    // }
+
+    // input[type=date] {
+    //     width: 200px;
+    //     border: $form-border-width solid $form-border;
+    //     padding: $form-input-pad;
+    // }
+
+
+    // textarea {
+    //     width: 65%;
+    //     height: 100px;
+    //     border: $form-border-width solid $form-border;
+    //     padding: $form-input-pad;
+    // }
+
+
+    .switch-toggle {
+        // margin-left: 30%;
+
+        label {
+            cursor: pointer;
+        }
+
+        a,label {
+            outline: none !important;
+        }
+    }
+
+    .dynfields {
+
+        input[type=text] {
+            width: 40%;
+        }
+        .inline > div {
+            margin-left: 30%;
+        }
+
+        .button {
+            padding: 0.5rem;
+            display: inline-block;
+            background: #999;
+        }
+    }
+
+    .button-bar {
+        margin-top: 50px;
+        background: lighten($form-border,7%);
+        padding: $form-input-pad;
+        padding-left: $form-label-width;
+    }
+
+    .checkboxes {
+        display: inline-block;
+        padding: 5px 0;
+
+        label {
+            display: inline;
+            cursor: pointer;
+            position: relative;
+            padding: 0 0 0 2rem;
+            margin-right: 15px;
+
+        }
+        label:before {
+            content:"";
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            top: 50%;
+            left: 0;
+            margin-top: -0.75rem;
+            margin-right: 10px;
+            position: absolute;
+
+            background: $white;
+            border: $form-border-width solid $form-border;
+            border-radius: $form-border-radius;
+        }
+        input[type=checkbox] {
+            display: none;
+        }
+        input[type=checkbox]:checked + label:before {
+            content:"\f00c";
+            font-family: "FontAwesome";
+            font-size: 1.2rem;
+            line-height: 1.5rem;
+            text-align: center;
+        }
+    }
+
+
+
 }

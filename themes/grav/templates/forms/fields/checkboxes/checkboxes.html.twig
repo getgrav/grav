@@ -1,0 +1,31 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field grid pure-g">
+    <div class="form-label block size-1-3 pure-u-1-3">
+        <label>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label|e }}</span>
+            {% else %}
+            {{ field.label|e }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </label>
+    </div>
+    <div class="form-data block size-2-3 pure-u-2-3">
+        {% for key, text in field.options %}
+        {% set checked = (field.use == 'keys' ? value[key] : key in value) %}
+        {% set name = field.name|fieldName ~ '[' ~ (field.use == 'keys' ? key : '') ~ ']' %}
+        {% set key = (field.use == 'keys' ? '1' : key) %}
+        <span class="checkboxes">
+            <input type="checkbox"
+                   id="{{ name|e }}"
+                   value="{{ key|e }}"
+                   name="{{ (scope ~ name)|fieldName }}"
+                   {% if checked %}checked="checked"{% endif %}
+                   {% if field.validate.required %}required="required"{% endif %}
+            >
+            <label for="{{ name|e }}">{{ text|e }}</label>
+        </span>
+        {% endfor %}
+    </div>
+</div>

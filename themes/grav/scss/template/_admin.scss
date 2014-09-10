@@ -196,36 +196,6 @@ $update-height: 3rem;
             margin-right: $padding-default;
         }
     }
-
-    td {
-        border: 0;
-        border-bottom: 1px solid darken($content-bg, 5%);
-    }
-
-    tr {
-        @include transition(all 0.2s ease);
-
-        td {
-
-            &:first-child {
-                padding-left: $padding-default;
-            }
-
-            &:last-child {
-                text-align: right;
-                padding-right: $padding-default;
-            }
-        }
-
-        &:last-child {
-            td {
-                border-bottom: 0;
-            }
-        }
-        &:hover {
-            background: lighten($content-bg,2%);
-        }
-    }
 }
 
 #admin-dashboard {

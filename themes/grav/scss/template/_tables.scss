@@ -1,14 +1,33 @@
 table {
-	border: 1px solid lighten($core-border-color,5%);
-}
 
-th {
-	@extend strong;
-	background: lighten($core-border-color,10%);
-	padding: 0.5rem;
 }
 
 td {
-	padding: 0.5rem;
-	border: 1px solid lighten($core-border-color,5%); 
+    border: 0;
+    border-bottom: 1px solid darken($content-bg, 5%);
+}
+
+tr {
+    @include transition(all 0.2s ease);
+
+    td {
+
+        &:first-child {
+            padding-left: $padding-default;
+        }
+
+        &:last-child {
+            text-align: right;
+            padding-right: $padding-default;
+        }
+    }
+
+    &:last-child {
+        td {
+            border-bottom: 0;
+        }
+    }
+    &:hover {
+        background: lighten($content-bg,2%);
+    }
 }

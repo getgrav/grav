@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import url(//fonts.googleapis.com/css?family=Montserrat:400|Lato:300,400,700);
 #admin-login, #admin-logo h3, #admin-main .titlebar h1, #admin-main .titlebar .button-bar, #admin-dashboard .dashboard-item .button-bar .button, #admin-dashboard #updates .numeric, #admin-dashboard #popularity .stat {
   position: relative;
@@ -11,7 +12,6 @@
 .button {
   display: inline-block;
   padding: 0.3rem 1.5rem;
-  font-size: 1.1rem;
   font-weight: 300;
   cursor: pointer;
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
@@ -35,7 +35,7 @@ a {
   a:hover {
     color: #0e6e90; }
 
-b, strong, label, th {
+b, strong {
   font-weight: 600; }
 
 .button-bar {
@@ -61,7 +61,8 @@ b, strong, label, th {
 .info {
   background: #9055af;
   color: white;
-  font-size: 1.1rem; }
+  font-size: 1.1rem;
+  padding: 1rem 3rem; }
 
 .badge {
   font-size: 0.9rem;
@@ -227,42 +228,329 @@ hr {
   font-family: "Montserrat", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
   margin-right: 0.75rem; }
 
-fieldset {
-  border: 1px solid #dddddd; }
+/*
+ * CSS TOGGLE SWITCHES
+ * Unlicense
+ *
+ * Ionuț Colceriu - ghinda.net
+ * https://github.com/ghinda/css-toggle-switch
+ *
+ */
+/* Toggle Switches
+ */
+/* Shared
+ */
+/* Checkbox
+ */
+/* Radio Switch
+ */
+/* Hide by default
+ */
+.switch-toggle a,
+.switch-light span span {
+  display: none; }
 
-textarea, input[type="email"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="text"], input[type="url"], input[type="color"], input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="month"], input[type="time"], input[type="week"], select[multiple=multiple] {
-  background-color: white;
-  border: 1px solid #dddddd;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06); }
-  textarea:hover, input[type="email"]:hover, input[type="number"]:hover, input[type="password"]:hover, input[type="search"]:hover, input[type="tel"]:hover, input[type="text"]:hover, input[type="url"]:hover, input[type="color"]:hover, input[type="date"]:hover, input[type="datetime"]:hover, input[type="datetime-local"]:hover, input[type="month"]:hover, input[type="time"]:hover, input[type="week"]:hover, select[multiple=multiple]:hover {
-    border-color: #c4c4c4; }
-  textarea:focus, input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="text"]:focus, input[type="url"]:focus, input[type="color"]:focus, input[type="date"]:focus, input[type="datetime"]:focus, input[type="datetime-local"]:focus, input[type="month"]:focus, input[type="time"]:focus, input[type="week"]:focus, select[multiple=multiple]:focus {
-    border-color: #1bb3e9;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 5px rgba(21, 163, 214, 0.7); }
+/* We can't test for a specific feature,
+ * so we only target browsers with support for media queries.
+ */
+@media only screen {
+  /* Checkbox switch
+   */
+  .switch-light {
+    display: inline-block;
+    /* Outline the toggles when the inputs are focused
+     */
+    position: relative;
+    overflow: visible;
+    padding: 0;
+    margin-left: 100px;
+    /* Position the label over all the elements, except the slide-button (<a>)
+     * Clicking anywhere on the label will change the switch-state
+     */
+    /* Don't hide the input from screen-readers and keyboard access
+     */ }
+    .switch-light * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box; }
+    .switch-light a {
+      display: block;
+      -webkit-transition: all 0.1s ease-out;
+      -moz-transition: all 0.1s ease-out;
+      transition: all 0.1s ease-out; }
+    .switch-light label,
+    .switch-light > span {
+      vertical-align: middle; }
+    .switch-light input:focus ~ a,
+    .switch-light input:focus + label {
+      outline: 1px dotted #888; }
+    .switch-light label {
+      position: relative;
+      z-index: 3;
+      display: block;
+      width: 100%; }
+    .switch-light input {
+      position: absolute;
+      opacity: 0;
+      z-index: 5; }
+      .switch-light input:checked ~ a {
+        right: 0%; }
+    .switch-light > span {
+      position: absolute;
+      left: -100px;
+      width: 100%;
+      margin: 0;
+      padding-right: 100px;
+      text-align: left; }
+      .switch-light > span span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 5;
+        display: block;
+        width: 50%;
+        margin-left: 100px;
+        text-align: center; }
+        .switch-light > span span:last-child {
+          left: 50%; }
+    .switch-light a {
+      position: absolute;
+      right: 50%;
+      top: 0;
+      z-index: 4;
+      display: block;
+      width: 50%;
+      height: 100%;
+      padding: 0; }
 
-.form-field .required {
-  color: #F3443F;
-  font-size: 3rem;
-  line-height: 3rem;
-  vertical-align: top;
-  height: 1.5rem;
+  /* Radio switch
+   */
+  .switch-toggle {
+    display: inline-block;
+    /* Outline the toggles when the inputs are focused
+     */
+    position: relative;
+    /* For callout panels in foundation
+     */
+    padding: 0 !important;
+    /* Generate styles for the multiple states */ }
+    .switch-toggle * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box; }
+    .switch-toggle a {
+      display: block;
+      -webkit-transition: all 0.1s ease-out;
+      -moz-transition: all 0.1s ease-out;
+      transition: all 0.1s ease-out; }
+    .switch-toggle label,
+    .switch-toggle > span {
+      vertical-align: middle; }
+    .switch-toggle input:focus ~ a,
+    .switch-toggle input:focus + label {
+      outline: 1px dotted #888; }
+    .switch-toggle input {
+      position: absolute;
+      opacity: 0; }
+    .switch-toggle input + label {
+      position: relative;
+      z-index: 2;
+      float: left;
+      width: 50%;
+      height: 100%;
+      margin: 0;
+      text-align: center; }
+    .switch-toggle a {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 0;
+      z-index: 1;
+      width: 50%;
+      height: 100%; }
+    .switch-toggle input:last-of-type:checked ~ a {
+      left: 50%; }
+    .switch-toggle.switch-3 label,
+    .switch-toggle.switch-3 a {
+      width: 33.33333%; }
+    .switch-toggle.switch-3 input:checked:nth-of-type(2) ~ a {
+      left: 33.33333%; }
+    .switch-toggle.switch-3 input:checked:last-of-type ~ a {
+      left: 66.66667%; }
+    .switch-toggle.switch-4 label,
+    .switch-toggle.switch-4 a {
+      width: 25%; }
+    .switch-toggle.switch-4 input:checked:nth-of-type(2) ~ a {
+      left: 25%; }
+    .switch-toggle.switch-4 input:checked:nth-of-type(3) ~ a {
+      left: 50%; }
+    .switch-toggle.switch-4 input:checked:last-of-type ~ a {
+      left: 75%; }
+    .switch-toggle.switch-5 label,
+    .switch-toggle.switch-5 a {
+      width: 20%; }
+    .switch-toggle.switch-5 input:checked:nth-of-type(2) ~ a {
+      left: 20%; }
+    .switch-toggle.switch-5 input:checked:nth-of-type(3) ~ a {
+      left: 40%; }
+    .switch-toggle.switch-5 input:checked:nth-of-type(4) ~ a {
+      left: 60%; }
+    .switch-toggle.switch-5 input:checked:last-of-type ~ a {
+      left: 80%; }
+
+  /* Standalone Themes */
+  /* Grav Theme
+   */
+  .switch-grav {
+    background-color: white;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    /* Selected ON switch-light
+     */ }
+    .switch-grav label {
+      color: #737c81;
+      -webkit-transition: color 0.2s ease-out;
+      -moz-transition: color 0.2s ease-out;
+      transition: color 0.2s ease-out;
+      padding: 5px 20px; }
+    .switch-grav > span span {
+      opacity: 0;
+      -webkit-transition: all 0.1s;
+      -moz-transition: all 0.1s;
+      transition: all 0.1s; }
+      .switch-grav > span span:first-of-type {
+        opacity: 1; }
+    .switch-grav a {
+      background: #777;
+      border-radius: 3px; }
+    .switch-grav.switch-toggle input.highlight:checked ~ a {
+      background: #41bea8; }
+    .switch-grav.switch-light input:checked ~ a {
+      background-color: #777; }
+    .switch-grav.switch-light input:checked ~ span span:first-of-type {
+      opacity: 0; }
+    .switch-grav.switch-light input:checked ~ span span:last-of-type {
+      opacity: 1; }
+    .switch-grav input:checked + label {
+      color: #fff; } }
+/* Bugfix for older Webkit, including mobile Webkit. Adapted from
+ * http://css-tricks.com/webkit-sibling-bug/
+ */
+@media only screen and (-webkit-max-device-pixel-ratio: 2) and (max-device-width: 1280px) {
+  .switch-light,
+  .switch-toggle {
+    -webkit-animation: webkitSiblingBugfix infinite 1s; } }
+
+@-webkit-keyframes webkitSiblingBugfix {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0); } }
+form .form-field {
+  margin-bottom: 1rem; }
+form label {
+  padding: 5px 0 5px 3rem;
+  font-weight: 400;
+  margin: 0; }
+form input, form select, form textarea, form button {
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  border-radius: 4px;
+  -webkit-font-smoothing: antialiased; }
+form .form-select-wrapper {
+  position: relative;
   display: inline-block; }
-
-form .buttons {
-  text-align: center; }
-form input {
-  font-weight: 400; }
-
-table {
-  border: 1px solid #eaeaea; }
-
-th {
-  background: #f7f7f7;
-  padding: 0.5rem; }
+  form .form-select-wrapper:after {
+    position: absolute;
+    content: '\f078';
+    font-family: 'FontAwesome';
+    right: 12px;
+    top: 50%;
+    line-height: 0;
+    color: #9ba2a6;
+    pointer-events: none; }
+form .small select, form .small input {
+  min-width: 10rem; }
+form .medium select, form .medium input {
+  min-width: 20rem; }
+form .large select, form .large input {
+  min-width: 30rem; }
+form select {
+  border: 1px solid #d4d4d4;
+  background: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 5px 30px 5px 10px;
+  cursor: pointer;
+  margin: 0; }
+form .switch-toggle label {
+  cursor: pointer; }
+form .switch-toggle a, form .switch-toggle label {
+  outline: none !important; }
+form .dynfields input[type=text] {
+  width: 40%; }
+form .dynfields .inline > div {
+  margin-left: 30%; }
+form .dynfields .button {
+  padding: 0.5rem;
+  display: inline-block;
+  background: #999; }
+form .button-bar {
+  margin-top: 50px;
+  background: #e6e6e6;
+  padding: 5px 10px;
+  padding-left: 30%; }
+form .checkboxes {
+  display: inline-block;
+  padding: 5px 0; }
+  form .checkboxes label {
+    display: inline;
+    cursor: pointer;
+    position: relative;
+    padding: 0 0 0 2rem;
+    margin-right: 15px; }
+  form .checkboxes label:before {
+    content: "";
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    top: 50%;
+    left: 0;
+    margin-top: -0.75rem;
+    margin-right: 10px;
+    position: absolute;
+    background: white;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px; }
+  form .checkboxes input[type=checkbox] {
+    display: none; }
+  form .checkboxes input[type=checkbox]:checked + label:before {
+    content: "\f00c";
+    font-family: "FontAwesome";
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+    text-align: center; }
 
 td {
-  padding: 0.5rem;
-  border: 1px solid #eaeaea; }
+  border: 0;
+  border-bottom: 1px solid #e1e1e1; }
+
+tr {
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  transition: all 0.2s ease; }
+  tr td:first-child {
+    padding-left: 3rem; }
+  tr td:last-child {
+    text-align: right;
+    padding-right: 3rem; }
+  tr:last-child td {
+    border-bottom: 0; }
+  tr:hover {
+    background: #f3f3f3; }
 
 .button {
   background: #41bea8;
@@ -462,22 +750,6 @@ td {
       border-bottom: 3px solid #e1e1e1; }
     #admin-main .admin-block .button-bar {
       margin-right: 3rem; }
-  #admin-main td {
-    border: 0;
-    border-bottom: 1px solid #e1e1e1; }
-  #admin-main tr {
-    -webkit-transition: all 0.2s ease;
-    -moz-transition: all 0.2s ease;
-    transition: all 0.2s ease; }
-    #admin-main tr td:first-child {
-      padding-left: 3rem; }
-    #admin-main tr td:last-child {
-      text-align: right;
-      padding-right: 3rem; }
-    #admin-main tr:last-child td {
-      border-bottom: 0; }
-    #admin-main tr:hover {
-      background: #f3f3f3; }
 
 #admin-dashboard:after {
   content: "";
