@@ -509,13 +509,16 @@ form .switch-toggle label {
 form .switch-toggle a, form .switch-toggle label {
   outline: none !important; }
 form .dynfields input[type=text] {
-  width: 40%; }
-form .dynfields .inline > div {
-  margin-left: 30%; }
-form .dynfields .button {
-  padding: 0.5rem;
-  display: inline-block;
-  background: #999; }
+  width: 40%;
+  float: left;
+  margin: 0 5px 5px 0; }
+form .dynfields .form-row {
+  display: inline-block; }
+  form .dynfields .form-row span {
+    padding: 0.5rem;
+    display: inline-block;
+    line-height: 1.7;
+    cursor: pointer; }
 form .button-bar {
   margin-top: 50px;
   background: #e6e6e6;

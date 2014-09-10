@@ -1,8 +1,8 @@
 {% set value = (value is null ? field.default : value) %}
 
-<div class="form-field">
-    <div class="dynfields" data-grav-dynfields="{{ field.name|fieldName }}">
-        <span class="inline">
+<div class="form-field grid pure-g dynfields" data-grav-dynfields="{{ field.name|fieldName }}">
+    <div class="form-label block size-1-3 pure-u-1-3">
+        <label>
             <span>
                 {% if field.help %}
                 <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
@@ -10,25 +10,26 @@
                 {{ field.label }}
                 {% endif %}
             </span>
-
+        </label>
+    </div>
+    <div class="form-data block size-2-3 pure-u-2-3">
 
             {% if value|length %}
-            {% for key, text in value %}
-            <div>
-                <input type="text" value="{{ (scope ~ key)|fieldName }}" placeholder="" />
-                <input type="text" name="{{ (scope ~ field.name)|fieldName }}[{{ key }}]" value="{{ text|join(', ') }}" placeholder="{{ field.placeholder }}" />
-                <span data-grav-remfield class="button fa fa-minus"></span>
-                <span data-grav-addfield class="button fa fa-plus"></span>
-            </div>
-            {% endfor %}
+                {% for key, text in value %}
+                <div class="form-row">
+                    <input type="text" value="{{ (scope ~ key)|fieldName }}" placeholder="" />
+                    <input type="text" name="{{ (scope ~ field.name)|fieldName }}[{{ key }}]" value="{{ text|join(', ') }}" placeholder="{{ field.placeholder }}" />
+                    <span data-grav-remfield class="fa fa-minus"></span>
+                    <span data-grav-addfield class="fa fa-plus"></span>
+                </div>
+                {% endfor %}
             {% else %}
-                <div>
+                <div class="form-row">
                     <input type="text" placeholder="" />
                     <input type="text" placeholder="{{ field.placeholder }}" />
-                    <span data-grav-remfield class="button fa fa-minus"></span>
-                    <span data-grav-addfield class="button fa fa-plus"></span>
+                    <span data-grav-remfield class="fa fa-minus"></span>
+                    <span data-grav-addfield class="fa fa-plus"></span>
                 </div>
             {% endif %}
-        </span>
-    </div>
+     </div>
 </div>

@@ -168,16 +168,21 @@ form {
 
         input[type=text] {
             width: 40%;
-        }
-        .inline > div {
-            margin-left: 30%;
+            float: left;
+            margin: 0 5px 5px 0;
         }
 
-        .button {
-            padding: 0.5rem;
+        .form-row {
             display: inline-block;
-            background: #999;
+            span {
+                padding: 0.5rem;
+                display: inline-block;
+                line-height: 1.7;
+                cursor: pointer;
+            }
         }
+
+
     }
 
     .button-bar {
