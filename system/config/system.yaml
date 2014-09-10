@@ -46,6 +46,5 @@ debugger:
   max_depth: 10                        # How many nested levels to display for objects or arrays
   log:
     enabled: true                      # Enable logging
-    timing: false                      # Enable timing logging
   shutdown:
     close_connection: true             # Close the connection before calling onShutdown(). disable for debugging
