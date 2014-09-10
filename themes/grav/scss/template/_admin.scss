@@ -142,6 +142,35 @@ $update-height: 3rem;
         }
     }
 
+    .tab-bar {
+        background: $accent-bg;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        font-family: $font-family-header;
+
+        li {
+            display: inline-block;
+            &.active {
+                span, a {
+                    background: $content-bg;
+                    color: $content-fg;
+                }
+
+            }
+        }
+
+        span, a {
+            display: inline-block;
+            padding: 0.7rem 4rem;
+            color: lighten($accent-bg,65%);
+            &:hover {
+                color: $white;
+            }
+        }
+    }
+
     .grav-update {
         height: $update-height;
         padding: 0 $padding-default;

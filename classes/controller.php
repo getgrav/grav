@@ -225,7 +225,7 @@ class AdminController
             $obj->validate();
             $obj->filter();
             $obj->save();
-            $this->admin->setMessage('Page successfully saved');
+            $this->admin->setMessage('Successfully saved');
         }
 
         // Redirect to new location.
@@ -305,7 +305,7 @@ class AdminController
             $page->save();
 
             // Enqueue message and redirect to new location.
-            $this->admin->setMessage('Page successfully copied');
+            $this->admin->setMessage('Successfully copied');
             $this->setRedirect($this->view . '/' . $page->route());
 
         } catch (\Exception $e) {
@@ -357,7 +357,7 @@ class AdminController
                 $redirect = dirname($redirect);
             }
 
-            $this->admin->setMessage('Page successfully deleted');
+            $this->admin->setMessage('Successfully deleted');
             $this->setRedirect($redirect);
 
         } catch (\Exception $e) {

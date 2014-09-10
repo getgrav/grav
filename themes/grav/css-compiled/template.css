@@ -449,9 +449,12 @@ hr {
   to {
     -webkit-transform: translate3d(0, 0, 0); } }
 form .form-field {
-  margin-bottom: 1rem; }
+  margin-bottom: 1rem;
+  padding-left: 3rem; }
+form .form-data {
+  padding-right: 3rem; }
 form label {
-  padding: 5px 0 5px 3rem;
+  padding: 5px 0;
   font-weight: 400;
   margin: 0; }
 form input, form select, form textarea, form button {
@@ -461,8 +464,7 @@ form input, form select, form textarea, form button {
   border-radius: 4px;
   -webkit-font-smoothing: antialiased; }
 form .form-select-wrapper {
-  position: relative;
-  display: inline-block; }
+  position: relative; }
   form .form-select-wrapper:after {
     position: absolute;
     content: '\f078';
@@ -472,15 +474,20 @@ form .form-select-wrapper {
     line-height: 0;
     color: #9ba2a6;
     pointer-events: none; }
-form .x-small select, form .x-small input {
+form .x-small {
   max-width: 5rem !important; }
-form .small select, form .small input {
-  min-width: 10rem !important; }
-form .medium select, form .medium input {
-  min-width: 20rem !important; }
-form .large select, form .large input {
-  min-width: 30rem !important; }
+form .small {
+  max-width: 10rem !important; }
+form .medium {
+  max-width: 20rem !important; }
+  form .medium textarea {
+    height: 7rem; }
+form .large {
+  max-width: 30rem !important; }
+  form .large textarea {
+    height: 10rem; }
 form select {
+  width: 100%;
   border: 1px solid #d4d4d4;
   background: white;
   -webkit-appearance: none;
@@ -490,7 +497,11 @@ form select {
   cursor: pointer;
   margin: 0; }
 form input[type=text] {
-  width: auto;
+  width: 100%;
+  border: 1px solid #d4d4d4;
+  background: white; }
+form textarea {
+  width: 100%;
   border: 1px solid #d4d4d4;
   background: white; }
 form .switch-toggle label {
@@ -715,6 +726,23 @@ tr {
     padding: 0 3rem; }
     #admin-main .titlebar .button-bar {
       padding: 0; }
+  #admin-main .tab-bar {
+    background: #253a47;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: "Montserrat", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+    #admin-main .tab-bar li {
+      display: inline-block; }
+      #admin-main .tab-bar li.active span, #admin-main .tab-bar li.active a {
+        background: #eeeeee;
+        color: #737c81; }
+    #admin-main .tab-bar span, #admin-main .tab-bar a {
+      display: inline-block;
+      padding: 0.7rem 4rem;
+      color: #d1dee7; }
+      #admin-main .tab-bar span:hover, #admin-main .tab-bar a:hover {
+        color: white; }
   #admin-main .grav-update {
     height: 3rem;
     padding: 0 3rem;

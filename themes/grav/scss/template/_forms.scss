@@ -40,10 +40,15 @@ form {
 
     .form-field {
         margin-bottom: 1rem;
+        padding-left: $padding-default;
+    }
+
+    .form-data {
+        padding-right: $padding-default;
     }
 
     label {
-        padding: 5px 0 5px $padding-default;
+        padding: 5px 0;
         font-weight: 400;
         margin:0;
     }
@@ -58,7 +63,6 @@ form {
 
     .form-select-wrapper {
         position: relative;
-        display: inline-block;
 
         &:after {
             position: absolute;
@@ -73,30 +77,37 @@ form {
     }
 
     .x-small {
-        select, input {
+
             max-width: 5rem !important;
-        }
+
     }
 
     .small {
-        select, input {
-            min-width: 10rem !important;
-        }
+
+            max-width: 10rem !important;
+
     }
 
     .medium {
-        select, input {
-            min-width: 20rem !important;
+
+            max-width: 20rem !important;
+
+        textarea {
+            height: 7rem;
         }
     }
 
     .large {
-        select, input {
-            min-width: 30rem !important;
+
+            max-width: 30rem !important;
+
+         textarea {
+            height: 10rem;
         }
     }
 
     select {
+        width: 100%;
         border: $form-border-width solid $form-border;
         background: $white;
         -webkit-appearance:none;
@@ -108,7 +119,13 @@ form {
     }
 
     input[type=text] {
-        width: auto;
+        width: 100%;
+        border: $form-border-width solid $form-border;
+        background: $white;
+    }
+
+    textarea {
+        width: 100%;
         border: $form-border-width solid $form-border;
         background: $white;
     }

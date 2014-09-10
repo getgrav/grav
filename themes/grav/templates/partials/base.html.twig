@@ -68,13 +68,15 @@
         </div>
         {% endif %}
         <div class="content-padding">
-            {% include 'partials/messages.html.twig' %}
-            {% block content_top %}{% endblock %}
-            <div class="admin-block default-box-shadow">
-                {% block content %}{% endblock %}
+            <div class="default-box-shadow">
+                {% include 'partials/messages.html.twig' %}
+                {% block content_top %}{% endblock %}
+                <div class="admin-block">
+                    {% block content %}{% endblock %}
+                </div>
+                {% block content_bottom %}{% endblock %}
             </div>
-            {% block content_bottom %}{% endblock %}
-            <footer id="footer">
+             <footer id="footer">
                 <a href="http://getgrav.org">Grav</a> version {{ grav_update['current'] }} was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
             </footer>
         </div>

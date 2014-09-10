@@ -5,15 +5,21 @@
     <script src="{{ theme_url }}/js/dynfields/dynfields.js"></script>
 {% endblock %}
 
-{% block content %}
-
-    <div class="admin-block">
-        <h1>
-            Site Settings
-        </h1>
-
-        {% include 'partials/messages.html.twig' %}
-        {% include 'partials/blueprints.html.twig' with { blueprints: admin.blueprints('site'), data: admin.data('site') } %}
+{% block titlebar %}
+    <div class="button-bar">
+        <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
     </div>
+    <h1><i class="fa fa-fw fa-th"></i> Configuration - Site</h1>
+{% endblock %}
+
+{% block content_top %}
+    <ul class="tab-bar">
+        <li><a href="{{ base_url_relative }}/configuration/">System</a></li>
+        <li class="active"><span>Site</span></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    {% include 'partials/blueprints.html.twig' with { blueprints: admin.blueprints('site'), data: admin.data('site') } %}
 {% endblock %}
 
