@@ -1,11 +1,13 @@
-title: Site settings
+title: Site
 validation: strict
 
 form:
   fields:
     title:
       type: text
-      label: Site title
+      label: Site Title
+      placeholder: "Site wide title"
+      help: Default title for your site
 
     description:
       type: textarea
