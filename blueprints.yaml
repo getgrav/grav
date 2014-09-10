@@ -11,13 +11,13 @@ form:
         highlight: 1
         default: 1
         options:
-          1: Enabled
-          0: Disabled
+            1: Enabled
+            0: Disabled
         validate:
-          type: bool
+            type: bool
 
     route:
-      type: text
-      label: Administrator path
-      placeholder: "Default route for administrator (relative to base)"
-      help: If you want to change the URL for the administrator, you can provide a path here
+        type: text
+        label: Administrator path
+        placeholder: "Default route for administrator (relative to base)"
+        help: If you want to change the URL for the administrator, you can provide a path here

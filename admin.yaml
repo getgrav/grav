@@ -2,9 +2,9 @@ enabled: true
 route: '/admin'
 theme: grav
 login:
-  enabled: true
-  route: null
-  timeout: 1800
+    enabled: true
+    route: null
+    timeout: 1800
 popularity:
     enabled: true
     ignore: ['/test*','/modular']
