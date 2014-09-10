@@ -65,9 +65,6 @@ class Grav extends Container
         $container['events'] = function ($c) {
             return new EventDispatcher;
         };
-        $container['config'] = function ($c) {
-            return Config::instance($c);
-        };
         $container['cache'] = function ($c) {
             return new Cache($c);
         };

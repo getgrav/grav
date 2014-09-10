@@ -41,7 +41,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         }
 
         if (!isset($config)) {
-            $file = GRAV_ROOT . '/config.php';
+            $file = GRAV_ROOT . '/setup.php';
             $data = is_file($file) ? (array) include $file : [];
             $config = new Config($data, $container);
         }
