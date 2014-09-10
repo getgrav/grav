@@ -2,6 +2,7 @@
 	display: inline-block;
 	padding: 0.3rem 1.5rem;
     font-weight: 300;
+    -webkit-font-smoothing: auto;
     cursor: pointer;
 
     font-family: $font-family-default;

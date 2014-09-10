@@ -68,10 +68,10 @@
         </div>
         {% endif %}
         <div class="content-padding">
-            <div class="default-box-shadow">
+            <div>
                 {% include 'partials/messages.html.twig' %}
                 {% block content_top %}{% endblock %}
-                <div class="admin-block">
+                <div class="admin-block default-box-shadow">
                     {% block content %}{% endblock %}
                 </div>
                 {% block content_bottom %}{% endblock %}

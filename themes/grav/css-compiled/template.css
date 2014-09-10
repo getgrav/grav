@@ -13,6 +13,7 @@
   display: inline-block;
   padding: 0.3rem 1.5rem;
   font-weight: 300;
+  -webkit-font-smoothing: auto;
   cursor: pointer;
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
   .button i {
@@ -608,6 +609,13 @@ tr {
   background: #253a47;
   max-width: 24rem;
   margin: 0 auto; }
+  #admin-login .form-field {
+    padding-left: 0;
+    margin-bottom: 0; }
+  #admin-login .form-label {
+    display: none; }
+  #admin-login .form-data {
+    padding-right: 0; }
   #admin-login h1 {
     background: #20333e url(../images/logo.png) 50% 50% no-repeat;
     font-size: 0;
@@ -615,7 +623,7 @@ tr {
     height: 14rem;
     margin: 0; }
   #admin-login form {
-    padding: 3rem; }
+    padding: 2rem 3rem; }
     #admin-login form input {
       margin-bottom: 2rem;
       background: #314d5b;
@@ -624,6 +632,7 @@ tr {
       line-height: 1.5;
       text-align: center;
       font-weight: 300;
+      -webkit-font-smoothing: auto;
       border: 1px solid #1d2e38; }
       #admin-login form input::-webkit-input-placeholder {
         color: #83949c; }
