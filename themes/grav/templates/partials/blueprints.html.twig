@@ -14,9 +14,9 @@
         {% set value = value|json_encode|e %}
         {% include 'forms/fields/hidden/hidden.html.twig' %}
     {% endfor %}
-    <p><strong>Note:</strong> This page contains extra fields which are not visible in this form!</p>
     {% endif %}
 
+    {#
     <div class="button-bar">
         <button class="button" name="task" value="save">Save</button>
         {% if context.exists %}
@@ -44,4 +44,5 @@
             return false;
         });
     </script>
+    #}
 </form>

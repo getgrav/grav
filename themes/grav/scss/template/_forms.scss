@@ -72,21 +72,27 @@ form {
         }
     }
 
+    .x-small {
+        select, input {
+            max-width: 5rem !important;
+        }
+    }
+
     .small {
         select, input {
-            min-width: 10rem;
+            min-width: 10rem !important;
         }
     }
 
     .medium {
         select, input {
-            min-width: 20rem;
+            min-width: 20rem !important;
         }
     }
 
     .large {
         select, input {
-            min-width: 30rem;
+            min-width: 30rem !important;
         }
     }
 
@@ -99,6 +105,12 @@ form {
         padding: $form-select-pad;
         cursor: pointer;
         margin: 0;
+    }
+
+    input[type=text] {
+        width: auto;
+        border: $form-border-width solid $form-border;
+        background: $white;
     }
 
 

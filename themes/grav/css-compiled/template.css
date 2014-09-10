@@ -40,7 +40,8 @@ b, strong {
 
 .button-bar {
   text-align: right;
-  float: right; }
+  float: right;
+  z-index: 2; }
 
 .secondary-accent {
   background: #349886;
@@ -471,12 +472,14 @@ form .form-select-wrapper {
     line-height: 0;
     color: #9ba2a6;
     pointer-events: none; }
+form .x-small select, form .x-small input {
+  max-width: 5rem !important; }
 form .small select, form .small input {
-  min-width: 10rem; }
+  min-width: 10rem !important; }
 form .medium select, form .medium input {
-  min-width: 20rem; }
+  min-width: 20rem !important; }
 form .large select, form .large input {
-  min-width: 30rem; }
+  min-width: 30rem !important; }
 form select {
   border: 1px solid #d4d4d4;
   background: white;
@@ -486,6 +489,10 @@ form select {
   padding: 5px 30px 5px 10px;
   cursor: pointer;
   margin: 0; }
+form input[type=text] {
+  width: auto;
+  border: 1px solid #d4d4d4;
+  background: white; }
 form .switch-toggle label {
   cursor: pointer; }
 form .switch-toggle a, form .switch-toggle label {
@@ -745,6 +752,7 @@ tr {
     color: #737c81;
     padding: 2rem 0; }
     #admin-main .admin-block h1 {
+      color: #314d5b;
       padding: 0 3rem 0.5rem;
       margin: 0 0 1rem;
       border-bottom: 3px solid #e1e1e1; }

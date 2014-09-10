@@ -187,6 +187,7 @@ $update-height: 3rem;
         padding: 2rem 0;
 
         h1 {
+            color: $page-bg;
             padding: 0 $padding-default 0.5rem;
             margin: 0 0 1rem;
             border-bottom: 3px solid darken($content-bg, 5%);
