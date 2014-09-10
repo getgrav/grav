@@ -11,8 +11,6 @@ use Grav\Component\Data\Data;
  */
 class User extends Data
 {
-    protected $password;
-
     /**
      * Authenticate user.
      *

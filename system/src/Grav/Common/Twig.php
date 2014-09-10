@@ -104,6 +104,7 @@ class Twig
 
             // Set some standard variables for twig
             $this->twig_vars = array(
+                'grav' => $this->grav,
                 'grav_version' => GRAV_VERSION,
                 'config' => $config,
                 'uri' => $this->grav['uri'],

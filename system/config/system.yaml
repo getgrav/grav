@@ -23,7 +23,7 @@ cache:
   enabled: true                        # Set to true to enable caching
   check:
     method: file                       # Method to check for updates in pages: file|folder|none
-  driver: auto                         # One of: auto|file|apc|xcache|memcache|memcached|wincache
+  driver: auto                         # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
 
 twig:
@@ -47,3 +47,5 @@ debugger:
   log:
     enabled: true                      # Enable logging
     timing: false                      # Enable timing logging
+  shutdown:
+    close_connection: true             # Close the connection before calling onShutdown(). disable for debugging

@@ -261,9 +261,10 @@ class Assets
     /**
      * Build the CSS link tags.
      *
+     * @param  array  $attributes
      * @return string
      */
-    public function css()
+    public function css($attributes = [])
     {
         if( ! $this->css)
             return null;
@@ -272,21 +273,21 @@ class Assets
         usort($this->css, function ($a, $b) {return $a['priority'] - $b['priority'];});
         $this->css = array_reverse($this->css);
 
-
+        $attributes = $this->attributes(array_merge([ 'type' => 'text/css', 'rel' => 'stylesheet' ], $attributes));
 
         $output = '';
         if($this->css_pipeline) {
-            $output .= '<link type="text/css" rel="stylesheet" href="'.$this->pipeline(CSS_ASSET).'" />'."\n";
+            $output .= '<link href="'.$this->pipeline(CSS_ASSET).'"'.$attributes.' />'."\n";
 
             foreach ($this->css_no_pipeline as $file) {
-                $output .= '<link type="text/css" rel="stylesheet" href="'.$file['asset'].'" />'."\n";
+                $output .= '<link href="'.$file['asset'].'"'.$attributes.' />'."\n";
             }
             return $output;
         }
 
 
         foreach($this->css as $file)
-            $output .= '<link type="text/css" rel="stylesheet" href="'.$file['asset'].'" />'."\n";
+            $output .= '<link href="'.$file['asset'].'"'.$attributes.' />'."\n";
 
         return $output;
     }
@@ -294,9 +295,10 @@ class Assets
     /**
      * Build the JavaScript script tags.
      *
+     * @param  array  $attributes
      * @return string
      */
-    public function js()
+    public function js($attributes = [])
     {
         if( ! $this->js)
             return null;
@@ -305,20 +307,46 @@ class Assets
         usort($this->js, function ($a, $b) {return $a['priority'] - $b['priority'];});
         $this->js = array_reverse($this->js);
 
+        $attributes = $this->attributes(array_merge([ 'type' => 'text/javascript' ], $attributes));
+
         $output = '';
         if($this->js_pipeline) {
-            $output .= '<script type="text/javascript" src="'.$this->pipeline(JS_ASSET).'"></script>'."\n";
+            $output .= '<script src="'.$this->pipeline(JS_ASSET).'"'.$attributes.' ></script>'."\n";
             foreach ($this->js_no_pipeline as $file) {
-                $output .= '<script type="text/javascript" src="'.$file['asset'].'"></script>'."\n";
+                $output .= '<script src="'.$file['asset'].'"'.$attributes.' ></script>'."\n";
             }
             return $output;
         }
 
 
         foreach($this->js as $file)
-            $output .= '<script type="text/javascript" src="'.$file['asset'].'"></script>'."\n";
+            $output .= '<script src="'.$file['asset'].'"'.$attributes.' ></script>'."\n";
 
         return $output;
+    }
+
+    /**
+     * Build an HTML attribute string from an array.
+     *
+     * @param  array  $attributes
+     * @return string
+     */
+    protected function attributes(array $attributes){
+        $html = '';
+
+        foreach ( $attributes as $key => $value)
+        {
+            // For numeric keys we will assume that the key and the value are the same
+            // as this will convert HTML attributes such as "required" to a correct
+            // form like required="required" instead of using incorrect numerics.
+            if (is_numeric($key)) $key = $value;
+            if (is_array($value)) $value = implode(' ', $value);
+
+            $element = $key.'="'.htmlentities($value, ENT_QUOTES, 'UTF-8', false).'"';
+            $html .= ' '.$element;
+        }
+
+        return $html;
     }
 
     /**

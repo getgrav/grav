@@ -28,7 +28,6 @@ class Debugger
         /** @var Config $config */
         $config = $grav['config'];
 
-        $mode = $config->get('system.debugger.mode');
         TracyDebugger::$logDirectory = $config->get('system.debugger.log.enabled') ? LOG_DIR : null;
         TracyDebugger::$maxDepth = $config->get('system.debugger.max_depth');
 
@@ -38,19 +37,20 @@ class Debugger
                 TracyDebugger::$strictMode = true;
             }
 
+            $mode = $config->get('system.debugger.mode');
+
             if (function_exists('ini_set')) {
-                ini_set('display_errors', true);
+                ini_set('display_errors', !($mode === 'production'));
             }
 
-            if ($mode == strtolower('detect')) {
+            if ($mode === 'detect') {
                 TracyDebugger::$productionMode = self::DETECT;
-            } elseif ($mode == strtolower('production')) {
+            } elseif ($mode === 'production') {
                 TracyDebugger::$productionMode = self::PRODUCTION;
             } else {
                 TracyDebugger::$productionMode = self::DEVELOPMENT;
             }
 
-            
         }
     }
 
@@ -69,5 +69,10 @@ class Debugger
     public static function dump($var)
     {
         TracyDebugger::dump($var);
+    }
+
+    public static function barDump($var, $title = NULL, array $options = NULL)
+    {
+        TracyDebugger::barDump($var, $title, $options);
     }
 }
