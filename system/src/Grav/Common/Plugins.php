@@ -16,14 +16,15 @@ class Plugins extends Iterator
 {
     protected $grav;
 
-    public function __construct(Grav $grav) {
+    public function __construct(Grav $grav)
+    {
         $this->grav = $grav;
     }
 
     /**
      * Recurses through the plugins directory creating Plugin objects for each plugin it finds.
      *
-     * @return array|Plugin[] array of Plugin objects
+     * @return array|Plugin[]    array of Plugin objects
      * @throws \RuntimeException
      */
     public function init()
@@ -75,7 +76,7 @@ class Plugins extends Iterator
      *
      * @return array|Data\Data[]
      */
-    static public function all()
+    public static function all()
     {
         $list = array();
         $iterator = new \DirectoryIterator('plugin:///');
@@ -95,7 +96,7 @@ class Plugins extends Iterator
         return $list;
     }
 
-    static public function get($type)
+    public static function get($type)
     {
         $blueprints = new Data\Blueprints('plugin://' . $type);
         $blueprint = $blueprints->get('blueprints');

@@ -63,7 +63,7 @@ class Grav extends Container
         };
 
         $container['events'] = function ($c) {
-            return new EventDispatcher;
+            return new EventDispatcher();
         };
         $container['config'] = function ($c) {
             return Config::instance($c);
@@ -101,6 +101,7 @@ class Grav extends Container
                     throw new \RuntimeException('Page Not Found', 404);
                 }
             }
+
             return $page;
         };
         $container['output'] = function ($c) {
@@ -110,7 +111,7 @@ class Grav extends Container
             return new Browser();
         };
 
-        $container->register(new StreamsServiceProvider);
+        $container->register(new StreamsServiceProvider());
 
         return $container;
     }
@@ -166,7 +167,7 @@ class Grav extends Container
      * Redirect browser to another location.
      *
      * @param string $route Internal route.
-     * @param int $code Redirection code (30x)
+     * @param int    $code  Redirection code (30x)
      */
     public function redirect($route, $code = 303)
     {
@@ -179,7 +180,7 @@ class Grav extends Container
     /**
      * Returns mime type for the file format.
      *
-     * @param string $format
+     * @param  string $format
      * @return string
      */
     public function mime($format)
@@ -196,6 +197,7 @@ class Grav extends Container
             case 'xml':
                 return 'application/xml';
         }
+
         return 'text/html';
     }
 
@@ -220,6 +222,7 @@ class Grav extends Container
     {
         /** @var EventDispatcher $events */
         $events = $this['events'];
+
         return $events->dispatch($eventName, $event);
     }
 
@@ -229,7 +232,7 @@ class Grav extends Container
      */
     public function shutdown()
     {
-        if($this['config']->get('system.debugger.shutdown.close_connection')) {
+        if ($this['config']->get('system.debugger.shutdown.close_connection')) {
             set_time_limit(0);
             ignore_user_abort(true);
             session_write_close();
