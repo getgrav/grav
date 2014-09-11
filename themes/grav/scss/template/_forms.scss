@@ -85,7 +85,8 @@ form {
 
     .selectize-control.multi .selectize-input {
         > div {
-            background: $content-bg;
+            color: $content-fg;
+            // background: $content-bg;
             border-radius: 2px;
             line-height: 1.5;
             &.active {

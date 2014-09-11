@@ -481,7 +481,7 @@ form .selectize-input {
   box-shadow: none;
   color: #737c81; }
 form .selectize-control.multi .selectize-input > div {
-  background: #eeeeee;
+  color: #737c81;
   border-radius: 2px;
   line-height: 1.5; }
   form .selectize-control.multi .selectize-input > div.active {
