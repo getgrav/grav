@@ -32,10 +32,12 @@ form:
 
                 taxonomies:
                     type: text
-                    size: large
                     label: Taxonomy Types
+                    classes: fancy
                     validate:
-                    type: commalist
+                        type: commalist
+
+
 
         blog:
             type: section

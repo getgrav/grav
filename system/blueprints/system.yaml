@@ -12,6 +12,7 @@ form:
                 home.alias:
                     type: pages
                     size: medium
+                    classes: fancy
                     label: Home Page
                     show_all: false
                     show_modular: false
@@ -20,6 +21,7 @@ form:
 
                 pages.theme:
                     type: themeselect
+                    classes: fancy
                     size: medium
                     label: Default Theme
                     help: "Set the theme (defaults to 'default')"
@@ -46,6 +48,7 @@ form:
                 pages.dateformat.short:
                     type: select
                     size: medium
+                    classes: fancy
                     label: Short Date Format
                     help: "Set the short date format"
                     default: 'jS M Y'
@@ -59,6 +62,7 @@ form:
                 pages.dateformat.long:
                     type: select
                     size: medium
+                    classes: fancy
                     label: Long Date Format
                     help: "Set the long date format"
                     options:
@@ -71,6 +75,7 @@ form:
                 pages.order.by:
                     type: select
                     size: medium
+                    classes: fancy
                     label: Default Ordering
                     options:
                         default: Default - based on folder name
@@ -143,6 +148,7 @@ form:
                 cache.check.method:
                     type: select
                     size: small
+                    classes: fancy
                     label: Cache Check Method
                     options:
                         file: File
@@ -152,6 +158,7 @@ form:
                 cache.driver:
                     type: select
                     size: small
+                    classes: fancy
                     label: Cache driver
                     options:
                         auto: Auto detect
@@ -278,6 +285,7 @@ form:
                 debugger.mode:
                     type: select
                     size: small
+                    classes: fancy
                     label: Mode
                     options:
                         detect: Auto-Detect
@@ -297,6 +305,7 @@ form:
                 debugger.max_depth:
                     type: select
                     size: small
+                    classes: fancy
                     label: Detail Level
                     placeholder: "How many nested levels to display for objects or arrays"
                     options:
