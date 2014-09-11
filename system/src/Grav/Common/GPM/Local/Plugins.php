@@ -1,13 +1,15 @@
 <?php
 namespace Grav\Common\GPM\Local;
 
-class Plugins extends Collection {
+class Plugins extends Collection
+{
     private $type = 'plugins';
-    public function __construct() {
+    public function __construct()
+    {
         $grav = self::$grav;
         $grav['plugins']->init();
 
-        foreach ($grav['plugins']::all() as $name => $data) {
+        foreach ($grav['plugins']->all() as $name => $data) {
             $this->items[$name] = new Package($data, $this->type);
         }
     }
