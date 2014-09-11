@@ -78,9 +78,23 @@ form {
         }
     }
 
-    .selectize-control.single .selectize-input {
+    .selectize-input {
         box-shadow: none;
         color: $content-fg;
+    }
+
+    .selectize-control.multi .selectize-input {
+        > div {
+            background: $content-bg;
+            border-radius: 2px;
+            line-height: 1.5;
+            &.active {
+                background: darken($content-bg,10%);
+            }
+        }
+    }
+
+    .selectize-control.single .selectize-input {
 
         &:after {
             right: 24px;

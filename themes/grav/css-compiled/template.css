@@ -477,13 +477,19 @@ form .form-select-wrapper, form .selectize-control.single .selectize-input {
     line-height: 0;
     color: #9ba2a6;
     pointer-events: none; }
-form .selectize-control.single .selectize-input {
+form .selectize-input {
   box-shadow: none;
   color: #737c81; }
-  form .selectize-control.single .selectize-input:after {
-    right: 24px; }
-  form .selectize-control.single .selectize-input.dropdown-active:after {
-    content: '\f077'; }
+form .selectize-control.multi .selectize-input > div {
+  background: #eeeeee;
+  border-radius: 2px;
+  line-height: 1.5; }
+  form .selectize-control.multi .selectize-input > div.active {
+    background: #d4d4d4; }
+form .selectize-control.single .selectize-input:after {
+  right: 24px; }
+form .selectize-control.single .selectize-input.dropdown-active:after {
+  content: '\f077'; }
 form .x-small {
   max-width: 5rem !important; }
 form .small {
