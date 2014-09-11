@@ -4,10 +4,12 @@ namespace Grav\Common\GPM\Local;
 use Grav\Common\GravTrait;
 use Grav\Common\Iterator;
 
-class Collection extends Iterator {
+class Collection extends Iterator
+{
     use GravTrait;
 
-    public function toJson() {
+    public function toJson()
+    {
         $items = [];
 
         foreach ($this->items as $name => $theme) {
@@ -17,7 +19,8 @@ class Collection extends Iterator {
         return json_encode($items);
     }
 
-    public function toArray() {
+    public function toArray()
+    {
         $items = [];
 
         foreach ($this->items as $name => $theme) {

@@ -3,11 +3,13 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Data\Data;
 
-class Package {
+class Package
+{
     protected $data;
     protected $blueprints;
 
-    public function __construct(Data $package, $package_type = false) {
+    public function __construct(Data $package, $package_type = false)
+    {
         $this->data       = $package;
         $this->blueprints = $this->data->blueprints();
 
@@ -16,28 +18,33 @@ class Package {
         }
     }
 
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->data['enabled'];
     }
 
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
-    public function __get($key) {
+    public function __get($key)
+    {
         return $this->blueprints->get($key);
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         return $this->toJson();
     }
 
-    public function toJson() {
+    public function toJson()
+    {
         return $this->blueprints->toJson();
     }
 
-    public function toArray() {
+    public function toArray()
+    {
         return $this->blueprints->toArray();
     }
-
 }

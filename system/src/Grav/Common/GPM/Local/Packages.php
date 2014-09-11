@@ -3,10 +3,13 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Iterator;
 
-class Packages extends Iterator {
-    private $plugins, $themes;
+class Packages extends Iterator
+{
+    private $plugins;
+    private $themes;
 
-    public function __construct() {
+    public function __construct()
+    {
         $plugins = new Plugins();
         $themes  = new Themes();
 
