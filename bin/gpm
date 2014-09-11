@@ -25,7 +25,8 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
-$grav = Grav::instance(['loader' => $autoload]);
+$grav = Grav::instance(array('loader' => $autoload));
+$grav['locator'];
 
 $app = new Application('Grav Package Manager', '0.1.0');
 $app->addCommands(array(
