@@ -73,7 +73,7 @@ class Themes extends Iterator
     /**
      * Get theme configuration or throw exception if it cannot be found.
      *
-     * @param string $name
+     * @param  string            $name
      * @return Data
      * @throws \RuntimeException
      */
@@ -145,7 +145,7 @@ class Themes extends Iterator
                     $class = new $className($grav, $config, $name);
                 }
             }
-        } elseif (!$locator('theme://')) {
+        } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
             exit("Theme '$name' does not exist, unable to display page.");
         }
 
