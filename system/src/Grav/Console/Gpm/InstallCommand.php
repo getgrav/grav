@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Console\Gpm;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
@@ -20,6 +21,7 @@ class InstallCommand extends Command
     protected $gpm;
     protected $destination;
     protected $file;
+    protected $tmp;
 
     protected function configure()
     {
@@ -119,27 +121,23 @@ class InstallCommand extends Command
         }
 
         $this->output->writeln('');
-        $this->rrmdir($this->destination . DS . 'tmp-gpm');
     }
 
     private function downloadPackage($package)
     {
-        $tmp      = $this->destination . DS . 'tmp-gpm';
+        $this->tmp = sys_get_temp_dir() . DS . 'Grav-' . uniqid();
         $filename = $package->slug . basename($package->download);
         $output   = Response::get($package->download, [], [$this, 'progress']);
 
+        Folder::mkdir($this->tmp);
+
         $this->output->write("\x0D");
         $this->output->write("  |- Downloading package...   100%");
-
         $this->output->writeln('');
 
-        if (!file_exists($tmp)) {
-            @mkdir($tmp);
-        }
+        file_put_contents($this->tmp . DS . $filename, $output);
 
-        file_put_contents($tmp . DS . $filename, $output);
-
-        return $tmp . DS . $filename;
+        return $this->tmp . DS . $filename;
     }
 
     private function checkDestination($package)
@@ -195,6 +193,7 @@ class InstallCommand extends Command
     {
         $installer   = Installer::install($this->file, $this->destination, ['install_path' => $package->install_path]);
         $errorCode   = Installer::lastErrorCode();
+        Folder::delete($this->tmp);
 
         if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
             $this->output->write("\x0D");
@@ -216,27 +215,5 @@ class InstallCommand extends Command
     {
         $this->output->write("\x0D");
         $this->output->write("  |- Downloading package... " . str_pad($progress['percent'], 5, " ", STR_PAD_LEFT) . '%');
-    }
-
-    // Recursively Delete folder - DANGEROUS! USE WITH CARE!!!!
-    private function rrmdir($dir)
-    {
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
-            foreach ($objects as $object) {
-                if ($object != "." && $object != "..") {
-                    if (filetype($dir . "/" . $object) == "dir") {
-                        $this->rrmdir($dir . "/" . $object);
-                    } else {
-                        unlink($dir . "/" . $object);
-                    }
-                }
-            }
-
-            reset($objects);
-            rmdir($dir);
-
-            return true;
-        }
     }
 }
