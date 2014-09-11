@@ -204,7 +204,7 @@ class Page
             }
             if (isset($this->header->markdown_extra)) {
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
-            } 
+            }
             if (isset($this->header->taxonomy)) {
                 foreach ($this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
@@ -218,7 +218,7 @@ class Page
                     $this->process[$process] = $status;
                 }
             }
-            
+
         }
 
         return $this->header;
@@ -1233,7 +1233,8 @@ class Page
     public function activeChild()
     {
         $uri = self::$grav['uri'];
-        if (!$this->home() && (strpos($uri->url(), $this->url()) !== false)) {
+
+        if (!$this->home() && (strpos($uri->url(), $this->url()) === 0)) {
             return true;
         }
         return false;
