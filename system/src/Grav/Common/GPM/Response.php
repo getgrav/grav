@@ -1,11 +1,11 @@
 <?php
 namespace Grav\Common\GPM;
 
-class Response {
-
+class Response
+{
     /**
      * The callback for the progress
-     * @var mixed Either a function or callback in array notation
+     * @var callable    Either a function or callback in array notation
      */
     public static $callback = null;
 
@@ -20,6 +20,7 @@ class Response {
      * @var array
      */
     private static $defaults = [
+
         'curl' => [
             CURLOPT_REFERER        => 'Grav GPM',
             CURLOPT_USERAGENT      => 'Grav GPM',
@@ -50,23 +51,25 @@ class Response {
      * Sets the preferred method to use for making HTTP calls.
      * @param string $method Default is `auto`
      */
-    public static function setMethod($method = 'auto') {
+    public static function setMethod($method = 'auto')
+    {
         if (!in_array($method, ['auto', 'curl', 'fopen'])) {
             $method = 'auto';
         }
 
         self::$method = $method;
 
-        return new self;
+        return new self();
     }
 
     /**
      * Makes a request to the URL by using the preferred method
      * @param  string $uri     URL to call
      * @param  array  $options An array of parameters for both `curl` and `fopen`
-     * @return string          The response of the request
+     * @return string The response of the request
      */
-    public static function get($uri = '', $options = [], $callback = null) {
+    public static function get($uri = '', $options = [], $callback = null)
+    {
         if (!self::isCurlAvailable() && !self::isFopenAvailable()) {
             throw new \RuntimeException('Could not start an HTTP request. `allow_url_open` is disabled and `cURL` is not available');
         }
@@ -79,7 +82,14 @@ class Response {
         return static::$method($uri, $options, $callback);
     }
 
-    public static function progress() {
+    /**
+     * Progress normalized for cURL and Fopen
+     * @param  args   Variable length of arguments passed in by stream method
+     * @return array Normalized array with useful data.
+     *               Format: ['code' => int|false, 'filesize' => bytes, 'transferred' => bytes, 'percent' => int]
+     */
+    public static function progress()
+    {
         static $filesize = null;
 
         $args           = func_get_args();
@@ -115,7 +125,8 @@ class Response {
      * Checks if cURL is available
      * @return boolean
      */
-    public static function isCurlAvailable() {
+    public static function isCurlAvailable()
+    {
         return function_exists('curl_version');
     }
 
@@ -123,7 +134,8 @@ class Response {
      * Checks if the remote fopen request is enabled in PHP
      * @return boolean
      */
-    public static function isFopenAvailable() {
+    public static function isFopenAvailable()
+    {
         return preg_match('/1|yes|on|true/i', ini_get('allow_url_fopen'));
     }
 
@@ -131,7 +143,8 @@ class Response {
      * Automatically picks the preferred method
      * @return string The response of the request
      */
-    private static function getAuto() {
+    private static function getAuto()
+    {
         if (self::isFopenAvailable()) {
             return self::getFopen(func_get_args());
         }
@@ -145,7 +158,8 @@ class Response {
      * Starts a HTTP request via cURL
      * @return string The response of the request
      */
-    private static function getCurl() {
+    private static function getCurl()
+    {
         $args     = func_get_args();
         $uri      = $args[0];
         $options  = $args[1];
@@ -155,7 +169,9 @@ class Response {
         curl_setopt_array($ch, $options['curl']);
 
         if ($callback) {
-            curl_setopt_array($ch, [
+            curl_setopt_array(
+                $ch,
+                [
                     CURLOPT_NOPROGRESS       => false,
                     CURLOPT_PROGRESSFUNCTION => ['self', 'progress']
                 ]
@@ -170,6 +186,7 @@ class Response {
         }
 
         curl_close($ch);
+
         return $response;
     }
 
@@ -177,7 +194,8 @@ class Response {
      * Starts a HTTP request via fopen
      * @return string The response of the request
      */
-    private static function getFopen() {
+    private static function getFopen()
+    {
         if (count($args = func_get_args()) == 1) {
             $args = $args[0];
         }
