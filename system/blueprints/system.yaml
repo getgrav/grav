@@ -29,8 +29,8 @@ form:
                     label: Markdown Extra
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -45,6 +45,7 @@ form:
 
                 pages.dateformat.short:
                     type: select
+                    size: medium
                     label: Short Date Format
                     help: "Set the short date format"
                     default: 'jS M Y'
@@ -57,6 +58,7 @@ form:
 
                 pages.dateformat.long:
                     type: select
+                    size: medium
                     label: Long Date Format
                     help: "Set the long date format"
                     options:
@@ -68,6 +70,7 @@ form:
 
                 pages.order.by:
                     type: select
+                    size: medium
                     label: Default Ordering
                     options:
                         default: Default - based on folder name
@@ -78,13 +81,15 @@ form:
                 pages.order.dir:
                     type: toggle
                     label: Default Order Direction
-                    default: asc
+                    highlight: asc
+                    default: desc
                     options:
                         asc: Ascending
                         desc: Descending
 
                 pages.list.count:
                     type: text
+                    size: x-small
                     label: Default Item Count
                     help: "Default max pages count"
                     validate:
@@ -104,8 +109,8 @@ form:
                     label: Page events
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -114,8 +119,8 @@ form:
                     label: Twig events
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -130,13 +135,14 @@ form:
                     label: Caching
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
                 cache.check.method:
                     type: select
+                    size: small
                     label: Cache Check Method
                     options:
                         file: File
@@ -145,6 +151,7 @@ form:
 
                 cache.driver:
                     type: select
+                    size: small
                     label: Cache driver
                     options:
                         auto: Auto detect
@@ -156,6 +163,7 @@ form:
 
                 cache.prefix:
                     type: text
+                    size: x-small
                     label: Cache Prefix
                     placeholder: "Derived from base URL (override by entering random string)"
 
@@ -170,8 +178,8 @@ form:
                     label: Twig caching
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -180,8 +188,8 @@ form:
                     label: Twig debug
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -190,8 +198,8 @@ form:
                     label: Detect changes
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -200,8 +208,8 @@ form:
                     label: Autoescape variables
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -214,42 +222,42 @@ form:
                 assets.css_pipeline:
                     type: toggle
                     label: CSS Pipeline
-                    highlight: 0
+                    highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
 
                 assets.css_minify:
                     type: toggle
                     label: CSS Minify
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
 
                 assets.css_rewrite:
                     type: toggle
                     label: CSS Rewrite
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
 
                 assets.js_pipeline:
                     type: toggle
                     label: JavaScript Pipeline
-                    highlight: 0
+                    highlight: 01
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
 
                 assets.js_minify:
                     type: toggle
                     label: JavaScript Minify
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
 
         debugger:
             type: section
@@ -262,13 +270,14 @@ form:
                     label: Debugger
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
                 debugger.mode:
                     type: select
+                    size: small
                     label: Mode
                     options:
                         detect: Auto-Detect
@@ -278,15 +287,16 @@ form:
                 debugger.strict:
                     type: toggle
                     label: Strict
-                    highlight: 0
+                    highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
                 debugger.max_depth:
                     type: select
+                    size: small
                     label: Detail Level
                     placeholder: "How many nested levels to display for objects or arrays"
                     options:
@@ -308,8 +318,8 @@ form:
                     label: Logging
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 
@@ -318,8 +328,8 @@ form:
                     label: Shutdown Close Connection
                     highlight: 1
                     options:
-                        1: Enabled
-                        0: Disabled
+                        1: Yes
+                        0: No
                     validate:
                         type: bool
 

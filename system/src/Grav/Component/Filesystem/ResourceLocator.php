@@ -23,7 +23,12 @@ class ResourceLocator
     {
         $list = [];
         foreach((array) $paths as $path) {
-            $list[] = trim($path, '/');
+            $path = trim($path, '/');
+            if (strstr($path, '://')) {
+                $list = array_merge($list, $this->find($path, true, false));
+            } else {
+                $list[] = $path;
+            }
         }
 
         if (isset($this->schemes[$scheme][$prefix])) {
