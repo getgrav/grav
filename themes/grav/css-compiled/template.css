@@ -458,15 +458,17 @@ form label {
   padding: 5px 0;
   font-weight: 400;
   margin: 0; }
-form input, form select, form textarea, form button {
+form input, form select, form textarea, form button, form .selectize-input {
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
   font-size: 1rem;
   line-height: 1.7;
   border-radius: 4px;
   -webkit-font-smoothing: antialiased; }
-form .form-select-wrapper {
+form .form-select-wrapper, form .selectize-control.single .selectize-input {
   position: relative; }
-  form .form-select-wrapper:after {
+  form .form-select-wrapper:after, form .selectize-control.single .selectize-input:after {
+    margin-top: 0;
+    border: 0;
     position: absolute;
     content: '\f078';
     font-family: 'FontAwesome';
@@ -475,6 +477,13 @@ form .form-select-wrapper {
     line-height: 0;
     color: #9ba2a6;
     pointer-events: none; }
+form .selectize-control.single .selectize-input {
+  box-shadow: none;
+  color: #737c81; }
+  form .selectize-control.single .selectize-input:after {
+    right: 24px; }
+  form .selectize-control.single .selectize-input.dropdown-active:after {
+    content: '\f077'; }
 form .x-small {
   max-width: 5rem !important; }
 form .small {
@@ -487,6 +496,8 @@ form .large {
   max-width: 30rem !important; }
   form .large textarea {
     height: 10rem; }
+form .selectize-input {
+  padding: 5px 30px 5px 10px; }
 form select {
   width: 100%;
   border: 1px solid #d4d4d4;

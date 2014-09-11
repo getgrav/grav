@@ -53,7 +53,7 @@ form {
         margin:0;
     }
 
-    input, select, textarea, button {
+    input, select, textarea, button, .selectize-input {
         font-family: $font-family-default;
         font-size: $core-font-size;
         line-height: $core-line-height;
@@ -61,10 +61,12 @@ form {
         -webkit-font-smoothing: antialiased;
     }
 
-    .form-select-wrapper {
+    .form-select-wrapper, .selectize-control.single .selectize-input {
         position: relative;
 
         &:after {
+            margin-top: 0;
+            border: 0;
             position: absolute;
             content: '\f078';
             font-family: 'FontAwesome';
@@ -75,6 +77,22 @@ form {
             pointer-events: none;
         }
     }
+
+    .selectize-control.single .selectize-input {
+        box-shadow: none;
+        color: $content-fg;
+
+        &:after {
+            right: 24px;
+        }
+        &.dropdown-active {
+            &:after {
+                content: '\f077';
+            }
+        }
+    }
+
+
 
     .x-small {
 
@@ -104,6 +122,10 @@ form {
          textarea {
             height: 10rem;
         }
+    }
+
+    .selectize-input {
+        padding: $form-select-pad;
     }
 
     select {

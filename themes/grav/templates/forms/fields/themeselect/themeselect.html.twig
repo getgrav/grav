@@ -13,7 +13,7 @@
     </div>
     <div class="form-data block size-2-3 pure-u-2-3">
         <div class="form-select-wrapper {{ field.size }}">
-            <select name="{{ (scope ~ field.name)|fieldName }}"
+            <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName }}"
                     {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
                     {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
                     {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
