@@ -2,15 +2,24 @@
 
 {% macro loop(page, base_url, depth) %}
     {% for p in page.children %}
+
+        {% set description = (not p.page ? 'Folder &bull; ' : 'Page &bull; ') ~
+                             (p.modular ? 'Modular &bull; ' : '') ~
+                             (p.routable ? 'Routable &bull; ' : 'Not Routable &bull; ') ~
+                             (p.visible ? 'Visible &bull; ' : 'Not Visible &bull; ') %}
+
+
         <li class="page-item">
             <div class="row">
-                <span class="page-icon {{ p.visible ? 'visible' : (not p.page ? 'folder' : (p.routable ? 'page' : 'not-routable')) }}"></span>
-                {{ p.menu }} {{ p.modular() ? '(Modular)' }}
+                <span data-hint="{{ description|trim(' &bull; ') }}" class="hint--bottom">
+                <i class="page-icon fa fa-fw fa-circle-o {{ p.children.count > 0 ? 'children-open' : ''}} {{ p.modular ? 'modular' : (not p.routable ? 'not-routable' : (not p.visible ? 'not-visible' : (not p.page ? 'folder' :  ''))) }}"></i>
+                </span>
+                <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}" class="page-edit">{{ p.menu }}</a>
                 <span class="page-home">{{ p.home ? '<i class="fa fa-home"></i>' }}</span>
                 <span class="page-tools">
-                    <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}" class="page-edit"><i class="fa fa-pencil"></i></a>
                     <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}/task:delete" class="page-delete"><i class="fa fa-close"></i></a>
                 </span>
+                <p class="page-route">{{ p.route }}</p>
             </div>
             {% if p.children.count > 0 and not p.modular() %}
 
@@ -27,9 +36,6 @@
 {% set context = admin.page(true) %}
 {% endif %}
 
-
-{% block javascript %}
-{% endblock %}
 
 {% block titlebar %}
     <div class="button-bar">
@@ -60,8 +66,8 @@
     {% include 'partials/messages.html.twig' %}
 
     <div class="admin-block clear">
+    {% include 'partials/messages.html.twig' %}
     {% if uri.param('new') %}
-        {% include 'partials/messages.html.twig' %}
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
     {% elseif context %}
         {% if not uri.param('expert') %}
@@ -70,11 +76,17 @@
             {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
         {% endif %}
     {% else %}
-
+        <form id="page-filtering">
+            <div class="page-filters">
+                <input type="text" placeholder="Add Filters" class="fancy" value="Routable,Visible,Modular" name="page-filter" />
+            </div>
+            <div class="page-search">
+                <input type="text" placeholder="Search Pages" name="page-search" />
+            </div>
+        </form>
         <ul class="pages-list depth-0">
             {{ _self.loop(pages, base_url_relative, 0) }}
         </ul>
-
     {% endif %}
     </div>
 {% endblock %}

@@ -26,6 +26,23 @@
         &:hover {
             background: lighten($content-bg,2%);
         }
+
+        p.page-route {
+            display: block;
+            margin: -10px 0 5px 25px;
+            line-height: 1;
+            font-size: 0.9rem;
+            color: darken($content-bg,30%);
+            text-shadow: 1px 1px 0 $white;
+        }
+
+        // fix for hint alignment
+        .hint--bottom:before, .hint--bottom:after {
+            left: 4px;
+        }
+        .hint:after, [data-hint]:after {
+            border-radius: 2px;
+        }
     }
 
     .page-tools {
@@ -44,14 +61,80 @@
         vertical-align: middle;
     }
 
-    .page-icon {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border-radius: 100%;
-        background: #0082BA;
-        margin-right: 10px;
+    .page-info {
+        font-size: 1.1rem;
+        margin-left: 10px;
+        color: darken($content-bg, 20%);
         vertical-align: middle;
+    }
+
+    .page-icon {
+
+        color: #0082BA;
+        font-weight: 700;
+
+        &.children-open:before {
+            content: '\f056';
+        }
+
+        &.children-closed:before{
+            content: '\f055';
+        }
+
+        &.not-routable {
+            color: #CE431D;
+        }
+
+        &.not-visible {
+            color: #999;
+        }
+
+        &.modular {
+            color: #9055AF;
+        }
+
+
+    }
+}
+
+#page-filtering {
+    margin: -2rem $padding-default 1rem;
+    @include clearfix;
+
+    .page-filters {
+        width: 60%;
+        float: left;
+    }
+
+    .page-search {
+        position: relative;
+        width: 40%;
+        float: left;
+        padding-left: 2rem;
+        text-indent: 2.5rem;
+        &:after {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            content: '\f002';
+            font-family: 'FontAwesome';
+        }
+    }
+}
+
+form .selectize-control.multi .selectize-input > {
+    div, div.active {
+        color: $white;
+        padding: 2px 10px;
+        &[data-value='Routable'] {
+            background: #CE431D;
+        }
+        &[data-value='Visible'] {
+            background: #999;
+        }
+        &[data-value='Modular'] {
+            background: #9055AF;
+        }
     }
 }
 
