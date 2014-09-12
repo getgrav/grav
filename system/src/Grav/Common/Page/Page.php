@@ -187,9 +187,6 @@ class Page
             if (isset($this->header->visible)) {
                 $this->visible = $this->header->visible;
             }
-            if (isset($this->header->modular)) {
-                $this->modular = $this->header->modular;
-            }
             if (isset($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
             }
@@ -999,10 +996,7 @@ class Page
      */
     public function modular($var = null)
     {
-        if ($var !== null) {
-            $this->modular = (bool) $var;
-        }
-        return $this->modular;
+        return $this->modularTwig($var);
     }
 
     /**
