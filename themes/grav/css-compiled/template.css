@@ -911,4 +911,75 @@ tr {
 .ct-chart .ct-series.ct-series-b .ct-slice.ct-donut {
   stroke: rgba(255, 255, 255, 0.2) !important; }
 
+.pages-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #e1e1e1; }
+  .pages-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0; }
+  .pages-list li {
+    margin: 0;
+    padding: 0; }
+  .pages-list .row {
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #e1e1e1;
+    line-height: 2.5rem;
+    padding-right: 3rem; }
+    .pages-list .row:hover {
+      background: #f3f3f3; }
+  .pages-list .page-tools {
+    display: inline-block;
+    float: right;
+    font-size: 1.4rem; }
+    .pages-list .page-tools i {
+      margin-left: 10px; }
+  .pages-list .page-home {
+    font-size: 1.4rem;
+    margin-left: 10px;
+    color: #bbbbbb;
+    vertical-align: middle; }
+  .pages-list .page-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 100%;
+    background: #0082BA;
+    margin-right: 10px;
+    vertical-align: middle; }
+
+.depth-0 .row {
+  padding-left: 3rem; }
+
+.depth-1 .row {
+  padding-left: 6rem; }
+
+.depth-2 .row {
+  padding-left: 9rem; }
+
+.depth-3 .row {
+  padding-left: 12rem; }
+
+.depth-4 .row {
+  padding-left: 15rem; }
+
+.depth-5 .row {
+  padding-left: 18rem; }
+
+.depth-6 .row {
+  padding-left: 21rem; }
+
+.depth-7 .row {
+  padding-left: 24rem; }
+
+.depth-8 .row {
+  padding-left: 27rem; }
+
+.depth-9 .row {
+  padding-left: 30rem; }
+
 /*# sourceMappingURL=template.css.map */

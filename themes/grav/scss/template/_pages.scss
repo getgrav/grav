@@ -1,0 +1,62 @@
+.pages-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    border-top: 1px solid darken($content-bg, 5%);
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    li {
+        margin: 0;
+        padding: 0;
+
+    }
+
+    .row {
+        @include transition(all 0.2s ease);
+        border-bottom: 1px solid darken($content-bg, 5%);
+        line-height: 2.5rem;
+        padding-right: 3rem;
+
+        &:hover {
+            background: lighten($content-bg,2%);
+        }
+    }
+
+    .page-tools {
+        display: inline-block;
+        float: right;
+        font-size: 1.4rem;
+        i {
+            margin-left: 10px;
+        }
+    }
+
+    .page-home {
+        font-size: 1.4rem;
+        margin-left: 10px;
+        color: darken($content-bg, 20%);
+        vertical-align: middle;
+    }
+
+    .page-icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 100%;
+        background: #0082BA;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+}
+
+@for $i from 0 to 10 {
+    .depth-#{$i} .row {
+        padding-left: 3rem * ($i + 1);
+    }
+}
