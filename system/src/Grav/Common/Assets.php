@@ -71,6 +71,7 @@ class Assets
 
     // Default values for pipeline settings
     protected $css_minify = true;
+    protected $css_minify_windows = false;
     protected $css_rewrite = true;
     protected $js_minify = true;
 
