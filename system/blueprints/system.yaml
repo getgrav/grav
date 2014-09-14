@@ -242,6 +242,14 @@ form:
                         1: Yes
                         0: No
 
+                assets.css_minify_windows:
+                    type: toggle
+                    label: CSS Minify Windows Override
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+
                 assets.css_rewrite:
                     type: toggle
                     label: CSS Rewrite
