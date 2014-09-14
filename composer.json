@@ -20,11 +20,19 @@
         "donatj/phpuseragentparser": "dev-master",
         "pimple/pimple": "~3.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "~4.2"
+    },
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"
         },
         "files": ["system/defines.php"]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Grav\\Test\\": "system/tests/Grav/Test/"
+        }
     },
     "archive": {
         "exclude": ["VERSION"]
