@@ -58,6 +58,7 @@ class Page
     protected $raw_content;
     protected $pagination;
     protected $media;
+    protected $metadata;
     protected $title;
     protected $max_count;
     protected $menu;
@@ -109,6 +110,7 @@ class Page
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
         $this->header();
+        $this->metadata();
         $this->slug();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
@@ -699,6 +701,60 @@ class Page
             $this->process = (array) $var;
         }
         return $this->process;
+    }
+
+    /**
+     * Function to merge page metadata tags and build an array of Metadata objects
+     * that can then be rendered in the page.
+     */
+    public function metadata()
+    {
+        // if not metadata yet, process it.
+        if (null === $this->metadata) {
+
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
+            $this->metadata = array();
+            $page_header = $this->header;
+
+
+            // Set the Generator tag
+            $this->metadata['generator'] = new Data\Metadata('generator', 'Grav ' . GRAV_VERSION);
+
+            // Merge any site.metadata settings in with page metadata
+            $defaults = (array) self::$grav['config']->get('site.metadata');
+            if (isset($page_header->metadata)) {
+                $page_header->metadata = array_merge($defaults, $page_header->metadata);
+            } else {
+                $page_header->metadata = $defaults;
+            }
+
+            // Build an array of meta objects..
+            foreach((array)$page_header->metadata as $key => $value) {
+
+                // If this is a property type metadata: "og", "twitter", "facebook" etc
+                if (is_array($value)) {
+                    foreach ($value as $property => $prop_value) {
+                        $meta = new Data\Metadata();
+                        $prop_key =  $key.":".$property;
+                        $meta->property = $prop_key;
+                        $meta->content = $prop_value;
+                        $this->metadata[$prop_key] = $meta;
+                    }
+                // If it this is a standard meta data type
+                } else {
+                    $meta = new Data\Metadata();
+                    if (in_array($key, $header_tag_http_equivs)) {
+                        $meta->http_equiv = $key;
+                    } else {
+                        $meta->name = $key;
+                    }
+                    $meta->content = $value;
+                    $this->metadata[$key] = $meta;
+                }
+            }
+        }
+
+        return $this->metadata;
     }
 
     /**
@@ -1613,4 +1669,6 @@ class Page
         $this->_action = null;
         $this->_original = null;
     }
+
+
 }
