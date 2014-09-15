@@ -10,7 +10,7 @@
         },
         addField: function (event, element) {
             element = $(event.target);
-            var div = $('<div class="form-row" />').html(this.layout());
+            var div = $('<div />').html(this.layout());
             div.insertAfter(element.parent('div'));
         },
         remField: function (event, element) {
@@ -26,8 +26,12 @@
             return this.container.data('grav-dynfields') || 'generic';
         },
         layout: function () {
-            var name = this.getName();
-            return '' + '   <input type="text" value=""  placeholder="/Your/Alias" />' + '   <input type="text" name="' + name + '[]" value="" placeholder="/Your/Real/Route" />' + '   <span data-grav-remfield class="fa fa-minus"></span>   <span data-grav-addfield class="fa fa-plus"></span>' + '';
+            var name = this.getName(),
+                placeholder = {
+                    key: this.container.data('data-grav-dynfields-key') || 'Key',
+                    val: this.container.data('data-grav-dynfields-value') || 'Value'
+                };
+            return '' + '   <input type="text" value=""  placeholder="' + placeholder.key + '" />' + '   <input type="text" name="' + name + '[]" value="" placeholder="' + placeholder.val + '" />' + '   <span data-grav-remfield class="button fa fa-minus"></span>   <span data-grav-addfield class="button fa fa-plus"></span>' + '';
         }
     };
 
