@@ -718,7 +718,7 @@ class Page
 
 
             // Set the Generator tag
-            $this->metadata['generator'] = new Data\Metadata('generator', 'Grav ' . GRAV_VERSION);
+            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'Grav ' . GRAV_VERSION);
 
             // Merge any site.metadata settings in with page metadata
             $defaults = (array) self::$grav['config']->get('site.metadata');
@@ -734,22 +734,16 @@ class Page
                 // If this is a property type metadata: "og", "twitter", "facebook" etc
                 if (is_array($value)) {
                     foreach ($value as $property => $prop_value) {
-                        $meta = new Data\Metadata();
                         $prop_key =  $key.":".$property;
-                        $meta->property = $prop_key;
-                        $meta->content = $prop_value;
-                        $this->metadata[$prop_key] = $meta;
+                        $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>$prop_value);
                     }
                 // If it this is a standard meta data type
                 } else {
-                    $meta = new Data\Metadata();
                     if (in_array($key, $header_tag_http_equivs)) {
-                        $meta->http_equiv = $key;
+                        $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>$value);
                     } else {
-                        $meta->name = $key;
+                        $this->metadata[$key] = array('name'=>$key, 'content'=>$value);
                     }
-                    $meta->content = $value;
-                    $this->metadata[$key] = $meta;
                 }
             }
         }
