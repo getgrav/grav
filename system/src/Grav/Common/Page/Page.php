@@ -710,7 +710,7 @@ class Page
     public function metadata()
     {
         // if not metadata yet, process it.
-        if (null === $this->metadata) {
+        if (null === $this->metadata_entries) {
 
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
             $this->metadata_entries = array();
