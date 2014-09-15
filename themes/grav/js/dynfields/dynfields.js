@@ -11,7 +11,6 @@
         addField: function (event, element) {
             element = $(event.target);
             var div = $('<div class="form-row" />').html(this.layout());
-            var div = $('<div />').html(this.layout());
             div.insertAfter(element.parent('div'));
         },
         remField: function (event, element) {
