@@ -1,6 +1,12 @@
 <?php
 namespace Grav\Common\Data;
 
+/**
+ * Metadata storage object
+ *
+ * @author RocketTheme
+ * @license MIT
+ */
 class MetaData
 {
     public $charset;
