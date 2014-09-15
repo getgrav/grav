@@ -31,7 +31,8 @@
                     key: this.container.data('grav-dynfields-key') || 'Key',
                     val: this.container.data('grav-dynfields-value') || 'Value'
                 };
-            return '' + '   <input type="text" value=""  placeholder="' + placeholder.key + '" />' + '   <input type="text" name="' + name + '[]" value="" placeholder="' + placeholder.val + '" />' + '   <span data-grav-remfield class="button fa fa-minus"></span>   <span data-grav-addfield class="button fa fa-plus"></span>' + '';
+
+            return '' + '   <input type="text" value=""  placeholder="' + placeholder.key + '" />' + '   <input type="text" name="' + name + '[]" value="" placeholder="' + placeholder.val + '" />' + '   <span data-grav-remfield class="fa fa-minus"></span>   <span data-grav-addfield class="fa fa-plus"></span>' + '';
         }
     };
 
