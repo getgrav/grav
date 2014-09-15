@@ -58,7 +58,7 @@ class Page
     protected $raw_content;
     protected $pagination;
     protected $media;
-    protected $metadata_entries;
+    protected $metadata;
     protected $title;
     protected $max_count;
     protected $menu;
@@ -710,15 +710,15 @@ class Page
     public function metadata()
     {
         // if not metadata yet, process it.
-        if (null === $this->metadata_entries) {
+        if (null === $this->metadata) {
 
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
-            $this->metadata_entries = array();
+            $this->metadata = array();
             $page_header = $this->header;
 
 
             // Set the Generator tag
-            $this->metadata_entries['generator'] = new Data\Metadata('generator', 'Grav ' . GRAV_VERSION);
+            $this->metadata['generator'] = new Data\Metadata('generator', 'Grav ' . GRAV_VERSION);
 
             // Merge any site.metadata settings in with page metadata
             $defaults = (array) self::$grav['config']->get('site.metadata');
@@ -738,7 +738,7 @@ class Page
                         $prop_key =  $key.":".$property;
                         $meta->property = $prop_key;
                         $meta->content = $prop_value;
-                        $this->metadata_entries[$prop_key] = $meta;
+                        $this->metadata[$prop_key] = $meta;
                     }
                 // If it this is a standard meta data type
                 } else {
@@ -749,12 +749,12 @@ class Page
                         $meta->name = $key;
                     }
                     $meta->content = $value;
-                    $this->metadata_entries[$key] = $meta;
+                    $this->metadata[$key] = $meta;
                 }
             }
         }
 
-        return $this->metadata_entries;
+        return $this->metadata;
     }
 
     /**
