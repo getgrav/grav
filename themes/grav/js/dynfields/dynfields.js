@@ -10,6 +10,7 @@
         },
         addField: function (event, element) {
             element = $(event.target);
+            this.container = element.closest('[data-grav-dynfields]');
             var div = $('<div class="form-row" />').html(this.layout());
             div.insertAfter(element.parent('div'));
         },
