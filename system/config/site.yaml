@@ -6,7 +6,7 @@ taxonomies: [category,tag]                  # Arbitrary list of taxonomy types
 blog:
   route: '/blog'                            # Route to blog
 metadata:
-    description: 'Grav Site Description'    # Site description
+    description: 'My Grav Site'             # Site description
 summary:
   size: 300                                 # Maximum length of summary (characters)
 routes:
