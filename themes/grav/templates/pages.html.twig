@@ -101,14 +101,7 @@
     </div>
 
     <div class="remodal" data-remodal-id="modal">
-        <h1>Remodal</h1>
-        <p>
-          Flat, responsive, lightweight, fast, easy customizable modal window plugin
-          with declarative state notation and hash tracking.
-        </p>
-        <br>
-        <a class="remodal-cancel" href="#">Cancel</a>
-        <a class="remodal-confirm" href="#">OK</a>
+        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
     </div>
 {% endblock %}
 
