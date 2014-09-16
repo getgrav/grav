@@ -58,6 +58,7 @@ class Page
     protected $raw_content;
     protected $pagination;
     protected $media;
+    protected $metadata;
     protected $title;
     protected $max_count;
     protected $menu;
@@ -109,6 +110,7 @@ class Page
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
         $this->header();
+        $this->metadata();
         $this->slug();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
@@ -186,9 +188,6 @@ class Page
             }
             if (isset($this->header->visible)) {
                 $this->visible = $this->header->visible;
-            }
-            if (isset($this->header->modular)) {
-                $this->modular = $this->header->modular;
             }
             if (isset($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
@@ -705,6 +704,54 @@ class Page
     }
 
     /**
+     * Function to merge page metadata tags and build an array of Metadata objects
+     * that can then be rendered in the page.
+     */
+    public function metadata()
+    {
+        // if not metadata yet, process it.
+        if (null === $this->metadata) {
+
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
+            $this->metadata = array();
+            $page_header = $this->header;
+
+
+            // Set the Generator tag
+            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'Grav ' . GRAV_VERSION);
+
+            // Merge any site.metadata settings in with page metadata
+            $defaults = (array) self::$grav['config']->get('site.metadata');
+            if (isset($page_header->metadata)) {
+                $page_header->metadata = array_merge($defaults, $page_header->metadata);
+            } else {
+                $page_header->metadata = $defaults;
+            }
+
+            // Build an array of meta objects..
+            foreach((array)$page_header->metadata as $key => $value) {
+
+                // If this is a property type metadata: "og", "twitter", "facebook" etc
+                if (is_array($value)) {
+                    foreach ($value as $property => $prop_value) {
+                        $prop_key =  $key.":".$property;
+                        $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>$prop_value);
+                    }
+                // If it this is a standard meta data type
+                } else {
+                    if (in_array($key, $header_tag_http_equivs)) {
+                        $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>$value);
+                    } else {
+                        $this->metadata[$key] = array('name'=>$key, 'content'=>$value);
+                    }
+                }
+            }
+        }
+
+        return $this->metadata;
+    }
+
+    /**
      * Gets and Sets the slug for the Page. The slug is used in the URL routing. If not set it uses
      * the parent folder from the path
      *
@@ -999,10 +1046,7 @@ class Page
      */
     public function modular($var = null)
     {
-        if ($var !== null) {
-            $this->modular = (bool) $var;
-        }
-        return $this->modular;
+        return $this->modularTwig($var);
     }
 
     /**
@@ -1234,7 +1278,8 @@ class Page
     {
         /** @var Uri $uri */
         $uri = self::$grav['uri'];
-        if (!$this->home() && (strpos($uri->url(), $this->url()) !== false)) {
+
+        if (!$this->home() && (strpos($uri->url(), $this->url()) === 0)) {
             return true;
         }
         return false;
@@ -1619,4 +1664,6 @@ class Page
         $this->_action = null;
         $this->_original = null;
     }
+
+
 }

@@ -105,7 +105,6 @@ class Twig
             // Set some standard variables for twig
             $this->twig_vars = array(
                 'grav' => $this->grav,
-                'grav_version' => GRAV_VERSION,
                 'config' => $config,
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
@@ -198,9 +197,10 @@ class Twig
     {
         // set the page now its been processed
         $this->grav->fireEvent('onTwigSiteVariables');
-        $twig_vars = $this->twig_vars;
         $pages = $this->grav['pages'];
         $page = $this->grav['page'];
+
+        $twig_vars = $this->twig_vars;
 
         $twig_vars['pages'] = $pages->root();
         $twig_vars['page'] = $page;
