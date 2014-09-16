@@ -40,7 +40,8 @@
 {% block titlebar %}
     <div class="button-bar">
         {% if not uri.param('new') %}
-            <button class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</button>
+            <a class="button" href="#modal"><i class="fa fa-plus"></i> Add Page</a>
+            {# <a class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</a> #}
             {% if context %}
                 {% if not uri.param('expert') %}
                     <button class="button" href="{{ uri.route(true) }}/expert:1">Normal mode</button>
@@ -97,6 +98,17 @@
             {{ _self.loop(pages, base_url_relative, 0) }}
         </ul>
     {% endif %}
+    </div>
+
+    <div class="remodal" data-remodal-id="modal">
+        <h1>Remodal</h1>
+        <p>
+          Flat, responsive, lightweight, fast, easy customizable modal window plugin
+          with declarative state notation and hash tracking.
+        </p>
+        <br>
+        <a class="remodal-cancel" href="#">Cancel</a>
+        <a class="remodal-confirm" href="#">OK</a>
     </div>
 {% endblock %}
 
