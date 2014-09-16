@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{{ theme_url }}/css/chartist.min.css" type="text/css" />
     <link rel="stylesheet" href="{{ theme_url }}/css/selectize.min.css" type="text/css" />
     <link rel="stylesheet" href="{{ theme_url }}/css/hint.base.min.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css/jquery.remodal.css" type="text/css" />
     <!--[if IE 9]>
         <link rel="stylesheet" href="{{ theme_url }}/css/nucleus-ie9.css" type="text/css" />
         <link rel="stylesheet" href="{{ theme_url }}/css/pure-0.5.0/grids-min.css" type="text/css" />
@@ -30,9 +31,9 @@
     {% block javascript %}
     <script type="text/javascript" src="{{ theme_url }}/js/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/modernizr.custom.71422.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/jquery.astooltip.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/chartist.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/selectize.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/jquery.remodal.min.js"></script>
     <script type="text/javascript">
         $(function()
         {
@@ -51,13 +52,6 @@
                     }
                 }
             });
-
-            // tooltips
-            $(".tooltip").asTooltip({
-               namespace: 'tooltip',
-               skin: 'skin-dream',
-               trigger: 'hover'    // hover click
-            });
         });
 
     </script>
@@ -71,7 +65,7 @@
         {% include 'partials/nav.html.twig' %}
     {% endblock %}
 
-    <section id="admin-main">
+    <section id="admin-main" class="remodal-bg">
         <div class="titlebar secondary-accent">
             {% block titlebar %}{% endblock %}
         </div>
