@@ -90,8 +90,6 @@ class Cache extends Getters
                 $driver_name = 'wincache';
             } elseif (extension_loaded('xcache')) {
                 $driver_name = 'xcache';
-            } elseif (extension_loaded('memcache')) {
-                $driver_name = 'memcache';
             }
         } else {
             $driver_name = $setting;
@@ -111,11 +109,11 @@ class Cache extends Getters
                 break;
 
             case 'memcache':
+                $memcache = new \Memcache();
+                $memcache->connect($this->config->get('system.cache.memcache.server','localhost'),
+                                   $this->config->get('system.cache.memcache.port', 11211));
                 $driver = new \Doctrine\Common\Cache\MemcacheCache();
-                break;
-
-            case 'memcached':
-                $driver = new \Doctrine\Common\Cache\MemcachedCache();
+                $driver->setMemcache($memcache);
                 break;
 
             default:

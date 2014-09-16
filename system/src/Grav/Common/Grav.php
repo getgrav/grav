@@ -54,11 +54,16 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
-        $container['events'] = function ($c) {
-            return new EventDispatcher;
-        };
         $container['uri'] = function ($c) {
             return new Uri($c);
+        };
+
+        $container['task'] = function ($c) {
+            return !empty($_POST['task']) ? $_POST['task'] : $c['uri']->param('task');
+        };
+
+        $container['events'] = function ($c) {
+            return new EventDispatcher;
         };
         $container['config'] = function ($c) {
             return Config::instance($c);
@@ -122,6 +127,15 @@ class Grav extends Container
 
         $this->fireEvent('onPluginsInitialized');
 
+        $this['themes']->init();
+
+        $this->fireEvent('onThemeInitialized');
+
+        $task = $this['task'];
+        if ($task) {
+            $this->fireEvent('onTask.' . $task);
+        }
+
         $this['assets']->init();
 
         $this->fireEvent('onAssetsInitialized');
@@ -143,10 +157,9 @@ class Grav extends Container
 
         echo $this->output;
 
-        ob_end_flush();
-        flush();
-
         $this->fireEvent('onOutputRendered');
+
+        register_shutdown_function([$this, 'shutdown']);
     }
 
     /**
@@ -208,5 +221,27 @@ class Grav extends Container
         /** @var EventDispatcher $events */
         $events = $this['events'];
         return $events->dispatch($eventName, $event);
+    }
+
+    /**
+     * Set the final content length for the page and flush the buffer
+     *
+     */
+    public function shutdown()
+    {
+        if($this['config']->get('system.debugger.shutdown.close_connection')) {
+            set_time_limit(0);
+            ignore_user_abort(true);
+            session_write_close();
+
+            header('Content-length: ' . ob_get_length());
+            header("Connection: close\r\n");
+
+            ob_end_flush();
+            ob_flush();
+            flush();
+        }
+
+        $this->fireEvent('onShutdown');
     }
 }

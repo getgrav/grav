@@ -1,9 +1,11 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Data\Data;
 use Grav\Common\Data\Blueprints;
-use Grav\Common\Filesystem\File\Yaml;
+use Grav\Common\Data\Data;
+use Grav\Common\Filesystem\File;
+use Grav\Component\EventDispatcher\EventDispatcher;
+use Grav\Component\EventDispatcher\EventSubscriberInterface;
 use Grav\Component\Filesystem\ResourceLocator;
 
 /**
@@ -12,27 +14,46 @@ use Grav\Component\Filesystem\ResourceLocator;
  * @author RocketTheme
  * @license MIT
  */
-class Themes
+class Themes extends Iterator
 {
-    /**
-     * @var Grav
-     */
+    /** @var Grav */
     protected $grav;
+
+    /** @var Config */
+    protected $config;
 
     public function __construct(Grav $grav)
     {
         $this->grav = $grav;
+        $this->config = $grav['config'];
+    }
+
+    public function init()
+    {
+        /** @var EventDispatcher $events */
+        $events = $this->grav['events'];
+
+        /** @var Themes $themes */
+        $themes = $this->grav['themes'];
+        $themes->configure();
+        $instance = $themes->load();
+
+        if ($instance instanceof EventSubscriberInterface) {
+            $events->addSubscriber($instance);
+        }
+
+        $this->grav['theme'] = $instance;
     }
 
     /**
      * Return list of all theme data with their blueprints.
      *
-     * @return array|Data[]
+     * @return array
      */
     public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator(THEMES_DIR);
+        $iterator = new \DirectoryIterator('themes://');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
@@ -50,7 +71,7 @@ class Themes
     }
 
     /**
-     * Get theme or throw exception if it cannot be found.
+     * Get theme configuration or throw exception if it cannot be found.
      *
      * @param string $name
      * @return Data
@@ -62,25 +83,23 @@ class Themes
             throw new \RuntimeException('Theme name not provided.');
         }
 
-        $blueprints = new Blueprints("theme:///{$name}");
+        $blueprints = new Blueprints("themes://{$name}");
         $blueprint = $blueprints->get('blueprints');
         $blueprint->name = $name;
 
-        /** @var Config $config */
-        $config = $this->grav['config'];
-
         // Find thumbnail.
-        $thumb = "theme:///{$name}/thumbnail.jpg";
+        $thumb = "themes://{$name}/thumbnail.jpg";
+
         if (file_exists($thumb)) {
-            $blueprint->set('thumbnail', $config->get('system.base_url_relative') . "/user/themes/{$name}/thumbnail.jpg");
+            $blueprint->set('thumbnail', $this->config->get('system.base_url_relative') . "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.
-        $file = Yaml::instance("theme:///{$name}/{$name}.yaml");
+        $file = File\Yaml::instance("themes://{$name}/{$name}" . YAML_EXT);
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = Yaml::instance("user://config/themes/{$name}.yaml");
+        $file = File\Yaml::instance("user://config/themes/{$name}" . YAML_EXT);
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
@@ -89,32 +108,34 @@ class Themes
         return $obj;
     }
 
-    public function current($name = null)
+    /**
+     * Return name of the current theme.
+     *
+     * @return string
+     */
+    public function current()
     {
-        /** @var Config $config */
-        $config = $this->grav['config'];
-
-        if (!$name) {
-            $name = $config->get('system.pages.theme');
-        }
-
-        return $name;
+        return (string) $this->config->get('system.pages.theme');
     }
 
-    public function load($name = null)
+    /**
+     * Load current theme.
+     *
+     * @return Theme|object
+     */
+    public function load()
     {
-        $name = $this->current($name);
+        // NOTE: ALL THE LOCAL VARIABLES ARE USED INSIDE INCLUDED FILE, DO NOT REMOVE THEM!
         $grav = $this->grav;
-
-        /** @var Config $config */
-        $config = $grav['config'];
+        $config = $this->config;
+        $name = $this->current();
 
         /** @var ResourceLocator $locator */
         $locator = $grav['locator'];
+        $file = $locator('theme://theme.php') ?: $locator("theme://{$name}.php");
 
-        $file = $locator("theme://theme.php") ?: $locator("theme://{$name}.php");
         if ($file) {
-            // Local variables available in the file: $grav, $config, $name, $path, $file
+            // Local variables available in the file: $grav, $config, $name, $file
             $class = include $file;
 
             if (!is_object($class)) {
@@ -124,6 +145,8 @@ class Themes
                     $class = new $className($grav, $config, $name);
                 }
             }
+        } elseif (!$locator('theme://')) {
+            exit("Theme '$name' does not exist, unable to display page.");
         }
 
         if (empty($class)) {
@@ -133,13 +156,18 @@ class Themes
         return $class;
     }
 
-    public function configure($name = null) {
-        $name = $this->current($name);
+    /**
+     * Configure and prepare streams for current template.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function configure() {
+        $name = $this->current();
 
         /** @var Config $config */
-        $config = $this->grav['config'];
+        $config = $this->config;
 
-        $themeConfig = Yaml::instance(THEMES_DIR . "{$name}/{$name}.yaml")->content();
+        $themeConfig = File\Yaml::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
 
         $config->merge(['themes' => [$name => $themeConfig]]);
 
@@ -174,7 +202,6 @@ class Themes
             if (!stream_wrapper_register($scheme, $type)) {
                 throw new \InvalidArgumentException("Stream '{$type}' could not be initialized.");
             }
-
         }
     }
 }

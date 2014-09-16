@@ -1,42 +1,68 @@
-title: Site settings
-validation: strict
-
+title: Site
 form:
-  fields:
-    title:
-      type: text
-      label: Site title
+    fields:
 
-    description:
-      type: textarea
-      label: Description
+        content:
+            type: section
+            title: Defaults
 
-    summary.size:
-      type: text
-      label: Summary size
-      validate:
-        type: int
-        min: 0
-        max: 65536
+            fields:
+                title:
+                    type: text
+                    label: Site Title
+                    size: large
+                    placeholder: "Site wide title"
+                    help: Default title for your site
 
-    author.name:
-      type: text
-      label: Default author
+                author.name:
+                    type: text
+                    size: large
+                    label: Default Author
 
-    author.email:
-      type: text
-      label: Default email
+                author.email:
+                    type: text
+                    size: large
+                    label: Default Email
 
-    taxonomies:
-      type: text
-      label: Taxonomy types
-      validate:
-        type: commalist
+                taxonomies:
+                    type: text
+                    label: Taxonomy Types
+                    classes: fancy
+                    validate:
+                        type: commalist
 
-    blog.route:
-      type: text
-      label: Blog URL
+                metadata:
+                    type: array
+                    label: Metadata
+                    placeholder_key: Name
+                    placeholder_value: Content
 
-    routes:
-      type: array
-      label: Custom routes
+        blog:
+            type: section
+            title: Blog
+
+            fields:
+                blog.route:
+                    type: text
+                    size: large
+                    label: Blog URL
+
+                summary.size:
+                    type: text
+                    size: x-small
+                    label: Summary Size
+                    validate:
+                    type: int
+                    min: 0
+                    max: 65536
+
+        routes:
+            type: section
+            title: Routes
+
+            fields:
+                routes:
+                    type: array
+                    label: Custom
+                    placeholder_key: /your/alias
+                    placeholder_value: /your/route

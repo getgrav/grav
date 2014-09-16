@@ -55,7 +55,7 @@ class Config extends Data
     {
         // Build file map.
         $files = $this->build();
-        $key = md5(serialize($files) . GRAV_VERSION);
+        $key = md5(json_encode($files) . GRAV_VERSION);
 
         if ($force || $key != $this->key) {
             // First take non-blocking lock to the file.
@@ -231,12 +231,12 @@ class Config extends Data
 
         /** @var \DirectoryIterator $plugin */
         foreach ($iterator as $plugin) {
+            if ($iterator->isFile() || $iterator->isDot()) continue;
+
             $name = $plugin->getBasename();
             $file = $plugin->getPathname() . DS . $name . YAML_EXT;
 
-            if (!is_file($file)) {
-                continue;
-            }
+            if (!file_exists($file)) continue;
 
             $modified = filemtime($file);
             $plugins["plugins/{$name}"] = $modified;

@@ -13,16 +13,16 @@
         "symfony/console": "~2.5",
         "symfony/event-dispatcher": "~2.5",
         "doctrine/cache": "~1.3",
-        "tracy/tracy": "~2.2",
-        "gregwar/image": "~2.0",
+        "tracy/tracy": "2.3.*@dev",
+	    "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "dev-master",
         "donatj/phpuseragentparser": "dev-master",
         "pimple/pimple": "~3.0"
     },
     "autoload": {
-        "psr-0": {
-            "Grav\\": "system/src/"
+        "psr-4": {
+            "Grav\\": "system/src/Grav"
         },
         "files": ["system/defines.php"]
     },
