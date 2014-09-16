@@ -24,7 +24,6 @@
 // }
 
 // Forms
-// Forms
 $form-label-width: 30%;
 $form-border: darken($content-bg,10%);
 $form-border-radius: 4px;
@@ -83,7 +82,21 @@ form {
         color: $content-fg;
     }
 
+
     .selectize-control.multi .selectize-input {
+
+        padding: ($leading-margin / 4) ($leading-margin / 4);
+
+        &.has-items {
+            padding-top: 6px;
+            padding-bottom: 4px;
+        }
+
+        input {
+            font-size: $core-font-size;
+            line-height: $core-line-height;
+        }
+
         > div {
             color: $content-fg;
             // background: $content-bg;

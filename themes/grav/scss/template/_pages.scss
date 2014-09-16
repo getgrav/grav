@@ -120,23 +120,39 @@
             font-family: 'FontAwesome';
         }
     }
-}
 
-form .selectize-control.multi .selectize-input > {
-    div, div.active {
-        color: $white;
-        padding: 2px 10px;
-        &[data-value='Routable'] {
-            background: #CE431D;
+    .selectize-control.multi .selectize-input {
+
+        padding: ($leading-margin / 4) ($leading-margin / 4);
+
+        &.has-items {
+            padding-top: 6px;
+            padding-bottom: 4px;
         }
-        &[data-value='Visible'] {
-            background: #999;
+
+        input {
+            font-size: $core-font-size;
+            line-height: $core-line-height;
         }
-        &[data-value='Modular'] {
-            background: #9055AF;
+
+
+        > div, > div.active {
+            color: $white;
+            padding: 2px 10px;
+            &[data-value='Routable'] {
+                background: #CE431D;
+            }
+            &[data-value='Visible'] {
+                background: #999;
+            }
+            &[data-value='Modular'] {
+                background: #9055AF;
+            }
         }
     }
 }
+
+
 
 @for $i from 0 to 10 {
     .depth-#{$i} .row {

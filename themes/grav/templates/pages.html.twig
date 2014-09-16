@@ -78,7 +78,16 @@
     {% else %}
         <form id="page-filtering">
             <div class="page-filters">
-                <input type="text" placeholder="Add Filters" class="fancy" value="Routable,Visible,Modular" name="page-filter" />
+                <input type="text" placeholder="Add Filters" class="page-filter" value="Routable,Visible,Modular" name="page-filter" />
+                <script>
+                $(function() {
+                    // selectize
+                    $('input.page-filter').selectize({
+                        delimiter: ',',
+                        create: false
+                    });
+                });
+                </script>
             </div>
             <div class="page-search">
                 <input type="text" placeholder="Search Pages" name="page-search" />

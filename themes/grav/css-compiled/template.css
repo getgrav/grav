@@ -480,12 +480,20 @@ form .form-select-wrapper, form .selectize-control.single .selectize-input {
 form .selectize-input {
   box-shadow: none;
   color: #737c81; }
-form .selectize-control.multi .selectize-input > div {
-  color: #737c81;
-  border-radius: 2px;
-  line-height: 1.5; }
-  form .selectize-control.multi .selectize-input > div.active {
-    background: #d4d4d4; }
+form .selectize-control.multi .selectize-input {
+  padding: 0.425rem 0.425rem; }
+  form .selectize-control.multi .selectize-input.has-items {
+    padding-top: 6px;
+    padding-bottom: 4px; }
+  form .selectize-control.multi .selectize-input input {
+    font-size: 1rem;
+    line-height: 1.7; }
+  form .selectize-control.multi .selectize-input > div {
+    color: #737c81;
+    border-radius: 2px;
+    line-height: 1.5; }
+    form .selectize-control.multi .selectize-input > div.active {
+      background: #d4d4d4; }
 form .selectize-control.single .selectize-input:after {
   right: 24px; }
 form .selectize-control.single .selectize-input.dropdown-active:after {
@@ -996,16 +1004,23 @@ tr {
       top: 10px;
       content: '\f002';
       font-family: 'FontAwesome'; }
-
-form .selectize-control.multi .selectize-input > div, form .selectize-control.multi .selectize-input > div.active {
-  color: white;
-  padding: 2px 10px; }
-  form .selectize-control.multi .selectize-input > div[data-value='Routable'], form .selectize-control.multi .selectize-input > div.active[data-value='Routable'] {
-    background: #CE431D; }
-  form .selectize-control.multi .selectize-input > div[data-value='Visible'], form .selectize-control.multi .selectize-input > div.active[data-value='Visible'] {
-    background: #999; }
-  form .selectize-control.multi .selectize-input > div[data-value='Modular'], form .selectize-control.multi .selectize-input > div.active[data-value='Modular'] {
-    background: #9055AF; }
+  #page-filtering .selectize-control.multi .selectize-input {
+    padding: 0.425rem 0.425rem; }
+    #page-filtering .selectize-control.multi .selectize-input.has-items {
+      padding-top: 6px;
+      padding-bottom: 4px; }
+    #page-filtering .selectize-control.multi .selectize-input input {
+      font-size: 1rem;
+      line-height: 1.7; }
+    #page-filtering .selectize-control.multi .selectize-input > div, #page-filtering .selectize-control.multi .selectize-input > div.active {
+      color: white;
+      padding: 2px 10px; }
+      #page-filtering .selectize-control.multi .selectize-input > div[data-value='Routable'], #page-filtering .selectize-control.multi .selectize-input > div.active[data-value='Routable'] {
+        background: #CE431D; }
+      #page-filtering .selectize-control.multi .selectize-input > div[data-value='Visible'], #page-filtering .selectize-control.multi .selectize-input > div.active[data-value='Visible'] {
+        background: #999; }
+      #page-filtering .selectize-control.multi .selectize-input > div[data-value='Modular'], #page-filtering .selectize-control.multi .selectize-input > div.active[data-value='Modular'] {
+        background: #9055AF; }
 
 .depth-0 .row {
   padding-left: 3rem; }
