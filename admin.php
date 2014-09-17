@@ -125,7 +125,7 @@ class AdminPlugin extends Plugin
         if ($task) {
             require_once __DIR__ . '/classes/controller.php';
             $controller = new AdminController($this->grav, $this->template, $task, $this->route, $post);
-            $success = $controller->execute();
+            $controller->execute();
             $controller->redirect();
         } elseif ($this->template == 'logs' && $this->route) {
             // Display RAW error message.

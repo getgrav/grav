@@ -389,19 +389,21 @@ class Admin
             $page = new Page;
             $page->parent($parent);
             $page->filePath($parent->path().'/'.$slug.'/'.$page->name());
-            $page->header();
 
             // Add routing information.
             $pages->addPage($page, $path);
 
             // Determine page type.
             if (isset($this->session->{$page->route()})) {
-                // Found the type from the session.
-                $page->name($this->session->{$page->route()} . '.md');
+                // Found the type and header from the session.
+                $data = $this->session->{$page->route()};
+                $page->name($data['type'] . '.md');
+                $page->header(['title' => $data['title']]);
             } else {
                 // Find out the type by looking at the parent.
                 $type = $parent->child_type() ? $parent->child_type() : $parent->blueprints()->get('child_type', 'default');
                 $page->name($type.CONTENT_EXT);
+                $page->header();
             }
         }
 

@@ -250,13 +250,12 @@ class AdminController
         }
 
         $data = $this->post;
-        $route = $data['route'];
+        $route = $data['route'] != '/' ? $data['route'] : '';
         $folder = $data['folder'];
-        $type = $data['type'];
         $path = $route . '/' . $folder;
 
-        $this->admin->session()->{$path} = $type;
-        $this->setRedirect($this->view . '/' . $path);
+        $this->admin->session()->{$path} = $data;
+        $this->setRedirect("{$this->view}/{$path}");
 
         return true;
     }
