@@ -87,6 +87,20 @@
                         delimiter: ',',
                         create: false
                     });
+
+                    // auto generate folder based on title
+                    // on user input on folder, autogeneration stops
+                    // if user empties the folder, autogeneration restarts
+                    $('input[name="folder"]').on('input', function(){
+                        $(this).data('user-custom-folder', true);
+                        if (!$(this).val()) $(this).data('user-custom-folder', false);
+                    })
+                    $('input[name="title"]').on('input', function(e){
+                        if (!$('input[name="folder"]').data('user-custom-folder')) {
+                            folder = $(this).val().toLowerCase().replace(/\s/g, '-');
+                            $('input[name="folder"]').val(folder);
+                        }
+                    });
                 });
                 </script>
             </div>
