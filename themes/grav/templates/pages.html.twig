@@ -40,14 +40,16 @@
 {% block titlebar %}
     <div class="button-bar">
         {% if not uri.param('new') %}
-            <a class="button" href="#modal"><i class="fa fa-plus"></i> Add Page</a>
-            {# <a class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</a> #}
             {% if context %}
                 {% if not uri.param('expert') %}
                     <a class="button" href="{{ uri.route(true) }}/expert:1">Normal mode</a>
                 {% else %}
                     <a class="button" href="{{ uri.route(true) }}">Expert mode</a>
                 {% endif %}
+                <a class="button" href="#modal"><i class="fa fa-check"></i> Save</a>
+            {% else %}
+                <a class="button" href="#modal"><i class="fa fa-plus"></i> Add Page</a>
+                {# <a class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</a> #}
             {% endif %}
         {% endif %}
     </div>
