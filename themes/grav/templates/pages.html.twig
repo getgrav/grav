@@ -42,11 +42,14 @@
         {% if not uri.param('new') %}
             {% if context %}
                 {% if not uri.param('expert') %}
-                    <a class="button" href="{{ uri.route(true) }}/expert:1">Normal mode</a>
+                    <a class="button" href="{{ uri.route(true) }}/expert:1" title="Switch to Expert Mode">Normal Mode</a>
                 {% else %}
-                    <a class="button" href="{{ uri.route(true) }}">Expert mode</a>
+                    <a class="button" href="{{ uri.route(true) }}" title="Switch back to Normal Mode">Expert Mode</a>
                 {% endif %}
-                <a class="button" href="#modal"><i class="fa fa-check"></i> Save</a>
+                <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+                {% if context.exists %}
+                    <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
+                {% endif %}
             {% else %}
                 <a class="button" href="#modal"><i class="fa fa-plus"></i> Add Page</a>
                 {# <a class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</a> #}
