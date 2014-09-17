@@ -37,6 +37,16 @@ $form-select-pad: 5px 30px 5px 10px;
 
 form {
 
+    h1 {
+        color: $page-bg;
+        padding: 0 $padding-default 0.5rem;
+        margin: 0 0 1rem;
+        border-bottom: 3px solid darken($content-bg, 5%);
+        font-size: 1.5rem;
+        text-align: left;
+        letter-spacing: -1px;
+    }
+
     .form-field {
         margin-bottom: 1rem;
         padding-left: $padding-default;
@@ -44,6 +54,16 @@ form {
 
     .form-data {
         padding-right: $padding-default;
+    }
+
+    .required {
+        color: $secondary-link;
+            font-family: helvetica, arial;
+            vertical-align: middle;
+            line-height: 1;
+            font-size: 30px;
+            margin-left: 5px;
+
     }
 
     label {
@@ -80,6 +100,13 @@ form {
     .selectize-input {
         box-shadow: none;
         color: $content-fg;
+        padding: $form-select-pad;
+        margin: 0;
+
+        > input {
+            font-size: $core-font-size;
+            line-height: $core-line-height;
+        }
     }
 
 
@@ -90,11 +117,6 @@ form {
         &.has-items {
             padding-top: 6px;
             padding-bottom: 4px;
-        }
-
-        input {
-            font-size: $core-font-size;
-            line-height: $core-line-height;
         }
 
         > div {
@@ -150,10 +172,6 @@ form {
          textarea {
             height: 10rem;
         }
-    }
-
-    .selectize-input {
-        padding: $form-select-pad;
     }
 
     select {
@@ -236,10 +254,12 @@ form {
     }
 
     .button-bar {
-        margin-top: 50px;
+        margin-top: 1rem;
         background: lighten($form-border,7%);
-        padding: $form-input-pad;
-        padding-left: $form-label-width;
+        padding: 1.2rem 3rem;
+        width: 100%;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
     }
 
     .checkboxes {

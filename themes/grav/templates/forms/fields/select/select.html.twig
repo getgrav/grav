@@ -19,9 +19,7 @@
                     {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
                     >
                 {% for key, text in field.options %}
-                <option {% if key == value %}selected="selected"{% endif %} value="{{ key }}">
-                    {{ text }}
-                </option>
+                <option {% if key == value %}selected="selected"{% endif %} value="{{ key }}">{{ text }}</option>
                 {% endfor %}
             </select>
         </div>

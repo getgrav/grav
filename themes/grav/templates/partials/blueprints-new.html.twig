@@ -1,5 +1,5 @@
 <form method="post">
-    <hr />
+    <h1>New Page</h1>
     {% for field in blueprints.fields %}
         {% if field.type %}
             {% set value = data.value(field.name) %}
@@ -10,6 +10,6 @@
     {% endfor %}
 
     <div class="button-bar">
-        <button class="button" name="task" value="continue">Continue</button>
+        <button class="button primary" name="task" value="continue">Continue</button>
     </div>
 </form>

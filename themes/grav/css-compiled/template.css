@@ -449,11 +449,26 @@ hr {
 
   to {
     -webkit-transform: translate3d(0, 0, 0); } }
+form h1 {
+  color: #314d5b;
+  padding: 0 3rem 0.5rem;
+  margin: 0 0 1rem;
+  border-bottom: 3px solid #e1e1e1;
+  font-size: 1.5rem;
+  text-align: left;
+  letter-spacing: -1px; }
 form .form-field {
   margin-bottom: 1rem;
   padding-left: 3rem; }
 form .form-data {
   padding-right: 3rem; }
+form .required {
+  color: #f6635e;
+  font-family: helvetica, arial;
+  vertical-align: middle;
+  line-height: 1;
+  font-size: 30px;
+  margin-left: 5px; }
 form label {
   padding: 5px 0;
   font-weight: 400;
@@ -479,15 +494,17 @@ form .form-select-wrapper, form .selectize-control.single .selectize-input {
     pointer-events: none; }
 form .selectize-input {
   box-shadow: none;
-  color: #737c81; }
+  color: #737c81;
+  padding: 5px 30px 5px 10px;
+  margin: 0; }
+  form .selectize-input > input {
+    font-size: 1rem;
+    line-height: 1.7; }
 form .selectize-control.multi .selectize-input {
   padding: 0.425rem 0.425rem; }
   form .selectize-control.multi .selectize-input.has-items {
     padding-top: 6px;
     padding-bottom: 4px; }
-  form .selectize-control.multi .selectize-input input {
-    font-size: 1rem;
-    line-height: 1.7; }
   form .selectize-control.multi .selectize-input > div {
     color: #737c81;
     border-radius: 2px;
@@ -510,8 +527,6 @@ form .large {
   max-width: 30rem !important; }
   form .large textarea {
     height: 10rem; }
-form .selectize-input {
-  padding: 5px 30px 5px 10px; }
 form select {
   width: 100%;
   border: 1px solid #d4d4d4;
@@ -546,10 +561,12 @@ form .dynfields .form-row {
     line-height: 1.7;
     cursor: pointer; }
 form .button-bar {
-  margin-top: 50px;
+  margin-top: 1rem;
   background: #e6e6e6;
-  padding: 5px 10px;
-  padding-left: 30%; }
+  padding: 1.2rem 3rem;
+  width: 100%;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px; }
 form .checkboxes {
   display: inline-block;
   padding: 5px 0; }
@@ -1051,5 +1068,146 @@ tr {
 
 .depth-9 .row {
   padding-left: 30rem; }
+
+/*
+ *  Remodal - v0.2.0
+ *  Flat, responsive, lightweight, easy customizable modal window plugin with declarative state notation and hash tracking.
+ *  http://vodkabears.github.io/remodal/
+ *
+ *  Made by Ilya Makarov
+ *  Under MIT License
+ */
+/* ==========================================================================
+   Remodal necessary styles
+   ========================================================================== */
+/* Hide scroll bar */
+html.remodal_lock, body.remodal_lock {
+  overflow: hidden; }
+
+/* Anti FOUC */
+.remodal, [data-remodal-id] {
+  visibility: hidden; }
+
+/* Overlay necessary styles */
+.remodal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: none;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  text-align: center;
+  /* Fix iPad, iPhone glitches */ }
+  .remodal-overlay:after {
+    display: inline-block;
+    height: 100%;
+    margin-left: -0.05em;
+    content: ''; }
+  .remodal-overlay > * {
+    -webkit-transform: translateZ(0px); }
+
+/* Modal dialog necessary styles */
+.remodal {
+  position: relative;
+  display: inline-block;
+  text-align: left; }
+
+/* Background for effects */
+.remodal-bg {
+  -webkit-transition-property: filter;
+  -moz-transition-property: filter;
+  transition-property: filter;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
+  -webkit-transition-timing-function: linear;
+  -moz-transition-timing-function: linear;
+  transition-timing-function: linear; }
+
+/* Overlay default theme styles */
+.remodal-overlay {
+  opacity: 0;
+  background: rgba(33, 36, 46, 0.8);
+  -webkit-transition: opacity 0.2s linear;
+  -moz-transition: opacity 0.2s linear;
+  transition: opacity 0.2s linear; }
+
+body.remodal_active .remodal-overlay {
+  opacity: 1; }
+
+/* Modal dialog default theme styles */
+.remodal {
+  width: 100%;
+  min-height: 100%;
+  padding-top: 2rem;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  font-size: 16px;
+  background: #eeeeee;
+  background-clip: padding-box;
+  color: #737c81;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  -webkit-transform: scale(0.95);
+  -moz-transform: scale(0.95);
+  -ms-transform: scale(0.95);
+  -o-transform: scale(0.95);
+  transform: scale(0.95);
+  -webkit-transition-property: -webkit-transform;
+  -moz-transition-property: -moz-transform;
+  transition-property: transform;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
+  -webkit-transition-timing-function: linear;
+  -moz-transition-timing-function: linear;
+  transition-timing-function: linear; }
+
+body.remodal_active .remodal {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transform: scale(1); }
+
+/* Modal dialog vertical align  */
+.remodal, .remodal-overlay:after {
+  vertical-align: middle; }
+
+/* Close button */
+.remodal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #737c81;
+  text-decoration: none;
+  text-align: center;
+  -webkit-transition: background 0.2s linear;
+  -moz-transition: background 0.2s linear;
+  transition: background 0.2s linear; }
+
+.remodal-close:after {
+  display: block;
+  font-family: FontAwesome;
+  content: "\f00d";
+  font-size: 28px;
+  line-height: 28px;
+  cursor: pointer;
+  text-decoration: none; }
+
+.remodal-close:hover, .remodal-close:active {
+  color: #43484b; }
+
+/* Media queries
+   ========================================================================== */
+@media only screen and (min-width: 40.063em) {
+  .remodal {
+    max-width: 700px;
+    margin: 20px auto;
+    min-height: 0;
+    border-radius: 6px; } }
 
 /*# sourceMappingURL=template.css.map */

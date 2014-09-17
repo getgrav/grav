@@ -44,9 +44,9 @@
             {# <a class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</a> #}
             {% if context %}
                 {% if not uri.param('expert') %}
-                    <button class="button" href="{{ uri.route(true) }}/expert:1">Normal mode</button>
+                    <a class="button" href="{{ uri.route(true) }}/expert:1">Normal mode</a>
                 {% else %}
-                    <button class="button" href="{{ uri.route(true) }}">Expert mode</button>
+                    <a class="button" href="{{ uri.route(true) }}">Expert mode</a>
                 {% endif %}
             {% endif %}
         {% endif %}
