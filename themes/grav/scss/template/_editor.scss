@@ -1,0 +1,89 @@
+.uk-htmleditor {
+
+}
+
+.uk-htmleditor-navbar {
+    @include clearfix;
+    border: 1px solid $form-border;
+    border-top-right-radius: $form-border-radius;
+    border-top-left-radius: $form-border-radius;
+    background: lighten($content-bg,5%);
+
+    ul {
+        list-style: none;
+
+        margin: 0;
+        padding: 0;
+
+
+
+        li {
+            float: left;
+            &:first-child a {
+                border-top-left-radius: 4px;
+            }
+        }
+
+        a {
+            display: block;
+            line-height: 3rem;
+            height: 3rem;
+            padding: 0 1rem;
+            color: $content-fg;
+
+            &:hover {
+                background: lighten($content-bg,2%);
+                color: darken($content-fg,10%);
+            }
+        }
+    }
+}
+
+.uk-htmleditor-navbar-nav {
+    float: left;
+}
+
+.uk-htmleditor-navbar-flip {
+    float: right;
+}
+
+.uk-htmleditor-content {
+
+    @include clearfix;
+    border: 1px solid $form-border;
+    border-top: 0;
+    border-bottom-right-radius: $form-border-radius;
+    border-bottom-left-radius: $form-border-radius;
+}
+
+.uk-htmleditor-code {
+    .codeMirror {
+        padding: 20px;
+    }
+}
+
+.uk-htmleditor-preview {
+    padding: 20px;
+    overflow-y: scroll;
+    position: relative;
+    background: #fafafa;
+
+    > div > hr:first-child {
+        border-bottom: 4px solid #f00;
+    }
+}
+
+[data-mode=split] {
+    .uk-htmleditor-button-code, .uk-htmleditor-button-preview {
+        display: none;
+    }
+
+    .uk-htmleditor-code {
+        border-right: 1px solid $form-border;
+
+        &, .uk-htmleditor-preview {
+            float: left;
+            width: 50%;
+        }
+    }
+}

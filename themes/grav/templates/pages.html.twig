@@ -1,5 +1,40 @@
 {% extends 'partials/base.html.twig' %}
 
+{% if admin.route %}
+    {% set context = admin.page(true) %}
+{% endif %}
+
+{% if uri.param('new') %}
+    {% set mode = 'new' %}
+{%  elseif context %}
+    {% set mode = 'edit' %}
+    {% if context.exists %}
+        {% set exists = true %}
+    {% endif %}
+{% else %}
+    {% set mode = 'list' %}
+{% endif %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if mode == 'edit' %}
+
+    <link rel="stylesheet" href="{{ theme_url }}/css/codemirror/codemirror.css" type="text/css" />
+
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ theme_url }}/js/pages-all.js"></script>
+    {% if mode == 'edit' %}
+    <script type="text/javascript" src="{{ theme_url }}/js/uikit.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/codemirror.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/marked.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/htmleditor.js"></script>
+    {% endif %}
+{% endblock %}
+
 {% macro loop(page, base_url, depth) %}
     {% for p in page.children %}
 
@@ -7,7 +42,6 @@
                              (p.modular ? 'Modular &bull; ' : '') ~
                              (p.routable ? 'Routable &bull; ' : 'Not Routable &bull; ') ~
                              (p.visible ? 'Visible &bull; ' : 'Not Visible &bull; ') %}
-
 
         <li class="page-item">
             <div class="row">
@@ -32,28 +66,20 @@
 {% endmacro %}
 
 
-{% if admin.route %}
-{% set context = admin.page(true) %}
-{% endif %}
-
-
 {% block titlebar %}
     <div class="button-bar">
-        {% if not uri.param('new') %}
-            {% if context %}
-                <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
-                {% if context.exists %}
-                    <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
-                {% endif %}
-            {% else %}
-                <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Page</a>
-                {# <a class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</a> #}
+        {% if mode == 'list' %}
+            <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Page</a>
+        {% elseif mode == 'edit' %}
+            <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+            {% if exists %}
+                <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
             {% endif %}
         {% endif %}
     </div>
-    {% if uri.param('new') %}
+    {% if mode == 'new' %}
         <h1><i class="fa fa-fw fa-file-text-o"></i> Add Page</h1>
-    {% elseif context %}
+    {% elseif mode == 'edit' %}
         <h1><i class="fa fa-fw fa-file-text-o"></i>
             {{ context.exists ? "Edit '#{context.menu}'" : "Create '#{context.menu}'" }}
         </h1>
@@ -65,9 +91,9 @@
 {% block content %}
     <div class="admin-block clear">
     {% include 'partials/messages.html.twig' %}
-    {% if uri.param('new') %}
+    {% if mode == 'new' %}
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/page'), data: context } %}
-    {% elseif context %}
+    {% elseif mode == 'edit' %}
         <div class="admin-form-wrapper">
             {% if context.blueprints.fields %}
             <form id="admin-mode-toggle">
@@ -93,25 +119,7 @@
                 <input type="text" placeholder="Add Filters" class="page-filter" value="Routable,Visible,Modular" name="page-filter" />
                 <script>
                 $(function() {
-                    // selectize
-                    $('input.page-filter').selectize({
-                        delimiter: ',',
-                        create: false
-                    });
 
-                    // auto generate folder based on title
-                    // on user input on folder, autogeneration stops
-                    // if user empties the folder, autogeneration restarts
-                    $('input[name="folder"]').on('input', function(){
-                        $(this).data('user-custom-folder', true);
-                        if (!$(this).val()) $(this).data('user-custom-folder', false);
-                    })
-                    $('input[name="title"]').on('input', function(e){
-                        if (!$('input[name="folder"]').data('user-custom-folder')) {
-                            folder = $(this).val().toLowerCase().replace(/\s/g, '-');
-                            $('input[name="folder"]').val(folder);
-                        }
-                    });
                 });
                 </script>
             </div>
@@ -124,97 +132,6 @@
         </ul>
     {% endif %}
     </div>
-
-    <script>
-        var getState = function(){
-            var loadValues = [];
-            $('input, select, textarea').each(function(index, element){
-                var name  = $(element).prop('name'),
-                    value = $(element).val();
-
-                if (name)  loadValues.push(name + '|' + value);
-            });
-
-            return loadValues.toString();
-        };
-
-        $(function(){
-            var currentValues = getState(),
-                clickedLink;
-
-            $('#admin-main button').on('click', function(){
-                $(window).off('beforeunload');
-            });
-
-            $("#admin-mode-toggle input[name=mode-switch]").on('change', function(e){
-                var value = $(this).val();
-
-                if (currentValues == getState()) {
-                    setTimeout(function(){
-                        window.location.href = '{{ uri.route(true) }}' + ((value == 'expert') ? '/expert:1' : '');
-                    }, 200)
-
-                    return true;
-                }
-
-                e.preventDefault();
-
-                var confirm = $.remodal.lookup[$('[data-remodal-id=changes]').data('remodal')],
-                    buttons = $('[data-remodal-id=changes] a.button'),
-                    action;
-
-                buttons.on('click', function(e){
-                    e.preventDefault();
-                    action = $(this).data('leave-action');
-
-                    buttons.off('click');
-                    confirm.close();
-
-                    if (action == 'continue') {
-                        $(window).off('beforeunload');
-                        window.location.href = '{{ uri.route(true) }}' + ((value == 'expert') ? '/expert:1' : '');
-                    } else {
-                        $('input[name=mode-switch][checked]').prop('checked', true);
-                    }
-                });
-
-                confirm.open();
-            });
-
-            $('a[href]:not([href^=#])').on('click', function(e){
-                if (currentValues != getState()){
-                    e.preventDefault();
-
-                    clickedLink = $(this).attr('href');
-
-                    var confirm = $.remodal.lookup[$('[data-remodal-id=changes]').data('remodal')],
-                        buttons = $('[data-remodal-id=changes] a.button'),
-                        action;
-
-                    buttons.on('click', function(e){
-                        e.preventDefault();
-                        action = $(this).data('leave-action');
-
-                        buttons.off('click');
-                        confirm.close();
-
-                        if (action == 'continue') {
-                            $(window).off('beforeunload');
-                            window.location.href = clickedLink;
-                        }
-                    });
-
-                    confirm.open();
-                }
-            });
-
-            $(window).on('beforeunload', function(){
-                if (currentValues != getState()){
-                    return "You have made changes on this page that you have not yet confirmed. If you navigate away from this page you will lose your unsaved changes";
-                }
-            });
-        });
-    </script>
 
     <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/new'), data: context } %}

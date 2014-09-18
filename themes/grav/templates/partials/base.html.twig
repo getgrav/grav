@@ -27,33 +27,13 @@
     <![endif]-->
     {% endblock %}
 
-    {% block javascript %}
+    {% block javascripts %}
     <script type="text/javascript" src="{{ theme_url }}/js/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/modernizr.custom.71422.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/chartist.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/selectize.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/jquery.remodal.min.js"></script>
-    <script type="text/javascript">
-        $(function()
-        {
-            // selectize
-            $('select.fancy').selectize({
-                createOnBlur: true
-            });
-
-            $('input.fancy').selectize({
-                delimiter: ',',
-                persist: false,
-                create: function(input) {
-                    return {
-                        value: input,
-                        text: input
-                    }
-                }
-            });
-        });
-
-    </script>
+    <script type="text/javascript" src="{{ theme_url }}/js/admin-all.js"></script>
     {% endblock %}
 {% endblock %}
 </head>
