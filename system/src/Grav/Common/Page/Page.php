@@ -137,7 +137,7 @@ class Page
             $this->header = null;
             $this->content = null;
         }
-        return $file->raw();
+        return $file ? $file->raw() : '';
     }
 
     /**
