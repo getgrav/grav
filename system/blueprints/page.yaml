@@ -6,13 +6,12 @@ rules:
 
 form:
   fields:
-    route:
-      type: select
-      label: Parent
-      @data-options: '\Grav\Common\Page\Pages::parents'
-      @data-default: '\Grav\Plugin\admin::route'
-      options:
-        '': '- Root -'
+
+    title:
+      type: text
+      label: Title
+      validate:
+        required: true
 
     folder:
       type: text
@@ -21,8 +20,24 @@ form:
         type: slug
         required: true
 
+    route:
+      type: select
+      label: Parent
+      classes: fancy
+      @data-options: '\Grav\Common\Page\Pages::parents'
+      @data-default: '\Grav\Plugin\admin::route'
+      options:
+        '': '- Root -'
+      validate:
+        required: true
+
+
+
     type:
       type: select
+      classes: fancy
       label: Page Type
       default: default
       @data-options: '\Grav\Common\Page\Pages::types'
+      validate:
+        required: true

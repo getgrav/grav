@@ -71,6 +71,7 @@ class Assets
 
     // Default values for pipeline settings
     protected $css_minify = true;
+    protected $css_minify_windows = false;
     protected $css_rewrite = true;
     protected $js_minify = true;
 
@@ -132,6 +133,9 @@ class Assets
         // Set CSS Minify state
         if(isset($config['css_minify']))
             $this->css_minify = $config['css_minify'];
+
+        if(isset($config['css_minify_windows']))
+            $this->css_minify_windows = $config['css_minify_windows'];
 
         if(isset($config['css_rewrite']))
             $this->css_rewrite = $config['css_rewrite'];
@@ -432,10 +436,19 @@ class Assets
         if(file_exists($absolute_path))
             return $relative_path . $key;
 
+        $css_minify = $this->css_minify;
+
+        // If this is a Windows server, and minify_windows is false (default value) skip the
+        // minification process because it will cause Apache to die/crash due to insufficient
+        // ThreadStackSize in httpd.conf - See: https://bugs.php.net/bug.php?id=47689
+        if (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN' && !$this->css_minify_windows) {
+            $css_minify = false;
+        }
+
         // Concatenate files
         if ($css) {
             $buffer = $this->gatherLinks($this->css, CSS_ASSET);
-            if ($this->css_minify) {
+            if ($css_minify) {
                 $min = new \CSSmin();
                 $buffer = $min->run($buffer);
             }

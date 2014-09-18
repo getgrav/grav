@@ -5,7 +5,6 @@ form:
         content:
             type: section
             title: Defaults
-            underline: true
 
             fields:
                 title:
@@ -14,11 +13,6 @@ form:
                     size: large
                     placeholder: "Site wide title"
                     help: Default title for your site
-
-                description:
-                    type: textarea
-                    size: large
-                    label: Description
 
                 author.name:
                     type: text
@@ -34,13 +28,19 @@ form:
                     type: text
                     size: large
                     label: Taxonomy Types
+                    classes: fancy
                     validate:
-                    type: commalist
+                        type: commalist
+
+                metadata:
+                    type: array
+                    label: Metadata
+                    placeholder_key: Name
+                    placeholder_value: Content
 
         blog:
             type: section
             title: Blog
-            underline: true
 
             fields:
                 blog.route:
@@ -60,9 +60,10 @@ form:
         routes:
             type: section
             title: Routes
-            underline: true
 
             fields:
                 routes:
                     type: array
                     label: Custom
+                    placeholder_key: /your/alias
+                    placeholder_value: /your/route
