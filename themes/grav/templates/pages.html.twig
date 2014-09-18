@@ -41,17 +41,12 @@
     <div class="button-bar">
         {% if not uri.param('new') %}
             {% if context %}
-                {% if not uri.param('expert') %}
-                    <a class="button" href="{{ uri.route(true) }}/expert:1" title="Switch to Expert Mode">Normal Mode</a>
-                {% else %}
-                    <a class="button" href="{{ uri.route(true) }}" title="Switch back to Normal Mode">Expert Mode</a>
-                {% endif %}
                 <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
                 {% if context.exists %}
                     <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
                 {% endif %}
             {% else %}
-                <a class="button" href="#modal"><i class="fa fa-plus"></i> Add Page</a>
+                <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Page</a>
                 {# <a class="button" href="{{ uri.route(true) }}/new:1"><i class="fa fa-plus"></i> Add Page</a> #}
             {% endif %}
         {% endif %}
@@ -67,15 +62,39 @@
     {% endif %}
 {% endblock %}
 
-
 {% block content %}
-    {% include 'partials/messages.html.twig' %}
-
     <div class="admin-block clear">
     {% include 'partials/messages.html.twig' %}
     {% if uri.param('new') %}
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
     {% elseif context %}
+
+
+        <form id="admin-mode-toggle">
+            <div class="switch-toggle switch-grav">
+                <input type="radio" value="normal" id="normal" name="mode-switch" {% if not uri.param('expert') %}class="highlight" checked="checked"{% endif %}>
+                <label for="normal">Normal</label>
+                <input type="radio" value="expert" id="expert" name="mode-switch" {% if uri.param('expert') %}class="highlight" checked="checked"{% endif %}>
+                <label for="expert">Expert</label>
+                <a></a>
+            </div>
+            <script>
+                $("input[type=radio][checked]").each(
+                    function() {
+
+                    }
+                );
+            </script>
+{#                 {% if not uri.param('expert') %}
+                    <span class="button" >Normal</span>
+                    <a href="{{ uri.route(true) }}/expert:1">Expert</a>
+                {% else %}
+                    <a href="{{ uri.route(true) }}">Normal</a>
+                    <span class="button">Expert</span>
+                {% endif %} #}
+        </form>
+
+
         {% if not uri.param('expert') %}
             {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
         {% else %}
@@ -119,7 +138,7 @@
     {% endif %}
     </div>
 
-    <div class="remodal" data-remodal-id="modal">
+    <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
     </div>
 {% endblock %}
