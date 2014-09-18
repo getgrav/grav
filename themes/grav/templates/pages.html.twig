@@ -78,16 +78,6 @@
                     <label for="expert">Expert</label>
                     <a></a>
                 </div>
-                <script>
-                    $("#admin-mode-toggle input[name=mode-switch]").on('change', function(e){
-                        var value = $(this).val();
-
-                        // little timeout to show off the animation
-                        setTimeout(function(){
-                            window.location.href = '{{ uri.route(true) }}' + ((value == 'expert') ? '/expert:1' : '');
-                        }, 200)
-                    });
-                </script>
             </form>
             {% endif %}
 
@@ -149,15 +139,77 @@
         };
 
         $(function(){
-            var currentValues = getState();
+            var currentValues = getState(),
+                clickedLink;
+
+            $('#admin-main button').on('click', function(){
+                $(window).off('beforeunload');
+            });
+
+            $("#admin-mode-toggle input[name=mode-switch]").on('change', function(e){
+                var value = $(this).val();
+
+                if (currentValues == getState()) {
+                    setTimeout(function(){
+                        window.location.href = '{{ uri.route(true) }}' + ((value == 'expert') ? '/expert:1' : '');
+                    }, 200)
+
+                    return true;
+                }
+
+                e.preventDefault();
+
+                var confirm = $.remodal.lookup[$('[data-remodal-id=changes]').data('remodal')],
+                    buttons = $('[data-remodal-id=changes] a.button'),
+                    action;
+
+                buttons.on('click', function(e){
+                    e.preventDefault();
+                    action = $(this).data('leave-action');
+
+                    buttons.off('click');
+                    confirm.close();
+
+                    if (action == 'continue') {
+                        $(window).off('beforeunload');
+                        window.location.href = '{{ uri.route(true) }}' + ((value == 'expert') ? '/expert:1' : '');
+                    } else {
+                        $('input[name=mode-switch][checked]').prop('checked', true);
+                    }
+                });
+
+                confirm.open();
+            });
+
+            $('a[href]:not([href^=#])').on('click', function(e){
+                if (currentValues != getState()){
+                    e.preventDefault();
+
+                    clickedLink = $(this).attr('href');
+
+                    var confirm = $.remodal.lookup[$('[data-remodal-id=changes]').data('remodal')],
+                        buttons = $('[data-remodal-id=changes] a.button'),
+                        action;
+
+                    buttons.on('click', function(e){
+                        e.preventDefault();
+                        action = $(this).data('leave-action');
+
+                        buttons.off('click');
+                        confirm.close();
+
+                        if (action == 'continue') {
+                            $(window).off('beforeunload');
+                            window.location.href = clickedLink;
+                        }
+                    });
+
+                    confirm.open();
+                }
+            });
 
             $(window).on('beforeunload', function(){
                 if (currentValues != getState()){
-                    setTimeout(function() {
-                        setTimeout(function() {
-                            $('input[name=mode-switch][checked]').prop('checked', true);
-                        }, 10);
-                    },1);
                     return "You have made changes on this page that you have not yet confirmed. If you navigate away from this page you will lose your unsaved changes";
                 }
             });
@@ -176,8 +228,8 @@
             </p>
             <br>
             <div class="button-bar">
-            <a class="button secondary" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
-            <a class="button" href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
+            <a class="button secondary" data-leave-action="cancel" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
+            <a class="button" data-leave-action="continue" href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
             </div>
         </form>
     </div>
