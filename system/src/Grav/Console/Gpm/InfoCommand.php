@@ -9,32 +9,34 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InfoCommand extends Command {
+class InfoCommand extends Command
+{
     use ConsoleTrait;
 
     protected $data;
     protected $gpm;
 
-    protected function configure() {
+    protected function configure()
+    {
         $this
             ->setName("info")
             ->addOption(
-            'force',
-            'f',
-            InputOption::VALUE_NONE,
-            'Force fetching the new data remotely'
-        )
+                'force',
+                'f',
+                InputOption::VALUE_NONE,
+                'Force fetching the new data remotely'
+            )
             ->addArgument(
-            'package',
-            InputArgument::REQUIRED,
-            'The package of which more informations are desired. Use the "index" command for a list of packages'
-
-        )
+                'package',
+                InputArgument::REQUIRED,
+                'The package of which more informations are desired. Use the "index" command for a list of packages'
+            )
             ->setDescription("Shows more informations about a package")
             ->setHelp('The <info>info</info> shows more informations about a package');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         $this->setupConsole($input, $output);
         $this->gpm = new GPM($this->input->getOption('force'));
 
@@ -51,15 +53,31 @@ class InfoCommand extends Command {
 
         $this->output->writeln("Found package <cyan>'" . $input->getArgument('package') . "'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
         $this->output->writeln('');
-        $this->output->writeln("<cyan>" . $foundPackage->name . "</cyan>");
+        $this->output->writeln("<cyan>" . $foundPackage->name . "</cyan> [" . $foundPackage->slug . "]");
+        $this->output->writeln(str_repeat('-', strlen($foundPackage->name) + strlen($foundPackage->slug) + 3));
+        $this->output->writeln("<white>" . strip_tags($foundPackage->description_plain) . "</white>");
         $this->output->writeln('');
-        $this->output->writeln("<white>" . strip_tags($foundPackage->description) . "</white>");
-        $this->output->writeln('');
-        $this->output->writeln("<magenta>Author:</magenta>     " . $foundPackage->author);
-        $this->output->writeln("<magenta>Version:</magenta>    " . $foundPackage->version);
-        $this->output->writeln("<magenta>Path:</magenta>       " . $foundPackage->install_path);
-        $this->output->writeln("<magenta>URL:</magenta>        " . $foundPackage->url);
-        $this->output->writeln("<magenta>Download:</magenta>   " . $foundPackage->download);
+        $this->output->writeln("<green>".str_pad("Author", 12).":</green> " . $foundPackage->author->name . ' <' . $foundPackage->author->email . '> <' . $foundPackage->author->url . '>');
+
+        foreach (array('version', 'keywords', 'date', 'homepage', 'demo', 'docs', 'guide', 'repository', 'bugs', 'zipball_url', 'license') as $info) {
+            if (isset($foundPackage->$info)) {
+                $name = ucfirst($info);
+                $data = $foundPackage->$info;
+
+                if ($info == 'zipball_url') {
+                    $name = "Download";
+                }
+
+                if ($info == 'date') {
+                    $name = "Last Update";
+                    $data = date('D, j M Y, H:i:s, P ', strtotime('2014-09-16T00:07:16Z'));
+                }
+
+                $name = str_pad($name, 12);
+                $this->output->writeln("<green>".$name.":</green> " . $data);
+            }
+        }
+
         $this->output->writeln('');
         $this->output->writeln("You can install this package by typing:");
         $this->output->writeln("    <green>" . $this->argv . " install</green> <cyan>" . $foundPackage->slug . "</cyan>");

@@ -69,11 +69,7 @@ class InstallCommand extends Command
             !Installer::isGravInstance($this->destination) ||
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
         ) {
-            $this->output->writeln('');
             $this->output->writeln("<red>ERROR</red>: " . Installer::lastErrorMsg());
-            $this->output->writeln("       <white>".$this->destination."</white>");
-            $this->output->writeln('');
-
             exit;
         }
 
@@ -104,6 +100,7 @@ class InstallCommand extends Command
 
                 if (!$checks) {
                     $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+                    $this->output->writeln('');
                 } else {
                     $this->output->write("  |- Installing package...  ");
                     $installation = $this->installPackage($package);
@@ -116,18 +113,14 @@ class InstallCommand extends Command
                     }
                 }
             }
-
-            $this->output->writeln('');
         }
-
-        $this->output->writeln('');
     }
 
     private function downloadPackage($package)
     {
         $this->tmp = sys_get_temp_dir() . DS . 'Grav-' . uniqid();
-        $filename = $package->slug . basename($package->download);
-        $output   = Response::get($package->download, [], [$this, 'progress']);
+        $filename = $package->slug . basename($package->zipball_url);
+        $output   = Response::get($package->zipball_url, [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
 
