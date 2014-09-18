@@ -1022,6 +1022,20 @@ tr {
       #page-filtering .selectize-control.multi .selectize-input > div[data-value='Modular'], #page-filtering .selectize-control.multi .selectize-input > div.active[data-value='Modular'] {
         background: #9055AF; }
 
+#admin-mode-toggle {
+  position: absolute;
+  right: 3.1rem;
+  top: 3.1rem; }
+  #admin-mode-toggle .switch-grav {
+    border: 0;
+    background-color: #365569; }
+  #admin-mode-toggle .switch-toggle input:checked + label {
+    color: white; }
+  #admin-mode-toggle .switch-toggle input + label {
+    color: #d1dee7; }
+  #admin-mode-toggle .switch-toggle input.highlight:checked ~ a {
+    background: #3aafd6; }
+
 .depth-0 .row {
   padding-left: 3rem; }
 

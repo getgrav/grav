@@ -152,6 +152,34 @@
     }
 }
 
+#admin-mode-toggle {
+    position: absolute;
+    right: 3.1rem;
+    top: 3.1rem;
+    .switch-grav {
+        border: 0;
+        background-color: lighten($accent-bg,10%);
+    }
+
+    .switch-toggle {
+
+        input:checked + label {
+            color: $white;
+        }
+
+        input + label {
+            color: lighten($accent-bg,65%);
+        }
+
+        input.highlight:checked {
+            ~ a {
+                background: lighten($tertiary-accent-bg,10%);
+            }
+        }
+    }
+
+
+}
 
 
 @for $i from 0 to 10 {

@@ -72,14 +72,14 @@
 
         <form id="admin-mode-toggle">
             <div class="switch-toggle switch-grav">
-                <input type="radio" value="normal" id="normal" name="mode-switch" {% if not uri.param('expert') %}class="highlight" checked="checked"{% endif %}>
+                <input type="radio" value="normal" id="normal" name="mode-switch" class="highlight" {% if not uri.param('expert') %} checked="checked"{% endif %}>
                 <label for="normal">Normal</label>
-                <input type="radio" value="expert" id="expert" name="mode-switch" {% if uri.param('expert') %}class="highlight" checked="checked"{% endif %}>
+                <input type="radio" value="expert" id="expert" name="mode-switch" class="highlight" {% if uri.param('expert') %} checked="checked"{% endif %}>
                 <label for="expert">Expert</label>
                 <a></a>
             </div>
             <script>
-                $("input[type=radio][checked]").each(
+                $("#admin-mode-toggle input[type=radio][checked]").each(
                     function() {
 
                     }
