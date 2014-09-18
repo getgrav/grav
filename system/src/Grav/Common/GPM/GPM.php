@@ -180,7 +180,17 @@ class GPM extends Iterator
     }
 
     /**
-     * Checks if a Plugin is Updatable
+     * Check if a Plugin or Theme is updatable
+     * @param  string  $slug The slug of the package
+     * @return boolean True if updatable. False otherwise or if not found
+     */
+    public function isUpdatable($slug)
+    {
+        return $this->isPluginUpdatable($slug) || $this->isThemeUpdatable($slug);
+    }
+
+    /**
+     * Checks if a Plugin is updatable
      * @param  string  $plugin The slug of the Plugin
      * @return boolean True if the Plugin is updatable. False otherwise
      */
