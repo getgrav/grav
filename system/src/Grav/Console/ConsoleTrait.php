@@ -4,7 +4,8 @@ namespace Grav\Console;
 use Grav\Common\GravTrait;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-trait ConsoleTrait {
+trait ConsoleTrait
+{
     use GravTrait;
 
     protected $argv;
@@ -14,8 +15,12 @@ trait ConsoleTrait {
     /**
      * Set colors style definition for the formatter.
      */
-    public function setupConsole($input, $output) {
-        self::$grav['config']->set('system.cache.driver', 'default');
+    public function setupConsole($input, $output)
+    {
+        if (self::$grav) {
+            self::$grav['config']->set('system.cache.driver', 'default');
+        }
+
         $this->argv = $_SERVER['argv'][0];
 
         $this->input  = $input;
@@ -30,7 +35,8 @@ trait ConsoleTrait {
         $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
     }
 
-    private function isGravInstance($path) {
+    private function isGravInstance($path)
+    {
         if (!file_exists($path)) {
             $this->output->writeln('');
             $this->output->writeln("<red>ERROR</red>: Destination doesn't exist:");

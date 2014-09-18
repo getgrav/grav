@@ -161,7 +161,8 @@ class Themes extends Iterator
      *
      * @throws \InvalidArgumentException
      */
-    public function configure() {
+    public function configure()
+    {
         $name = $this->current();
 
         /** @var Config $config */

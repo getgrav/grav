@@ -8,38 +8,32 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class IndexCommand extends Command {
+class IndexCommand extends Command
+{
     use ConsoleTrait;
 
     protected $data;
     protected $gpm;
-    protected $destination;
 
-    protected function configure() {
+    protected function configure()
+    {
         $this
             ->setName("index")
             ->addOption(
-            'force',
-            'f',
-            InputOption::VALUE_NONE,
-            'Force re-fetching the data from remote'
-        )
-            ->addOption(
-            'destination',
-            'd',
-            InputOption::VALUE_OPTIONAL,
-            'The destination where the packages check should be looked at. By default this would be where the grav instance has been launched from',
-            GRAV_ROOT
-        )
+                'force',
+                'f',
+                InputOption::VALUE_NONE,
+                'Force re-fetching the data from remote'
+            )
             ->setDescription("Lists the plugins and themes available for installation")
             ->setHelp('The <info>index</info> command lists the plugins and themes available for installation');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         $this->setupConsole($input, $output);
 
         $this->gpm         = new GPM($this->input->getOption('force'));
-        $this->destination = realpath($this->input->getOption('destination'));
 
         $this->data = $this->gpm->getRepository();
 
@@ -56,7 +50,7 @@ class IndexCommand extends Command {
                     // package name
                     "<cyan>" . str_pad($package->name, 15) . "</cyan> " .
                     // slug
-                    "[" . str_pad($package->slug, 15, ' ', STR_PAD_BOTH) . "] " .
+                    "[" . str_pad($slug, 15, ' ', STR_PAD_BOTH) . "] " .
                     // version details
                     $this->versionDetails($package)
                 );
@@ -73,7 +67,8 @@ class IndexCommand extends Command {
         $this->output->writeln('');
     }
 
-    private function versionDetails($package) {
+    private function versionDetails($package)
+    {
         $list      = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
         $package   = isset($list[$package->slug]) ? $list[$package->slug] : $package;
         $type      = ucfirst(preg_replace("/s$/", '', $package->package_type));
@@ -84,6 +79,7 @@ class IndexCommand extends Command {
         if (!$installed || !$updatable) {
             $version   = $installed ? $local->version : $package->version;
             $installed = !$installed ? ' (<magenta>not installed</magenta>)' : ' (<cyan>installed</cyan>)';
+
             return str_pad(" [v<green>" . $version . "</green>]", 35) . $installed;
         }
 
