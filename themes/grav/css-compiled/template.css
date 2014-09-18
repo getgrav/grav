@@ -1,6 +1,6 @@
 @charset "UTF-8";
 @import url(//fonts.googleapis.com/css?family=Montserrat:400|Lato:300,400,700);
-#admin-login, #admin-logo h3, #admin-main .titlebar h1, #admin-main .titlebar .button-bar, #admin-dashboard .dashboard-item .button-bar .button, #admin-dashboard #updates .numeric, #admin-dashboard #popularity .stat {
+#admin-login, #admin-logo h3, #admin-main .titlebar h1, #admin-main .titlebar .button-bar, #admin-dashboard .dashboard-item .button-bar .button, #admin-dashboard #updates .numeric, #admin-dashboard #popularity .stat, #admin-mode-toggle .switch-grav {
   position: relative;
   top: 50%;
   -webkit-transform: translateY(-50%);
@@ -38,6 +38,9 @@ a {
 
 b, strong {
   font-weight: 600; }
+
+.bigger {
+  font-size: 1.2rem; }
 
 .button-bar {
   text-align: right;
@@ -457,6 +460,8 @@ form h1 {
   font-size: 1.5rem;
   text-align: left;
   letter-spacing: -1px; }
+form p {
+  padding: 0 3rem; }
 form .form-field {
   margin-bottom: 1rem;
   padding-left: 3rem; }
@@ -1022,10 +1027,13 @@ tr {
       #page-filtering .selectize-control.multi .selectize-input > div[data-value='Modular'], #page-filtering .selectize-control.multi .selectize-input > div.active[data-value='Modular'] {
         background: #9055AF; }
 
+.admin-form-wrapper {
+  position: relative; }
+
 #admin-mode-toggle {
   position: absolute;
-  right: 3.1rem;
-  top: 3.1rem; }
+  right: 0.5rem;
+  height: 3.5rem; }
   #admin-mode-toggle .switch-grav {
     border: 0;
     background-color: #365569; }

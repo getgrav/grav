@@ -47,6 +47,10 @@ form {
         letter-spacing: -1px;
     }
 
+    p {
+        padding: 0 $padding-default;
+   }
+
     .form-field {
         margin-bottom: 1rem;
         padding-left: $padding-default;

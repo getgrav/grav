@@ -152,11 +152,17 @@
     }
 }
 
+.admin-form-wrapper {
+    position: relative;
+}
+
 #admin-mode-toggle {
     position: absolute;
-    right: 3.1rem;
-    top: 3.1rem;
+    right: 0.5rem;
+    height: 3.5rem;
+
     .switch-grav {
+        @extend %vertical-align;
         border: 0;
         background-color: lighten($accent-bg,10%);
     }
