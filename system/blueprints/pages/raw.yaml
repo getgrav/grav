@@ -1,0 +1,7 @@
+@extends: pages/page
+
+form:
+  fields:
+
+    title:
+      type: unset
