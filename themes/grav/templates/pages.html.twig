@@ -70,6 +70,7 @@
     {% elseif context %}
 
 
+        {% if context.blueprints.fields %}
         <form id="admin-mode-toggle">
             <div class="switch-toggle switch-grav">
                 <input type="radio" value="normal" id="normal" name="mode-switch" class="highlight" {% if not uri.param('expert') %} checked="checked"{% endif %}>
@@ -96,9 +97,9 @@
                     <span class="button">Expert</span>
                 {% endif %} #}
         </form>
+        {% endif %}
 
-
-        {% if not uri.param('expert') %}
+        {% if not uri.param('expert') and context.blueprints.fields %}
             {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
         {% else %}
             {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
