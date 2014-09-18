@@ -49,7 +49,9 @@ class GPM extends Iterator
      */
     public function countInstalled()
     {
-        return count($this->getInstalled());
+        $installed = $this->getInstalled();
+
+        return count($installed['plugins']) + count($installed['themes']);
     }
 
     /**
