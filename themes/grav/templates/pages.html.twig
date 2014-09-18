@@ -66,7 +66,7 @@
     <div class="admin-block clear">
     {% include 'partials/messages.html.twig' %}
     {% if uri.param('new') %}
-        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
+        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/page'), data: context } %}
     {% elseif context %}
 
 
@@ -102,7 +102,7 @@
         {% if not uri.param('expert') and context.blueprints.fields %}
             {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
         {% else %}
-            {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
+            {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('pages/raw'), data: context } %}
         {% endif %}
     {% else %}
         <form id="page-filtering">
@@ -172,7 +172,7 @@
     </script>
 
     <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
-        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('page'), data: context } %}
+        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/page'), data: context } %}
     </div>
 {% endblock %}
 
