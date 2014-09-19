@@ -39,6 +39,10 @@ $(function(){
         $(window).off('beforeunload');
     });
 
+    $('[data-remodal-id] form').on('submit', function(){
+        $(window).off('beforeunload');
+    });
+
     $("#admin-mode-toggle input[name=mode-switch]").on('change', function(e){
         var value = $(this).val();
 
