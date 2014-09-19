@@ -60,6 +60,25 @@ class Markdown extends General
     }
 
     /**
+     * Get/set frontmatter content.
+     *
+     * @param string $var
+     *
+     * @return string
+     */
+    public function frontmatter($var = null)
+    {
+        $content = $this->content();
+
+        if ($var !== null) {
+            $content['frontmatter'] = (string) $var;
+            $this->content($content);
+        }
+
+        return $content['frontmatter'];
+    }
+
+    /**
      * Check contents and make sure it is in correct format.
      *
      * @param array $var
@@ -104,13 +123,18 @@ class Markdown extends General
     protected function decode($var)
     {
         $content = array();
+        $content['header'] = array();
+        $content['frontmatter'] = array();
 
         // Normalize line endings to Unix style.
         $var = preg_replace("/(\r\n|\r)/", "\n", $var);
 
         // Parse header.
         preg_match("/---\n(.+?)\n---(\n\n|$)/uism", $var, $m);
-        $content['header'] = isset($m[1]) ? YamlParser::parse(preg_replace("/\n\t/", "\n    ", $m[1])) : array();
+        if (isset($m[1])) {
+            $content['frontmatter'] = preg_replace("/\n\t/", "\n    ", $m[1]);
+            $content['header'] = YamlParser::parse($content['frontmatter']);
+        }
 
         // Strip header to get content.
         $content['markdown'] = trim(preg_replace("/---\n(.+?)\n---(\n\n|$)/uism", '', $var));
