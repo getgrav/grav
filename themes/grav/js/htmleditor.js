@@ -267,7 +267,7 @@
 
         render: function() {
 
-            this.currentvalue = this.editor.getValue();
+            this.currentvalue = this.editor.getValue().replace(/^---\n([^---]*)---\n{1,}/, '');
 
             // empty code
             if (!this.currentvalue) {
