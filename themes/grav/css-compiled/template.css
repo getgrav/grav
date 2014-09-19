@@ -1322,8 +1322,16 @@ body.remodal_active .remodal {
       float: left; }
       .uk-htmleditor-navbar ul li:first-child a {
         border-top-left-radius: 4px; }
+    .uk-htmleditor-navbar ul .uk-active a {
+      background: white;
+      cursor: auto;
+      border-left: 1px solid #d4d4d4;
+      border-right: 1px solid #d4d4d4; }
+      .uk-htmleditor-navbar ul .uk-active a:hover {
+        background: white; }
     .uk-htmleditor-navbar ul a {
       display: block;
+      cursor: pointer;
       line-height: 3rem;
       height: 3rem;
       padding: 0 1rem;
@@ -1337,6 +1345,8 @@ body.remodal_active .remodal {
 
 .uk-htmleditor-navbar-flip {
   float: right; }
+  .uk-htmleditor-navbar-flip ul li:last-child a {
+    border-top-right-radius: 4px; }
 
 .uk-htmleditor-content {
   border: 1px solid #d4d4d4;
@@ -1358,6 +1368,27 @@ body.remodal_active .remodal {
   background: #fafafa; }
   .uk-htmleditor-preview > div > hr:first-child {
     border-bottom: 4px solid #f00; }
+
+#admin-main .uk-htmleditor-preview {
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+  #admin-main .uk-htmleditor-preview h1, #admin-main .uk-htmleditor-preview h2, #admin-main .uk-htmleditor-preview h3, #admin-main .uk-htmleditor-preview h4, #admin-main .uk-htmleditor-preview h5, #admin-main .uk-htmleditor-preview h6 {
+    color: #5b6266; }
+  #admin-main .uk-htmleditor-preview h1 {
+    font-size: 2rem;
+    border: 0; }
+  #admin-main .uk-htmleditor-preview h2 {
+    font-size: 1.6rem; }
+  #admin-main .uk-htmleditor-preview h3 {
+    font-size: 1.4rem; }
+  #admin-main .uk-htmleditor-preview h4 {
+    font-size: 1.2rem; }
+  #admin-main .uk-htmleditor-preview h5 {
+    font-size: 1.1rem; }
+  #admin-main .uk-htmleditor-preview p, #admin-main .uk-htmleditor-preview h1 {
+    padding: 0; }
+
+[data-mode=tab][data-active-tab=code] .uk-htmleditor-preview, [data-mode=tab][data-active-tab=preview] .uk-htmleditor-code {
+  display: none; }
 
 [data-mode=split] .uk-htmleditor-button-code, [data-mode=split] .uk-htmleditor-button-preview {
   display: none; }

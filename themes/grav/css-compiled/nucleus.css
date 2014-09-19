@@ -516,7 +516,7 @@ body {
   line-height: 1.7; }
 
 h1, h2, h3, h4, h5, h6 {
-  margin: 0.85rem 0 1.7rem 0;
+  margin: 1.7rem 0 0.85rem 0;
   text-rendering: optimizeLegibility; }
 
 h1 {
@@ -538,7 +538,7 @@ h6 {
   font-size: 0.85rem; }
 
 p {
-  margin: 1.7rem 0; }
+  margin: 0.85rem 0 1.7rem; }
 
 ul, ol {
   margin-top: 1.7rem;

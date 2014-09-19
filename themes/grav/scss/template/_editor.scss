@@ -23,9 +23,19 @@
                 border-top-left-radius: 4px;
             }
         }
+        .uk-active a {
+            background: white;
+            cursor: auto;
+            border-left: 1px solid $form-border;
+            border-right: 1px solid $form-border;
+            &:hover {
+                background: $white;
+            }
+        }
 
         a {
             display: block;
+            cursor: pointer;
             line-height: 3rem;
             height: 3rem;
             padding: 0 1rem;
@@ -37,6 +47,8 @@
             }
         }
     }
+
+
 }
 
 .uk-htmleditor-navbar-nav {
@@ -45,6 +57,9 @@
 
 .uk-htmleditor-navbar-flip {
     float: right;
+    ul li:last-child a {
+        border-top-right-radius: 4px;
+    }
 }
 
 .uk-htmleditor-content {
@@ -70,6 +85,42 @@
 
     > div > hr:first-child {
         border-bottom: 4px solid #f00;
+    }
+
+}
+
+#admin-main {
+    .uk-htmleditor-preview {
+        font-family: $font-family-default;
+
+        h1, h2, h3, h4, h5, h6 {
+            color: darken($content-fg, 10%);
+        }
+        h1 {
+            font-size: 2rem;
+            border: 0;
+        }
+        h2 {
+            font-size: 1.6rem;
+        }
+        h3 {
+            font-size: 1.4rem;
+        }
+        h4 {
+            font-size: 1.2rem;
+        }
+        h5 {
+            font-size: 1.1rem
+        }
+        p, h1 {
+            padding: 0;
+        }
+    }
+}
+
+[data-mode=tab] {
+    &[data-active-tab=code] .uk-htmleditor-preview, &[data-active-tab=preview] .uk-htmleditor-code {
+        display: none;
     }
 }
 
