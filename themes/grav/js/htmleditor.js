@@ -308,7 +308,8 @@
 
         replaceSelection: function(replace) {
 
-            var text = this.editor.getSelection();
+            var text    = this.editor.getSelection(),
+                indexOf = -1;
 
             if (!text.length) {
 
@@ -325,12 +326,15 @@
                 if (curWord) {
                     this.editor.setSelection({ line: cur.line, ch: start}, { line: cur.line, ch: end });
                     text = curWord;
+                } else {
+                    indexOf = replace.indexOf('$1');
                 }
             }
 
             var html = replace.replace('$1', text);
 
             this.editor.replaceSelection(html, 'end');
+            if (indexOf !== -1) this.editor.setCursor({ line: cur.line, ch: start + indexOf });
             this.editor.focus();
         },
 
