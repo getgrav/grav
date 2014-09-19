@@ -98,9 +98,9 @@
             {% if context.blueprints.fields %}
             <form id="admin-mode-toggle">
                 <div class="switch-toggle switch-grav">
-                    <input type="radio" value="normal" id="normal" name="mode-switch" class="highlight" {% if not uri.param('expert') %} checked="checked"{% endif %}>
+                    <input type="radio" value="normal" data-leave-url="{{ uri.route(true) }}" id="normal" name="mode-switch" class="highlight" {% if not uri.param('expert') %} checked="checked"{% endif %}>
                     <label for="normal">Normal</label>
-                    <input type="radio" value="expert" id="expert" name="mode-switch" class="highlight" {% if uri.param('expert') %} checked="checked"{% endif %}>
+                    <input type="radio" value="expert" data-leave-url="{{ uri.route(true) }}/expert:1" id="expert" name="mode-switch" class="highlight" {% if uri.param('expert') %} checked="checked"{% endif %}>
                     <label for="expert">Expert</label>
                     <a></a>
                 </div>

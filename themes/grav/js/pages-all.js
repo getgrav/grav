@@ -44,11 +44,12 @@ $(function(){
     });
 
     $("#admin-mode-toggle input[name=mode-switch]").on('change', function(e){
-        var value = $(this).val();
+        var value = $(this).val(),
+            uri   = $(this).data('leave-url');
 
         if (currentValues == getState()) {
             setTimeout(function(){
-                window.location.href = '{{ uri.route(true) }}' + ((value == 'expert') ? '/expert:1' : '');
+                window.location.href = uri;
             }, 200)
 
             return true;
