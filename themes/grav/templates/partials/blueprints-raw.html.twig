@@ -4,7 +4,7 @@
         <div class="tab-body-wrapper">
             <div id="tab-body-1" class="tab-body">
                 {% set field = {name: '_raw', type: 'textarea', label: 'Raw content'} %}
-                {% set value = data.raw %}
+                {% set value = data.content %}
                 <div class="block block-raw">
                     {% include 'forms/fields/markdown/markdown.html.twig' %}
                 </div>
@@ -16,8 +16,16 @@
                         <div class="block block-{{field.type}}">
                             {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
                         </div>
+
+
+
                     {% endif %}
                 {% endfor %}
+                <div class="block block-raw">
+                    {% set field = {name: '_raw', type: 'textarea', label: 'Frontmatter'} %}
+                    {% set value = data.frontmatter %}
+                    {% include 'forms/fields/frontmatter/frontmatter.html.twig' %}
+                </div>
             </div>
         </div>
     </div>

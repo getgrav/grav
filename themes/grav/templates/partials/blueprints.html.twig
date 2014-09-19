@@ -2,11 +2,14 @@
     {% for field in blueprints.fields %}
         {% if field.type %}
             {% set value = data.value(field.name) %}
+
             <div class="block block-{{ field.type }}">
                 {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
             </div>
         {% endif %}
     {% endfor %}
+
+
 
     {% if data.extra %}
     {% for name, value in data.extra %}

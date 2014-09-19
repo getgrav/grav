@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import url(//fonts.googleapis.com/css?family=Montserrat:400|Lato:300,400,700);
+@import url(//fonts.googleapis.com/css?family=Montserrat:400|Lato:300,400,700|Ubuntu+Mono:400,700);
 #admin-login, #admin-logo h3, #admin-main .titlebar h1, #admin-main .titlebar .button-bar, #admin-dashboard .dashboard-item .button-bar .button, #admin-dashboard #updates .numeric, #admin-dashboard #popularity .stat, #admin-mode-toggle .switch-grav {
   position: relative;
   top: 50%;
@@ -201,7 +201,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: "Inconsolata", monospace; }
+  font-family: "Ubuntu Mono", monospace; }
 
 code {
   background: #f9f2f4;
@@ -550,6 +550,9 @@ form textarea {
   width: 100%;
   border: 1px solid #d4d4d4;
   background: white; }
+form .form-frontmatter-wrapper {
+  border: 1px solid #d4d4d4;
+  border-radius: 4px; }
 form .switch-toggle label {
   cursor: pointer; }
 form .switch-toggle a, form .switch-toggle label {
@@ -1358,16 +1361,14 @@ body.remodal_active .remodal {
     display: table;
     clear: both; }
 
-.uk-htmleditor-code .codeMirror {
-  padding: 20px; }
+.uk-htmleditor-code .CodeMirror {
+  padding: 10px 20px 20px 20px; }
 
 .uk-htmleditor-preview {
   padding: 20px;
   overflow-y: scroll;
   position: relative;
-  background: #fafafa; }
-  .uk-htmleditor-preview > div > hr:first-child {
-    border-bottom: 4px solid #f00; }
+  background: #fbfbfb; }
 
 #admin-main .uk-htmleditor-preview {
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
@@ -1397,5 +1398,93 @@ body.remodal_active .remodal {
   [data-mode=split] .uk-htmleditor-code, [data-mode=split] .uk-htmleditor-code .uk-htmleditor-preview {
     float: left;
     width: 50%; }
+
+.cm-s-paper.CodeMirror {
+  color: #676f74;
+  font-size: 14px;
+  line-height: 1.4; }
+  .cm-s-paper.CodeMirror pre {
+    font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, Courier, monospace; }
+.cm-s-paper .cm-link {
+  color: #005e87; }
+.cm-s-paper .cm-comment {
+  color: #80898e; }
+.cm-s-paper .cm-header {
+  color: #4f5559; }
+.cm-s-paper .cm-strong {
+  color: #5b6266; }
+.cm-s-paper .cm-em {
+  color: #4f5559; }
+.cm-s-paper .cm-string {
+  color: #0082ba; }
+.cm-s-paper .cm-tag {
+  color: #349886; }
+.cm-s-paper .cm-bracket {
+  color: #41bea8; }
+.cm-s-paper .cm-variable {
+  color: #4f5559; }
+.cm-s-paper .cm-variable-2 {
+  color: #80898e; }
+.cm-s-paper .cm-variable-3 {
+  color: #8d959a; }
+.cm-s-paper .cm-hr {
+  color: #d1d4d6;
+  font-weight: bold; }
+.cm-s-paper .cm-keyword {
+  color: #0082ba; }
+.cm-s-paper .cm-atom {
+  color: #9055af; }
+.cm-s-paper .cm-meta {
+  color: #676f74; }
+.cm-s-paper .cm-number {
+  color: #7f8c8d; }
+.cm-s-paper .cm-def {
+  color: #00f; }
+.cm-s-paper .cm-variable {
+  color: black; }
+.cm-s-paper .cm-variable-2 {
+  color: #555; }
+.cm-s-paper .cm-variable-3 {
+  color: #085; }
+.cm-s-paper .cm-property {
+  color: black; }
+.cm-s-paper .cm-operator {
+  color: black; }
+.cm-s-paper .cm-string-2 {
+  color: #f50; }
+.cm-s-paper .cm-meta {
+  color: #555; }
+.cm-s-paper .cm-error {
+  color: #f00; }
+.cm-s-paper .cm-qualifier {
+  color: #555; }
+.cm-s-paper .cm-builtin {
+  color: #555; }
+.cm-s-paper .cm-attribute {
+  color: #7f8c8d; }
+.cm-s-paper .cm-quote {
+  color: #888; }
+.cm-s-paper .cm-header-1 {
+  font-size: 140%; }
+.cm-s-paper .cm-header-2 {
+  font-size: 120%; }
+.cm-s-paper .cm-header-3 {
+  font-size: 110%; }
+.cm-s-paper .cm-negative {
+  color: #d44; }
+.cm-s-paper .cm-positive {
+  color: #292; }
+.cm-s-paper .cm-header, .cm-s-paper .cm-strong {
+  font-weight: bold; }
+.cm-s-paper .cm-em {
+  font-style: italic; }
+.cm-s-paper .cm-link {
+  text-decoration: underline; }
+.cm-s-paper .cm-invalidchar {
+  color: #f00; }
+
+#frontmatter + .CodeMirror {
+  border-radius: 4px;
+  padding: 10px; }
 
 /*# sourceMappingURL=template.css.map */

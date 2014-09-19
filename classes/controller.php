@@ -428,6 +428,10 @@ class AdminController
             $page->name(((string) $input['type']) . '.md');
         }
 
+        // if (isset($input['_header']) &&) {
+        //     $page->raw("---\n" . (string) $input['_header'] . '---' . (string) $input['_raw']);
+        // }
+
         if (isset($input['_raw'])) {
             $page->raw((string) $input['_raw']);
         }

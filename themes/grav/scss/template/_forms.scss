@@ -202,6 +202,11 @@ form {
         background: $white;
     }
 
+    .form-frontmatter-wrapper {
+        border: $form-border-width solid $form-border;
+        border-radius: $form-border-radius;
+    }
+
 
     // input[type=text] {
     //     width: 65%;
