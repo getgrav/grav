@@ -7,6 +7,12 @@ rules:
 form:
   fields:
 
+    title:
+      type: text
+      label: Title
+      validate:
+        required: true
+
     folder:
       type: text
       label: Folder
