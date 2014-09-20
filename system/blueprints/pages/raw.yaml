@@ -33,3 +33,6 @@ form:
       @data-options: '\Grav\Common\Page\Pages::types'
       validate:
         required: true
+
+
+
