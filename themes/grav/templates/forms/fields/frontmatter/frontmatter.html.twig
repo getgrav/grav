@@ -13,7 +13,7 @@
     </div>
     <div class="form-data block size-2-3 pure-u-2-3">
         <div class="form-frontmatter-wrapper {{ field.size }}">
-            <textarea id="frontmatter">{{ value|join("\n") }}</textarea>
+            <textarea name="{{ (scope ~ field.name)|fieldName }}" id="frontmatter">{{ value|join("\n") }}</textarea>
         </div>
     </div>
 </div>

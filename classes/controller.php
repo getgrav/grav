@@ -428,12 +428,10 @@ class AdminController
             $page->name(((string) $input['type']) . '.md');
         }
 
-        // if (isset($input['_header']) &&) {
-        //     $page->raw("---\n" . (string) $input['_header'] . '---' . (string) $input['_raw']);
-        // }
-
-        if (isset($input['_raw'])) {
-            $page->raw((string) $input['_raw']);
+        // special case for Expert mode build the raw, unset content
+        if (isset($input['frontmatter']) && isset($input['content'])) {
+            $page->raw("---\n" . (string) $input['frontmatter'] . "\n---\n" . (string) $input['content']);
+            unset($input['content']);
         }
 
         if (isset($input['header'])) {

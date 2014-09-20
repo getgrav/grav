@@ -3,8 +3,8 @@
         <input type="radio" name="tab" id="tab1" class="tab-head" checked="checked"><label for="tab1">Content</label><input type="radio" name="tab" id="tab2" class="tab-head"><label for="tab2">Options</label>
         <div class="tab-body-wrapper">
             <div id="tab-body-1" class="tab-body">
-                {% set field = {name: '_raw', type: 'textarea', label: 'Raw content'} %}
-                {% set value = data.content %}
+                {% set field = {name: 'content', type: 'textarea', label: 'Raw content'} %}
+                {% set value = data.value(field.name) %}
                 <div class="block block-raw">
                     {% include 'forms/fields/markdown/markdown.html.twig' %}
                 </div>
@@ -22,7 +22,7 @@
                     {% endif %}
                 {% endfor %}
                 <div class="block block-raw">
-                    {% set field = {name: '_raw', type: 'textarea', label: 'Frontmatter'} %}
+                    {% set field = {name: 'frontmatter', type: 'textarea', label: 'Frontmatter'} %}
                     {% set value = data.frontmatter %}
                     {% include 'forms/fields/frontmatter/frontmatter.html.twig' %}
                 </div>
