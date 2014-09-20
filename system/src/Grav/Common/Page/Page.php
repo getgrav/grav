@@ -144,7 +144,19 @@ class Page
     public function frontmatter($var = null) {
 
         if ($var) {
-            $this->frontmatter = $var;
+            $this->frontmatter = (string) $var;
+
+            // Update also file object.
+            $file = $this->file();
+            if ($file) {
+                $file->frontmatter((string) $var);
+            }
+
+            // Force content re-processing.
+            $this->id(time().md5($this->filePath()));
+        }
+        if (!$this->frontmatter) {
+            $this->header();
         }
         return $this->frontmatter;
     }
