@@ -4,35 +4,64 @@ rules:
     min: 2
     max: 80
 
+
 form:
   fields:
 
-    folder:
-      type: text
-      label: Folder
-      validate:
-        type: slug
-        required: true
+    tabs:
+      type: tabs
+      active: 1
 
-    route:
-      type: select
-      label: Parent
-      classes: fancy
-      @data-options: '\Grav\Common\Page\Pages::parents'
-      @data-default: '\Grav\Plugin\admin::route'
-      options:
-        '/': '- Root -'
-      validate:
-        required: true
+      fields:
+        content:
+          type: tab
+          title: Content
 
-    type:
-      type: select
-      classes: fancy
-      label: Page Type
-      default: default
-      @data-options: '\Grav\Common\Page\Pages::types'
-      validate:
-        required: true
+          fields:
+            content:
+              type: markdown
+              label: Content
+
+
+        options:
+          type: tab
+          title: Options
+
+          fields:
+
+            folder:
+              type: text
+              label: Folder
+              validate:
+                type: slug
+                required: true
+
+            route:
+              type: select
+              label: Parent
+              classes: fancy
+              @data-options: '\Grav\Common\Page\Pages::parents'
+              @data-default: '\Grav\Plugin\admin::route'
+              options:
+                '/': '- Root -'
+              validate:
+                required: true
+
+            type:
+              type: select
+              classes: fancy
+              label: Page Type
+              default: default
+              @data-options: '\Grav\Common\Page\Pages::types'
+              validate:
+                required: true
+
+            frontmatter:
+                type: frontmatter
+                label: Frontmatter
+
+
+
 
 
 

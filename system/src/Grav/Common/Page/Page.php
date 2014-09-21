@@ -400,6 +400,10 @@ class Page
         $path = explode('.', $name);
         $scope = array_shift($path);
 
+        if ($name == 'frontmatter') {
+            return $this->frontmatter;
+        }
+
         if ($scope == 'header') {
             $current = $this->header();
             foreach ($path as $field) {
