@@ -73,6 +73,7 @@ class AdminPlugin extends Plugin
         $this->base = '/' . trim($route, '/');
         $this->uri = $this->grav['uri'];
 
+
         // Only activate admin if we're inside the admin path.
         if (substr($this->uri->route(), 0, strlen($this->base)) == $this->base) {
             // Disable system caching.
@@ -107,8 +108,17 @@ class AdminPlugin extends Plugin
      */
     public function onPagesInitialized()
     {
+        $this->session = $this->grav['session'];
+
         // Set original route for the home page.
         $home = '/' . trim($this->config->get('system.home.alias'), '/');
+
+        // set session variable if it's passed via the url
+        if ($this->uri->param('mode') == 'expert') {
+            $this->session->expert = true;
+        } elseif ($this->uri->param('mode') == 'normal') {
+            $this->session->expert = false;
+        }
 
         /** @var Pages $pages */
         $pages = $this->grav['pages'];

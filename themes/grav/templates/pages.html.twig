@@ -97,19 +97,20 @@
             {% if context.blueprints.fields %}
             <form id="admin-mode-toggle">
                 <div class="switch-toggle switch-grav">
-                    <input type="radio" value="normal" data-leave-url="{{ uri.route(true) }}" id="normal" name="mode-switch" class="highlight" {% if not uri.param('expert') %} checked="checked"{% endif %}>
+                    <input type="radio" value="normal" data-leave-url="{{ uri.route(true) }}/mode:normal" id="normal" name="mode-switch" class="highlight" {% if admin.session.expert == '0' %} checked="checked"{% endif %}>
                     <label for="normal">Normal</label>
-                    <input type="radio" value="expert" data-leave-url="{{ uri.route(true) }}/expert:1" id="expert" name="mode-switch" class="highlight" {% if uri.param('expert') %} checked="checked"{% endif %}>
+                    <input type="radio" value="expert" data-leave-url="{{ uri.route(true) }}/mode:expert" id="expert" name="mode-switch" class="highlight" {% if admin.session.expert == '1' %} checked="checked"{% endif %}>
                     <label for="expert">Expert</label>
                     <a></a>
                 </div>
             </form>
             {% endif %}
 
-            {% if not uri.param('expert') and context.blueprints.fields %}
-                {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
-            {% else %}
+            {% if admin.session.expert == '1' %}
                 {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('pages/raw'), data: context } %}
+
+            {% else %}
+                 {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
             {% endif %}
         </div>
     {% else %}
