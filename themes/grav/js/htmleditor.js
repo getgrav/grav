@@ -478,6 +478,7 @@
 
             editor.addShortcut(['Ctrl-S', 'Cmd-S'], function() { editor.element.trigger('htmleditor-save', [editor]); });
             editor.addShortcutAction('bold', ['Ctrl-B', 'Cmd-B']);
+            editor.addShortcutAction('italic', ['Ctrl-I', 'Cmd-I']);
 
             function addAction(name, replace, mode) {
                 editor.on('action.'+name, function() {
@@ -504,7 +505,7 @@
             }
 
             addAction('bold', '**$1**');
-            addAction('italic', '*$1*');
+            addAction('italic', '_$1_');
             addAction('strike', '~~$1~~');
             addAction('blockquote', '> $1', 'replaceLine');
             addAction('link', '[$1](http://)');
