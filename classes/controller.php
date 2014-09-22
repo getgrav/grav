@@ -150,6 +150,30 @@ class AdminController
         return true;
     }
 
+    protected function taskAddmedia()
+    {
+        $page = $this->admin->page(true);
+        $config = $this->grav['config'];
+
+        if (!empty($_FILES)) {
+            $tempFile = $_FILES['file']['tmp_name'];
+            $targetName = $_FILES['file']['name'];
+
+            $fileParts = pathinfo($targetName);
+            $fileExt = $fileParts['extension'];
+
+            // If not a supported type, return
+            if (!$config->get("media.{$fileExt}")) {
+                return;
+            }
+
+            // Valid file type, so save it.
+            $targetPath = $page->path();
+            $targetFile =  $targetPath.'/'.$targetName;
+            move_uploaded_file($tempFile,$targetFile);
+        }
+    }
+
     /**
      * Enable plugin.
      *
