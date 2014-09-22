@@ -140,8 +140,13 @@ class AdminController
     protected function taskListmedia()
     {
         $page = $this->admin->page(true);
-        $media_list = array();
 
+        if (!$page) {
+            $this->admin->json_response = ['error', 'No Page found'];
+            return;
+        }
+
+        $media_list = array();
         foreach ($page->media()->all() as $name=> $media) {
             $media_list[$name] = ['url'=>$media->url(),'size'=>$media->get('size')];
         }
@@ -164,6 +169,7 @@ class AdminController
 
             // If not a supported type, return
             if (!$config->get("media.{$fileExt}")) {
+                $this->admin->json_response = ['error', 'Unsupported file type: '.$fileExt];
                 return;
             }
 
@@ -171,7 +177,16 @@ class AdminController
             $targetPath = $page->path();
             $targetFile =  $targetPath.'/'.$targetName;
             move_uploaded_file($tempFile,$targetFile);
+            $this->admin->json_response = ['success', 'File uploaded successfully'];
+        } else {
+            $this->admin->json_response = ['error', 'No files found'];
         }
+        return;
+    }
+
+    protected function taskDelmedia()
+    {
+
     }
 
     /**
