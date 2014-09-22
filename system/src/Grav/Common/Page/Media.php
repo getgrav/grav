@@ -56,6 +56,9 @@ class Media extends Getters
                 continue;
             }
 
+            //set file size
+            $medium->set('size',$info->getSize());
+
             // Assign meta files to the medium.
             if ($meta) {
                 $medium->addMetaFile($meta);
