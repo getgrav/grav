@@ -179,14 +179,34 @@ class AdminController
             move_uploaded_file($tempFile,$targetFile);
             $this->admin->json_response = ['success', 'File uploaded successfully'];
         } else {
-            $this->admin->json_response = ['error', 'No files found'];
+            $this->admin->json_response = ['error', 'No file found'];
         }
         return;
     }
 
     protected function taskDelmedia()
     {
+        $page = $this->admin->page(true);
+        $uri = $this->grav['uri'];
 
+        if (!$page) {
+            $this->admin->json_response = ['error', 'No Page found'];
+            return;
+        }
+
+        $filename = !empty($this->post['filename']) ? $this->post['filename'] : null;
+        if ($filename) {
+            $targetPath = $page->path().'/'.$filename;
+
+            if (unlink($targetPath)) {
+                $this->admin->json_response = ['success', 'File deleted: '.$filename];
+            } else {
+                $this->admin->json_response = ['error', 'File could not be deleted: '.$filename];
+            }
+        } else {
+            $this->admin->json_response = ['error', 'No file found'];
+        }
+        return true;
     }
 
     /**
