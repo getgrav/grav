@@ -130,8 +130,9 @@ class AdminPlugin extends Plugin
         // Make local copy of POST.
         $post = !empty($_POST) ? $_POST : array();
 
+
         // Handle tasks.
-        $task = !empty($post['task']) ? $post['task'] : $this->uri->param('task');
+        $this->admin->task = $task = !empty($post['task']) ? $post['task'] : $this->uri->param('task');
         if ($task) {
             require_once __DIR__ . '/classes/controller.php';
             $controller = new AdminController($this->grav, $this->template, $task, $this->route, $post);
@@ -173,7 +174,13 @@ class AdminPlugin extends Plugin
         $theme_url = $this->config->get('system.base_url_relative') . '/user/plugins/admin/themes/'.$this->theme;
         $twig = $this->grav['twig'];
 
-        $twig->template = $this->template . '.html.twig';
+        // Dynamic type support
+        $format = $this->uri->extension();
+        $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
+
+        // \Tracy\Debugger::dump($this->admin);
+
+        $twig->template = $this->template . $ext;
         $twig->twig_vars['location'] = $this->template;
         $twig->twig_vars['base_url_relative'] .=
             ($twig->twig_vars['base_url_relative'] != '/' ? '/' : '') . trim($this->config->get('plugins.admin.route'), '/');

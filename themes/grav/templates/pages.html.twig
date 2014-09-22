@@ -94,7 +94,7 @@
     {% if mode == 'new' %}
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/page'), data: context } %}
     {% elseif mode == 'edit' %}
-        <div class="admin-form-wrapper">
+        <div class="admin-form-wrapper" data-media-url="{{ base_url }}/media/{{ admin.route|trim('/') }}.json">
             {% if context.blueprints.fields %}
             <form id="admin-mode-toggle">
                 <div class="switch-toggle switch-grav">
@@ -118,11 +118,6 @@
         <form id="page-filtering">
             <div class="page-filters">
                 <input type="text" placeholder="Add Filters" class="page-filter" value="Routable,Visible,Modular" name="page-filter" />
-                <script>
-                $(function() {
-
-                });
-                </script>
             </div>
             <div class="page-search">
                 <input type="text" placeholder="Search Pages" name="page-search" />

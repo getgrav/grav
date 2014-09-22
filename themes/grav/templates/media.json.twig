@@ -1,0 +1,7 @@
+{% if admin.task == 'listmedia' %}
+{{ admin.media|json_encode }}
+{% elseif admin.task == 'delmedia' %}
+deleted!
+{% elseif admin.task == 'addmedia' %}
+added!
+{% endif %}
