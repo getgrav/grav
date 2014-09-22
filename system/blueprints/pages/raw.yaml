@@ -22,6 +22,10 @@ form:
               type: markdown
               label: Content
 
+            uploads:
+              type: uploads
+              label: Page Media
+
 
         options:
           type: tab
