@@ -54,6 +54,7 @@ class Page
     protected $modified;
     protected $id;
     protected $header;
+    protected $frontmatter;
     protected $content;
     protected $raw_content;
     protected $pagination;
@@ -140,6 +141,26 @@ class Page
         return $file ? $file->raw() : '';
     }
 
+    public function frontmatter($var = null) {
+
+        if ($var) {
+            $this->frontmatter = (string) $var;
+
+            // Update also file object.
+            $file = $this->file();
+            if ($file) {
+                $file->frontmatter((string) $var);
+            }
+
+            // Force content re-processing.
+            $this->id(time().md5($this->filePath()));
+        }
+        if (!$this->frontmatter) {
+            $this->header();
+        }
+        return $this->frontmatter;
+    }
+
     /**
      * Gets and Sets the header based on the YAML configuration at the top of the .md file
      *
@@ -164,6 +185,7 @@ class Page
             $file = $this->file();
             if ($file) {
                 $this->raw_content = $file->markdown();
+                $this->frontmatter = $file->frontmatter();
                 $this->header = (object) $file->header();
 
                 $var = true;
@@ -253,6 +275,8 @@ class Page
 
         return Utils::truncateHTML($content, $size);
     }
+
+
 
     /**
      * Gets and Sets the content based on content portion of the .md file
@@ -376,6 +400,10 @@ class Page
         $path = explode('.', $name);
         $scope = array_shift($path);
 
+        if ($name == 'frontmatter') {
+            return $this->frontmatter;
+        }
+
         if ($scope == 'header') {
             $current = $this->header();
             foreach ($path as $field) {
@@ -420,7 +448,7 @@ class Page
         if ($file) {
             $file->filename($this->filePath());
             $file->header((array) $this->header());
-            $file->markdown($this->content());
+            $file->markdown($this->raw_content);
             $file->save();
         }
     }
