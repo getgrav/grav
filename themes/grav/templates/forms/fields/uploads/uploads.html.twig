@@ -6,8 +6,25 @@
         <div id="gravDropzone" class="dropzone"></div>
         <span>{{ value|join("\n") }}</span>
         <script>
-            Dropzone.autoDiscover = false;
-            $("#gravDropzone").dropzone({ url: "/file/post" });
+            $(function(){
+                var URI = $('[data-media-url]').data('media-url');
+
+                Dropzone.autoDiscover = false;
+                Dropzone.options.gravDropzone = {
+                    init: function() {
+                        thisDropzone = this;
+                        $.get(URI + '/task:listmedia', function(data) {
+                            $.each(data, function(filename, data){
+                                var mockFile = { name: filename, size: data.size };
+                                thisDropzone.options.addedfile.call(thisDropzone, mockFile);
+                                thisDropzone.options.thumbnail.call(thisDropzone, mockFile, data.url);
+                            });
+                        });
+                    }
+                };
+
+                $("#gravDropzone").dropzone({ url: URI + '/task:addmedia' });
+            });
         </script>
     </div>
 </div>
