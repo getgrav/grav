@@ -1,0 +1,13 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field">
+    <div class="form-data form-uploads-wrapper">
+        <h3>{{ field.label }}</h3>
+        <div id="gravDropzone" class="dropzone"></div>
+        <span>{{ value|join("\n") }}</span>
+        <script>
+            Dropzone.autoDiscover = false;
+            $("#gravDropzone").dropzone({ url: "/file/post" });
+        </script>
+    </div>
+</div>

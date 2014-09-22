@@ -1,0 +1,158 @@
+/* The MIT License */
+
+.form-uploads-wrapper h3 {
+    font-size: 1rem;
+    margin: 2rem 0 0.5rem 0;
+}
+
+.dropzone {
+    position: relative;
+    border: 1px $form-border solid;
+    border-radius: $form-border-radius;
+    min-height: 4rem;
+    background: $white;
+
+    &.dz-clickable {
+        cursor: pointer;
+    }
+    &.dz-drag-hover {
+        border-color: rgba(0,0,0,0.15);
+        background: rgba(0,0,0,0.04);
+    }
+    &.dz-started .dz-message {
+        display: none;
+    }
+    .dz-message {
+        opacity: 1;
+        -ms-filter: none;
+        filter: none;
+    }
+    .dz-preview {
+        position: relative;
+        display: inline-block;
+        margin: 1rem;
+        vertical-align: top;
+
+        &.dz-file-preview [data-dz-thumbnail] {
+            display: none;
+        }
+
+        &.dz-error .dz-error-mark {
+            display: block;
+        }
+
+        &.dz-success .dz-success-mark {
+            display: block;
+        }
+
+        .dz-success-mark, .dz-error-mark {
+            display: none;
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            font-size: 30px;
+            text-align: center;
+            right: -10px;
+            top: -10px;
+        }
+
+        .dz-success-mark {
+            color: #8cc657;
+        }
+
+        .dz-error-mark {
+            color: #ee162d;
+        }
+
+        .dz-progress {
+            position: absolute;
+            top: 100px;
+            left: 0px;
+            right: 0px;
+            height: 4px;
+            background: #d7d7d7;
+            display: none;
+
+            .dz-upload {
+                display: block;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 0%;
+                background-color: #8cc657;
+            }
+        }
+
+        .dz-error-message {
+            display: none;
+            position: absolute;
+            top: -5px;
+            left: -20px;
+            background: rgba(245,245,245,0.8);
+            padding: 8px 10px;
+            color: #800;
+            min-width: 140px;
+            max-width: 500px;
+            z-index: 500;
+        }
+
+        &.dz-processing .dz-progress {
+            display: block;
+        }
+
+        &:hover .dz-details img {
+            display: none;
+        }
+
+        &:hover.dz-error .dz-error-message {
+            display: block;
+        }
+
+        .dz-details {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            background: #ebebeb;
+            padding: 5px;
+            margin-bottom: 22px;
+
+            .dz-filename {
+                overflow: hidden;
+                height: 100%;
+            }
+
+            img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100px;
+                height: 100px;
+            }
+
+            .dz-size {
+                position: absolute;
+                bottom: -28px;
+                left: 3px;
+                height: 28px;
+                line-height: 28px;
+            }
+        }
+
+
+    }
+
+
+    &.dz-clickable {
+        .dz-message, .dz-message span {
+            cursor: pointer;
+            color: lighten($content-fg,30%);
+            text-align: center;
+            font-size: 1.4rem;
+            line-height: 4rem;
+        }
+    }
+    * {
+        cursor: default;
+    }
+}

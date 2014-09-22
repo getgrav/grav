@@ -1362,13 +1362,15 @@ body.remodal_active .remodal {
     clear: both; }
 
 .uk-htmleditor-code .CodeMirror {
-  padding: 10px 20px 20px 20px; }
+  padding: 10px 20px 20px 20px;
+  border-bottom-left-radius: 4px; }
 
 .uk-htmleditor-preview {
   padding: 20px;
   overflow-y: scroll;
   position: relative;
-  background: #fbfbfb; }
+  background: #fbfbfb;
+  border-bottom-right-radius: 4px; }
 
 #admin-main .uk-htmleditor-preview {
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
@@ -1486,5 +1488,115 @@ body.remodal_active .remodal {
 #frontmatter + .CodeMirror {
   border-radius: 4px;
   padding: 10px; }
+
+/* The MIT License */
+.form-uploads-wrapper h3 {
+  font-size: 1rem;
+  margin: 2rem 0 0.5rem 0; }
+
+.dropzone {
+  position: relative;
+  border: 1px #d4d4d4 solid;
+  border-radius: 4px;
+  min-height: 4rem;
+  background: white; }
+  .dropzone.dz-clickable {
+    cursor: pointer; }
+  .dropzone.dz-drag-hover {
+    border-color: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.04); }
+  .dropzone.dz-started .dz-message {
+    display: none; }
+  .dropzone .dz-message {
+    opacity: 1;
+    -ms-filter: none;
+    filter: none; }
+  .dropzone .dz-preview {
+    position: relative;
+    display: inline-block;
+    margin: 1rem;
+    vertical-align: top; }
+    .dropzone .dz-preview.dz-file-preview [data-dz-thumbnail] {
+      display: none; }
+    .dropzone .dz-preview.dz-error .dz-error-mark {
+      display: block; }
+    .dropzone .dz-preview.dz-success .dz-success-mark {
+      display: block; }
+    .dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {
+      display: none;
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      font-size: 30px;
+      text-align: center;
+      right: -10px;
+      top: -10px; }
+    .dropzone .dz-preview .dz-success-mark {
+      color: #8cc657; }
+    .dropzone .dz-preview .dz-error-mark {
+      color: #ee162d; }
+    .dropzone .dz-preview .dz-progress {
+      position: absolute;
+      top: 100px;
+      left: 0px;
+      right: 0px;
+      height: 4px;
+      background: #d7d7d7;
+      display: none; }
+      .dropzone .dz-preview .dz-progress .dz-upload {
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 0%;
+        background-color: #8cc657; }
+    .dropzone .dz-preview .dz-error-message {
+      display: none;
+      position: absolute;
+      top: -5px;
+      left: -20px;
+      background: rgba(245, 245, 245, 0.8);
+      padding: 8px 10px;
+      color: #800;
+      min-width: 140px;
+      max-width: 500px;
+      z-index: 500; }
+    .dropzone .dz-preview.dz-processing .dz-progress {
+      display: block; }
+    .dropzone .dz-preview:hover .dz-details img {
+      display: none; }
+    .dropzone .dz-preview:hover.dz-error .dz-error-message {
+      display: block; }
+    .dropzone .dz-preview .dz-details {
+      width: 100px;
+      height: 100px;
+      position: relative;
+      background: #ebebeb;
+      padding: 5px;
+      margin-bottom: 22px; }
+      .dropzone .dz-preview .dz-details .dz-filename {
+        overflow: hidden;
+        height: 100%; }
+      .dropzone .dz-preview .dz-details img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100px;
+        height: 100px; }
+      .dropzone .dz-preview .dz-details .dz-size {
+        position: absolute;
+        bottom: -28px;
+        left: 3px;
+        height: 28px;
+        line-height: 28px; }
+  .dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message span {
+    cursor: pointer;
+    color: #c3c7ca;
+    text-align: center;
+    font-size: 1.4rem;
+    line-height: 4rem; }
+  .dropzone * {
+    cursor: default; }
 
 /*# sourceMappingURL=template.css.map */
