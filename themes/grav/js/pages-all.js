@@ -70,7 +70,7 @@ $(function(){
 
             if (action == 'continue') {
                 $(window).off('beforeunload');
-                window.location.href = '{{ uri.route(true) }}' + ((value == 'expert') ? '/expert:1' : '');
+                window.location.href = $("#admin-mode-toggle input[name=mode-switch]:checked").data('leave-url');
             } else {
                 $('input[name=mode-switch][checked]').prop('checked', true);
             }
