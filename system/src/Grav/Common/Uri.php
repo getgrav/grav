@@ -218,7 +218,10 @@ class Uri
      *
      * @return String The extension of the URI
      */
-    public function extension() {
+    public function extension($default = null) {
+        if (!$this->extension) {
+            $this->extension = $default;
+        }
         return $this->extension;
     }
 
