@@ -50,6 +50,8 @@ class Medium extends Data
     protected $type = 'guess';
     protected $quality = 80;
 
+    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom', 'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
+
     /**
      * @var array
      */
@@ -90,6 +92,26 @@ class Medium extends Data
     public function __toString()
     {
         return $this->linkImage ? $this->html() : $this->url();
+    }
+
+    /**
+     * Return PATH to file.
+     *
+     * @return  string path to file
+     */
+    public function path()
+    {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        if ($this->image) {
+            $output = $this->image->cacheFile($this->type, $this->quality);
+            $this->reset();
+            $output = ROOT_DIR . $output;
+        } else {
+            $output = $this->get('path') . '/' . $this->get('filename');
+        }
+        return $output;
     }
 
     /**

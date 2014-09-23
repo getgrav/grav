@@ -139,12 +139,16 @@ class Uri
      * @param  string  $id  Optional attribute.
      * @return string
      */
-    public function query($id = null)
+    public function query($id = null, $raw = false)
     {
         if (isset($id)) {
             return filter_var($this->query[$id], FILTER_SANITIZE_STRING) ;
         } else {
-            return http_build_query($this->query);
+            if ($raw) {
+                return $this->query;
+            } else {
+                return http_build_query($this->query);
+            }
         }
     }
 
