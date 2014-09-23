@@ -7,7 +7,29 @@
         <span>{{ value|join("\n") }}</span>
         <script>
             $(function(){
-                var URI = $('[data-media-url]').data('media-url'), thisDropzone;
+                var URI = $('[data-media-url]').data('media-url'), thisDropzone,
+                    modalError = function(args){
+                        console.log(args);
+                        if (args.data.status == 'error'){
+
+                            if (args.mode == 'addBack'){
+                                // let's add back the file
+                                if (args.file instanceof File) this.addFile(args.file);
+                                else {
+                                    this.files.push(args.file);
+                                    this.options.addedfile.call(this, args.file);
+                                    this.options.thumbnail.call(this, args.file, args.file.extras.url);
+                                }
+                            } else if (args.mode == 'removeFile') {
+                                this.removeFile(args.file);
+                            }
+
+                            // fire up the modal
+                            var modalContainer = $('[data-remodal-id=generic]');
+                            modalContainer.find('.error-content').html(args.msg);
+                            $.remodal.lookup[modalContainer.data('remodal')].open();
+                        }
+                    };
                 Dropzone.autoDiscover = false;
                 Dropzone.options.gravDropzone = {
                     addRemoveLinks: true,
@@ -22,23 +44,25 @@
                             });
                         });
 
+                        this.on('success', function(file, response){
+                            thisDropzone = this;
+                            $.proxy(modalError, this, {
+                                file: file,
+                                data: response,
+                                mode: 'removeFile',
+                                msg: '<p>An error occurred while trying to upload the file <strong>'+file.name+'</strong></p><pre>'+response.message+'</pre>'
+                            })();
+                        });
+
                         this.on('removedfile', function(file) {
                             thisDropzone = this;
                             $.post(URI + '/task:delmedia', {filename: file.name}, function(data){
-                                if (data.status == 'error'){
-                                    // let's add back the file
-                                    if (file instanceof File) thisDropzone.addFile(file);
-                                    else {
-                                        thisDropzone.files.push(file);
-                                        thisDropzone.options.addedfile.call(thisDropzone, file);
-                                        thisDropzone.options.thumbnail.call(thisDropzone, file, file.extras.url);
-                                    }
-
-                                    // fire up the modal
-                                    var modalContainer = $('[data-remodal-id=generic]');
-                                    modalContainer.find('.error-content').html('<p>An error occurred while trying to remove the file <strong>'+file.name+'</strong></p><pre>'+data.message+'</pre>');
-                                    $.remodal.lookup[modalContainer.data('remodal')].open();
-                                }
+                                $.proxy(modalError, thisDropzone, {
+                                    file: file,
+                                    data: data,
+                                    mode: 'addBack',
+                                    msg: '<p>An error occurred while trying to remove the file <strong>'+file.name+'</strong></p><pre>'+data.message+'</pre>'
+                                })();
                             });
                         });
                     }
