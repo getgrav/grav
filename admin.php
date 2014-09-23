@@ -45,7 +45,8 @@ class AdminPlugin extends Plugin
     /**
      * @return array
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         return [
             'onPluginsInitialized' => [['login', 100000], ['onPluginsInitialized', 1000]],
             'onShutdown' => ['onShutdown', 1000]
@@ -147,7 +148,7 @@ class AdminPlugin extends Plugin
         $self = $this;
 
         // Replace page service with admin.
-        $this->grav['page'] = function ($c) use ($self) {
+        $this->grav['page'] = function () use ($self) {
             $page = new Page;
             $page->init(new \SplFileInfo(__DIR__ . "/pages/admin/{$self->template}.md"));
             $page->slug(basename($self->template));
@@ -182,6 +183,7 @@ class AdminPlugin extends Plugin
 
         $twig->template = $this->template . $ext;
         $twig->twig_vars['location'] = $this->template;
+        $twig->twig_vars['base_url_relative_frontend'] = $twig->twig_vars['base_url_relative'];
         $twig->twig_vars['base_url_relative'] .=
             ($twig->twig_vars['base_url_relative'] != '/' ? '/' : '') . trim($this->config->get('plugins.admin.route'), '/');
         $twig->twig_vars['theme_url'] = $theme_url;
@@ -197,7 +199,7 @@ class AdminPlugin extends Plugin
                 break;
             case 'pages':
                 $twig->twig_vars['file'] = File\General::instance($this->admin->page(true)->filePath());
-                $twig->twig_vars['media_types'] = str_replace('defaults,','',implode(',.', array_keys($this->config->get('media'))));
+                $twig->twig_vars['media_types'] = str_replace('defaults,', '', implode(',.', array_keys($this->config->get('media'))));
                 break;
         }
     }
