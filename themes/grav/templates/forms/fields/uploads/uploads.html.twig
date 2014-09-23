@@ -44,7 +44,7 @@
                     }
                 };
 
-                $("#gravDropzone").dropzone({ url: URI + '/task:addmedia' });
+                $("#gravDropzone").dropzone({ url: URI + '/task:addmedia', createImageThumbnails: { thumbnailWidth: 150} });
             });
         </script>
     </div>

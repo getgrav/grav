@@ -1568,26 +1568,42 @@ body.remodal_active .remodal {
       display: none; }
     .dropzone .dz-preview:hover.dz-error .dz-error-message {
       display: block; }
+    .dropzone .dz-preview .dz-remove {
+      display: none; }
+    .dropzone .dz-preview:hover .dz-remove {
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 25px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.8rem; }
     .dropzone .dz-preview .dz-details {
-      width: 100px;
+      width: 150px;
       height: 100px;
       position: relative;
-      background: #ebebeb;
+      background: #f6f6f6;
+      font-size: 0.8rem;
       padding: 5px;
       margin-bottom: 22px; }
       .dropzone .dz-preview .dz-details .dz-filename {
+        line-height: 1.2;
         overflow: hidden;
         height: 100%; }
       .dropzone .dz-preview .dz-details img {
         position: absolute;
         top: 0;
         left: 0;
-        width: 100px;
+        width: 150px;
         height: 100px; }
       .dropzone .dz-preview .dz-details .dz-size {
         position: absolute;
         bottom: -28px;
-        left: 3px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 0.8rem;
         height: 28px;
         line-height: 28px; }
   .dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message span {

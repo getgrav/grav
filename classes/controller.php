@@ -148,7 +148,7 @@ class AdminController
 
         $media_list = array();
         foreach ($page->media()->all() as $name=> $media) {
-            $media_list[$name] = ['url'=>$media->url(),'size'=>$media->get('size')];
+            $media_list[$name] = ['url'=>$media->cropZoom(150,100)->url(),'size'=>$media->get('size')];
         }
         $this->admin->media = $media_list;
 

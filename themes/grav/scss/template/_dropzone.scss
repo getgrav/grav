@@ -1,5 +1,8 @@
 /* The MIT License */
 
+$preview-width: 150px;
+$preview-height: 100px;
+
 .form-uploads-wrapper h3 {
     font-size: 1rem;
     margin: 2rem 0 0.5rem 0;
@@ -66,7 +69,7 @@
 
         .dz-progress {
             position: absolute;
-            top: 100px;
+            top: $preview-height;
             left: 0px;
             right: 0px;
             height: 4px;
@@ -109,15 +112,32 @@
             display: block;
         }
 
+        .dz-remove {
+            display: none;
+        }
+
+        &:hover .dz-remove {
+            display: block;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 25px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
         .dz-details {
-            width: 100px;
-            height: 100px;
+            width: $preview-width;
+            height: $preview-height;
             position: relative;
-            background: #ebebeb;
+            background: lighten($content-bg,3%);
+            font-size: 0.8rem;
             padding: 5px;
             margin-bottom: 22px;
 
             .dz-filename {
+                line-height: 1.2;
                 overflow: hidden;
                 height: 100%;
             }
@@ -126,14 +146,17 @@
                 position: absolute;
                 top: 0;
                 left: 0;
-                width: 100px;
-                height: 100px;
+                width: $preview-width;
+                height: $preview-height;
             }
 
             .dz-size {
                 position: absolute;
                 bottom: -28px;
-                left: 3px;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-size: 0.8rem;
                 height: 28px;
                 line-height: 28px;
             }
