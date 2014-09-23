@@ -95,6 +95,8 @@ $tab-label-height:3.5em;
     position:absolute;
     top:-9999px;
     opacity:0;
+    width: 100%;
+    overflow: hidden;
 }
 
 .tab-body-wrapper {
