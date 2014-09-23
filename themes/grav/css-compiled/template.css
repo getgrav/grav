@@ -462,6 +462,8 @@ form h1 {
   letter-spacing: -1px; }
 form p {
   padding: 0 3rem; }
+form pre {
+  padding: 1.5rem 3rem; }
 form .form-field {
   margin-bottom: 1rem;
   padding-left: 3rem; }

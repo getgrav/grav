@@ -49,7 +49,11 @@ form {
 
     p {
         padding: 0 $padding-default;
-   }
+    }
+
+    pre {
+        padding: 1.5rem 3rem;
+    }
 
     .form-field {
         margin-bottom: 1rem;
