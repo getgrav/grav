@@ -497,6 +497,23 @@
             var parser = editor.options.marked || marked;
 
             if (!parser) return;
+            if (parser.Renderer) {
+                parser.Renderer.prototype.image = function(href, title, text) {
+                    // it's local, let's build the proper href
+                    if (!href.match(/^\/|(.+(:\/\/).+)/)) {
+                        href = $('[data-media-local]').data('media-local') + '/' + href;
+                    }
+
+                    var out = '<img src="' + href + '" alt="' + text + '"';
+                    if (title) {
+                        out += ' title="' + title + '"';
+                    }
+
+                    out += this.options.xhtml ? '/>' : '>';
+
+                    return out;
+                };
+            }
 
             parser.setOptions(editor.options.markedOptions);
 
