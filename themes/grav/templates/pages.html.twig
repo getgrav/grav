@@ -129,6 +129,16 @@
     {% endif %}
     </div>
 
+    <div class="remodal" data-remodal-id="generic" data-remodal-options="hashTracking: false">
+        <form>
+            <h1>Error</h1>
+            <div class="error-content"></div>
+            <div class="button-bar">
+                <a class="button remodal-confirm" href="#">Close</a>
+            </div>
+        </form>
+    </div>
+
     <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/new'), data: context } %}
     </div>
