@@ -1523,18 +1523,30 @@ body.remodal_active .remodal {
     .dropzone .dz-preview.dz-success .dz-success-mark {
       display: block; }
     .dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {
+      color: white;
+      font-family: FontAwesome;
       display: none;
       position: absolute;
-      width: 40px;
-      height: 40px;
-      font-size: 30px;
+      width: 22px;
+      height: 22px;
+      font-size: 18px;
+      line-height: 25px;
+      border-radius: 100%;
       text-align: center;
-      right: -10px;
-      top: -10px; }
+      right: 2px;
+      top: 2px; }
+      .dropzone .dz-preview .dz-success-mark span, .dropzone .dz-preview .dz-error-mark span {
+        display: none; }
+    .dropzone .dz-preview:hover .dz-success-mark, .dropzone .dz-preview:hover .dz-error-mark {
+      display: none; }
     .dropzone .dz-preview .dz-success-mark {
-      color: #8cc657; }
+      background-color: #41bea8; }
+      .dropzone .dz-preview .dz-success-mark::after {
+        content: '\f00c'; }
     .dropzone .dz-preview .dz-error-mark {
-      color: #ee162d; }
+      background-color: #d55a4e; }
+      .dropzone .dz-preview .dz-error-mark::after {
+        content: '\f00d'; }
     .dropzone .dz-preview .dz-progress {
       position: absolute;
       top: 100px;
@@ -1550,7 +1562,7 @@ body.remodal_active .remodal {
         bottom: 0;
         left: 0;
         width: 0%;
-        background-color: #8cc657; }
+        background-color: #41bea8; }
     .dropzone .dz-preview .dz-error-message {
       display: none;
       position: absolute;
