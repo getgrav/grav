@@ -1546,7 +1546,7 @@ body.remodal_active .remodal {
     .dropzone .dz-preview .dz-error-mark {
       background-color: #d55a4e; }
       .dropzone .dz-preview .dz-error-mark::after {
-        content: '\f00d'; }
+        content: '\f12a'; }
     .dropzone .dz-preview .dz-progress {
       position: absolute;
       top: 100px;
@@ -1566,13 +1566,14 @@ body.remodal_active .remodal {
     .dropzone .dz-preview .dz-error-message {
       display: none;
       position: absolute;
-      top: -5px;
-      left: -20px;
-      background: rgba(245, 245, 245, 0.8);
+      top: 0;
+      left: 0;
+      right: 0;
+      font-size: 0.9rem;
+      line-height: 1.2;
       padding: 8px 10px;
-      color: #800;
-      min-width: 140px;
-      max-width: 500px;
+      background: #f6f6f6;
+      color: #d55a4e;
       z-index: 500; }
     .dropzone .dz-preview.dz-processing .dz-progress {
       display: block; }

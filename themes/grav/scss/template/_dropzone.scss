@@ -83,7 +83,7 @@ $error-color: #D55A4E;
         .dz-error-mark {
             background-color: $error-color;
             &::after {
-                content: '\f00d';
+                content: '\f12a';
             }
         }
 
@@ -110,13 +110,14 @@ $error-color: #D55A4E;
         .dz-error-message {
             display: none;
             position: absolute;
-            top: -5px;
-            left: -20px;
-            background: rgba(245,245,245,0.8);
+            top: 0;
+            left: 0;
+            right: 0;
+            font-size: 0.9rem;
+            line-height: 1.2;
             padding: 8px 10px;
-            color: #800;
-            min-width: 140px;
-            max-width: 500px;
+            background: lighten($content-bg,3%);
+            color: $error-color;
             z-index: 500;
         }
 

@@ -198,7 +198,7 @@ class AdminController
         if ($filename) {
             $targetPath = $page->path().'/'.$filename;
 
-            if (unlink($targetPath)) {
+            if (file_exists($targetPath) && unlink($targetPath)) {
                 $this->admin->json_response = ['success', 'File deleted: '.$filename];
             } else {
                 $this->admin->json_response = ['error', 'File could not be deleted: '.$filename];
