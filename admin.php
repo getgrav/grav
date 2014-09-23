@@ -197,6 +197,7 @@ class AdminPlugin extends Plugin
                 break;
             case 'pages':
                 $twig->twig_vars['file'] = File\General::instance($this->admin->page(true)->filePath());
+                $twig->twig_vars['media_types'] = str_replace('defaults,','',implode(',.', array_keys($this->config->get('media'))));
                 break;
         }
     }

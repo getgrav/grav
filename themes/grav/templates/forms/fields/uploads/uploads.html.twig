@@ -32,6 +32,7 @@
                 Dropzone.autoDiscover = false;
                 Dropzone.options.gravDropzone = {
                     addRemoveLinks: true,
+                    acceptedFiles: $('[data-media-types]').data('media-types'),
                     init: function() {
                         thisDropzone = this;
                         $.get(URI + '/task:listmedia', function(data) {

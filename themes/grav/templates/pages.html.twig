@@ -94,7 +94,7 @@
     {% if mode == 'new' %}
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/page'), data: context } %}
     {% elseif mode == 'edit' %}
-        <div class="admin-form-wrapper" data-media-url="{{ base_url }}/media/{{ admin.route|trim('/') }}.json">
+        <div class="admin-form-wrapper" data-media-url="{{ base_url }}/media/{{ admin.route|trim('/') }}.json" data-media-types="{{ media_types }}">
             {% if context.blueprints.fields %}
             <form id="admin-mode-toggle">
                 <div class="switch-toggle switch-grav">
