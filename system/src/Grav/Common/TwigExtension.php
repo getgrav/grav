@@ -227,7 +227,7 @@ class TwigExtension extends \Twig_Extension
      * @param  string $direction
      * @return string
      */
-    public function sortByKeyFilter(&$input, $filter, $direction = SORT_ASC)
+    public function sortByKeyFilter($input, $filter, $direction = SORT_ASC)
     {
         $output = [];
 
