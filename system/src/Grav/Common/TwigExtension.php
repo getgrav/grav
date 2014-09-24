@@ -1,5 +1,6 @@
 <?php
 namespace Grav\Common;
+
 use Grav\Component\Filesystem\ResourceLocator;
 
 /**
@@ -34,6 +35,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('truncate', array($this,'truncateFilter')),
             new \Twig_SimpleFilter('*ize', array($this,'inflectorFilter')),
             new \Twig_SimpleFilter('md5', array($this,'md5Filter')),
+            new \Twig_SimpleFilter('sort_by_key', array($this,'sortByKeyFilter')),
         );
     }
 
@@ -215,5 +217,26 @@ class TwigExtension extends \Twig_Extension
         $uri = $grav['uri'];
 
         return $uri->rootUrl($domain) .'/'. $locator->findResource($input, false);
+    }
+
+    /**
+     * Sorts a collection by key
+     *
+     * @param  string $input
+     * @param  string $filter
+     * @param  string $direction
+     * @return string
+     */
+    public function sortByKeyFilter(&$input, $filter, $direction = SORT_ASC)
+    {
+        $output = [];
+
+        foreach ($input as $key => $row) {
+            $output[$key] = $row[$filter];
+        }
+
+        array_multisort($output, $direction, $input);
+
+        return $input;
     }
 }
