@@ -1,6 +1,13 @@
 name: Administration Panel
 version: 1.0.0
-description: Enables administration panel.
+description: Adds an advanced administration panel to manage your site
+icon: check-square
+author:
+  name: Team Grav
+  email: devs@getgrav.org
+  url: http://getgrav.org
+keywords: admin, plugin, manager, panel
+
 validation: strict
 
 form:
