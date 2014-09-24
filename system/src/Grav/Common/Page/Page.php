@@ -1128,14 +1128,25 @@ class Page
     /**
      * Returns children of this page.
      *
+     * @param  bool $modular|null whether or not to return modular children
      * @return Collection
      */
-    public function children()
+    public function children($modular = false)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
+        $children = $pages->children($this->path());
 
-        return $pages->children($this->path());
+        // Filter out modular pages on regular call
+        // Filter out non-modular pages when al you want is modular
+        foreach ($children as $child) {
+            $is_modular_page = $child->modular();
+            if (($modular && !$is_modular_page) || (!$modular && $is_modular_page)) {
+                $children->remove($child->path());
+            }
+        }
+
+        return $children;
     }
 
     /**
@@ -1462,11 +1473,9 @@ class Page
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
-                            // FIXME: filter by modular
-                            $results = $this->children();
+                            $results = $this->children(true);
                             break;
                         case 'children':
-                            // FIXME: filter by non-modular
                             $results = $this->children();
                             break;
                     }
