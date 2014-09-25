@@ -1650,16 +1650,13 @@ class Page
             $parent = $this->parent();
 
             // Extract visible children from the parent page.
-            $visible = array();
+            $list = array();
             /** @var Page $page */
-            foreach ($parent as $page) {
+            foreach ($parent->children()->visible() as $page) {
                 if ($page->order()) {
-                    $visible[$page->slug] = $page->path();
+                    $list[$page->slug] = $page->path();
                 }
             }
-
-            // List only visible pages.
-            $list = array_intersect($visible, $pages->sort($parent));
 
             // If page was moved, take it out of the list.
             if ($this->_action == 'move') {
@@ -1695,6 +1692,13 @@ class Page
         }
         if ($this->_action == 'copy' && $this->_original->exists()) {
             Folder::copy($this->_original->path(), $this->path());
+        }
+
+        if ($this->name() != $this->_original->name()) {
+            $path = $this->path();
+            if (is_file($path . '/' . $this->_original->name())) {
+                rename($path . '/' . $this->_original->name(), $path . '/' . $this->name());
+            }
         }
 
         $this->_action = null;
