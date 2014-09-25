@@ -1,0 +1,24 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field grid pure-g">
+    <div class="form-label block size-1-3 pure-u-1-3">
+        <label>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+            {% else %}
+            {{ field.label }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </label>
+    </div>
+    <div class="form-data block size-2-3 pure-u-2-3">
+        <div class="form-order-wrapper {{ field.size }}">
+            <input type="hidden" name="{{ (scope ~ field.name)|fieldName }}" value="{{ value }}" />
+            <ul class="ordering {{ field.classes }}">
+                {% for key, text in field.siblings %}
+                <li {% if key == value %}class="selected"{% endif %} value="{{ key }}">{{ text }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>

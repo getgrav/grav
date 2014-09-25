@@ -88,6 +88,17 @@ form {
         -webkit-font-smoothing: antialiased;
     }
 
+    // override horizontal layout
+    .form-column {
+        > .form-field.grid {
+            display: block;
+            > .block {
+                @include flex(0);
+            }
+        }
+
+    }
+
     .form-select-wrapper, .selectize-control.single .selectize-input {
         position: relative;
 
