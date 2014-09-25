@@ -1694,6 +1694,13 @@ class Page
             Folder::copy($this->_original->path(), $this->path());
         }
 
+        if ($this->name() != $this->_original->name()) {
+            $path = $this->path();
+            if (is_file($path . '/' . $this->_original->name())) {
+                rename($path . '/' . $this->_original->name(), $path . '/' . $this->name());
+            }
+        }
+
         $this->_action = null;
         $this->_original = null;
     }
