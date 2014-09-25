@@ -313,7 +313,23 @@ form {
             text-align: center;
         }
     }
+}
 
+// YAML CodeMirror
+.form-frontmatter-wrapper {
+    margin-bottom: 3rem;
 
+    .dragbar {
+        height:4px;
+        background: $form-border;
+        cursor:row-resize;
+    }
+}
 
+#frontmatter {
+    & + .CodeMirror {
+        border-radius: $form-border-radius;
+        padding: 10px;
+        height: 130px;
+    }
 }

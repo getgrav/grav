@@ -608,6 +608,18 @@ form .checkboxes {
     line-height: 1.5rem;
     text-align: center; }
 
+.form-frontmatter-wrapper {
+  margin-bottom: 3rem; }
+  .form-frontmatter-wrapper .dragbar {
+    height: 4px;
+    background: #d4d4d4;
+    cursor: row-resize; }
+
+#frontmatter + .CodeMirror {
+  border-radius: 4px;
+  padding: 10px;
+  height: 130px; }
+
 td {
   border: 0;
   border-bottom: 1px solid #e1e1e1; }
@@ -1488,10 +1500,6 @@ body.remodal_active .remodal {
   text-decoration: underline; }
 .cm-s-paper .cm-invalidchar {
   color: #f00; }
-
-#frontmatter + .CodeMirror {
-  border-radius: 4px;
-  padding: 10px; }
 
 /* The MIT License */
 .form-uploads-wrapper h3 {
