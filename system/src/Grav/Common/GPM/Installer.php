@@ -41,6 +41,7 @@ class Installer
     protected static $options = [
                                 'overwrite'       => true,
                                 'ignore_symlinks' => true,
+                                'sophisticated'   => false,
                                 'install_path'    => '',
                                 'exclude_checks'  => [self::EXISTS, self::NOT_FOUND, self::IS_LINK]
                              ];
@@ -55,8 +56,8 @@ class Installer
     public static function install($package, $destination, $options = [])
     {
         $destination  = rtrim($destination, DS);
-        $install_path = $destination . DS . ltrim($options['install_path'], DS);
         $options = array_merge(self::$options, $options);
+        $install_path = rtrim($destination . DS . ltrim($options['install_path'], DS), DS);
 
         if (!self::isGravInstance($destination) || !self::isValidDestination($install_path, $options['exclude_checks'])) {
             return false;
@@ -80,6 +81,7 @@ class Installer
         }
 
         Folder::mkdir($tmp);
+
         $container = $zip->getNameIndex(0); // TODO: better way of determining if zip has container folder
         $unzip     = $zip->extractTo($tmp);
 
@@ -92,16 +94,56 @@ class Installer
             return false;
         }
 
+
+        if (!$options['sophisticated']) {
+            self::nonSophisticatedInstall($zip, $install_path, $tmp);
+        } else {
+            self::sophisticatedInstall($zip, $install_path, $tmp);
+        }
+
+        Folder::delete($tmp);
+        $zip->close();
+
+        self::$error = self::OK;
+
+        return true;
+
+    }
+
+    public static function nonSophisticatedInstall($zip, $install_path, $tmp)
+    {
         if (file_exists($install_path)) {
             Folder::delete($install_path);
         }
 
         Folder::move($tmp . DS . $container, $install_path);
-        Folder::delete($tmp);
 
-        $zip->close();
+        return true;
+    }
 
-        self::$error = self::OK;
+    public static function sophisticatedInstall($zip, $install_path, $tmp)
+    {
+        for ($i = 0, $l = $zip->numFiles; $i < $l; $i++) {
+            $filename = $zip->getNameIndex($i);
+            $fileinfo = pathinfo($filename);
+            $depth    = count(explode(DS, rtrim($filename, '/')));
+
+            if ($depth > 2) {
+                continue;
+            }
+
+            $path = $install_path . DS . $fileinfo['basename'];
+
+            if (is_link($path)) {
+                continue;
+            } else if (is_dir($path)) {
+                Folder::delete($path);
+                Folder::move($tmp . DS . $filename, $path);
+            } else if (is_file($path)) {
+                @unlink($path);
+                @copy($tmp . DS . $filename, $path);
+            }
+        }
 
         return true;
     }
