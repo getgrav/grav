@@ -71,11 +71,13 @@ class UpdateCommand extends Command
 
         $this->output->write("Found <green>" . $this->gpm->countInstalled() . "</green> extensions installed of which <magenta>" . $this->data['total'] . "</magenta> need updating");
 
-        $this->userInputPackages($onlyPackages);
+        $limitTo = $this->userInputPackages($onlyPackages);
 
         $this->output->writeln('');
 
         unset($this->data['total']);
+        unset($limitTo['total']);
+
 
         // updates review
         $slugs = [];
@@ -83,9 +85,9 @@ class UpdateCommand extends Command
         foreach ($this->data as $packages) {
             $index = 0;
             foreach ($packages as $slug => $package) {
-                /*if (!in_array($slug, $onlyPackages)) {
+                if (count($limitTo) && !array_key_exists($slug, $limitTo)) {
                     continue;
-                }*/
+                }
 
                 $this->output->writeln(
                     // index
