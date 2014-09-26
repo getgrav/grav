@@ -35,5 +35,6 @@ $app->addCommands(array(
     new \Grav\Console\Gpm\InfoCommand(),
     new \Grav\Console\Gpm\InstallCommand(),
     new \Grav\Console\Gpm\UpdateCommand(),
+    new \Grav\Console\Gpm\SelfupgradeCommand(),
 ));
 $app->run();
