@@ -282,7 +282,7 @@ class AdminController
 
             // Find new parent page in order to build the path.
             $route = !isset($data['route']) ? dirname($this->admin->route) : $data['route'];
-            $parent = $route ? $pages->dispatch($route, true) : $pages->root();
+            $parent = $route && $route != '/' ? $pages->dispatch($route, true) : $pages->root();
             $obj = $this->admin->page(true);
 
             // Change parent if needed and initialize move (might be needed also on ordering/folder change).

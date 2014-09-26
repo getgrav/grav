@@ -11,6 +11,7 @@ use Grav\Common\Uri;
 use Grav\Common\Page\Pages;
 use Grav\Common\Page\Page;
 use Grav\Common\Data;
+use Symfony\Component\Yaml\Yaml;
 
 class Admin
 {
@@ -398,8 +399,8 @@ class Admin
                 // Found the type and header from the session.
                 $data = $this->session->{$page->route()};
                 $page->name($data['type'] . '.md');
-                $page->frontmatter('title: ' . $data['title']);
                 $page->header(['title' => $data['title']]);
+                $page->frontmatter(Yaml::dump((array) $page->header()));
             } else {
                 // Find out the type by looking at the parent.
                 $type = $parent->child_type() ? $parent->child_type() : $parent->blueprints()->get('child_type', 'default');
