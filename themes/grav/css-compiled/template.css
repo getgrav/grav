@@ -486,6 +486,16 @@ form input, form select, form textarea, form button, form .selectize-input {
   line-height: 1.7;
   border-radius: 4px;
   -webkit-font-smoothing: antialiased; }
+form .form-column > .form-field.grid {
+  display: block; }
+  form .form-column > .form-field.grid > .block {
+    -webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    box-flex: 0;
+    -webkit-flex: 0;
+    -moz-flex: 0;
+    -ms-flex: 0;
+    flex: 0; }
 form .form-select-wrapper, form .selectize-control.single .selectize-input {
   position: relative; }
   form .form-select-wrapper:after, form .selectize-control.single .selectize-input:after {
@@ -607,6 +617,18 @@ form .checkboxes {
     font-size: 1.2rem;
     line-height: 1.5rem;
     text-align: center; }
+
+.form-frontmatter-wrapper {
+  margin-bottom: 3rem; }
+  .form-frontmatter-wrapper .dragbar {
+    height: 4px;
+    background: #d4d4d4;
+    cursor: row-resize; }
+
+#frontmatter + .CodeMirror {
+  border-radius: 4px;
+  padding: 10px;
+  height: 130px; }
 
 td {
   border: 0;
@@ -1291,8 +1313,7 @@ body.remodal_active .remodal {
   position: absolute;
   top: -9999px;
   opacity: 0;
-  width: 100%;
-  overflow: hidden; }
+  width: 100%; }
 
 .tab-body-wrapper {
   padding-top: 3.5em;
@@ -1488,10 +1509,6 @@ body.remodal_active .remodal {
   text-decoration: underline; }
 .cm-s-paper .cm-invalidchar {
   color: #f00; }
-
-#frontmatter + .CodeMirror {
-  border-radius: 4px;
-  padding: 10px; }
 
 /* The MIT License */
 .form-uploads-wrapper h3 {

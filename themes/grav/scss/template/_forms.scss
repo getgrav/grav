@@ -88,6 +88,17 @@ form {
         -webkit-font-smoothing: antialiased;
     }
 
+    // override horizontal layout
+    .form-column {
+        > .form-field.grid {
+            display: block;
+            > .block {
+                @include flex(0);
+            }
+        }
+
+    }
+
     .form-select-wrapper, .selectize-control.single .selectize-input {
         position: relative;
 
@@ -313,7 +324,23 @@ form {
             text-align: center;
         }
     }
+}
 
+// YAML CodeMirror
+.form-frontmatter-wrapper {
+    margin-bottom: 3rem;
 
+    .dragbar {
+        height:4px;
+        background: $form-border;
+        cursor:row-resize;
+    }
+}
 
+#frontmatter {
+    & + .CodeMirror {
+        border-radius: $form-border-radius;
+        padding: 10px;
+        height: 130px;
+    }
 }

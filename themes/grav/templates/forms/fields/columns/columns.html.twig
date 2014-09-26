@@ -1,0 +1,9 @@
+<div class="form-columns grid pure-g">
+{% if field.fields %}
+    {% set cols = field.fields|length %}
+    {% for field in field.fields %}
+    {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/column/column.html.twig'] with {'cols':cols}  %}
+    {% endfor %}
+{% endif %}
+</div>
+
