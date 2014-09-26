@@ -82,7 +82,6 @@ class Installer
 
         Folder::mkdir($tmp);
 
-        $container = $zip->getNameIndex(0); // TODO: better way of determining if zip has container folder
         $unzip     = $zip->extractTo($tmp);
 
         if (!$unzip) {
@@ -112,6 +111,7 @@ class Installer
 
     public static function nonSophisticatedInstall($zip, $install_path, $tmp)
     {
+        $container = $zip->getNameIndex(0); // TODO: better way of determining if zip has container folder
         if (file_exists($install_path)) {
             Folder::delete($install_path);
         }
