@@ -27,7 +27,7 @@ $(function(){
     })
     $('input[name="title"]').on('input', function(e){
         if (!$('input[name="folder"]').data('user-custom-folder')) {
-            folder = $(this).val().toLowerCase().replace(/\s/g, '-');
+            folder = $(this).val().toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9_\-]/g, '');
             $('input[name="folder"]').val(folder);
         }
     });
