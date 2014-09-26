@@ -240,11 +240,6 @@ class AdminPlugin extends Plugin
             $array = explode('/', $path, 2);
             $this->template = array_shift($array);
             $this->route = array_shift($array);
-
-            // Set path for new page.
-            if ($this->uri->param('new')) {
-                $this->route .= '/new';
-            }
         }
 
         // Initialize admin class.

@@ -398,6 +398,7 @@ class Admin
                 // Found the type and header from the session.
                 $data = $this->session->{$page->route()};
                 $page->name($data['type'] . '.md');
+                $page->frontmatter('title: ' . $data['title']);
                 $page->header(['title' => $data['title']]);
             } else {
                 // Find out the type by looking at the parent.
