@@ -32,6 +32,11 @@ $(function(){
         }
     });
 
+    $('input[name="folder"]').on('input', function(e){
+        value = $(this).val().toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9_\-]/g, '');
+        $(this).val(value);
+    });
+
     var currentValues = getState(),
         clickedLink;
 
