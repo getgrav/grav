@@ -63,7 +63,7 @@ class InfoCommand extends Command
             $packageURL = '<' . $foundPackage->author->url . '>';
         }
 
-        $this->output->writeln("<green>".str_pad("Author", 12).":</green> " . $foundPackage->author->name . ' <' . $foundPackage->author->email . '>'.$packageURL);
+        $this->output->writeln("<green>".str_pad("Author", 12).":</green> " . $foundPackage->author->name . ' <' . $foundPackage->author->email . '> '.$packageURL);
 
         foreach (array('version', 'keywords', 'date', 'homepage', 'demo', 'docs', 'guide', 'repository', 'bugs', 'zipball_url', 'license') as $info) {
             if (isset($foundPackage->$info)) {
