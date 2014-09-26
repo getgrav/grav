@@ -231,6 +231,10 @@ class TwigExtension extends \Twig_Extension
     {
         $output = [];
 
+        if (!$input) {
+            return $output;
+        }
+
         foreach ($input as $key => $row) {
             $output[$key] = $row[$filter];
         }
