@@ -82,8 +82,8 @@ class UpdateCommand extends Command
         // updates review
         $slugs = [];
 
+        $index = 0;
         foreach ($this->data as $packages) {
-            $index = 0;
             foreach ($packages as $slug => $package) {
                 if (count($limitTo) && !array_key_exists($slug, $limitTo)) {
                     continue;
