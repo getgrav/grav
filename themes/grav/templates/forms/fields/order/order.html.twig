@@ -16,11 +16,19 @@
     <div class="form-data block size-2-3 pure-u-2-3">
         <div class="form-order-wrapper {{ field.size }}">
             <input type="hidden" name="{{ (scope ~ field.name)|fieldName }}" value="{{ value }}" />
-            <ul class="ordering {{ field.classes }}">
+            <ul id="ordering" class="{{ field.classes }}">
                 {% for page in siblings %}
-                <li {% if page.order  == value %}class="selected"{% endif %} data-value="{{ page.slug }}">{{ page.title() }}</li>
+                <li class="{% if page.order  == value %}drag-handle{% else %}ignore{% endif %}" data-id="{{ page.slug }}">{{ page.title() }}</li>
                 {% endfor %}
             </ul>
         </div>
     </div>
+    <script type="text/javascript" src="{{ theme_url }}/js/sortable.min.js"></script>
+    <script>
+        var el = document.getElementById('ordering');
+        new Sortable(el, {
+            filter: ".ignore"
+            // draggable: ".drag-handle"
+        });   
+    </script>
 </div>
