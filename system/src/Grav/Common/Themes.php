@@ -3,8 +3,8 @@ namespace Grav\Common;
 
 use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYaml;
-use Grav\Component\Data\Blueprints;
-use Grav\Component\Data\Data;
+use Grav\Common\Data\Blueprints;
+use Grav\Common\Data\Data;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;

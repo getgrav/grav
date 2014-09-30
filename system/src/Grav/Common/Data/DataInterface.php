@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Component\Data;
+namespace Grav\Common\Data;
 
 use RocketTheme\Toolbox\File\FileInterface;
 

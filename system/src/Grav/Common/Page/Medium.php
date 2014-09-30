@@ -4,8 +4,8 @@ namespace Grav\Common\Page;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
-use Grav\Component\Data\Blueprint;
-use Grav\Component\Data\Data;
+use Grav\Common\Data\Blueprint;
+use Grav\Common\Data\Data;
 use Gregwar\Image\Image as ImageFile;
 use RocketTheme\Toolbox\File\YamlFile;
 

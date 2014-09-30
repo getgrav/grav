@@ -12,7 +12,7 @@ use Grav\Common\Grav;
 use Grav\Common\Taxonomy;
 use Grav\Common\Markdown\Markdown;
 use Grav\Common\Markdown\MarkdownExtra;
-use Grav\Component\Data\Blueprint;
+use Grav\Common\Data\Blueprint;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use Symfony\Component\Yaml\Yaml;

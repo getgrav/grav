@@ -4,7 +4,7 @@ namespace Grav\Common\Config;
 use Grav\Common\File\CompiledYaml;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
-use Grav\Component\Filesystem\Folder;
+use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\Blueprints\Blueprints as BaseBlueprints;
 use RocketTheme\Toolbox\File\PhpFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;

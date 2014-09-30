@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Component\Filesystem;
+namespace Grav\Common\Filesystem;
 
 /**
  * Folder helper class.

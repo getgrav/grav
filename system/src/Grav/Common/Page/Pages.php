@@ -6,9 +6,9 @@ use Grav\Common\Config\Config;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Taxonomy;
-use Grav\Component\Data\Blueprint;
-use Grav\Component\Data\Blueprints;
-use Grav\Component\Filesystem\Folder;
+use Grav\Common\Data\Blueprint;
+use Grav\Common\Data\Blueprints;
+use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\Event\Event;
 
 /**
