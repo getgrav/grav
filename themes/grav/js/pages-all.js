@@ -111,6 +111,21 @@ $(function(){
         }
     });
 
+    // deletion
+    $('[data-remodal-target="delete"]').on('click', function(){
+        var okdelete = $('[data-remodal-id=delete] a.button');
+
+        okdelete.data('delete-action', $(this).data('delete-url'));
+    });
+
+    $('[data-delete-action]').on('click', function(){
+        var confirm  = $.remodal.lookup[$('[data-remodal-id=delete]').data('remodal')],
+            okdelete = $(this).data('delete-action');
+
+        window.location.href = okdelete;
+        confirm.close();
+    });
+
     $(window).on('beforeunload', function(){
         if (currentValues != getState()){
             return "You have made changes on this page that you have not yet confirmed. If you navigate away from this page you will lose your unsaved changes";
