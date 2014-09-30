@@ -30,6 +30,11 @@ class Page
 {
     use GravTrait;
 
+    const ALL_PAGES = 0;        // both standard and modular pages
+    const STANDARD_PAGES = 1;   // visible and invisible pages (e.g. 01.regular/, invisible/)
+    const MODULAR_PAGES = 2;    // modular pages (e.g. _modular/)
+
+
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -1131,17 +1136,17 @@ class Page
      * @param  bool $modular|null whether or not to return modular children
      * @return Collection
      */
-    public function children($modular = false)
+    public function children($type = Page::ALL_PAGES)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
         $children = $pages->children($this->path());
 
         // Filter out modular pages on regular call
-        // Filter out non-modular pages when al you want is modular
+        // Filter out non-modular pages when all you want is modular
         foreach ($children as $child) {
             $is_modular_page = $child->modular();
-            if (($modular && !$is_modular_page) || (!$modular && $is_modular_page)) {
+            if (($is_modular_page && $type == Page::STANDARD_PAGES) || (!$is_modular_page && $type == Page::MODULAR_PAGES)) {
                 $children->remove($child->path());
             }
         }
@@ -1473,10 +1478,10 @@ class Page
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
-                            $results = $this->children(true);
+                            $results = $this->children(Page::MODULAR_PAGES);
                             break;
                         case 'children':
-                            $results = $this->children();
+                            $results = $this->children(Page::NORMAL_PAGES);
                             break;
                     }
                 }
