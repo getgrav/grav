@@ -54,6 +54,7 @@ class Page
     protected $modified;
     protected $id;
     protected $header;
+    protected $frontmatter;
     protected $content;
     protected $raw_content;
     protected $pagination;
@@ -137,7 +138,27 @@ class Page
             $this->header = null;
             $this->content = null;
         }
-        return $file->raw();
+        return $file ? $file->raw() : '';
+    }
+
+    public function frontmatter($var = null) {
+
+        if ($var) {
+            $this->frontmatter = (string) $var;
+
+            // Update also file object.
+            $file = $this->file();
+            if ($file) {
+                $file->frontmatter((string) $var);
+            }
+
+            // Force content re-processing.
+            $this->id(time().md5($this->filePath()));
+        }
+        if (!$this->frontmatter) {
+            $this->header();
+        }
+        return $this->frontmatter;
     }
 
     /**
@@ -164,6 +185,7 @@ class Page
             $file = $this->file();
             if ($file) {
                 $this->raw_content = $file->markdown();
+                $this->frontmatter = $file->frontmatter();
                 $this->header = (object) $file->header();
 
                 $var = true;
@@ -253,6 +275,8 @@ class Page
 
         return Utils::truncateHTML($content, $size);
     }
+
+
 
     /**
      * Gets and Sets the content based on content portion of the .md file
@@ -376,6 +400,10 @@ class Page
         $path = explode('.', $name);
         $scope = array_shift($path);
 
+        if ($name == 'frontmatter') {
+            return $this->frontmatter;
+        }
+
         if ($scope == 'header') {
             $current = $this->header();
             foreach ($path as $field) {
@@ -420,7 +448,7 @@ class Page
         if ($file) {
             $file->filename($this->filePath());
             $file->header((array) $this->header());
-            $file->markdown($this->content());
+            $file->markdown($this->raw_content);
             $file->save();
         }
     }
@@ -1100,14 +1128,25 @@ class Page
     /**
      * Returns children of this page.
      *
+     * @param  bool $modular|null whether or not to return modular children
      * @return Collection
      */
-    public function children()
+    public function children($modular = false)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
+        $children = $pages->children($this->path());
 
-        return $pages->children($this->path());
+        // Filter out modular pages on regular call
+        // Filter out non-modular pages when al you want is modular
+        foreach ($children as $child) {
+            $is_modular_page = $child->modular();
+            if (($modular && !$is_modular_page) || (!$modular && $is_modular_page)) {
+                $children->remove($child->path());
+            }
+        }
+
+        return $children;
     }
 
     /**
@@ -1435,11 +1474,9 @@ class Page
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
-                            // FIXME: filter by modular
-                            $results = $this->children();
+                            $results = $this->children(true);
                             break;
                         case 'children':
-                            // FIXME: filter by non-modular
                             $results = $this->children();
                             break;
                     }
@@ -1614,16 +1651,13 @@ class Page
             $parent = $this->parent();
 
             // Extract visible children from the parent page.
-            $visible = array();
+            $list = array();
             /** @var Page $page */
-            foreach ($parent as $page) {
+            foreach ($parent->children()->visible() as $page) {
                 if ($page->order()) {
-                    $visible[$page->slug] = $page->path();
+                    $list[$page->slug] = $page->path();
                 }
             }
-
-            // List only visible pages.
-            $list = array_intersect($visible, $pages->sort($parent));
 
             // If page was moved, take it out of the list.
             if ($this->_action == 'move') {
@@ -1659,6 +1693,13 @@ class Page
         }
         if ($this->_action == 'copy' && $this->_original->exists()) {
             Folder::copy($this->_original->path(), $this->path());
+        }
+
+        if ($this->name() != $this->_original->name()) {
+            $path = $this->path();
+            if (is_file($path . '/' . $this->_original->name())) {
+                rename($path . '/' . $this->_original->name(), $path . '/' . $this->name());
+            }
         }
 
         $this->_action = null;

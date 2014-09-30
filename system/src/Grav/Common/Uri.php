@@ -139,12 +139,16 @@ class Uri
      * @param  string  $id  Optional attribute.
      * @return string
      */
-    public function query($id = null)
+    public function query($id = null, $raw = false)
     {
         if (isset($id)) {
             return filter_var($this->query[$id], FILTER_SANITIZE_STRING) ;
         } else {
-            return http_build_query($this->query);
+            if ($raw) {
+                return $this->query;
+            } else {
+                return http_build_query($this->query);
+            }
         }
     }
 
@@ -215,7 +219,10 @@ class Uri
      *
      * @return String The extension of the URI
      */
-    public function extension() {
+    public function extension($default = null) {
+        if (!$this->extension) {
+            $this->extension = $default;
+        }
         return $this->extension;
     }
 

@@ -4,6 +4,7 @@ namespace Grav\Common\Markdown;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
+use Grav\Common\Page\Medium;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
@@ -61,8 +62,8 @@ trait MarkdownGravLinkTrait
 
                     // loop through actions for the image and call them
                     foreach ($actions as $action => $params) {
-                        // as long as it's not an html, url or ligtbox action
-                        if (!in_array($action, ['html','url','lightbox'])) {
+                        // as long as it's a valid action
+                        if (in_array($action, Medium::$valid_actions)) {
                             call_user_func_array(array(&$medium, $action), explode(',', $params));
                         }
                     }

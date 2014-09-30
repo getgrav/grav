@@ -7,6 +7,7 @@ use Grav\Common\Service\StreamsServiceProvider;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
+use Grav\Common\Page\Medium;
 
 /**
  * Grav
@@ -92,6 +93,30 @@ class Grav extends Container
             $page = $pages->dispatch($c['uri']->route());
 
             if (!$page || !$page->routable()) {
+
+                // special  case where a media file is requested
+                if (!$page) {
+                    $path_parts = pathinfo($c['uri']->route());
+                    $page = $c['pages']->dispatch($path_parts['dirname']);
+                    if ($page) {
+                        $media = $page->media()->all();
+                        if (isset($media[$path_parts['basename']])) {
+                            $medium = $media[$path_parts['basename']];
+
+                            // loop through actions for the image and call them
+                            foreach ($c['uri']->query(null,true) as $action => $params) {
+                                if (in_array($action, Medium::$valid_actions)) {
+                                    call_user_func_array(array(&$medium, $action), explode(',', $params));
+                                }
+                            }
+                            header('Content-type: '. $mime = $medium->get('mime'));
+                            echo file_get_contents($medium->path());
+                            die;
+                        }
+                    }
+                }
+
+                // If no page found, fire event
                 $event = $c->fireEvent('onPageNotFound');
 
                 if (isset($event->page)) {
