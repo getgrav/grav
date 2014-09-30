@@ -37,7 +37,7 @@ class Pages
     /**
      * @var array|string[]
      */
-    protected $routes;
+    protected $routes = array();
 
     /**
      * @var array

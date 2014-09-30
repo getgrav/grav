@@ -93,6 +93,13 @@ class Config extends Data
         $this->check();
     }
 
+    public function reload()
+    {
+        $this->init();
+
+        return $this;
+    }
+
     protected function check()
     {
         $streams = isset($this->items['streams']['schemes']) ? $this->items['streams']['schemes'] : null;
