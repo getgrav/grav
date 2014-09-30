@@ -426,10 +426,10 @@ class AdminController
             $page = $this->admin->page();
             Folder::delete($page->path());
 
-            // Set redirect to either referrer or one level up.
+            // Set redirect to either referrer or pages list.
             $redirect = $uri->referrer();
             if ($redirect == $uri->route()) {
-                $redirect = dirname($redirect);
+                $redirect = 'pages';
             }
 
             $this->admin->setMessage('Successfully deleted');

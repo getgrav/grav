@@ -79,7 +79,11 @@
             <a class="button" href="{{ base_url }}/pages"><i class="fa fa-reply"></i> Back</a>
             {% if exists %}
                 <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
-                <button class="button" name="task" value="delete" form="blueprints"><i class="fa fa-close"></i> Delete</button>
+                {% if warn %}
+                    <a class="button" href="#delete" data-remodal-target="delete" data-delete-url="{{ uri.route(true) }}/task:delete"><i class="fa fa-close"></i> Delete</a>
+                {% else %}
+                    <a class="button" href="{{ uri.route(true) }}/task:delete" class="page-delete" ><i class="fa fa-close"></i></a>
+                {% endif %}
             {% endif %}
             <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
 
@@ -159,8 +163,8 @@
             </p>
             <br>
             <div class="button-bar">
-            <a class="button secondary" data-leave-action="cancel" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
-            <a class="button" data-leave-action="delete" href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
+            <a class="button secondary remodal-cancel" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
+            <a class="button" data-delete-action href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
             </div>
         </form>
     </div>
