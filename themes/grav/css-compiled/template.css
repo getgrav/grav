@@ -15,6 +15,7 @@
   font-weight: 300;
   -webkit-font-smoothing: auto;
   cursor: pointer;
+  vertical-align: middle;
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
   .button i {
     padding-right: 5px; }

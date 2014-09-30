@@ -76,10 +76,13 @@
         {% if mode == 'list' %}
             <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Page</a>
         {% elseif mode == 'edit' %}
-            <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+            <a class="button" href="{{ base_url }}/pages"><i class="fa fa-reply"></i> Back</a>
             {% if exists %}
                 <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
+                <button class="button" name="task" value="delete" form="blueprints"><i class="fa fa-close"></i> Delete</button>
             {% endif %}
+            <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+
         {% endif %}
     </div>
     {% if mode == 'new' %}
@@ -157,7 +160,7 @@
             <br>
             <div class="button-bar">
             <a class="button secondary" data-leave-action="cancel" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
-            <a class="button" data-leave-action="continue" href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
+            <a class="button" data-leave-action="delete" href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
             </div>
         </form>
     </div>
