@@ -9,20 +9,22 @@ form:
 
     title:
       type: text
-      label: Title
+      label: Page Title
       validate:
         required: true
 
     folder:
       type: text
-      label: Folder
+      label: Folder Name
       validate:
         type: slug
         required: true
 
+
+
     route:
       type: select
-      label: Parent
+      label: Parent Page
       classes: fancy
       @data-options: '\Grav\Common\Page\Pages::parents'
       @data-default: '\Grav\Plugin\admin::route'
@@ -34,7 +36,7 @@ form:
     type:
       type: select
       classes: fancy
-      label: Page Type
+      label: Display Template
       default: default
       @data-options: '\Grav\Common\Page\Pages::types'
       validate:
