@@ -1136,7 +1136,7 @@ class Page
      * @param  bool $modular|null whether or not to return modular children
      * @return Collection
      */
-    public function children($type = Page::ALL_PAGES)
+    public function children($type = Page::STANDARD_PAGES)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
@@ -1482,7 +1482,7 @@ class Page
                             $results = $this->children(Page::MODULAR_PAGES);
                             break;
                         case 'children':
-                            $results = $this->children(Page::NORMAL_PAGES);
+                            $results = $this->children(Page::STANDARD_PAGES);
                             break;
                     }
                 }
