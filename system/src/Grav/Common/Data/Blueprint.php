@@ -113,6 +113,7 @@ class Blueprint
     public function fields()
     {
         if (!isset($this->fields)) {
+            $this->fields = [];
             $this->embed('', $this->items);
         }
 
