@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Plugin;
 
-use Grav\Common\Config;
+use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Themes;
@@ -143,7 +143,7 @@ class AdminController
 
         if (!$page) {
             $this->admin->json_response = ['error', 'No Page found'];
-            return;
+            return false;
         }
 
         $media_list = array();
@@ -158,6 +158,8 @@ class AdminController
     protected function taskAddmedia()
     {
         $page = $this->admin->page(true);
+
+        /** @var Config $config */
         $config = $this->grav['config'];
 
         if (!empty($_FILES)) {
@@ -187,11 +189,10 @@ class AdminController
     protected function taskDelmedia()
     {
         $page = $this->admin->page(true);
-        $uri = $this->grav['uri'];
 
         if (!$page) {
             $this->admin->json_response = ['error', 'No Page found'];
-            return;
+            return false;
         }
 
         $filename = !empty($this->post['filename']) ? $this->post['filename'] : null;

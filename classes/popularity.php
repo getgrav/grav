@@ -1,15 +1,10 @@
 <?php
 namespace Grav\Plugin;
 
-use Grav\Common\User\User;
-use Grav\Common\User\Authentication;
-use Grav\Common\Filesystem\File;
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
-use Grav\Common\Session;
 use Grav\Common\Themes;
-use Grav\Common\Uri;
-use Grav\Common\Page\Pages;
 use Grav\Common\Page\Page;
 use Grav\Common\Data;
 use Grav\Common\GravTrait;
@@ -18,6 +13,7 @@ class Popularity
 {
     use GravTrait;
 
+    /** @var Config */
     protected $config;
     protected $data_path;
 
@@ -52,6 +48,7 @@ class Popularity
 
     public function trackHit()
     {
+        /** @var Page $page */
         $page = self::$grav['page'];
         $relative_url = str_replace($this->config->get('system.base_url_relative'), '', $page->url());
 

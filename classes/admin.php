@@ -2,15 +2,18 @@
 namespace Grav\Plugin;
 
 use Grav\Common\User\User;
-use Grav\Common\Filesystem\File;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
-use Grav\Common\Session;
 use Grav\Common\Themes;
 use Grav\Common\Uri;
 use Grav\Common\Page\Pages;
 use Grav\Common\Page\Page;
 use Grav\Common\Data;
+use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\File\LogFile;
+use RocketTheme\Toolbox\File\YamlFile;
+use RocketTheme\Toolbox\Session\Message;
+use RocketTheme\Toolbox\Session\Session;
 use Symfony\Component\Yaml\Yaml;
 
 class Admin
@@ -31,7 +34,7 @@ class Admin
     protected $pages = array();
 
     /**
-     * @var Session\Session
+     * @var Session
      */
     protected $session;
 
@@ -84,7 +87,7 @@ class Admin
     /**
      * Get current session.
      *
-     * @return Session\Session
+     * @return Session
      */
     public function session()
     {
@@ -99,7 +102,7 @@ class Admin
      */
     public function setMessage($msg, $type = 'info')
     {
-        /** @var Session\Message $messages */
+        /** @var Message $messages */
         $messages = $this->grav['messages'];
         $messages->add($msg, $type);
     }
@@ -112,7 +115,7 @@ class Admin
      */
     public function messages($type = null)
     {
-        /** @var Session\Message $messages */
+        /** @var Message $messages */
         $messages = $this->grav['messages'];
         return $messages->fetch($type);
     }
@@ -126,7 +129,7 @@ class Admin
     public function authenticate($form)
     {
         if (!$this->user->authenticated && isset($form['username']) && isset($form['password'])) {
-            $file = File\Yaml::instance(ACCOUNTS_DIR . $form['username'] . YAML_EXT);
+            $file = YamlFile::instance(ACCOUNTS_DIR . $form['username'] . YAML_EXT);
             if ($file->exists()) {
                 $user = new User($file->content());
                 $user->authenticated = true;
@@ -214,7 +217,7 @@ class Admin
             case 'system':
                 $type = 'system';
                 $blueprints = $this->blueprints($type);
-                $file = File\Yaml::instance(USER_DIR . "config/{$type}.yaml");
+                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
                 $obj = new Data\Data($file->content(), $blueprints);
                 $obj->merge($post);
                 $obj->file($file);
@@ -225,7 +228,7 @@ class Admin
             case 'site':
                 $type = 'site';
                 $blueprints = $this->blueprints($type);
-                $file = File\Yaml::instance(USER_DIR . "config/{$type}.yaml");
+                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
                 $obj = new Data\Data($file->content(), $blueprints);
                 $obj->merge($post);
                 $obj->file($file);
@@ -238,12 +241,16 @@ class Admin
 
             default:
                 if (preg_match('|plugins/|', $type)) {
-                    $obj = $this->grav['plugins']->get(preg_replace('|plugins/|', '', $type));
+                    /** @var Plugins $plugins */
+                    $plugins = $this->grav['plugins'];
+                    $obj = $plugins->get(preg_replace('|plugins/|', '', $type));
                     $obj->merge($post);
 
                     $data[$type] = $obj;
                 } elseif (preg_match('|themes/|', $type)) {
-                    $obj = $this->grav['themes']->get(preg_replace('|themes/|', '', $type));
+                    /** @var Themes $themes */
+                    $themes = $this->grav['themes'];
+                    $obj = $themes->get(preg_replace('|themes/|', '', $type));
                     $obj->merge($post);
 
                     $data[$type] = $obj;
@@ -275,7 +282,9 @@ class Admin
      */
     public function themes()
     {
-        return $this->grav['themes']->all();
+        /** @var Themes $themes */
+        $themes = $this->grav['themes'];
+        return $themes->all();
     }
 
     /**
@@ -285,7 +294,9 @@ class Admin
      */
     public function routes()
     {
-        return $this->grav['pages']->routes()->all();
+        /** @var Pages $pages */
+        $pages = $this->grav['pages'];
+        return $pages->routes();
     }
 
     /**
@@ -295,7 +306,9 @@ class Admin
      */
     public function plugins()
     {
-        return $this->grav['plugins']->all();
+        /** @var Plugins $plugins */
+        $plugins = $this->grav['plugins'];
+        return $plugins->all();
     }
 
     /**
@@ -306,7 +319,7 @@ class Admin
     public function logs()
     {
         if (!isset($this->logs)) {
-            $file = File\Log::instance(LOG_DIR . 'exception.log');
+            $file = LogFile::instance(LOG_DIR . 'exception.log');
 
             $content = $file->content();
 
@@ -320,14 +333,17 @@ class Admin
      * that have been modified
      *
      * @param  integer $count number of pages to pull back
-     * @return [type]         [description]
+     * @return array
      */
     public function latestPages($count=10)
     {
+        /** @var Pages $pages */
+        $pages = $this->grav['pages'];
+
         $latest = array();
 
-        foreach ($this->grav['pages']->routes() as $url => $path) {
-            $page = $this->grav['pages']->dispatch($url);
+        foreach ($pages->routes() as $url => $path) {
+            $page = $pages->dispatch($url);
             $latest[$page->route()] = ['modified'=>$page->modified(),'page'=>$page];
         }
 
@@ -341,12 +357,12 @@ class Admin
 
         // build new array with just pages in it
         // TODO: Optimized this
-        $pages = array();
+        $list = array();
         foreach ($latest as $item) {
-            $pages[] = $item['page'];
+            $list[] = $item['page'];
         }
 
-        return array_slice($pages, 0, $count);
+        return array_slice($list, 0, $count);
     }
 
     /**
@@ -356,7 +372,7 @@ class Admin
      */
     public function logEntry()
     {
-        $file = File\General::instance(LOG_DIR . $this->route . '.html');
+        $file = File::instance(LOG_DIR . $this->route . '.html');
         $content = $file->content();
 
         return $content;

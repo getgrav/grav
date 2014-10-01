@@ -4,9 +4,10 @@ namespace Grav\Plugin;
 use Grav\Common\Plugin;
 use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
-use Grav\Common\Filesystem\File;
 use Grav\Common\Grav;
 use Grav\Common\Uri;
+use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\Session\Session;
 
 class AdminPlugin extends Plugin
 {
@@ -40,7 +41,20 @@ class AdminPlugin extends Plugin
      */
     protected $admin;
 
+    /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
+     * @var Popularity
+     */
     protected $popularity;
+
+    /**
+     * @var string
+     */
+    protected $base;
 
     /**
      * @return array
@@ -198,7 +212,7 @@ class AdminPlugin extends Plugin
                 $twig->twig_vars['popularity'] = $this->popularity;
                 break;
             case 'pages':
-                $twig->twig_vars['file'] = File\General::instance($this->admin->page(true)->filePath());
+                $twig->twig_vars['file'] = File::instance($this->admin->page(true)->filePath());
                 $twig->twig_vars['media_types'] = str_replace('defaults,', '', implode(',.', array_keys($this->config->get('media'))));
                 break;
         }
