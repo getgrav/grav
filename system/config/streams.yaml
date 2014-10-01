@@ -7,24 +7,19 @@ schemes:
   image:
     type: ReadOnlyStream
     paths:
-      - user/images
-
-  user:
-    type: ReadOnlyStream
-    paths:
-      - user
+      - user://images
 
   page:
     type: ReadOnlyStream
     paths:
-      - user/pages
+      - user://pages
 
   account:
     type: ReadOnlyStream
     paths:
-      - user/accounts
+      - user://accounts
 
   data:
     type: ReadOnlyStream
     paths:
-      - user/data
+      - user://data

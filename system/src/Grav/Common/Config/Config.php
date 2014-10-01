@@ -21,34 +21,40 @@ class Config extends Data
 {
     protected $grav;
     protected $streams = [
+        'user' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['user'],
+            ]
+        ],
         'blueprints' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/blueprints', 'system/blueprints'],
+                '' => ['user://blueprints', 'system/blueprints'],
             ]
         ],
         'config' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/config', 'system/config'],
+                '' => ['user://config', 'system/config'],
             ]
         ],
         'plugins' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/plugins'],
+                '' => ['user://plugins'],
              ]
         ],
         'plugin' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/plugins'],
+                '' => ['user://plugins'],
             ]
         ],
         'themes' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/themes'],
+                '' => ['user://themes'],
             ]
         ],
         'cache' => [
