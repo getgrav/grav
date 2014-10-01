@@ -113,7 +113,7 @@ class Blueprint
     public function fields()
     {
         if (!isset($this->fields)) {
-            $this->fields = [];
+            $this->fields = isset($this->items['form']['fields']) ? $this->items['form']['fields'] : array();
             $this->embed('', $this->items);
         }
 
