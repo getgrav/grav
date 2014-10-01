@@ -13,7 +13,7 @@
         </h1>
 
         {% include 'partials/messages.html.twig' %}
-        {% include 'partials/blueprints.html.twig' with { blueprints: admin.blueprints('site'), data: admin.data('site') } %}
+        {% include 'partials/blueprints.html.twig' with { blueprints: admin.blueprints('config/site'), data: admin.data('site') } %}
     </div>
 {% endblock %}
 
