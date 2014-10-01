@@ -39,6 +39,12 @@ class Config extends Data
                 '' => ['user/plugins'],
              ]
         ],
+        'plugin' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['user/plugins'],
+            ]
+        ],
         'themes' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
