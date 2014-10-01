@@ -7,7 +7,6 @@ class Themes extends Collection
     public function __construct()
     {
         $grav = self::$grav;
-        $grav['themes']->init();
 
         foreach ($grav['themes']->all() as $name => $data) {
             $this->items[$name] = new Package($data, $this->type);

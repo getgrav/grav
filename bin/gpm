@@ -27,6 +27,8 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
 }
 
 $grav = Grav::instance(array('loader' => $autoload));
+$grav['plugins']->init();
+$grav['themes']->init();
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);
 $app->addCommands(array(
