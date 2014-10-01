@@ -1,12 +1,13 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Config\Config;
+use Grav\Common\File\CompiledYaml;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
-use Grav\Common\Filesystem\File;
-use Grav\Component\EventDispatcher\EventDispatcher;
-use Grav\Component\EventDispatcher\EventSubscriberInterface;
-use Grav\Component\Filesystem\ResourceLocator;
+use RocketTheme\Toolbox\Event\EventDispatcher;
+use RocketTheme\Toolbox\Event\EventSubscriberInterface;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Themes object holds an array of all the theme objects that Grav knows about.
@@ -95,11 +96,11 @@ class Themes extends Iterator
         }
 
         // Load default configuration.
-        $file = File\Yaml::instance("themes://{$name}/{$name}" . YAML_EXT);
+        $file = CompiledYaml::instance("themes://{$name}/{$name}" . YAML_EXT);
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance("user://config/themes/{$name}" . YAML_EXT);
+        $file = CompiledYaml::instance("user://config/themes/{$name}" . YAML_EXT);
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
@@ -130,7 +131,7 @@ class Themes extends Iterator
         $config = $this->config;
         $name = $this->current();
 
-        /** @var ResourceLocator $locator */
+        /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
         $file = $locator('theme://theme.php') ?: $locator("theme://{$name}.php");
 
@@ -164,22 +165,18 @@ class Themes extends Iterator
     public function configure()
     {
         $name = $this->current();
-
-        /** @var Config $config */
         $config = $this->config;
 
-        $themeConfig = File\Yaml::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
+        $this->loadConfiguration($name, $config);
 
-        $config->merge(['themes' => [$name => $themeConfig]]);
-
-        /** @var ResourceLocator $locator */
+        /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
         // TODO: move
         $registered = stream_get_wrappers();
         $schemes = $config->get(
             "themes.{$name}.streams.schemes",
-            ['theme' => ['paths' => ["user/themes/{$name}"]]]
+            ['theme' => ['paths' => $locator->findResources("themes://{$name}", false)]]
         );
 
         foreach ($schemes as $scheme => $config) {
@@ -197,12 +194,19 @@ class Themes extends Iterator
             }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
             if ($type[0] != '\\') {
-                $type = '\\Grav\\Component\\Filesystem\\StreamWrapper\\' . $type;
+                $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
 
             if (!stream_wrapper_register($scheme, $type)) {
                 throw new \InvalidArgumentException("Stream '{$type}' could not be initialized.");
             }
         }
+    }
+
+    protected function loadConfiguration($name, Config $config)
+    {
+        $themeConfig = CompiledYaml::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
+
+        $config->merge(['themes' => [$name => $themeConfig]]);
     }
 }

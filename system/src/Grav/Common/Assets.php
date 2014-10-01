@@ -4,6 +4,7 @@ namespace Grav\Common;
 use Closure;
 use Exception;
 use FilesystemIterator;
+use Grav\Common\Config\Config;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;

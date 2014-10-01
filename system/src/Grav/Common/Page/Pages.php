@@ -1,14 +1,15 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
-use Grav\Common\Config;
-use Grav\Common\Data;
+use Grav\Common\Config\Config;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Taxonomy;
-use Grav\Component\EventDispatcher\Event;
+use Grav\Common\Data\Blueprint;
+use Grav\Common\Data\Blueprints;
+use Grav\Common\Filesystem\Folder;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
@@ -36,7 +37,7 @@ class Pages
     /**
      * @var array|string[]
      */
-    protected $routes;
+    protected $routes = array();
 
     /**
      * @var array
@@ -44,7 +45,7 @@ class Pages
     protected $sort;
 
     /**
-     * @var Data\Blueprints
+     * @var Blueprints
      */
     protected $blueprints;
 
@@ -193,6 +194,7 @@ class Pages
      *
      * @param  string  $path
      * @return Page
+     * @throws \Exception
      */
     public function get($path)
     {
@@ -252,15 +254,12 @@ class Pages
      * Get a blueprint for a page type.
      *
      * @param  string  $type
-     * @return Data\Blueprint
+     * @return Blueprint
      */
     public function blueprints($type)
     {
         if (!isset($this->blueprints)) {
-            /** @var Config $config */
-            $config = $this->grav['config'];
-
-            $this->blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
+            $this->blueprints = new Blueprints('theme://blueprints/');
         }
 
         try {
@@ -314,12 +313,7 @@ class Pages
      */
     static public function types()
     {
-        $grav = Grav::instance();
-
-        /** @var Config $config */
-        $config = $grav['config'];
-
-        $blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
+        $blueprints = new Blueprints('theme://blueprints/');
 
         return $blueprints->types();
     }
@@ -408,6 +402,8 @@ class Pages
         $directory  = rtrim($directory, DS);
         $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
+
+        /** @var Config $config */
         $config     = $this->grav['config'];
 
         $page->path($directory);

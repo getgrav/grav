@@ -1,10 +1,12 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Page\Pages;
+use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
-use Grav\Component\DI\Container;
-use Grav\Component\EventDispatcher\Event;
-use Grav\Component\EventDispatcher\EventDispatcher;
+use RocketTheme\Toolbox\DI\Container;
+use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\Event\EventDispatcher;
 use Grav\Common\Page\Medium;
 
 /**
@@ -51,8 +53,6 @@ class Grav extends Container
     {
         $container = new static($values);
 
-        $container['config_path'] = CACHE_DIR . 'config.php';
-
         $container['grav'] = $container;
 
         $container['uri'] = function ($c) {
@@ -64,10 +64,7 @@ class Grav extends Container
         };
 
         $container['events'] = function ($c) {
-            return new EventDispatcher();
-        };
-        $container['config'] = function ($c) {
-            return Config::instance($c);
+            return new EventDispatcher;
         };
         $container['cache'] = function ($c) {
             return new Cache($c);
@@ -91,8 +88,9 @@ class Grav extends Container
             return new Assets();
         };
         $container['page'] = function ($c) {
-
-            $page = $c['pages']->dispatch($c['uri']->route());
+            /** @var Pages $pages */
+            $pages = $c['pages'];
+            $page = $pages->dispatch($c['uri']->route());
 
             if (!$page || !$page->routable()) {
 
@@ -127,7 +125,6 @@ class Grav extends Container
                     throw new \RuntimeException('Page Not Found', 404);
                 }
             }
-
             return $page;
         };
         $container['output'] = function ($c) {
@@ -137,7 +134,8 @@ class Grav extends Container
             return new Browser();
         };
 
-        $container->register(new StreamsServiceProvider());
+        $container->register(new StreamsServiceProvider);
+        $container->register(new ConfigServiceProvider);
 
         return $container;
     }
@@ -147,8 +145,8 @@ class Grav extends Container
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
 
-        // Initialize stream wrappers.
-        $this['locator'];
+        // Initialize configuration.
+        $this['config']->init();
 
         $this['plugins']->init();
 
@@ -193,7 +191,7 @@ class Grav extends Container
      * Redirect browser to another location.
      *
      * @param string $route Internal route.
-     * @param int    $code  Redirection code (30x)
+     * @param int $code Redirection code (30x)
      */
     public function redirect($route, $code = 303)
     {
@@ -206,7 +204,7 @@ class Grav extends Container
     /**
      * Returns mime type for the file format.
      *
-     * @param  string $format
+     * @param string $format
      * @return string
      */
     public function mime($format)
@@ -223,7 +221,6 @@ class Grav extends Container
             case 'xml':
                 return 'application/xml';
         }
-
         return 'text/html';
     }
 
@@ -248,7 +245,6 @@ class Grav extends Container
     {
         /** @var EventDispatcher $events */
         $events = $this['events'];
-
         return $events->dispatch($eventName, $event);
     }
 
@@ -258,7 +254,7 @@ class Grav extends Container
      */
     public function shutdown()
     {
-        if ($this['config']->get('system.debugger.shutdown.close_connection')) {
+        if($this['config']->get('system.debugger.shutdown.close_connection')) {
             set_time_limit(0);
             ignore_user_abort(true);
             session_write_close();

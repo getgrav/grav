@@ -67,7 +67,7 @@ form:
                     type:
                       type: select
                       classes: fancy
-                      label: Page Type
+                      label: Display Template
                       default: default
                       @data-options: '\Grav\Common\Page\Pages::types'
                       validate:

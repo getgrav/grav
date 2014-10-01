@@ -1,7 +1,8 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Component\Filesystem\ResourceLocator;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+
 
 /**
  * The Twig extension adds some filters and functions that are useful for Grav
@@ -211,8 +212,10 @@ class TwigExtension extends \Twig_Extension
     public function urlFunc($input, $domain = false)
     {
         $grav = Grav::instance();
-        /** @var ResourceLocator $locator */
+
+        /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
+
         /** @var Uri $uri */
         $uri = $grav['uri'];
 

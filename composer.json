@@ -18,8 +18,19 @@
         "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "dev-master",
         "donatj/phpuseragentparser": "dev-master",
-        "pimple/pimple": "~3.0"
+        "pimple/pimple": "~3.0",
+        "rockettheme/toolbox": "dev-develop"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/rockettheme/toolbox"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/rhukster/minify"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"
@@ -28,11 +39,5 @@
     },
     "archive": {
         "exclude": ["VERSION"]
-    },
-    "repositories": [
-        {
-           "type": "vcs",
-           "url": "https://github.com/rhukster/minify"
-        }
-    ]
+    }
 }

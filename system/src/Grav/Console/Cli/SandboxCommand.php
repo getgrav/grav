@@ -265,6 +265,7 @@ class SandboxCommand extends Command
 
         // Open the source directory to read in files
         $i = new \DirectoryIterator($src);
+        /** @var \DirectoryIterator $f */
         foreach($i as $f) {
             if($f->isFile()) {
                 copy($f->getRealPath(), "$dest/" . $f->getFilename());
@@ -272,6 +273,7 @@ class SandboxCommand extends Command
                 $this->rcopy($f->getRealPath(), "$dest/$f");
             }
         }
+        return true;
     }
 
     private function rmdir($dir) {
@@ -280,6 +282,7 @@ class SandboxCommand extends Command
                        \RecursiveIteratorIterator::CHILD_FIRST
                     );
 
+        /** @var \DirectoryIterator $fileinfo */
         foreach ($files as $fileinfo) {
             if ($fileinfo->isDir()) {
                 if (false === rmdir($fileinfo->getRealPath())) return false;

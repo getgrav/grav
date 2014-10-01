@@ -1,9 +1,11 @@
 <?php
 namespace Grav\Common\Data;
 
-use Grav\Common\Filesystem\FileInterface;
-use \Grav\Common\Getters;
-use \Grav\Common\Filesystem\File;
+use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
+use RocketTheme\Toolbox\ArrayTraits\Countable;
+use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\File\FileInterface;
 
 /**
  * Recursive data object
@@ -11,8 +13,10 @@ use \Grav\Common\Filesystem\File;
  * @author RocketTheme
  * @license MIT
  */
-class Data extends Getters implements DataInterface
+class Data implements DataInterface
 {
+    use ArrayAccessWithGetters, Countable, Export;
+
     protected $gettersVariable = 'items';
     protected $items;
 
@@ -22,7 +26,7 @@ class Data extends Getters implements DataInterface
     protected $blueprints;
 
     /**
-     * @var File\General
+     * @var File
      */
     protected $storage;
 
@@ -121,7 +125,6 @@ class Data extends Getters implements DataInterface
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
      * @param string  $separator  Separator, defaults to '.'
-     * @return mixed  Value.
      */
     public function def($name, $default = null, $separator = '.')
     {
@@ -129,9 +132,35 @@ class Data extends Getters implements DataInterface
     }
 
     /**
+     * Join two values together by using blueprints if available.
+     *
+     * @example $data->def('this.is.my.nested.variable', 'default');
+     *
+     * @param string  $name       Dot separated path to the requested value.
+     * @param mixed   $value      Value to be joined.
+     * @param string  $separator  Separator, defaults to '.'
+     */
+    public function join($name, $value, $separator = '.')
+    {
+        $old = $this->get($name, null, $separator);
+        if ($old === null) {
+            // Variable does not exist yet: just use the incoming value.
+        } elseif ($this->blueprints) {
+            // Blueprints: join values by using blueprints.
+            $value = $this->blueprints->mergeData($old, $value, $name, $separator);
+        } else {
+            // No blueprints: replace existing top level variables with the new ones.
+            $value =array_merge($old, $value);
+        }
+
+        $this->set($name, $value, $separator);
+    }
+
+    /**
      * Merge two sets of data together.
      *
      * @param array $data
+     * @return void
      */
     public function merge(array $data)
     {

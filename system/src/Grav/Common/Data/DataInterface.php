@@ -1,8 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
-use Grav\Common\Filesystem\FileInterface;
-use \Grav\Common\Filesystem\File;
+use RocketTheme\Toolbox\File\FileInterface;
 
 /**
  * Data interface

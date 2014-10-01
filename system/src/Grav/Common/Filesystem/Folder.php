@@ -33,6 +33,17 @@ abstract class Folder
         return $last_modified;
     }
 
+
+    public static function getRelativePath($to, $from = ROOT_DIR)
+    {
+        $from = preg_replace('![\\|/]+!', '/', $from);
+        $to = preg_replace('![\\|/]+!', '/', $to);
+        if (strpos($to, $from) === 0) {
+            $to = substr($to, strlen($from));
+        }
+
+        return $to;
+    }
     /**
      * Recursively find the last modified time under given path by file.
      *
@@ -71,17 +82,15 @@ abstract class Folder
      */
     public static function all($path, array $params = array())
     {
-        $path = realpath($path);
-
         if ($path === false) {
             throw new \RuntimeException("Path to {$path} doesn't exist.");
         }
 
-        $compare = $params['compare'] ? 'get' . $params['compare'] : null;
-        $pattern = $params['pattern'] ? $params['pattern'] : null;
-        $filters = $params['filters'] ? $params['filters'] : null;
-        $key = $params['key'] ? 'get' . $params['key'] : null;
-        $value = $params['value'] ? 'get' . $params['value'] : 'SubPathname';
+        $compare = isset($params['compare']) ? 'get' . $params['compare'] : null;
+        $pattern = isset($params['pattern']) ? $params['pattern'] : null;
+        $filters = isset($params['filters']) ? $params['filters'] : null;
+        $key = isset($params['key']) ? 'get' . $params['key'] : null;
+        $value = isset($params['value']) ? 'get' . $params['value'] : 'getSubPathname';
 
         $directory = new \RecursiveDirectoryIterator($path,
             \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS + \FilesystemIterator::CURRENT_AS_SELF);
@@ -101,11 +110,20 @@ abstract class Folder
                     $fileKey = preg_replace($filters['key'], '', $fileKey);
                 }
                 if (isset($filters['value'])) {
-                    $filePath = preg_replace($filters['value'], '', $filePath);
+                    $filter = $filters['value'];
+                    if (is_callable($filter)) {
+                        $filePath = call_user_func($filter, $file);
+                    } else {
+                        $filePath = preg_replace($filter, '', $filePath);
                 }
             }
+            }
 
+            if ($fileKey !== null) {
             $results[$fileKey] = $filePath;
+            } else {
+                $results[] = $filePath;
+            }
         }
 
         return $results;

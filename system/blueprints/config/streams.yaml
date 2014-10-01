@@ -1,0 +1,7 @@
+title: File Streams
+validation: loose
+
+form:
+  fields:
+    schemes.xxx:
+      type: array
