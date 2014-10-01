@@ -27,9 +27,8 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
 }
 
 $grav = Grav::instance(array('loader' => $autoload));
-$grav['locator'];
 
-$app = new Application('Grav Package Manager', '0.1.0');
+$app = new Application('Grav Package Manager', GRAV_VERSION);
 $app->addCommands(array(
     new \Grav\Console\Gpm\IndexCommand(),
     new \Grav\Console\Gpm\InfoCommand(),
