@@ -8,7 +8,7 @@
 
         {% include 'partials/messages.html.twig' %}
 
-        <form method="post">
+        <form method="post" action="{{ base_url_relative }}">
             {% for field in page.header.form.fields %}
                 {% if field.type %}
                     <div>
@@ -17,7 +17,7 @@
                 {% endif %}
             {% endfor %}
             <div class="form-actions secondary-accent">
-                <button class="button secondary" name="task" value="forgot"><i class="fa fa-exclamation-circle"></i> Forgot</button>
+                <button type="button" class="button secondary" name="task" value="forgot"><i class="fa fa-exclamation-circle"></i> Forgot</button>
                 <button type="submit" class="button primary" name="task" value="login"><i class="fa fa-shield"></i> Login</button>
             </div>
         </form>
