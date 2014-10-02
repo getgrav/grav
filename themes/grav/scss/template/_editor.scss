@@ -2,6 +2,23 @@
 
 }
 
+.uk-htmleditor-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1500;
+
+    .uk-htmleditor-content, .uk-htmleditor-code, .CodeMirror-wrap, .uk-htmleditor-preview {
+        height: 100% !important;
+    }
+
+    .uk-htmleditor-navbar, .uk-htmleditor-navbar ul li:first-child a, .uk-htmleditor-navbar-flip ul li:last-child a {
+        border-radius: 0;
+    }
+}
+
 .uk-htmleditor-navbar {
     @include clearfix;
     border: 1px solid $form-border;
