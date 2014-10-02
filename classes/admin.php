@@ -9,6 +9,7 @@ use Grav\Common\Uri;
 use Grav\Common\Page\Pages;
 use Grav\Common\Page\Page;
 use Grav\Common\Data;
+use Grav\Common\GPM\Local\Packages as LocalPackages;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\LogFile;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -62,6 +63,11 @@ class Admin
      * @var User
      */
     public $user;
+
+    /**
+     * @var Packages
+     */
+    public $localPackages;
 
 
     /**
@@ -282,9 +288,15 @@ class Admin
      */
     public function themes()
     {
+        if (!$this->localPackages) {
+            $this->localPackages = new LocalPackages();
+        }
+
+        return $this->localPackages['themes']->toArray();
+
         /** @var Themes $themes */
-        $themes = $this->grav['themes'];
-        return $themes->all();
+        /*$themes = $this->grav['themes'];
+        return $themes->all();*/
     }
 
     /**
@@ -306,9 +318,15 @@ class Admin
      */
     public function plugins()
     {
+        if (!$this->localPackages) {
+            $this->localPackages = new LocalPackages();
+        }
+
+        return $this->localPackages['plugins'];
+
         /** @var Plugins $plugins */
-        $plugins = $this->grav['plugins'];
-        return $plugins->all();
+        /*$plugins = $this->grav['plugins'];
+        return $plugins->all();*/
     }
 
     /**
@@ -335,7 +353,7 @@ class Admin
      * @param  integer $count number of pages to pull back
      * @return array
      */
-    public function latestPages($count=10)
+    public function latestPages($count = 10)
     {
         /** @var Pages $pages */
         $pages = $this->grav['pages'];
@@ -348,7 +366,7 @@ class Admin
         }
 
         // sort based on modified
-        uasort($latest, function($a, $b) {
+        uasort($latest, function ($a, $b) {
             if ($a['modified'] == $b['modified']) {
                 return 0;
             }
@@ -437,5 +455,4 @@ class Admin
     {
         return dirname('/' . Grav::instance()['admin']->route);
     }
-
 }

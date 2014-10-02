@@ -12,18 +12,19 @@
         {% include 'partials/messages.html.twig' %}
 
         <table>
-            {% for plugin in admin.plugins %}
-            {% set blueprints = plugin.blueprints() %}
+            {% for slug, package in admin.plugins %}
+            {% set plugin = package.toArray() %}
+            {% set data   = package.getData() %}
 
             <tr>
                 <td>
-                    <a href="{{ base_url_relative }}/plugins/{{ blueprints.name|url_encode }}">{{ blueprints.get('name') }}</a>
+                    <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a>
                 </td>
                 <td>
-                    <form action="{{ base_url_relative }}/plugins/{{ blueprints.name }}" method="post">
+                    <form action="{{ base_url_relative }}/plugins/{{ slug }}" method="post">
                         <input type="hidden" name="enabled" value="{{ plugin.get('enabled') ? 0 : 1 }}" />
                         <input type="hidden" name="_redirect" value="plugins" />
-                        <button class="button" name="task" value="enable"{{ blueprints.name == 'admin' ? ' disabled="disabled"' }}>
+                        <button class="button" name="task" value="enable"{{ slug == 'admin' ? ' disabled="disabled"' }}>
                             {{ plugin.get('enabled') ? 'Enabled' : 'Disabled' }}
                         </button>
                     </form>
@@ -32,18 +33,24 @@
             {% endfor %}
         </table>
         {% else %}
-        {% set plugin = admin.plugins[admin.route] %}
-        {% set blueprints = plugin.blueprints() %}
+        {% set package = admin.plugins[admin.route] %}
+        {% set plugin     = package.toArray() %}
+
 
         <h1>
-            {{ blueprints.get('name')|e }}
-            <small>{{ blueprints.get('version') ? 'v' ~ blueprints.get('version')|e }}</small>
+            {{ plugin.name|e }}
+            <small>{{ plugin.version ? 'v' ~ plugin.version|e }}</small>
+{{ dump(plugin) }}
+            <small>{{ plugin.icon }}</small>
+            <small>{{ plugin.homepage }}</small>
+            <small>{{ plugin.author.name }}</small>
+            <small>{{ plugin.author.email }}</small>
         </h1>
 
         {% include 'partials/messages.html.twig' %}
-        <p>{{ blueprints.get('description') }}</p>
+        <p>{{ plugin.description }}</p>
 
-        {% include 'partials/blueprints.html.twig' with { data: plugin } %}
+        {% include 'partials/blueprints.html.twig' with { data: plugin.form, blueprints: plugin.form } %}
         {% endif %}
     </div>
 {% endblock %}
