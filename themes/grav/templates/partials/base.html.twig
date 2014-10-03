@@ -49,13 +49,13 @@
             <div class="titlebar secondary-accent">
                 {% block titlebar %}{% endblock %}
             </div>
-            {% if grav_update and grav_update['available'] > grav_update['current'] %}
+            {% if true or grav_update and grav_update['available'] > grav_update['current'] %}
             <div class="grav-update">
 
                 <p>
                 <i class="fa fa-bullhorn"></i>
                 Grav <b>v{{ grav_update['available'] }}</b> is now available! <span class="less">(Current: v.{{ grav_update['current'] }})</span>
-                <button class="button button-small secondary">Update Now</button>
+                <button class="button button-small secondary">Update Grav Now</button>
                 </p>
 
             </div>

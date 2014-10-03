@@ -25,4 +25,34 @@
         }
     }
 
+    .plugin-info {
+        position: relative;
+        border-bottom: 3px solid darken($content-bg, 5%);
+        padding-bottom: 1rem;
+        margin-bottom: 3rem;
+        overflow: hidden;
+
+        .plugin-icon {
+            color: darken($content-bg, 3%);
+            position: absolute;
+            right: $padding-default;
+            font-size: 20rem;
+        }
+        table {
+            position: relative;
+        }
+        td {
+            border: 0;
+            text-align: left !important;
+
+            &:first-child {
+                color: lighten($content-fg,15%);
+                white-space: nowrap;
+                width: 25%;
+            }
+        }
+        tr:hover {
+            background: inherit;
+        }
+    }
 }

@@ -146,10 +146,16 @@ $update-height: 3rem;
         }
     }
 
+    .admin-block .grav-update {
+        margin-top: -2rem;
+        margin-bottom: 2rem;
+    }
+
     .grav-update {
         height: $update-height;
         padding: 0 $padding-default;
         background: $info-bg;
+        color: $info-fg;
 
         .button {
             margin-left: 1rem;
@@ -167,7 +173,7 @@ $update-height: 3rem;
         }
 
         .less {
-            color: rgba($white,0.75);
+            color: rgba($info-fg,0.75);
         }
     }
 
@@ -201,7 +207,37 @@ $update-height: 3rem;
             margin-right: $padding-default;
         }
     }
+
+    .flush-bottom {
+        &.button-bar {
+            margin: 1rem -2rem -1rem;
+            height: 70px;
+            padding: 0 1rem;
+            float: none;
+            .button {
+                @extend %vertical-align;
+            }
+        }
+    }
+
+    .danger {
+        position: relative;
+
+        &.button-bar {
+            margin: 2rem 0 -2rem;
+            height: 70px;
+            padding: 1rem;
+            float: none;
+            .button {
+                @extend %vertical-align;
+                @include button-color($secondary-link);
+            }
+            background: darken($content-bg, 2%);
+        }
+    }
 }
+
+
 
 #admin-dashboard {
 
@@ -216,15 +252,7 @@ $update-height: 3rem;
             padding: 1rem 2rem;
         }
 
-        .button-bar {
-            margin: 1rem -2rem -1rem;
-            height: 70px;
-            padding: 0 1rem;
-            float: none;
-            .button {
-                @extend %vertical-align;
-            }
-        }
+
     }
 
     .dashboard-left {
