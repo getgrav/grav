@@ -1,12 +1,19 @@
 {% extends 'partials/base.html.twig' %}
 
+{% block titlebar %}
+    <div class="button-bar">
+        <button class="button" type="submit" name="task" value="add"><i class="fa fa-refresh"></i> Update All</button>
+        <button class="button" type="submit" name="task" value="add"><i class="fa fa-plus"></i> Add</button>
+    </div>
+    <h1><i class="fa fa-fw fa-plug"></i> Plugins</h1>
+{% endblock %}
 
 {% block content %}
 
-    <div class="admin-block">
+    <div class="admin-block gpm gpm-plugins">
         {% if not admin.route %}
         <h1>
-            Plugins
+            Installed Plugins
         </h1>
 
         {% include 'partials/messages.html.twig' %}
@@ -17,16 +24,16 @@
             {% set data   = package.getData() %}
 
             <tr>
-                <td>
-                    <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a>
+                <td class="gpm-name">
+                    <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
+                    <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a> <span class="gpm-version">v{{ plugin.version }}</span>
                 </td>
-                <td>
-                    <form action="{{ base_url_relative }}/plugins/{{ slug }}" method="post">
-                        <input type="hidden" name="enabled" value="{{ plugin.get('enabled') ? 0 : 1 }}" />
-                        <input type="hidden" name="_redirect" value="plugins" />
-                        <button class="button" name="task" value="enable"{{ slug == 'admin' ? ' disabled="disabled"' }}>
-                            {{ plugin.get('enabled') ? 'Enabled' : 'Disabled' }}
-                        </button>
+                <td class="gpm-actions">
+                    <a class="{{ plugin.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ plugin.get('enabled') ? 'disable' : 'enable' }}">
+
+                        <i class="fa fa-fw fa-toggle-{{ plugin.get('enabled') ? 'on' : 'off' }}"></i>
+                    </a>
+
                     </form>
                 </td>
             </tr>

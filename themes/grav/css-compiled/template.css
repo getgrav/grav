@@ -1681,4 +1681,18 @@ body.remodal_active .remodal {
   .dropzone * {
     cursor: default; }
 
+.gpm .gpm-name {
+  white-space: nowrap;
+  color: #b6bbbe; }
+.gpm .gpm-version {
+  padding-left: 0.5rem;
+  color: #8d959a;
+  font-size: 0.9rem; }
+.gpm .gpm-update .gpm-name {
+  color: #349886; }
+.gpm .gpm-actions {
+  font-size: 1.4rem; }
+  .gpm .gpm-actions .disabled {
+    color: #8d959a; }
+
 /*# sourceMappingURL=template.css.map */

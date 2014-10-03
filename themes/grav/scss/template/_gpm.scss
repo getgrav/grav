@@ -1,0 +1,28 @@
+.gpm {
+
+    .gpm-name {
+        white-space: nowrap;
+        color: lighten($content-fg, 25%);
+    }
+
+    .gpm-version {
+        padding-left:0.5rem;
+        color: lighten($content-fg,10%);
+        font-size: 0.9rem;
+    }
+
+    .gpm-update {
+        .gpm-name {
+            color: $secondary-accent-bg;
+        }
+    }
+
+    .gpm-actions {
+        font-size: 1.4rem;
+
+        .disabled {
+            color: lighten($content-fg,10%);
+        }
+    }
+
+}
