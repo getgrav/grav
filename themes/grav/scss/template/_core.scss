@@ -63,6 +63,13 @@ b, strong {
     padding: 1rem $padding-default;
 }
 
+.notice {
+    background: $notice-bg;
+    color: $notice-fg;
+    font-size: 1.1rem;
+    padding: 1rem $padding-default;
+}
+
 .badge {
     font-size: 0.9rem;
     font-family: $font-family-default;

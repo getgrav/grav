@@ -70,6 +70,12 @@ b, strong {
   font-size: 1.1rem;
   padding: 1rem 3rem; }
 
+.notice {
+  background: #DA4B46;
+  color: #fff;
+  font-size: 1.1rem;
+  padding: 1rem 3rem; }
+
 .badge {
   font-size: 0.9rem;
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
@@ -470,7 +476,7 @@ form .form-field {
 form .form-data {
   padding-right: 3rem; }
 form .required {
-  color: #F6635E;
+  color: #DA4B46;
   font-family: helvetica, arial;
   vertical-align: middle;
   line-height: 1;
@@ -905,14 +911,14 @@ tr {
       float: none;
       background: #e9e9e9; }
       #admin-main .danger.button-bar .button {
-        background: #F6635E;
+        background: #DA4B46;
         color: rgba(255, 255, 255, 0.85);
         border-radius: 4px; }
         #admin-main .danger.button-bar .button:hover {
-          background: #f77a76;
+          background: #de605b;
           color: #fff; }
         #admin-main .danger.button-bar .button:active {
-          box-shadow: 0 1px 0 #f32b24; }
+          box-shadow: 0 1px 0 #bd2b26; }
 
 #admin-dashboard:after {
   content: "";
