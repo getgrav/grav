@@ -13,7 +13,6 @@
 <table>
     {% for slug, package in admin.plugins %}
         {% set plugin = package.toArray() %}
-        {% set data   = package.getData() %}
 
         <tr>
             <td class="gpm-name">

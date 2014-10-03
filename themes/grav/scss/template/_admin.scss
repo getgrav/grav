@@ -365,6 +365,35 @@ $update-height: 3rem;
     }
 }
 
+.no-flick{-webkit-transform:translate3d(0,0,0);}
+
+.card-row {
+    @include justify-content(space-between);
+}
+
+.card-item {
+    @extend .no-flick;
+    overflow: hidden;
+    padding: 1rem;
+    margin: 0;
+    position: relative;
+    width: 31%;
+    @include breakpoint(tablet-range) {
+        width: 48%;
+    }
+    @include breakpoint(mobile-only) {
+        width: 100%;
+    }
+
+    background: $white;
+    margin-bottom: 2rem;
+
+    h4 {
+        font-size: 1.2rem;
+        line-height: 1.2;
+    }
+}
+
 #footer {
     text-align: center;
     padding: 3rem 0 1rem;

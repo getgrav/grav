@@ -991,6 +991,38 @@ tr {
   background-image: -webkit-linear-gradient(#349886, #67cbb9);
   background-image: linear-gradient(#349886, #67cbb9); }
 
+.no-flick, .card-item {
+  -webkit-transform: translate3d(0, 0, 0); }
+
+.card-row {
+  -webkit-box-pack: justify;
+  -moz-box-pack: justify;
+  box-pack: justify;
+  -webkit-justify-content: space-between;
+  -moz-justify-content: space-between;
+  -ms-justify-content: space-between;
+  -o-justify-content: space-between;
+  justify-content: space-between;
+  -ms-flex-pack: justify; }
+
+.card-item {
+  overflow: hidden;
+  padding: 1rem;
+  margin: 0;
+  position: relative;
+  width: 31%;
+  background: #fff;
+  margin-bottom: 2rem; }
+  @media only all and (min-width: 48em) and (max-width: 59.938em) {
+    .card-item {
+      width: 48%; } }
+  @media only all and (max-width: 47.938em) {
+    .card-item {
+      width: 100%; } }
+  .card-item h4 {
+    font-size: 1.2rem;
+    line-height: 1.2; }
+
 #footer {
   text-align: center;
   padding: 3rem 0 1rem; }
@@ -1748,5 +1780,7 @@ body.remodal_active .remodal {
       width: 25%; }
   .gpm .plugin-info tr:hover {
     background: inherit; }
+.gpm .themes {
+  padding: 3rem; }
 
 /*# sourceMappingURL=template.css.map */

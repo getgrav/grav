@@ -282,24 +282,6 @@ class Admin
     }
 
     /**
-     * Get all themes.
-     *
-     * @return array
-     */
-    public function themes()
-    {
-        if (!$this->localPackages) {
-            $this->localPackages = new LocalPackages();
-        }
-
-        return $this->localPackages['themes']->toArray();
-
-        /** @var Themes $themes */
-        /*$themes = $this->grav['themes'];
-        return $themes->all();*/
-    }
-
-    /**
      * Get all routes.
      *
      * @return array
@@ -323,10 +305,22 @@ class Admin
         }
 
         return $this->localPackages['plugins'];
+    }
 
-        /** @var Plugins $plugins */
-        /*$plugins = $this->grav['plugins'];
-        return $plugins->all();*/
+    /**
+     * Get all themes.
+     *
+     * @return array
+     */
+    public function themes()
+    {
+
+
+        if (!$this->localPackages) {
+            $this->localPackages = new LocalPackages();
+        }
+
+        return $this->localPackages['themes'];
     }
 
     /**
