@@ -30,6 +30,11 @@
                     <a href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a>
                 </div>
             {% endif %}
+            {% if config.get('system.pages.theme') == slug %}
+                <div class="gpm-ribbon">
+                    <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">UPDATE</a>
+                </div>
+            {% endif %}
         </div>
     {% endfor %}
 </div>

@@ -18,6 +18,9 @@
             <td class="gpm-name">
                 <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
                 <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a> <span class="gpm-version">v{{ plugin.version }}</span>
+                {% if plugin.update or slug == 'archives' %}
+                <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}"><span class="badge update">Update available!</span></a>
+                {% endif %}
             </td>
             <td class="gpm-actions">
                 <a class="{{ plugin.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ plugin.get('enabled') ? 'disable' : 'enable' }}">

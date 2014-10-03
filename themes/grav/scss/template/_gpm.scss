@@ -56,6 +56,36 @@
         }
     }
 
+    .badge.update {
+        display: inline-block;
+        background: $info-bg;
+        border-radius: 4px;
+        padding: 2px 10px;
+        color: $info-fg;
+        margin-left: 1rem;
+    }
+
+    .gpm-ribbon {
+        background-color: $info-bg;
+        overflow: hidden;
+        white-space: nowrap;
+
+        position: absolute;
+        top: 1rem;
+        right: -2rem;
+        @include transform(rotate(45deg));
+
+
+        a {
+            color: $info-fg;
+            display: block;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 5px 40px;
+            text-align: center;
+        }
+    }
+
     .themes {
         padding: $padding-default;
 
