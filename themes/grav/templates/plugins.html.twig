@@ -30,11 +30,8 @@
                 </td>
                 <td class="gpm-actions">
                     <a class="{{ plugin.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ plugin.get('enabled') ? 'disable' : 'enable' }}">
-
                         <i class="fa fa-fw fa-toggle-{{ plugin.get('enabled') ? 'on' : 'off' }}"></i>
                     </a>
-
-                    </form>
                 </td>
             </tr>
             {% endfor %}
