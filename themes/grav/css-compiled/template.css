@@ -1011,6 +1011,7 @@ tr {
   margin: 0;
   position: relative;
   width: 31%;
+  border: 1px solid #e1e1e1;
   background: #fff;
   margin-bottom: 2rem; }
   @media only all and (min-width: 48em) and (max-width: 59.938em) {
@@ -1755,32 +1756,50 @@ body.remodal_active .remodal {
 .gpm .gpm-update .gpm-name {
   color: #349886; }
 .gpm .gpm-actions {
-  font-size: 1.4rem; }
+  font-size: 1.6rem; }
   .gpm .gpm-actions .disabled {
     color: #8d959a; }
-.gpm .plugin-info {
+.gpm .gpm-item-info {
   position: relative;
   border-bottom: 3px solid #e1e1e1;
   padding-bottom: 1rem;
   margin-bottom: 3rem;
   overflow: hidden; }
-  .gpm .plugin-info .plugin-icon {
+  .gpm .gpm-item-info .gpm-item-icon {
     color: #e6e6e6;
     position: absolute;
     right: 3rem;
     font-size: 20rem; }
-  .gpm .plugin-info table {
+  .gpm .gpm-item-info table {
     position: relative; }
-  .gpm .plugin-info td {
+  .gpm .gpm-item-info td {
     border: 0;
     text-align: left !important; }
-    .gpm .plugin-info td:first-child {
+    .gpm .gpm-item-info td:first-child {
       color: #9ba2a6;
       white-space: nowrap;
       width: 25%; }
-  .gpm .plugin-info tr:hover {
+  .gpm .gpm-item-info tr:hover {
     background: inherit; }
 .gpm .themes {
   padding: 3rem; }
+  .gpm .themes .gpm-name {
+    margin-bottom: 0.5rem; }
+  .gpm .themes .gpm-actions {
+    background: #e9e9e9;
+    margin: 1rem -1rem -1rem -1rem;
+    height: 4rem;
+    line-height: 4rem;
+    text-align: right;
+    padding-right: 1rem; }
+    .gpm .themes .gpm-actions.active-theme {
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      background: #314D5B;
+      color: #EEEEEE; }
+    .gpm .themes .gpm-actions a {
+      color: #737C81;
+      vertical-align: middle; }
 
 /*# sourceMappingURL=template.css.map */

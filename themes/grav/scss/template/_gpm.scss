@@ -18,21 +18,21 @@
     }
 
     .gpm-actions {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
 
         .disabled {
             color: lighten($content-fg,10%);
         }
     }
 
-    .plugin-info {
+    .gpm-item-info {
         position: relative;
         border-bottom: 3px solid darken($content-bg, 5%);
         padding-bottom: 1rem;
         margin-bottom: 3rem;
         overflow: hidden;
 
-        .plugin-icon {
+        .gpm-item-icon {
             color: darken($content-bg, 3%);
             position: absolute;
             right: $padding-default;
@@ -58,5 +58,38 @@
 
     .themes {
         padding: $padding-default;
+
+        .gpm-name {
+            margin-bottom: 0.5rem;
+        }
+
+        .gpm-actions {
+
+            background: darken($content-bg, 2%);
+            margin: 1rem -1rem -1rem -1rem;
+            height: 4rem;
+            line-height: 4rem;
+            text-align: right;
+            padding-right: 1rem;
+
+            &.active-theme {
+                font-size: 1rem;
+                font-weight: bold;
+                text-align: center;
+                background: $page-bg;
+                color: $content-bg;
+            }
+
+            a {
+                color: $content-fg;
+                vertical-align: middle;
+
+            }
+
+        }
+
+        .active-theme {
+
+        }
     }
 }
