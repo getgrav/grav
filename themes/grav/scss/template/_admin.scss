@@ -152,12 +152,18 @@ $update-height: 3rem;
     }
 
     .grav-update {
-        height: $update-height;
+        @include clearfix;
         padding: 0 $padding-default;
         background: $info-bg;
         color: $info-fg;
 
+        &.plugins {
+            padding-right: 1rem;
+        }
+
         .button {
+            float: right;
+            margin-top: 0.6rem;
             margin-left: 1rem;
             line-height: 1.5;
             @include button-color(shade($info-bg, 20%));

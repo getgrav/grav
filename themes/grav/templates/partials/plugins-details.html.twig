@@ -1,3 +1,11 @@
+<div class="grav-update plugins">
+    <p>
+        <i class="fa fa-bullhorn"></i>
+        Plugin: <strong>{{ plugin.name|e }} v{{ plugin.version }}</strong> is now available!
+        <button class="button button-small secondary">Update Plugin</button>
+    </p>
+</div>
+
 <h1>
     {{ plugin.name|e }}
     <small>{{ plugin.version ? 'v' ~ plugin.version|e }}</small>

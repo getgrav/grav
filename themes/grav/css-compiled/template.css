@@ -841,11 +841,18 @@ tr {
     margin-top: -2rem;
     margin-bottom: 2rem; }
   #admin-main .grav-update {
-    height: 3rem;
     padding: 0 3rem;
     background: #9055AF;
     color: #fff; }
+    #admin-main .grav-update:after {
+      content: "";
+      display: table;
+      clear: both; }
+    #admin-main .grav-update.plugins {
+      padding-right: 1rem; }
     #admin-main .grav-update .button {
+      float: right;
+      margin-top: 0.6rem;
       margin-left: 1rem;
       line-height: 1.5;
       background: #73448c;

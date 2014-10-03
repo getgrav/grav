@@ -22,33 +22,11 @@
 {% block content %}
 
     <div class="gpm gpm-plugins">
+
         {% include 'partials/messages.html.twig' %}
 
-        {% include 'partials/plugin-update.html.twig' %}
-
         {% if not admin.route %}
-        <h1>
-            Installed Plugins
-        </h1>
-
-        <table>
-            {% for slug, package in admin.plugins %}
-            {% set plugin = package.toArray() %}
-            {% set data   = package.getData() %}
-
-            <tr>
-                <td class="gpm-name">
-                    <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
-                    <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a> <span class="gpm-version">v{{ plugin.version }}</span>
-                </td>
-                <td class="gpm-actions">
-                    <a class="{{ plugin.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ plugin.get('enabled') ? 'disable' : 'enable' }}">
-                        <i class="fa fa-fw fa-toggle-{{ plugin.get('enabled') ? 'on' : 'off' }}"></i>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+            {%  include 'partials/plugins-list.html.twig' %}
         {% else %}
             {% include 'partials/plugins-details.html.twig' %}
         {% endif %}
