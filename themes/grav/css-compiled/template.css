@@ -1655,9 +1655,9 @@ body.remodal_active .remodal {
       display: none; }
     .dropzone .dz-preview:hover.dz-error .dz-error-message {
       display: block; }
-    .dropzone .dz-preview .dz-remove {
+    .dropzone .dz-preview .dz-remove, .dropzone .dz-preview .dz-insert {
       display: none; }
-    .dropzone .dz-preview:hover .dz-remove {
+    .dropzone .dz-preview:hover .dz-remove, .dropzone .dz-preview:hover .dz-insert {
       display: block;
       position: absolute;
       left: 0;
@@ -1666,6 +1666,10 @@ body.remodal_active .remodal {
       text-align: center;
       cursor: pointer;
       font-size: 0.8rem; }
+    .dropzone .dz-preview:hover .dz-remove {
+      right: inherit; }
+    .dropzone .dz-preview:hover .dz-insert {
+      left: inherit; }
     .dropzone .dz-preview .dz-details {
       width: 150px;
       height: 100px;

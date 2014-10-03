@@ -58,6 +58,13 @@
             this.editor.on('change', function() { $this.editor.save(); });
             this.code.find('.CodeMirror').css('height', this.options.height);
 
+            var editor = this.editor;
+            $("#gravDropzone").delegate('[data-dz-insert]', 'click', function(e) {
+                var target = $(e.currentTarget).parent('.dz-preview').find('.dz-filename');
+                editor.focus();
+                editor.doc.replaceSelection('![](' + target.text() + ')');
+            });
+
             // iframe mode?
             if (this.options.iframe) {
 

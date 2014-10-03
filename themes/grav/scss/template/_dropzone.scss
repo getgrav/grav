@@ -133,11 +133,11 @@ $error-color: #D55A4E;
             display: block;
         }
 
-        .dz-remove {
+        .dz-remove, .dz-insert {
             display: none;
         }
 
-        &:hover .dz-remove {
+        &:hover .dz-remove, &:hover .dz-insert {
             display: block;
             position: absolute;
             left: 0;
@@ -146,6 +146,14 @@ $error-color: #D55A4E;
             text-align: center;
             cursor: pointer;
             font-size: 0.8rem;
+        }
+
+        &:hover .dz-remove {
+            right: inherit;
+        }
+
+        &:hover .dz-insert {
+            left: inherit;
         }
 
         .dz-details {
