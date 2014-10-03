@@ -1,11 +1,23 @@
 {% extends 'partials/base.html.twig' %}
 
+{% if admin.route %}
+{% set package = admin.plugins[admin.route] %}
+{% set plugin     = package.toArray() %}
+{% endif %}
+
 {% block titlebar %}
-    <div class="button-bar">
-        <button class="button" type="submit" name="task" value="add"><i class="fa fa-refresh"></i> Update All</button>
-        <button class="button" type="submit" name="task" value="add"><i class="fa fa-plus"></i> Add</button>
-    </div>
-    <h1><i class="fa fa-fw fa-plug"></i> Plugins</h1>
+    {% if not admin.route %}
+        <div class="button-bar">
+            <button class="button" type="submit" name="task" value="add"><i class="fa fa-refresh"></i> Update All</button>
+            <button class="button" type="submit" name="task" value="add"><i class="fa fa-plus"></i> Add</button>
+        </div>
+        <h1><i class="fa fa-fw fa-plug"></i> Plugins</h1>
+    {% else %}
+        <div class="button-bar">
+            <button class="button" type="submit" name="task" value="add"><i class="fa fa-check"></i> Save</button>
+        </div>
+        <h1><i class="fa fa-fw fa-plug"></i> Plugin: {{ plugin.name|e }}</h1>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -37,14 +49,9 @@
             {% endfor %}
         </table>
         {% else %}
-        {% set package = admin.plugins[admin.route] %}
-        {% set plugin     = package.toArray() %}
-
-
         <h1>
             {{ plugin.name|e }}
             <small>{{ plugin.version ? 'v' ~ plugin.version|e }}</small>
-{{ dump(plugin) }}
             <small>{{ plugin.icon }}</small>
             <small>{{ plugin.homepage }}</small>
             <small>{{ plugin.author.name }}</small>
