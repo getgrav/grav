@@ -125,7 +125,7 @@ $error-color: #D55A4E;
             display: block;
         }
 
-        &:hover .dz-details img {
+        &:hover:not(.hide-backface) .dz-details img {
             display: none;
         }
 

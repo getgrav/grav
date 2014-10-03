@@ -1630,7 +1630,7 @@ body.remodal_active .remodal {
       z-index: 500; }
     .dropzone .dz-preview.dz-processing .dz-progress {
       display: block; }
-    .dropzone .dz-preview:hover .dz-details img {
+    .dropzone .dz-preview:hover:not(.hide-backface) .dz-details img {
       display: none; }
     .dropzone .dz-preview:hover.dz-error .dz-error-message {
       display: block; }

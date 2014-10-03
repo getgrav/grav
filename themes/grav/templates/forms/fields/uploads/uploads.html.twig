@@ -42,10 +42,15 @@
                                 thisDropzone.options.addedfile.call(thisDropzone, mockFile);
                                 thisDropzone.options.thumbnail.call(thisDropzone, mockFile, data.url);
                             });
+
+                            $('.dz-preview').prop('draggable', 'true');
                         });
 
                         this.on("complete", function(file) {
-                            if (file.accepted) return;
+                            if (file.accepted) {
+                                $('.dz-preview').prop('draggable', 'true');
+                                return;
+                            }
                             var data = {status: 'error', message: 'Unsupported file type: ' + file.name.match(/\..+/).join('')};
                             $.proxy(modalError, this, {
                                 file: file,
@@ -80,7 +85,20 @@
                     }
                 };
 
-                $("#gravDropzone").dropzone({ url: URI + '/task:addmedia', createImageThumbnails: { thumbnailWidth: 150} });
+                var dropzone = new Dropzone("#gravDropzone", { url: URI + '/task:addmedia', createImageThumbnails: { thumbnailWidth: 150} });
+
+                $("#gravDropzone").delegate('.dz-preview', 'dragstart', function(e){
+                    var uri = $(this).find('.dz-filename').text(), shortcode = '![](' + uri + ')';
+                    dropzone.disable();
+                    $(this).addClass('hide-backface');
+                    e.originalEvent.dataTransfer.effectAllowed = 'copy';
+                    e.originalEvent.dataTransfer.setData('text', shortcode);
+                });
+
+                $("#gravDropzone").delegate('.dz-preview', 'dragend', function(e){
+                    dropzone.enable();
+                    $(this).removeClass('hide-backface');
+                });
             });
         </script>
     </div>
