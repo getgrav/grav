@@ -463,12 +463,14 @@ class Pages
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
-            } else {
-                $date = $file->getMTime();
-                if ($date > $last_modified) {
-                    $last_modified = $date;
-                }
             }
+
+            // Update the last modified if it's newer than already found
+            $date = $file->getMTime();
+            if ($date > $last_modified) {
+                $last_modified = $date;
+            }
+
 
         }
 
