@@ -154,6 +154,11 @@ class Config extends Data
         $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
     }
 
+    public function key()
+    {
+        return $this->checksum;
+    }
+
     public function checksum()
     {
         $checkBlueprints = $this->get('system.cache.check.blueprints', true);
