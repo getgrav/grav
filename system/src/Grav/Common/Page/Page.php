@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Page;
 
-use Gantry\Component\Filesystem\Folder;
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
 use Grav\Common\Utils;

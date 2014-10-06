@@ -52,4 +52,9 @@ class Grav extends Collection
     {
         return $this->date;
     }
+
+    public function isUpdatable()
+    {
+        return version_compare(GRAV_VERSION, $this->getVersion(), '<');
+    }
 }
