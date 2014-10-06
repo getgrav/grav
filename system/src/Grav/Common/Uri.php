@@ -133,7 +133,7 @@ class Uri
      */
     public function route($absolute = false, $domain = false)
     {
-        return ($absolute ? $this->rootUrl($domain) : '') . '/' . implode('/', $this->paths);
+        return urldecode(($absolute ? $this->rootUrl($domain) : '') . '/' . implode('/', $this->paths));
     }
 
     /**

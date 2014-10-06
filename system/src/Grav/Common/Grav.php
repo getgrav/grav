@@ -100,8 +100,9 @@ class Grav extends Container
                     $page = $c['pages']->dispatch($path_parts['dirname']);
                     if ($page) {
                         $media = $page->media()->all();
-                        if (isset($media[$path_parts['basename']])) {
-                            $medium = $media[$path_parts['basename']];
+                        $media_file = urldecode($path_parts['basename']);
+                        if (isset($media[$media_file])) {
+                            $medium = $media[$media_file];
 
                             // loop through actions for the image and call them
                             foreach ($c['uri']->query(null,true) as $action => $params) {
