@@ -18,6 +18,11 @@ class GPM extends Iterator
     private $repository;
 
     /**
+     * @var Remote\Grav
+     */
+    public $grav;
+
+    /**
      * Internal cache
      * @var Iterator
      */
@@ -32,6 +37,7 @@ class GPM extends Iterator
     {
         $this->installed  = new Local\Packages();
         $this->repository = new Remote\Packages($refresh, $callback);
+        $this->grav       = new Remote\Grav($refresh, $callback);
     }
 
     /**
