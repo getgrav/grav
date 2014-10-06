@@ -11,7 +11,7 @@
     {% for field in field.fields %}
         {% if field.type %}
             {% set value = data.value(field.name) %}
-                {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+            {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
         {% endif %}
     {% endfor %}
     </div>

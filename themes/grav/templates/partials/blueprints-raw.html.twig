@@ -1,4 +1,6 @@
-<form id="blueprints" method="post">
+{% set form_id = form_id ? form_id : 'blueprints' %}
+
+<form id="{{ form_id }}" method="post">
     {% for field in blueprints.fields %}
         {% if field.type %}
             {% set value = data.value(field.name) %}

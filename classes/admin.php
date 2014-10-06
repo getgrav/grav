@@ -222,10 +222,11 @@ class Admin
             case 'configuration':
             case 'system':
                 $type = 'system';
-                $blueprints = $this->blueprints($type);
-                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
-                $obj = new Data\Data($file->content(), $blueprints);
+                $blueprints = $this->blueprints("config/{$type}");
+                $config = $this->grav['config'];
+                $obj = new Data\Data($config->get('system'), $blueprints);
                 $obj->merge($post);
+                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
@@ -233,10 +234,11 @@ class Admin
             case 'settings':
             case 'site':
                 $type = 'site';
-                $blueprints = $this->blueprints($type);
-                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
-                $obj = new Data\Data($file->content(), $blueprints);
+                $blueprints = $this->blueprints("config/{$type}");
+                $config = $this->grav['config'];
+                $obj = new Data\Data($config->get('site'), $blueprints);
                 $obj->merge($post);
+                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;

@@ -15,6 +15,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'partials/blueprints.html.twig' with { blueprints: admin.blueprints('config/system'), data: admin.data('system') } %}
+    {% set data = admin.data('system') %}
+    {% include 'partials/blueprints.html.twig' with { blueprints: data.blueprints, data: data } %}
 {% endblock %}
 

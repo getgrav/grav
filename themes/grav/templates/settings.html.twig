@@ -20,6 +20,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'partials/blueprints.html.twig' with { blueprints: admin.blueprints('config/site'), data: admin.data('site') } %}
+    {% set data = admin.data('site') %}
+    {% include 'partials/blueprints.html.twig' with { blueprints: data.blueprints, data: data } %}
 {% endblock %}
 
