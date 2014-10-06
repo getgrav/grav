@@ -352,7 +352,7 @@ form:
                     validate:
                         type: bool
 
-                debugger.shutdown.close_conection:
+                debugger.shutdown.close_connection:
                     type: toggle
                     label: Shutdown Close Connection
                     highlight: 1
@@ -361,5 +361,3 @@ form:
                         0: No
                     validate:
                         type: bool
-
-
