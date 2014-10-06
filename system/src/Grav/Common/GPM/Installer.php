@@ -6,19 +6,19 @@ use Grav\Common\Filesystem\Folder;
 class Installer
 {
     /** @const No error */
-    const OK                = 0;
+    const OK = 0;
     /** @const Target already exists */
-    const EXISTS            = 1;
+    const EXISTS = 1;
     /** @const Target is a symbolic link */
-    const IS_LINK           = 2;
+    const IS_LINK = 2;
     /** @const Target doesn't exist */
-    const NOT_FOUND         = 4;
+    const NOT_FOUND = 4;
     /** @const Target is not a directory */
-    const NOT_DIRECTORY     = 8;
+    const NOT_DIRECTORY = 8;
     /** @const Target is not a Grav instance */
-    const NOT_GRAV_ROOT     = 16;
+    const NOT_GRAV_ROOT = 16;
     /** @const Error while trying to open the ZIP package */
-    const ZIP_OPEN_ERROR    = 32;
+    const ZIP_OPEN_ERROR = 32;
     /** @const Error while trying to extract the ZIP package */
     const ZIP_EXTRACT_ERROR = 64;
 
@@ -32,47 +32,50 @@ class Installer
      * Error Code
      * @var integer
      */
-    protected static $error   = 0;
+    protected static $error = 0;
 
     /**
      * Default options for the install
      * @var array
      */
     protected static $options = [
-                                'overwrite'       => true,
-                                'ignore_symlinks' => true,
-                                'sophisticated'   => false,
-                                'install_path'    => '',
-                                'exclude_checks'  => [self::EXISTS, self::NOT_FOUND, self::IS_LINK]
-                             ];
+        'overwrite'       => true,
+        'ignore_symlinks' => true,
+        'sophisticated'   => false,
+        'install_path'    => '',
+        'exclude_checks'  => [self::EXISTS, self::NOT_FOUND, self::IS_LINK]
+    ];
 
     /**
      * Installs a given package to a given destination.
-     * @param  string  $package     The local path to the ZIP package
-     * @param  string  $destination The local path to the Grav Instance
-     * @param  array   $options     Options to use for installing. ie, ['install_path' => 'user/themes/antimatter']
+     *
+     * @param  string $package     The local path to the ZIP package
+     * @param  string $destination The local path to the Grav Instance
+     * @param  array  $options     Options to use for installing. ie, ['install_path' => 'user/themes/antimatter']
+     *
      * @return boolean True if everything went fine, False otherwise.
      */
     public static function install($package, $destination, $options = [])
     {
-        $destination  = rtrim($destination, DS);
+        $destination = rtrim($destination, DS);
         $options = array_merge(self::$options, $options);
         $install_path = rtrim($destination . DS . ltrim($options['install_path'], DS), DS);
 
-        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path, $options['exclude_checks'])) {
+        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path, $options['exclude_checks'])
+        ) {
             return false;
         }
 
         if (
             self::lastErrorCode() == self::IS_LINK && $options['ignore_symlinks'] ||
             self::lastErrorCode() == self::EXISTS && !$options['overwrite']
-            ) {
+        ) {
             return false;
         }
 
-        $zip     = new \ZipArchive();
+        $zip = new \ZipArchive();
         $archive = $zip->open($package);
-        $tmp     = sys_get_temp_dir() . DS . 'Grav-' . uniqid();
+        $tmp = sys_get_temp_dir() . DS . 'Grav-' . uniqid();
 
         if ($archive !== true) {
             self::$error = self::ZIP_OPEN_ERROR;
@@ -82,7 +85,7 @@ class Installer
 
         Folder::mkdir($tmp);
 
-        $unzip     = $zip->extractTo($tmp);
+        $unzip = $zip->extractTo($tmp);
 
         if (!$unzip) {
             self::$error = self::ZIP_EXTRACT_ERROR;
@@ -126,7 +129,7 @@ class Installer
         for ($i = 0, $l = $zip->numFiles; $i < $l; $i++) {
             $filename = $zip->getNameIndex($i);
             $fileinfo = pathinfo($filename);
-            $depth    = count(explode(DS, rtrim($filename, '/')));
+            $depth = count(explode(DS, rtrim($filename, '/')));
 
             if ($depth > 2) {
                 continue;
@@ -136,12 +139,16 @@ class Installer
 
             if (is_link($path)) {
                 continue;
-            } else if (is_dir($path)) {
-                Folder::delete($path);
-                Folder::move($tmp . DS . $filename, $path);
-            } else if (is_file($path)) {
-                @unlink($path);
-                @copy($tmp . DS . $filename, $path);
+            } else {
+                if (is_dir($path)) {
+                    Folder::delete($path);
+                    Folder::move($tmp . DS . $filename, $path);
+                } else {
+                    if (is_file($path)) {
+                        @unlink($path);
+                        @copy($tmp . DS . $filename, $path);
+                    }
+                }
             }
         }
 
@@ -150,13 +157,15 @@ class Installer
 
     /**
      * Runs a set of checks on the destination and sets the Error if any
-     * @param  string  $destination The directory to run validations at
-     * @param  array   $exclude     An array of constants to exclude from the validation
+     *
+     * @param  string $destination The directory to run validations at
+     * @param  array  $exclude     An array of constants to exclude from the validation
+     *
      * @return boolean True if validation passed. False otherwise
      */
     public static function isValidDestination($destination, $exclude = [])
     {
-        self::$error  = 0;
+        self::$error = 0;
         self::$target = $destination;
 
         if (is_link($destination)) {
@@ -178,12 +187,14 @@ class Installer
 
     /**
      * Validates if the given path is a Grav Instance
-     * @param  string  $target The local path to the Grav Instance
+     *
+     * @param  string $target The local path to the Grav Instance
+     *
      * @return boolean True if is a Grav Instance. False otherwise
      */
     public static function isGravInstance($target)
     {
-        self::$error  = 0;
+        self::$error = 0;
         self::$target = $target;
 
         if (
