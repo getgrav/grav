@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Config;
 
-use Grav\Common\File\CompiledYaml;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Common\Uri;
@@ -107,6 +107,7 @@ class Config extends Data
 
     public function reload()
     {
+        $this->check();
         $this->init();
 
         return $this;
@@ -288,7 +289,7 @@ class Config extends Data
             $files = $this->blueprintFiles[$key];
         }
         foreach ($files as $name => $item) {
-            $file = CompiledYaml::instance($item['file']);
+            $file = CompiledYamlFile::instance($item['file']);
             $this->blueprints->embed($name, $file->content(), '/');
         }
     }
@@ -305,7 +306,7 @@ class Config extends Data
             $files = $this->configFiles[$key];
         }
         foreach ($files as $name => $item) {
-            $file = CompiledYaml::instance($item['file']);
+            $file = CompiledYamlFile::instance($item['file']);
             $this->join($name, $file->content(), '/');
         }
     }
