@@ -257,7 +257,10 @@ class Grav extends Container
         if($this['config']->get('system.debugger.shutdown.close_connection')) {
             set_time_limit(0);
             ignore_user_abort(true);
-            session_write_close();
+
+            if (isset($this['session'])) {
+                $this['session']->close();
+            }
 
             header('Content-length: ' . ob_get_length());
             header("Connection: close\r\n");
