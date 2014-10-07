@@ -125,6 +125,9 @@ class AdminPlugin extends Plugin
         // Set original route for the home page.
         $home = '/' . trim($this->config->get('system.home.alias'), '/');
 
+        // set the default if not set before
+        $this->session->expert = $this->session->expert ?: true;
+
         // set session variable if it's passed via the url
         if ($this->uri->param('mode') == 'expert') {
             $this->session->expert = true;

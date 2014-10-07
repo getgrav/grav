@@ -16,6 +16,12 @@
     <div class="form-data block size-2-3 pure-u-2-3">
         <div class="form-order-wrapper {{ field.size }}">
             <input type="hidden" data-order name="{{ (scope ~ field.name)|fieldName }}" value="{{ value }}" />
+            {% if data.parent.header.content.items %}
+                <span class="note">Parent setting order, ordering disabled</span>
+            {% elseif not data.visible %}
+                <span class="note">Page is not visible, ordering disabled</span>
+            {% endif %}
+
             <ul id="ordering" class="{{ field.classes }}">
                 {% for page in siblings %}
                 <li class="{% if page.order  == value %}drag-handle{% else %}ignore{% endif %}" data-id="{{ page.slug }}">{{ page.title() }}</li>
