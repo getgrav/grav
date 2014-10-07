@@ -156,7 +156,7 @@ class Config extends Data
 
     public function checksum()
     {
-        $checkBlueprints = $this->get('system.cache.check.blueprints', true);
+        $checkBlueprints = $this->get('system.cache.check.blueprints', false);
         $checkConfig = $this->get('system.cache.check.config', true);
         $checkSystem = $this->get('system.cache.check.system', true);
 
