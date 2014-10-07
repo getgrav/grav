@@ -186,6 +186,24 @@ class Twig
     }
 
     /**
+     * @param string $string  string to render.
+     * @param array $vars     Optional variables
+     * @return string
+     */
+    public function processString($string, array $vars = array())
+    {
+        // override the twig header vars for local resolution
+        $this->grav->fireEvent('onTwigStringVariables');
+        $vars += $this->twig_vars;
+
+        $name = '@Var:' . $string;
+        $this->setTemplate($name, $string);
+        $output = $this->twig->render($name, $vars);
+
+        return $output;
+    }
+
+    /**
      * Twig process that renders the site layout. This is the main twig process that renders the overall
      * page and handles all the layout for the site display.
      *
