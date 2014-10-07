@@ -20,6 +20,7 @@
                                     this.options.thumbnail.call(this, args.file, args.file.extras.url);
                                 }
                             } else if (args.mode == 'removeFile') {
+                                args.file.rejected = true;
                                 this.removeFile(args.file);
                             }
 
@@ -72,7 +73,7 @@
                         });
 
                         this.on('removedfile', function(file) {
-                            if (!file.accepted) return;
+                            if (!file.accepted || file.rejected) return;
                             thisDropzone = this;
                             $.post(URI + '/task:delmedia', {filename: file.name}, function(data){
                                 $.proxy(modalError, thisDropzone, {
