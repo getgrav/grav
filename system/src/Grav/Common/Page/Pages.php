@@ -173,6 +173,9 @@ class Pages
     public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null)
     {
         $items = $collection->toArray();
+        if (!$items) {
+            return [];
+        }
 
         $lookup = md5(json_encode($items));
         if (!isset($this->sort[$lookup][$orderBy])) {
