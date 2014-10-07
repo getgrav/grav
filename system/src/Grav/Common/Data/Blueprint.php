@@ -14,6 +14,9 @@ class Blueprint
     use Export;
 
     public $name;
+
+    public $initialized = false;
+
     protected $items;
     protected $context;
     protected $fields;
