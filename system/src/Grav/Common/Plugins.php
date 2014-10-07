@@ -4,9 +4,9 @@ namespace Grav\Common;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
+use Grav\Common\File\CompiledYamlFile;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
-use RocketTheme\Toolbox\File\YamlFile;
 
 /**
  * The Plugins object holds an array of all the plugin objects that
@@ -105,11 +105,11 @@ class Plugins extends Iterator
         $blueprint->name = $name;
 
         // Load default configuration.
-        $file = YamlFile::instance("plugins://{$name}/{$name}.yaml");
+        $file = CompiledYamlFile::instance("plugins://{$name}/{$name}.yaml");
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = YamlFile::instance("user://config/plugins/{$name}.yaml");
+        $file = CompiledYamlFile::instance("user://config/plugins/{$name}.yaml");
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
