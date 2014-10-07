@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Config;
 
-use Grav\Common\File\CompiledYaml;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Common\Uri;
@@ -21,34 +21,40 @@ class Config extends Data
 {
     protected $grav;
     protected $streams = [
+        'user' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['user'],
+            ]
+        ],
         'blueprints' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/blueprints', 'system/blueprints'],
+                '' => ['user://blueprints', 'system/blueprints'],
             ]
         ],
         'config' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/config', 'system/config'],
+                '' => ['user://config', 'system/config'],
             ]
         ],
         'plugins' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/plugins'],
+                '' => ['user://plugins'],
              ]
         ],
         'plugin' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/plugins'],
+                '' => ['user://plugins'],
             ]
         ],
         'themes' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user/themes'],
+                '' => ['user://themes'],
             ]
         ],
         'cache' => [
@@ -101,6 +107,7 @@ class Config extends Data
 
     public function reload()
     {
+        $this->check();
         $this->init();
 
         return $this;
@@ -282,7 +289,7 @@ class Config extends Data
             $files = $this->blueprintFiles[$key];
         }
         foreach ($files as $name => $item) {
-            $file = CompiledYaml::instance($item['file']);
+            $file = CompiledYamlFile::instance($item['file']);
             $this->blueprints->embed($name, $file->content(), '/');
         }
     }
@@ -299,7 +306,7 @@ class Config extends Data
             $files = $this->configFiles[$key];
         }
         foreach ($files as $name => $item) {
-            $file = CompiledYaml::instance($item['file']);
+            $file = CompiledYamlFile::instance($item['file']);
             $this->join($name, $file->content(), '/');
         }
     }

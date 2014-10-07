@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Config;
 
-use Grav\Common\File\CompiledYaml;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Common\Filesystem\Folder;
@@ -101,7 +101,7 @@ class Blueprints extends BaseBlueprints
             $files = $this->files[$key];
         }
         foreach ($files as $name => $item) {
-            $file = CompiledYaml::instance($item['file']);
+            $file = CompiledYamlFile::instance($item['file']);
             $this->blueprints->embed($name, $file->content(), '/');
         }
     }

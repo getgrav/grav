@@ -2,7 +2,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
-use Grav\Common\File\CompiledYaml;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use RocketTheme\Toolbox\Event\EventDispatcher;
@@ -74,7 +74,7 @@ class Themes extends Iterator
     /**
      * Get theme configuration or throw exception if it cannot be found.
      *
-     * @param string $name
+     * @param  string            $name
      * @return Data
      * @throws \RuntimeException
      */
@@ -96,11 +96,11 @@ class Themes extends Iterator
         }
 
         // Load default configuration.
-        $file = CompiledYaml::instance("themes://{$name}/{$name}" . YAML_EXT);
+        $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = CompiledYaml::instance("user://config/themes/{$name}" . YAML_EXT);
+        $file = CompiledYamlFile::instance("user://config/themes/{$name}" . YAML_EXT);
         $obj->merge($file->content());
 
         // Save configuration always to user/config.
@@ -146,7 +146,7 @@ class Themes extends Iterator
                     $class = new $className($grav, $config, $name);
                 }
             }
-        } elseif (!$locator('theme://')) {
+        } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
             exit("Theme '$name' does not exist, unable to display page.");
         }
 
@@ -162,7 +162,8 @@ class Themes extends Iterator
      *
      * @throws \InvalidArgumentException
      */
-    public function configure() {
+    public function configure()
+    {
         $name = $this->current();
         $config = $this->config;
 
@@ -204,7 +205,7 @@ class Themes extends Iterator
 
     protected function loadConfiguration($name, Config $config)
     {
-        $themeConfig = CompiledYaml::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
+        $themeConfig = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
 
         $config->merge(['themes' => [$name => $themeConfig]]);
     }

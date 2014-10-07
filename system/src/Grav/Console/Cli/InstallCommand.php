@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Console;
+namespace Grav\Console\Cli;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,8 +31,8 @@ class InstallCommand extends Command {
             'Where to install the required bits (default to current project)'
 
         )
-        ->setDescription("Handles cloning and symlinking for Grav")
-        ->setHelp('The <info>install</info> provides clone and symlink installation chores');
+        ->setDescription("Installs the dependencies needed by Grav. Optionally can create symbolic links")
+        ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -54,8 +54,7 @@ class InstallCommand extends Command {
 
         if (file_exists($local_config_file)) {
             $this->local_config = Yaml::parse($local_config_file);
-            $output->writeln('');
-            $output->writeln('read local config from <cyan>' . $local_config_file . '</cyan>');
+            $output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
         }
 
         // Look for dependencies file in ROOT and USER dir
@@ -66,6 +65,10 @@ class InstallCommand extends Command {
         } else {
             $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
         }
+
+        // Updates composer first
+        $output->writeln("\nInstalling vendor dependencies");
+        $output->writeln(system('php bin/composer.phar --working-dir="'.$this->destination.'" --no-interaction update'));
 
         // If yaml config, process
         if ($this->config) {
@@ -114,7 +117,7 @@ class InstallCommand extends Command {
         if (!$this->local_config) {
             $output->writeln('<red>No local configuration available, aborting...</red>');
             $output->writeln('');
-            exit;
+            return;
         }
 
         exec('cd ' . $this->destination);

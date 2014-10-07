@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Console;
+namespace Grav\Console\Cli;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -26,18 +26,18 @@ class NewProjectCommand extends Command {
             InputOption::VALUE_NONE,
             'Symlink the required bits'
         )
-        ->setDescription("Creates a new Grav project with all the dependencies included")
-        ->setHelp('The <info>new</info> command provides clone and symlink installation chores');
+        ->setDescription("Creates a new Grav project with all the dependencies installed")
+        ->setHelp("The <info>new-project</info> command is a combination of the `setup` and `install` commands.\nCreates a new Grav instance and performs the installation of all the required dependencies.");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $setupCommand   = $this->getApplication()->find('setup');
+        $sandboxCommand   = $this->getApplication()->find('sandbox');
         $installCommand = $this->getApplication()->find('install');
 
-        $setupArguments = new ArrayInput(array(
-                                            'command'     => 'setup',
+        $sandboxArguments = new ArrayInput(array(
+                                            'command'     => 'sandbox',
                                             'destination' => $input->getArgument('destination'),
                                             '-s'          => $input->getOption('symlink')
                                             ));
@@ -48,7 +48,7 @@ class NewProjectCommand extends Command {
                                                 '-s'          => $input->getOption('symlink')
                                                 ));
 
-        $setupCommand->run($setupArguments, $output);
+        $sandboxCommand->run($sandboxArguments, $output);
         $installCommand->run($installArguments, $output);
 
     }

@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Console;
+namespace Grav\Console\Cli;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -9,8 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class CleanCommand extends Command {
-
-    protected $destination_dir = 'distribution';
 
     protected $paths_to_remove = [
         'user/plugins/email/vendor/swiftmailer/swiftmailer/.travis.yml',

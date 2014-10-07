@@ -233,6 +233,8 @@ form:
                     options:
                         1: Yes
                         0: No
+                    validate:
+                       type: bool
 
                 assets.css_minify:
                     type: toggle
@@ -241,6 +243,8 @@ form:
                     options:
                         1: Yes
                         0: No
+                    validate:
+                       type: bool
 
                 assets.css_minify_windows:
                     type: toggle
@@ -249,6 +253,8 @@ form:
                     options:
                         1: Yes
                         0: No
+                    validate:
+                        type: bool
 
                 assets.css_rewrite:
                     type: toggle
@@ -257,6 +263,8 @@ form:
                     options:
                         1: Yes
                         0: No
+                    validate:
+                        type: bool
 
                 assets.js_pipeline:
                     type: toggle
@@ -265,6 +273,8 @@ form:
                     options:
                         1: Yes
                         0: No
+                    validate:
+                        type: bool
 
                 assets.js_minify:
                     type: toggle
@@ -273,6 +283,8 @@ form:
                     options:
                         1: Yes
                         0: No
+                    validate:
+                        type: bool
 
         debugger:
             type: section
@@ -340,7 +352,7 @@ form:
                     validate:
                         type: bool
 
-                debugger.shutdown.close_conection:
+                debugger.shutdown.close_connection:
                     type: toggle
                     label: Shutdown Close Connection
                     highlight: 1
@@ -349,5 +361,3 @@ form:
                         0: No
                     validate:
                         type: bool
-
-

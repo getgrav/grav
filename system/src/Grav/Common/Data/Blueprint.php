@@ -113,6 +113,7 @@ class Blueprint
     public function fields()
     {
         if (!isset($this->fields)) {
+            $this->fields = [];
             $this->embed('', $this->items);
         }
 
@@ -241,7 +242,7 @@ class Blueprint
         $this->fields();
         $prefix = $name ? strtr($name, $separator, '.') . '.' : '';
         $params = array_intersect_key($this->filter, $value);
-        $this->parseFormFields($value['form']['fields'], $params, $prefix);
+        $this->parseFormFields($value['form']['fields'], $params, $prefix, $this->fields);
     }
 
     /**
@@ -360,12 +361,14 @@ class Blueprint
      * @param array $fields
      * @param array $params
      * @param string $prefix
+     * @param array $current
      * @internal
      */
-    protected function parseFormFields(array &$fields, $params, $prefix)
+    protected function parseFormFields(array &$fields, $params, $prefix, array &$current)
     {
         // Go though all the fields in current level.
         foreach ($fields as $key => &$field) {
+            $current[$key] = &$field;
             // Set name from the array key.
             $field['name'] = $prefix . $key;
             $field += $params;
@@ -373,7 +376,7 @@ class Blueprint
             if (isset($field['fields'])) {
                 // Recursively get all the nested fields.
                 $newParams = array_intersect_key($this->filter, $field);
-                $this->parseFormFields($field['fields'], $newParams, $prefix);
+                $this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
             } else {
                 // Add rule.
                 $this->rules[$prefix . $key] = &$field;

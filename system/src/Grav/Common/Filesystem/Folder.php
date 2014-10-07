@@ -12,7 +12,7 @@ abstract class Folder
     /**
      * Recursively find the last modified time under given path.
      *
-     * @param string $path
+     * @param  string $path
      * @return int
      */
     public static function lastModifiedFolder($path)
@@ -29,6 +29,7 @@ abstract class Folder
                 $last_modified = $dir_modified;
             }
         }
+
         return $last_modified;
     }
 
@@ -46,7 +47,7 @@ abstract class Folder
     /**
      * Recursively find the last modified time under given path by file.
      *
-     * @param string $path
+     * @param  string $path
      * @return int
      */
     public static function lastModifiedFile($path)
@@ -67,15 +68,15 @@ abstract class Folder
             }
 
         }
+
         return $last_modified;
     }
-
 
     /**
      * Return recursive list of all files and directories under given path.
      *
-     * @param string $path
-     * @param array  $params
+     * @param  string            $path
+     * @param  array             $params
      * @return array
      * @throws \RuntimeException
      */
@@ -124,14 +125,15 @@ abstract class Folder
                 $results[] = $filePath;
             }
         }
+
         return $results;
     }
 
     /**
      * Recursively copy directory in filesystem.
      *
-     * @param  string $source
-     * @param  string $target
+     * @param  string            $source
+     * @param  string            $target
      * @throws \RuntimeException
      */
     public static function copy($source, $target)
@@ -175,8 +177,8 @@ abstract class Folder
     /**
      * Move directory in filesystem.
      *
-     * @param  string $source
-     * @param  string $target
+     * @param  string            $source
+     * @param  string            $target
      * @throws \RuntimeException
      */
     public static function move($source, $target)
@@ -204,7 +206,7 @@ abstract class Folder
     /**
      * Recursively delete directory from filesystem.
      *
-     * @param  string $target
+     * @param  string            $target
      * @throws \RuntimeException
      */
     public static function delete($target)
@@ -222,6 +224,25 @@ abstract class Folder
 
         // Make sure that the change will be detected when caching.
         @touch(dirname($target));
+    }
+
+    /**
+     * @param  string            $folder
+     * @throws \RuntimeException
+     * @internal
+     */
+    public static function mkdir($folder)
+    {
+        if (is_dir($folder)) {
+            return;
+        }
+
+        $success = @mkdir($folder, 0777, true);
+
+        if (!$success) {
+            $error = error_get_last();
+            throw new \RuntimeException($error['message']);
+        }
     }
 
     /**
@@ -245,34 +266,16 @@ abstract class Folder
 
         return @rmdir($folder);
     }
-
-    /**
-     * @param  string  $folder
-     * @throws \RuntimeException
-     * @internal
-     */
-    protected static function mkdir($folder)
-    {
-        if (is_dir($folder)) {
-            return;
-        }
-
-        $success = @mkdir($folder, 0777, true);
-
-        if (!$success) {
-            $error = error_get_last();
-            throw new \RuntimeException($error['message']);
-        }
-    }
 }
 
-class GravRecursiveFilterIterator extends \RecursiveFilterIterator {
-
+class GravRecursiveFilterIterator extends \RecursiveFilterIterator
+{
     public static $FILTERS = array(
         '.', '..', '.DS_Store'
     );
 
-    public function accept() {
+    public function accept()
+    {
         return !in_array(
             $this->current()->getFilename(),
             self::$FILTERS,

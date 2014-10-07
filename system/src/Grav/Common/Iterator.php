@@ -1,5 +1,6 @@
 <?php
 namespace Grav\Common;
+
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
 use RocketTheme\Toolbox\ArrayTraits\Iterator as ArrayIterator;
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
@@ -18,7 +19,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     /**
      * @var array
      */
-    protected $items;
+    protected $items = [];
 
     /**
      * Convert function calls for the existing keys into their values.
@@ -112,7 +113,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
         shuffle($keys);
 
         $new = array();
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             $new[$key] = $this->items[$key];
         }
 

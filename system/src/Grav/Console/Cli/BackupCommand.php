@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Console;
+namespace Grav\Console\Cli;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,7 +25,7 @@ class BackupCommand extends Command {
 
         )
         ->setDescription("Creates a backup of the Grav instance")
-        ->setHelp('The <info>backup</info> creates a zipped backup');
+        ->setHelp('The <info>backup</info> creates a zipped backup. Optionally can be saved in a different destination.');
 
 
         $this->source = getcwd();

@@ -14,8 +14,9 @@ if (!file_exists(__DIR__ . '/../vendor')){
 }
 
 use Symfony\Component\Console\Application;
+use Grav\Common\Grav;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+$autoload = require_once(__DIR__ . '/../vendor/autoload.php');
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
@@ -25,13 +26,17 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
-$app = new Application('Grav CLI Application', '0.1.0');
+$grav = Grav::instance(array('loader' => $autoload));
+$grav['config']->init();
+$grav['plugins']->init();
+$grav['themes']->init();
+
+$app = new Application('Grav Package Manager', GRAV_VERSION);
 $app->addCommands(array(
-    new Grav\Console\Cli\InstallCommand(),
-    new Grav\Console\Cli\SandboxCommand(),
-    new Grav\Console\Cli\CleanCommand(),
-    new Grav\Console\Cli\ClearCacheCommand(),
-    new Grav\Console\Cli\BackupCommand(),
-    new Grav\Console\Cli\NewProjectCommand(),
+    new \Grav\Console\Gpm\IndexCommand(),
+    new \Grav\Console\Gpm\InfoCommand(),
+    new \Grav\Console\Gpm\InstallCommand(),
+    new \Grav\Console\Gpm\UpdateCommand(),
+    new \Grav\Console\Gpm\SelfupgradeCommand(),
 ));
 $app->run();
