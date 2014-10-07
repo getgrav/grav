@@ -91,9 +91,6 @@ class AdminPlugin extends Plugin
 
         // Only activate admin if we're inside the admin path.
         if (substr($this->uri->route(), 0, strlen($this->base)) == $this->base) {
-            // Disable system caching.
-            $this->config->set('system.cache.enabled', false);
-
             // Change login behavior.
             $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
 
@@ -238,10 +235,6 @@ class AdminPlugin extends Plugin
             'onTwigTemplatePaths' => ['onTwigTemplatePaths', 1000],
             'onTwigSiteVariables' => ['onTwigSiteVariables', 1000]
         ]);
-
-
-        // Disable system caching.
-        $this->config->set('system.cache.enabled', false);
 
         // Change login behavior.
         $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));

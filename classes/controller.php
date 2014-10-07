@@ -305,6 +305,13 @@ class AdminController
             $this->admin->setMessage('Successfully saved');
         }
 
+        if ($this->view != 'pages') {
+            // Force configuration reload.
+            /** @var Config $config */
+            $config = $this->grav['config'];
+            $config->reload();
+        }
+
         // Redirect to new location.
         if ($obj instanceof Page\Page && $obj->route() != $this->admin->route()) {
             $this->setRedirect($this->view . '/' . $obj->route());

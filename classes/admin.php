@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Plugin;
 
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\User\User;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
@@ -12,7 +13,7 @@ use Grav\Common\Data;
 use Grav\Common\GPM\Local\Packages as LocalPackages;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\LogFile;
-use RocketTheme\Toolbox\File\YamlFile;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Session\Message;
 use RocketTheme\Toolbox\Session\Session;
 use Symfony\Component\Yaml\Yaml;
@@ -135,7 +136,7 @@ class Admin
     public function authenticate($form)
     {
         if (!$this->user->authenticated && isset($form['username']) && isset($form['password'])) {
-            $file = YamlFile::instance(ACCOUNTS_DIR . $form['username'] . YAML_EXT);
+            $file = CompiledYamlFile::instance(ACCOUNTS_DIR . $form['username'] . YAML_EXT);
             if ($file->exists()) {
                 $user = new User($file->content());
                 $user->authenticated = true;
@@ -226,7 +227,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('system'), $blueprints);
                 $obj->merge($post);
-                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
+                $file = CompiledYamlFile::instance(USER_DIR . "config/{$type}.yaml");
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
@@ -238,7 +239,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('site'), $blueprints);
                 $obj->merge($post);
-                $file = YamlFile::instance(USER_DIR . "config/{$type}.yaml");
+                $file = CompiledYamlFile::instance(USER_DIR . "config/{$type}.yaml");
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
@@ -248,11 +249,17 @@ class Admin
                 break;
 
             default:
+                /** @var UniformResourceLocator $locator */
+                $locator = $this->grav['locator'];
+                $filename = $locator->findResource("config://{$type}.yaml", true, true);
+                $file = CompiledYamlFile::instance($filename);
+
                 if (preg_match('|plugins/|', $type)) {
                     /** @var Plugins $plugins */
                     $plugins = $this->grav['plugins'];
                     $obj = $plugins->get(preg_replace('|plugins/|', '', $type));
                     $obj->merge($post);
+                    $obj->file($file);
 
                     $data[$type] = $obj;
                 } elseif (preg_match('|themes/|', $type)) {
@@ -260,6 +267,7 @@ class Admin
                     $themes = $this->grav['themes'];
                     $obj = $themes->get(preg_replace('|themes/|', '', $type));
                     $obj->merge($post);
+                    $obj->file($file);
 
                     $data[$type] = $obj;
                 } else {
