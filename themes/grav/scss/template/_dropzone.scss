@@ -142,18 +142,24 @@ $error-color: #D55A4E;
             position: absolute;
             left: 0;
             right: 0;
-            bottom: 25px;
+            bottom: 22px;
+            border:1px solid darken($content-bg,5%);
+            width: 50%;
             text-align: center;
             cursor: pointer;
             font-size: 0.8rem;
+            &:hover {
+                background: $content-bg;
+            }
         }
 
         &:hover .dz-remove {
-            right: inherit;
+            left: inherit;
+            border-left: 0;
         }
 
         &:hover .dz-insert {
-            left: inherit;
+            right: inherit;
         }
 
         .dz-details {
@@ -161,6 +167,7 @@ $error-color: #D55A4E;
             height: $preview-height;
             position: relative;
             background: lighten($content-bg,3%);
+            border:1px solid darken($content-bg,5%);
             font-size: 0.8rem;
             padding: 5px;
             margin-bottom: 22px;

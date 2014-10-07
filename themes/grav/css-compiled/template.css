@@ -1711,19 +1711,25 @@ body.remodal_active .remodal {
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 25px;
+      bottom: 22px;
+      border: 1px solid #e1e1e1;
+      width: 50%;
       text-align: center;
       cursor: pointer;
       font-size: 0.8rem; }
+      .dropzone .dz-preview:hover .dz-remove:hover, .dropzone .dz-preview:hover .dz-insert:hover {
+        background: #EEEEEE; }
     .dropzone .dz-preview:hover .dz-remove {
-      right: inherit; }
+      left: inherit;
+      border-left: 0; }
     .dropzone .dz-preview:hover .dz-insert {
-      left: inherit; }
+      right: inherit; }
     .dropzone .dz-preview .dz-details {
       width: 150px;
       height: 100px;
       position: relative;
       background: #f6f6f6;
+      border: 1px solid #e1e1e1;
       font-size: 0.8rem;
       padding: 5px;
       margin-bottom: 22px; }
