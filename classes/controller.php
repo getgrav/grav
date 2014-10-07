@@ -162,27 +162,56 @@ class AdminController
         /** @var Config $config */
         $config = $this->grav['config'];
 
-        if (!empty($_FILES)) {
-            $tempFile = $_FILES['file']['tmp_name'];
-            $targetName = $_FILES['file']['name'];
-
-            $fileParts = pathinfo($targetName);
-            $fileExt = $fileParts['extension'];
-
-            // If not a supported type, return
-            if (!$config->get("media.{$fileExt}")) {
-                $this->admin->json_response = ['error', 'Unsupported file type: '.$fileExt];
-                return;
-            }
-
-            // Valid file type, so save it.
-            $targetPath = $page->path();
-            $targetFile =  $targetPath.'/'.$targetName;
-            move_uploaded_file($tempFile,$targetFile);
-            $this->admin->json_response = ['success', 'File uploaded successfully'];
-        } else {
-            $this->admin->json_response = ['error', 'No file found'];
+        if (!isset($_FILES['file']['error']) || is_array($_FILES['file']['error'])) {
+            $this->admin->json_response = ['error', 'Invalid Parameters'];
+            return;
         }
+
+        // Check $_FILES['file']['error'] value.
+        switch ($_FILES['file']['error']) {
+            case UPLOAD_ERR_OK:
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $this->admin->json_response = ['error', 'No files sent'];
+                return;
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $this->admin->json_response = ['error', 'Exceeded filesize limit.'];
+                return;
+            default:
+                $this->admin->json_response = ['error', 'Unkown errors'];
+                return;
+        }
+
+        // You should also check filesize here.
+        if ($_FILES['file']['size'] > 1000000) {
+            $this->admin->json_response = ['error', 'Exceeded filesize limit.'];
+            return;
+        }
+
+
+        // Check extension
+        $fileParts = pathinfo($_FILES['file']['name']);
+        $fileExt = strtolower($fileParts['extension']);
+
+        // If not a supported type, return
+        if (!$config->get("media.{$fileExt}")) {
+            $this->admin->json_response = ['error', 'Unsupported file type: '.$fileExt];
+            return;
+        }
+
+
+        // Upload it
+        if (!move_uploaded_file(
+            $_FILES['file']['tmp_name'],
+            sprintf('%s/%s',  $page->path(),  $_FILES['file']['name'])
+        )) {
+            $this->admin->json_response = ['error', 'Failed to move uploaded file.'];
+            return;
+        }
+
+        $this->admin->json_response = ['success', 'File uploaded successfully'];
+
         return;
     }
 
