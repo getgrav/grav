@@ -144,8 +144,8 @@ class Uri
      */
     public function query($id = null, $raw = false)
     {
-        if (isset($this->query[$id])) {
-            return filter_var($this->query[$id], FILTER_SANITIZE_STRING) ;
+        if (isset($id)) {
+            return isset($this->query[$id]) ? filter_var($this->query[$id], FILTER_SANITIZE_STRING) : null;
         } else {
             if ($raw) {
                 return $this->query;
