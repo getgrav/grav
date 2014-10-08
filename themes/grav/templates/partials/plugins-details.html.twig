@@ -12,6 +12,11 @@
 
 <h1>
     {{ plugin.name|e }}
+    {% if plugin.symlink %}
+    <small class="hint--bottom"  data-hint="This plugin is symbolically linked. Updates won't be detected.">
+        <i class="fa fa-fw fa-link"></i>
+    </small>
+    {% endif %}
     <small>{{ plugin.version ? 'v' ~ plugin.version|e }}</small>
 </h1>
 <div class="gpm-item-info">

@@ -21,7 +21,13 @@
         <tr data-gpm-plugin="{{ slug|url_encode }}">
             <td class="gpm-name">
                 <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
-                <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a> <span class="gpm-version">v{{ plugin.version }}</span>
+                <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a>
+                {% if plugin.symlink %}
+                <span class="hint--bottom"  data-hint="This plugin is symbolically linked. Updates won't be detected.">
+                    <i class="fa fa-fw fa-link"></i>
+                </span>
+                {% endif %}
+                <span class="gpm-version">v{{ plugin.version }}</span>
                 {% if gpm.isPluginUpdatable(slug) %}
                 <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}"><span class="badge update">Update available!</span></a>
                 {% endif %}

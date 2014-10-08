@@ -12,6 +12,11 @@
 
 <h1>
     {{ theme.name|e }}
+    {% if theme.symlink %}
+    <small class="hint--bottom"  data-hint="This theme is symbolically linked. Updates won't be detected.">
+        <i class="fa fa-fw fa-link"></i>
+    </small>
+    {% endif %}
     <small>{{ theme.version ? 'v' ~ theme.version|e }}</small>
 </h1>
 <div class="gpm-item-info">
