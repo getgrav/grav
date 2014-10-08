@@ -538,16 +538,10 @@ class AdminController
         $page->folder($ordering . $slug);
 
         if (isset($input['type'])) {
-            $page->name(((string) $input['type']) . '.md');
-        }
-
-        if ($page->modular() && isset($input['type'])) {
-            if (isset($input['frontmatter'])) {
-                $input['frontmatter'] = 'template: ' . $input['type'] . "\n" . $input['frontmatter'];
-            }
-            if (isset($input['header'])) {
-                $input['header']['template'] = $input['type'];
-            }
+            $type = (string) $input['type'];
+            $name = preg_replace('|.*/|', '', $type) . '.md';
+            $page->name($name);
+            $page->template($type);
         }
 
         // special case for Expert mode build the raw, unset content
