@@ -208,7 +208,7 @@ class Assets
      * Add an inline CSS asset.
      *
      * It checks for duplicates.
-     * You may add more than one asset passing an array as argument.
+     * For adding chunks of string-based inline CSS
      *
      * @param  mixed   $asset
      * @param  int     $priority the priority, bigger comes first
@@ -259,7 +259,7 @@ class Assets
      * Add an inline JS asset.
      *
      * It checks for duplicates.
-     * You may add more than one asset passing an array as argument.
+     * For adding chunks of string-based inline JS
      *
      * @param  mixed   $asset
      * @param  int     $priority the priority, bigger comes first
