@@ -65,6 +65,8 @@ class Assets
     protected $collections = array();
     protected $css = array();
     protected $js = array();
+    protected $inline_css = array();
+    protected $inline_js = array();
 
     // Some configuration variables
     protected $config;
@@ -203,6 +205,25 @@ class Assets
     }
 
     /**
+     * Add an inline CSS asset.
+     *
+     * It checks for duplicates.
+     * You may add more than one asset passing an array as argument.
+     *
+     * @param  mixed   $asset
+     * @param  int     $priority the priority, bigger comes first
+     * @return $this
+     */
+    public function addInlineCss($asset, $priority = 10) {
+
+        if (is_string($asset) && !in_array($asset, $this->inline_css)) {
+            $this->inline_css[] = $asset;
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a CSS asset.
      *
      * It checks for duplicates.
@@ -223,11 +244,32 @@ class Assets
             return $this;
         }
 
-        if( ! $this->isRemoteLink($asset))
+        if( !$this->isRemoteLink($asset)) {
             $asset = $this->buildLocalLink($asset);
+        }
 
-        if( ! in_array($asset, $this->css))
-            $this->css[] = ['asset'=>$asset, 'priority'=>$priority, 'pipeline'=>$pipeline];
+        if( !array_key_exists($asset, $this->css)) {
+            $this->css[$asset] = ['asset'=>$asset, 'priority'=>$priority, 'pipeline'=>$pipeline];
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an inline JS asset.
+     *
+     * It checks for duplicates.
+     * You may add more than one asset passing an array as argument.
+     *
+     * @param  mixed   $asset
+     * @param  int     $priority the priority, bigger comes first
+     * @return $this
+     */
+    public function addInlineJs($asset) {
+
+        if (is_string($asset) && !in_array($asset, $this->inline_js)) {
+            $this->inline_js[] = $asset;
+        }
 
         return $this;
     }
@@ -253,11 +295,13 @@ class Assets
             return $this;
         }
 
-        if( ! $this->isRemoteLink($asset))
+        if( !$this->isRemoteLink($asset)) {
             $asset = $this->buildLocalLink($asset);
+        }
 
-        if( ! in_array($asset, $this->js))
-            $this->js[] = ['asset'=>$asset, 'priority'=>$priority, 'pipeline'=>$pipeline];
+        if( !array_key_exists($asset, $this->js)) {
+            $this->js[$asset] = ['asset' => $asset, 'priority' => $priority, 'pipeline' => $pipeline];
+        }
 
         return $this;
     }
@@ -290,8 +334,19 @@ class Assets
         }
 
 
-        foreach($this->css as $file)
-            $output .= '<link href="'.$file['asset'].'"'.$attributes.' />'."\n";
+        foreach($this->css as $file) {
+            $output .= '<link href="' . $file['asset'] . '"' . $attributes . ' />' . "\n";
+        }
+
+        // Render Inline CSS
+        if (count($this->inline_css) > 0) {
+            $output .= "<style>\n";
+            foreach($this->inline_css as $inline) {
+                $output .= $inline . "\n";
+            }
+            $output .= "</style>\n";
+        }
+
 
         return $output;
     }
@@ -323,8 +378,18 @@ class Assets
         }
 
 
-        foreach($this->js as $file)
-            $output .= '<script src="'.$file['asset'].'"'.$attributes.' ></script>'."\n";
+        foreach($this->js as $file) {
+            $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ></script>' . "\n";
+        }
+
+        // Render Inline JS
+        if (count($this->inline_js) > 0) {
+            $output .= "<script>\n";
+            foreach($this->inline_js as $inline) {
+                $output .= $inline . "\n";
+            }
+            $output .= "</script>\n";
+        }
 
         return $output;
     }
