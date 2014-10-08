@@ -49,17 +49,17 @@
             <div class="titlebar secondary-accent">
                 {% block titlebar %}{% endblock %}
             </div>
-            {% if true or grav_update and grav_update['available'] > grav_update['current'] %}
-            <div class="grav-update">
 
+            <div class="grav-update" data-gpm-grav>
+            {% if admin.gpm.grav.isUpdatable() %}
                 <p>
                 <i class="fa fa-bullhorn"></i>
-                Grav <b>v{{ grav_update['available'] }}</b> is now available! <span class="less">(Current: v.{{ grav_update['current'] }})</span>
+                Grav <b>v{{ admin.gpm.grav.getVersion() }}</b> is now available! <span class="less">(Current: v{{ constant('GRAV_VERSION') }})</span>
                 <button class="button button-small secondary">Update Grav Now</button>
                 </p>
-
-            </div>
             {% endif %}
+            </div>
+
             <div class="content-padding">
                 <div>
                     {% include 'partials/messages.html.twig' %}

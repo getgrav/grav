@@ -1,9 +1,13 @@
+{% set gpm = admin.gpm() %}
+{% set updatable = gpm.getUpdatableThemes() %}
 <div class="grav-update themes">
-    <p>
-        <i class="fa fa-bullhorn"></i>
-        One or more of your themes has an <strong>update available</strong>.
-        <button class="button button-small secondary">Update All Themes</button>
-    </p>
+    {% if updatable |length %}
+        <p>
+            <i class="fa fa-bullhorn"></i>
+            {{ updatable |length }} of your themes have an <strong>update available</strong>.
+            <button class="button button-small secondary">Update All Themes</button>
+        </p>
+    {% endif %}
 </div>
 
 <h1>
@@ -13,7 +17,7 @@
 <div class="themes card-row grid fixed-blocks pure-g">
     {% for slug, package in admin.themes %}
         {% set theme = package.toArray() %}
-        <div class="theme card-item pure-u-1-3">
+        <div class="theme card-item pure-u-1-3" data-gpm-theme="{{ slug|url_encode }}">
             <div class="gpm-name">
                 <i class="fa fa-fw fa-{{ theme.icon }}"></i>
                 <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">{{ theme.name }}</a> <span class="gpm-version">v{{ theme.version }}</span>
@@ -30,7 +34,7 @@
                     <a href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a>
                 </div>
             {% endif %}
-            {% if config.get('system.pages.theme') == slug %}
+            {% if gpm.isThemeUpdatable(slug) %}
                 <div class="gpm-ribbon">
                     <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">UPDATE</a>
                 </div>

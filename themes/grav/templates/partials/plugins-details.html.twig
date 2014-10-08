@@ -1,9 +1,13 @@
-<div class="grav-update plugins">
-    <p>
-        <i class="fa fa-bullhorn"></i>
-        <strong>v{{ plugin.version }}</strong> of this plugin is now available!
-        <button class="button button-small secondary">Update Plugin</button>
-    </p>
+{% set gpm = admin.gpm() %}
+<div class="grav-update plugin" data-gpm-plugin="{{ admin.route }}">
+{% if gpm.isPluginUpdatable(admin.route) %}
+    {% set remote = gpm.getRepositoryPlugin(admin.route) %}
+        <p>
+            <i class="fa fa-bullhorn"></i>
+            <strong>v{{ remote.available }}</strong> of this plugin is now available!
+            <button class="button button-small secondary" data-download="{{ remote.zipball_url }}">Update Plugin</button>
+        </p>
+{% endif %}
 </div>
 
 <h1>
@@ -64,6 +68,7 @@
                 <td>{{ plugin.license }}</td>
             </tr>
         {% endif %}
+
         {% if plugin.description %}
             <tr>
                 <td>Description:</td>

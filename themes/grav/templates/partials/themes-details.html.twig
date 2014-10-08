@@ -1,9 +1,13 @@
-<div class="grav-update plugins">
-    <p>
-        <i class="fa fa-bullhorn"></i>
-        <strong>v{{ theme.version }}</strong> of this theme is now available!
-        <button class="button button-small secondary">Update Theme</button>
-    </p>
+{% set gpm = admin.gpm() %}
+<div class="grav-update theme" data-gpm-theme="{{ admin.route }}">
+    {% if gpm.isThemeUpdatable(admin.route) %}
+    {% set remote = gpm.getRepositoryTheme(admin.route) %}
+        <p>
+            <i class="fa fa-bullhorn"></i>
+            <strong>v{{ remote.available }}</strong> of this theme is now available!
+            <button class="button button-small secondary" data-download="{{ remote.zipball_url }}">Update Theme</button>
+        </p>
+    {% endif %}
 </div>
 
 <h1>
