@@ -48,7 +48,7 @@ form:
 
                     folder:
                       type: text
-                      label: Folder Name
+                      label: Filename
                       validate:
                         type: slug
                         required: true
