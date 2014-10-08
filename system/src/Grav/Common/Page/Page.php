@@ -926,9 +926,6 @@ class Page
             // Path to the page.
             $this->path = dirname(dirname($var));
         }
-        if ($this->modular()) {
-            return $this->name ? $this->path . '/' . $this->folder . '.md' : null;
-        }
         return $this->name ? $this->path . '/' . $this->folder . '/' . $this->name : null;
     }
 
