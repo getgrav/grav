@@ -198,6 +198,11 @@ class Grav extends Container
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
+
+        if (isset($this['session'])) {
+            $this['session']->close();
+        }
+
         header("Location: " . rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'), true, $code);
         exit();
     }
