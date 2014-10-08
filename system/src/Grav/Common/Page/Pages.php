@@ -316,9 +316,19 @@ class Pages
      */
     static public function types()
     {
-        $blueprints = new Blueprints('theme://blueprints/');
+        static $types;
 
-        return $blueprints->types();
+        if (!$types) {
+            $types = new Types();
+            $types->scanBlueprints('theme://blueprints/');
+            $types->scanTemplates('theme://templates/');
+
+            $event = new Event();
+            $event->types = $types;
+            Grav::instance()->fireEvent('onGetPageTemplates', $event);
+        }
+
+        return $types->toSelect();
     }
 
     /**

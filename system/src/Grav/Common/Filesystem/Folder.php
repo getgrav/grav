@@ -89,12 +89,17 @@ abstract class Folder
         $compare = isset($params['compare']) ? 'get' . $params['compare'] : null;
         $pattern = isset($params['pattern']) ? $params['pattern'] : null;
         $filters = isset($params['filters']) ? $params['filters'] : null;
+        $recursive = isset($params['recursive']) ? $params['recursive'] : true;
         $key = isset($params['key']) ? 'get' . $params['key'] : null;
-        $value = isset($params['value']) ? 'get' . $params['value'] : 'getSubPathname';
+        $value = isset($params['value']) ? 'get' . $params['value'] : ($recursive ? 'getSubPathname' : 'getFilename');
 
-        $directory = new \RecursiveDirectoryIterator($path,
-            \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS + \FilesystemIterator::CURRENT_AS_SELF);
-        $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+        if ($recursive) {
+            $directory = new \RecursiveDirectoryIterator($path,
+                \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS + \FilesystemIterator::CURRENT_AS_SELF);
+            $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+        } else {
+            $iterator = new \FilesystemIterator($path);
+        }
 
         $results = array();
 
