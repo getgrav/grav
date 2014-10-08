@@ -186,13 +186,13 @@ $update-height: 3rem;
 
         &.grav {
             margin-top: 0;
-            //@include transition (margin-top 0.15s ease-out);
+            @include transition (margin-top 0.15s ease-out);
         }
     }
 
     .grav-update.grav + .content-padding {
         top: $topbar-height + $update-height;
-        //@include transition (top 0.15s ease-out);
+        @include transition (top 0.15s ease-out);
     }
 
     .content-padding {
