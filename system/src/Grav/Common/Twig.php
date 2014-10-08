@@ -173,8 +173,7 @@ class Twig
         // Get Twig template layout
         if ($item->modularTwig()) {
             $twig_vars['content'] = $content;
-            // FIXME: this is inconsistent with main page.
-            $template = $this->template('modular/' . $item->template()) . TEMPLATE_EXT;
+            $template = $item->template() . TEMPLATE_EXT;
             $output = $this->twig->render($template, $twig_vars);
         } else {
             $name = '@Page:' . $item->path();
