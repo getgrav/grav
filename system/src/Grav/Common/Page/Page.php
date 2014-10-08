@@ -643,7 +643,7 @@ class Page
             $this->template = $var;
         }
         if (empty($this->template)) {
-            $this->template = str_replace(CONTENT_EXT, '', $this->name());
+            $this->template = ($this->modular() ? 'modular/' : '') . str_replace(CONTENT_EXT, '', $this->name());
         }
         return $this->template;
     }

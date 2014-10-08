@@ -343,7 +343,19 @@ class Pages
     {
         $types = self::getTypes();
 
-        return $types->toSelect();
+        return $types->pageSelect();
+    }
+
+    /**
+     * Get available page types.
+     *
+     * @return array
+     */
+    static public function modularTypes()
+    {
+        $types = self::getTypes();
+
+        return $types->modularSelect();
     }
 
     /**

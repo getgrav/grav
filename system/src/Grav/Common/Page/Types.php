@@ -29,9 +29,8 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             'filters' => [
                 'key' => '|\.yaml$|'
                 ],
-            'key' => 'Filename',
+            'key' => 'SubPathName',
             'value' => 'PathName',
-            'recursive' => false
         ];
 
         $this->items = Folder::all($path, $options) + $this->items;
@@ -52,13 +51,34 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         foreach (Folder::all($path, $options) as $type) {
             $this->register($type);
         }
+        if (file_exists($path . 'modular/')) {
+            foreach (Folder::all($path . 'modular/', $options) as $type) {
+                $this->register($type);
+            }
+        }
     }
 
-    public function toSelect()
+    public function pageSelect()
     {
         $list = [];
         foreach ($this->items as $name => $file) {
+            if (strstr($name, '/')) {
+                continue;
+            }
             $list[$name] = ucfirst(strtr($name, '_', ' '));
+        }
+        ksort($list);
+        return $list;
+    }
+
+    public function modularSelect()
+    {
+        $list = [];
+        foreach ($this->items as $name => $file) {
+            if (strstr($name, 'modular/') !== 0) {
+                continue;
+            }
+            $list[$name] = trim(ucfirst(strtr($name, '_', ' ')));
         }
         ksort($list);
         return $list;
