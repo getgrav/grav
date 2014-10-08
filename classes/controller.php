@@ -541,6 +541,15 @@ class AdminController
             $page->name(((string) $input['type']) . '.md');
         }
 
+        if ($page->modular() && isset($input['type'])) {
+            if (isset($input['frontmatter'])) {
+                $input['frontmatter'] = 'template: ' . $input['type'] . "\n" . $input['frontmatter'];
+            }
+            if (isset($input['header'])) {
+                $input['header']['template'] = $input['type'];
+            }
+        }
+
         // special case for Expert mode build the raw, unset content
         if (isset($input['frontmatter']) && isset($input['content'])) {
             $page->raw("---\n" . (string) $input['frontmatter'] . "\n---\n" . (string) $input['content']);
