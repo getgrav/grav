@@ -114,12 +114,6 @@ class Validation
 
     protected static function filterText($value, array $params, array $field)
     {
-        if (!is_string($value)) {
-            var_dump($value);
-            var_dump($params);
-            var_dump($field);
-            die();
-        }
         return (string) $value;
     }
 
