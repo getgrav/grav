@@ -53,7 +53,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
         if (file_exists($path . 'modular/')) {
             foreach (Folder::all($path . 'modular/', $options) as $type) {
-                $this->register($type);
+                $this->register('modular/' . $type);
             }
         }
     }
@@ -62,7 +62,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     {
         $list = [];
         foreach ($this->items as $name => $file) {
-            if (strstr($name, '/')) {
+            if (strpos($name, '/')) {
                 continue;
             }
             $list[$name] = ucfirst(strtr($name, '_', ' '));
@@ -75,10 +75,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     {
         $list = [];
         foreach ($this->items as $name => $file) {
-            if (strstr($name, 'modular/') !== 0) {
+            if (strpos($name, 'modular/') !== 0) {
                 continue;
             }
-            $list[$name] = trim(ucfirst(strtr($name, '_', ' ')));
+            $list[$name] = trim(ucfirst(strtr(basename($name), '_', ' ')));
         }
         ksort($list);
         return $list;
