@@ -132,6 +132,7 @@ $update-height: 3rem;
     }
 
     .titlebar {
+        position: relative;
         height: $topbar-height;
 
         padding: 0 $padding-default;
@@ -154,6 +155,7 @@ $update-height: 3rem;
     .grav-update {
         @include clearfix;
         padding: 0 $padding-default;
+        margin-top: -$padding-default;
         background: $info-bg;
         color: $info-fg;
 
@@ -181,10 +183,16 @@ $update-height: 3rem;
         .less {
             color: rgba($info-fg,0.75);
         }
+
+        &.grav {
+            margin-top: 0;
+            //@include transition (margin-top 0.15s ease-out);
+        }
     }
 
-    .grav-update + .content-padding {
+    .grav-update.grav + .content-padding {
         top: $topbar-height + $update-height;
+        //@include transition (top 0.15s ease-out);
     }
 
     .content-padding {

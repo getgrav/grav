@@ -842,6 +842,7 @@ tr {
     text-align: left;
     letter-spacing: -1px; }
   #admin-main .titlebar {
+    position: relative;
     height: 4.2rem;
     padding: 0 3rem; }
     #admin-main .titlebar .button-bar {
@@ -851,6 +852,7 @@ tr {
     margin-bottom: 2rem; }
   #admin-main .grav-update {
     padding: 0 3rem;
+    margin-top: -3rem;
     background: #9055AF;
     color: #fff; }
     #admin-main .grav-update:after {
@@ -879,7 +881,9 @@ tr {
       padding-right: 0.5rem; }
     #admin-main .grav-update .less {
       color: rgba(255, 255, 255, 0.75); }
-  #admin-main .grav-update + .content-padding {
+    #admin-main .grav-update.grav {
+      margin-top: 0; }
+  #admin-main .grav-update.grav + .content-padding {
     top: 7.2rem; }
   #admin-main .content-padding {
     position: absolute;
