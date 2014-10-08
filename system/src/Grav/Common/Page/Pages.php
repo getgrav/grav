@@ -55,6 +55,11 @@ class Pages
     protected $last_modified;
 
     /**
+     * @var Types
+     */
+    static protected $types;
+
+    /**
      * Constructor
      *
      * @params Grav $c
@@ -262,7 +267,7 @@ class Pages
     public function blueprints($type)
     {
         if (!isset($this->blueprints)) {
-            $this->blueprints = new Blueprints('theme://blueprints/');
+            $this->blueprints = new Blueprints(self::getTypes());
         }
 
         try {
@@ -312,21 +317,31 @@ class Pages
     /**
      * Get available page types.
      *
+     * @return Types
+     */
+    static public function getTypes()
+    {
+        if (!self::$types) {
+            self::$types = new Types();
+            self::$types->scanBlueprints('theme://blueprints/');
+            self::$types->scanTemplates('theme://templates/');
+
+            $event = new Event();
+            $event->types = self::$types;
+            Grav::instance()->fireEvent('onGetPageTemplates', $event);
+        }
+
+        return self::$types;
+    }
+
+    /**
+     * Get available page types.
+     *
      * @return array
      */
     static public function types()
     {
-        static $types;
-
-        if (!$types) {
-            $types = new Types();
-            $types->scanBlueprints('theme://blueprints/');
-            $types->scanTemplates('theme://templates/');
-
-            $event = new Event();
-            $event->types = $types;
-            Grav::instance()->fireEvent('onGetPageTemplates', $event);
-        }
+        $types = self::getTypes();
 
         return $types->toSelect();
     }

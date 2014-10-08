@@ -2,16 +2,17 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Filesystem\Folder;
+use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
 
-class Types
+class Types implements \ArrayAccess, \Iterator, \Countable
 {
-    use Constructor, Iterator, Countable, Export;
+    use ArrayAccess, Constructor, Iterator, Countable, Export;
 
-    protected $items = [];
+    protected $items;
 
     public function register($type, $blueprint = null)
     {
