@@ -168,7 +168,7 @@ class GPM extends Iterator
         }
 
         foreach ($this->installed['plugins'] as $slug => $plugin) {
-            if (!isset($repository[$slug])) {
+            if (!isset($repository[$slug]) || $plugin->symlink) {
                 continue;
             }
 
@@ -223,7 +223,7 @@ class GPM extends Iterator
         }
 
         foreach ($this->installed['themes'] as $slug => $plugin) {
-            if (!isset($repository[$slug])) {
+            if (!isset($repository[$slug]) || $plugin->symlink) {
                 continue;
             }
 
