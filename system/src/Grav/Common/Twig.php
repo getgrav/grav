@@ -80,7 +80,7 @@ class Twig
 
             $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
-                $params['cache'] = $locator->findResource('cache://');
+                $params['cache'] = $locator->findResource('cache://twig', true, true);
             }
 
             $this->twig = new \Twig_Environment($loader_chain, $params);
