@@ -118,7 +118,7 @@ class Cache extends Getters
                 break;
 
             default:
-                $driver = new \Doctrine\Common\Cache\FilesystemCache(CACHE_DIR.'pages/');
+                $driver = new \Doctrine\Common\Cache\FilesystemCache(CACHE_DIR);
                 break;
         }
 
