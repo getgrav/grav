@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
@@ -15,6 +14,7 @@ use Grav\Common\Markdown\Markdown;
 use Grav\Common\Markdown\MarkdownExtra;
 use Grav\Common\Data\Blueprint;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\File\MarkdownFile;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -430,12 +430,13 @@ class Page
     /**
      * Get file object to the page.
      *
-     * @return CompiledMarkdownFile|null
+     * @return MarkdownFile|null
      */
     public function file()
     {
         if ($this->name) {
-            return CompiledMarkdownFile::instance($this->filePath());
+            // TODO: use CompiledMarkdownFile after fixing issues in it.
+            return MarkdownFile::instance($this->filePath());
         }
         return null;
     }
