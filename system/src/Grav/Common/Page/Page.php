@@ -1619,7 +1619,7 @@ class Page
         } else {
             $parsedown = new Markdown($this);
         }
-        $content = $parsedown->parse($content);
+        $content = $parsedown->text($content);
         return $content;
     }
 
