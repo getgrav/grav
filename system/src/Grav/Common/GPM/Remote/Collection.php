@@ -4,6 +4,8 @@ namespace Grav\Common\GPM\Remote;
 use Grav\Common\GPM\Response;
 use Grav\Common\GravTrait;
 use Grav\Common\Iterator;
+use \Doctrine\Common\Cache\Cache as DoctrineCache;
+use \Doctrine\Common\Cache\FilesystemCache;
 
 class Collection extends Iterator {
     use GravTrait;
@@ -20,6 +22,7 @@ class Collection extends Iterator {
      */
     private $lifetime = 86400;
     private $repository;
+    private $cache;
 
     private $plugins, $themes;
 
@@ -28,8 +31,11 @@ class Collection extends Iterator {
             throw new \RuntimeException("A repository is required for storing the cache");
         }
 
+        $cache_dir = self::$grav['locator']->findResource('cache://gpm', true, true);
+        $this->cache = new FilesystemCache($cache_dir);
+
         $this->repository = $repository;
-        $this->raw        = self::$grav['cache']->fetch(md5($this->repository));
+        $this->raw        = $this->cache->fetch(md5($this->repository));
     }
 
     public function toJson() {
@@ -56,7 +62,7 @@ class Collection extends Iterator {
         if (!$this->raw || $refresh) {
             $response  = Response::get($this->repository, [], $callback);
             $this->raw = $response;
-            self::$grav['cache']->save(md5($this->repository), $this->raw, $this->lifetime);
+            $this->cache->save(md5($this->repository), $this->raw, $this->lifetime);
         }
 
         return $this->raw;
