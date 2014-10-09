@@ -70,7 +70,7 @@ class SelfupgradeCommand extends Command
 
     private function download($package)
     {
-        $this->tmp = sys_get_temp_dir() . DS . 'Grav-' . uniqid();
+        $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
         $output    = Response::get($package->download, [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
