@@ -35,6 +35,8 @@ class Cache extends Getters
      */
     protected $enabled;
 
+    protected $cache_dir;
+
     /**
      * Constructor
      *
@@ -55,6 +57,8 @@ class Cache extends Getters
     {
         /** @var Config $config */
         $this->config = $grav['config'];
+
+        $this->cache_dir = $grav['locator']->findResource('cache://doctrine', true, true);
 
         /** @var Uri $uri */
         $uri = $grav['uri'];
@@ -118,7 +122,7 @@ class Cache extends Getters
                 break;
 
             default:
-                $driver = new \Doctrine\Common\Cache\FilesystemCache(CACHE_DIR);
+                $driver = new \Doctrine\Common\Cache\FilesystemCache($this->cache_dir);
                 break;
         }
 
