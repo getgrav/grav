@@ -5,6 +5,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
 use Grav\Common\Page\Medium;
+use Grav\Common\Uri;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
@@ -97,7 +98,7 @@ trait MarkdownGravLinkTrait
                     }
                 } else {
                     // not a current page media file, see if it needs converting to relative
-                    $Excerpt['element']['attributes']['src'] = $this->convertUrl($url['path']);
+                    $Excerpt['element']['attributes']['src'] = $this->convertUrl(Uri::build_url($url));
                 }
             }
         }
