@@ -1,0 +1,84 @@
+rules:
+  slug:
+    pattern: "[a-z][a-z0-9_\-]+"
+    min: 2
+    max: 80
+
+form:
+  validation: loose
+  fields:
+
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            frontmatter:
+              type: frontmatter
+              label: Frontmatter
+
+
+            content:
+              type: markdown
+              label: Content
+
+            uploads:
+              type: uploads
+              label: Page Media
+
+
+        options:
+          type: tab
+          title: Options
+
+          fields:
+
+            columns:
+              type: columns
+
+              fields:
+                column1:
+                  type: column
+
+                  fields:
+
+                    folder:
+                      type: text
+                      label: Folder Name
+                      validate:
+                        type: slug
+                        required: true
+
+                    route:
+                      type: select
+                      label: Parent
+                      classes: fancy
+                      @data-options: '\Grav\Common\Page\Pages::parents'
+                      @data-default: '\Grav\Plugin\admin::route'
+                      options:
+                        '/': '- Root -'
+                      validate:
+                        required: true
+
+                    type:
+                      type: select
+                      classes: fancy
+                      label: Display Template
+                      default: default
+                      @data-options: '\Grav\Common\Page\Pages::types'
+                      validate:
+                        required: true
+
+                column2:
+                    type: column
+
+                    fields:
+                      order:
+                        type: order
+                        label: Ordering
+

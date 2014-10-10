@@ -1,11 +1,12 @@
 <?php
 namespace Grav\Common\Service;
 
-use Grav\Component\DI\ServiceProviderInterface;
-use Grav\Component\Filesystem\ResourceLocator;
-use Grav\Component\Filesystem\StreamWrapper\ReadOnlyStream;
-use Grav\Component\Filesystem\StreamWrapper\Stream;
+use Grav\Common\Config\Config;
 use Pimple\Container;
+use RocketTheme\Toolbox\DI\ServiceProviderInterface;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RocketTheme\Toolbox\StreamWrapper\ReadOnlyStream;
+use RocketTheme\Toolbox\StreamWrapper\Stream;
 
 class StreamsServiceProvider implements ServiceProviderInterface
 {
@@ -14,16 +15,18 @@ class StreamsServiceProvider implements ServiceProviderInterface
         $self = $this;
 
         $container['locator'] = function($c) use ($self) {
-            $locator = new ResourceLocator;
+            $locator = new UniformResourceLocator(ROOT_DIR);
             $self->init($c, $locator);
 
             return $locator;
         };
     }
 
-    protected function init(Container $container, ResourceLocator $locator)
+    protected function init(Container $container, UniformResourceLocator $locator)
     {
-        $schemes = $container['config']->get('streams.schemes');
+        /** @var Config $config */
+        $config = $container['config'];
+        $schemes = $config->get('streams.schemes');
 
         if (!$schemes) {
             return;
@@ -50,7 +53,7 @@ class StreamsServiceProvider implements ServiceProviderInterface
             }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
             if ($type[0] != '\\') {
-                $type = '\\Grav\\Component\\Filesystem\\StreamWrapper\\' . $type;
+                $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
 
             if (!stream_wrapper_register($scheme, $type)) {

@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
-use \Symfony\Component\Yaml\Yaml;
+use Grav\Common\File\CompiledYamlFile;
 
 /**
  * Blueprints class keeps track on blueprint instances.
@@ -16,11 +16,15 @@ class Blueprints
     protected $instances = array();
 
     /**
-     * @param  string  $search  Search path.
+     * @param  string|array  $search  Search path.
      */
     public function __construct($search)
     {
-        $this->search = rtrim($search, '\\/') . '/';
+        if (!is_string($search)) {
+            $this->search = $search;
+        } else {
+            $this->search = rtrim($search, '\\/') . '/';
+        }
     }
 
     /**
@@ -33,11 +37,18 @@ class Blueprints
     public function get($type)
     {
         if (!isset($this->instances[$type])) {
-            if (is_file($this->search . $type . YAML_EXT)) {
-                $blueprints = (array) Yaml::parse($this->search . $type . YAML_EXT);
+            if (is_string($this->search)) {
+                $filename = $this->search . $type . YAML_EXT;
+            } else {
+                $filename = isset($this->search[$type]) ? $this->search[$type] : '';
+            }
+
+            if ($filename && is_file($filename)) {
+                $file = CompiledYamlFile::instance($filename);
+                $blueprints = $file->content();
             } else {
                 // throw new \RuntimeException("Blueprints for '{$type}' cannot be found! {$this->search}{$type}");
-                $blueprints = array();
+                $blueprints = [];
             }
 
             $blueprint = new Blueprint($type, $blueprints, $this);

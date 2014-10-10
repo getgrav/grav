@@ -28,7 +28,10 @@ class Uri
     {
 
         $base = 'http://';
-        $uri = $_SERVER['REQUEST_URI'];
+        $name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+        $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
+        $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+
         $root_path = rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/');
 
 
@@ -36,15 +39,15 @@ class Uri
             $base = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
         }
 
-        $base .= $_SERVER['SERVER_NAME'];
+        $base .= $name;
 
-        if ($_SERVER['SERVER_PORT'] != '80' && $_SERVER['SERVER_PORT'] != '443') {
-            $base .= ":".$_SERVER['SERVER_PORT'];
+        if ($port != '80' && $port != '443') {
+            $base .= ":".$port;
         }
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
-        if (strpos($_SERVER['REQUEST_URI'], '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
-            $root_path = substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], '/', 1)) . $root_path;
+        if (strpos($uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
+            $root_path = substr($uri, 0, strpos($uri, '/', 1)) . $root_path;
         }
 
         $this->base = $base;
@@ -130,7 +133,7 @@ class Uri
      */
     public function route($absolute = false, $domain = false)
     {
-        return ($absolute ? $this->rootUrl($domain) : '') . '/' . implode('/', $this->paths);
+        return urldecode(($absolute ? $this->rootUrl($domain) : '') . '/' . implode('/', $this->paths));
     }
 
     /**
@@ -139,12 +142,16 @@ class Uri
      * @param  string  $id  Optional attribute.
      * @return string
      */
-    public function query($id = null)
+    public function query($id = null, $raw = false)
     {
         if (isset($id)) {
-            return filter_var($this->query[$id], FILTER_SANITIZE_STRING) ;
+            return isset($this->query[$id]) ? filter_var($this->query[$id], FILTER_SANITIZE_STRING) : null;
         } else {
-            return http_build_query($this->query);
+            if ($raw) {
+                return $this->query;
+            } else {
+                return http_build_query($this->query);
+            }
         }
     }
 
@@ -215,7 +222,10 @@ class Uri
      *
      * @return String The extension of the URI
      */
-    public function extension() {
+    public function extension($default = null) {
+        if (!$this->extension) {
+            $this->extension = $default;
+        }
         return $this->extension;
     }
 
@@ -306,7 +316,6 @@ class Uri
      */
     public function ip()
     {
-        $ipaddress = '';
         if (getenv('HTTP_CLIENT_IP'))
             $ipaddress = getenv('HTTP_CLIENT_IP');
         else if(getenv('HTTP_X_FORWARDED_FOR'))

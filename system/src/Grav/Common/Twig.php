@@ -1,8 +1,9 @@
 <?php
 namespace Grav\Common;
 
-use \Grav\Common\Page\Page;
-use Grav\Component\Filesystem\ResourceLocator;
+use Grav\Common\Config\Config;
+use Grav\Common\Page\Page;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Twig object handles all the Twig template rendering for Grav. It's a singleton object
@@ -67,7 +68,7 @@ class Twig
         if (!isset($this->twig)) {
             /** @var Config $config */
             $config = $this->grav['config'];
-            /** @var ResourceLocator $locator */
+            /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
 
             $this->twig_paths = $locator->findResources('theme://templates');
@@ -79,7 +80,7 @@ class Twig
 
             $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
-                $params['cache'] = $locator->findResource('cache://');
+                $params['cache'] = $locator->findResource('cache://twig', true, true);
             }
 
             $this->twig = new \Twig_Environment($loader_chain, $params);
@@ -172,14 +173,31 @@ class Twig
         // Get Twig template layout
         if ($item->modularTwig()) {
             $twig_vars['content'] = $content;
-            // FIXME: this is inconsistent with main page.
-            $template = $this->template('modular/' . $item->template()) . TEMPLATE_EXT;
+            $template = $item->template() . TEMPLATE_EXT;
             $output = $this->twig->render($template, $twig_vars);
         } else {
             $name = '@Page:' . $item->path();
             $this->setTemplate($name, $content);
             $output = $this->twig->render($name, $twig_vars);
         }
+
+        return $output;
+    }
+
+    /**
+     * @param string $string  string to render.
+     * @param array $vars     Optional variables
+     * @return string
+     */
+    public function processString($string, array $vars = array())
+    {
+        // override the twig header vars for local resolution
+        $this->grav->fireEvent('onTwigStringVariables');
+        $vars += $this->twig_vars;
+
+        $name = '@Var:' . $string;
+        $this->setTemplate($name, $string);
+        $output = $this->twig->render($name, $vars);
 
         return $output;
     }

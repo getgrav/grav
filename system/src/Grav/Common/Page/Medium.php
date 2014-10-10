@@ -1,12 +1,12 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\Config;
-use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\Data;
-use Grav\Common\Filesystem\File\Yaml;
+use Grav\Common\Config\Config;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\GravTrait;
+use Grav\Common\Data\Blueprint;
+use Grav\Common\Data\Data;
 use Gregwar\Image\Image as ImageFile;
 
 /**
@@ -50,6 +50,8 @@ class Medium extends Data
     protected $type = 'guess';
     protected $quality = 80;
 
+    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom', 'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
+
     /**
      * @var array
      */
@@ -90,6 +92,26 @@ class Medium extends Data
     public function __toString()
     {
         return $this->linkImage ? $this->html() : $this->url();
+    }
+
+    /**
+     * Return PATH to file.
+     *
+     * @return  string path to file
+     */
+    public function path()
+    {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        if ($this->image) {
+            $output = $this->image->cacheFile($this->type, $this->quality);
+            $this->reset();
+            $output = ROOT_DIR . $output;
+        } else {
+            $output = $this->get('path') . '/' . $this->get('filename');
+        }
+        return $output;
     }
 
     /**
@@ -204,9 +226,11 @@ class Medium extends Data
 
     public function lightboxRaw($width = null, $height = null)
     {
+        /** @var Config $config */
+        $config = self::$grav['config'];
         $url = $this->url();
         $this->link($width, $height);
-        $lightbox_url = self::$grav['config']->get('system.base_url_relative') . '/'. $this->linkTarget;
+        $lightbox_url = $config->get('system.base_url_relative') . '/'. $this->linkTarget;
 
         return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
     }
@@ -309,7 +333,7 @@ class Medium extends Data
 
         $path = $this->get('path') . '/' . $this->get('filename') . '.meta.' . $type;
         if ($type == 'yaml') {
-            $this->merge(Yaml::instance($path)->content());
+            $this->merge(CompiledYamlFile::instance($path)->content());
         } elseif (in_array($type, array('jpg', 'jpeg', 'png', 'gif'))) {
             $this->set('thumb', $path);
         }

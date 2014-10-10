@@ -1,10 +1,13 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Page\Pages;
+use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
-use Grav\Component\DI\Container;
-use Grav\Component\EventDispatcher\Event;
-use Grav\Component\EventDispatcher\EventDispatcher;
+use RocketTheme\Toolbox\DI\Container;
+use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\Event\EventDispatcher;
+use Grav\Common\Page\Medium;
 
 /**
  * Grav
@@ -50,8 +53,6 @@ class Grav extends Container
     {
         $container = new static($values);
 
-        $container['config_path'] = CACHE_DIR . 'config.php';
-
         $container['grav'] = $container;
 
         $container['uri'] = function ($c) {
@@ -64,9 +65,6 @@ class Grav extends Container
 
         $container['events'] = function ($c) {
             return new EventDispatcher;
-        };
-        $container['config'] = function ($c) {
-            return Config::instance($c);
         };
         $container['cache'] = function ($c) {
             return new Cache($c);
@@ -90,9 +88,36 @@ class Grav extends Container
             return new Assets();
         };
         $container['page'] = function ($c) {
-            $page = $c['pages']->dispatch($c['uri']->route());
+            /** @var Pages $pages */
+            $pages = $c['pages'];
+            $page = $pages->dispatch($c['uri']->route());
 
             if (!$page || !$page->routable()) {
+
+                // special  case where a media file is requested
+                if (!$page) {
+                    $path_parts = pathinfo($c['uri']->route());
+                    $page = $c['pages']->dispatch($path_parts['dirname']);
+                    if ($page) {
+                        $media = $page->media()->all();
+                        $media_file = urldecode($path_parts['basename']);
+                        if (isset($media[$media_file])) {
+                            $medium = $media[$media_file];
+
+                            // loop through actions for the image and call them
+                            foreach ($c['uri']->query(null,true) as $action => $params) {
+                                if (in_array($action, Medium::$valid_actions)) {
+                                    call_user_func_array(array(&$medium, $action), explode(',', $params));
+                                }
+                            }
+                            header('Content-type: '. $mime = $medium->get('mime'));
+                            echo file_get_contents($medium->path());
+                            die;
+                        }
+                    }
+                }
+
+                // If no page found, fire event
                 $event = $c->fireEvent('onPageNotFound');
 
                 if (isset($event->page)) {
@@ -111,6 +136,7 @@ class Grav extends Container
         };
 
         $container->register(new StreamsServiceProvider);
+        $container->register(new ConfigServiceProvider);
 
         return $container;
     }
@@ -120,8 +146,8 @@ class Grav extends Container
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
 
-        // Initialize stream wrappers.
-        $this['locator'];
+        // Initialize configuration.
+        $this['config']->init();
 
         $this['plugins']->init();
 
@@ -172,6 +198,11 @@ class Grav extends Container
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
+
+        if (isset($this['session'])) {
+            $this['session']->close();
+        }
+
         header("Location: " . rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'), true, $code);
         exit();
     }
@@ -232,7 +263,10 @@ class Grav extends Container
         if($this['config']->get('system.debugger.shutdown.close_connection')) {
             set_time_limit(0);
             ignore_user_abort(true);
-            session_write_close();
+
+            if (isset($this['session'])) {
+                $this['session']->close();
+            }
 
             header('Content-length: ' . ob_get_length());
             header("Connection: close\r\n");

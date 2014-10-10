@@ -90,9 +90,8 @@ class Inflector
     /**
     * Singularizes English nouns.
     *
-    * @access static public
-    * @static
     * @param    string    $word    English noun to singularize
+    * @param    int       $count
     * @return string Singular noun.
     */
     public static function singularize($word, $count = 1)
@@ -353,10 +352,10 @@ class Inflector
 
     public static function monthize($days)
     {
-        $now = new JDate();
-        $end = new JDate();
+        $now = new \DateTime();
+        $end = new \DateTime();
 
-        $duration = new DateInterval("P{$days}D");
+        $duration = new \DateInterval("P{$days}D");
 
         $diff = $end->add($duration)->diff($now);
 

@@ -1,7 +1,9 @@
 <?php
 namespace Grav\Common;
 
-use \Grav\Common\Page;
+use Grav\Common\Config\Config;
+use Grav\Common\Page\Collection;
+use Grav\Common\Page\Page;
 
 /**
  * The Taxonomy object is a singleton that holds a reference to a 'taxonomy map'. This map is
@@ -41,10 +43,10 @@ class Taxonomy
      * Takes an individual page and processes the taxonomies configured in its header. It
      * then adds those taxonomies to the map
      *
-     * @param Page\Page $page the page to process
+     * @param Page $page the page to process
      * @param array $page_taxonomy
      */
-    public function addTaxonomy(Page\Page $page, $page_taxonomy = null)
+    public function addTaxonomy(Page $page, $page_taxonomy = null)
     {
         if (!$page_taxonomy) {
             $page_taxonomy = $page->taxonomy();
@@ -69,7 +71,7 @@ class Taxonomy
      * particular taxonomy.
      *
      * @param  array $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
-     * @return Page\Page             page object with sub-pages set to contain matches found in the taxonomy map
+     * @return Page             page object with sub-pages set to contain matches found in the taxonomy map
      */
     public function findTaxonomy($taxonomies)
     {
@@ -83,7 +85,7 @@ class Taxonomy
             }
         }
 
-        return new Page\Collection($results, ['taxonomies' => $taxonomies]);
+        return new Collection($results, ['taxonomies' => $taxonomies]);
     }
 
     /**

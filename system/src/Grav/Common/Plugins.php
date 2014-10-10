@@ -1,9 +1,12 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Filesystem\File;
-use Grav\Component\EventDispatcher\EventDispatcher;
-use Grav\Component\EventDispatcher\EventSubscriberInterface;
+use Grav\Common\Config\Config;
+use Grav\Common\Data\Blueprints;
+use Grav\Common\Data\Data;
+use Grav\Common\File\CompiledYamlFile;
+use RocketTheme\Toolbox\Event\EventDispatcher;
+use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 
 /**
  * The Plugins object holds an array of all the plugin objects that
@@ -41,7 +44,7 @@ class Plugins extends Iterator
                 continue;
             }
 
-            $filePath = $this->grav['locator']('plugin://' . $plugin . DS . $plugin . PLUGIN_EXT);
+            $filePath = $this->grav['locator']('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
             if (!is_file($filePath)) {
                 throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found!", $filePath, $plugin));
             }
@@ -73,12 +76,12 @@ class Plugins extends Iterator
     /**
      * Return list of all plugin data with their blueprints.
      *
-     * @return array|Data\Data[]
+     * @return array
      */
     static public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator('plugin:///');
+        $iterator = new \DirectoryIterator('plugins://');
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
@@ -95,18 +98,18 @@ class Plugins extends Iterator
         return $list;
     }
 
-    static public function get($type)
+    static public function get($name)
     {
-        $blueprints = new Data\Blueprints('plugin://' . $type);
+        $blueprints = new Blueprints("plugins://{$name}");
         $blueprint = $blueprints->get('blueprints');
-        $blueprint->name = $type;
+        $blueprint->name = $name;
 
         // Load default configuration.
-        $file = File\Yaml::instance('plugin://' . "{$type}/{$type}" . YAML_EXT);
-        $obj = new Data\Data($file->content(), $blueprint);
+        $file = CompiledYamlFile::instance("plugins://{$name}/{$name}.yaml");
+        $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = File\Yaml::instance('plugin://' . "config/plugins/{$type}" . YAML_EXT);
+        $file = CompiledYamlFile::instance("user://config/plugins/{$name}.yaml");
         $obj->merge($file->content());
 
         // Save configuration always to user/config.

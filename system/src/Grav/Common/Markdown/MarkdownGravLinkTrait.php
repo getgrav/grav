@@ -1,8 +1,10 @@
 <?php
 namespace Grav\Common\Markdown;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
+use Grav\Common\Page\Medium;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
@@ -13,10 +15,13 @@ trait MarkdownGravLinkTrait
 
     protected function identifyLink($Excerpt)
     {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
         // Run the parent method to get the actual results
         $Excerpt = parent::identifyLink($Excerpt);
         $actions = array();
-        $this->base_url = trim(self::$grav['config']->get('system.base_url_relative'));
+        $this->base_url = trim($config->get('system.base_url_relative'));
 
         // if this is a link
         if (isset($Excerpt['element']['attributes']['href'])) {
@@ -57,8 +62,8 @@ trait MarkdownGravLinkTrait
 
                     // loop through actions for the image and call them
                     foreach ($actions as $action => $params) {
-                        // as long as it's not an html, url or ligtbox action
-                        if (!in_array($action, ['html','url','lightbox'])) {
+                        // as long as it's a valid action
+                        if (in_array($action, Medium::$valid_actions)) {
                             call_user_func_array(array(&$medium, $action), explode(',', $params));
                         }
                     }

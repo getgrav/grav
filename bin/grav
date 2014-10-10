@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+define('GRAV_CLI', true);
 
 if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
     exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
@@ -8,13 +9,13 @@ if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
 if (!file_exists(__DIR__ . '/../vendor')){
     // Before we can even start, we need to run composer first
     echo "Preparing to install vendor dependencies...\n\n";
-    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction install -o');
+    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction install');
     echo "\n\n";
 }
 
 use Symfony\Component\Console\Application;
 
-require_once(__DIR__ . '/../vendor/autoload.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
@@ -26,11 +27,11 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
 
 $app = new Application('Grav CLI Application', '0.1.0');
 $app->addCommands(array(
-    new Grav\Console\InstallCommand(),
-    new Grav\Console\SetupCommand(),
-    new Grav\Console\CleanCommand(),
-    new Grav\Console\ClearCacheCommand(),
-    new Grav\Console\BackupCommand(),
-    new Grav\Console\NewProjectCommand(),
+    new Grav\Console\Cli\InstallCommand(),
+    new Grav\Console\Cli\SandboxCommand(),
+    new Grav\Console\Cli\CleanCommand(),
+    new Grav\Console\Cli\ClearCacheCommand(),
+    new Grav\Console\Cli\BackupCommand(),
+    new Grav\Console\Cli\NewProjectCommand(),
 ));
 $app->run();

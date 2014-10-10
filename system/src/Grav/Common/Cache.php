@@ -2,6 +2,7 @@
 namespace Grav\Common;
 
 use \Doctrine\Common\Cache\Cache as DoctrineCache;
+use Grav\Common\Config\Config;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
@@ -34,6 +35,8 @@ class Cache extends Getters
      */
     protected $enabled;
 
+    protected $cache_dir;
+
     /**
      * Constructor
      *
@@ -55,6 +58,8 @@ class Cache extends Getters
         /** @var Config $config */
         $this->config = $grav['config'];
 
+        $this->cache_dir = $grav['locator']->findResource('cache://doctrine', true, true);
+
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
@@ -63,7 +68,7 @@ class Cache extends Getters
         $this->enabled = (bool) $this->config->get('system.cache.enabled');
 
         // Cache key allows us to invalidate all cache on configuration changes.
-        $this->key = substr(md5(($prefix ? $prefix : 'g') . $uri->rootUrl(true) . $this->config->key . GRAV_VERSION), 2, 8);
+        $this->key = substr(md5(($prefix ? $prefix : 'g') . $uri->rootUrl(true) . $this->config->key() . GRAV_VERSION), 2, 8);
 
         $this->driver = $this->getCacheDriver();
 
@@ -117,7 +122,7 @@ class Cache extends Getters
                 break;
 
             default:
-                $driver = new \Doctrine\Common\Cache\FilesystemCache(CACHE_DIR);
+                $driver = new \Doctrine\Common\Cache\FilesystemCache($this->cache_dir);
                 break;
         }
 

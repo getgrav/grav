@@ -3,7 +3,7 @@ namespace Grav\Common\Page;
 
 use Grav\Common\Getters;
 use Grav\Common\Grav;
-use Grav\Common\Config;
+use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
 
 /**
@@ -55,6 +55,9 @@ class Media extends Getters
             if (!$medium) {
                 continue;
             }
+
+            //set file size
+            $medium->set('size',$info->getSize());
 
             // Assign meta files to the medium.
             if ($meta) {

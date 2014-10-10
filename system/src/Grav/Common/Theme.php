@@ -1,8 +1,7 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Filesystem\File\Yaml;
-use Grav\Component\Filesystem\ResourceLocator;
+use Grav\Common\Config\Config;
 
 class Theme extends Plugin
 {

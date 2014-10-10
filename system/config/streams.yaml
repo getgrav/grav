@@ -1,46 +1,25 @@
 schemes:
-  plugin:
-    type: ReadOnlyStream
-    paths:
-      - user/plugins
-      - system/plugins
-
   asset:
     type: ReadOnlyStream
     paths:
       - assets
 
-  cache:
+  image:
     type: ReadOnlyStream
     paths:
-      - cache
-
-  log:
-    type: ReadOnlyStream
-    paths:
-      - logs
-
-  user:
-    type: ReadOnlyStream
-    paths:
-      - user
+      - user://images
 
   page:
     type: ReadOnlyStream
     paths:
-      - user/pages
+      - user://pages
 
   account:
     type: ReadOnlyStream
     paths:
-      - user/accounts
+      - user://accounts
 
   data:
     type: ReadOnlyStream
     paths:
-      - user/data
-
-  themes:
-    type: ReadOnlyStream
-    paths:
-      - user/themes
+      - user://data

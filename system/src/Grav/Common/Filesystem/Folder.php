@@ -12,7 +12,7 @@ abstract class Folder
     /**
      * Recursively find the last modified time under given path.
      *
-     * @param string $path
+     * @param  string $path
      * @return int
      */
     public static function lastModifiedFolder($path)
@@ -29,13 +29,25 @@ abstract class Folder
                 $last_modified = $dir_modified;
             }
         }
+
         return $last_modified;
     }
 
+
+    public static function getRelativePath($to, $from = ROOT_DIR)
+    {
+        $from = preg_replace('![\\|/]+!', '/', $from);
+        $to = preg_replace('![\\|/]+!', '/', $to);
+        if (strpos($to, $from) === 0) {
+            $to = substr($to, strlen($from));
+        }
+
+        return $to;
+    }
     /**
      * Recursively find the last modified time under given path by file.
      *
-     * @param string $path
+     * @param  string $path
      * @return int
      */
     public static function lastModifiedFile($path)
@@ -48,43 +60,43 @@ abstract class Folder
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($itr as $file) {
-            if (!$file->isDir()) {
-                $file_modified = $file->getMTime();
-                if ($file_modified > $last_modified) {
-                    $last_modified = $file_modified;
-                }
+            $file_modified = $file->getMTime();
+            if ($file_modified > $last_modified) {
+                $last_modified = $file_modified;
             }
-
         }
+
         return $last_modified;
     }
-
 
     /**
      * Return recursive list of all files and directories under given path.
      *
-     * @param string $path
-     * @param array  $params
+     * @param  string            $path
+     * @param  array             $params
      * @return array
      * @throws \RuntimeException
      */
     public static function all($path, array $params = array())
     {
-        $path = realpath($path);
-
         if ($path === false) {
             throw new \RuntimeException("Path to {$path} doesn't exist.");
         }
 
-        $compare = $params['compare'] ? 'get' . $params['compare'] : null;
-        $pattern = $params['pattern'] ? $params['pattern'] : null;
-        $filters = $params['filters'] ? $params['filters'] : null;
-        $key = $params['key'] ? 'get' . $params['key'] : null;
-        $value = $params['value'] ? 'get' . $params['value'] : 'SubPathname';
+        $compare = isset($params['compare']) ? 'get' . $params['compare'] : null;
+        $pattern = isset($params['pattern']) ? $params['pattern'] : null;
+        $filters = isset($params['filters']) ? $params['filters'] : null;
+        $recursive = isset($params['recursive']) ? $params['recursive'] : true;
+        $key = isset($params['key']) ? 'get' . $params['key'] : null;
+        $value = isset($params['value']) ? 'get' . $params['value'] : ($recursive ? 'getSubPathname' : 'getFilename');
 
-        $directory = new \RecursiveDirectoryIterator($path,
-            \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS + \FilesystemIterator::CURRENT_AS_SELF);
-        $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+        if ($recursive) {
+            $directory = new \RecursiveDirectoryIterator($path,
+                \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS + \FilesystemIterator::CURRENT_AS_SELF);
+            $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+        } else {
+            $iterator = new \FilesystemIterator($path);
+        }
 
         $results = array();
 
@@ -100,20 +112,30 @@ abstract class Folder
                     $fileKey = preg_replace($filters['key'], '', $fileKey);
                 }
                 if (isset($filters['value'])) {
-                    $filePath = preg_replace($filters['value'], '', $filePath);
+                    $filter = $filters['value'];
+                    if (is_callable($filter)) {
+                        $filePath = call_user_func($filter, $file);
+                    } else {
+                        $filePath = preg_replace($filter, '', $filePath);
                 }
             }
+            }
 
+            if ($fileKey !== null) {
             $results[$fileKey] = $filePath;
+            } else {
+                $results[] = $filePath;
+            }
         }
+
         return $results;
     }
 
     /**
      * Recursively copy directory in filesystem.
      *
-     * @param  string $source
-     * @param  string $target
+     * @param  string            $source
+     * @param  string            $target
      * @throws \RuntimeException
      */
     public static function copy($source, $target)
@@ -157,8 +179,8 @@ abstract class Folder
     /**
      * Move directory in filesystem.
      *
-     * @param  string $source
-     * @param  string $target
+     * @param  string            $source
+     * @param  string            $target
      * @throws \RuntimeException
      */
     public static function move($source, $target)
@@ -186,7 +208,7 @@ abstract class Folder
     /**
      * Recursively delete directory from filesystem.
      *
-     * @param  string $target
+     * @param  string            $target
      * @throws \RuntimeException
      */
     public static function delete($target)
@@ -204,6 +226,26 @@ abstract class Folder
 
         // Make sure that the change will be detected when caching.
         @touch(dirname($target));
+        return $success;
+    }
+
+    /**
+     * @param  string            $folder
+     * @throws \RuntimeException
+     * @internal
+     */
+    public static function mkdir($folder)
+    {
+        if (is_dir($folder)) {
+            return;
+        }
+
+        $success = @mkdir($folder, 0777, true);
+
+        if (!$success) {
+            $error = error_get_last();
+            throw new \RuntimeException($error['message']);
+        }
     }
 
     /**
@@ -227,34 +269,16 @@ abstract class Folder
 
         return @rmdir($folder);
     }
-
-    /**
-     * @param  string  $folder
-     * @throws \RuntimeException
-     * @internal
-     */
-    protected static function mkdir($folder)
-    {
-        if (is_dir($folder)) {
-            return;
-        }
-
-        $success = @mkdir($folder, 0777, true);
-
-        if (!$success) {
-            $error = error_get_last();
-            throw new \RuntimeException($error['message']);
-        }
-    }
 }
 
-class GravRecursiveFilterIterator extends \RecursiveFilterIterator {
-
+class GravRecursiveFilterIterator extends \RecursiveFilterIterator
+{
     public static $FILTERS = array(
-        '.', '..', '.DS_Store'
+        '..', '.DS_Store'
     );
 
-    public function accept() {
+    public function accept()
+    {
         return !in_array(
             $this->current()->getFilename(),
             self::$FILTERS,

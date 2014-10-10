@@ -192,4 +192,40 @@ class Collection extends Iterator
     public function currentPosition($path) {
         return array_search($path, array_keys($this->items));
     }
+
+    /**
+     * Creates new collection with only visible pages
+     *
+     * @return Collection The collection with only visible pages
+     */
+    public function visible()
+    {
+        $visible = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->visible()) {
+               $visible[$path] = $slug;
+            }
+        }
+        return new static($visible, $this->params, $this->pages);
+    }
+
+    /**
+     * Creates new collection with only routable pages
+     *
+     * @return Collection The collection with only routable pages
+     */
+    public function routable()
+    {
+        $routable = [];
+
+        foreach (array_keys($this->items) as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->routable()) {
+                $routable[$path] = $slug;
+            }
+        }
+        return new static($routable, $this->params, $this->pages);
+    }
 }

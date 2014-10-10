@@ -1,14 +1,15 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
-use Grav\Common\Config;
-use Grav\Common\Data;
+use Grav\Common\Config\Config;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Taxonomy;
-use Grav\Component\EventDispatcher\Event;
+use Grav\Common\Data\Blueprint;
+use Grav\Common\Data\Blueprints;
+use Grav\Common\Filesystem\Folder;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
@@ -36,7 +37,7 @@ class Pages
     /**
      * @var array|string[]
      */
-    protected $routes;
+    protected $routes = array();
 
     /**
      * @var array
@@ -44,7 +45,7 @@ class Pages
     protected $sort;
 
     /**
-     * @var Data\Blueprints
+     * @var Blueprints
      */
     protected $blueprints;
 
@@ -52,6 +53,11 @@ class Pages
      * @var int
      */
     protected $last_modified;
+
+    /**
+     * @var Types
+     */
+    static protected $types;
 
     /**
      * Constructor
@@ -172,6 +178,9 @@ class Pages
     public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null)
     {
         $items = $collection->toArray();
+        if (!$items) {
+            return [];
+        }
 
         $lookup = md5(json_encode($items));
         if (!isset($this->sort[$lookup][$orderBy])) {
@@ -193,6 +202,7 @@ class Pages
      *
      * @param  string  $path
      * @return Page
+     * @throws \Exception
      */
     public function get($path)
     {
@@ -252,15 +262,12 @@ class Pages
      * Get a blueprint for a page type.
      *
      * @param  string  $type
-     * @return Data\Blueprint
+     * @return Blueprint
      */
     public function blueprints($type)
     {
         if (!isset($this->blueprints)) {
-            /** @var Config $config */
-            $config = $this->grav['config'];
-
-            $this->blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
+            $this->blueprints = new Blueprints(self::getTypes());
         }
 
         try {
@@ -310,18 +317,45 @@ class Pages
     /**
      * Get available page types.
      *
+     * @return Types
+     */
+    static public function getTypes()
+    {
+        if (!self::$types) {
+            self::$types = new Types();
+            self::$types->scanBlueprints('theme://blueprints/');
+            self::$types->scanTemplates('theme://templates/');
+
+            $event = new Event();
+            $event->types = self::$types;
+            Grav::instance()->fireEvent('onGetPageTemplates', $event);
+        }
+
+        return self::$types;
+    }
+
+    /**
+     * Get available page types.
+     *
      * @return array
      */
     static public function types()
     {
-        $grav = Grav::instance();
+        $types = self::getTypes();
 
-        /** @var Config $config */
-        $config = $grav['config'];
+        return $types->pageSelect();
+    }
 
-        $blueprints = new Data\Blueprints(THEMES_DIR . $config->get('system.pages.theme') . '/blueprints/');
+    /**
+     * Get available page types.
+     *
+     * @return array
+     */
+    static public function modularTypes()
+    {
+        $types = self::getTypes();
 
-        return $blueprints->types();
+        return $types->modularSelect();
     }
 
     /**
@@ -408,6 +442,8 @@ class Pages
         $directory  = rtrim($directory, DS);
         $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
+
+        /** @var Config $config */
         $config     = $this->grav['config'];
 
         $page->path($directory);
@@ -429,13 +465,18 @@ class Pages
         // set current modified of page
         $last_modified = $page->modified();
 
+        // flat for content availability
+        $content_exists = false;
+
         /** @var \DirectoryIterator $file */
         foreach ($iterator as $file) {
             $name = $file->getFilename();
+            $modified = $file->getMTime();
 
             if ($file->isFile() && Utils::endsWith($name, CONTENT_EXT)) {
 
                 $page->init($file);
+                $content_exists = true;
 
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
@@ -458,22 +499,23 @@ class Pages
 
                 // set the modified time if not already set
                 if (!$page->date()) {
-                    $page->date($file->getMTime());
+                    $page->date($modified);
                 }
-
-                // set the last modified time on pages
-                $this->lastModified($file->getMTime());
 
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
-            } else {
-                $date = $file->getMTime();
-                if ($date > $last_modified) {
-                    $last_modified = $date;
-                }
             }
 
+            // Update the last modified if it's newer than already found
+            if ($modified > $last_modified) {
+                $last_modified = $modified;
+            }
+        }
+
+        // Set routability to false if no page found
+        if (!$content_exists) {
+            $page->routable(false);
         }
 
         // Override the modified and ID so that it takes the latest change into account

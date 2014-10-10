@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
-use \Symfony\Component\Yaml\Yaml;
+use RocketTheme\Toolbox\ArrayTraits\Export;
 
 /**
  * Blueprint handles the inside logic of blueprints.
@@ -11,24 +11,39 @@ use \Symfony\Component\Yaml\Yaml;
  */
 class Blueprint
 {
+    use Export;
+
     public $name;
+
     public $initialized = false;
-    protected $blueprints;
+
+    protected $items;
     protected $context;
     protected $fields;
     protected $rules = array();
     protected $nested = array();
+    protected $filter = ['validation' => 1];
 
     /**
      * @param string $name
      * @param array  $data
      * @param Blueprints $context
      */
-    public function __construct($name, array $data, Blueprints $context)
+    public function __construct($name, array $data = array(), Blueprints $context = null)
     {
         $this->name = $name;
-        $this->blueprints = $data;
+        $this->items = $data;
         $this->context = $context;
+    }
+
+    /**
+     * Set filter for inherited properties.
+     *
+     * @param array $filter     List of field names to be inherited.
+     */
+    public function setFilter(array $filter)
+    {
+        $this->filter = array_flip($filter);
     }
 
     /**
@@ -45,7 +60,7 @@ class Blueprint
     public function get($name, $default = null, $separator = '.')
     {
         $path = explode($separator, $name);
-        $current = $this->blueprints;
+        $current = $this->items;
         foreach ($path as $field) {
             if (is_object($current) && isset($current->{$field})) {
                 $current = $current->{$field};
@@ -71,7 +86,7 @@ class Blueprint
     public function set($name, $value, $separator = '.')
     {
         $path = explode($separator, $name);
-        $current = &$this->blueprints;
+        $current = &$this->items;
         foreach ($path as $field) {
             if (is_object($current)) {
                 // Handle objects.
@@ -101,8 +116,8 @@ class Blueprint
     public function fields()
     {
         if (!isset($this->fields)) {
-            $this->fields = isset($this->blueprints['form']['fields']) ? $this->blueprints['form']['fields'] : array();
-            $this->getFields($this->fields);
+            $this->fields = [];
+            $this->embed('', $this->items);
         }
 
         return $this->fields;
@@ -131,9 +146,10 @@ class Blueprint
      *
      * @param  array $data1
      * @param  array $data2
+     * @param  string $name
      * @return array
      */
-    public function mergeData(array $data1, array $data2)
+    public function mergeData(array $data1, array $data2, $name = null)
     {
         // Initialize data
         $this->fields();
@@ -168,6 +184,71 @@ class Blueprint
     }
 
     /**
+     * Extend blueprint with another blueprint.
+     *
+     * @param Blueprint $extends
+     * @param bool $append
+     */
+    public function extend(Blueprint $extends, $append = false)
+    {
+        $blueprints = $append ? $this->items : $extends->toArray();
+        $appended = $append ? $extends->toArray() : $this->items;
+
+        $bref_stack = array(&$blueprints);
+        $head_stack = array($appended);
+
+        do {
+            end($bref_stack);
+
+            $bref = &$bref_stack[key($bref_stack)];
+            $head = array_pop($head_stack);
+
+            unset($bref_stack[key($bref_stack)]);
+
+            foreach (array_keys($head) as $key) {
+                if (isset($key, $bref[$key]) && is_array($bref[$key]) && is_array($head[$key])) {
+                    $bref_stack[] = &$bref[$key];
+                    $head_stack[] = $head[$key];
+                } else {
+                    $bref = array_merge($bref, array($key => $head[$key]));
+                }
+            }
+        } while(count($head_stack));
+
+        $this->items = $blueprints;
+    }
+
+    /**
+     * Convert object into an array.
+     *
+     * @return array
+     */
+    public function getState()
+    {
+        return ['name' => $this->name, 'items' => $this->items, 'rules' => $this->rules, 'nested' => $this->nested];
+    }
+
+    /**
+     * Embed an array to the blueprint.
+     *
+     * @param $name
+     * @param array $value
+     * @param string $separator
+     */
+    public function embed($name, array $value, $separator = '.')
+    {
+
+        if (!isset($value['form']['fields']) || !is_array($value['form']['fields'])) {
+            return;
+        }
+        // Initialize data
+        $this->fields();
+        $prefix = $name ? strtr($name, $separator, '.') . '.' : '';
+        $params = array_intersect_key($this->filter, $value);
+        $this->parseFormFields($value['form']['fields'], $params, $prefix, $this->fields);
+    }
+
+    /**
      * @param array $data
      * @param array $rules
      * @throws \RuntimeException
@@ -187,7 +268,7 @@ class Blueprint
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $this->validateArray($field, $val);
-            } elseif (isset($this->blueprints['validation']) && $this->blueprints['validation'] == 'strict') {
+            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
                  // Undefined/extra item.
                  throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }
@@ -213,7 +294,7 @@ class Blueprint
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $field = $this->filterArray($field, $val);
-            } elseif (isset($this->blueprints['validation']) && $this->blueprints['validation'] == 'strict') {
+            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
                 $field = null;
             }
 
@@ -281,26 +362,32 @@ class Blueprint
      * Gets all field definitions from the blueprints.
      *
      * @param array $fields
+     * @param array $params
+     * @param string $prefix
+     * @param array $current
      * @internal
      */
-    protected function getFields(array &$fields)
+    protected function parseFormFields(array &$fields, $params, $prefix, array &$current)
     {
         // Go though all the fields in current level.
         foreach ($fields as $key => &$field) {
+            $current[$key] = &$field;
             // Set name from the array key.
-            $field['name'] = $key;
+            $field['name'] = $prefix . $key;
+            $field += $params;
 
             if (isset($field['fields'])) {
                 // Recursively get all the nested fields.
-                $this->getFields($field['fields']);
+                $newParams = array_intersect_key($this->filter, $field);
+                $this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
             } else {
                 // Add rule.
-                $this->rules[$key] = &$field;
-                $this->addProperty($key);
+                $this->rules[$prefix . $key] = &$field;
+                $this->addProperty($prefix . $key);
 
                 foreach ($field as $name => $value) {
                     // Support nested blueprints.
-                    if ($name == '@import') {
+                    if ($this->context && $name == '@import') {
                         $values = (array) $value;
                         if (!isset($field['fields'])) {
                             $field['fields'] = array();
@@ -379,8 +466,8 @@ class Blueprint
      */
     protected function getRule($rule)
     {
-        if (isset($this->blueprints['rules'][$rule]) && is_array($this->blueprints['rules'][$rule])) {
-            return $this->blueprints['rules'][$rule];
+        if (isset($this->items['rules'][$rule]) && is_array($this->items['rules'][$rule])) {
+            return $this->items['rules'][$rule];
         }
         return array();
     }
@@ -403,70 +490,5 @@ class Blueprint
                 throw new \RuntimeException("Missing required field: {$field['name']}");
             }
         }
-    }
-
-    /**
-     * Convert blueprints into an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->blueprints;
-    }
-
-    /**
-     * Convert blueprints into YAML string.
-     *
-     * @return string
-     */
-    public function toYaml()
-    {
-        return Yaml::dump($this->blueprints);
-    }
-
-    /**
-     * Convert blueprints into JSON string.
-     *
-     * @return string
-     */
-    public function toJson()
-    {
-        return json_encode($this->blueprints);
-    }
-
-    /**
-     * Extend blueprint with another blueprint.
-     *
-     * @param Blueprint $extends
-     * @param bool $append
-     */
-    public function extend(Blueprint $extends, $append = false)
-    {
-        $blueprints = $append ? $this->blueprints : $extends->toArray();
-        $appended = $append ? $extends->toArray() : $this->blueprints;
-
-        $bref_stack = array(&$blueprints);
-        $head_stack = array($appended);
-
-        do {
-            end($bref_stack);
-
-            $bref = &$bref_stack[key($bref_stack)];
-            $head = array_pop($head_stack);
-
-            unset($bref_stack[key($bref_stack)]);
-
-            foreach (array_keys($head) as $key) {
-                if (isset($key, $bref[$key]) && is_array($bref[$key]) && is_array($head[$key])) {
-                    $bref_stack[] = &$bref[$key];
-                    $head_stack[] = $head[$key];
-                } else {
-                    $bref = array_merge($bref, array($key => $head[$key]));
-                }
-            }
-        } while(count($head_stack));
-
-        $this->blueprints = $blueprints;
     }
 }

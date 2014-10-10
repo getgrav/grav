@@ -41,6 +41,30 @@ abstract class Utils
     }
 
     /**
+     * Recurseive remove a directory - DANGEROUS! USE WITH CARE!!!!
+     *
+     * @param $dir
+     * @return bool
+     */
+    public static function rrmdir($dir) {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        /** @var \DirectoryIterator $fileinfo */
+        foreach ($files as $fileinfo) {
+            if ($fileinfo->isDir()) {
+                if (false === rmdir($fileinfo->getRealPath())) return false;
+            } else {
+                if (false === unlink($fileinfo->getRealPath())) return false;
+            }
+        }
+
+        return rmdir($dir);
+    }
+
+    /**
      * Truncate HTML by text length.
      *
      * @param  string $text

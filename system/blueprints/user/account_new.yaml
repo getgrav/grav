@@ -1,0 +1,15 @@
+title: Add Account
+
+form:
+  validation: loose
+  fields:
+
+    content:
+      type: section
+      title: Add Account
+
+    username:
+      type: text
+      label: Username
+      validate:
+        required: true
