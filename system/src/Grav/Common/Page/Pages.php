@@ -465,13 +465,18 @@ class Pages
         // set current modified of page
         $last_modified = $page->modified();
 
+        // flat for content availability
+        $content_exists = false;
+
         /** @var \DirectoryIterator $file */
         foreach ($iterator as $file) {
             $name = $file->getFilename();
+            $modified = $file->getMTime();
 
             if ($file->isFile() && Utils::endsWith($name, CONTENT_EXT)) {
 
                 $page->init($file);
+                $content_exists = true;
 
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
@@ -494,11 +499,8 @@ class Pages
 
                 // set the modified time if not already set
                 if (!$page->date()) {
-                    $page->date($file->getMTime());
+                    $page->date($modified);
                 }
-
-                // set the last modified time on pages
-                $this->lastModified($file->getMTime());
 
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
@@ -506,12 +508,14 @@ class Pages
             }
 
             // Update the last modified if it's newer than already found
-            $date = $file->getMTime();
-            if ($date > $last_modified) {
-                $last_modified = $date;
+            if ($modified > $last_modified) {
+                $last_modified = $modified;
             }
+        }
 
-
+        // Set routability to false if no page found
+        if (!$content_exists) {
+            $page->routable(false);
         }
 
         // Override the modified and ID so that it takes the latest change into account

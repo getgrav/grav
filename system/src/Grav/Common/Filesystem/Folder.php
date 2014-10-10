@@ -60,13 +60,10 @@ abstract class Folder
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($itr as $file) {
-            if (!$file->isDir()) {
-                $file_modified = $file->getMTime();
-                if ($file_modified > $last_modified) {
-                    $last_modified = $file_modified;
-                }
+            $file_modified = $file->getMTime();
+            if ($file_modified > $last_modified) {
+                $last_modified = $file_modified;
             }
-
         }
 
         return $last_modified;
@@ -277,7 +274,7 @@ abstract class Folder
 class GravRecursiveFilterIterator extends \RecursiveFilterIterator
 {
     public static $FILTERS = array(
-        '.', '..', '.DS_Store'
+        '..', '.DS_Store'
     );
 
     public function accept()

@@ -750,33 +750,36 @@ class Page
             $this->metadata = array();
             $page_header = $this->header;
 
-
             // Set the Generator tag
             $this->metadata['generator'] = array('name'=>'generator', 'content'=>'Grav ' . GRAV_VERSION);
 
-            // Merge any site.metadata settings in with page metadata
-            $defaults = (array) self::$grav['config']->get('site.metadata');
-            if (isset($page_header->metadata)) {
-                $page_header->metadata = array_merge($defaults, $page_header->metadata);
-            } else {
-                $page_header->metadata = $defaults;
-            }
+            // Safety check to ensure we have a header
+            if ($page_header) {
+                // Merge any site.metadata settings in with page metadata
+                $defaults = (array) self::$grav['config']->get('site.metadata');
 
-            // Build an array of meta objects..
-            foreach((array)$page_header->metadata as $key => $value) {
-
-                // If this is a property type metadata: "og", "twitter", "facebook" etc
-                if (is_array($value)) {
-                    foreach ($value as $property => $prop_value) {
-                        $prop_key =  $key.":".$property;
-                        $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>$prop_value);
-                    }
-                // If it this is a standard meta data type
+                if (isset($page_header->metadata)) {
+                    $page_header->metadata = array_merge($defaults, $page_header->metadata);
                 } else {
-                    if (in_array($key, $header_tag_http_equivs)) {
-                        $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>$value);
+                    $page_header->metadata = $defaults;
+                }
+
+                // Build an array of meta objects..
+                foreach((array)$page_header->metadata as $key => $value) {
+
+                    // If this is a property type metadata: "og", "twitter", "facebook" etc
+                    if (is_array($value)) {
+                        foreach ($value as $property => $prop_value) {
+                            $prop_key =  $key.":".$property;
+                            $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>$prop_value);
+                        }
+                    // If it this is a standard meta data type
                     } else {
-                        $this->metadata[$key] = array('name'=>$key, 'content'=>$value);
+                        if (in_array($key, $header_tag_http_equivs)) {
+                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>$value);
+                        } else {
+                            $this->metadata[$key] = array('name'=>$key, 'content'=>$value);
+                        }
                     }
                 }
             }
