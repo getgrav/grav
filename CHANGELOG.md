@@ -11,6 +11,7 @@
     * Use stream wrapper in pages, plugins and themes
     * Switched to RocketTheme toolbox for some core functionality
     * Renamed `setup` CLI command to `sandbox`
+    * Broke cache types out into multiple directories in the cache folder
     * Removed vendor libs from github repository
     * Various PSR cleanup of code
     * Various Blueprint updates to support upcoming Admin plugin
@@ -19,6 +20,7 @@
     * Added `visible()` and `routable()` filters to page collections
     * Use session class in shutdown process
     * Improvements to modular page loading
+    * Various code cleanup and optimizations
 3. [](#bugfix)
     * Fixed file checking not updating the last modified time. For real this time!
     * Switched debugger to PRODUCTION mode by default
