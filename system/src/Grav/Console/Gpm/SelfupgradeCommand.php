@@ -65,15 +65,6 @@ class SelfupgradeCommand extends Command
         $this->output->writeln("You are currently using v<cyan>".GRAV_VERSION."</cyan>.");
 
         if (!$skipPrompt) {
-            $question = new ConfirmationQuestion("Would you like to upgrade now? [y|N] ", false);
-            $answer   = $questionHelper->ask($this->input, $this->output, $question);
-
-            if (!$answer) {
-                $this->output->writeln("Aborting...");
-
-                exit;
-            }
-
             $question = new ConfirmationQuestion("Would you like to read the changelog before proceeding? [y|N] ", false);
             $answer   = $questionHelper->ask($this->input, $this->output, $question);
 
@@ -97,6 +88,14 @@ class SelfupgradeCommand extends Command
                 $questionHelper->ask($this->input, $this->output, $question);
             }
 
+            $question = new ConfirmationQuestion("Would you like to upgrade now? [y|N] ", false);
+            $answer   = $questionHelper->ask($this->input, $this->output, $question);
+
+            if (!$answer) {
+                $this->output->writeln("Aborting...");
+
+                exit;
+            }
         }
 
         $this->output->writeln("");
