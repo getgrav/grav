@@ -8,6 +8,10 @@ form:
   validation: loose
   fields:
 
+    section:
+        type: section
+        title: Add Modular Content
+
     title:
       type: text
       label: Page Title
