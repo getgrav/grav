@@ -213,10 +213,14 @@ class Admin
      */
     public function data($type, $post = array())
     {
-        static $data = array();
+        static $data = [];
 
         if (isset($data[$type])) {
             return $data[$type];
+        }
+
+        if (!$post) {
+            $post = isset($_POST) ? $_POST : [];
         }
 
         switch ($type) {

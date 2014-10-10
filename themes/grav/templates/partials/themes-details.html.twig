@@ -82,7 +82,8 @@
     </table>
 </div>
 
-{% include 'partials/blueprints.html.twig' with { data: theme.form, blueprints: theme.form } %}
+{% set data = admin.data('themes/' ~ admin.route) %}
+{% include 'partials/blueprints.html.twig' with { data: data, blueprints: data.blueprints } %}
 
 <div class="button-bar danger">
     <span class="danger-zone"></span>
