@@ -150,7 +150,7 @@ class SandboxCommand extends Command
             $output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
 
             if (is_dir($to)) {
-                @Folder::delete(to);
+                @Folder::delete($to);
             } else {
                 @unlink($to);
             }
