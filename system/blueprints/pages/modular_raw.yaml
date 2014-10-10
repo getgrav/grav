@@ -5,6 +5,7 @@ rules:
     max: 80
 
 form:
+  validation: loose
   fields:
 
     tabs:

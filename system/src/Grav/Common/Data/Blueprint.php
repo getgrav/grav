@@ -268,7 +268,7 @@ class Blueprint
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $this->validateArray($field, $val);
-            } elseif (isset($this->items['validation']) && $this->items['validation'] == 'strict') {
+            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
                  // Undefined/extra item.
                  throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }
@@ -294,7 +294,7 @@ class Blueprint
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $field = $this->filterArray($field, $val);
-            } elseif (isset($this->items['validation']) && $this->items['validation'] == 'strict') {
+            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
                 $field = null;
             }
 
