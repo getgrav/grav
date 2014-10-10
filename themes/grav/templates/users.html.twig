@@ -7,7 +7,7 @@
 {% block titlebar %}
     {% if not admin.route %}
         <div class="button-bar">
-            <button class="button" type="submit" name="task" value="add"><i class="fa fa-plus"></i> Add</button>
+            <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Account</a>
         </div>
         <h1><i class="fa fa-fw fa-child"></i> Users</h1>
     {% else %}
@@ -24,6 +24,11 @@
 
         {% if not admin.route %}
             {%  include 'partials/users-list.html.twig' %}
+
+
+            <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
+                {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('user/account_new') } %}
+            </div>
         {% else %}
             {% include 'partials/users-details.html.twig' %}
         {% endif %}

@@ -380,7 +380,11 @@ class AdminController
      */
     public function taskContinue()
     {
-        // Only applies to pages.
+        if ($this->view == 'users') {
+            $this->setRedirect("{$this->view}/{$this->post['username']}");
+            return true;
+        }
+
         if ($this->view != 'pages') {
             return false;
         }
