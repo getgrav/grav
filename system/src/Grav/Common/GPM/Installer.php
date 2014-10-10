@@ -143,6 +143,12 @@ class Installer
                 if (is_dir($path)) {
                     Folder::delete($path);
                     Folder::move($tmp . DS . $filename, $path);
+
+                    if ($fileinfo['basename'] == 'bin') {
+                        foreach (glob($path . DS . '*') as $file) {
+                            @chmod($file, 0755);
+                        }
+                    }
                 } else {
                     if (is_file($path)) {
                         @unlink($path);
