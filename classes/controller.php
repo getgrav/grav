@@ -295,6 +295,8 @@ class AdminController
             return false;
         }
 
+        $this->post = array('_redirect' => 'themes');
+
         // Make sure theme exists (throws exception)
         $name = $this->route;
         $this->grav['themes']->get($name);
