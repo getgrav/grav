@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
-use Grav\Common\Utils;
+use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -150,7 +150,7 @@ class SandboxCommand extends Command
             $output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
 
             if (is_dir($to)) {
-                @Utils::rrmdir(to);
+                @Folder::delete(to);
             } else {
                 @unlink($to);
             }

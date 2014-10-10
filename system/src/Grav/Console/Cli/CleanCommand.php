@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
-use Grav\Common\Utils;
+use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -47,7 +47,10 @@ class CleanCommand extends Command {
         'vendor/erusev/parsedown/.git',
         'vendor/erusev/parsedown/test',
         'vendor/erusev/parsedown-extra/composer.json',
+        'vendor/erusev/parsedown-extra/phpunit.xml.dist',
+        'vendor/erusev/parsedown-extra/.travis.yml',
         'vendor/erusev/parsedown-extra/.git',
+        'vendor/erusev/parsedown-extra/test',
         'vendor/gregwar/image/Gregwar/Image/composer.json',
         'vendor/gregwar/image/Gregwar/Image/phpunit.xml',
         'vendor/gregwar/image/Gregwar/Image/.gitignore',
@@ -86,6 +89,12 @@ class CleanCommand extends Command {
         'vendor/pimple/pimple/ext',
         'vendor/pimple/pimple/phpunit.xml.dist',
         'vendor/pimple/pimple/src/Pimple/Tests',
+        'vendor/rockettheme/toolbox/.git',
+        'vendor/rockettheme/toolbox/.gitignore',
+        'vendor/rockettheme/toolbox/.scrutinizer.yml',
+        'vendor/rockettheme/toolbox/.travis.yml',
+        'vendor/rockettheme/toolbox/composer.json',
+        'vendor/rockettheme/toolbox/phpunit.xml',
         'vendor/symfony/console/Symfony/Component/Console/composer.json',
         'vendor/symfony/console/Symfony/Component/Console/phpunit.xml.dist',
         'vendor/symfony/console/Symfony/Component/Console/.gitignore',
@@ -152,7 +161,7 @@ class CleanCommand extends Command {
         foreach($this->paths_to_remove as $path) {
             $path = ROOT_DIR . $path;
 
-            if (is_dir($path) && @Utils::rrmdir($path)) {
+            if (is_dir($path) && @Folder::delete($path)) {
                 $anything = true;
                 $output->writeln('<red>dir:  </red>' . $path);
             } elseif (is_file($path) && @unlink($path)) {
@@ -167,4 +176,5 @@ class CleanCommand extends Command {
         }
 
     }
+
 }

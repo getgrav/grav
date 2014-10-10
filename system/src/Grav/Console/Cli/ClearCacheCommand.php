@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
-use Grav\Common\Utils;
+use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -37,8 +37,6 @@ class ClearCacheCommand extends Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
-
         // Create a red output option
         $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
         $output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan'));
@@ -46,8 +44,6 @@ class ClearCacheCommand extends Command {
         $output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
 
         $this->cleanPaths($input, $output);
-
-
     }
 
     // loops over the array of paths and deletes the files/folders
@@ -76,7 +72,7 @@ class ClearCacheCommand extends Command {
                     if (@unlink($file)) $anything = true;
                 }
                 elseif (is_dir($file)) {
-                    if (@Utils::rrmdir($file)) $anything = true;
+                    if (@Folder::delete($file)) $anything = true;
                 }
             }
 
