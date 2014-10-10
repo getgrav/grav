@@ -1,7 +1,9 @@
 <?php
 namespace Grav\Common\User;
 
+use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
+use Grav\Common\File\CompiledYamlFile;
 
 /**
  * User object
@@ -11,6 +13,30 @@ use Grav\Common\Data\Data;
  */
 class User extends Data
 {
+    /**
+     * Load user account.
+     *
+     * Always creates user object. To check if user exists, use $this->exists().
+     *
+     * @param string $username
+     * @return User
+     */
+    public static function load($username)
+    {
+        // FIXME: validate directory name
+        $blueprints = new Blueprints('blueprints://user');
+        $blueprint = $blueprints->get('account');
+        $file = CompiledYamlFile::instance(ACCOUNTS_DIR . $username . YAML_EXT);
+        $content = $file->content();
+        if (!isset($content['username'])) {
+            $content['username'] = $username;
+        }
+        $user = new User($content, $blueprint);
+        $user->file($file);
+
+        return $user;
+    }
+
     /**
      * Authenticate user.
      *
