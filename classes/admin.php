@@ -274,6 +274,11 @@ class Admin
                     $obj->file($file);
 
                     $data[$type] = $obj;
+                } elseif (preg_match('|users/|', $type)) {
+                    $obj = User::load(preg_replace('|users/|', '', $type));
+                    $obj->merge($post);
+
+                    $data[$type] = $obj;
                 } else {
                     throw new \RuntimeException("Data type '{$type}' doesn't exist!");
                 }

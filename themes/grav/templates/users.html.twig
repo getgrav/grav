@@ -1,14 +1,32 @@
 {% extends 'partials/base.html.twig' %}
 
+{% if admin.route %}
+{% set user = admin.data('users/' ~ admin.route) %}
+{% endif %}
+
+{% block titlebar %}
+    {% if not admin.route %}
+        <div class="button-bar">
+            <button class="button" type="submit" name="task" value="add"><i class="fa fa-plus"></i> Add</button>
+        </div>
+        <h1><i class="fa fa-fw fa-child"></i> Users</h1>
+    {% else %}
+        <div class="button-bar">
+            <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+        </div>
+        <h1><i class="fa fa-fw fa-user"></i> User: {{ user.username|e }}</h1>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
-
-    <div class="admin-block">
-        <h1>
-            Users
-        </h1>
-
+    <div>
         {% include 'partials/messages.html.twig' %}
+
+        {% if not admin.route %}
+            {%  include 'partials/users-list.html.twig' %}
+        {% else %}
+            {% include 'partials/users-details.html.twig' %}
+        {% endif %}
     </div>
 {% endblock %}
 
