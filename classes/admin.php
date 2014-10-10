@@ -445,6 +445,7 @@ class Admin
                 $page->name($type.CONTENT_EXT);
                 $page->header();
             }
+            $page->modularTwig($slug[0] == '_');
         }
 
         return $page;

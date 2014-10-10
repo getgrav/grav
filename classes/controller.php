@@ -364,7 +364,10 @@ class AdminController
 
         $data = $this->post;
         $route = $data['route'] != '/' ? $data['route'] : '';
-        $folder = $data['folder'];
+        $folder = ltrim($data['folder'], '_');
+        if (!empty($data['modular'])) {
+            $folder = '_' . $folder;
+        }
         $path = $route . '/' . $folder;
 
         $this->admin->session()->{$path} = $data;
