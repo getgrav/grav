@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
+use Grav\Common\Utils;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -151,7 +152,7 @@ class CleanCommand extends Command {
         foreach($this->paths_to_remove as $path) {
             $path = ROOT_DIR . $path;
 
-            if (is_dir($path) && @$this->rrmdir($path)) {
+            if (is_dir($path) && @Utils::rrmdir($path)) {
                 $anything = true;
                 $output->writeln('<red>dir:  </red>' . $path);
             } elseif (is_file($path) && @unlink($path)) {
@@ -165,21 +166,5 @@ class CleanCommand extends Command {
             $output->writeln('<green>Nothing to clean...</green>');
         }
 
-    }
-
-    // Recursively Delete folder - DANGEROUS! USE WITH CARE!!!!
-    private function rrmdir($dir) {
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
-            foreach ($objects as $object) {
-                if ($object != "." && $object != "..") {
-                    if (filetype($dir."/".$object) == "dir") $this->rrmdir($dir."/".$object); else unlink($dir."/".$object);
-                }
-            }
-            reset($objects);
-            rmdir($dir);
-            return true;
-        }
-        return false;
     }
 }

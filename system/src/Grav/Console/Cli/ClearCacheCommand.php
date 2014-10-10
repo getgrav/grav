@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
+use Grav\Common\Utils;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -75,7 +76,7 @@ class ClearCacheCommand extends Command {
                     if (@unlink($file)) $anything = true;
                 }
                 elseif (is_dir($file)) {
-                    if (@$this->rrmdir($file)) $anything = true;
+                    if (@Utils::rrmdir($file)) $anything = true;
                 }
             }
 
@@ -94,22 +95,6 @@ class ClearCacheCommand extends Command {
             $output->writeln('');
         }
 
-    }
-
-    // Recursively Delete folder - DANGEROUS! USE WITH CARE!!!!
-    private function rrmdir($dir) {
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
-            foreach ($objects as $object) {
-                if ($object != "." && $object != "..") {
-                    if (filetype($dir."/".$object) == "dir") $this->rrmdir($dir."/".$object); else unlink($dir."/".$object);
-                }
-            }
-            reset($objects);
-            rmdir($dir);
-            return true;
-        }
-        return false;
     }
 }
 
