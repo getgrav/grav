@@ -213,9 +213,14 @@ class SandboxCommand extends Command
 
         $dir_perms = 0755;
 
-        // get pages files and initialize if no pages exist
-        chmod($this->destination.'/bin/grav', $dir_perms);
-        $output->writeln('    <cyan>bin/grav</cyan> permissions reset to '. decoct($dir_perms));
+        $binaries = glob($this->destination . DS .'bin' . DS . '*');
+
+        foreach($binaries as $bin) {
+            chmod($bin, $dir_perms);
+            $output->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to '. decoct($dir_perms));
+        }
+
+        $output->writeln("");
     }
 
 
