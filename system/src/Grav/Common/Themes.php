@@ -207,6 +207,6 @@ class Themes extends Iterator
     {
         $themeConfig = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
 
-        $config->merge(['themes' => [$name => $themeConfig]]);
+        $config->joinDefaults("themes.{$name}", $themeConfig);
     }
 }

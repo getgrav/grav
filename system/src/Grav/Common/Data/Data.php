@@ -134,8 +134,6 @@ class Data implements DataInterface
     /**
      * Join two values together by using blueprints if available.
      *
-     * @example $data->def('this.is.my.nested.variable', 'default');
-     *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
@@ -150,11 +148,35 @@ class Data implements DataInterface
             $value = $this->blueprints->mergeData($old, $value, $name, $separator);
         } else {
             // No blueprints: replace existing top level variables with the new ones.
-            $value =array_merge($old, $value);
+            $value = array_merge($old, $value);
         }
 
         $this->set($name, $value, $separator);
     }
+
+    /**
+     * Join two values together by using blueprints if available.
+     *
+     * @param string  $name       Dot separated path to the requested value.
+     * @param mixed   $value      Value to be joined.
+     * @param string  $separator  Separator, defaults to '.'
+     */
+    public function joinDefaults($name, $value, $separator = '.')
+    {
+        $old = $this->get($name, null, $separator);
+        if ($old === null) {
+            // Variable does not exist yet: just use the incoming value.
+        } elseif ($this->blueprints) {
+            // Blueprints: join values by using blueprints.
+            $value = $this->blueprints->mergeData($value, $old, $name, $separator);
+        } else {
+            // No blueprints: replace existing top level variables with the new ones.
+            $value = array_merge($value, $old);
+        }
+
+        $this->set($name, $value, $separator);
+    }
+
 
     /**
      * Merge two sets of data together.
@@ -168,6 +190,21 @@ class Data implements DataInterface
             $this->items = $this->blueprints->mergeData($this->items, $data);
         } else {
             $this->items = array_merge($this->items, $data);
+        }
+    }
+
+    /**
+     * Add default data to the set.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function setDefaults(array $data)
+    {
+        if ($this->blueprints) {
+            $this->items = $this->blueprints->mergeData($data, $this->items);
+        } else {
+            $this->items = array_merge($data, $this->items);
         }
     }
 
