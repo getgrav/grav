@@ -73,10 +73,6 @@ class AdminController
      */
     public function execute()
     {
-        // Grab redirect parameter.
-        $redirect = isset($this->post['_redirect']) ? $this->post['_redirect'] : null;
-        unset($this->post['_redirect']);
-
         $success = false;
         $method = 'task' . ucfirst($this->task);
         if (method_exists($this, $method)) {
@@ -86,6 +82,11 @@ class AdminController
                 $success = true;
                 $this->admin->setMessage($e->getMessage());
             }
+
+            // Grab redirect parameter.
+            $redirect = isset($this->post['_redirect']) ? $this->post['_redirect'] : null;
+            unset($this->post['_redirect']);
+
             // Redirect if requested.
             if ($redirect) {
                 $this->setRedirect($redirect);
@@ -255,10 +256,30 @@ class AdminController
         }
 
         // Filter value and save it.
-        $this->post = array('enabled' => !empty($this->post['enabled']));
+        $this->post = array('enabled' => 1, '_redirect' => 'plugins');
         $obj = $this->prepareData();
         $obj->save();
-        $this->admin->setMessage('Successfully saved');
+        $this->admin->setMessage('Successfully enabled plugin');
+
+        return true;
+    }
+
+    /**
+     * Enable plugin.
+     *
+     * @return bool True if the action was performed.
+     */
+    public function taskDisable()
+    {
+        if ($this->view != 'plugins') {
+            return false;
+        }
+
+        // Filter value and save it.
+        $this->post = array('enabled' => 0, '_redirect' => 'plugins');
+        $obj = $this->prepareData();
+        $obj->save();
+        $this->admin->setMessage('Successfully disabled plugin');
 
         return true;
     }

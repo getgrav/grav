@@ -17,6 +17,7 @@
 <table>
     {% for slug, package in admin.plugins %}
         {% set plugin = package.toArray() %}
+        {% set data = admin.data('plugins/' ~ slug) %}
 
         <tr data-gpm-plugin="{{ slug|url_encode }}">
             <td class="gpm-name">
@@ -33,8 +34,8 @@
                 {% endif %}
             </td>
             <td class="gpm-actions">
-                <a class="{{ plugin.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ plugin.get('enabled') ? 'disable' : 'enable' }}">
-                    <i class="fa fa-fw fa-toggle-{{ plugin.get('enabled') ? 'on' : 'off' }}"></i>
+                <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
+                    <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
                 </a>
             </td>
         </tr>
