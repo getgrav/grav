@@ -8,9 +8,8 @@ author:
   url: http://getgrav.org
 keywords: admin, plugin, manager, panel
 
-validation: strict
-
 form:
+  validation: strict
   fields:
     enabled:
         type: toggle
