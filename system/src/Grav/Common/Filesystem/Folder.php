@@ -229,6 +229,7 @@ abstract class Folder
 
         // Make sure that the change will be detected when caching.
         @touch(dirname($target));
+        return $success;
     }
 
     /**
