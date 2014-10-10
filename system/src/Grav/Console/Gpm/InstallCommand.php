@@ -118,7 +118,7 @@ class InstallCommand extends Command
 
     private function downloadPackage($package)
     {
-        $this->tmp = sys_get_temp_dir() . DS . 'Grav-' . uniqid();
+        $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
         $filename = $package->slug . basename($package->zipball_url);
         $output   = Response::get($package->zipball_url, [], [$this, 'progress']);
 

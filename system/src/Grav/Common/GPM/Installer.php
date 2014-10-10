@@ -75,7 +75,7 @@ class Installer
 
         $zip = new \ZipArchive();
         $archive = $zip->open($package);
-        $tmp = sys_get_temp_dir() . DS . 'Grav-' . uniqid();
+        $tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
 
         if ($archive !== true) {
             self::$error = self::ZIP_OPEN_ERROR;
