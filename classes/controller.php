@@ -289,14 +289,14 @@ class AdminController
      *
      * @return bool True if the action was performed.
      */
-    public function taskSet_theme()
+    public function taskActivate()
     {
         if ($this->view != 'themes') {
             return false;
         }
 
         // Make sure theme exists (throws exception)
-        $name = !empty($this->post['theme']) ? $this->post['theme'] : '';
+        $name = $this->route;
         $this->grav['themes']->get($name);
 
         // Store system configuration.
