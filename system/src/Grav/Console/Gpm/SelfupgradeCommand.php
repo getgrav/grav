@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class SelfupgradeCommand extends Command
 {
@@ -32,6 +33,12 @@ class SelfupgradeCommand extends Command
                 InputOption::VALUE_NONE,
                 'Force re-fetching the data from remote'
             )
+            ->addOption(
+                'all-yes',
+                'y',
+                InputOption::VALUE_NONE,
+                'Assumes yes (or best approach) instead of prompting'
+            )
             ->setDescription("Detects and performs an update of plugins and themes when available")
             ->setHelp('The <info>update</info> command updates plugins and themes when a new version is available');
     }
@@ -51,7 +58,49 @@ class SelfupgradeCommand extends Command
             exit;
         }
 
-        $this->output->writeln("Preparing to upgrade Grav to v<cyan>" . $remote . "</cyan> [release date: " . $release . "]");
+        $questionHelper = $this->getHelper('question');
+        $skipPrompt     = $this->input->getOption('all-yes');
+
+        $this->output->writeln("Grav v<cyan>$remote</cyan> is now available [release date: $release].");
+        $this->output->writeln("You are currently using v<cyan>".GRAV_VERSION."</cyan>.");
+
+        if (!$skipPrompt) {
+            $question = new ConfirmationQuestion("Would you like to upgrade now? [y|N] ", false);
+            $answer   = $questionHelper->ask($this->input, $this->output, $question);
+
+            if (!$answer) {
+                $this->output->writeln("Aborting...");
+
+                exit;
+            }
+
+            $question = new ConfirmationQuestion("Would you like to read the changelog before proceeding? [y|N] ", false);
+            $answer   = $questionHelper->ask($this->input, $this->output, $question);
+
+            if ($answer) {
+                $changelog = $this->upgrader->getChangelog(GRAV_VERSION);
+
+                $this->output->writeln("");
+                foreach ($changelog as $version => $log) {
+                    $title = $version . ' [' . $log->date . ']';
+                    $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function($match){
+                        return "\n".ucfirst($match[1]).":";
+                    }, $log->content);
+
+                    $this->output->writeln($title);
+                    $this->output->writeln(str_repeat('-', strlen($title)));
+                    $this->output->writeln($content);
+                    $this->output->writeln("");
+                }
+
+                $question = new ConfirmationQuestion("Press [ENTER] to continue.", true);
+                $questionHelper->ask($this->input, $this->output, $question);
+            }
+
+        }
+
+        $this->output->writeln("");
+        $this->output->writeln("Preparing to upgrade to v<cyan>$remote</cyan>..");
 
         $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($update->size) . "]...     0%");
         $this->file = $this->download($update);

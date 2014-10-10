@@ -9,6 +9,10 @@ class Grav extends Collection
     private $version;
     private $date;
 
+    /**
+     * @param bool $refresh
+     * @param null $callback
+     */
     public function __construct($refresh = false, $callback = null)
     {
         parent::__construct($this->repository);
@@ -19,9 +23,7 @@ class Grav extends Collection
         $this->version = @$this->data->version ?: '-';
         $this->date = @$this->data->date ?: '-';
 
-        $this->data = $this->data->assets;
-
-        foreach ($this->data as $slug => $data) {
+        foreach ($this->data->assets as $slug => $data) {
             $this->items[$slug] = new Package($data);
         }
     }
@@ -32,7 +34,31 @@ class Grav extends Collection
      */
     public function getAssets()
     {
-        return $this->data;
+        return $this->data->assets;
+    }
+
+    /**
+     * Returns the changelog list for each version of Grav
+     * @param string $diff the version number to start the diff from
+     *
+     * @return array changelog list for each version
+     */
+    public function getChangelog($diff = null)
+    {
+        if (!$diff) {
+            return $this->data->changelog;
+        }
+
+        $diffLog = [];
+        foreach ($this->data->changelog as $version => $changelog) {
+            preg_match("/[\d\.]+/", $version, $cleanVersion);
+
+            if (!$cleanVersion || version_compare($diff, $cleanVersion[0], ">=")) { continue; }
+
+            $diffLog[$version] = $changelog;
+        }
+
+        return $diffLog;
     }
 
     /**

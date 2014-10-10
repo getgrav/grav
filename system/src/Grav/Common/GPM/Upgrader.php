@@ -65,6 +65,17 @@ class Upgrader
     }
 
     /**
+     * Returns the changelog list for each version of Grav
+     * @param string $diff the version number to start the diff from
+     *
+     * @return array return the chagenlog list for each version
+     */
+    public function getChangelog($diff = null)
+    {
+        return $this->remote->getChangelog($diff);
+    }
+
+    /**
      * Checks if the currently installed Grav is upgradable to a newer version
      * @return boolean True if it's upgradable, False otherwise.
      */
