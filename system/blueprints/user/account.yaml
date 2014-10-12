@@ -9,7 +9,17 @@ form:
 
             fields:
                 username:
-                    type: unset
+                    type: text
+                    size: large
+                    label: Username
+                    readonly: true
+
+                email:
+                    type: text
+                    size: large
+                    label: Email
+                    validate:
+                      required: true
 
                 password:
                     type: password
@@ -18,12 +28,7 @@ form:
                     validate:
                       required: true
 
-                email:
-                    type: text
-                    size: large
-                    label: Email
-                    validate:
-                      required: true
+
 
                 fullname:
                     type: text
