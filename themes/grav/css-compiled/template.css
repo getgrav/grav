@@ -780,17 +780,20 @@ tr {
 
 #admin-user-details {
   padding: 2rem;
-  border-bottom: 1px solid #20333e; }
+  border-bottom: 1px solid #20333e;
+  overflow: hidden; }
   #admin-user-details img {
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    transition: all 0.5s ease;
     border-radius: 100%;
     float: left; }
+  #admin-user-details:hover img {
+    box-shadow: 0px 0px 0 50px #2a4251; }
   #admin-user-details .admin-user-names {
     margin-left: 45px; }
-    #admin-user-details .admin-user-names a {
-      color: #e6e6e6; }
-      #admin-user-details .admin-user-names a:hover {
-        color: #fff; }
     #admin-user-details .admin-user-names h4, #admin-user-details .admin-user-names h5 {
+      color: #e6e6e6;
       margin: 0;
       font-size: 1rem;
       line-height: 1.3; }

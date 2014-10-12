@@ -30,23 +30,23 @@ $update-height: 3rem;
 #admin-user-details {
     padding: $sidebar-padding;
     border-bottom: 1px solid $darker-accent-bg;
+    overflow: hidden;
 
     img {
+        @include transition(all 0.5s ease);
         border-radius: 100%;
         float: left;
+    }
+
+    &:hover img {
+        box-shadow: 0px 0px 0 50px lighten($accent-bg,3%);
     }
 
     .admin-user-names {
         margin-left: 45px;
 
-        a {
-            color: darken($accent-fg,10%);
-            &:hover {
-                color: $accent-fg;
-            }
-        }
-
         h4, h5 {
+            color: darken($accent-fg,10%);
             margin: 0;
             font-size: 1rem;
             line-height: 1.3;

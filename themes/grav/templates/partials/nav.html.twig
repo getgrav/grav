@@ -5,11 +5,14 @@
 
     {% if admin.authorise %}
     <div id="admin-user-details">
-        <img src="http://www.gravatar.com/avatar/{{ admin.user.email|md5 }}?s=32" />
-        <div class="admin-user-names">
-            <h4><a href="{{ base_url_relative }}/users/{{ admin.user.username }}">{{ admin.user.fullname }}</a></h4>
-            <h5>{{ admin.user.title }}</h5>
-        </div>
+        <a href="{{ base_url_relative }}/users/{{ admin.user.username }}">
+            <img src="http://www.gravatar.com/avatar/{{ admin.user.email|md5 }}?s=32" />
+
+            <div class="admin-user-names">
+                <h4>{{ admin.user.fullname }}</h4>
+                <h5>{{ admin.user.title }}</h5>
+            </div>
+        </a>
     </div>
     {% endif %}
 
