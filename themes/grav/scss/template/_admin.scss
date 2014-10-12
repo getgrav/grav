@@ -39,6 +39,13 @@ $update-height: 3rem;
     .admin-user-names {
         margin-left: 45px;
 
+        a {
+            color: darken($accent-fg,10%);
+            &:hover {
+                color: $accent-fg;
+            }
+        }
+
         h4, h5 {
             margin: 0;
             font-size: 1rem;
@@ -400,6 +407,22 @@ $update-height: 3rem;
     h4 {
         font-size: 1.2rem;
         line-height: 1.2;
+    }
+}
+
+.user-details {
+    text-align: center;
+    img {
+        border-radius: 100%;
+    }
+    h2 {
+        margin: 0;
+        font-size: 1.8rem;
+    }
+    h5 {
+        color: lighten($content-fg,10%);
+        font-size: 1.1rem;
+        margin: 0;
     }
 }
 

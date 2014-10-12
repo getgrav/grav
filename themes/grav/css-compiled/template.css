@@ -563,10 +563,13 @@ form select {
   padding: 5px 30px 5px 10px;
   cursor: pointer;
   margin: 0; }
-form input[type=text] {
+form input[type=text], form input[type=password] {
   width: 100%;
   border: 1px solid #d4d4d4;
   background: #fff; }
+form input[readonly=readonly] {
+  background: #f2f2f2;
+  font-weight: bold; }
 form textarea {
   width: 100%;
   border: 1px solid #d4d4d4;
@@ -783,6 +786,10 @@ tr {
     float: left; }
   #admin-user-details .admin-user-names {
     margin-left: 45px; }
+    #admin-user-details .admin-user-names a {
+      color: #e6e6e6; }
+      #admin-user-details .admin-user-names a:hover {
+        color: #fff; }
     #admin-user-details .admin-user-names h4, #admin-user-details .admin-user-names h5 {
       margin: 0;
       font-size: 1rem;
@@ -1042,6 +1049,18 @@ tr {
   .card-item h4 {
     font-size: 1.2rem;
     line-height: 1.2; }
+
+.user-details {
+  text-align: center; }
+  .user-details img {
+    border-radius: 100%; }
+  .user-details h2 {
+    margin: 0;
+    font-size: 1.8rem; }
+  .user-details h5 {
+    color: #8d959a;
+    font-size: 1.1rem;
+    margin: 0; }
 
 #footer {
   text-align: center;

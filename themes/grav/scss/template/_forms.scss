@@ -210,10 +210,15 @@ form {
         margin: 0;
     }
 
-    input[type=text] {
+    input[type=text], input[type=password] {
         width: 100%;
         border: $form-border-width solid $form-border;
         background: $white;
+    }
+
+    input[readonly=readonly] {
+        background: darken($white, 5%);
+        font-weight: bold;
     }
 
     textarea {
