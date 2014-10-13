@@ -46,7 +46,7 @@ class Plugins extends Iterator
 
             $filePath = $this->grav['locator']('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
             if (!is_file($filePath)) {
-                throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found!", $filePath, $plugin));
+                throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $plugin));
             }
 
             require_once $filePath;
@@ -54,7 +54,7 @@ class Plugins extends Iterator
             $pluginClass = 'Grav\\Plugin\\'.ucfirst($plugin).'Plugin';
 
             if (!class_exists($pluginClass)) {
-                throw new \RuntimeException(sprintf("Plugin '%s' class not found!", $plugin));
+                throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $plugin));
             }
 
             $instance = new $pluginClass($this->grav, $config);
