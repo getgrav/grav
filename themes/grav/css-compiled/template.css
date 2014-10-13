@@ -768,6 +768,10 @@ tr {
   bottom: 0;
   width: 20%;
   background: #253A47; }
+  #admin-sidebar a {
+    color: #cccccc; }
+    #admin-sidebar a:hover {
+      color: #fff; }
 
 #admin-logo {
   background: #20333e;
@@ -777,6 +781,10 @@ tr {
     margin: 0;
     text-align: center;
     font-size: 1.2rem; }
+    #admin-logo h3 i {
+      font-size: 1rem;
+      vertical-align: middle;
+      margin-top: -1px; }
 
 #admin-user-details {
   padding: 2rem;

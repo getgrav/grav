@@ -18,17 +18,12 @@
                     {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
                     {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
                     >
-                {% for option, name in field.options %}
-                <option {% if key in option %}selected="selected"{% endif %} value="{{ option }}">
-                    {{ name }}
-                </option>
-                {% endfor %}
-                {% for theme in admin.themes %}
-                {% set blueprints = theme.blueprints %}
+                {% for slug, package in admin.themes %}
+                {% set theme = package.toArray() %}
                 <option
-                    {% if config.system.pages.theme == blueprints.name %}selected="selected"{% endif %}
-                    value="{{ blueprints.name }}">
-                    {{ blueprints.get('name') }}
+                    {% if config.system.pages.theme == slug %}selected="selected"{% endif %}
+                    value="{{ slug }}">
+                    {{ theme.name }}
                 </option>
                 {% endfor %}
             </select>

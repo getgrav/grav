@@ -11,6 +11,13 @@ $update-height: 3rem;
     width: $sidebar-width;
 
     background: $accent-bg;
+
+    a {
+        color: shade($accent-fg,20%);
+        &:hover {
+            color: $accent-fg;
+        }
+    }
 }
 
 
@@ -24,6 +31,12 @@ $update-height: 3rem;
         @extend %vertical-align;
         text-align: center;
         font-size: 1.2rem;
+
+        i {
+            font-size: 1rem;
+            vertical-align: middle;
+            margin-top: -1px;
+        }
     }
 }
 
