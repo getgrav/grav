@@ -64,10 +64,14 @@ trait ConsoleTrait
         }
     }
 
-    public function clearCache()
+    public function clearCache($all = [])
     {
+        if ($all) {
+            $all = ['--all' => true];
+        }
+
         $command = new ClearCacheCommand();
-        $input = new ArrayInput(array('--all' => true));
+        $input = new ArrayInput($all);
         return $command->run($input, $this->output);
     }
 }

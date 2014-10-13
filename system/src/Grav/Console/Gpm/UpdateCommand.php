@@ -128,6 +128,9 @@ class UpdateCommand extends Command
             $this->output->writeln("<red>Error:</red> An error occured while trying to install the extensions");
             exit;
         }
+
+        // clear cache after successful upgrade
+        $this->clearCache();
     }
 
     private function userInputPackages($onlyPackages)
