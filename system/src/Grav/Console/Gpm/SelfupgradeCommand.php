@@ -7,6 +7,7 @@ use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -114,6 +115,9 @@ class SelfupgradeCommand extends Command
             $this->output->writeln("  '- <green>Success!</green>  ");
             $this->output->writeln('');
         }
+
+        // clear cache after successful upgrade
+        $this->clearCache();
     }
 
     private function download($package)

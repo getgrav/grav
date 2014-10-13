@@ -2,7 +2,9 @@
 namespace Grav\Console;
 
 use Grav\Common\GravTrait;
+use Grav\Console\Cli\ClearCacheCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Input\ArrayInput;
 
 trait ConsoleTrait
 {
@@ -60,5 +62,12 @@ trait ConsoleTrait
             $this->output->writeln('');
             exit;
         }
+    }
+
+    public function clearCache()
+    {
+        $command = new ClearCacheCommand();
+        $input = new ArrayInput(array('--all' => true));
+        return $command->run($input, $this->output);
     }
 }
