@@ -13,9 +13,6 @@ use DebugBar\StandardDebugBar;
 class Debugger
 {
     protected $grav;
-    protected $enabled = false;
-    protected $timing = false;
-    protected $twig = false;
     protected $debugbar;
     protected $renderer;
 
@@ -28,21 +25,15 @@ class Debugger
     {
         $config = $this->grav['config'];
         if ($config->get('system.debugger.enabled')) {
-            $this->enabled = true;
             $this->debugbar->addCollector(new \DebugBar\DataCollector\ConfigCollector((array)$config->get('system')));
-        }
-        if ($config->get('system.debugger.timing')) {
-            $this->timing = true;
-        }
-        if ($config->get('system.debugger.twig')) {
-            $this->twig = true;
         }
         return $this;
     }
 
     public function addAssets()
     {
-        if ($this->enabled) {
+        $config = $this->grav['config'];
+        if ($config->get('system.debugger.enabled')) {
 
             $assets = $this->grav['assets'];
 
@@ -75,7 +66,8 @@ class Debugger
 
     public function render()
     {
-        if ($this->enabled) {
+        $config = $this->grav['config'];
+        if ($config->get('system.debugger.enabled')) {
             echo $this->renderer->render();
         }
         return $this;
@@ -83,7 +75,8 @@ class Debugger
 
     public function startTimer($name, $desription = null)
     {
-        if ($this->enabled || $name == 'config' || $name == 'debugger') {
+        $config = $this->grav['config'];
+        if ($config->get('system.debugger.enabled') || $name == 'config' || $name == 'debugger') {
             $this->debugbar['time']->startMeasure($name, $desription);
         }
         return $this;
@@ -91,7 +84,8 @@ class Debugger
 
     public function stopTimer($name)
     {
-        if ($this->enabled || $name == 'config' || $name == 'debugger') {
+        $config = $this->grav['config'];
+        if ($config->get('system.debugger.enabled') || $name == 'config' || $name == 'debugger') {
             $this->debugbar['time']->stopMeasure($name);
         }
         return $this;
@@ -100,7 +94,8 @@ class Debugger
 
     public function addMessage($message)
     {
-        if ($this->enabled) {
+        $config = $this->grav['config'];
+        if ($config->get('system.debugger.enabled')) {
             $this->debugbar['messages']->addMessage($message);
         }
         return $this;
