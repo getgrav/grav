@@ -14,6 +14,7 @@
     {% endif %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ theme_url }}/images/favicon.png">
+
     {% block stylesheets %}
     <link rel="stylesheet" href="{{ theme_url }}/css-compiled/nucleus.css" type="text/css" />
     <link rel="stylesheet" href="{{ theme_url }}/css-compiled/template.css" type="text/css" />
@@ -25,6 +26,7 @@
         <link rel="stylesheet" href="{{ theme_url }}/css/nucleus-ie9.css" type="text/css" />
         <link rel="stylesheet" href="{{ theme_url }}/css/pure-0.5.0/grids-min.css" type="text/css" />
     <![endif]-->
+    {{ assets.css() }}
     {% endblock %}
 
     {% block javascripts %}
@@ -34,6 +36,7 @@
     <script type="text/javascript" src="{{ theme_url }}/js/selectize.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/jquery.remodal.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/admin-all.js"></script>
+    {{ assets.js() }}
     {% endblock %}
 {% endblock %}
 </head>
