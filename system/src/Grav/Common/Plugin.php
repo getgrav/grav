@@ -23,6 +23,8 @@ class Plugin implements EventSubscriberInterface
      */
     protected $config;
 
+    protected $active = true;
+
     /**
      * By default assign all methods as listeners using the default priority.
      *
@@ -51,6 +53,14 @@ class Plugin implements EventSubscriberInterface
     {
         $this->grav = $grav;
         $this->config = $config;
+    }
+
+    public function isAdmin()
+    {
+        if (isset($this->grav['admin'])) {
+            return true;
+        }
+        return false;
     }
 
     /**
