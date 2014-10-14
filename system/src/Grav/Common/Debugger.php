@@ -16,13 +16,15 @@ class Debugger
     protected $debugbar;
     protected $renderer;
 
-    public function __construct() {
-        $this->grav = Grav::instance();
+    public function __construct()
+    {
         $this->debugbar = new StandardDebugBar();
     }
 
     public function init()
     {
+        $this->grav = Grav::instance();
+
         $config = $this->grav['config'];
         if ($config->get('system.debugger.enabled')) {
             $this->debugbar->addCollector(new \DebugBar\DataCollector\ConfigCollector((array)$config->get('system')));
@@ -76,7 +78,7 @@ class Debugger
     public function startTimer($name, $desription = null)
     {
         $config = $this->grav['config'];
-        if ($config->get('system.debugger.enabled') || $name == 'config' || $name == 'debugger') {
+        if ($name == 'config' || $name == 'debugger' || $config->get('system.debugger.enabled')) {
             $this->debugbar['time']->startMeasure($name, $desription);
         }
         return $this;
@@ -85,7 +87,7 @@ class Debugger
     public function stopTimer($name)
     {
         $config = $this->grav['config'];
-        if ($config->get('system.debugger.enabled') || $name == 'config' || $name == 'debugger') {
+        if ($name == 'config' || $name == 'debugger' || $config->get('system.debugger.enabled')) {
             $this->debugbar['time']->stopMeasure($name);
         }
         return $this;

@@ -11,7 +11,6 @@ if (!is_file($autoload)) {
 }
 
 use Grav\Common\Grav;
-use Grav\Common\Debugger;
 
 // Register the auto-loader.
 $loader = require_once $autoload;
@@ -27,7 +26,6 @@ $grav = Grav::instance(
 );
 
 try {
-    $grav['debugger'];
     $grav->process();
 
 } catch (\Exception $e) {

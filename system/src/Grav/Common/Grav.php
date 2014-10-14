@@ -53,9 +53,7 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
-        $container['debugger'] = function ($c) {
-            return new Debugger($c);
-        };
+        $container['debugger'] = new Debugger();
 
         $container['uri'] = function ($c) {
             return new Uri($c);
