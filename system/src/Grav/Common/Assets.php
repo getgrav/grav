@@ -662,10 +662,10 @@ class Assets
     protected function buildLocalLink($asset)
     {
         try {
-            return $this->base_url . self::$grav['locator']->findResource($asset, false);
+            $asset = self::$grav['locator']->findResource($asset, false);
         } catch (\Exception $e) {}
 
-        return $this->base_url . $asset;
+        return $this->base_url . ltrim($asset, '/');
     }
 
 
