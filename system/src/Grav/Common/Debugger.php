@@ -48,6 +48,8 @@ class Debugger
                 $assets->addCss($css);
             }
 
+            $assets->addCss('/system/assets/debugger.css');
+
             foreach ($js_files as $js) {
                 $assets->addJs($js);
             }
