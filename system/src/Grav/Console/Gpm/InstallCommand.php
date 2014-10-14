@@ -114,6 +114,9 @@ class InstallCommand extends Command
                 }
             }
         }
+
+        // clear cache after successful upgrade
+        $this->clearCache();
     }
 
     private function downloadPackage($package)
