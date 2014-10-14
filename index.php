@@ -15,6 +15,12 @@ use Grav\Common\Grav;
 // Register the auto-loader.
 $loader = require_once $autoload;
 
+// Setup Whoops error handler
+$whoops = new \Whoops\Run;
+$whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+$whoops->register();
+
+
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
 }
