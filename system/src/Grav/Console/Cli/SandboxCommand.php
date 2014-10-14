@@ -3,98 +3,146 @@ namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
+/**
+ * Class SandboxCommand
+ * @package Grav\Console\Cli
+ */
 class SandboxCommand extends Command
 {
-    protected $directories  = array('/cache',
-                                    '/logs',
-                                    '/images',
-                                    '/assets',
-                                    '/user/accounts',
-                                    '/user/config',
-                                    '/user/pages',
-                                    '/user/data',
-                                    '/user/plugins',
-                                    '/user/themes',
-                                    );
+    /**
+     * @var array
+     */
+    protected $directories = array(
+        '/cache',
+        '/logs',
+        '/images',
+        '/assets',
+        '/user/accounts',
+        '/user/config',
+        '/user/pages',
+        '/user/data',
+        '/user/plugins',
+        '/user/themes',
+    );
 
-    protected $files        = array('/.dependencies',
-                                    '/.htaccess',
-                                    '/user/config/site.yaml',
-                                    '/user/config/system.yaml',
-                                   );
+    /**
+     * @var array
+     */
+    protected $files = array(
+        '/.dependencies',
+        '/.editorconfig',
+        '/.htaccess',
+        '/user/config/site.yaml',
+        '/user/config/system.yaml',
+    );
 
-    protected $mappings     = array('/index.php' => '/index.php',
-                                    '/composer.json' => '/composer.json',
-                                    '/bin' => '/bin',
-                                    '/system' => '/system'
-                                    );
+    /**
+     * @var array
+     */
+    protected $mappings = array(
+        '/index.php'     => '/index.php',
+        '/composer.json' => '/composer.json',
+        '/bin'           => '/bin',
+        '/system'        => '/system'
+    );
 
+    /**
+     * @var string
+     */
     protected $default_file = "---\ntitle: HomePage\n---\n# HomePage\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitor eu felis sed ornare. Sed a mauris venenatis, pulvinar velit vel, dictum enim. Phasellus ac rutrum velit. Nunc lorem purus, hendrerit sit amet augue aliquet, iaculis ultricies nisl. Suspendisse tincidunt euismod risus, quis feugiat arcu tincidunt eget. Nulla eros mi, commodo vel ipsum vel, aliquet congue odio. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque velit orci, laoreet at adipiscing eu, interdum quis nibh. Nunc a accumsan purus.";
 
+    /**
+     * @var
+     */
     protected $source;
+    /**
+     * @var
+     */
     protected $destination;
+    /**
+     * @var InputInterface $input
+     */
+    protected $input;
+    /**
+     * @var OutputInterface $output
+     */
+    protected $output;
 
+    /**
+     *
+     */
     protected function configure()
     {
         $this
-        ->setName('sandbox')
-        ->setDescription('Setup of a base Grav system in your webroot, good for development, playing around or starting fresh')
-        ->addArgument(
-            'destination',
-            InputArgument::REQUIRED,
-            'The destination directory to symlink into'
-        )
-        ->addOption(
-            'symlink',
-            's',
-            InputOption::VALUE_NONE,
-            'Symlink the base grav system'
-        )
-        ->setHelp("The <info>sandbox</info> command help create a development environment that can optionally use symbolic links to link the core of grav to the git cloned repository.\nGood for development, playing around or starting fresh");
+            ->setName('sandbox')
+            ->setDescription('Setup of a base Grav system in your webroot, good for development, playing around or starting fresh')
+            ->addArgument(
+                'destination',
+                InputArgument::REQUIRED,
+                'The destination directory to symlink into'
+            )
+            ->addOption(
+                'symlink',
+                's',
+                InputOption::VALUE_NONE,
+                'Symlink the base grav system'
+            )
+            ->setHelp("The <info>sandbox</info> command help create a development environment that can optionally use symbolic links to link the core of grav to the git cloned repository.\nGood for development, playing around or starting fresh");
         $this->source = getcwd();
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->destination = $input->getArgument('destination');
+        $this->input = $input;
+        $this->output = $output;
 
         // Create a red output option
-        $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
-        $output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan'));
-        $output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
+        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
+        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan'));
+        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
 
         // Symlink the Core Stuff
         if ($input->getOption('symlink')) {
             // Create Some core stuff if it doesn't exist
-            $this->createDirectories($output);
+            $this->createDirectories();
 
             // Loop through the symlink mappings and create the symlinks
-            $this->symlink($output);
+            $this->symlink();
 
-        // Copy the Core STuff
+            // Copy the Core STuff
         } else {
             // Create Some core stuff if it doesn't exist
-            $this->createDirectories($output);
+            $this->createDirectories();
 
             // Loop through the symlink mappings and copy what otherwise would be symlinks
-            $this->copy($output);
+            $this->copy();
         }
 
-        $this->pages($output);
-        $this->initFiles($output);
-        $this->perms($output);
+        $this->pages();
+        $this->initFiles();
+        $this->perms();
     }
 
-    private function createDirectories($output)
+    /**
+     *
+     */
+    private function createDirectories()
     {
-        $output->writeln('');
-        $output->writeln('<comment>Creating Directories</comment>');
+        $this->output->writeln('');
+        $this->output->writeln('<comment>Creating Directories</comment>');
         $dirs_created = false;
 
         if (!file_exists($this->destination)) {
@@ -104,50 +152,56 @@ class SandboxCommand extends Command
         foreach ($this->directories as $dir) {
             if (!file_exists($this->destination . $dir)) {
                 $dirs_created = true;
-                $output->writeln('    <cyan>' . $dir . '</cyan>');
+                $this->output->writeln('    <cyan>' . $dir . '</cyan>');
                 mkdir($this->destination . $dir, 0777, true);
             }
         }
 
         if (!$dirs_created) {
-            $output->writeln('    <red>Directories already exist</red>');
+            $this->output->writeln('    <red>Directories already exist</red>');
         }
     }
 
-    private function copy($output)
+    /**
+     *
+     */
+    private function copy()
     {
-        $output->writeln('');
-        $output->writeln('<comment>Copying Files</comment>');
+        $this->output->writeln('');
+        $this->output->writeln('<comment>Copying Files</comment>');
 
 
         foreach ($this->mappings as $source => $target) {
-            if ((int) $source == $source) {
+            if ((int)$source == $source) {
                 $source = $target;
             }
 
             $from = $this->source . $source;
             $to = $this->destination . $target;
 
-            $output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
+            $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
             $this->rcopy($from, $to);
         }
     }
 
-    private function symlink($output)
+    /**
+     *
+     */
+    private function symlink()
     {
-        $output->writeln('');
-        $output->writeln('<comment>Resetting Symbolic Links</comment>');
+        $this->output->writeln('');
+        $this->output->writeln('<comment>Resetting Symbolic Links</comment>');
 
 
         foreach ($this->mappings as $source => $target) {
-            if ((int) $source == $source) {
+            if ((int)$source == $source) {
                 $source = $target;
             }
 
             $from = $this->source . $source;
             $to = $this->destination . $target;
 
-            $output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
+            $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
 
             if (is_dir($to)) {
                 @Folder::delete($to);
@@ -158,17 +212,20 @@ class SandboxCommand extends Command
         }
     }
 
-    private function initFiles($output)
+    /**
+     *
+     */
+    private function initFiles()
     {
-        $this->check($output);
+        $this->check($this->output);
 
-        $output->writeln('');
-        $output->writeln('<comment>File Initializing</comment>');
+        $this->output->writeln('');
+        $this->output->writeln('<comment>File Initializing</comment>');
         $files_init = false;
 
         // Copy files if they do not exist
-         foreach ($this->files as $source => $target) {
-            if ((int) $source == $source) {
+        foreach ($this->files as $source => $target) {
+            if ((int)$source == $source) {
                 $source = $target;
             }
 
@@ -178,21 +235,24 @@ class SandboxCommand extends Command
             if (!file_exists($to)) {
                 $files_init = true;
                 copy($from, $to);
-                $output->writeln('    <cyan>'.$target.'</cyan> <comment>-></comment> Created');
+                $this->output->writeln('    <cyan>' . $target . '</cyan> <comment>-></comment> Created');
             }
         }
 
         if (!$files_init) {
-            $output->writeln('    <red>Files already exist</red>');
+            $this->output->writeln('    <red>Files already exist</red>');
         }
 
 
     }
 
-    private function pages($output)
+    /**
+     *
+     */
+    private function pages()
     {
-        $output->writeln('');
-        $output->writeln('<comment>Pages Initializing</comment>');
+        $this->output->writeln('');
+        $this->output->writeln('<comment>Pages Initializing</comment>');
 
         // get pages files and initialize if no pages exist
         $pages_dir = $this->destination . '/user/pages';
@@ -201,70 +261,83 @@ class SandboxCommand extends Command
         if (count($pages_files) == 0) {
             $destination = $this->source . '/user/pages';
             $this->rcopy($destination, $pages_dir);
-            $output->writeln('    <cyan>'.$destination.'</cyan> <comment>-></comment> Created');
+            $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
 
         }
     }
 
-    private function perms($output)
+    /**
+     *
+     */
+    private function perms()
     {
-        $output->writeln('');
-        $output->writeln('<comment>Permisions Initializing</comment>');
+        $this->output->writeln('');
+        $this->output->writeln('<comment>Permisions Initializing</comment>');
 
         $dir_perms = 0755;
 
-        $binaries = glob($this->destination . DS .'bin' . DS . '*');
+        $binaries = glob($this->destination . DS . 'bin' . DS . '*');
 
-        foreach($binaries as $bin) {
+        foreach ($binaries as $bin) {
             chmod($bin, $dir_perms);
-            $output->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to '. decoct($dir_perms));
+            $this->output->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to ' . decoct($dir_perms));
         }
 
-        $output->writeln("");
+        $this->output->writeln("");
     }
 
 
-    private function check($output)
+    /**
+     *
+     */
+    private function check()
     {
         $success = true;
 
         if (!file_exists($this->destination)) {
-            $output->writeln('    file: <red>$this->destination</red> does not exist!');
+            $this->output->writeln('    file: <red>$this->destination</red> does not exist!');
             $success = false;
         }
 
         foreach ($this->directories as $dir) {
             if (!file_exists($this->destination . $dir)) {
-                $output->writeln('    directory: <red>' . $dir . '</red> does not exist!');
+                $this->output->writeln('    directory: <red>' . $dir . '</red> does not exist!');
                 $success = false;
             }
         }
 
         foreach ($this->mappings as $target => $link) {
             if (!file_exists($this->destination . $target)) {
-                $output->writeln('    mappings: <red>' . $target . '</red> does not exist!');
+                $this->output->writeln('    mappings: <red>' . $target . '</red> does not exist!');
                 $success = false;
             }
         }
         if (!$success) {
-            $output->writeln('');
-            $output->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');
+            $this->output->writeln('');
+            $this->output->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');
             exit;
         }
     }
 
-    private function rcopy($src, $dest){
+    /**
+     * @param $src
+     * @param $dest
+     *
+     * @return bool
+     */
+    private function rcopy($src, $dest)
+    {
 
         // If the src is not a directory do a simple file copy
-        if(!is_dir($src)) {
+        if (!is_dir($src)) {
             copy($src, $dest);
             return true;
         }
 
         // If the destination directory does not exist create it
-        if(!is_dir($dest)) {
-            if(!mkdir($dest)) {
-        // If the destination directory could not be created stop processing
+        if (!is_dir($dest)) {
+            if (!mkdir($dest)) {
+                // If the destination directory could not be created stop processing
                 return false;
             }
         }
@@ -272,11 +345,13 @@ class SandboxCommand extends Command
         // Open the source directory to read in files
         $i = new \DirectoryIterator($src);
         /** @var \DirectoryIterator $f */
-        foreach($i as $f) {
-            if($f->isFile()) {
+        foreach ($i as $f) {
+            if ($f->isFile()) {
                 copy($f->getRealPath(), "$dest/" . $f->getFilename());
-            } else if(!$f->isDot() && $f->isDir()) {
-                $this->rcopy($f->getRealPath(), "$dest/$f");
+            } else {
+                if (!$f->isDot() && $f->isDir()) {
+                    $this->rcopy($f->getRealPath(), "$dest/$f");
+                }
             }
         }
         return true;

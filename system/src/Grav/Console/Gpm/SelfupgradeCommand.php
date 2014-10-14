@@ -2,9 +2,9 @@
 namespace Grav\Console\Gpm;
 
 use Grav\Common\Filesystem\Folder;
-use Grav\Common\GPM\Upgrader;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
+use Grav\Common\GPM\Upgrader;
 use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,16 +12,46 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+/**
+ * Class SelfupgradeCommand
+ * @package Grav\Console\Gpm
+ */
 class SelfupgradeCommand extends Command
 {
     use ConsoleTrait;
 
+    /**
+     * @var
+     */
     protected $data;
+    /**
+     * @var
+     */
     protected $extensions;
+    /**
+     * @var
+     */
     protected $updatable;
+    /**
+     * @var
+     */
     protected $file;
+    /**
+     * @var array
+     */
     protected $types = array('plugins', 'themes');
+    /**
+     * @var
+     */
+    private $tmp;
+    /**
+     * @var
+     */
+    private $upgrader;
 
+    /**
+     *
+     */
     protected function configure()
     {
         $this
@@ -43,14 +73,20 @@ class SelfupgradeCommand extends Command
             ->setHelp('The <info>update</info> command updates plugins and themes when a new version is available');
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setupConsole($input, $output);
         $this->upgrader = new Upgrader($this->input->getOption('force'));
 
-        $local   = $this->upgrader->getLocalVersion();
-        $remote  = $this->upgrader->getRemoteVersion();
-        $update  = $this->upgrader->getAssets()->{'grav-update'};
+        $local = $this->upgrader->getLocalVersion();
+        $remote = $this->upgrader->getRemoteVersion();
+        $update = $this->upgrader->getAssets()->{'grav-update'};
         $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
 
         if (!$this->upgrader->isUpgradable()) {
@@ -59,14 +95,15 @@ class SelfupgradeCommand extends Command
         }
 
         $questionHelper = $this->getHelper('question');
-        $skipPrompt     = $this->input->getOption('all-yes');
+        $skipPrompt = $this->input->getOption('all-yes');
 
         $this->output->writeln("Grav v<cyan>$remote</cyan> is now available [release date: $release].");
-        $this->output->writeln("You are currently using v<cyan>".GRAV_VERSION."</cyan>.");
+        $this->output->writeln("You are currently using v<cyan>" . GRAV_VERSION . "</cyan>.");
 
         if (!$skipPrompt) {
-            $question = new ConfirmationQuestion("Would you like to read the changelog before proceeding? [y|N] ", false);
-            $answer   = $questionHelper->ask($this->input, $this->output, $question);
+            $question = new ConfirmationQuestion("Would you like to read the changelog before proceeding? [y|N] ",
+                false);
+            $answer = $questionHelper->ask($this->input, $this->output, $question);
 
             if ($answer) {
                 $changelog = $this->upgrader->getChangelog(GRAV_VERSION);
@@ -74,8 +111,8 @@ class SelfupgradeCommand extends Command
                 $this->output->writeln("");
                 foreach ($changelog as $version => $log) {
                     $title = $version . ' [' . $log->date . ']';
-                    $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function($match){
-                        return "\n".ucfirst($match[1]).":";
+                    $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
+                        return "\n" . ucfirst($match[1]) . ":";
                     }, $log->content);
 
                     $this->output->writeln($title);
@@ -89,7 +126,7 @@ class SelfupgradeCommand extends Command
             }
 
             $question = new ConfirmationQuestion("Would you like to upgrade now? [y|N] ", false);
-            $answer   = $questionHelper->ask($this->input, $this->output, $question);
+            $answer = $questionHelper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
                 $this->output->writeln("Aborting...");
@@ -116,13 +153,18 @@ class SelfupgradeCommand extends Command
         }
 
         // clear cache after successful upgrade
-        $this->clearCache(true);
+        $this->clearCache('all');
     }
 
+    /**
+     * @param $package
+     *
+     * @return string
+     */
     private function download($package)
     {
         $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
-        $output    = Response::get($package->download, [], [$this, 'progress']);
+        $output = Response::get($package->download, [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
 
@@ -135,17 +177,21 @@ class SelfupgradeCommand extends Command
         return $this->tmp . DS . $package->name;
     }
 
+    /**
+     * @return bool
+     */
     private function upgrade()
     {
-        $installer   = Installer::install($this->file, GRAV_ROOT, ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true]);
-        $errorCode   = Installer::lastErrorCode();
+        Installer::install($this->file, GRAV_ROOT,
+            ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true]);
+        $errorCode = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
         if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing upgrade...    <red>error</red>                             ");
-            $this->output->writeln("  |  '- " . $installer->lastErrorMsg());
+            $this->output->writeln("  |  '- " . Installer::lastErrorMsg());
 
             return false;
         }
@@ -157,17 +203,27 @@ class SelfupgradeCommand extends Command
         return true;
     }
 
+    /**
+     * @param $progress
+     */
     public function progress($progress)
     {
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($progress["filesize"]) . "]... " . str_pad($progress['percent'], 5, " ", STR_PAD_LEFT) . '%');
+        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($progress["filesize"]) . "]... " . str_pad($progress['percent'],
+                5, " ", STR_PAD_LEFT) . '%');
     }
 
+    /**
+     * @param     $size
+     * @param int $precision
+     *
+     * @return string
+     */
     public function formatBytes($size, $precision = 2)
     {
         $base = log($size) / log(1024);
         $suffixes = array('', 'k', 'M', 'G', 'T');
 
-        return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+        return round(pow(1024, $base - floor($base)), $precision) . $suffixes[(int)floor($base)];
     }
 }
