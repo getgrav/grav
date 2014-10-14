@@ -31,7 +31,7 @@ RewriteRule ^bin/(.*)$ error [L]
 RewriteRule ^system/(.*)\.(txt|md|html|php|sh|bat|yaml)$ error [L]
 
 # block vendor (non CSS/JS)
-RewriteRule ^vendor/(.*)\.(txt|md|htmlphp|sh|bat|yaml)$ error [L]
+RewriteRule ^vendor/(.*)\.(txt|md|html|php|sh|bat|yaml)$ error [L]
 
 </IfModule>
 
