@@ -54,6 +54,7 @@ class Grav extends Container
         $container['grav'] = $container;
 
         $container['debugger'] = new Debugger();
+        $container['debugger']->startTimer('_init', 'Init');
 
         $container['uri'] = function ($c) {
             return new Uri($c);
@@ -138,6 +139,8 @@ class Grav extends Container
         $container->register(new StreamsServiceProvider);
         $container->register(new ConfigServiceProvider);
 
+        $container['debugger']->stopTimer('_init');
+
         return $container;
     }
 
@@ -147,13 +150,13 @@ class Grav extends Container
         ob_start();
 
         // Initialize configuration.
-        $this['debugger']->startTimer('config', 'Configuration');
+        $this['debugger']->startTimer('_config', 'Configuration');
         $this['config']->init();
-        $this['debugger']->stopTimer('config');
+        $this['debugger']->stopTimer('_config');
 
-        $this['debugger']->startTimer('debugger', 'Debugger');
+        $this['debugger']->startTimer('_debugger', 'Debugger');
         $this['debugger']->init();
-        $this['debugger']->stopTimer('debugger');
+        $this['debugger']->stopTimer('_debugger');
 
         $this['debugger']->startTimer('plugins', 'Plugins');
         $this['plugins']->init();

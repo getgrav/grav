@@ -77,8 +77,7 @@ class Debugger
 
     public function startTimer($name, $desription = null)
     {
-        $config = $this->grav['config'];
-        if ($name == 'config' || $name == 'debugger' || $config->get('system.debugger.enabled')) {
+        if ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled')) {
             $this->debugbar['time']->startMeasure($name, $desription);
         }
         return $this;
@@ -86,8 +85,7 @@ class Debugger
 
     public function stopTimer($name)
     {
-        $config = $this->grav['config'];
-        if ($name == 'config' || $name == 'debugger' || $config->get('system.debugger.enabled')) {
+        if ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled')) {
             $this->debugbar['time']->stopMeasure($name);
         }
         return $this;
