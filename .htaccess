@@ -11,27 +11,27 @@ RewriteEngine On
 
 # RewriteBase /
 
-# Access site
+# access site
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule .* index.php [L]
 
-# Block various user files from being accessed directly
-RewriteRule ^user/accounts/(.*)$ error [R=301,L]
-RewriteRule ^user/config/(.*)$ error [R=301,L]
-RewriteRule ^user/(.*)\.(txt|md|html|php|yaml|json|twig|sh|bat)$ error [R=301,L]
+# block various user files from being accessed directly
+RewriteRule ^user/accounts/(.*)$ error [L]
+RewriteRule ^user/config/(.*)$ error [L]
+RewriteRule ^user/(.*)\.(txt|md|html|php|yaml|json|twig|sh|bat)$ error [L]
 
-# Block cache/
-RewriteRule ^cache/(.*) error [R=301,L]
+# block cache
+RewriteRule ^cache/(.*) error [L]
 
-# Block bin/
-RewriteRule ^bin/(.*)$ error [R=301,L]
+# block bin
+RewriteRule ^bin/(.*)$ error [L]
 
-# Block system/
-RewriteRule ^system/(.*)$ error [R=301,L]
+# block system
+RewriteRule ^system/(.*)\.(txt|md|html|php|sh|bat|yaml)$ error [L]
 
-# Block vendor/
-# RewriteRule ^vendor/(.*)$ error [R=301,L]
+# block vendor (non CSS/JS)
+RewriteRule ^vendor/(.*)\.(txt|md|htmlphp|sh|bat|yaml)$ error [L]
 
 </IfModule>
 
