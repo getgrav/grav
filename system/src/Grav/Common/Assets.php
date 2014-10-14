@@ -249,7 +249,7 @@ class Assets
         }
 
         if( !array_key_exists($asset, $this->css)) {
-            $this->css[$asset] = ['asset'=>$asset, 'priority'=>$priority, 'pipeline'=>$pipeline];
+            $this->css[$asset] = ['asset'=>$asset, 'priority'=>$priority, 'order' => count($this->css), 'pipeline'=>$pipeline];
         }
 
         return $this;
@@ -300,7 +300,8 @@ class Assets
         }
 
         if( !array_key_exists($asset, $this->js)) {
-            $this->js[$asset] = ['asset' => $asset, 'priority' => $priority, 'pipeline' => $pipeline];
+
+            $this->js[$asset] = ['asset' => $asset, 'priority' => $priority, 'order' => count($this->js), 'pipeline' => $pipeline];
         }
 
         return $this;
@@ -317,8 +318,15 @@ class Assets
         if( ! $this->css)
             return null;
 
+        if (self::$grav)
+
         // Sort array by priorities (larger priority first)
-        usort($this->css, function ($a, $b) {return $a['priority'] - $b['priority'];});
+        usort($this->css, function ($a, $b) {
+            if ($a['priority'] == $b['priority']) {
+                return $b['order'] - $a['order'];
+            }
+            return $a['priority'] - $b['priority'];
+        });
         $this->css = array_reverse($this->css);
 
         $attributes = $this->attributes(array_merge([ 'type' => 'text/css', 'rel' => 'stylesheet' ], $attributes));
@@ -363,7 +371,12 @@ class Assets
             return null;
 
         // Sort array by priorities (larger priority first)
-        usort($this->js, function ($a, $b) {return $a['priority'] - $b['priority'];});
+        usort($this->js, function ($a, $b) {
+            if ($a['priority'] == $b['priority']) {
+                return $b['order'] - $a['order'];
+            }
+            return $a['priority'] - $b['priority'];
+        });
         $this->js = array_reverse($this->js);
 
         $attributes = $this->attributes(array_merge([ 'type' => 'text/javascript' ], $attributes));

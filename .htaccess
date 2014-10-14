@@ -31,7 +31,7 @@ RewriteRule ^bin/(.*)$ error [R=301,L]
 RewriteRule ^system/(.*)$ error [R=301,L]
 
 # Block vendor/
-RewriteRule ^vendor/(.*)$ error [R=301,L]
+# RewriteRule ^vendor/(.*)$ error [R=301,L]
 
 </IfModule>
 

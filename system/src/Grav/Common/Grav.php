@@ -15,9 +15,7 @@ use Grav\Common\Page\Medium;
  * @author Andy Miller
  * @link http://www.rockettheme.com
  * @license http://opensource.org/licenses/MIT
- * @version 0.8.0
  *
- * Originally based on Pico by Gilbert Pellegrom - http://pico.dev7studios.com
  * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
  */
 class Grav extends Container
@@ -54,6 +52,10 @@ class Grav extends Container
         $container = new static($values);
 
         $container['grav'] = $container;
+
+        $container['debugger'] = function ($c) {
+            return new Debugger($c);
+        };
 
         $container['uri'] = function ($c) {
             return new Uri($c);
@@ -147,15 +149,23 @@ class Grav extends Container
         ob_start();
 
         // Initialize configuration.
+        $this['debugger']->startTimer('config', 'Configuration');
         $this['config']->init();
+        $this['debugger']->stopTimer('config');
 
+        $this['debugger']->startTimer('debugger', 'Debugger');
+        $this['debugger']->init();
+        $this['debugger']->stopTimer('debugger');
+
+        $this['debugger']->startTimer('plugins', 'Plugins');
         $this['plugins']->init();
-
         $this->fireEvent('onPluginsInitialized');
+        $this['debugger']->stopTimer('plugins');
 
+        $this['debugger']->startTimer('themes', 'Themes');
         $this['themes']->init();
-
         $this->fireEvent('onThemeInitialized');
+        $this['debugger']->stopTimer('themes');
 
         $task = $this['task'];
         if ($task) {
@@ -163,27 +173,35 @@ class Grav extends Container
         }
 
         $this['assets']->init();
-
+        $this['debugger']->addAssets();
         $this->fireEvent('onAssetsInitialized');
 
+        $this['debugger']->startTimer('twig', 'Twig');
         $this['twig']->init();
-        $this['pages']->init();
+        $this['debugger']->stopTimer('twig');
 
+        $this['debugger']->startTimer('pages', 'Pages');
+        $this['pages']->init();
         $this->fireEvent('onPagesInitialized');
+        $this['debugger']->stopTimer('pages');
 
         $this->fireEvent('onPageInitialized');
 
-        // Process whole page as required
-        $this->output = $this['output'];
 
+
+        // Process whole page as required
+        $this['debugger']->startTimer('render', 'Render');
+        $this->output = $this['output'];
         $this->fireEvent('onOutputGenerated');
+        $this['debugger']->stopTimer('render');
 
         // Set the header type
         $this->header();
-
         echo $this->output;
+        $this['debugger']->render();
 
         $this->fireEvent('onOutputRendered');
+
 
         register_shutdown_function([$this, 'shutdown']);
     }
@@ -235,9 +253,7 @@ class Grav extends Container
      */
     public function header()
     {
-        /** @var Uri $uri */
-        $uri = $this['uri'];
-        header('Content-type: ' . $this->mime($uri->extension()));
+        header('Content-type: ' . $this->mime($this['uri']->extension()));
     }
 
     /**
