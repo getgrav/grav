@@ -7,6 +7,12 @@ body header {
     border-left: 8px solid #29796B;
 }
 
+body .clipboard {
+    width: 28px;
+    height: 28px;
+    background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcAQMAAABIw03XAAAAA3NCSVQICAjb4U/gAAAABlBMVEX///////9VfPVsAAAAAnRSTlP/AOW3MEoAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzbovLKMAAAAFnRFWHRDcmVhdGlvbiBUaW1lADEwLzE1LzE0xr/LJAAAADhJREFUCJlj+P///wcGBPGDQR5E8OMi2IEEczOIaAQRHSCioQBGHAAR/7AT/z+DiA8MMALVXhABAJf9Sr5aY+UFAAAAAElFTkSuQmCC);
+}
+
 body .exc-title-primary {
     color: #1C3631;
     text-shadow: none;
