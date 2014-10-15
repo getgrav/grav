@@ -1,0 +1,95 @@
+body {
+    background-color: #eee;
+}
+
+body header {
+    background: #349886;
+    border-left: 8px solid #29796B;
+}
+
+body .exc-title-primary {
+    color: #1C3631;
+    text-shadow: none;
+}
+
+body .exc-title {
+    color: #2F5B52;
+    text-shadow: none;
+}
+
+body .data-table-container label, body .frame-class {
+    color: #0082BA;
+}
+
+body .active .frame-class {
+    color: #E1F0F4;
+}
+
+body .frame {
+    border: 0;
+}
+
+body .frame.active {
+    border: 0;
+    box-shadow: none;
+    background-color: #2693B7;
+}
+
+body .frame:not(.active):hover {
+    background: #D4E3E7;
+}
+
+body .frame-file, body .data-table tbody {
+    font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, Courier, monospace;
+    font-size: 13px;
+}
+
+body .frame-code {
+    background: #305669;
+    border-left: 8px solid #253A47;
+    padding: 1rem;
+}
+
+body .frame-code .frame-file {
+    background: #253A47;
+    color: #eee;
+    text-shadow: none;
+    box-shadow: none;
+    font-family: inherit;
+}
+
+body .frame-code .frame-file strong {
+    color: #fff;
+    font-weight: normal;
+}
+
+body .frame-comments {
+    background: #283E4D;
+
+    box-shadow: none;
+}
+
+body .frame-comments.empty:before {
+    color: #789AAB;
+}
+
+body .details-container {
+    border: 0;
+}
+
+body .details {
+    background-color: #eee;
+    border-left: 8px solid #ddd;
+    padding: 1rem;
+}
+
+body .code-block {
+    background: #2C4454;
+    box-shadow: none;
+    font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, Courier, monospace;
+    font-size: 13px;
+}
+
+body .handler.active {
+    background: #666;
+}
