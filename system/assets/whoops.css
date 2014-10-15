@@ -23,26 +23,30 @@ body .exc-title {
     text-shadow: none;
 }
 
-body .data-table-container label, body .frame-class {
+body .data-table-container label {
     color: #0082BA;
-}
-
-body .active .frame-class {
-    color: #E1F0F4;
 }
 
 body .frame {
     border: 0;
 }
 
+body .active .frame-class {
+    color: #E3D8E9;
+}
+
+body .frame-class {
+    color: #9055AF;
+}
+
 body .frame.active {
     border: 0;
     box-shadow: none;
-    background-color: #2693B7;
+    background-color: #9055AF;
 }
 
 body .frame:not(.active):hover {
-    background: #D4E3E7;
+    background: #e9e9e9;
 }
 
 body .frame-file, body .data-table tbody {
