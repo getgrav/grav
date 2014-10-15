@@ -3,6 +3,7 @@ namespace Grav\Common;
 
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
+use Grav\Common\Service\ErrorServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
@@ -55,6 +56,8 @@ class Grav extends Container
 
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_init', 'Init');
+
+        $container->register(new ErrorServiceProvider);
 
         $container['uri'] = function ($c) {
             return new Uri($c);
