@@ -161,6 +161,12 @@ class Grav extends Container
         $this['debugger']->init();
         $this['debugger']->stopTimer('_debugger');
 
+        $this['config']->debug();
+
+        $this['debugger']->startTimer('streams', 'Streams');
+        $this['streams'];
+        $this['debugger']->stopTimer('streams');
+
         $this['debugger']->startTimer('plugins', 'Plugins');
         $this['plugins']->init();
         $this->fireEvent('onPluginsInitialized');

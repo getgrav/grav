@@ -27,6 +27,11 @@ trait CompiledFile
             $key = md5($this->filename);
             $file = PhpFile::instance(CACHE_DIR . "/compiled/files/{$key}{$this->extension}.php");
             $modified = $this->modified();
+
+            if (!$modified) {
+                return $this->decode($this->raw());
+            }
+
             $class = get_class($this);
 
             $cache = $file->exists() ? $file->content() : null;

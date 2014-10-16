@@ -80,10 +80,14 @@ class Config extends Data
     protected $blueprintLookup;
     protected $pluginLookup;
 
+    protected $finder;
+
+    protected $messages = [];
 
     public function __construct(array $items = array(), Grav $grav = null)
     {
         $this->grav = $grav ?: Grav::instance();
+        $this->finder = new ConfigFinder;
 
         if (isset($items['@class'])) {
             if ($items['@class'] != get_class($this)) {
@@ -91,7 +95,7 @@ class Config extends Data
             }
             // Loading pre-compiled configuration.
             $this->timestamp = (int) $items['timestamp'];
-            $this->checksum = (string) $items['checksum'];
+            $this->checksum = $items['checksum'];
             $this->items = (array) $items['data'];
         } else {
             // Make sure that
@@ -132,6 +136,13 @@ class Config extends Data
         }
     }
 
+    public function debug()
+    {
+        foreach ($this->messages as $message) {
+            $this->grav['debugger']->addMessage($message);
+        }
+    }
+
     public function init()
     {
         /** @var UniformResourceLocator $locator */
@@ -141,12 +152,14 @@ class Config extends Data
         $this->blueprintLookup = $locator->findResources('blueprints://config');
         $this->pluginLookup = $locator->findResources('plugins://');
 
-        $checksum = $this->checksum();
-        if ($checksum == $this->checksum) {
+        if (!isset($this->checksum)) {
+            $this->messages[] = 'No cached configuration, compiling new configuration..';
+        } elseif ($this->checksum() != $this->checksum) {
+            $this->messages[] = 'Configuration checksum mismatch, reloading configuration..';
+        } else {
+            $this->messages[] = 'Configuration checksum matches, using cached version.';
             return;
         }
-
-        $this->checksum = $checksum;
 
         /** @var Uri $uri */
         $uri = $this->grav['uri'];
@@ -166,18 +179,27 @@ class Config extends Data
         $checkSystem = $this->get('system.cache.check.system', true);
 
         if (!$checkBlueprints && !$checkConfig && !$checkSystem) {
+            $this->messages[] = 'Skip configuration timestamp check.';
             return false;
         }
 
         // Generate checksum according to the configuration settings.
         if (!$checkConfig) {
+            $this->messages[] = 'Check configuration timestamps from system.yaml files.';
             // Just check changes in system.yaml files and ignore all the other files.
-            $cc = $checkSystem ? $this->detectFile($this->configLookup, 'system') : [];
+            $cc = $checkSystem ? $this->finder->locateConfigFile($this->configLookup, 'system') : [];
         } else {
+            $this->messages[] = 'Check configuration timestamps from all configuration files.';
             // Check changes in all configuration files.
-            $cc = $this->getConfigFiles($this->configLookup, $this->pluginLookup);
+            $cc = $this->finder->locateConfigFiles($this->configLookup, $this->pluginLookup);
         }
-        $cb = $checkBlueprints ? $this->getBlueprintFiles($this->blueprintLookup, $this->pluginLookup) : [];
+
+        if ($checkBlueprints) {
+            $this->messages[] = 'Check blueprint timestamps from all blueprint files.';
+            $cb = $this->finder->locateBlueprintFiles($this->blueprintLookup, $this->pluginLookup);
+        } else {
+            $cb = [];
+        }
 
         return md5(json_encode([$cc, $cb]));
     }
@@ -189,14 +211,8 @@ class Config extends Data
             ? CACHE_DIR . 'compiled/blueprints/' . $filename .'.php'
             : CACHE_DIR . 'compiled/blueprints/' . $checksum .'.php';
         $file = PhpFile::instance($filename);
-
-        if ($file->exists()) {
-            $cache = $file->exists() ? $file->content() : null;
-        } else {
-            $cache = null;
-        }
-
-        $blueprintFiles = $this->getBlueprintFiles($blueprints, $plugins);
+        $cache = $file->exists() ? $file->content() : null;
+        $blueprintFiles = $this->finder->locateBlueprintFiles($blueprints, $plugins);
         $checksum .= ':'.md5(json_encode($blueprintFiles));
         $class = get_class($this);
 
@@ -213,8 +229,8 @@ class Config extends Data
 
             // Load blueprints.
             $this->blueprints = new Blueprints;
-            foreach ($blueprintFiles as $key => $files) {
-                $this->loadBlueprints($key);
+            foreach ($blueprintFiles as $files) {
+                $this->loadBlueprintFiles($files);
             }
 
             $cache = [
@@ -226,6 +242,7 @@ class Config extends Data
 
             // If compiled file wasn't already locked by another process, save it.
             if ($file->locked() !== false) {
+                $this->messages[] = 'Saving compiled blueprints.';
                 $file->save($cache);
                 $file->unlock();
             }
@@ -241,14 +258,8 @@ class Config extends Data
             ? CACHE_DIR . 'compiled/config/' . $filename .'.php'
             : CACHE_DIR . 'compiled/config/' . $checksum .'.php';
         $file = PhpFile::instance($filename);
-
-        if ($file->exists()) {
-            $cache = $file->exists() ? $file->content() : null;
-        } else {
-            $cache = null;
-        }
-
-        $configFiles = $this->getConfigFiles($configs, $plugins);
+        $cache = $file->exists() ? $file->content() : null;
+        $configFiles = $this->finder->locateConfigFiles($configs, $plugins);
         $checksum .= ':'.md5(json_encode($configFiles));
         $class = get_class($this);
 
@@ -262,18 +273,19 @@ class Config extends Data
             $file->lock(false);
 
             // Load configuration.
-            foreach ($configFiles as $key => $files) {
-                $this->loadConfig($key);
+            foreach ($configFiles as $files) {
+                $this->loadConfigFiles($files);
             }
             $cache = [
                 '@class' => $class,
                 'timestamp' => time(),
-                'checksum' => $this->checksum,
+                'checksum' => $this->checksum(),
                 'data' => $this->toArray()
             ];
 
             // If compiled file wasn't already locked by another process, save it.
             if ($file->locked() !== false) {
+                $this->messages[] = 'Saving compiled configuration.';
                 $file->save($cache);
                 $file->unlock();
             }
@@ -283,16 +295,12 @@ class Config extends Data
     }
 
     /**
-     * Load global blueprints.
+     * Load blueprints.
      *
-     * @param string $key
-     * @param array $files
+     * @param array  $files
      */
-    public function loadBlueprints($key, array $files = null)
+    public function loadBlueprintFiles(array $files)
     {
-        if (is_null($files)) {
-            $files = $this->blueprintFiles[$key];
-        }
         foreach ($files as $name => $item) {
             $file = CompiledYamlFile::instance($item['file']);
             $this->blueprints->embed($name, $file->content(), '/');
@@ -300,164 +308,15 @@ class Config extends Data
     }
 
     /**
-     * Load global configuration.
+     * Load configuration.
      *
-     * @param string $key
-     * @param array $files
+     * @param array  $files
      */
-    public function loadConfig($key, array $files = null)
+    public function loadConfigFiles(array $files)
     {
-        if (is_null($files)) {
-            $files = $this->configFiles[$key];
-        }
         foreach ($files as $name => $item) {
             $file = CompiledYamlFile::instance($item['file']);
             $this->join($name, $file->content(), '/');
         }
-    }
-
-    /**
-     * Get all blueprint files (including plugins).
-     *
-     * @param array $blueprints
-     * @param array $plugins
-     * @return array
-     */
-    protected function getBlueprintFiles(array $blueprints, array $plugins)
-    {
-        $list = [];
-        foreach (array_reverse($plugins) as $folder) {
-            $list += $this->detectPlugins($folder, true);
-        }
-        foreach (array_reverse($blueprints) as $folder) {
-            $list += $this->detectConfig($folder, true);
-        }
-        return $list;
-    }
-
-    /**
-     * Get all configuration files.
-     *
-     * @param array $configs
-     * @param array $plugins
-     * @return array
-     */
-    protected function getConfigFiles(array $configs, array $plugins)
-    {
-        $list = [];
-        foreach (array_reverse($plugins) as $folder) {
-            $list += $this->detectPlugins($folder);
-        }
-        foreach (array_reverse($configs) as $folder) {
-            $list += $this->detectConfig($folder);
-        }
-        return $list;
-    }
-
-    /**
-     * Detects all plugins with a configuration file and returns last modification time.
-     *
-     * @param  string $lookup Location to look up from.
-     * @param  bool $blueprints
-     * @return array
-     * @internal
-     */
-    protected function detectPlugins($lookup = SYSTEM_DIR, $blueprints = false)
-    {
-        $find = $blueprints ? 'blueprints.yaml' : '.yaml';
-        $location = $blueprints ? 'blueprintFiles' : 'configFiles';
-        $path = trim(Folder::getRelativePath($lookup), '/');
-        if (isset($this->{$location}[$path])) {
-            return [$path => $this->{$location}[$path]];
-        }
-
-        $list = [];
-
-        if (is_dir($lookup)) {
-            $iterator = new \DirectoryIterator($lookup);
-
-            /** @var \DirectoryIterator $directory */
-            foreach ($iterator as $directory) {
-                if (!$directory->isDir() || $directory->isDot()) {
-                    continue;
-                }
-
-                $name = $directory->getBasename();
-                $filename = "{$path}/{$name}/" . ($find && $find[0] != '.' ? $find : $name . $find);
-
-                if (file_exists($filename)) {
-                    $list["plugins/{$name}"] = ['file' => $filename, 'modified' => filemtime($filename)];
-                }
-            }
-        }
-
-        $this->{$location}[$path] = $list;
-
-        return [$path => $list];
-    }
-
-    /**
-     * Detects all plugins with a configuration file and returns last modification time.
-     *
-     * @param  string $lookup Location to look up from.
-     * @param  bool $blueprints
-     * @return array
-     * @internal
-     */
-    protected function detectConfig($lookup = SYSTEM_DIR, $blueprints = false)
-    {
-        $location = $blueprints ? 'blueprintFiles' : 'configFiles';
-        $path = trim(Folder::getRelativePath($lookup), '/');
-        if (isset($this->{$location}[$path])) {
-            return [$path => $this->{$location}[$path]];
-        }
-
-        if (is_dir($lookup)) {
-            // Find all system and user configuration files.
-            $options = [
-                'compare' => 'Filename',
-                'pattern' => '|\.yaml$|',
-                'filters' => [
-                    'key' => '|\.yaml$|',
-                    'value' => function (\RecursiveDirectoryIterator $file) use ($path) {
-                        return ['file' => "{$path}/{$file->getSubPathname()}", 'modified' => $file->getMTime()];
-                    }],
-                'key' => 'SubPathname'
-            ];
-
-            $list = Folder::all($lookup, $options);
-        } else {
-            $list = [];
-        }
-
-        $this->{$location}[$path] = $list;
-
-        return [$path => $list];
-    }
-
-    /**
-     * Detects all instances of the file and returns last modification time.
-     *
-     * @param  array $lookups Locations to look up from.
-     * @param  string $name
-     * @return array
-     * @internal
-     */
-    protected function detectFile(array $lookups, $name)
-    {
-        $list = [];
-        $filename = "{$name}.yaml";
-        foreach ($lookups as $lookup) {
-            $path = trim(Folder::getRelativePath($lookup), '/');
-
-            if (is_file("{$lookup}/{$filename}")) {
-                $modified = filemtime("{$lookup}/{$filename}");
-            } else {
-                $modified = 0;
-            }
-            $list[$path] = [$name => ['file' => "{$path}/{$filename}", 'modified' => $modified]];
-        }
-
-        return $list;
     }
 }
