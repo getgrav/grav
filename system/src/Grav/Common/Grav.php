@@ -55,7 +55,7 @@ class Grav extends Container
         $container['grav'] = $container;
 
         $container['debugger'] = new Debugger();
-        $container['debugger']->startTimer('_init', 'Init');
+        $container['debugger']->startTimer('_init', 'Initialize');
 
         $container->register(new ErrorServiceProvider);
 
@@ -160,10 +160,7 @@ class Grav extends Container
         $this['config']->init();
         $debugger->stopTimer('_config');
 
-        $debugger->startTimer('_debugger', 'Debugger');
         $debugger->init();
-        $debugger->stopTimer('_debugger');
-
         $this['config']->debug();
 
         $debugger->startTimer('streams', 'Streams');

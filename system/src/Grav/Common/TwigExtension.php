@@ -12,6 +12,15 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class TwigExtension extends \Twig_Extension
 {
+    protected $grav;
+    protected $debugger;
+
+    public function __construct()
+    {
+        $this->grav = Grav::instance();
+        $this->debugger = isset($this->grav['debugger']) ? $this->grav['debugger'] : null;
+    }
+
     /**
      * Returns extension name.
      *
@@ -29,15 +38,15 @@ class TwigExtension extends \Twig_Extension
      */
     public function getFilters()
     {
-        return array(
-            new \Twig_SimpleFilter('fieldName', array($this,'fieldNameFilter')),
-            new \Twig_SimpleFilter('safe_email', array($this,'safeEmailFilter')),
-            new \Twig_SimpleFilter('randomize', array($this,'randomizeFilter')),
-            new \Twig_SimpleFilter('truncate', array($this,'truncateFilter')),
-            new \Twig_SimpleFilter('*ize', array($this,'inflectorFilter')),
-            new \Twig_SimpleFilter('md5', array($this,'md5Filter')),
-            new \Twig_SimpleFilter('sort_by_key', array($this,'sortByKeyFilter')),
-        );
+        return [
+            new \Twig_SimpleFilter('fieldName', [$this,'fieldNameFilter']),
+            new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
+            new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
+            new \Twig_SimpleFilter('truncate', [$this,'truncateFilter']),
+            new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
+            new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
+            new \Twig_SimpleFilter('sort_by_key',[$this,'sortByKeyFilter']),
+        ];
     }
 
     /**
@@ -47,10 +56,12 @@ class TwigExtension extends \Twig_Extension
      */
     public function getFunctions()
     {
-        return array(
-            new \Twig_SimpleFunction('repeat', array($this, 'repeatFunc')),
-            new \Twig_SimpleFunction('url', array($this, 'urlFunc'))
-        );
+        return [
+            new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
+            new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
+            new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+        ];
     }
 
     /**
@@ -125,7 +136,7 @@ class TwigExtension extends \Twig_Extension
             $original = iterator_to_array($original, false);
         }
 
-        $sorted = array();
+        $sorted = [];
         $random = array_slice($original, $offset);
         shuffle($random);
 
@@ -165,10 +176,10 @@ class TwigExtension extends \Twig_Extension
 
         if (in_array(
             $action,
-            array('titleize','camelize','underscorize','hyphenize', 'humanize','ordinalize','monthize')
+            ['titleize','camelize','underscorize','hyphenize', 'humanize','ordinalize','monthize']
         )) {
             return Inflector::$action($data);
-        } elseif (in_array($action, array('pluralize','singularize'))) {
+        } elseif (in_array($action, ['pluralize','singularize'])) {
             if ($count) {
                 return Inflector::$action($data, $count);
             } else {
@@ -225,12 +236,12 @@ class TwigExtension extends \Twig_Extension
     /**
      * Sorts a collection by key
      *
-     * @param  string $input
+     * @param  array $input
      * @param  string $filter
-     * @param  string $direction
-     * @return string
+     * @param  int $direction
+     * @return array
      */
-    public function sortByKeyFilter($input, $filter, $direction = SORT_ASC)
+    public function sortByKeyFilter(array $input, $filter, $direction = SORT_ASC)
     {
         $output = [];
 
@@ -245,5 +256,40 @@ class TwigExtension extends \Twig_Extension
         array_multisort($output, $direction, $input);
 
         return $input;
+    }
+
+    /**
+     * Based on Twig_Extension_Debug / twig_var_dump
+     * (c) 2011 Fabien Potencier
+     *
+     * @param \Twig_Environment $env
+     * @param $context
+     */
+    public function dump(\Twig_Environment $env, $context)
+    {
+        if (!$env->isDebug() || !$this->debugger) {
+            return;
+        }
+
+        $count = func_num_args();
+        if (2 === $count) {
+            $data = [];
+            foreach ($context as $key => $value) {
+                if (is_object($value)) {
+                    if (method_exists($value, 'toArray')) {
+                        $data[$key] = $value->toArray();
+                    } else {
+                        $data[$key] = "Object (" . get_class($value) . ")";
+                    }
+                } else {
+                    $data[$key] = $value;
+                }
+            }
+            $this->debugger->addMessage($data);
+        } else {
+            for ($i = 2; $i < $count; $i++) {
+                $this->debugger->addMessage(func_get_arg($i));
+            }
+        }
     }
 }
