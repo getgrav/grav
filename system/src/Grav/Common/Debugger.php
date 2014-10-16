@@ -19,6 +19,7 @@ class Debugger
     public function __construct()
     {
         $this->debugbar = new StandardDebugBar();
+        $this->debugbar['time']->addMeasure('Loading', $this->debugbar['time']->getRequestStartTime(), microtime(true));
     }
 
     public function init()

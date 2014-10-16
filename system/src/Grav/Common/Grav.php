@@ -152,30 +152,33 @@ class Grav extends Container
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
 
-        // Initialize configuration.
-        $this['debugger']->startTimer('_config', 'Configuration');
-        $this['config']->init();
-        $this['debugger']->stopTimer('_config');
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
 
-        $this['debugger']->startTimer('_debugger', 'Debugger');
-        $this['debugger']->init();
-        $this['debugger']->stopTimer('_debugger');
+        // Initialize configuration.
+        $debugger->startTimer('_config', 'Configuration');
+        $this['config']->init();
+        $debugger->stopTimer('_config');
+
+        $debugger->startTimer('_debugger', 'Debugger');
+        $debugger->init();
+        $debugger->stopTimer('_debugger');
 
         $this['config']->debug();
 
-        $this['debugger']->startTimer('streams', 'Streams');
+        $debugger->startTimer('streams', 'Streams');
         $this['streams'];
-        $this['debugger']->stopTimer('streams');
+        $debugger->stopTimer('streams');
 
-        $this['debugger']->startTimer('plugins', 'Plugins');
+        $debugger->startTimer('plugins', 'Plugins');
         $this['plugins']->init();
         $this->fireEvent('onPluginsInitialized');
-        $this['debugger']->stopTimer('plugins');
+        $debugger->stopTimer('plugins');
 
-        $this['debugger']->startTimer('themes', 'Themes');
+        $debugger->startTimer('themes', 'Themes');
         $this['themes']->init();
         $this->fireEvent('onThemeInitialized');
-        $this['debugger']->stopTimer('themes');
+        $debugger->stopTimer('themes');
 
         $task = $this['task'];
         if ($task) {
@@ -183,32 +186,32 @@ class Grav extends Container
         }
 
         $this['assets']->init();
-        $this['debugger']->addAssets();
+        $debugger->addAssets();
         $this->fireEvent('onAssetsInitialized');
 
-        $this['debugger']->startTimer('twig', 'Twig');
+        $debugger->startTimer('twig', 'Twig');
         $this['twig']->init();
-        $this['debugger']->stopTimer('twig');
+        $debugger->stopTimer('twig');
 
-        $this['debugger']->startTimer('pages', 'Pages');
+        $debugger->startTimer('pages', 'Pages');
         $this['pages']->init();
         $this->fireEvent('onPagesInitialized');
-        $this['debugger']->stopTimer('pages');
+        $debugger->stopTimer('pages');
 
         $this->fireEvent('onPageInitialized');
 
 
 
         // Process whole page as required
-        $this['debugger']->startTimer('render', 'Render');
+        $debugger->startTimer('render', 'Render');
         $this->output = $this['output'];
         $this->fireEvent('onOutputGenerated');
-        $this['debugger']->stopTimer('render');
+        $debugger->stopTimer('render');
 
         // Set the header type
         $this->header();
         echo $this->output;
-        $this['debugger']->render();
+        $debugger->render();
 
         $this->fireEvent('onOutputRendered');
 
