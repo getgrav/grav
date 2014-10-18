@@ -95,11 +95,11 @@ class Debugger
     }
 
 
-    public function addMessage($message)
+    public function addMessage($message, $label = 'info', $isString = true)
     {
         $config = $this->grav['config'];
         if ($config->get('system.debugger.enabled')) {
-            $this->debugbar['messages']->addMessage($message);
+            $this->debugbar['messages']->addMessage($message, $label, $isString);
         }
         return $this;
     }

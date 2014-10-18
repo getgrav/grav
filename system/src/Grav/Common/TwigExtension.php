@@ -285,10 +285,10 @@ class TwigExtension extends \Twig_Extension
                     $data[$key] = $value;
                 }
             }
-            $this->debugger->addMessage($data);
+            $this->debugger->addMessage($data, 'debug');
         } else {
             for ($i = 2; $i < $count; $i++) {
-                $this->debugger->addMessage(func_get_arg($i));
+                $this->debugger->addMessage(func_get_arg($i), 'debug');
             }
         }
     }
