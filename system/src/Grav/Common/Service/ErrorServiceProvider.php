@@ -25,6 +25,12 @@ class ErrorServiceProvider implements ServiceProviderInterface
 
         $whoops->pushHandler($error_page);
         $whoops->pushHandler($json_page);
+
+        $logger = $container['log'];
+        $whoops->pushHandler(function ($exception, $inspector, $run) use($logger) {
+            $logger->addCritical($exception->getMessage(). ' - Trace: '. $exception->getTraceAsString());
+        });
+
         $whoops->register();
 
         $container['whoops'] = $whoops;
