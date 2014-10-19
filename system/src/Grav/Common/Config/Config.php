@@ -104,6 +104,11 @@ class Config extends Data
             }
             $items['streams']['schemes'] += $this->streams;
 
+            // var_dump ($items['streams']['schemes']['config']['prefixes']['']);
+            $items = $this->autoDetectEnvironmentConfig($items);
+
+            $this->messages[] = $items['streams']['schemes']['config']['prefixes'][''];
+
             parent::__construct($items);
         }
         $this->check();
@@ -202,6 +207,26 @@ class Config extends Data
         }
 
         return md5(json_encode([$cc, $cb]));
+    }
+
+    protected function autoDetectEnvironmentConfig($items)
+    {
+        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n');
+
+        // check for localhost variations
+        if ($address == '::1' || $address == '127.0.0.1') {
+            $address = 'localhost';
+        }
+
+        $this->messages[] = 'Environment Name: ' . $address;
+
+        $env_stream = 'user://'.$address.'/config';
+
+        if (file_exists(USER_DIR.$address.'/config')) {
+            array_unshift($items['streams']['schemes']['config']['prefixes'][''], $env_stream);
+        }
+
+        return $items;
     }
 
     protected function loadCompiledBlueprints($blueprints, $plugins, $filename = null)
