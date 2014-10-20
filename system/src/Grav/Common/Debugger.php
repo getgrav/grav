@@ -15,6 +15,7 @@ class Debugger
     protected $grav;
     protected $debugbar;
     protected $renderer;
+    protected $enabled;
 
     public function __construct()
     {
@@ -26,17 +27,27 @@ class Debugger
     {
         $this->grav = Grav::instance();
 
-        $config = $this->grav['config'];
-        if ($config->get('system.debugger.enabled')) {
-            $this->debugbar->addCollector(new \DebugBar\DataCollector\ConfigCollector((array)$config->get('system')));
+        if ($this->enabled()) {
+            $this->debugbar->addCollector(new \DebugBar\DataCollector\ConfigCollector((array)$this->grav['config']->get('system')));
         }
         return $this;
     }
 
+    public function enabled($state = null)
+    {
+        if (isset($state)) {
+            $this->enabled = $state;
+        } else {
+            if (!isset($this->enabled)) {
+                $this->enabled = $this->grav['config']->get('system.debugger.enabled');
+            }
+        }
+        return $this->enabled;
+    }
+
     public function addAssets()
     {
-        $config = $this->grav['config'];
-        if ($config->get('system.debugger.enabled')) {
+        if ($this->enabled()) {
 
             $assets = $this->grav['assets'];
 
@@ -71,10 +82,15 @@ class Debugger
 
     public function render()
     {
-        $config = $this->grav['config'];
-        if ($config->get('system.debugger.enabled')) {
+        if ($this->enabled()) {
             echo $this->renderer->render();
         }
+        return $this;
+    }
+
+    public function sendDataInHeaders()
+    {
+        $this->debugbar->sendDataInHeaders();
         return $this;
     }
 
@@ -97,8 +113,7 @@ class Debugger
 
     public function addMessage($message, $label = 'info', $isString = true)
     {
-        $config = $this->grav['config'];
-        if ($config->get('system.debugger.enabled')) {
+        if ($this->enabled()) {
             $this->debugbar['messages']->addMessage($message, $label, $isString);
         }
         return $this;

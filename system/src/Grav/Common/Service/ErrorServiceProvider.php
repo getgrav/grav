@@ -5,6 +5,7 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Whoops\Handler\JsonResponseHandler;
 use Whoops\Handler\PrettyPageHandler;
+use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
 class ErrorServiceProvider implements ServiceProviderInterface
@@ -23,8 +24,11 @@ class ErrorServiceProvider implements ServiceProviderInterface
         $json_page = new JsonResponseHandler;
         $json_page->onlyForAjaxRequests(true);
 
+
         $whoops->pushHandler($error_page);
+        $whoops->pushHandler(new PlainTextHandler);
         $whoops->pushHandler($json_page);
+
 
         $logger = $container['log'];
         $whoops->pushHandler(function ($exception, $inspector, $run) use($logger) {

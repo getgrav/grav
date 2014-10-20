@@ -266,7 +266,17 @@ class Grav extends Container
      */
     public function header()
     {
-        header('Content-type: ' . $this->mime($this['uri']->extension()));
+        $extension = $this['uri']->extension();
+        header('Content-type: ' . $this->mime($extension));
+
+        $header_extensions = ['json','xml','rss','atom'];
+
+        // Set debugger data in headers
+        if (in_array($extension, $header_extensions)) {
+            $this['debugger']->enabled(false);
+            // $this['debugger']->sendDataInHeaders();
+
+        }
     }
 
     /**
