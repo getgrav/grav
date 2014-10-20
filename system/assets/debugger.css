@@ -39,7 +39,9 @@ div.phpdebugbar {
     font-size: 12px;
 }
 
-
+ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-label {
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+}
 
 .phpdebugbar pre, .phpdebugbar code {
     margin: 0;
