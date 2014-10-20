@@ -2,6 +2,10 @@ div.phpdebugbar {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.phpdebugbar pre {
+    padding: 1rem;
+}
+
 .phpdebugbar div.phpdebugbar-header > div > * {
     padding: 5px 15px;
 }
@@ -41,6 +45,7 @@ div.phpdebugbar {
 
 ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-label {
     text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+    top: 0;
 }
 
 .phpdebugbar pre, .phpdebugbar code {
