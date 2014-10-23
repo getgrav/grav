@@ -186,7 +186,7 @@ class Grav extends Container
         }
 
         $this['assets']->init();
-        $debugger->addAssets();
+
         $this->fireEvent('onAssetsInitialized');
 
         $debugger->startTimer('twig', 'Twig');
@@ -201,12 +201,14 @@ class Grav extends Container
         $this->fireEvent('onPageInitialized');
 
 
+        $debugger->addAssets();
 
         // Process whole page as required
         $debugger->startTimer('render', 'Render');
         $this->output = $this['output'];
         $this->fireEvent('onOutputGenerated');
         $debugger->stopTimer('render');
+
 
         // Set the header type
         $this->header();
