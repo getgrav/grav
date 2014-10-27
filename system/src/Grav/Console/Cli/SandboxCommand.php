@@ -25,11 +25,18 @@ class SandboxCommand extends Command
 
     protected $files        = array('/.dependencies',
                                     '/.htaccess',
+                                    '/nginx.conf',
+                                    '/web.config',
                                     '/user/config/site.yaml',
                                     '/user/config/system.yaml',
                                    );
 
-    protected $mappings     = array('/index.php' => '/index.php',
+    protected $mappings     = array('/.editorconfig' => '/.editorconfig',
+                                    '/.gitignore' => '/.gitignore',
+                                    '/CHANGELOG.md' => '/CHANGELOG.md',
+                                    '/LICENSE' => '/LICENSE',
+                                    '/README.md' => '/README.md',
+                                    '/index.php' => '/index.php',
                                     '/composer.json' => '/composer.json',
                                     '/bin' => '/bin',
                                     '/system' => '/system',
