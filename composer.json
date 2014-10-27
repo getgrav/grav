@@ -31,10 +31,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/rhukster/minify"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/getgrav/php-debugbar"
         }
     ],
     "autoload": {
