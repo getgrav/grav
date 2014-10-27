@@ -13,7 +13,7 @@
         "symfony/console": "~2.5",
         "symfony/event-dispatcher": "~2.5",
         "doctrine/cache": "~1.3",
-        "maximebf/debugbar": ">=1.0.0",
+        "maximebf/debugbar": "dev-master",
         "filp/whoops": "1.2.*@dev",
         "monolog/monolog": "~1.1",
 	    "gregwar/image": "~2.0",
@@ -31,6 +31,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/rhukster/minify"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/php-debugbar"
         }
     ],
     "autoload": {
