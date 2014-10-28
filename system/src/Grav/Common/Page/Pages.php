@@ -62,7 +62,7 @@ class Pages
     /**
      * Constructor
      *
-     * @params Grav $c
+     * @param Grav $c
      */
     public function __construct(Grav $c)
     {
@@ -391,8 +391,6 @@ class Pages
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
 
-            $last_modified = 0;
-
             // how should we check for last modified? Default is by file
             switch (strtolower($config->get('system.cache.check.method', 'file'))) {
                 case 'none':
@@ -432,7 +430,7 @@ class Pages
      * Recursive function to load & build page relationships.
      *
      * @param string $directory
-     * @param null $parent
+     * @param Page|null $parent
      * @return Page
      * @throws \RuntimeException
      * @internal

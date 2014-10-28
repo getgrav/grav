@@ -236,10 +236,11 @@ class TwigExtension extends \Twig_Extension
     /**
      * Sorts a collection by key
      *
-     * @param  array $input
-     * @param  string $filter
-     * @param  int $direction
-     * @return array
+     * @param  array    $input
+     * @param  string   $filter
+     * @param array|int $direction
+     *
+     * @return string
      */
     public function sortByKeyFilter(array $input, $filter, $direction = SORT_ASC)
     {

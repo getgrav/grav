@@ -3,14 +3,22 @@ namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-class CleanCommand extends Command {
+/**
+ * Class CleanCommand
+ * @package Grav\Console\Cli
+ */
+class CleanCommand extends Command
+{
 
+    /**
+     * @var array
+     */
     protected $paths_to_remove = [
         'user/plugins/email/vendor/swiftmailer/swiftmailer/.travis.yml',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/build.xml',
@@ -148,13 +156,23 @@ class CleanCommand extends Command {
         'vendor/twig/twig/test',
     ];
 
-    protected function configure() {
+    /**
+     *
+     */
+    protected function configure()
+    {
         $this
-        ->setName("clean")
-        ->setDescription("Handles cleaning chores for Grav distribution")
-        ->setHelp('The <info>clean</info> clean extraneous folders and data');
+            ->setName("clean")
+            ->setDescription("Handles cleaning chores for Grav distribution")
+            ->setHelp('The <info>clean</info> clean extraneous folders and data');
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
@@ -171,14 +189,17 @@ class CleanCommand extends Command {
     }
 
     // loops over the array of paths and deletes the files/folders
-    private function cleanPaths($output)
+    /**
+     * @param OutputInterface $output
+     */
+    private function cleanPaths(OutputInterface $output)
     {
         $output->writeln('');
         $output->writeln('<red>DELETING</red>');
 
         $anything = false;
 
-        foreach($this->paths_to_remove as $path) {
+        foreach ($this->paths_to_remove as $path) {
             $path = ROOT_DIR . $path;
 
             if (is_dir($path) && @Folder::delete($path)) {

@@ -2,39 +2,66 @@
 namespace Grav\Console\Cli;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use \Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Yaml;
 
-class InstallCommand extends Command {
+/**
+ * Class InstallCommand
+ * @package Grav\Console\Cli
+ */
+class InstallCommand extends Command
+{
 
+    /**
+     * @var
+     */
     protected $config;
+    /**
+     * @var
+     */
     protected $local_config;
+    /**
+     * @var
+     */
     protected $destination;
+    /**
+     * @var
+     */
     protected $user_path;
 
-    protected function configure() {
+    /**
+     *
+     */
+    protected function configure()
+    {
         $this
-        ->setName("install")
-        ->addOption(
-            'symlink',
-            's',
-            InputOption::VALUE_NONE,
-            'Symlink the required bits'
-        )
-        ->addArgument(
-            'destination',
-            InputArgument::OPTIONAL,
-            'Where to install the required bits (default to current project)'
+            ->setName("install")
+            ->addOption(
+                'symlink',
+                's',
+                InputOption::VALUE_NONE,
+                'Symlink the required bits'
+            )
+            ->addArgument(
+                'destination',
+                InputArgument::OPTIONAL,
+                'Where to install the required bits (default to current project)'
 
-        )
-        ->setDescription("Installs the dependencies needed by Grav. Optionally can create symbolic links")
-        ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
+            )
+            ->setDescription("Installs the dependencies needed by Grav. Optionally can create symbolic links")
+            ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
@@ -44,7 +71,7 @@ class InstallCommand extends Command {
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
-        $this->user_path   = $this->destination . USER_PATH;
+        $this->user_path = $this->destination . USER_PATH;
 
         // Create a red output option
         $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
@@ -60,7 +87,7 @@ class InstallCommand extends Command {
         // Look for dependencies file in ROOT and USER dir
         if (file_exists($this->user_path . $dependencies_file)) {
             $this->config = Yaml::parse($this->user_path . $dependencies_file);
-        } elseif (file_exists($this->destination . $dependencies_file )) {
+        } elseif (file_exists($this->destination . $dependencies_file)) {
             $this->config = Yaml::parse($this->destination . $dependencies_file);
         } else {
             $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
@@ -78,21 +105,24 @@ class InstallCommand extends Command {
                 $this->symlink($output);
             }
         } else {
-            $output->writeln('<red>ERROR</red> invalid YAML in '. $dependencies_file);
+            $output->writeln('<red>ERROR</red> invalid YAML in ' . $dependencies_file);
         }
 
 
     }
 
     // loops over the array of paths and deletes the files/folders
-    private function gitclone($output)
+    /**
+     * @param OutputInterface $output
+     */
+    private function gitclone(OutputInterface $output)
     {
         $output->writeln('');
         $output->writeln('<green>Cloning Bits</green>');
         $output->writeln('============');
         $output->writeln('');
 
-        foreach($this->config['git'] as $repo => $data) {
+        foreach ($this->config['git'] as $repo => $data) {
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
                 exec('cd ' . $this->destination . ' && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
@@ -107,7 +137,10 @@ class InstallCommand extends Command {
     }
 
     // loops over the array of paths and deletes the files/folders
-    private function symlink($output)
+    /**
+     * @param OutputInterface $output
+     */
+    private function symlink(OutputInterface $output)
     {
         $output->writeln('');
         $output->writeln('<green>Symlinking Bits</green>');
@@ -121,13 +154,13 @@ class InstallCommand extends Command {
         }
 
         exec('cd ' . $this->destination);
-        foreach($this->config['links'] as $repo => $data) {
-            $from = $this->local_config[$data['scm'].'_repos'] . $data['src'];
+        foreach ($this->config['links'] as $repo => $data) {
+            $from = $this->local_config[$data['scm'] . '_repos'] . $data['src'];
             $to = $this->destination . $data['path'];
 
             if (file_exists($from)) {
                 if (!file_exists($to)) {
-                    symlink ($from, $to);
+                    symlink($from, $to);
                     $output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
                     $output->writeln('');
                 } else {

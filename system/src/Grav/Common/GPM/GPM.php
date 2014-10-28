@@ -7,13 +7,13 @@ class GPM extends Iterator
 {
     /**
      * Local installed Packages
-     * @var Packages
+     * @var Local\Packages
      */
     private $installed;
 
     /**
      * Remote available Packages
-     * @var Packages
+     * @var Remote\Packages
      */
     private $repository;
 
@@ -24,7 +24,7 @@ class GPM extends Iterator
 
     /**
      * Internal cache
-     * @var Iterator
+     * @var
      */
     protected $cache;
 
@@ -63,7 +63,7 @@ class GPM extends Iterator
     /**
      * Return the instance of a specific Plugin
      * @param  string  $slug The slug of the Plugin
-     * @return Package The instance of the Plugin
+     * @return Local\Package The instance of the Plugin
      */
     public function getInstalledPlugin($slug)
     {
@@ -92,7 +92,7 @@ class GPM extends Iterator
     /**
      * Return the instance of a specific Theme
      * @param  string  $slug The slug of the Theme
-     * @return Package The instance of the Theme
+     * @return Local\Package The instance of the Theme
      */
     public function getInstalledTheme($slug)
     {
@@ -204,7 +204,7 @@ class GPM extends Iterator
      */
     public function isPluginUpdatable($plugin)
     {
-        return array_key_exists($plugin, $this->getUpdatablePlugins());
+        return array_key_exists($plugin, (array) $this->getUpdatablePlugins());
     }
 
     /**
@@ -249,7 +249,7 @@ class GPM extends Iterator
      */
     public function isThemeUpdatable($theme)
     {
-        return array_key_exists($theme, $this->getUpdatableThemes());
+        return array_key_exists($theme, (array) $this->getUpdatableThemes());
     }
 
     /**
@@ -303,7 +303,7 @@ class GPM extends Iterator
     /**
      * Searches for a Package in the repository
      * @param  string  $search Can be either the slug or the name
-     * @return Package Package if found, FALSE if not
+     * @return Remote\Package Package if found, FALSE if not
      */
     public function findPackage($search)
     {
