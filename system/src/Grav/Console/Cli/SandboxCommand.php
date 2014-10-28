@@ -36,8 +36,9 @@ class SandboxCommand extends Command
      */
     protected $files = array(
         '/.dependencies',
-        '/.editorconfig',
         '/.htaccess',
+        '/nginx.conf',
+        '/web.config',
         '/user/config/site.yaml',
         '/user/config/system.yaml',
     );
@@ -46,15 +47,22 @@ class SandboxCommand extends Command
      * @var array
      */
     protected $mappings = array(
+        '/.editorconfig' => '/.editorconfig',
+        '/.gitignore' => '/.gitignore',
+        '/CHANGELOG.md' => '/CHANGELOG.md',
+        '/LICENSE' => '/LICENSE',
+        '/README.md' => '/README.md',
         '/index.php'     => '/index.php',
         '/composer.json' => '/composer.json',
         '/bin'           => '/bin',
-        '/system'        => '/system'
+        '/system'        => '/system',
+        '/vendor'        => '/vendor',
     );
 
     /**
      * @var string
      */
+
     protected $default_file = "---\ntitle: HomePage\n---\n# HomePage\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitor eu felis sed ornare. Sed a mauris venenatis, pulvinar velit vel, dictum enim. Phasellus ac rutrum velit. Nunc lorem purus, hendrerit sit amet augue aliquet, iaculis ultricies nisl. Suspendisse tincidunt euismod risus, quis feugiat arcu tincidunt eget. Nulla eros mi, commodo vel ipsum vel, aliquet congue odio. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque velit orci, laoreet at adipiscing eu, interdum quis nibh. Nunc a accumsan purus.";
 
     /**

@@ -18,8 +18,3 @@ schemes:
     type: ReadOnlyStream
     paths:
       - user://accounts
-
-  data:
-    type: ReadOnlyStream
-    paths:
-      - user://data

@@ -3,6 +3,8 @@ namespace Grav\Common;
 
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
+use Grav\Common\Service\ErrorServiceProvider;
+use Grav\Common\Service\LoggerServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
@@ -15,9 +17,7 @@ use Grav\Common\Page\Medium;
  * @author Andy Miller
  * @link http://www.rockettheme.com
  * @license http://opensource.org/licenses/MIT
- * @version 0.8.0
  *
- * Originally based on Pico by Gilbert Pellegrom - http://pico.dev7studios.com
  * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
  */
 class Grav extends Container
@@ -54,6 +54,13 @@ class Grav extends Container
         $container = new static($values);
 
         $container['grav'] = $container;
+
+        $container['debugger'] = new Debugger();
+        $container['debugger']->startTimer('_init', 'Initialize');
+
+        $container->register(new LoggerServiceProvider);
+
+        $container->register(new ErrorServiceProvider);
 
         $container['uri'] = function ($c) {
             return new Uri($c);
@@ -138,6 +145,8 @@ class Grav extends Container
         $container->register(new StreamsServiceProvider);
         $container->register(new ConfigServiceProvider);
 
+        $container['debugger']->stopTimer('_init');
+
         return $container;
     }
 
@@ -146,16 +155,30 @@ class Grav extends Container
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
 
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
+
         // Initialize configuration.
+        $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $debugger->stopTimer('_config');
 
+        $debugger->init();
+        $this['config']->debug();
+
+        $debugger->startTimer('streams', 'Streams');
+        $this['streams'];
+        $debugger->stopTimer('streams');
+
+        $debugger->startTimer('plugins', 'Plugins');
         $this['plugins']->init();
-
         $this->fireEvent('onPluginsInitialized');
+        $debugger->stopTimer('plugins');
 
+        $debugger->startTimer('themes', 'Themes');
         $this['themes']->init();
-
         $this->fireEvent('onThemeInitialized');
+        $debugger->stopTimer('themes');
 
         $task = $this['task'];
         if ($task) {
@@ -166,24 +189,34 @@ class Grav extends Container
 
         $this->fireEvent('onAssetsInitialized');
 
+        $debugger->startTimer('twig', 'Twig');
         $this['twig']->init();
-        $this['pages']->init();
+        $debugger->stopTimer('twig');
 
+        $debugger->startTimer('pages', 'Pages');
+        $this['pages']->init();
         $this->fireEvent('onPagesInitialized');
+        $debugger->stopTimer('pages');
 
         $this->fireEvent('onPageInitialized');
 
-        // Process whole page as required
-        $this->output = $this['output'];
 
+        $debugger->addAssets();
+
+        // Process whole page as required
+        $debugger->startTimer('render', 'Render');
+        $this->output = $this['output'];
         $this->fireEvent('onOutputGenerated');
+        $debugger->stopTimer('render');
+
 
         // Set the header type
         $this->header();
-
         echo $this->output;
+        $debugger->render();
 
         $this->fireEvent('onOutputRendered');
+
 
         register_shutdown_function([$this, 'shutdown']);
     }
@@ -235,9 +268,14 @@ class Grav extends Container
      */
     public function header()
     {
-        /** @var Uri $uri */
-        $uri = $this['uri'];
-        header('Content-type: ' . $this->mime($uri->extension()));
+        $extension = $this['uri']->extension();
+        header('Content-type: ' . $this->mime($extension));
+
+        // Set debugger data in headers
+        if (!($extension == null || $extension == 'html')) {
+            $this['debugger']->enabled(false);
+            // $this['debugger']->sendDataInHeaders();
+        }
     }
 
     /**

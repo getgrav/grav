@@ -70,6 +70,7 @@ class Twig
             $config = $this->grav['config'];
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
+            $debugger = $this->grav['debugger'];
 
             $this->twig_paths = $locator->findResources('theme://templates');
             $this->grav->fireEvent('onTwigTemplatePaths');
@@ -84,6 +85,11 @@ class Twig
             }
 
             $this->twig = new \Twig_Environment($loader_chain, $params);
+            if ($debugger->enabled() && $config->get('system.debugger.twig')) {
+                $this->twig = new \DebugBar\Bridge\Twig\TraceableTwigEnvironment($this->twig);
+                $collector = new \DebugBar\Bridge\Twig\TwigCollector($this->twig);
+                $debugger->addCollector($collector);
+            }
             $this->grav->fireEvent('onTwigInitialized');
 
             // set default date format if set in config
@@ -95,6 +101,8 @@ class Twig
                 $this->twig->addExtension(new \Twig_Extension_Debug());
             }
             $this->twig->addExtension(new TwigExtension());
+
+
             $this->grav->fireEvent('onTwigExtensions');
 
             $baseUrlAbsolute = $config->get('system.base_url_absolute');
@@ -117,7 +125,6 @@ class Twig
                 'taxonomy' => $this->grav['taxonomy'],
                 'browser' => $this->grav['browser'],
             );
-
         }
     }
 
@@ -170,15 +177,17 @@ class Twig
         $twig_vars['media'] = $item->media();
         $twig_vars['header'] = $item->header();
 
+        $local_twig = clone($this->twig);
+
         // Get Twig template layout
         if ($item->modularTwig()) {
             $twig_vars['content'] = $content;
             $template = $item->template() . TEMPLATE_EXT;
-            $output = $this->twig->render($template, $twig_vars);
+            $output = $local_twig->render($template, $twig_vars);
         } else {
             $name = '@Page:' . $item->path();
             $this->setTemplate($name, $content);
-            $output = $this->twig->render($name, $twig_vars);
+            $output = $local_twig->render($name, $twig_vars);
         }
 
         return $output;

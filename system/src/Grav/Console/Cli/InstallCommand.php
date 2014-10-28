@@ -93,13 +93,13 @@ class InstallCommand extends Command
             $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
         }
 
-        // Updates composer first
-        $output->writeln("\nInstalling vendor dependencies");
-        $output->writeln(system('php bin/composer.phar --working-dir="' . $this->destination . '" --no-interaction update'));
-
         // If yaml config, process
         if ($this->config) {
             if (!$input->getOption('symlink')) {
+                // Updates composer first
+                $output->writeln("\nInstalling vendor dependencies");
+                $output->writeln(system('php bin/composer.phar --working-dir="'.$this->destination.'" --no-interaction update'));
+
                 $this->gitclone($output);
             } else {
                 $this->symlink($output);

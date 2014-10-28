@@ -11,7 +11,6 @@ if (!is_file($autoload)) {
 }
 
 use Grav\Common\Grav;
-use Grav\Common\Debugger;
 
 // Register the auto-loader.
 $loader = require_once $autoload;
@@ -22,13 +21,11 @@ if (!ini_get('date.timezone')) {
 
 $grav = Grav::instance(
     array(
-        'loader' => $loader,
-        'debugger' => new Debugger(Debugger::PRODUCTION)
+        'loader' => $loader
     )
 );
 
 try {
-    $grav['debugger']->init();
     $grav->process();
 
 } catch (\Exception $e) {
