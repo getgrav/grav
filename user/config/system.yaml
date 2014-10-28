@@ -29,9 +29,7 @@ assets:
   js_minify: true
 
 debugger:
-  enabled: true
-  strict: false
-  max_depth: 10
-  log:
-    enabled: false
-    timing: false
+  enabled: false
+  twig: true
+  shutdown:
+    close_connection: true
