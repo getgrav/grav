@@ -89,7 +89,12 @@ class VersionCommand extends Command
             }
 
             $updatable = $updatable ?: '';
-            $this->output->writeln('You are running <white>' . $name . '</white> v<cyan>' . $version . '</cyan>' . $updatable);
+
+            if ($installed || $package == 'grav') {
+                $this->output->writeln('You are running <white>' . $name . '</white> v<cyan>' . $version . '</cyan>' . $updatable);
+            } else {
+                $this->output->writeln('Package <red>' . $package . '</red> not found');
+            }
         }
     }
 }
