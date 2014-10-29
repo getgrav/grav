@@ -104,9 +104,7 @@ class Config extends Data
             }
             $items['streams']['schemes'] += $this->streams;
 
-            // var_dump ($items['streams']['schemes']['config']['prefixes']['']);
             $items = $this->autoDetectEnvironmentConfig($items);
-
             $this->messages[] = $items['streams']['schemes']['config']['prefixes'][''];
 
             parent::__construct($items);
