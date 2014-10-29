@@ -81,13 +81,15 @@ class Config extends Data
     protected $pluginLookup;
 
     protected $finder;
-
+    protected $environment;
     protected $messages = [];
 
-    public function __construct(array $items = array(), Grav $grav = null)
+    public function __construct(array $items = array(), Grav $grav = null, $environment = null)
     {
         $this->grav = $grav ?: Grav::instance();
         $this->finder = new ConfigFinder;
+        $this->environment = $environment ?: 'localhost';
+        $this->messages[] = 'Environment Name: ' . $this->environment;
 
         if (isset($items['@class'])) {
             if ($items['@class'] != get_class($this)) {
@@ -209,18 +211,10 @@ class Config extends Data
 
     protected function autoDetectEnvironmentConfig($items)
     {
-        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n');
+        $environment = $this->environment;
+        $env_stream = 'user://'.$environment.'/config';
 
-        // check for localhost variations
-        if ($address == '::1' || $address == '127.0.0.1') {
-            $address = 'localhost';
-        }
-
-        $this->messages[] = 'Environment Name: ' . $address;
-
-        $env_stream = 'user://'.$address.'/config';
-
-        if (file_exists(USER_DIR.$address.'/config')) {
+        if (file_exists(USER_DIR.$environment.'/config')) {
             array_unshift($items['streams']['schemes']['config']['prefixes'][''], $env_stream);
         }
 
@@ -231,8 +225,8 @@ class Config extends Data
     {
         $checksum = md5(json_encode($blueprints));
         $filename = $filename
-            ? CACHE_DIR . 'compiled/blueprints/' . $filename .'.php'
-            : CACHE_DIR . 'compiled/blueprints/' . $checksum .'.php';
+            ? CACHE_DIR . 'compiled/blueprints/' . $filename . '-' . $this->environment . '.php'
+            : CACHE_DIR . 'compiled/blueprints/' . $checksum . '-' . $this->environment . '.php';
         $file = PhpFile::instance($filename);
         $cache = $file->exists() ? $file->content() : null;
         $blueprintFiles = $this->finder->locateBlueprintFiles($blueprints, $plugins);
@@ -278,8 +272,8 @@ class Config extends Data
     {
         $checksum = md5(json_encode($configs));
         $filename = $filename
-            ? CACHE_DIR . 'compiled/config/' . $filename .'.php'
-            : CACHE_DIR . 'compiled/config/' . $checksum .'.php';
+            ? CACHE_DIR . 'compiled/config/' . $filename . '-' . $this->environment . '.php'
+            : CACHE_DIR . 'compiled/config/' . $checksum . '-' . $this->environment . '.php';
         $file = PhpFile::instance($filename);
         $cache = $file->exists() ? $file->content() : null;
         $configFiles = $this->finder->locateConfigFiles($configs, $plugins);
