@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Service;
 
+use Grav\Common\Errors\Errors;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Whoops\Handler\JsonResponseHandler;
@@ -12,8 +13,8 @@ class ErrorServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        // Setup Whoops error handler
-        $whoops = new Run;
+        // Setup Whoops-based error handler
+        $errors = new Errors;
 
         $error_page = new PrettyPageHandler;
         $error_page->setPageTitle('Crikey! There was an error...');
@@ -24,19 +25,17 @@ class ErrorServiceProvider implements ServiceProviderInterface
         $json_page = new JsonResponseHandler;
         $json_page->onlyForAjaxRequests(true);
 
-
-        $whoops->pushHandler($error_page);
-        $whoops->pushHandler(new PlainTextHandler);
-        $whoops->pushHandler($json_page);
-
+        $errors->pushHandler($error_page, 'pretty');
+        $errors->pushHandler(new PlainTextHandler, 'text');
+        $errors->pushHandler($json_page, 'json');
 
         $logger = $container['log'];
-        $whoops->pushHandler(function ($exception, $inspector, $run) use($logger) {
+        $errors->pushHandler(function ($exception, $inspector, $run) use($logger) {
             $logger->addCritical($exception->getMessage(). ' - Trace: '. $exception->getTraceAsString());
-        });
+        }, 'log');
 
-        $whoops->register();
+        $errors->register();
 
-        $container['whoops'] = $whoops;
+        $container['errors'] = $errors;
     }
 }

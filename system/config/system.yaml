@@ -40,6 +40,10 @@ assets:                                # Configuration for Assets Manager (JS, C
   js_pipeline: false                   # The JS pipeline is the unification of multiple JS resources into one file
   js_minify: true                      # Minify the JS during pipelining
 
+errors:
+  display: true                        # Display full backtrace-style error page
+  log: true                            # Log errors to /logs folder
+
 debugger:
   enabled: false                       # Enable Grav debugger and following settings
   twig: true                           # Enable debugging of Twig templates

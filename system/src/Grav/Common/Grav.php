@@ -161,10 +161,10 @@ class Grav extends Container
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
-        $debugger->stopTimer('_config');
-
+        $this['errors']->resetHandlers();
         $debugger->init();
         $this['config']->debug();
+        $debugger->stopTimer('_config');
 
         $debugger->startTimer('streams', 'Streams');
         $this['streams'];
@@ -186,7 +186,6 @@ class Grav extends Container
         }
 
         $this['assets']->init();
-
         $this->fireEvent('onAssetsInitialized');
 
         $debugger->startTimer('twig', 'Twig');
@@ -200,7 +199,6 @@ class Grav extends Container
 
         $this->fireEvent('onPageInitialized');
 
-
         $debugger->addAssets();
 
         // Process whole page as required
@@ -209,14 +207,12 @@ class Grav extends Container
         $this->fireEvent('onOutputGenerated');
         $debugger->stopTimer('render');
 
-
         // Set the header type
         $this->header();
         echo $this->output;
         $debugger->render();
 
         $this->fireEvent('onOutputRendered');
-
 
         register_shutdown_function([$this, 'shutdown']);
     }
