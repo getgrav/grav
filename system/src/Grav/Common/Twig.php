@@ -240,7 +240,7 @@ class Twig
         try {
             $output = $this->twig->render($template, $twig_vars);
         } catch (\Twig_Error_Loader $e) {
-            throw new \RuntimeException('Resource not found.', 404, $e);
+            throw new \RuntimeException('Twig template not found: '.$template, 404, $e);
         }
 
         return $output;
