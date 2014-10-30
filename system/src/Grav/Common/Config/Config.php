@@ -236,8 +236,8 @@ class Config extends Data
         // Load real file if cache isn't up to date (or is invalid).
         if (
             !is_array($cache)
-            || empty($cache['checksum'])
-            || empty($cache['@class'])
+            || !isset($cache['checksum'])
+            || !isset($cache['@class'])
             || $cache['checksum'] != $checksum
             || $cache['@class'] != $class
         ) {
@@ -283,8 +283,8 @@ class Config extends Data
         // Load real file if cache isn't up to date (or is invalid).
         if (
             !is_array($cache)
-            || empty($cache['checksum'])
-            || empty($cache['@class'])
+            || !isset($cache['checksum'])
+            || !isset($cache['@class'])
             || $cache['checksum'] != $checksum
             || $cache['@class'] != $class
         ) {
