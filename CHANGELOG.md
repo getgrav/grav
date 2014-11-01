@@ -1,3 +1,28 @@
+# v0.9.4 beta
+## 10/29/2014
+
+1. [](#new)
+    * New improved Debugbar with messages, timing, config, twig information
+    * New exception handling system utilizing Whoops
+    * New logging system utilizing Monolog
+    * Support for auto-detecting environment configuration
+    * New version command for CLI
+    * Integrate Twig dump() calls into Debugbar
+2. [](#improved)
+    * Selfupgrade now clears cache on successful upgrade
+    * Selfupgrade now supports files without extensions
+    * Improved error messages when plugin is missing
+    * Improved security in .htaccess
+    * Support CSS/JS/Image assets in vendor/system folders via .htaccess
+    * Add support for system timers
+    * Improved and optimized configuration loading
+    * Automatically disable Debugbar on non-HTML pages
+    * Disable Debugbar by default
+3. [](#bugfix)
+    * More YAML blueprint fixes
+    * Fix potential double // in assets
+    * Load debugger as early as possible
+
 # v0.9.3 beta
 ## 10/09/2014
 
