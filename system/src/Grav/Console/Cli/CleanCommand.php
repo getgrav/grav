@@ -3,14 +3,22 @@ namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-class CleanCommand extends Command {
+/**
+ * Class CleanCommand
+ * @package Grav\Console\Cli
+ */
+class CleanCommand extends Command
+{
 
+    /**
+     * @var array
+     */
     protected $paths_to_remove = [
         'user/plugins/email/vendor/swiftmailer/swiftmailer/.travis.yml',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/build.xml',
@@ -51,6 +59,16 @@ class CleanCommand extends Command {
         'vendor/erusev/parsedown-extra/.travis.yml',
         'vendor/erusev/parsedown-extra/.git',
         'vendor/erusev/parsedown-extra/test',
+        'vendor/filp/whoops/composer.json',
+        'vendor/filp/whoops/docs',
+        'vendor/filp/whoops/examples',
+        'vendor/filp/whoops/tests',
+        'vendor/filp/whoops/.git',
+        'vendor/filp/whoops/.gitignore',
+        'vendor/filp/whoops/.scrutinizer.yml',
+        'vendor/filp/whoops/.travis.yml',
+        'vendor/filp/whoops/phpunit.xml.dist',
+        'vendor/filp/whoops/src/deprecated',
         'vendor/gregwar/image/Gregwar/Image/composer.json',
         'vendor/gregwar/image/Gregwar/Image/phpunit.xml',
         'vendor/gregwar/image/Gregwar/Image/.gitignore',
@@ -68,6 +86,14 @@ class CleanCommand extends Command {
         'vendor/ircmaxell/password-compat/version-test.php',
         'vendor/ircmaxell/password-compat/.travis.yml',
         'vendor/ircmaxell/password-compat/test',
+        'vendor/maximebf/debugbar/bower.json',
+        'vendor/maximebf/debugbar/composer.json',
+        'vendor/maximebf/debugbar/.bowerrc',
+        'vendor/maximebf/debugbar/src/Debugbar/Resources/vendor',
+        'vendor/monolog/monolog/composer.json',
+        'vendor/monolog/monolog/doc',
+        'vendor/monolog/monolog/phpunit.xml.dist',
+        'vendor/monolog/monolog/tests',
         'vendor/mrclay/minify/.editorconfig',
         'vendor/mrclay/minify/.git',
         'vendor/mrclay/minify/.gitignore',
@@ -89,6 +115,8 @@ class CleanCommand extends Command {
         'vendor/pimple/pimple/ext',
         'vendor/pimple/pimple/phpunit.xml.dist',
         'vendor/pimple/pimple/src/Pimple/Tests',
+        'vendor/psr/log/composer.json',
+        'vendor/psr/log/.gitignore',
         'vendor/rockettheme/toolbox/.git',
         'vendor/rockettheme/toolbox/.gitignore',
         'vendor/rockettheme/toolbox/.scrutinizer.yml',
@@ -128,13 +156,23 @@ class CleanCommand extends Command {
         'vendor/twig/twig/test',
     ];
 
-    protected function configure() {
+    /**
+     *
+     */
+    protected function configure()
+    {
         $this
-        ->setName("clean")
-        ->setDescription("Handles cleaning chores for Grav distribution")
-        ->setHelp('The <info>clean</info> clean extraneous folders and data');
+            ->setName("clean")
+            ->setDescription("Handles cleaning chores for Grav distribution")
+            ->setHelp('The <info>clean</info> clean extraneous folders and data');
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
@@ -151,14 +189,17 @@ class CleanCommand extends Command {
     }
 
     // loops over the array of paths and deletes the files/folders
-    private function cleanPaths($output)
+    /**
+     * @param OutputInterface $output
+     */
+    private function cleanPaths(OutputInterface $output)
     {
         $output->writeln('');
         $output->writeln('<red>DELETING</red>');
 
         $anything = false;
 
-        foreach($this->paths_to_remove as $path) {
+        foreach ($this->paths_to_remove as $path) {
             $path = ROOT_DIR . $path;
 
             if (is_dir($path) && @Folder::delete($path)) {

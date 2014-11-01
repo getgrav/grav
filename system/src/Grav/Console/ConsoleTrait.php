@@ -2,20 +2,38 @@
 namespace Grav\Console;
 
 use Grav\Common\GravTrait;
+use Grav\Console\Cli\ClearCacheCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class ConsoleTrait
+ * @package Grav\Console
+ */
 trait ConsoleTrait
 {
     use GravTrait;
 
+    /**
+     * @var
+     */
     protected $argv;
+
+    /* @var InputInterface $output */
     protected $input;
+
+    /* @var OutputInterface $output */
     protected $output;
 
     /**
      * Set colors style definition for the formatter.
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
      */
-    public function setupConsole($input, $output)
+    public function setupConsole(InputInterface $input, OutputInterface $output)
     {
         if (self::$grav) {
             self::$grav['config']->set('system.cache.driver', 'default');
@@ -35,7 +53,10 @@ trait ConsoleTrait
         $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
     }
 
-    private function isGravInstance($path)
+    /**
+     * @param $path
+     */
+    public function isGravInstance($path)
     {
         if (!file_exists($path)) {
             $this->output->writeln('');
@@ -60,5 +81,22 @@ trait ConsoleTrait
             $this->output->writeln('');
             exit;
         }
+    }
+
+    /**
+     * @param array $all
+     *
+     * @return int
+     * @throws \Exception
+     */
+    public function clearCache($all = [])
+    {
+        if ($all) {
+            $all = ['--all' => true];
+        }
+
+        $command = new ClearCacheCommand();
+        $input = new ArrayInput($all);
+        return $command->run($input, $this->output);
     }
 }

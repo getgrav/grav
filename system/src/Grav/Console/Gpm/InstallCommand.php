@@ -13,16 +13,38 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+/**
+ * Class InstallCommand
+ * @package Grav\Console\Gpm
+ */
 class InstallCommand extends Command
 {
     use ConsoleTrait;
 
+    /**
+     * @var
+     */
     protected $data;
+    /**
+     * @var
+     */
     protected $gpm;
+    /**
+     * @var
+     */
     protected $destination;
+    /**
+     * @var
+     */
     protected $file;
+    /**
+     * @var
+     */
     protected $tmp;
 
+    /**
+     *
+     */
     protected function configure()
     {
         $this
@@ -48,21 +70,27 @@ class InstallCommand extends Command
             )
             ->addArgument(
                 'package',
-                InputArgument::IS_ARRAY|InputArgument::REQUIRED,
+                InputArgument::IS_ARRAY | InputArgument::REQUIRED,
                 'The package of which more informations are desired. Use the "index" command for a list of packages'
             )
             ->setDescription("Performs the installation of plugins and themes")
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setupConsole($input, $output);
 
-        $this->gpm         = new GPM($this->input->getOption('force'));
+        $this->gpm = new GPM($this->input->getOption('force'));
         $this->destination = realpath($this->input->getOption('destination'));
 
-        $packages   = array_map('strtolower', $this->input->getArgument('package'));
+        $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
         if (
@@ -82,7 +110,8 @@ class InstallCommand extends Command
         }
 
         if (count($this->data['not_found'])) {
-            $this->output->writeln("These packages were not found on Grav: <red>" . implode('</red>, <red>', $this->data['not_found']) . "</red>");
+            $this->output->writeln("These packages were not found on Grav: <red>" . implode('</red>, <red>',
+                    $this->data['not_found']) . "</red>");
         }
 
         unset($this->data['not_found']);
@@ -114,13 +143,21 @@ class InstallCommand extends Command
                 }
             }
         }
+
+        // clear cache after successful upgrade
+        $this->clearCache();
     }
 
+    /**
+     * @param $package
+     *
+     * @return string
+     */
     private function downloadPackage($package)
     {
         $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
         $filename = $package->slug . basename($package->zipball_url);
-        $output   = Response::get($package->zipball_url, [], [$this, 'progress']);
+        $output = Response::get($package->zipball_url, [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
 
@@ -133,10 +170,15 @@ class InstallCommand extends Command
         return $this->tmp . DS . $filename;
     }
 
+    /**
+     * @param $package
+     *
+     * @return bool
+     */
     private function checkDestination($package)
     {
         $questionHelper = $this->getHelper('question');
-        $skipPrompt     = $this->input->getOption('all-yes');
+        $skipPrompt = $this->input->getOption('all-yes');
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
 
@@ -145,8 +187,9 @@ class InstallCommand extends Command
                 $this->output->write("\x0D");
                 $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
 
-                $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ", false);
-                $answer   = $questionHelper->ask($this->input, $this->output, $question);
+                $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ",
+                    false);
+                $answer = $questionHelper->ask($this->input, $this->output, $question);
 
                 if (!$answer) {
                     $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
@@ -166,8 +209,9 @@ class InstallCommand extends Command
                 return false;
             }
 
-            $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ", false);
-            $answer   = $questionHelper->ask($this->input, $this->output, $question);
+            $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
+                false);
+            $answer = $questionHelper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
                 $this->output->writeln("  |     '- <red>You decided to not delete the symlink automatically.</red>");
@@ -182,17 +226,22 @@ class InstallCommand extends Command
         return true;
     }
 
+    /**
+     * @param $package
+     *
+     * @return bool
+     */
     private function installPackage($package)
     {
-        $installer   = Installer::install($this->file, $this->destination, ['install_path' => $package->install_path]);
-        $errorCode   = Installer::lastErrorCode();
+        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path]);
+        $errorCode = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
         if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing package...    <red>error</red>                             ");
-            $this->output->writeln("  |  '- " . $installer->lastErrorMsg());
+            $this->output->writeln("  |  '- " . Installer::lastErrorMsg());
 
             return false;
         }
@@ -204,9 +253,13 @@ class InstallCommand extends Command
         return true;
     }
 
+    /**
+     * @param $progress
+     */
     public function progress($progress)
     {
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading package... " . str_pad($progress['percent'], 5, " ", STR_PAD_LEFT) . '%');
+        $this->output->write("  |- Downloading package... " . str_pad($progress['percent'], 5, " ",
+                STR_PAD_LEFT) . '%');
     }
 }

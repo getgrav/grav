@@ -7,9 +7,12 @@ use RocketTheme\Toolbox\DI\ServiceProviderInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\StreamWrapper\ReadOnlyStream;
 use RocketTheme\Toolbox\StreamWrapper\Stream;
+use RocketTheme\Toolbox\StreamWrapper\StreamBuilder;
 
 class StreamsServiceProvider implements ServiceProviderInterface
 {
+    protected $schemes = [];
+
     public function register(Container $container)
     {
         $self = $this;
@@ -20,23 +23,23 @@ class StreamsServiceProvider implements ServiceProviderInterface
 
             return $locator;
         };
+
+        $container['streams'] = function($c) use ($self) {
+            $locator = $c['locator'];
+
+            // Set locator to both streams.
+            Stream::setLocator($locator);
+            ReadOnlyStream::setLocator($locator);
+
+            return new StreamBuilder($this->schemes);
+        };
     }
 
     protected function init(Container $container, UniformResourceLocator $locator)
     {
         /** @var Config $config */
         $config = $container['config'];
-        $schemes = $config->get('streams.schemes');
-
-        if (!$schemes) {
-            return;
-        }
-
-        // Set locator to both streams.
-        Stream::setLocator($locator);
-        ReadOnlyStream::setLocator($locator);
-
-        $registered = stream_get_wrappers();
+        $schemes = (array) $config->get('streams.schemes', []);
 
         foreach ($schemes as $scheme => $config) {
             if (isset($config['paths'])) {
@@ -48,17 +51,12 @@ class StreamsServiceProvider implements ServiceProviderInterface
                 }
             }
 
-            if (in_array($scheme, $registered)) {
-                stream_wrapper_unregister($scheme);
-            }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
             if ($type[0] != '\\') {
                 $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
 
-            if (!stream_wrapper_register($scheme, $type)) {
-                throw new \InvalidArgumentException("Stream '{$type}' could not be initialized.");
-            }
+            $this->schemes[$scheme] = $type;
         }
     }
 }

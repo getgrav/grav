@@ -28,10 +28,12 @@ assets:
   js_pipeline: false
   js_minify: true
 
+errors:
+  display: true
+  log: true
+
 debugger:
-  enabled: true
-  strict: false
-  max_depth: 10
-  log:
-    enabled: false
-    timing: false
+  enabled: false
+  twig: true
+  shutdown:
+    close_connection: true

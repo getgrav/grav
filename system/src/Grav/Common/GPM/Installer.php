@@ -150,10 +150,8 @@ class Installer
                         }
                     }
                 } else {
-                    if (is_file($path)) {
-                        @unlink($path);
-                        @copy($tmp . DS . $filename, $path);
-                    }
+                    @unlink($path);
+                    @copy($tmp . DS . $filename, $path);
                 }
             }
         }

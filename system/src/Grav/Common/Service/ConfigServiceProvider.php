@@ -16,6 +16,8 @@ use RocketTheme\Toolbox\Blueprints\Blueprints;
  */
 class ConfigServiceProvider implements ServiceProviderInterface
 {
+    private $environment;
+
     public function register(Container $container)
     {
         $self = $this;
@@ -31,11 +33,12 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public function loadMasterConfig(Container $container)
     {
-        $file = CACHE_DIR . 'compiled/config/master.php';
+        $environment = $this->getEnvironment();
+        $file = CACHE_DIR . 'compiled/config/master-'.$environment.'.php';
         $data = is_file($file) ? (array) include $file : [];
         if ($data) {
             try {
-                $config = new Config($data, $container);
+                $config = new Config($data, $container, $environment);
             } catch (\Exception $e) {
             }
         }
@@ -43,7 +46,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         if (!isset($config)) {
             $file = GRAV_ROOT . '/setup.php';
             $data = is_file($file) ? (array) include $file : [];
-            $config = new Config($data, $container);
+            $config = new Config($data, $container, $environment);
         }
 
         return $config;
@@ -51,9 +54,27 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public function loadMasterBlueprints(Container $container)
     {
-        $file = CACHE_DIR . 'compiled/blueprints/master.php';
+        $environment = $this->getEnvironment();
+        $file = CACHE_DIR . 'compiled/blueprints/master-'.$environment.'.php';
         $data = is_file($file) ? (array) include $file : [];
 
         return new Blueprints($data, $container);
+    }
+
+    public function getEnvironment()
+    {
+        if (!$this->environment) {
+            $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
+
+            // check for localhost variations
+            if ($address == '::1' || $address == '127.0.0.1') {
+                $hostname = 'localhost';
+            } else {
+                $hostname = gethostname();
+            }
+            $this->environment = $hostname;
+        }
+
+        return $this->environment;
     }
 }

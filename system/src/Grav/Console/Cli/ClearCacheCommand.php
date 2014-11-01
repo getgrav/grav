@@ -3,15 +3,23 @@ namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use \Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Yaml;
 
-class ClearCacheCommand extends Command {
+/**
+ * Class ClearCacheCommand
+ * @package Grav\Console\Cli
+ */
+class ClearCacheCommand extends Command
+{
 
+    /**
+     * @var array
+     */
     protected $standard_remove = [
         'cache/twig/',
         'cache/doctrine/',
@@ -21,20 +29,33 @@ class ClearCacheCommand extends Command {
         'assets/',
     ];
 
+    /**
+     * @var array
+     */
     protected $all_remove = [
         'cache/',
         'images/',
         'assets/'
     ];
 
-    protected function configure() {
+    /**
+     *
+     */
+    protected function configure()
+    {
         $this
-        ->setName("clear-cache")
-        ->setDescription("Clears Grav cache")
-        ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all')
-        ->setHelp('The <info>clear-cache</info> deletes all cache files');
+            ->setName("clear-cache")
+            ->setDescription("Clears Grav cache")
+            ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all')
+            ->setHelp('The <info>clear-cache</info> deletes all cache files');
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Create a red output option
@@ -47,7 +68,11 @@ class ClearCacheCommand extends Command {
     }
 
     // loops over the array of paths and deletes the files/folders
-    private function cleanPaths($input, $output)
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
+    private function cleanPaths(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('');
         $output->writeln('<magenta>Clearing cache</magenta>');
@@ -63,24 +88,29 @@ class ClearCacheCommand extends Command {
             $remove_paths = $this->standard_remove;
         }
 
-        foreach($remove_paths as $path) {
+        foreach ($remove_paths as $path) {
 
             $files = glob(ROOT_DIR . $path . '*');
 
             foreach ($files as $file) {
                 if (is_file($file)) {
-                    if (@unlink($file)) $anything = true;
-                }
-                elseif (is_dir($file)) {
-                    if (@Folder::delete($file)) $anything = true;
+                    if (@unlink($file)) {
+                        $anything = true;
+                    }
+                } elseif (is_dir($file)) {
+                    if (@Folder::delete($file)) {
+                        $anything = true;
+                    }
                 }
             }
 
-            if ($anything) $output->writeln('<red>Cleared:  </red>' . $path . '*');
+            if ($anything) {
+                $output->writeln('<red>Cleared:  </red>' . $path . '*');
+            }
         }
 
         if (file_exists($user_config)) {
-            touch ($user_config);
+            touch($user_config);
             $output->writeln('');
             $output->writeln('<red>Touched: </red>' . $user_config);
             $output->writeln('');

@@ -9,13 +9,26 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class InfoCommand
+ * @package Grav\Console\Gpm
+ */
 class InfoCommand extends Command
 {
     use ConsoleTrait;
 
+    /**
+     * @var
+     */
     protected $data;
+    /**
+     * @var
+     */
     protected $gpm;
 
+    /**
+     *
+     */
     protected function configure()
     {
         $this
@@ -35,6 +48,12 @@ class InfoCommand extends Command
             ->setHelp('The <info>info</info> shows more informations about a package');
     }
 
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setupConsole($input, $output);
@@ -63,9 +82,22 @@ class InfoCommand extends Command
             $packageURL = '<' . $foundPackage->author->url . '>';
         }
 
-        $this->output->writeln("<green>".str_pad("Author", 12).":</green> " . $foundPackage->author->name . ' <' . $foundPackage->author->email . '> '.$packageURL);
+        $this->output->writeln("<green>" . str_pad("Author",
+                12) . ":</green> " . $foundPackage->author->name . ' <' . $foundPackage->author->email . '> ' . $packageURL);
 
-        foreach (array('version', 'keywords', 'date', 'homepage', 'demo', 'docs', 'guide', 'repository', 'bugs', 'zipball_url', 'license') as $info) {
+        foreach (array(
+                     'version',
+                     'keywords',
+                     'date',
+                     'homepage',
+                     'demo',
+                     'docs',
+                     'guide',
+                     'repository',
+                     'bugs',
+                     'zipball_url',
+                     'license'
+                 ) as $info) {
             if (isset($foundPackage->$info)) {
                 $name = ucfirst($info);
                 $data = $foundPackage->$info;
@@ -80,7 +112,7 @@ class InfoCommand extends Command
                 }
 
                 $name = str_pad($name, 12);
-                $this->output->writeln("<green>".$name.":</green> " . $data);
+                $this->output->writeln("<green>" . $name . ":</green> " . $data);
             }
         }
 
