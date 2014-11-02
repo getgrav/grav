@@ -58,6 +58,8 @@ class VersionCommand extends Command
         $this->gpm = new GPM($this->input->getOption('force'));
         $packages = $this->input->getArgument('package');
 
+        $installed = false;
+
         if (!count($packages)) {
             $packages = ['grav'];
         }
