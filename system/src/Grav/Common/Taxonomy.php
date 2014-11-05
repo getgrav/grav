@@ -87,7 +87,7 @@ class Taxonomy
             }
         }
 
-        if ($operator == 'or') {
+        if (strtolower($operator) == 'or') {
             foreach ($matches as $match) {
                 $results = array_merge($results, $match);
             }
