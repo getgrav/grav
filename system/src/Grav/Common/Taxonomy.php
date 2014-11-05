@@ -71,17 +71,30 @@ class Taxonomy
      * particular taxonomy.
      *
      * @param  array $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
-     * @return Page             page object with sub-pages set to contain matches found in the taxonomy map
+     * @param  string $operator can be 'or' or 'and' (defaults to 'or')
+     * @return Colleciton       Collection object set to contain matches found in the taxonomy map
      */
-    public function findTaxonomy($taxonomies)
+    public function findTaxonomy($taxonomies, $operator = 'and')
     {
-        $results = array();
+        $matches = [];
+        $results = [];
 
         foreach ((array)$taxonomies as $taxonomy => $items) {
             foreach ((array) $items as $item) {
                 if (isset($this->taxonomy_map[$taxonomy][$item])) {
-                    $results = array_merge($results, $this->taxonomy_map[$taxonomy][$item]);
+                    $matches[] = $this->taxonomy_map[$taxonomy][$item];
                 }
+            }
+        }
+
+        if ($operator == 'or') {
+            foreach ($matches as $match) {
+                $results = array_merge($results, $match);
+            }
+        } else {
+            $results = $matches ? array_pop($matches) : [];
+            foreach ($matches as $match) {
+                $results = array_intersect_key($results, $match);
             }
         }
 
