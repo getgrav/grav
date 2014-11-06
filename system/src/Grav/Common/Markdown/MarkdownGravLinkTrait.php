@@ -33,7 +33,7 @@ trait MarkdownGravLinkTrait
             if (!isset($url['host']) && isset($url['path'])) {
 
                 // convert the URl is required
-                $Excerpt['element']['attributes']['href'] = $this->convertUrl($url['path']);
+                $Excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
             }
         }
 
