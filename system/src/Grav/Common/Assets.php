@@ -628,6 +628,10 @@ class Assets
                 function($matches) use ($relative_path) {
 
                     $old_url = $matches[1];
+
+                    // ensure this is not a data url
+                    if (strpos($old_url, 'data:') === 0) return $matches[0];
+
                     $newpath = array();
                     $paths = explode('/', $old_url);
 
