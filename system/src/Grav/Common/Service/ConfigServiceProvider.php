@@ -3,6 +3,7 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Uri;
 use Grav\Common\Filesystem\Folder;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -33,7 +34,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public function loadMasterConfig(Container $container)
     {
-        $environment = $this->getEnvironment();
+        $environment = $this->getEnvironment($container);
         $file = CACHE_DIR . 'compiled/config/master-'.$environment.'.php';
         $data = is_file($file) ? (array) include $file : [];
         if ($data) {
@@ -54,25 +55,17 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public function loadMasterBlueprints(Container $container)
     {
-        $environment = $this->getEnvironment();
+        $environment = $this->getEnvironment($container);
         $file = CACHE_DIR . 'compiled/blueprints/master-'.$environment.'.php';
         $data = is_file($file) ? (array) include $file : [];
 
         return new Blueprints($data, $container);
     }
 
-    public function getEnvironment()
+    public function getEnvironment(Container $container)
     {
-        if (!$this->environment) {
-            $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
-
-            // check for localhost variations
-            if ($address == '::1' || $address == '127.0.0.1') {
-                $hostname = 'localhost';
-            } else {
-                $hostname = gethostname();
-            }
-            $this->environment = $hostname;
+        if (!isset($this->environment)) {
+            $this->environment = $container['uri']->environment();
         }
 
         return $this->environment;

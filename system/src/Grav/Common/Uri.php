@@ -50,6 +50,16 @@ class Uri
             $root_path = substr($uri, 0, strpos($uri, '/', 1)) . $root_path;
         }
 
+        // set hostname
+        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
+
+        // check for localhost variations
+        if ($address == '::1' || $address == '127.0.0.1') {
+            $this->host = 'localhost';
+        } else {
+            $this->host = gethostname();
+        }
+
         $this->base = $base;
         $this->root = $base . $root_path;
         $this->url = $base . $uri;
@@ -213,7 +223,8 @@ class Uri
      *
      * @return String The path of the URI
      */
-    public function path() {
+    public function path()
+    {
         return $this->path;
     }
 
@@ -222,7 +233,8 @@ class Uri
      *
      * @return String The extension of the URI
      */
-    public function extension($default = null) {
+    public function extension($default = null)
+    {
         if (!$this->extension) {
             $this->extension = $default;
         }
@@ -234,8 +246,19 @@ class Uri
      *
      * @return String The host of the URI
      */
-    public function host() {
+    public function host()
+    {
         return $this->host;
+    }
+
+    /**
+     * Gets the environment name
+     *
+     * @return String
+     */
+    public function environment()
+    {
+        return $this->host();
     }
 
     /**
@@ -243,7 +266,8 @@ class Uri
      *
      * @return String The base of the URI
      */
-    public function base() {
+    public function base()
+    {
         return $this->base;
     }
 
@@ -340,7 +364,8 @@ class Uri
      * @param $parsed_url
      * @return string
      */
-    public static function build_url($parsed_url) {
+    public static function build_url($parsed_url)
+    {
         $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
         $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
         $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
