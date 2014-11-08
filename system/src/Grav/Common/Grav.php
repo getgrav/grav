@@ -25,7 +25,7 @@ class Grav extends Container
     /**
      * @var string
      */
-    protected $output;
+    public $output;
 
     /**
      * @var static
@@ -294,7 +294,7 @@ class Grav extends Container
      */
     public function shutdown()
     {
-        if($this['config']->get('system.debugger.shutdown.close_connection')) {
+        if ($this['config']->get('system.debugger.shutdown.close_connection')) {
             set_time_limit(0);
             ignore_user_abort(true);
 
