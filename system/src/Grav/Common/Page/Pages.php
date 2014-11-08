@@ -319,7 +319,7 @@ class Pages
      *
      * @return Types
      */
-    static public function getTypes()
+    public static function getTypes()
     {
         if (!self::$types) {
             self::$types = new Types();
@@ -339,7 +339,7 @@ class Pages
      *
      * @return array
      */
-    static public function types()
+    public static function types()
     {
         $types = self::getTypes();
 
@@ -351,7 +351,7 @@ class Pages
      *
      * @return array
      */
-    static public function modularTypes()
+    public static function modularTypes()
     {
         $types = self::getTypes();
 
@@ -363,7 +363,7 @@ class Pages
      *
      * @return array
      */
-    static public function parents()
+    public static function parents()
     {
         $grav = Grav::instance();
 
