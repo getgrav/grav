@@ -9,6 +9,8 @@ namespace Grav\Common;
  */
 class Uri
 {
+    public $url;
+
     protected $base;
     protected $root;
     protected $bits;
@@ -17,7 +19,6 @@ class Uri
     protected $content_path;
     protected $path;
     protected $paths;
-    protected $url;
     protected $query;
     protected $params;
 
