@@ -410,6 +410,7 @@ class Pages
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
+                $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
                 $this->recurse();
                 $this->buildRoutes();
 
@@ -420,6 +421,7 @@ class Pages
                 );
             } else {
                 // If pages was found in cache, set the taxonomy
+                $this->grav['debugger']->addMessage('Page cache hit.');
                 $taxonomy->taxonomy($taxonomy_map);
             }
         } else {
