@@ -1349,10 +1349,21 @@ class Page
     {
         /** @var Uri $uri */
         $uri = self::$grav['uri'];
+        $config = self::$grav['config'];
 
-        if (!$this->home() && (strpos($uri->url(), $this->url()) === 0)) {
-            return true;
+        // Special check when item is home
+        if ($this->home()) {
+            $paths = $uri->paths();
+            $home = ltrim($config->get('system.home.alias'), '/');
+            if ($paths[0] == $home) {
+                return true;
+            }
+        } else {
+            if (strpos($uri->url(), $this->url()) === 0) {
+                return true;
+            }
         }
+
         return false;
     }
 
