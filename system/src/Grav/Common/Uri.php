@@ -130,7 +130,7 @@ class Uri
         if (isset($id)) {
             return $this->paths[$id];
         } else {
-            return implode('/', $this->paths);
+            return $this->paths;
         }
     }
 
