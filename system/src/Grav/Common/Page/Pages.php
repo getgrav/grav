@@ -206,7 +206,9 @@ class Pages
      */
     public function get($path)
     {
-        if (!is_null($path) && !is_string($path)) throw new \Exception();
+        if (!is_null($path) && !is_string($path)) {
+            throw new \Exception();
+        }
         return isset($this->instances[(string) $path]) ? $this->instances[(string) $path] : null;
     }
 
@@ -445,7 +447,9 @@ class Pages
         $config     = $this->grav['config'];
 
         $page->path($directory);
-        if ($parent) $page->parent($parent);
+        if ($parent) {
+            $page->parent($parent);
+        }
 
         $page->orderDir($config->get('system.pages.order.dir'));
         $page->orderBy($config->get('system.pages.order.by'));
@@ -608,7 +612,7 @@ class Pages
 
         // handle special case when order_by is random
         if ($order_by == 'random') {
-            $list = $this->array_shuffle($list);
+            $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
             asort($list);
@@ -643,12 +647,13 @@ class Pages
     }
 
     // Shuffles and associative array
-    protected function array_shuffle($list) {
+    protected function arrayShuffle($list)
+    {
         $keys = array_keys($list);
         shuffle($keys);
 
         $new = array();
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             $new[$key] = $list[$key];
         }
 

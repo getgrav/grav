@@ -112,7 +112,7 @@ class Grav extends Container
                             $medium = $media[$media_file];
 
                             // loop through actions for the image and call them
-                            foreach ($c['uri']->query(null,true) as $action => $params) {
+                            foreach ($c['uri']->query(null, true) as $action => $params) {
                                 if (in_array($action, Medium::$valid_actions)) {
                                     call_user_func_array(array(&$medium, $action), explode(',', $params));
                                 }
