@@ -338,12 +338,10 @@ class Assets
             foreach ($this->css_no_pipeline as $file) {
                 $output .= '<link href="'.$file['asset'].'"'.$attributes.' />'."\n";
             }
-            return $output;
-        }
-
-
-        foreach($this->css as $file) {
-            $output .= '<link href="' . $file['asset'] . '"' . $attributes . ' />' . "\n";
+        } else {
+            foreach($this->css as $file) {
+                $output .= '<link href="' . $file['asset'] . '"' . $attributes . ' />' . "\n";
+            }
         }
 
         // Render Inline CSS
@@ -387,12 +385,10 @@ class Assets
             foreach ($this->js_no_pipeline as $file) {
                 $output .= '<script src="'.$file['asset'].'"'.$attributes.' ></script>'."\n";
             }
-            return $output;
-        }
-
-
-        foreach($this->js as $file) {
-            $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ></script>' . "\n";
+        } else {
+            foreach($this->js as $file) {
+                $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ></script>' . "\n";
+            }
         }
 
         // Render Inline JS
@@ -632,6 +628,10 @@ class Assets
                 function($matches) use ($relative_path) {
 
                     $old_url = $matches[1];
+
+                    // ensure this is not a data url
+                    if (strpos($old_url, 'data:') === 0) return $matches[0];
+
                     $newpath = array();
                     $paths = explode('/', $old_url);
 

@@ -37,7 +37,12 @@ class Themes extends Iterator
         /** @var Themes $themes */
         $themes = $this->grav['themes'];
         $themes->configure();
-        $instance = $themes->load();
+
+        try {
+            $instance = $themes->load();
+        } catch (\InvalidArgumentException $e) {
+            throw new \RuntimeException($this->current(). ' theme could not be found');
+        }
 
         if ($instance instanceof EventSubscriberInterface) {
             $events->addSubscriber($instance);

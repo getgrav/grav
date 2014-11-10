@@ -17,9 +17,6 @@ use Symfony\Component\Yaml\Yaml;
 class ClearCacheCommand extends Command
 {
 
-    /**
-     * @var array
-     */
     protected $standard_remove = [
         'cache/twig/',
         'cache/doctrine/',
@@ -29,13 +26,22 @@ class ClearCacheCommand extends Command
         'assets/',
     ];
 
-    /**
-     * @var array
-     */
     protected $all_remove = [
         'cache/',
         'images/',
         'assets/'
+    ];
+
+    protected $assets_remove = [
+        'assets/'
+    ];
+
+    protected $images_remove = [
+        'images/'
+    ];
+
+    protected $cache_remove = [
+        'cache/'
     ];
 
     /**
@@ -46,7 +52,10 @@ class ClearCacheCommand extends Command
         $this
             ->setName("clear-cache")
             ->setDescription("Clears Grav cache")
-            ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all')
+            ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all including compiled, twig, doctrine caches')
+            ->addOption('assets-only', null, InputOption::VALUE_NONE, 'If set will remove only assets/*')
+            ->addOption('images-only', null, InputOption::VALUE_NONE, 'If set will remove only images/*')
+            ->addOption('cache-only', null, InputOption::VALUE_NONE, 'If set will remove only cache/*')
             ->setHelp('The <info>clear-cache</info> deletes all cache files');
     }
 
@@ -84,6 +93,12 @@ class ClearCacheCommand extends Command
 
         if ($input->getOption('all')) {
             $remove_paths = $this->all_remove;
+        } elseif ($input->getOption('assets-only')) {
+            $remove_paths = $this->assets_remove;
+        } elseif ($input->getOption('images-only')) {
+            $remove_paths = $this->images_remove;
+        } elseif ($input->getOption('cache-only')) {
+            $remove_paths = $this->cache_remove;
         } else {
             $remove_paths = $this->standard_remove;
         }

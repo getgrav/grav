@@ -1,3 +1,26 @@
+# v0.9.5 beta
+## 11/09/2014
+
+1. [](#new)
+    * Added quality setting to medium for compression configuration of images
+    * Added new onPageContentProcessed() event that is post-content processing but pre-caching
+2. [](#improved)
+    * Added support for AND and OR taxonomy filtering.  AND by default (was OR)
+    * Added specific clearing options for CLI clear-cache command
+    * Moved environment method to URI so it can be accessible in plugins and themes
+    * Set Grav's output variable to public so it can be manipulated in onOutputGenerated event
+    * Updated vendor libraries to latest versions
+    * Better handing of 'home' in active menu state detection
+    * Various PSR code tidying
+    * Improved some error messages and notices
+3. [](#bugfix)
+    * Force route rebuild when configuration changes
+    * Fix for 'installed undefined' error in CLI versions command
+    * Do not remove the JSON/Text error handlers
+    * Fix for supporting inline JS and CSS when Asset pipeline enabled
+    * Fix for Data URLs in CSS being badly formed
+    * Fix Markdown links with fragment and query elements
+
 # v0.9.4 beta
 ## 10/29/2014
 

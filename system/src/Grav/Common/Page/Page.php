@@ -358,9 +358,32 @@ class Page
 
             $this->content = $content;
 
+            // Process any post-processing but pre-caching functionality
+            self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
         }
 
         return $this->content;
+    }
+
+    /**
+     * Needed by the onPageContentProcessed event to get the raw page content
+     *
+     * @return string   the current page content
+     */
+    public function getRawContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * Needed by the onPageContentProcessed event to set the raw page content
+     *
+     * @param $content
+     */
+    public function setRawContent($content)
+    {
+        $this->content = $content;
     }
 
     /**
@@ -1326,10 +1349,21 @@ class Page
     {
         /** @var Uri $uri */
         $uri = self::$grav['uri'];
+        $config = self::$grav['config'];
 
-        if (!$this->home() && (strpos($uri->url(), $this->url()) === 0)) {
-            return true;
+        // Special check when item is home
+        if ($this->home()) {
+            $paths = $uri->paths();
+            $home = ltrim($config->get('system.home.alias'), '/');
+            if ($paths[0] == $home) {
+                return true;
+            }
+        } else {
+            if (strpos($uri->url(), $this->url()) === 0) {
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -1418,8 +1452,6 @@ class Page
                         }
                     }
                 }
-
-                $config->set('system.cache.enabled', false); // TODO: Do we still need this?
             }
         }
         // TODO: END OF MOVE

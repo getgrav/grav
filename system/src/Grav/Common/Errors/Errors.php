@@ -45,8 +45,6 @@ class Errors extends \Whoops\Run
         $config = $grav['config']->get('system.errors');
         if (isset($config['display']) && !$config['display']) {
             unset($this->handlerStack['pretty']);
-            unset($this->handlerStack['text']);
-            unset($this->handlerStack['json']);
             $this->handlerStack = array('simple' => new SimplePageHandler()) + $this->handlerStack;
         }
         if (isset($config['log']) && !$config['log']) {

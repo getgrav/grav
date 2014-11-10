@@ -206,7 +206,9 @@ class Pages
      */
     public function get($path)
     {
-        if (!is_null($path) && !is_string($path)) throw new \Exception();
+        if (!is_null($path) && !is_string($path)) {
+            throw new \Exception();
+        }
         return isset($this->instances[(string) $path]) ? $this->instances[(string) $path] : null;
     }
 
@@ -319,7 +321,7 @@ class Pages
      *
      * @return Types
      */
-    static public function getTypes()
+    public static function getTypes()
     {
         if (!self::$types) {
             self::$types = new Types();
@@ -339,7 +341,7 @@ class Pages
      *
      * @return array
      */
-    static public function types()
+    public static function types()
     {
         $types = self::getTypes();
 
@@ -351,7 +353,7 @@ class Pages
      *
      * @return array
      */
-    static public function modularTypes()
+    public static function modularTypes()
     {
         $types = self::getTypes();
 
@@ -363,7 +365,7 @@ class Pages
      *
      * @return array
      */
-    static public function parents()
+    public static function parents()
     {
         $grav = Grav::instance();
 
@@ -404,10 +406,11 @@ class Pages
                     $last_modified = Folder::lastModifiedFile(PAGES_DIR);
             }
 
-            $page_cache_id = md5(USER_DIR.$last_modified);
+            $page_cache_id = md5(USER_DIR.$last_modified.$config->checksum());
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
+                $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
                 $this->recurse();
                 $this->buildRoutes();
 
@@ -418,6 +421,7 @@ class Pages
                 );
             } else {
                 // If pages was found in cache, set the taxonomy
+                $this->grav['debugger']->addMessage('Page cache hit.');
                 $taxonomy->taxonomy($taxonomy_map);
             }
         } else {
@@ -445,7 +449,9 @@ class Pages
         $config     = $this->grav['config'];
 
         $page->path($directory);
-        if ($parent) $page->parent($parent);
+        if ($parent) {
+            $page->parent($parent);
+        }
 
         $page->orderDir($config->get('system.pages.order.dir'));
         $page->orderBy($config->get('system.pages.order.by'));
@@ -608,7 +614,7 @@ class Pages
 
         // handle special case when order_by is random
         if ($order_by == 'random') {
-            $list = $this->array_shuffle($list);
+            $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
             asort($list);
@@ -643,12 +649,13 @@ class Pages
     }
 
     // Shuffles and associative array
-    protected function array_shuffle($list) {
+    protected function arrayShuffle($list)
+    {
         $keys = array_keys($list);
         shuffle($keys);
 
         $new = array();
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             $new[$key] = $list[$key];
         }
 

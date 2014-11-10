@@ -115,6 +115,16 @@ class Medium extends Data
     }
 
     /**
+     * Sets the quality of the image
+     * @param  Int $quality 0-100 quality
+     * @return Medium        
+     */
+    public function quality($quality) {
+        $this->quality = $quality;
+        return $this;
+    }
+
+    /**
      * Return URL to file.
      *
      * @return string
@@ -149,6 +159,7 @@ class Medium extends Data
 
         $this->type = $type;
         $this->quality = $quality;
+        return $this;
     }
 
     /**

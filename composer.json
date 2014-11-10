@@ -27,10 +27,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/rockettheme/toolbox"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/rhukster/minify"
         }
     ],
     "autoload": {
