@@ -166,15 +166,15 @@ class Config extends Data
             return;
         }
 
+        $this->loadCompiledBlueprints($this->blueprintLookup, $this->pluginLookup, 'master');
+        $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
+
         /** @var Uri $uri */
         $uri = $this->grav['uri'];
 
         // If not set, add manually current base url.
         $this->def('system.base_url_absolute', $uri->rootUrl(true));
         $this->def('system.base_url_relative', $uri->rootUrl(false));
-
-        $this->loadCompiledBlueprints($this->blueprintLookup, $this->pluginLookup, 'master');
-        $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
     }
 
     public function checksum()
