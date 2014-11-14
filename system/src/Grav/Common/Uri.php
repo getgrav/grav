@@ -55,10 +55,10 @@ class Uri
         $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 
         // check for localhost variations
-        if ($address == '::1' || $address == '127.0.0.1') {
+        if ($name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
             $this->host = 'localhost';
         } else {
-            $this->host = gethostname();
+            $this->host = $name;
         }
 
         $this->base = $base;
