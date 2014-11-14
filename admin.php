@@ -187,7 +187,7 @@ class AdminPlugin extends Plugin
     public function onTwigSiteVariables()
     {
         // TODO: use real plugin name instead
-        $theme_url = $this->config->get('system.base_url_relative') . '/user/plugins/admin/themes/' . $this->theme;
+        $theme_url = $this->grav['base_url'] . '/user/plugins/admin/themes/' . $this->theme;
         $twig = $this->grav['twig'];
 
         // Dynamic type support

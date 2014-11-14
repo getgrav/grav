@@ -50,7 +50,7 @@ class Popularity
     {
         /** @var Page $page */
         $page = self::$grav['page'];
-        $relative_url = str_replace($this->config->get('system.base_url_relative'), '', $page->url());
+        $relative_url = str_replace(self::$grav['base_url_relative'], '', $page->url());
 
         // Don't track error pages or pages that have no route
         if ($page->template() == 'error' || !$page->route()) {
