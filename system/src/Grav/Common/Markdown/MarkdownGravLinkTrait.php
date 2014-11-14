@@ -22,7 +22,7 @@ trait MarkdownGravLinkTrait
         // Run the parent method to get the actual results
         $Excerpt = parent::identifyLink($Excerpt);
         $actions = array();
-        $this->base_url = trim($config->get('system.base_url_relative'));
+        $this->base_url = self::$grav['base_url'];
 
         // if this is a link
         if (isset($Excerpt['element']['attributes']['href'])) {

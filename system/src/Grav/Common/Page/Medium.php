@@ -117,7 +117,7 @@ class Medium extends Data
     /**
      * Sets the quality of the image
      * @param  Int $quality 0-100 quality
-     * @return Medium        
+     * @return Medium
      */
     public function quality($quality) {
         $this->quality = $quality;
@@ -131,9 +131,6 @@ class Medium extends Data
      */
     public function url()
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
         if ($this->image) {
             $output = $this->image->cacheFile($this->type, $this->quality);
             $this->reset();
@@ -142,7 +139,7 @@ class Medium extends Data
             $output = $relPath . '/' . $this->get('filename');
         }
 
-        return $config->get('system.base_url_relative') . '/'. $output;
+        return self::$grav['base_url'] . '/'. $output;
     }
 
     /**
@@ -212,7 +209,7 @@ class Medium extends Data
             /** @var Config $config */
             $config = self::$grav['config'];
 
-            $output = '<a href="' . $config->get('system.base_url_relative') . '/'. $this->linkTarget
+            $output = '<a href="' . self::$grav['base_url'] . '/'. $this->linkTarget
                 . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';
 
             $this->linkTarget = $this->linkAttributes = null;
@@ -241,7 +238,7 @@ class Medium extends Data
         $config = self::$grav['config'];
         $url = $this->url();
         $this->link($width, $height);
-        $lightbox_url = $config->get('system.base_url_relative') . '/'. $this->linkTarget;
+        $lightbox_url = self::$grav['base_url'] . '/'. $this->linkTarget;
 
         return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
     }

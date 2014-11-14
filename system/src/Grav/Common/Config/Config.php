@@ -163,15 +163,11 @@ class Config extends Data
             $this->messages[] = 'Configuration checksum mismatch, reloading configuration..';
         } else {
             $this->messages[] = 'Configuration checksum matches, using cached version.';
-            $this->defineUrl();
-
             return;
         }
 
         $this->loadCompiledBlueprints($this->blueprintLookup, $this->pluginLookup, 'master');
         $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
-
-        $this->defineUrl();
     }
 
     public function checksum()
@@ -204,16 +200,6 @@ class Config extends Data
         }
 
         return md5(json_encode([$cc, $cb]));
-    }
-
-    protected function defineUrl()
-    {
-        /** @var Uri $uri */
-        $uri = $this->grav['uri'];
-
-        // If not set, add manually current base url.
-        $this->def('system.base_url_absolute', $uri->rootUrl(true));
-        $this->def('system.base_url_relative', $uri->rootUrl(false));
     }
 
     protected function autoDetectEnvironmentConfig($items)

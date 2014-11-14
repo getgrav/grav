@@ -97,7 +97,7 @@ class Themes extends Iterator
         $thumb = "themes://{$name}/thumbnail.jpg";
 
         if (file_exists($thumb)) {
-            $blueprint->set('thumbnail', $this->config->get('system.base_url_relative') . "/user/themes/{$name}/thumbnail.jpg");
+            $blueprint->set('thumbnail', $this->grav['base_url'] . "/user/themes/{$name}/thumbnail.jpg");
         }
 
         // Load default configuration.

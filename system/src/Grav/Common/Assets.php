@@ -97,9 +97,8 @@ class Assets
     {
         /** @var Config $config */
         $config = self::$grav['config'];
-        $base_url = trim($config->get('system.base_url_relative'));
-        $theme = trim($config->get('system.pages.theme'));
-        $asset_config = (array)$config->get('system.assets');
+        $base_url = self::$grav['base_url'];
+        $asset_config = (array) $config->get('system.assets');
 
         $this->config($asset_config);
         $this->base_url = $base_url . '/';

@@ -1,3 +1,5 @@
+absolute_urls: false
+
 home:
   alias: '/home'
 
