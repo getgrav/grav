@@ -83,6 +83,8 @@ class Medium extends Data
         } else {
             $this->def('mime', 'application/octet-stream');
         }
+
+
     }
 
     /**
@@ -120,7 +122,8 @@ class Medium extends Data
      * @param  Int $quality 0-100 quality
      * @return Medium
      */
-    public function quality($quality) {
+    public function quality($quality)
+    {
         $this->quality = $quality;
         return $this;
     }
@@ -148,6 +151,7 @@ class Medium extends Data
      *
      * @param string $type
      * @param int $quality
+     * @return $this
      */
     public function format($type = null, $quality = 80)
     {
