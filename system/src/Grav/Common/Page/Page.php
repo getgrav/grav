@@ -315,12 +315,12 @@ class Page
             /** @var Cache $cache */
             $cache = self::$grav['cache'];
             $cache_id = md5('page'.$this->id());
-            $content = $cache->fetch($cache_id);
+            $this->content = $cache->fetch($cache_id);
 
             $update_cache = false;
-            if ($content === false) {
+            if ($this->content === false) {
                 // Process Markdown
-                $content = $this->processMarkdown();
+                $this->content = $this->processMarkdown();
                 $update_cache = true;
             }
 
@@ -332,7 +332,7 @@ class Page
 
                 // Do we want to cache markdown, but process twig in each page?
                 if ($update_cache && $process_twig) {
-                    $cache->save($cache_id, $content);
+                    $cache->save($cache_id, $this->content);
                     $update_cache = false;
                 }
 
@@ -340,23 +340,21 @@ class Page
                 if ($update_cache || $process_twig) {
                     /** @var Twig $twig */
                     $twig = self::$grav['twig'];
-                    $content = $twig->processPage($this, $content);
+                    $this->content = $twig->processPage($this, $this->content);
                 }
             }
 
             // Cache the whole page, including processed content
             if ($update_cache) {
-                $cache->save($cache_id, $content);
+                $cache->save($cache_id, $this->content);
             }
 
             // Handle summary divider
-            $divider_pos = strpos($content, '<p>'.SUMMARY_DELIMITER.'</p>');
+            $divider_pos = strpos($this->content, '<p>'.SUMMARY_DELIMITER.'</p>');
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
-                $content = str_replace('<p>'.SUMMARY_DELIMITER.'</p>', '', $content);
+                $this->content = str_replace('<p>'.SUMMARY_DELIMITER.'</p>', '', $this->content);
             }
-
-            $this->content = $content;
 
             // Process any post-processing but pre-caching functionality
             self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));

@@ -57,7 +57,7 @@ class Media extends Getters
             }
 
             //set file size
-            $medium->set('size',$info->getSize());
+            $medium->set('size', $info->getSize());
 
             // Assign meta files to the medium.
             if ($meta) {
@@ -84,7 +84,7 @@ class Media extends Getters
             $config = self::$grav['config'];
 
             // Check if medium type has been configured.
-            $params = $config->get("media.{$ext}");
+            $params = $config->get("media.".strtolower($ext));
             if (!$params) {
                 return null;
             }
@@ -129,6 +129,7 @@ class Media extends Getters
      */
     public function all()
     {
+        ksort($this->instances, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->instances;
     }
 
@@ -139,6 +140,7 @@ class Media extends Getters
      */
     public function images()
     {
+        ksort($this->images, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->images;
     }
 
@@ -149,6 +151,7 @@ class Media extends Getters
      */
     public function videos()
     {
+        ksort($this->videos, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->videos;
     }
 
@@ -159,6 +162,7 @@ class Media extends Getters
      */
     public function files()
     {
+        ksort($this->files, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->files;
     }
 

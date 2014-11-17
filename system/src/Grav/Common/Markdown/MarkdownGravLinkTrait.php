@@ -22,7 +22,7 @@ trait MarkdownGravLinkTrait
         // Run the parent method to get the actual results
         $Excerpt = parent::identifyLink($Excerpt);
         $actions = array();
-        $this->base_url = trim($config->get('system.base_url_relative'));
+        $this->base_url = self::$grav['base_url'];
 
         // if this is a link
         if (isset($Excerpt['element']['attributes']['href'])) {
@@ -113,7 +113,7 @@ trait MarkdownGravLinkTrait
     protected function convertUrl($markdown_url)
     {
         // if absolue and starts with a base_url move on
-        if ($this->base_url == '' || strpos($markdown_url, $this->base_url) === 0) {
+        if ($this->base_url != '' && strpos($markdown_url, $this->base_url) === 0) {
             $new_url = $markdown_url;
         // if its absolute with /
         } elseif (strpos($markdown_url, '/') === 0) {

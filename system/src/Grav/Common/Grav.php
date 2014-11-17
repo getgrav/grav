@@ -142,6 +142,16 @@ class Grav extends Container
             return new Browser();
         };
 
+        $container['base_url_absolute'] = function ($c) {
+            return $c['config']->get('system.base_url_absolute') ?: $c['uri']->rootUrl(true);
+        };
+        $container['base_url_relative'] = function ($c) {
+            return $c['config']->get('system.base_url_relative') ?: $c['uri']->rootUrl(false);
+        };
+        $container['base_url'] = function ($c) {
+            return $c['config']->get('system.absolute_urls') ? $c['base_url_absolute'] : $c['base_url_relative'];
+        };
+
         $container->register(new StreamsServiceProvider);
         $container->register(new ConfigServiceProvider);
 

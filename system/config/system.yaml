@@ -1,3 +1,5 @@
+absolute_urls: false                   # Whether to use absolute URLs.
+
 home:
   alias: '/home'                       # Default path for home, ie /
 

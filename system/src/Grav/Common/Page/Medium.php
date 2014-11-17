@@ -48,9 +48,10 @@ class Medium extends Data
     protected $image;
 
     protected $type = 'guess';
-    protected $quality = 80;
+    protected $quality = 85;
 
-    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom', 'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
+    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
+        'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
 
     /**
      * @var array
@@ -71,10 +72,15 @@ class Medium extends Data
     {
         parent::__construct($items, $blueprint);
 
+        $file_path = $this->get('path') . '/' . $this->get('filename');
+        $file_parts = pathinfo($file_path);
+
+        $this->set('thumb', $file_path);
+        $this->set('extension', $file_parts['extension']);
+        $this->set('filename', $this->get('filename'));
+
         if ($this->get('type') == 'image') {
-            $filePath = $this->get('path') . '/' . $this->get('filename');
-            $image_info = getimagesize($filePath);
-            $this->set('thumb', $filePath);
+            $image_info = getimagesize($file_path);
             $this->def('width', $image_info[0]);
             $this->def('height', $image_info[1]);
             $this->def('mime', $image_info['mime']);
@@ -82,6 +88,8 @@ class Medium extends Data
         } else {
             $this->def('mime', 'application/octet-stream');
         }
+
+
     }
 
     /**
@@ -117,9 +125,10 @@ class Medium extends Data
     /**
      * Sets the quality of the image
      * @param  Int $quality 0-100 quality
-     * @return Medium        
+     * @return Medium
      */
-    public function quality($quality) {
+    public function quality($quality)
+    {
         $this->quality = $quality;
         return $this;
     }
@@ -131,9 +140,6 @@ class Medium extends Data
      */
     public function url()
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
         if ($this->image) {
             $output = $this->image->cacheFile($this->type, $this->quality);
             $this->reset();
@@ -142,7 +148,7 @@ class Medium extends Data
             $output = $relPath . '/' . $this->get('filename');
         }
 
-        return $config->get('system.base_url_relative') . '/'. $output;
+        return self::$grav['base_url'] . '/'. $output;
     }
 
     /**
@@ -150,6 +156,7 @@ class Medium extends Data
      *
      * @param string $type
      * @param int $quality
+     * @return $this
      */
     public function format($type = null, $quality = 80)
     {
@@ -212,7 +219,7 @@ class Medium extends Data
             /** @var Config $config */
             $config = self::$grav['config'];
 
-            $output = '<a href="' . $config->get('system.base_url_relative') . '/'. $this->linkTarget
+            $output = '<a href="' . self::$grav['base_url'] . '/'. $this->linkTarget
                 . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';
 
             $this->linkTarget = $this->linkAttributes = null;
@@ -241,7 +248,7 @@ class Medium extends Data
         $config = self::$grav['config'];
         $url = $this->url();
         $this->link($width, $height);
-        $lightbox_url = $config->get('system.base_url_relative') . '/'. $this->linkTarget;
+        $lightbox_url = self::$grav['base_url'] . '/'. $this->linkTarget;
 
         return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
     }

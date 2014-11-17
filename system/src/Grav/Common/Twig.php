@@ -102,13 +102,10 @@ class Twig
             }
             $this->twig->addExtension(new TwigExtension());
 
-
             $this->grav->fireEvent('onTwigExtensions');
 
-            $baseUrlAbsolute = $config->get('system.base_url_absolute');
-            $baseUrlRelative = $config->get('system.base_url_relative');
             $theme = $config->get('system.pages.theme');
-            $themeUrl = $baseUrlRelative .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
+            $themeUrl = $this->grav['base_url'] .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
 
             // Set some standard variables for twig
             $this->twig_vars = array(
@@ -116,8 +113,9 @@ class Twig
                 'config' => $config,
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
-                'base_url_absolute' => $baseUrlAbsolute,
-                'base_url_relative' => $baseUrlRelative,
+                'base_url' => $this->grav['base_url'],
+                'base_url_absolute' => $this->grav['base_url_absolute'],
+                'base_url_relative' => $this->grav['base_url_relative'],
                 'theme_dir' => $locator->findResource('theme://'),
                 'theme_url' => $themeUrl,
                 'site' => $config->get('site'),
