@@ -129,6 +129,7 @@ class Media extends Getters
      */
     public function all()
     {
+        ksort($this->instances, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->instances;
     }
 
@@ -139,6 +140,7 @@ class Media extends Getters
      */
     public function images()
     {
+        ksort($this->images, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->images;
     }
 
@@ -149,6 +151,7 @@ class Media extends Getters
      */
     public function videos()
     {
+        ksort($this->videos, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->videos;
     }
 
@@ -159,6 +162,7 @@ class Media extends Getters
      */
     public function files()
     {
+        ksort($this->files, SORT_NATURAL | SORT_FLAG_CASE);
         return $this->files;
     }
 
