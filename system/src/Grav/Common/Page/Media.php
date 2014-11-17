@@ -84,7 +84,7 @@ class Media extends Getters
             $config = self::$grav['config'];
 
             // Check if medium type has been configured.
-            $params = $config->get("media.{$ext}");
+            $params = $config->get("media.".strtolower($ext));
             if (!$params) {
                 return null;
             }
