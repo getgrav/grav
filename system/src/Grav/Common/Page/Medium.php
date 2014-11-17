@@ -72,10 +72,15 @@ class Medium extends Data
     {
         parent::__construct($items, $blueprint);
 
+        $file_path = $this->get('path') . '/' . $this->get('filename');
+        $file_parts = pathinfo($file_path);
+
+        $this->set('thumb', $file_path);
+        $this->set('extension', $file_parts['extension']);
+        $this->set('filename', $this->get('filename'));
+
         if ($this->get('type') == 'image') {
-            $filePath = $this->get('path') . '/' . $this->get('filename');
-            $image_info = getimagesize($filePath);
-            $this->set('thumb', $filePath);
+            $image_info = getimagesize($file_path);
             $this->def('width', $image_info[0]);
             $this->def('height', $image_info[1]);
             $this->def('mime', $image_info['mime']);
