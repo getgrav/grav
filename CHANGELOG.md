@@ -1,3 +1,18 @@
+# v0.9.6 beta
+## 11/17/2014
+
+1. [](#improved)
+    * Moved base_url variables into Grav container
+    * Forced media sorting to use natural sort order by default
+    * Various PSR code tidying
+    * Added filename, extension, thumb to all medium objects
+2. [](#bugfix)
+    * Fix for infinite loop in page.content()
+    * Fix hostname for configuration overrides
+    * Fix for cached configuration
+    * Fix for relative URLs in markdown on installs with no base_url
+    * Fix for page media images with uppercase extension
+
 # v0.9.5 beta
 ## 11/09/2014
 
