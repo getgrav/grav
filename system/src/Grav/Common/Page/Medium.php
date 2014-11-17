@@ -48,9 +48,10 @@ class Medium extends Data
     protected $image;
 
     protected $type = 'guess';
-    protected $quality = 80;
+    protected $quality = 85;
 
-    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom', 'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
+    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
+        'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
 
     /**
      * @var array
