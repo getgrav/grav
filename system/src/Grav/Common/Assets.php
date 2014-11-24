@@ -234,7 +234,7 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
-        if (!array_key_exists($asset, $this->css)) {
+        if ($asset && !array_key_exists($asset, $this->css)) {
             $this->css[$asset] = [
                 'asset'    => $asset,
                 'priority' => $priority,
@@ -272,8 +272,7 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
-        if (!array_key_exists($asset, $this->js)) {
-
+        if ($asset && !array_key_exists($asset, $this->js)) {
             $this->js[$asset] = [
                 'asset'    => $asset,
                 'priority' => $priority,
@@ -656,7 +655,7 @@ class Assets
         } catch (\Exception $e) {
         }
 
-        return $this->base_url . ltrim($asset, '/');
+        return $asset ? $this->base_url . ltrim($asset, '/') : false;
     }
 
     /**
