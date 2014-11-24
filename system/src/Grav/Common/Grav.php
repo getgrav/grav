@@ -305,8 +305,10 @@ class Grav extends Container
     public function shutdown()
     {
         if ($this['config']->get('system.debugger.shutdown.close_connection')) {
-            set_time_limit(0);
-            ignore_user_abort(true);
+
+            if (function_exists('ignore_user_abort')) {
+                @ignore_user_abort(true);
+            }
 
             if (isset($this['session'])) {
                 $this['session']->close();

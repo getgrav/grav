@@ -1,4 +1,4 @@
-absolute_urls: false                   # Whether to use absolute URLs.
+absolute_urls: false                   # Absolute or relative URLs for `base_url`
 
 home:
   alias: '/home'                       # Default path for home, ie /

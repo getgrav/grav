@@ -29,8 +29,8 @@ trait MarkdownGravLinkTrait
 
             $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['href']));
 
-            // if there is no host set but there is a path, the file is local
-            if (!isset($url['host']) && isset($url['path'])) {
+            // if there is no scheme, the file is local
+            if (!isset($url['scheme'])) {
 
                 // convert the URl is required
                 $Excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
