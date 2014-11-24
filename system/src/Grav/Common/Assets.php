@@ -17,7 +17,7 @@ define('JS_ASSET', false);
  *
  * Based on stolz/assets (https://github.com/Stolz/Assets) package modified for use with Grav
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Assets
@@ -52,6 +52,7 @@ class Assets
      *
      * The closure will receive as the only parameter a string with the path/URL of the asset and
      * it should return the content of the asset file as a string.
+     *
      * @var Closure
      */
     protected $fetch_command;
@@ -91,27 +92,14 @@ class Assets
     }
 
     /**
-     * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
-     */
-    public function init()
-    {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-        $base_url = self::$grav['base_url'];
-        $asset_config = (array)$config->get('system.assets');
-
-        $this->config($asset_config);
-        $this->base_url = $base_url . '/';
-    }
-
-    /**
      * Set up configuration options.
      *
      * All the class properties except 'js' and 'css' are accepted here.
      * Also, an extra option 'autoload' may be passed containing an array of
      * assets and/or collections that will be automatically added on startup.
      *
-     * @param  array $options Configurable options.
+     * @param  array $config Configurable options.
+     *
      * @return $this
      * @throws \Exception
      */
@@ -170,14 +158,29 @@ class Assets
     }
 
     /**
+     * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
+     */
+    public function init()
+    {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+        $base_url = self::$grav['base_url'];
+        $asset_config = (array)$config->get('system.assets');
+
+        $this->config($asset_config);
+        $this->base_url = $base_url . '/';
+    }
+
+    /**
      * Add an asset or a collection of assets.
      *
      * It automatically detects the asset type (JavaScript, CSS or collection).
      * You may add more than one asset passing an array as argument.
      *
      * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param  bool $pipeline false if this should not be pipelined
+     * @param  int   $priority the priority, bigger comes first
+     * @param  bool  $pipeline false if this should not be pipelined
+     *
      * @return $this
      */
     public function add($asset, $priority = 10, $pipeline = true)
@@ -206,34 +209,15 @@ class Assets
     }
 
     /**
-     * Add an inline CSS asset.
-     *
-     * It checks for duplicates.
-     * For adding chunks of string-based inline CSS
-     *
-     * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @return $this
-     */
-    public function addInlineCss($asset, $priority = 10)
-    {
-
-        if (is_string($asset) && !in_array($asset, $this->inline_css)) {
-            $this->inline_css[] = $asset;
-        }
-
-        return $this;
-    }
-
-    /**
      * Add a CSS asset.
      *
      * It checks for duplicates.
      * You may add more than one asset passing an array as argument.
      *
      * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param  bool $pipeline false if this should not be pipelined
+     * @param  int   $priority the priority, bigger comes first
+     * @param  bool  $pipeline false if this should not be pipelined
+     *
      * @return $this
      */
     public function addCss($asset, $priority = 10, $pipeline = true)
@@ -252,31 +236,11 @@ class Assets
 
         if (!array_key_exists($asset, $this->css)) {
             $this->css[$asset] = [
-                'asset' => $asset,
+                'asset'    => $asset,
                 'priority' => $priority,
-                'order' => count($this->css),
+                'order'    => count($this->css),
                 'pipeline' => $pipeline
             ];
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add an inline JS asset.
-     *
-     * It checks for duplicates.
-     * For adding chunks of string-based inline JS
-     *
-     * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @return $this
-     */
-    public function addInlineJs($asset)
-    {
-
-        if (is_string($asset) && !in_array($asset, $this->inline_js)) {
-            $this->inline_js[] = $asset;
         }
 
         return $this;
@@ -289,8 +253,9 @@ class Assets
      * You may add more than one asset passing an array as argument.
      *
      * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param  bool $pipeline false if this should not be pipelined
+     * @param  int   $priority the priority, bigger comes first
+     * @param  bool  $pipeline false if this should not be pipelined
+     *
      * @return $this
      */
     public function addJs($asset, $priority = 10, $pipeline = true)
@@ -310,11 +275,52 @@ class Assets
         if (!array_key_exists($asset, $this->js)) {
 
             $this->js[$asset] = [
-                'asset' => $asset,
+                'asset'    => $asset,
                 'priority' => $priority,
-                'order' => count($this->js),
+                'order'    => count($this->js),
                 'pipeline' => $pipeline
             ];
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an inline CSS asset.
+     *
+     * It checks for duplicates.
+     * For adding chunks of string-based inline CSS
+     *
+     * @param  mixed $asset
+     * @param  int   $priority the priority, bigger comes first
+     *
+     * @return $this
+     */
+    public function addInlineCss($asset, $priority = 10)
+    {
+
+        if (is_string($asset) && !in_array($asset, $this->inline_css)) {
+            $this->inline_css[] = $asset;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an inline JS asset.
+     *
+     * It checks for duplicates.
+     * For adding chunks of string-based inline JS
+     *
+     * @param  mixed $asset
+     *
+     * @return $this
+     */
+    public function addInlineJs($asset)
+    {
+
+        if (is_string($asset) && !in_array($asset, $this->inline_js)) {
+            $this->inline_js[] = $asset;
         }
 
         return $this;
@@ -324,6 +330,7 @@ class Assets
      * Build the CSS link tags.
      *
      * @param  array $attributes
+     *
      * @return string
      */
     public function css($attributes = [])
@@ -375,6 +382,7 @@ class Assets
      * Build the JavaScript script tags.
      *
      * @param  array $attributes
+     *
      * @return string
      */
     public function js($attributes = [])
@@ -418,81 +426,7 @@ class Assets
         return $output;
     }
 
-    /**
-     * Build an HTML attribute string from an array.
-     *
-     * @param  array $attributes
-     * @return string
-     */
-    protected function attributes(array $attributes)
-    {
-        $html = '';
 
-        foreach ($attributes as $key => $value) {
-            // For numeric keys we will assume that the key and the value are the same
-            // as this will convert HTML attributes such as "required" to a correct
-            // form like required="required" instead of using incorrect numerics.
-            if (is_numeric($key)) {
-                $key = $value;
-            }
-            if (is_array($value)) {
-                $value = implode(' ', $value);
-            }
-
-            $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
-            $html .= ' ' . $element;
-        }
-
-        return $html;
-    }
-
-    /**
-     * Add/replace collection.
-     *
-     * @param  string $collectionName
-     * @param  array $assets
-     * @return $this
-     */
-    public function registerCollection($collectionName, Array $assets)
-    {
-        $this->collections[$collectionName] = $assets;
-
-        return $this;
-    }
-
-    /**
-     * Reset all assets.
-     *
-     * @return $this
-     */
-    public function reset()
-    {
-        return $this->resetCss()->resetJs();
-    }
-
-    /**
-     * Reset CSS assets.
-     *
-     * @return $this
-     */
-    public function resetCss()
-    {
-        $this->css = array();
-
-        return $this;
-    }
-
-    /**
-     * Reset JavaScript assets.
-     *
-     * @return $this
-     */
-    public function resetJs()
-    {
-        $this->js = array();
-
-        return $this;
-    }
 
     /**
      * Minifiy and concatenate CSS / JS files.
@@ -561,9 +495,204 @@ class Assets
     }
 
     /**
+     * Add/replace collection.
+     *
+     * @param  string $collectionName
+     * @param  array  $assets
+     *
+     * @return $this
+     */
+    public function registerCollection($collectionName, Array $assets)
+    {
+        $this->collections[$collectionName] = $assets;
+
+        return $this;
+    }
+
+    /**
+     * Reset all assets.
+     *
+     * @return $this
+     */
+    public function reset()
+    {
+        return $this->resetCss()->resetJs();
+    }
+
+    /**
+     * Reset JavaScript assets.
+     *
+     * @return $this
+     */
+    public function resetJs()
+    {
+        $this->js = array();
+
+        return $this;
+    }
+
+    /**
+     * Reset CSS assets.
+     *
+     * @return $this
+     */
+    public function resetCss()
+    {
+        $this->css = array();
+
+        return $this;
+    }
+
+    /**
+     * Get all CSS assets already added.
+     *
+     * @return array
+     */
+    public function getCss()
+    {
+        return $this->css;
+    }
+
+    /**
+     * Get all JavaScript assets already added.
+     *
+     * @return array
+     */
+    public function getJs()
+    {
+        return $this->js;
+    }
+
+    /**
+     * Add all CSS assets within $directory (relative to public dir).
+     *
+     * @param  string $directory Relative to $this->public_dir
+     *
+     * @return $this
+     */
+    public function addDirCss($directory)
+    {
+        return $this->addDir($directory, self::CSS_REGEX);
+    }
+
+    /**
+     * Add all assets matching $pattern within $directory.
+     *
+     * @param  string $directory Relative to $this->public_dir
+     * @param  string $pattern   (regex)
+     *
+     * @return $this
+     * @throws Exception
+     */
+    public function addDir($directory, $pattern = self::DEFAULT_REGEX)
+    {
+        // Check if public_dir exists
+        if (!is_dir(ASSETS_DIR)) {
+            throw new Exception('Assets: Public dir not found');
+        }
+
+        // Get files
+        $files = $this->rglob(ASSETS_DIR . DIRECTORY_SEPARATOR . $directory, $pattern, ASSETS_DIR);
+
+        // No luck? Nothing to do
+        if (!$files) {
+            return $this;
+        }
+
+        // Add CSS files
+        if ($pattern === self::CSS_REGEX) {
+            $this->css = array_unique(array_merge($this->css, $files));
+            return $this;
+        }
+
+        // Add JavaScript files
+        if ($pattern === self::JS_REGEX) {
+            $this->js = array_unique(array_merge($this->js, $files));
+            return $this;
+        }
+
+        // Unknown pattern. We must poll to know the extension :(
+        foreach ($files as $asset) {
+            $info = pathinfo($asset);
+            if (isset($info['extension'])) {
+                $ext = strtolower($info['extension']);
+                if ($ext === 'css' and !in_array($asset, $this->css)) {
+                    $this->css[] = $asset;
+                } elseif ($ext === 'js' and !in_array($asset, $this->js)) {
+                    $this->js[] = $asset;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Determine whether a link is local or remote.
+     *
+     * Undestands both "http://" and "https://" as well as protocol agnostic links "//"
+     *
+     * @param  string $link
+     *
+     * @return bool
+     */
+    protected function isRemoteLink($link)
+    {
+        return ('http://' === substr($link, 0, 7) or 'https://' === substr($link, 0, 8)
+            or '//' === substr($link, 0, 2));
+    }
+
+    /**
+     * Build local links including grav asset shortcodes
+     *
+     * @param  string $asset the asset string reference
+     *
+     * @return string        the final link url to the asset
+     */
+    protected function buildLocalLink($asset)
+    {
+        try {
+            $asset = self::$grav['locator']->findResource($asset, false);
+        } catch (\Exception $e) {
+        }
+
+        return $this->base_url . ltrim($asset, '/');
+    }
+
+    /**
+     * Build an HTML attribute string from an array.
+     *
+     * @param  array $attributes
+     *
+     * @return string
+     */
+    protected function attributes(array $attributes)
+    {
+        $html = '';
+
+        foreach ($attributes as $key => $value) {
+            // For numeric keys we will assume that the key and the value are the same
+            // as this will convert HTML attributes such as "required" to a correct
+            // form like required="required" instead of using incorrect numerics.
+            if (is_numeric($key)) {
+                $key = $value;
+            }
+            if (is_array($value)) {
+                $value = implode(' ', $value);
+            }
+
+            $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
+            $html .= ' ' . $element;
+        }
+
+        return $html;
+    }
+
+    /**
      * Download and concatenate the content of several links.
      *
      * @param  array $links
+     *
      * @return string
      */
     protected function gatherLinks(array $links, $css = true)
@@ -616,31 +745,12 @@ class Assets
     }
 
     /**
-     * Moves @import statements to the top of the file per the CSS specification
-     *
-     * @param  string $file the file containing the combined CSS files
-     * @return string       the modified file with any @imports at the top of the file
-     */
-    protected function moveImports($file)
-    {
-        $this->imports = array();
-
-        $file = preg_replace_callback(self::CSS_IMPORT_REGEX,
-            function ($matches) {
-                $this->imports[] = $matches[0];
-                return '';
-            },
-            $file
-        );
-
-        return implode("\n", $this->imports) . "\n\n" . $file;
-    }
-
-    /**
      * Finds relative CSS urls() and rewrites the URL with an absolute one
-     * @param  string $file the css source file
-     * @param  string $relative_path relative path to the css file
-     * @return [type]                [description]
+     *
+     * @param $file                 the css source file
+     * @param $relative_path        relative path to the css file
+     *
+     * @return mixed
      */
     protected function cssRewrite($file, $relative_path)
     {
@@ -649,7 +759,8 @@ class Assets
 
         // Find any css url() elements, grab the URLs and calculate an absolute path
         // Then replace the old url with the new one
-        $file = preg_replace_callback(self::CSS_URL_REGEX,
+        $file = preg_replace_callback(
+            self::CSS_URL_REGEX,
             function ($matches) use ($relative_path) {
 
                 $old_url = $matches[1];
@@ -681,127 +792,26 @@ class Assets
     }
 
     /**
-     * Build local links including grav asset shortcodes
+     * Moves @import statements to the top of the file per the CSS specification
      *
-     * @param  string $asset the asset string reference
-     * @return string        the final link url to the asset
+     * @param  string $file the file containing the combined CSS files
+     *
+     * @return string       the modified file with any @imports at the top of the file
      */
-    protected function buildLocalLink($asset)
+    protected function moveImports($file)
     {
-        try {
-            $asset = self::$grav['locator']->findResource($asset, false);
-        } catch (\Exception $e) {
-        }
+        $this->imports = array();
 
-        return $this->base_url . ltrim($asset, '/');
-    }
+        $file = preg_replace_callback(
+            self::CSS_IMPORT_REGEX,
+            function ($matches) {
+                $this->imports[] = $matches[0];
+                return '';
+            },
+            $file
+        );
 
-
-    /**
-     * Determine whether a link is local or remote.
-     *
-     * Undestands both "http://" and "https://" as well as protocol agnostic links "//"
-     *
-     * @param  string $link
-     * @return bool
-     */
-    protected function isRemoteLink($link)
-    {
-        return ('http://' === substr($link, 0, 7) or 'https://' === substr($link, 0, 8)
-            or '//' === substr($link, 0, 2));
-    }
-
-    /**
-     * Get all CSS assets already added.
-     *
-     * @return array
-     */
-    public function getCss()
-    {
-        return $this->css;
-    }
-
-    /**
-     * Get all JavaScript assets already added.
-     *
-     * @return array
-     */
-    public function getJs()
-    {
-        return $this->js;
-    }
-
-    /**
-     * Add all assets matching $pattern within $directory.
-     *
-     * @param  string $directory Relative to $this->public_dir
-     * @param  string $pattern (regex)
-     * @return $this
-     * @throws Exception
-     */
-    public function addDir($directory, $pattern = self::DEFAULT_REGEX)
-    {
-        // Check if public_dir exists
-        if (!is_dir(ASSETS_DIR)) {
-            throw new Exception('Assets: Public dir not found');
-        }
-
-        // Get files
-        $files = $this->rglob(ASSETS_DIR . DIRECTORY_SEPARATOR . $directory, $pattern, ASSETS_DIR);
-
-        // No luck? Nothing to do
-        if (!$files) {
-            return $this;
-        }
-
-        // Add CSS files
-        if ($pattern === self::CSS_REGEX) {
-            $this->css = array_unique(array_merge($this->css, $files));
-            return $this;
-        }
-
-        // Add JavaScript files
-        if ($pattern === self::JS_REGEX) {
-            $this->js = array_unique(array_merge($this->js, $files));
-            return $this;
-        }
-
-        // Unknown pattern. We must poll to know the extension :(
-        foreach ($files as $asset) {
-            $info = pathinfo($asset);
-            if (isset($info['extension'])) {
-                $ext = strtolower($info['extension']);
-                if ($ext === 'css' and !in_array($asset, $this->css)) {
-                    $this->css[] = $asset;
-                } elseif ($ext === 'js' and !in_array($asset, $this->js)) {
-                    $this->js[] = $asset;
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add all CSS assets within $directory (relative to public dir).
-     *
-     * @param  string $directory Relative to $this->public_dir
-     * @return $this
-     */
-    public function addDirCss($directory)
-    {
-        return $this->addDir($directory, self::CSS_REGEX);
-    }
-
-    /**
-     * Add all JavaScript assets within $directory.
-     *
-     * @param  string $directory Relative to $this->public_dir
-     * @return $this
-     */
-    public function addDirJs($directory)
-    {
-        return $this->addDir($directory, self::JS_REGEX);
+        return implode("\n", $this->imports) . "\n\n" . $file;
     }
 
     /**
@@ -809,13 +819,21 @@ class Assets
      *
      * @param  string $directory
      * @param  string $pattern (regex)
-     * @param  string $ltrim Will be trimed from the left of the file path
+     * @param  string $ltrim   Will be trimed from the left of the file path
+     *
      * @return array
      */
     protected function rglob($directory, $pattern, $ltrim = null)
     {
-        $iterator = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory,
-            FilesystemIterator::SKIP_DOTS)), $pattern);
+        $iterator = new RegexIterator(
+            new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(
+                    $directory,
+                    FilesystemIterator::SKIP_DOTS
+                )
+            ),
+            $pattern
+        );
         $offset = strlen($ltrim);
         $files = array();
 
@@ -827,18 +845,31 @@ class Assets
     }
 
     /**
-     * @param $a
-     * @param $b
-     * @return mixed
+     * Add all JavaScript assets within $directory.
+     *
+     * @param  string $directory Relative to $this->public_dir
+     *
+     * @return $this
      */
-    protected function priorityCompare($a, $b)
+    public function addDirJs($directory)
     {
-        return $a ['priority'] - $b ['priority'];
+        return $this->addDir($directory, self::JS_REGEX);
     }
 
     public function __toString()
     {
         return '';
+    }
+
+    /**
+     * @param $a
+     * @param $b
+     *
+     * @return mixed
+     */
+    protected function priorityCompare($a, $b)
+    {
+        return $a ['priority'] - $b ['priority'];
     }
 
 }
