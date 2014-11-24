@@ -1,3 +1,16 @@
+# v0.9.7 beta
+## 11/24/2014
+
+1. [](#improved)
+    * Nginx configuration updated
+    * Added gitter.im badge to README
+    * Removed `set_time_limit()` and put checks around `ignore_user_abort`
+    * More PSR code fixes
+2. [](#bugfix)
+    * Fix issue with non-valid asset path showing up when they shouldn't
+    * Fix for JS asset pipeline and scripts that don't end in `;`
+    * Fix for schema-based markdown URLs broken routes (eg `mailto:`)
+
 # v0.9.6 beta
 ## 11/17/2014
 
