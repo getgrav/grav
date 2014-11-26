@@ -19,7 +19,8 @@ class Plugins extends Iterator
 {
     protected $grav;
 
-    public function __construct(Grav $grav) {
+    public function __construct(Grav $grav)
+    {
         $this->grav = $grav;
     }
 
@@ -78,7 +79,7 @@ class Plugins extends Iterator
      *
      * @return array
      */
-    static public function all()
+    public static function all()
     {
         $list = array();
         $iterator = new \DirectoryIterator('plugins://');
@@ -98,7 +99,7 @@ class Plugins extends Iterator
         return $list;
     }
 
-    static public function get($name)
+    public static function get($name)
     {
         $blueprints = new Blueprints("plugins://{$name}");
         $blueprint = $blueprints->get('blueprints');
@@ -117,4 +118,5 @@ class Plugins extends Iterator
 
         return $obj;
     }
+
 }
