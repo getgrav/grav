@@ -345,11 +345,10 @@ class Page
                 }
             }
 
-            // Process any post-processing but pre-caching functionality
-            self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-
             // Cache the whole page, including processed content
             if ($update_cache) {
+                // Process any post-processing but pre-caching functionality
+                self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
                 $cache->save($cache_id, $this->content);
             }
 
