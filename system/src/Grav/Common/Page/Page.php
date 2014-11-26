@@ -58,6 +58,7 @@ class Page
     protected $routable;
     protected $modified;
     protected $id;
+    protected $items;
     protected $header;
     protected $frontmatter;
     protected $content;
@@ -128,7 +129,8 @@ class Page
      * @param  string $var Raw content string
      * @return Object      Raw content string
      */
-    public function raw($var = null) {
+    public function raw($var = null)
+    {
         $file = $this->file();
 
         if ($var) {
@@ -146,7 +148,8 @@ class Page
         return $file ? $file->raw() : '';
     }
 
-    public function frontmatter($var = null) {
+    public function frontmatter($var = null)
+    {
 
         if ($var) {
             $this->frontmatter = (string) $var;
@@ -244,7 +247,6 @@ class Page
                     $this->process[$process] = $status;
                 }
             }
-
         }
 
         return $this->header;
@@ -646,7 +648,7 @@ class Page
      *
      * @return string
      */
-    public function child_type()
+    public function childType()
     {
         return isset($this->header->child_type) ? (string) $this->header->child_type : 'default';
     }
@@ -785,7 +787,7 @@ class Page
                 }
 
                 // Build an array of meta objects..
-                foreach((array)$page_header->metadata as $key => $value) {
+                foreach ((array)$page_header->metadata as $key => $value) {
 
                     // If this is a property type metadata: "og", "twitter", "facebook" etc
                     if (is_array($value)) {
