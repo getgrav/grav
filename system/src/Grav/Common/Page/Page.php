@@ -258,8 +258,14 @@ class Page
      */
     public function summary($size = null)
     {
-
         $content = $this->content();
+
+        // Handle summary divider
+        $divider_pos = strpos($content, '<p>'.SUMMARY_DELIMITER.'</p>');
+        if ($divider_pos !== false) {
+            $this->summary_size = $divider_pos;
+            $content = str_replace('<p>'.SUMMARY_DELIMITER.'</p>', '', $content);
+        }
 
         // Return calculated summary based on summary divider's position
         if (!$size && isset($this->summary_size)) {
@@ -347,13 +353,6 @@ class Page
             // Cache the whole page, including processed content
             if ($update_cache) {
                 $cache->save($cache_id, $this->content);
-            }
-
-            // Handle summary divider
-            $divider_pos = strpos($this->content, '<p>'.SUMMARY_DELIMITER.'</p>');
-            if ($divider_pos !== false) {
-                $this->summary_size = $divider_pos;
-                $this->content = str_replace('<p>'.SUMMARY_DELIMITER.'</p>', '', $this->content);
             }
 
             // Process any post-processing but pre-caching functionality
