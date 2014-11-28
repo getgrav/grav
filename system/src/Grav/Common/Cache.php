@@ -154,6 +154,10 @@ class Cache extends Getters
     public function save($id, $data, $lifetime = null)
     {
         if ($this->enabled) {
+
+            if ($lifetime == null) {
+                $lifetime = $this->config->get('system.cache.lifetime') ?: null;
+            }
             $this->driver->save($id, $data, $lifetime);
         }
     }

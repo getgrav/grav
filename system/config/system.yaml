@@ -27,6 +27,7 @@ cache:
     method: file                       # Method to check for updates in pages: file|folder|none
   driver: auto                         # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
+  lifetime: 86400                      # Lifetime of cached data in seconds (0 = infinite)
 
 twig:
   cache: true                          # Set to true to enable twig caching
