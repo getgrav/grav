@@ -1,2 +1,16 @@
 enabled: true
 route: '/admin'
+theme: grav
+login:
+  enabled: true
+  route: null
+  timeout: 1800
+warnings:
+  delete_page: true
+popularity:
+  enabled: true
+  ignore: ['/test*','/modular']
+  history:
+    daily: 7
+    monthly: 12
+    visitors: 20

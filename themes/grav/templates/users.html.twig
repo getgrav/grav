@@ -1,0 +1,37 @@
+{% extends 'partials/base.html.twig' %}
+
+{% if admin.route %}
+{% set user = admin.data('users/' ~ admin.route) %}
+{% endif %}
+
+{% block titlebar %}
+    {% if not admin.route %}
+        <div class="button-bar">
+            <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Account</a>
+        </div>
+        <h1><i class="fa fa-fw fa-child"></i> Users</h1>
+    {% else %}
+        <div class="button-bar">
+            <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+        </div>
+        <h1><i class="fa fa-fw fa-user"></i> User: {{ user.username|e }}</h1>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div>
+        {% include 'partials/messages.html.twig' %}
+
+        {% if not admin.route %}
+            {%  include 'partials/users-list.html.twig' %}
+
+
+            <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
+                {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('user/account_new') } %}
+            </div>
+        {% else %}
+            {% include 'partials/users-details.html.twig' %}
+        {% endif %}
+    </div>
+{% endblock %}
+

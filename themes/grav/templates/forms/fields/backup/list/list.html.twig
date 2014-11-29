@@ -1,0 +1,28 @@
+{% if field.fields %}
+{% set scope = scope ~ field.name|fieldName ~ '..' %}
+{% set schema = {'features':{'options':{'sortable_root':false, 'sortable_children':false}, 'schema':field.fields}} %}
+<div class="grav-array dd">
+    <span class="button array-addnew" data-grav-addfield>{{ field.add }}</span>
+    <ul class="dd-list" data-grav-array="{{ schema|json_encode|e }}">
+        <li class="dd-item dd3-item">
+            <div class="dd-handle dd3-handle dd-root-handle"></div>
+
+            <ol class="dd3-content dd-grav-list">
+                {% if value|length %}
+                {% for key, data in value %}
+                <li class="dd-grav-item">
+                    {% for field in field.fields %}
+                        <div class="dd-handle dd3-handle dd-grav-handle"></div>
+                        {% if field.type %}
+                            {% set value = data.value(field.name) %}
+                            {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+                        {% endif %}
+                    {% endfor %}
+                </li>
+                {% endfor %}
+                {% endif %}
+            </ol>
+        </li>
+    </ul>
+</div>
+{% endif %}

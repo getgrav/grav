@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block head %}
+    <meta charset="utf-8" />
+    <title>{% if header.title %}{{ header.title }} | {% endif %}{{ site.title }}</title>
+    {% if header.description %}
+        <meta name="description" content="{{ header.description }}">
+    {% else %}
+        <meta name="description" content="{{ site.description }}">
+    {% endif %}
+    {% if header.robots %}
+        <meta name="robots" content="{{ header.robots }}">
+    {% endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ theme_url }}/images/favicon.png">
+    {% block stylesheets %}
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/core.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/vendor/font-awesome/font-awesome.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/vendor/mmenu/jquery.mmenu.all.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/vendor/mmenu/extensions/jquery.mmenu.widescreen.css" type="text/css"  media="all and (min-width: 1024px)" />
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/vendor/vex/vex.css" type="text/css" />
+    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/vendor/vex/vex-theme-os.css" type="text/css" />
+
+    <!--[if IE 9]>
+        <link rel="stylesheet" href="{{ theme_url }}/css/core-ie9.css" type="text/css" />
+        <link rel="stylesheet" href="{{ theme_url }}/css/pure/grids-min.css" type="text/css" />
+    <![endif]-->
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet }}" type="text/css" />
+    {% endfor %}
+    {% endblock %}
+    {% block javascript %}
+    <script type="text/javascript" src="{{ theme_url }}/js/jquery-2.1.0.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/jquery.mmenu.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/addons/jquery.mmenu.counters.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/addons/jquery.mmenu.header.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/jquery.astooltip.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/vendor/vex/vex.combined.min.js"></script>
+    <script type="text/javascript">vex.defaultOptions.className = 'vex-theme-os';</script>
+
+    <script type="text/javascript">
+        // $(function() {
+        //     $('nav#menu').mmenu({
+        //         counters: true
+        //     });
+        // });
+        $(document).ready(function()
+        {
+            // Find the deepest LI that is "selected"
+            var $last = $("#menu").find( ".Selected.hasChildren" ).last();
+
+            // Remove the "Selected" class
+            $last.removeClass( "Selected" );
+
+            // Create the menu
+            $("#menu").mmenu();
+
+            // Maybe add the plugin "selected" class:
+            $last.addClass( "mm-selected" );
+
+            // tooltips
+            $(".tooltip").asTooltip({
+               namespace: 'tooltip',
+               skin: 'skin-dream',
+               trigger: 'hover'    // hover click
+            });
+        });
+
+    </script>
+    {% endblock %}
+{% endblock %}
+</head>
+<body>
+    {% block navigation %}
+        {% include 'partials/nav.html.twig' %}
+    {% endblock %}
+    <div>
+        <section id="main">
+            <div id="toolbar" class="mm-fixed-top">
+                {% block toolbar %}
+                    {% include 'partials/toolbar.html.twig' %}
+                {% endblock %}
+            </div>
+            <div class="content-padding">
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+
+        {% block footer_section %}
+        <footer id="footer">
+            <a href="http://getgrav.org">Grav</a> was made with <i class="fa fa-heart"></i> by <a href="http://www.rockettheme.com">RocketTheme</a>.
+        </footer>
+        {% endblock %}
+    </div>
+</body>
+</html>

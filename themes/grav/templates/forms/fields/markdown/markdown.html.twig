@@ -1,0 +1,7 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field">
+    <div class="form-data form-markdown-wrapper cm-s-paper">
+        <textarea data-uk-htmleditor="{markdown:true, mode:'split', codemirror: {theme:'paper'}, maxsplitsize:800}" name="{{ (scope ~ field.name)|fieldName }}">{{ value|join("\n") }}</textarea>
+    </div>
+</div>

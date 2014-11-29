@@ -1,0 +1,35 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field grid pure-g dynfields" data-grav-dynfields="{{ field.name|fieldName }}" data-grav-dynfields-key="{{ field.placeholder_key }}" data-grav-dynfields-value="{{ field.placeholder_value }}">
+    <div class="form-label block size-1-3 pure-u-1-3">
+        <label>
+            <span>
+                {% if field.help %}
+                <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+                {% else %}
+                {{ field.label }}
+                {% endif %}
+            </span>
+        </label>
+    </div>
+    <div class="form-data block size-2-3 pure-u-2-3">
+
+            {% if value|length %}
+                {% for key, text in value %}
+                <div class="form-row">
+                    <input type="text" value="{{ (scope ~ key)|fieldName }}" placeholder="{{ field.placeholder_key }}" />
+                    <input type="text" name="{{ (scope ~ field.name)|fieldName }}[{{ key }}]" value="{{ text|join(', ') }}" placeholder="{{ field.placeholder_value }}" />
+                    <span data-grav-remfield class="fa fa-minus"></span>
+                    <span data-grav-addfield class="fa fa-plus"></span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="form-row">
+                    <input type="text" placeholder="{{ field.placeholder_key }}" />
+                    <input type="text" placeholder="{{ field.placeholder_value }}" />
+                    <span data-grav-remfield class="fa fa-minus"></span>
+                    <span data-grav-addfield class="fa fa-plus"></span>
+                </div>
+            {% endif %}
+     </div>
+</div>

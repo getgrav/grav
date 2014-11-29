@@ -1,0 +1,13 @@
+{% set theme = admin.themes[admin.route] %}
+{% set blueprints = theme.blueprints() %}
+
+<h1>
+    {{ blueprints.get('name')|e }}
+    <small>{{ blueprints.get('version') ? 'v' ~ blueprints.get('version')|e }}</small>
+</h1>
+
+{% include 'partials/messages.html.twig' %}
+
+<p>{{ blueprints.get('description') }}</p>
+
+{% include 'partials/blueprints.html.twig' with { data: theme } %}

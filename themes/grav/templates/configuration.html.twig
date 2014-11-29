@@ -1,0 +1,21 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block titlebar %}
+    <div class="button-bar">
+        <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+    </div>
+    <h1><i class="fa fa-fw fa-th"></i> Configuration - System</h1>
+{% endblock %}
+
+{% block content_top %}
+    <ul class="tab-bar">
+        <li class="active"><span>System</span></li>
+        <li><a href="{{ base_url_relative }}/settings/">Site</a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    {% set data = admin.data('system') %}
+    {% include 'partials/blueprints.html.twig' with { blueprints: data.blueprints, data: data } %}
+{% endblock %}
+

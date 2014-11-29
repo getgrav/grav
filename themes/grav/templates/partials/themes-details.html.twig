@@ -1,0 +1,91 @@
+{% set gpm = admin.gpm() %}
+<div class="grav-update theme" data-gpm-theme="{{ admin.route }}">
+    {% if gpm.isThemeUpdatable(admin.route) %}
+    {% set remote = gpm.getRepositoryTheme(admin.route) %}
+        <p>
+            <i class="fa fa-bullhorn"></i>
+            <strong>v{{ remote.available }}</strong> of this theme is now available!
+            <button class="button button-small secondary" data-download="{{ remote.zipball_url }}">Update Theme</button>
+        </p>
+    {% endif %}
+</div>
+
+<h1>
+    {{ theme.name|e }}
+    {% if theme.symlink %}
+    <small class="hint--bottom"  data-hint="This theme is symbolically linked. Updates won't be detected.">
+        <i class="fa fa-fw fa-link"></i>
+    </small>
+    {% endif %}
+    <small>{{ theme.version ? 'v' ~ theme.version|e }}</small>
+</h1>
+<div class="gpm-item-info">
+    <i class="gpm-item-icon fa fa-fw fa-{{  theme.icon }}"></i>
+    <table>
+        {% if theme.version %}
+        <tr>
+            <td>Version:</td>
+            <td>{{ theme.version }}</td>
+        </tr>
+        {% endif %}
+        {% if theme.author %}
+            <tr>
+                <td>Author:</td>
+                <td>
+                    {% if theme.author.url %}
+                        <a href="{{ theme.author.url }}">{{ theme.author.name }}</a>
+                    {% else %}
+                        {{ theme.author.name }}
+                    {% endif %}
+                    {% if theme.author.email %}
+                         - <a href="mailto:{{ theme.author.email }}">{{ theme.author.email }}</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+        {% if theme.homepage %}
+        <tr>
+            <td>Homepage:</td>
+            <td><a href="{{ theme.homepage }}">{{ theme.homepage }}</a></td>
+        </tr>
+        {% endif %}
+        {% if theme.demo %}
+        <tr>
+            <td>Demo:</td>
+            <td><a href="{{ theme.demo }}">{{ theme.demo }}</a></td>
+        </tr>
+        {% endif %}
+        {% if theme.bugs %}
+            <tr>
+                <td>Bug Tracker:</td>
+                <td><a href="{{ theme.bugs }}">{{ theme.bugs }}</a></td>
+            </tr>
+        {% endif %}
+        {% if theme.keywords %}
+            <tr>
+                <td>Keywords:</td>
+                <td>{{ theme.keywords }}</td>
+            </tr>
+        {% endif %}
+        {% if theme.license %}
+            <tr>
+                <td>License:</td>
+                <td>{{ theme.license }}</td>
+            </tr>
+        {% endif %}
+        {% if theme.description %}
+            <tr>
+                <td>Description:</td>
+                <td>{{ theme.description_html }}</td>
+            </tr>
+        {% endif %}
+    </table>
+</div>
+
+{% set data = admin.data('themes/' ~ admin.route) %}
+{% include 'partials/blueprints.html.twig' with { data: data, blueprints: data.blueprints } %}
+
+<div class="button-bar danger">
+    <span class="danger-zone"></span>
+    <a class="button" href="#"><i class="fa fa-fw fa-warning"></i>Remove Theme</a>
+</div>

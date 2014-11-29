@@ -1,0 +1,476 @@
+$sidebar-width: 20%;
+$sidebar-padding: 2rem;
+$topbar-height: 4.2rem;
+$update-height: 3rem;
+
+#admin-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: $sidebar-width;
+
+    background: $accent-bg;
+
+    a {
+        color: shade($accent-fg,20%);
+        &:hover {
+            color: $accent-fg;
+        }
+    }
+}
+
+
+#admin-logo {
+    background: $darker-accent-bg;
+    height: $topbar-height;
+
+    h3 {
+        text-transform: uppercase;
+        margin: 0;
+        @extend %vertical-align;
+        text-align: center;
+        font-size: 1.2rem;
+
+        i {
+            font-size: 1rem;
+            vertical-align: middle;
+            margin-top: -1px;
+        }
+    }
+}
+
+#admin-user-details {
+    padding: $sidebar-padding;
+    border-bottom: 1px solid $darker-accent-bg;
+    overflow: hidden;
+
+    img {
+        @include transition(all 0.5s ease);
+        border-radius: 100%;
+        float: left;
+    }
+
+    &:hover img {
+        box-shadow: 0px 0px 0 50px lighten($accent-bg,3%);
+    }
+
+    .admin-user-names {
+        margin-left: 45px;
+
+        h4, h5 {
+            color: darken($accent-fg,10%);
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.3;
+        }
+
+        h5 {
+            font-family: $font-family-default;
+            color: lighten($accent-bg,55%);
+            font-size: 0.9rem;
+        }
+    }
+}
+
+#admin-menu {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+
+
+
+    li {
+        font-family: $font-family-header;
+
+        .badge {
+            background-color: darken($accent-bg, 10%);
+            color: shade($accent-fg,10%);
+            float: right;
+            margin-right:1rem;
+        }
+
+        a {
+            @include transition(all 0.2s ease);
+            display: block;
+            padding-left: 25px;
+            padding-top: 0.7rem;
+            padding-bottom: 0.7rem;
+
+            color: lighten($accent-bg,65%);
+
+            i {
+                @include transition(all 0.2s ease);
+                color: lighten($accent-bg,55%);
+                margin-right: 8px;
+            }
+
+            &:hover {
+                background: $darker-accent-bg;
+                // padding-left: 30px;
+                color: $accent-fg;
+
+                i {
+                    font-size: 1.2rem;
+                }
+            }
+        }
+
+        &.selected {
+            a {
+                background: $page-bg;
+                color: $accent-fg;
+                padding-left: 16px;
+                border-left: 9px solid $secondary-accent-bg;
+
+                i {
+                    color: lighten($accent-bg,70%);
+                }
+
+            }
+
+        }
+
+    }
+}
+
+
+#admin-main {
+    margin-left: $sidebar-width;
+
+    .hint:after, [data-hint]:after {
+        font-size: 1rem;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        text-align: left;
+        letter-spacing: -1px;
+    }
+
+    .titlebar {
+        position: relative;
+        height: $topbar-height;
+
+        padding: 0 $padding-default;
+
+        h1 {
+            @extend %vertical-align;
+        }
+
+        .button-bar {
+            @extend %vertical-align;
+            padding: 0;
+        }
+    }
+
+    .admin-block .grav-update {
+        margin-top: -2rem;
+        margin-bottom: 2rem;
+    }
+
+    .grav-update {
+        @include clearfix;
+        padding: 0 $padding-default;
+        margin-top: -$padding-default;
+        background: $info-bg;
+        color: $info-fg;
+
+        &.plugins {
+            padding-right: 1rem;
+        }
+
+        .button {
+            float: right;
+            margin-top: 0.6rem;
+            margin-left: 1rem;
+            line-height: 1.5;
+            @include button-color(shade($info-bg, 20%));
+        }
+
+        p {
+            line-height: $update-height;
+            margin: 0;
+        }
+
+        i {
+            padding-right: 0.5rem;
+        }
+
+        .less {
+            color: rgba($info-fg,0.75);
+        }
+
+        &.grav {
+            margin-top: 0;
+            @include transition (margin-top 0.15s ease-out);
+        }
+    }
+
+    .grav-update.grav + .content-padding {
+        top: $topbar-height + $update-height;
+        @include transition (top 0.15s ease-out);
+    }
+
+    .content-padding {
+        position: absolute;
+        top: $topbar-height;
+        bottom: 0;
+        left: $sidebar-width;
+        right: 0;
+        overflow-y: auto;
+        padding: 2.5rem;
+    }
+
+    .admin-block {
+        background: $content-bg;
+        color: $content-fg;
+        padding: 2rem 0;
+
+        h1 {
+            color: $page-bg;
+            padding: 0 $padding-default 0.5rem;
+            margin: 0 0 1rem;
+            border-bottom: 3px solid darken($content-bg, 5%);
+        }
+
+        .button-bar {
+            margin-right: $padding-default;
+        }
+    }
+
+    .flush-bottom {
+        &.button-bar {
+            margin: 1rem -2rem -1rem;
+            height: 70px;
+            padding: 0 1rem;
+            float: none;
+            .button {
+                @extend %vertical-align;
+            }
+        }
+    }
+
+    .danger {
+        position: relative;
+
+        &.button-bar {
+            margin: 2rem 0 -2rem;
+            height: 70px;
+            padding: 1rem;
+            float: none;
+            .button {
+                @extend %vertical-align;
+                @include button-color($secondary-link);
+            }
+            background: darken($content-bg, 2%);
+        }
+    }
+}
+
+
+
+#admin-dashboard {
+
+    @include clearfix;
+
+    .dashboard-item {
+        float: left;
+        width: 50%;
+        margin-bottom: 2.5rem;
+
+        > div {
+            padding: 1rem 2rem;
+        }
+
+
+    }
+
+    .dashboard-left {
+        padding-right: 1.25rem;
+    }
+
+    .dashboard-right {
+        padding-left: 1.25rem;
+
+    }
+
+    #updates {
+
+        p {
+            text-align: center;
+            color: rgba($white,0.95);
+            margin: 0;
+        }
+
+        .updates-chart {
+            width: 50%;
+            float: left;
+
+        }
+
+        .chart-wrapper {
+            position: relative;
+        }
+
+        .backups-chart {
+            position: relative;
+            width: 50%;
+            float: left;
+        }
+
+
+        .numeric {
+            display: block;
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 1.7rem;
+            line-height: 1;
+            @extend %vertical-align;
+
+
+            em {
+                display:block;
+                font-style: normal;
+                font-size: 1rem;
+                color: rgba($white, .85);
+            }
+
+        }
+
+        .admin-update-charts {
+            @include clearfix;
+            min-height: 191px;
+        }
+
+        .button {
+            margin-left: 0.5rem;
+        }
+    }
+
+    #popularity {
+        p {
+            text-align: center;
+            color: rgba($white,0.95);
+            margin: 0;
+        }
+        .button-bar {
+            height: 100px;
+            padding: 0 1rem;
+
+        }
+        .stat {
+            @extend %vertical-align;
+            display:block;
+            float: left;
+            width: 33%;
+            text-align: center;
+            b {
+                display: block;
+                font-size: 2.5rem;
+                line-height: 1;
+                font-weight: 300;
+            }
+            i {
+                display: block;
+                font-style: normal;
+                color: rgba($white, 0.75);
+            }
+        }
+    }
+
+
+    .tertiary-accent {
+        @include linear-gradient($tertiary-accent-bg, lighten($tertiary-accent-bg,20%));
+    }
+
+    .secondary-accent {
+        @include linear-gradient($secondary-accent-bg, lighten($secondary-accent-bg,20%));
+    }
+}
+
+.no-flick{-webkit-transform:translate3d(0,0,0);}
+
+.card-row {
+    @include justify-content(space-between);
+}
+
+.card-item {
+    @extend .no-flick;
+    overflow: hidden;
+    padding: 1rem;
+    margin: 0;
+    position: relative;
+    width: 31%;
+    @include breakpoint(tablet-range) {
+        width: 48%;
+    }
+    @include breakpoint(mobile-only) {
+        width: 100%;
+    }
+
+    border: 1px solid darken($content-bg, 5%);
+    background: $white;
+    margin-bottom: 2rem;
+
+    h4 {
+        font-size: 1.2rem;
+        line-height: 1.2;
+    }
+}
+
+.user-details {
+    text-align: center;
+    img {
+        border-radius: 100%;
+    }
+    h2 {
+        margin: 0;
+        font-size: 1.8rem;
+    }
+    h5 {
+        color: lighten($content-fg,10%);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+}
+
+#footer {
+    text-align: center;
+    padding: 3rem 0 1rem;
+}
+
+// Chart overrides
+.ct-chart {
+    .ct-series {
+        .ct-bar {
+            stroke-width: 15px;
+
+        }
+        &.ct-series-a {
+            .ct-bar {
+                stroke: rgba($white, 0.85) !important;
+            }
+            .ct-slice.ct-donut {
+                stroke: $white !important;
+            }
+        }
+        &.ct-series-b {
+            .ct-slice.ct-donut {
+                stroke: rgba($white, 0.2) !important;
+            }
+        }
+
+
+    }
+}
+
+// Remodal Styling
+
+
+
+

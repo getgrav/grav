@@ -1,0 +1,26 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block javascript %}
+    {{ parent() }}
+    <script src="{{ theme_url }}/js/dynfields/dynfields.js"></script>
+{% endblock %}
+
+{% block titlebar %}
+    <div class="button-bar">
+        <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+    </div>
+    <h1><i class="fa fa-fw fa-th"></i> Configuration - Site</h1>
+{% endblock %}
+
+{% block content_top %}
+    <ul class="tab-bar">
+        <li><a href="{{ base_url_relative }}/configuration/">System</a></li>
+        <li class="active"><span>Site</span></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    {% set data = admin.data('site') %}
+    {% include 'partials/blueprints.html.twig' with { blueprints: data.blueprints, data: data } %}
+{% endblock %}
+

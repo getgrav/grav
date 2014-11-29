@@ -1,0 +1,309 @@
+/*
+ * CSS TOGGLE SWITCHES
+ * Unlicense
+ *
+ * Ionuț Colceriu - ghinda.net
+ * https://github.com/ghinda/css-toggle-switch
+ *
+ */
+
+// @import "../bower_components/bourbon/app/assets/stylesheets/bourbon";
+@import "configuration/template/colors";
+
+/* Toggle Switches
+ */
+
+$switch-height: 46px;
+
+/* Shared
+ */
+.switch-wrapper {
+    // height: $switch-height;
+}
+
+@mixin switch-shared() {
+
+
+
+    display: inline-block;
+    // height: $switch-height;
+
+    * {
+        @include box-sizing(border-box);
+    }
+
+    a {
+        display: block;
+
+        @include transition(all 0.1s ease-out);
+    }
+
+    label,
+    > span {
+        // line-height: $switch-height;
+        vertical-align: middle;
+    }
+
+    /* Outline the toggles when the inputs are focused
+     */
+    input:focus ~ a,
+    input:focus + label {
+        outline: 1px dotted #888;
+    }
+
+}
+
+/* Checkbox
+ */
+@mixin switch-light() {
+
+    @include switch-shared();
+
+    position: relative;
+    overflow: visible;
+    padding: 0;
+    margin-left: 100px;
+
+    /* Position the label over all the elements, except the slide-button (<a>)
+     * Clicking anywhere on the label will change the switch-state
+     */
+    label {
+        position: relative;
+        z-index: 3;
+
+        display: block;
+        width: 100%;
+    }
+
+    /* Don't hide the input from screen-readers and keyboard access
+     */
+    input {
+        position: absolute;
+        opacity: 0;
+        z-index: 5;
+
+        &:checked ~ a {
+            right: 0%;
+        }
+
+    }
+
+    > span {
+        position: absolute;
+        left: -100px;
+
+        width: 100%;
+        margin: 0;
+        padding-right: 100px;
+
+        text-align: left;
+
+        span {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 5;
+
+            display: block;
+            width: 50%;
+            margin-left: 100px;
+
+            text-align: center;
+
+            &:last-child {
+                left: 50%;
+            }
+        }
+
+    }
+
+    a {
+        position: absolute;
+        right: 50%;
+        top: 0;
+        z-index: 4;
+
+        display: block;
+        width: 50%;
+        height: 100%;
+        padding: 0;
+    }
+
+}
+
+/* Radio Switch
+ */
+@mixin switch-toggle() {
+
+    @include switch-shared();
+
+    position: relative;
+
+    /* For callout panels in foundation
+     */
+    padding: 0 !important;
+
+    input {
+        position: absolute;
+        opacity: 0;
+    }
+
+    input + label {
+        position: relative;
+        z-index: 2;
+
+        float: left;
+        width: 50%;
+        height: 100%;
+
+        margin: 0;
+        text-align: center;
+    }
+
+    a {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0;
+        z-index: 1;
+
+        width: 50%;
+        height: 100%;
+    }
+
+    input:last-of-type:checked ~ a {
+        left: 50%;
+    }
+
+    /* Generate styles for the multiple states */
+    @for $i from 1 through 3 {
+        $state: $i + 2;
+        $width: 100 / ($i + 2);
+
+        &.switch-#{$state} {
+            label,
+            a {
+                width: $width * 1%;
+            }
+        }
+
+        @for $j from 2 through ($i + 1) {
+            &.switch-#{$state} input:checked:nth-of-type(#{$j}) ~ a {
+                left: $width * ($j - 1) * 1%;
+            }
+        }
+
+        &.switch-#{$state} input:checked:last-of-type ~ a {
+            left: 100 - $width * 1%;
+        }
+    }
+
+}
+
+/* Hide by default
+ */
+.switch-toggle a,
+.switch-light span span {
+    display: none;
+}
+
+/* We can't test for a specific feature,
+ * so we only target browsers with support for media queries.
+ */
+@media only screen {
+
+    /* Checkbox switch
+     */
+    .switch-light {
+        @include switch-light();
+    }
+
+    /* Radio switch
+     */
+    .switch-toggle {
+        @include switch-toggle();
+    }
+
+    /* Standalone Themes */
+
+    /* Grav Theme
+     */
+    .switch-grav {
+        background-color: $white;
+        border: $form-border-width solid $form-border;
+        border-radius: $form-border-radius;
+
+        label {
+            color: $content-fg;
+            @include transition(color 0.2s ease-out);
+            padding: 5px 20px;
+
+        }
+
+        > span span {
+            opacity: 0;
+
+            @include transition(all 0.1s);
+
+            &:first-of-type {
+                opacity: 1;
+            }
+        }
+
+        a {
+            background: #777;
+            border-radius: $form-border-radius - 1px;
+        }
+
+        &.switch-toggle input.highlight:checked {
+            ~ a {
+                background: lighten($secondary-accent-bg,10%);
+            }
+        }
+
+        /* Selected ON switch-light
+         */
+        &.switch-light input:checked {
+
+            ~ a {
+                background-color: #777;
+            }
+
+            ~ span span {
+                &:first-of-type {
+                    opacity: 0;
+                }
+
+                &:last-of-type {
+                    opacity: 1;
+                }
+            }
+
+
+        }
+
+        input:checked + label {
+            color: #fff;
+        }
+
+    }
+
+}
+
+/* Bugfix for older Webkit, including mobile Webkit. Adapted from
+ * http://css-tricks.com/webkit-sibling-bug/
+ */
+.switch-light,
+.switch-toggle {
+    @media only screen and (-webkit-max-device-pixel-ratio: 2) and (max-device-width: 1280px) {
+        -webkit-animation: webkitSiblingBugfix infinite 1s;
+    }
+}
+
+@-webkit-keyframes webkitSiblingBugfix {
+    from {
+        -webkit-transform: translate3d(0,0,0);
+    } to {
+        -webkit-transform: translate3d(0,0,0);
+    }
+}

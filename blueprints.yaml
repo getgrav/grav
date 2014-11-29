@@ -1,9 +1,15 @@
-name: Administration Panel
+name: Administration Panel - Basic
 version: 1.0.0
-description: Enables administration panel.
-validation: strict
+description: Adds an advanced administration panel to manage your site
+icon: empire
+author:
+  name: Team Grav
+  email: devs@getgrav.org
+  url: http://getgrav.org
+keywords: admin, plugin, manager, panel
 
 form:
+  validation: strict
   fields:
     enabled:
         type: toggle
@@ -11,13 +17,13 @@ form:
         highlight: 1
         default: 1
         options:
-          1: Enabled
-          0: Disabled
+            1: Enabled
+            0: Disabled
         validate:
-          type: bool
+            type: bool
 
     route:
-      type: text
-      label: Administrator path
-      placeholder: "Default route for administrator (relative to base)"
-      help: If you want to change the URL for the administrator, you can provide a path here
+        type: text
+        label: Administrator path
+        placeholder: "Default route for administrator (relative to base)"
+        help: If you want to change the URL for the administrator, you can provide a path here

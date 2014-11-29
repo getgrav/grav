@@ -1,0 +1,47 @@
+{% set value = (value is null ? field.default : value) %}
+{% set base_depth = 0 %}
+
+{% macro options(field, pages, value, depth) %}
+
+    {% if field.show_root and depth == 0 %}
+        <option value="/">/ (Root)</option>
+        {% set depth = depth +1 %}
+    {% endif %}
+
+    {% set indent = depth == 0 ? '' : repeat('-',depth) ~ ' ' %}
+
+    {% for page in pages %}
+        {% if page.routable() or field.show_all  %}
+            <option {% if page.route == value %}selected="selected"{% endif %} value="{{ page.route }}">
+                {{indent}} {{ page.menu }}
+            </option>
+        {% endif %}
+        {% if page.count > 0 and (field.show_modular or not page.modular()) %}
+
+            {{ _self.options(field, page,value, depth + 1) }}
+
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+<div class="form-field">
+    <label class="inline select">
+        <span>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+            {% else %}
+            {{ field.label }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </span>
+
+
+        <select name="{{ (scope ~ field.name)|fieldName }}">
+                {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+                {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+                {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+
+                {{ _self.options(field,pages,value, 0) }}
+        </select>
+    </label>
+</div>
