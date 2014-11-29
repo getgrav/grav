@@ -450,7 +450,7 @@ class Admin
                 $page->frontmatter(Yaml::dump((array) $page->header()));
             } else {
                 // Find out the type by looking at the parent.
-                $type = $parent->child_type() ? $parent->child_type() : $parent->blueprints()->get('child_type', 'default');
+                $type = $parent->childType() ? $parent->childType() : $parent->blueprints()->get('child_type', 'default');
                 $page->name($type.CONTENT_EXT);
                 $page->header();
             }
