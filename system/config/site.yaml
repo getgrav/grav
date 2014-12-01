@@ -12,3 +12,4 @@ summary:
 routes:
   /something/else: '/blog/sample-3'         # Alias for /blog/sample-3
   /another/one/here: '/blog/sample-3'       # Another alias for /blog/sample-3
+  /new/*: '/blog/*'                         # Wildcard any /new/my-page URL to /blog/my-page Route
