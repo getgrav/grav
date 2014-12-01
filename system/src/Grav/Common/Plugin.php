@@ -30,7 +30,8 @@ class Plugin implements EventSubscriberInterface
      *
      * @return array
      */
-    public static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         $methods = get_class_methods(get_called_class());
 
         $list = array();
