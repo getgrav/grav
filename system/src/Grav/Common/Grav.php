@@ -282,6 +282,11 @@ class Grav extends Container
             $this['debugger']->enabled(false);
             // $this['debugger']->sendDataInHeaders();
         }
+
+        // Set status code
+        if (isset($this['page']->header()->status)) {
+            header($this['page']->header()->status);
+        }
     }
 
     /**
