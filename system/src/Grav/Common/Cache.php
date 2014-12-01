@@ -73,7 +73,7 @@ class Cache extends Getters
         $this->driver = $this->getCacheDriver();
 
         // Set the cache namespace to our unique key
-        $this->driver->setNamespace($this->key);
+        // $this->driver->setNamespace($this->key);
     }
 
     /**
