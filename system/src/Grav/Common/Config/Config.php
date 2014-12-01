@@ -116,7 +116,7 @@ class Config extends Data
 
     public function key()
     {
-        return $this->checksum;
+        return $this->checksum();
     }
 
     public function reload()
