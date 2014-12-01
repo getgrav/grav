@@ -58,6 +58,7 @@ class Page
     protected $routable;
     protected $modified;
     protected $id;
+    protected $items;
     protected $header;
     protected $frontmatter;
     protected $content;
@@ -128,7 +129,8 @@ class Page
      * @param  string $var Raw content string
      * @return Object      Raw content string
      */
-    public function raw($var = null) {
+    public function raw($var = null)
+    {
         $file = $this->file();
 
         if ($var) {
@@ -146,7 +148,8 @@ class Page
         return $file ? $file->raw() : '';
     }
 
-    public function frontmatter($var = null) {
+    public function frontmatter($var = null)
+    {
 
         if ($var) {
             $this->frontmatter = (string) $var;
@@ -244,7 +247,6 @@ class Page
                     $this->process[$process] = $status;
                 }
             }
-
         }
 
         return $this->header;
@@ -258,7 +260,6 @@ class Page
      */
     public function summary($size = null)
     {
-
         $content = $this->content();
 
         // Return calculated summary based on summary divider's position
@@ -346,6 +347,8 @@ class Page
 
             // Cache the whole page, including processed content
             if ($update_cache) {
+                // Process any post-processing but pre-caching functionality
+                self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
                 $cache->save($cache_id, $this->content);
             }
 
@@ -355,9 +358,6 @@ class Page
                 $this->summary_size = $divider_pos;
                 $this->content = str_replace('<p>'.SUMMARY_DELIMITER.'</p>', '', $this->content);
             }
-
-            // Process any post-processing but pre-caching functionality
-            self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
         }
 
@@ -647,7 +647,7 @@ class Page
      *
      * @return string
      */
-    public function child_type()
+    public function childType()
     {
         return isset($this->header->child_type) ? (string) $this->header->child_type : 'default';
     }
@@ -786,7 +786,7 @@ class Page
                 }
 
                 // Build an array of meta objects..
-                foreach((array)$page_header->metadata as $key => $value) {
+                foreach ((array)$page_header->metadata as $key => $value) {
 
                     // If this is a property type metadata: "og", "twitter", "facebook" etc
                     if (is_array($value)) {
@@ -1177,73 +1177,6 @@ class Page
         }
 
         return $children;
-    }
-
-    /**
-     * @throws \Exception
-     * @deprecated
-     */
-    public function count()
-    {
-        throw new \Exception('Use $page->children()->count() instead.');
-    }
-
-    /**
-     * @param $key
-     * @throws \Exception
-     * @deprecated
-     */
-    public function __get($key)
-    {
-        throw new \Exception('Use $page->children()->__get() instead.');
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @throws \Exception
-     * @deprecated
-     */
-    public function __set($key, $value)
-    {
-        throw new \Exception('Use $page->children()->__set() instead.');
-    }
-
-    /**
-     * @throws \Exception
-     * @deprecated
-     */
-    public function current()
-    {
-        throw new \Exception('Use $page->children()->current() instead.');
-    }
-
-    /**
-     * @throws \Exception
-     * @deprecated
-     */
-    public function next()
-    {
-        throw new \Exception('Use $page->children()->next() instead.');
-    }
-
-    /**
-     * @throws \Exception
-     * @deprecated
-     */
-    public function prev()
-    {
-        throw new \Exception('Use $page->children()->prev() instead.');
-    }
-
-    /**
-     * @param  string $key
-     * @throws \Exception
-     * @deprecated
-     */
-    public function nth($key)
-    {
-        throw new \Exception('Use $page->children()->nth($position) instead.');
     }
 
     /**

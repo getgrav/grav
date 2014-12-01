@@ -73,7 +73,7 @@ class Cache extends Getters
         $this->driver = $this->getCacheDriver();
 
         // Set the cache namespace to our unique key
-        $this->driver->setNamespace($this->key);
+        // $this->driver->setNamespace($this->key);
     }
 
     /**
@@ -154,6 +154,10 @@ class Cache extends Getters
     public function save($id, $data, $lifetime = null)
     {
         if ($this->enabled) {
+
+            if ($lifetime == null) {
+                $lifetime = $this->config->get('system.cache.lifetime') ?: null;
+            }
             $this->driver->save($id, $data, $lifetime);
         }
     }

@@ -282,6 +282,11 @@ class Grav extends Container
             $this['debugger']->enabled(false);
             // $this['debugger']->sendDataInHeaders();
         }
+
+        // Set HTTP response code
+        if (isset($this['page']->header()->http_response_code)) {
+            http_response_code($this['page']->header()->http_response_code);
+        }
     }
 
     /**

@@ -1,3 +1,19 @@
+# v0.9.8 beta
+## 12/01/2014
+
+1. [](#new)
+    * Added configuration option to set default lifetime on cache saves
+    * Added ability to set HTTP status code from page header
+    * Implemented simple wild-card custom routing
+2. [](#improved)
+    * Fixed elusive double load to fully cache issue (hopefully!)
+    * Ensure Twig tags are treated as block items in markdown
+    * Removed some older deprecated methods
+    * Ensure onPageContentProcessed() event only fires when not cached
+    * More PSR code fixes
+3. [](#bugfix)
+    * Fix issue with miscalculation of blog separator location `===`
+
 # v0.9.7 beta
 ## 11/24/2014
 

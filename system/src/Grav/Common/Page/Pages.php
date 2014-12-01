@@ -236,14 +236,27 @@ class Pages
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
 
-        // If the page cannot be reached, look into site wide routes.
+        // If the page cannot be reached, look into site wide routes + wildcards
         if (!$all && (!$page || !$page->routable())) {
             /** @var Config $config */
             $config = $this->grav['config'];
 
+            // See if route matches one in the site configuration
             $route = $config->get("site.routes.{$url}");
             if ($route) {
                 $page = $this->dispatch($route, $all);
+            } else {
+                // Try looking for wildcards
+                foreach ($config->get("site.routes") as $alias => $route) {
+                    $match = rtrim($alias, '*');
+                    if (strpos($alias, '*') !== false && strpos($url, $match) !== false) {
+                        $wildcard_url = str_replace('*', str_replace($match, '', $url), $route);
+                        $page = isset($this->routes[$wildcard_url]) ? $this->get($this->routes[$wildcard_url]) : null;
+                        if ($page) {
+                            return $page;
+                        }
+                    }
+                }
             }
         }
 

@@ -222,13 +222,11 @@ class TwigExtension extends \Twig_Extension
      */
     public function urlFunc($input, $domain = false)
     {
-        $grav = Grav::instance();
-
         /** @var UniformResourceLocator $locator */
-        $locator = $grav['locator'];
+        $locator = $this->grav['locator'];
 
         /** @var Uri $uri */
-        $uri = $grav['uri'];
+        $uri = $this->grav['uri'];
 
         return $uri->rootUrl($domain) .'/'. $locator->findResource($input, false);
     }

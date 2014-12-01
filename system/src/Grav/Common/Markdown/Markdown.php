@@ -5,9 +5,10 @@ class Markdown extends \Parsedown
 {
     use MarkdownGravLinkTrait;
 
-    function __construct($page)
+    public function __construct($page)
     {
         $this->page = $page;
+        $this->BlockTypes['{'] [] = "TwigTag";
     }
 
 }
