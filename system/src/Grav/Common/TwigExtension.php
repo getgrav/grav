@@ -45,7 +45,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('truncate', [$this,'truncateFilter']),
             new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
             new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
-            new \Twig_SimpleFilter('sort_by_key',[$this,'sortByKeyFilter']),
+            new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
+            new \Twig_SimpleFilter('ksort', [$this,'ksortFilter'])
         ];
     }
 
@@ -255,6 +256,18 @@ class TwigExtension extends \Twig_Extension
         array_multisort($output, $direction, $input);
 
         return $input;
+    }
+
+    /**
+     * Return ksorted collection.
+     *
+     * @param  array $array
+     * @return array
+     */
+    public function ksortFilter(array $array)
+    {
+        ksort($array);
+        return $array;
     }
 
     /**
