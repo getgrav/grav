@@ -6,7 +6,7 @@
     * Added ability to set HTTP status code from page header
     * Implemented simple wild-card custom routing
 2. [](#improved)
-    * Fixed elusive double load to fully cache issue (hopefully!)
+    * Fixed elusive double load to fully cache issue (crossing fingers...)
     * Ensure Twig tags are treated as block items in markdown
     * Removed some older deprecated methods
     * Ensure onPageContentProcessed() event only fires when not cached
