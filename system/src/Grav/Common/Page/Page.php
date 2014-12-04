@@ -1456,6 +1456,16 @@ class Page
                     }
                 }
                 break;
+
+            case '@page':
+                if (!empty($params)) {
+                    $page = $this->find($params[0]);
+                    if ($page) {
+                        $results = $page->children(Page::STANDARD_PAGES);
+                    }
+                }
+                break;
+
             case '@taxonomy':
                 // Gets a collection of pages by using one of the following formats:
                 // @taxonomy.category: blog
