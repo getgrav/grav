@@ -1245,14 +1245,16 @@ class Page
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
-        $parent = $pages->get($this->parent);
-        $current = $this->slug();
+        $parent = $this->parent();
+        $children = $parent->children();
 
-        $keys = array_flip(array_keys($parent->items));
-        $values = array_values($parent->items);
-        $index = $keys[$current] - $direction;
+        $adjacent = $children->adjacentSibling($this->path(), $direction);
 
-        return array_key_exists($index, $values) ? $pages->get($values[$index]) : $this;
+        if (!$adjacent) {
+            return null;
+        }
+
+        return $adjacent;
     }
 
     /**
