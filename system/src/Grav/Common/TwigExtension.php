@@ -46,7 +46,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
             new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
             new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
-            new \Twig_SimpleFilter('ksort', [$this,'ksortFilter'])
+            new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
+            new \Twig_SimpleFilter('contains', [$this, 'containsFilter'])
         ];
     }
 
@@ -62,6 +63,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('gist', [$this, 'gistFunc'])
         ];
     }
 
@@ -203,36 +205,6 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
-     * Repeat given string x times.
-     *
-     * @param  string $input
-     * @param  int    $multiplier
-     * @return string
-     */
-    public function repeatFunc($input, $multiplier)
-    {
-        return str_repeat($input, $multiplier);
-    }
-
-    /**
-     * Return URL to the resource.
-     *
-     * @param  string $input
-     * @param  bool $domain
-     * @return string
-     */
-    public function urlFunc($input, $domain = false)
-    {
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-
-        /** @var Uri $uri */
-        $uri = $this->grav['uri'];
-
-        return $uri->rootUrl($domain) .'/'. $locator->findResource($input, false);
-    }
-
-    /**
      * Sorts a collection by key
      *
      * @param  array    $input
@@ -271,6 +243,49 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
+     * determine if a string contains another
+     *
+     * @param String $haystack
+     * @param String $needle
+     *
+     * @return boolean
+     */
+    public function containsFilter($haystack, $needle)
+    {
+        return (strpos($haystack, $needle) !== false);
+    }
+
+    /**
+     * Repeat given string x times.
+     *
+     * @param  string $input
+     * @param  int    $multiplier
+     * @return string
+     */
+    public function repeatFunc($input, $multiplier)
+    {
+        return str_repeat($input, $multiplier);
+    }
+
+    /**
+     * Return URL to the resource.
+     *
+     * @param  string $input
+     * @param  bool $domain
+     * @return string
+     */
+    public function urlFunc($input, $domain = false)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        /** @var Uri $uri */
+        $uri = $this->grav['uri'];
+
+        return $uri->rootUrl($domain) .'/'. $locator->findResource($input, false);
+    }
+
+    /**
      * Based on Twig_Extension_Debug / twig_var_dump
      * (c) 2011 Fabien Potencier
      *
@@ -303,5 +318,16 @@ class TwigExtension extends \Twig_Extension
                 $this->debugger->addMessage(func_get_arg($i), 'debug');
             }
         }
+    }
+
+    /**
+     * Output a Gist
+     *
+     * @param  string $id
+     * @return string
+     */
+    public function gistFunc($id)
+    {
+        return '<script src="https://gist.github.com/'.$id.'.js"></script>';
     }
 }
