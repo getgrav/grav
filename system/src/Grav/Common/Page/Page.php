@@ -1186,15 +1186,8 @@ class Page
      */
     public function isFirst()
     {
-        /** @var Pages $pages */
-        $pages = self::$grav['pages'];
-        $parent = $pages->get($this->parent);
-
-        if ($this->path() == array_values($parent->items)[0]) {
-            return true;
-        } else {
-            return false;
-        }
+        $collection = $this->parent()->collection();
+        return $collection->isFirst($this->path());
     }
 
     /**
@@ -1204,15 +1197,8 @@ class Page
      */
     public function isLast()
     {
-        /** @var Pages $pages */
-        $pages = self::$grav['pages'];
-        $parent = $pages->get($this->parent);
-
-        if ($this->path() == array_values($parent->items)[count($parent->items)-1]) {
-            return true;
-        } else {
-            return false;
-        }
+        $collection = $this->parent()->collection();
+        return $collection->isLast($this->path());
     }
 
     /**
@@ -1243,18 +1229,8 @@ class Page
      */
     public function adjacentSibling($direction = 1)
     {
-        /** @var Pages $pages */
-        $pages = self::$grav['pages'];
-        $parent = $this->parent();
-        $children = $parent->children();
-
-        $adjacent = $children->adjacentSibling($this->path(), $direction);
-
-        if (!$adjacent) {
-            return null;
-        }
-
-        return $adjacent;
+        $collection = $this->parent()->collection();
+        return $collection->adjacentSibling($this->path(), $direction);
     }
 
     /**
