@@ -1,3 +1,17 @@
+# v0.9.9 beta
+## 12/05/2014
+
+1. [](#new)
+    * Added new `@page` collection type
+    * Added `ksort` and `contains` Twig filters
+    * Added `gist` Twig function
+2. [](#improved)
+    * Refactored Page previous/next/adjacent functionality
+    * Updated to Symfony 2.6 for yaml/console/event-dispatcher libraries
+    * More PSR code fixes
+3. [](#bugfix)
+    * Fix for over-escaped apostrophes in YAML
+
 # v0.9.8 beta
 ## 12/01/2014
 
