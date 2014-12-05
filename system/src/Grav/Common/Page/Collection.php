@@ -22,7 +22,8 @@ class Collection extends Iterator
      */
     protected $params;
 
-    public function __construct($items = array(), array $params = array(), Pages $pages = null) {
+    public function __construct($items = array(), array $params = array(), Pages $pages = null)
+    {
         parent::__construct($items);
 
         $this->params = $params;
@@ -189,7 +190,8 @@ class Collection extends Iterator
      * @param  string  $path  the path the item
      * @return Page    Item in the array the the current position.
      */
-    public function currentPosition($path) {
+    public function currentPosition($path)
+    {
         return array_search($path, array_keys($this->items));
     }
 
@@ -205,7 +207,7 @@ class Collection extends Iterator
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
             if ($page->visible()) {
-               $visible[$path] = $slug;
+                $visible[$path] = $slug;
             }
         }
         return new static($visible, $this->params, $this->pages);
