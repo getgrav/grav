@@ -39,6 +39,34 @@ You can download a **ready-built** package from the [Downloads page on http://ge
 
 Check out the [install procedures](http://learn.getgrav.org/basics/installation) for more information.
 
+# Adding Functionality
+
+You can download manually from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](http://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
+
+```
+$ bin/gpm index
+```
+
+This will display all the available plugins and then you can install one ore more with:
+
+```
+$ bin/gpm install <plugin/theme>
+```
+
+# Updating
+
+To update Grav you should use the [Grav Package Manager](http://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
+
+```
+$ bin/gpm selfupgrade
+```
+
+To update plugins and themes:
+
+```
+$ bin/gpm update
+```
+
 
 # Contributing
 We appreciate any contribution to Grav, whether it is related to bugs, grammar, or simply a suggestion or improvement.

@@ -45,7 +45,9 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('truncate', [$this,'truncateFilter']),
             new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
             new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
-            new \Twig_SimpleFilter('sort_by_key',[$this,'sortByKeyFilter']),
+            new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
+            new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
+            new \Twig_SimpleFilter('contains', [$this, 'containsFilter'])
         ];
     }
 
@@ -61,6 +63,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('gist', [$this, 'gistFunc'])
         ];
     }
 
@@ -202,6 +205,57 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
+     * Sorts a collection by key
+     *
+     * @param  array    $input
+     * @param  string   $filter
+     * @param array|int $direction
+     *
+     * @return string
+     */
+    public function sortByKeyFilter(array $input, $filter, $direction = SORT_ASC)
+    {
+        $output = [];
+
+        if (!$input) {
+            return $output;
+        }
+
+        foreach ($input as $key => $row) {
+            $output[$key] = $row[$filter];
+        }
+
+        array_multisort($output, $direction, $input);
+
+        return $input;
+    }
+
+    /**
+     * Return ksorted collection.
+     *
+     * @param  array $array
+     * @return array
+     */
+    public function ksortFilter(array $array)
+    {
+        ksort($array);
+        return $array;
+    }
+
+    /**
+     * determine if a string contains another
+     *
+     * @param String $haystack
+     * @param String $needle
+     *
+     * @return boolean
+     */
+    public function containsFilter($haystack, $needle)
+    {
+        return (strpos($haystack, $needle) !== false);
+    }
+
+    /**
      * Repeat given string x times.
      *
      * @param  string $input
@@ -229,32 +283,6 @@ class TwigExtension extends \Twig_Extension
         $uri = $this->grav['uri'];
 
         return $uri->rootUrl($domain) .'/'. $locator->findResource($input, false);
-    }
-
-    /**
-     * Sorts a collection by key
-     *
-     * @param  array    $input
-     * @param  string   $filter
-     * @param array|int $direction
-     *
-     * @return string
-     */
-    public function sortByKeyFilter(array $input, $filter, $direction = SORT_ASC)
-    {
-        $output = [];
-
-        if (!$input) {
-            return $output;
-        }
-
-        foreach ($input as $key => $row) {
-            $output[$key] = $row[$filter];
-        }
-
-        array_multisort($output, $direction, $input);
-
-        return $input;
     }
 
     /**
@@ -290,5 +318,16 @@ class TwigExtension extends \Twig_Extension
                 $this->debugger->addMessage(func_get_arg($i), 'debug');
             }
         }
+    }
+
+    /**
+     * Output a Gist
+     *
+     * @param  string $id
+     * @return string
+     */
+    public function gistFunc($id)
+    {
+        return '<script src="https://gist.github.com/'.$id.'.js"></script>';
     }
 }

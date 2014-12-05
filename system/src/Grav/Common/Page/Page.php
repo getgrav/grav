@@ -1186,15 +1186,8 @@ class Page
      */
     public function isFirst()
     {
-        /** @var Pages $pages */
-        $pages = self::$grav['pages'];
-        $parent = $pages->get($this->parent);
-
-        if ($this->path() == array_values($parent->items)[0]) {
-            return true;
-        } else {
-            return false;
-        }
+        $collection = $this->parent()->collection();
+        return $collection->isFirst($this->path());
     }
 
     /**
@@ -1204,15 +1197,8 @@ class Page
      */
     public function isLast()
     {
-        /** @var Pages $pages */
-        $pages = self::$grav['pages'];
-        $parent = $pages->get($this->parent);
-
-        if ($this->path() == array_values($parent->items)[count($parent->items)-1]) {
-            return true;
-        } else {
-            return false;
-        }
+        $collection = $this->parent()->collection();
+        return $collection->isLast($this->path());
     }
 
     /**
@@ -1243,16 +1229,8 @@ class Page
      */
     public function adjacentSibling($direction = 1)
     {
-        /** @var Pages $pages */
-        $pages = self::$grav['pages'];
-        $parent = $pages->get($this->parent);
-        $current = $this->slug();
-
-        $keys = array_flip(array_keys($parent->items));
-        $values = array_values($parent->items);
-        $index = $keys[$current] - $direction;
-
-        return array_key_exists($index, $values) ? $pages->get($values[$index]) : $this;
+        $collection = $this->parent()->collection();
+        return $collection->adjacentSibling($this->path(), $direction);
     }
 
     /**
@@ -1454,6 +1432,16 @@ class Page
                     }
                 }
                 break;
+
+            case '@page':
+                if (!empty($params)) {
+                    $page = $this->find($params[0]);
+                    if ($page) {
+                        $results = $page->children(Page::STANDARD_PAGES);
+                    }
+                }
+                break;
+
             case '@taxonomy':
                 // Gets a collection of pages by using one of the following formats:
                 // @taxonomy.category: blog
