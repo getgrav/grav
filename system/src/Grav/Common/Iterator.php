@@ -46,6 +46,16 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     }
 
     /**
+     * Return the internal array used in this Iterator
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->items;
+    }
+
+    /**
      * Convents iterator to a comma separated list.
      *
      * @return string
