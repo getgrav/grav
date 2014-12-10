@@ -375,7 +375,9 @@ class Admin
 
         foreach ($pages->routes() as $url => $path) {
             $page = $pages->dispatch($url);
-            $latest[$page->route()] = ['modified'=>$page->modified(),'page'=>$page];
+            if ($page && $page->routable()) {
+                $latest[$page->route()] = ['modified'=>$page->modified(), 'page'=>$page];
+            }
         }
 
         // sort based on modified

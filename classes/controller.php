@@ -102,8 +102,7 @@ class AdminController
         }
 
         $base = $this->admin->base;
-        $path = trim(substr($this->redirect, 0, strlen($base)) == $base
-            ? substr($this->redirect, strlen($base)) : $this->redirect, '/');
+        $path = trim(substr($this->redirect, 0, strlen($base)) == $base ? substr($this->redirect, strlen($base)) : $this->redirect, '/');
 
         $this->grav->redirect($base . '/' . preg_replace('|/+|', '/', $path), $this->redirectCode);
     }
@@ -148,8 +147,8 @@ class AdminController
         }
 
         $media_list = array();
-        foreach ($page->media()->all() as $name=> $media) {
-            $media_list[$name] = ['url'=>$media->cropZoom(150,100)->url(),'size'=>$media->get('size')];
+        foreach ($page->media()->all() as $name => $media) {
+            $media_list[$name] = ['url' => $media->cropZoom(150, 100)->url(),'size' => $media->get('size')];
         }
         $this->admin->media = $media_list;
 
@@ -203,10 +202,7 @@ class AdminController
 
 
         // Upload it
-        if (!move_uploaded_file(
-            $_FILES['file']['tmp_name'],
-            sprintf('%s/%s',  $page->path(),  $_FILES['file']['name'])
-        )) {
+        if (!move_uploaded_file($_FILES['file']['tmp_name'], sprintf('%s/%s', $page->path(), $_FILES['file']['name']))) {
             $this->admin->json_response = ['error', 'Failed to move uploaded file.'];
             return;
         }
@@ -230,7 +226,7 @@ class AdminController
             $targetPath = $page->path().'/'.$filename;
 
             if (file_exists($targetPath)) {
-                if(unlink($targetPath)) {
+                if (unlink($targetPath)) {
                     $this->admin->json_response = ['success', 'File deleted: '.$filename];
                 } else {
                     $this->admin->json_response = ['error', 'File could not be deleted: '.$filename];
@@ -545,7 +541,8 @@ class AdminController
         return $data;
     }
 
-    protected function setRedirect($path, $code = 303) {
+    protected function setRedirect($path, $code = 303)
+    {
         $this->redirect = $path;
         $this->code = $code;
     }
