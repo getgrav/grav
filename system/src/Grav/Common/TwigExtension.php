@@ -274,7 +274,7 @@ class TwigExtension extends \Twig_Extension
         if ($long_strings) {
             $periods = array("second", "minute", "hour", "day", "week", "month", "year", "decade");
         } else {
-            $periods = array("sec", "min", "hr", "day", "wk", "mo", "hr", "dec");
+            $periods = array("sec", "min", "hr", "day", "wk", "mo", "yr", "dec");
         }
 
         $lengths         = array("60","60","24","7","4.35","12","10");
