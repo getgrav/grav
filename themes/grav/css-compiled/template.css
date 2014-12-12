@@ -1072,13 +1072,16 @@ tr {
   padding: 3rem 0 1rem; }
 
 .ct-chart .ct-series .ct-bar {
-  stroke-width: 15px; }
+  stroke-width: 20px; }
 .ct-chart .ct-series.ct-series-a .ct-bar {
   stroke: rgba(255, 255, 255, 0.85) !important; }
 .ct-chart .ct-series.ct-series-a .ct-slice.ct-donut {
   stroke: #fff !important; }
 .ct-chart .ct-series.ct-series-b .ct-slice.ct-donut {
   stroke: rgba(255, 255, 255, 0.2) !important; }
+
+#popularity .ct-chart {
+  margin-top: -10px; }
 
 .pages-list {
   list-style: none;

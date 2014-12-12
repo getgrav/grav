@@ -448,7 +448,7 @@ $update-height: 3rem;
 .ct-chart {
     .ct-series {
         .ct-bar {
-            stroke-width: 15px;
+            stroke-width: 20px;
 
         }
         &.ct-series-a {
@@ -467,6 +467,10 @@ $update-height: 3rem;
 
 
     }
+}
+
+#popularity .ct-chart {
+    margin-top: -10px;
 }
 
 // Remodal Styling

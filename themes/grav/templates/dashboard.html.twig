@@ -68,26 +68,35 @@
                 <div class="ct-chart"></div>
                 <script>
                     var data = {
-                      labels: {{ popularity.getDailyChartData['labels'] }},
+                        labels: {{ popularity.getDailyChartData['labels'] }},
                         series: [
                             {{ popularity.getDailyChartData['data'] }}
-                      ]
+                        ]
                     };
                     var options = {
-                      height: 127,
-                      axisX: {
-                        showGrid: false
-                      },
-                      axisY: {
-                        offset: 10,
-                        showLabel: true,
-                        showGrid: true,
-                        scaleMinSpace: 50
-                      }
+                        height: 164,
+                        chartPadding:5,
+
+                        axisX: {
+                            showGrid: false,
+                            labelOffset: {
+                                x: 15,
+                                y: -5
+                            }
+                        },
+                        axisY: {
+                            offset: 15,
+                            showLabel: true,
+                            showGrid: true,
+                            labelOffset: {
+                                x: 5,
+                                y: 0
+                            },
+                            scaleMinSpace: 20
+                        }
                     };
                     Chartist.Bar('#popularity .ct-chart', data, options);
                 </script>
-                <p>Daily Activity</p>
                 <div class="flush-bottom button-bar stats-bar">
                     <span class="stat">
                         <b>{{ popularity.getDailyTotal }}</b>
