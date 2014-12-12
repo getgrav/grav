@@ -97,7 +97,7 @@ class Popularity
         // keep correct number as set by history
         $count = intval($this->config->get('plugins.admin.popularity.history.daily', 7));
         $total = count($this->daily_data);
-        $this->daily_data = array_slice($this->daily_data, $total - $count, $count);
+        $this->daily_data = array_slice($this->daily_data, $total - $count, $count, true);
 
         file_put_contents($this->daily_file, json_encode($this->daily_data));
     }
@@ -112,7 +112,7 @@ class Popularity
         $data = array();
 
         foreach ($this->daily_data as $date => $count) {
-            $labels[] = date('D',strtotime($date));
+            $labels[] = date('D', strtotime($date));
             $data[] = $count;
         }
 
@@ -227,7 +227,7 @@ class Popularity
         arsort($visitors);
 
         $count = intval($this->config->get('plugins.admin.popularity.history.visitors', 20));
-        $this->visitors_data = array_slice($visitors, 0, $count);
+        $this->visitors_data = array_slice($visitors, 0, $count, true);
 
         file_put_contents($this->visitors_file, json_encode($this->visitors_data));
     }
