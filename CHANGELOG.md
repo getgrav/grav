@@ -1,3 +1,13 @@
+# v0.9.10 beta
+## 12/12/2014
+
+1. [](#new)
+    * Added Facebook-style `nicetime` date Twig filter
+2. [](#improved)
+    * Moved `clear-cache` functionality into Cache object required for Admin plugin
+3. [](#bugfix)
+    * Fix for undefined index with previous/next buttons
+
 # v0.9.9 beta
 ## 12/05/2014
 
