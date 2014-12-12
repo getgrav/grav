@@ -3,6 +3,7 @@ namespace Grav\Common;
 
 use \Doctrine\Common\Cache\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
+use Grav\Common\Filesystem\Folder;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
@@ -36,6 +37,33 @@ class Cache extends Getters
     protected $enabled;
 
     protected $cache_dir;
+
+    protected static $standard_remove = [
+        'cache/twig/',
+        'cache/doctrine/',
+        'cache/compiled/',
+        'cache/validated-',
+        'images/',
+        'assets/',
+    ];
+
+    protected static $all_remove = [
+        'cache/',
+        'images/',
+        'assets/'
+    ];
+
+    protected static $assets_remove = [
+        'assets/'
+    ];
+
+    protected static $images_remove = [
+        'images/'
+    ];
+
+    protected static $cache_remove = [
+        'cache/'
+    ];
 
     /**
      * Constructor
@@ -168,5 +196,71 @@ class Cache extends Getters
     public function getKey()
     {
         return $this->key;
+    }
+
+    /**
+     * Helper method to clear all Grav caches
+     *
+     * @param string $remove    standard|all|assets-only|images-only|cache-only
+     *
+     * @return array
+     */
+    public static function clearCache($remove = 'standard')
+    {
+
+        $output = [];
+        $user_config = USER_DIR . 'config/system.yaml';
+
+        switch($remove) {
+            case 'all':
+                $remove_paths = self::$all_remove;
+                break;
+            case 'assets-only':
+                $remove_paths = self::$assets_remove;
+                break;
+            case 'images-only':
+                $remove_paths = self::$images_remove;
+                break;
+            case 'cache-only':
+                $remove_paths = self::$cache_remove;
+                break;
+            default:
+                $remove_paths = self::$standard_remove;
+        }
+
+
+        foreach ($remove_paths as $path) {
+
+            $anything = false;
+            $files = glob(ROOT_DIR . $path . '*');
+
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    if (@unlink($file)) {
+                        $anything = true;
+                    }
+                } elseif (is_dir($file)) {
+                    if (@Folder::delete($file)) {
+                        $anything = true;
+                    }
+                }
+            }
+
+
+            if ($anything) {
+                $output[] = '<red>Cleared:  </red>' . $path . '*';
+            }
+        }
+
+        $output[] = '';
+
+        if (($remove == 'all' || $remove == 'standard') && file_exists($user_config)) {
+            touch($user_config);
+
+            $output[] = '<red>Touched: </red>' . $user_config;
+            $output[] = '';
+        }
+
+        return $output;
     }
 }
