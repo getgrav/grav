@@ -31,17 +31,13 @@ $(function () {
 
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-trash').addClass('fa-refresh fa-spin');
         var url = $(this).data('clearCache');
-        console.log(url);
-
         var jqxhr = $.getJSON(url, function(result, status) {
             if (result.status == 'success') {
                 toastr.success(result.message);
             } else {
                 toastr.error(result.message);
             }
-
         });
-
         jqxhr.complete(function() {
             $('[data-clear-cache]').removeAttr('disabled').find('> .fa').removeClass('fa-refresh fa-spin').addClass('fa-trash');
         });
