@@ -47,7 +47,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
             new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
             new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
-            new \Twig_SimpleFilter('contains', [$this, 'containsFilter'])
+            new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
+            new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
         ];
     }
 
@@ -253,6 +254,66 @@ class TwigExtension extends \Twig_Extension
     public function containsFilter($haystack, $needle)
     {
         return (strpos($haystack, $needle) !== false);
+    }
+
+    /**
+     * displays a facebook style 'time ago' formatted date/time
+     *
+     * @param $date
+     * @param $long_strings
+     * @param String
+     *
+     * @return boolean
+     */
+    public function nicetimeFilter($date, $long_strings = true)
+    {
+        if (empty($date)) {
+            return "No date provided";
+        }
+
+        if ($long_strings) {
+            $periods = array("second", "minute", "hour", "day", "week", "month", "year", "decade");
+        } else {
+            $periods = array("sec", "min", "hr", "day", "wk", "mo", "yr", "dec");
+        }
+
+        $lengths         = array("60","60","24","7","4.35","12","10");
+
+        $now             = time();
+
+        // check if unix timestamp
+        if ((string)(int)$date == $date) {
+            $unix_date = $date;
+        } else {
+            $unix_date = strtotime($date);
+        }
+
+        // check validity of date
+        if (empty($unix_date)) {
+            return "Bad date";
+        }
+
+        // is it future date or past date
+        if ($now > $unix_date) {
+            $difference     = $now - $unix_date;
+            $tense         = "ago";
+
+        } else {
+            $difference     = $unix_date - $now;
+            $tense         = "from now";
+        }
+
+        for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
+            $difference /= $lengths[$j];
+        }
+
+        $difference = round($difference);
+
+        if ($difference != 1) {
+            $periods[$j].= "s";
+        }
+
+        return "$difference $periods[$j] {$tense}";
     }
 
     /**

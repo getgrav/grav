@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Console\Cli;
 
+use Grav\Console\ConsoleTrait;
+use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
@@ -16,33 +18,6 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ClearCacheCommand extends Command
 {
-
-    protected $standard_remove = [
-        'cache/twig/',
-        'cache/doctrine/',
-        'cache/compiled/',
-        'cache/validated-',
-        'images/',
-        'assets/',
-    ];
-
-    protected $all_remove = [
-        'cache/',
-        'images/',
-        'assets/'
-    ];
-
-    protected $assets_remove = [
-        'assets/'
-    ];
-
-    protected $images_remove = [
-        'images/'
-    ];
-
-    protected $cache_remove = [
-        'cache/'
-    ];
 
     /**
      *
@@ -87,55 +62,21 @@ class ClearCacheCommand extends Command
         $output->writeln('<magenta>Clearing cache</magenta>');
         $output->writeln('');
 
-        $user_config = USER_DIR . 'config/system.yaml';
-
-        $anything = false;
-
         if ($input->getOption('all')) {
-            $remove_paths = $this->all_remove;
+            $remove = 'all';
         } elseif ($input->getOption('assets-only')) {
-            $remove_paths = $this->assets_remove;
+            $remove = 'assets-only';
         } elseif ($input->getOption('images-only')) {
-            $remove_paths = $this->images_remove;
+            $remove = 'images-only';
         } elseif ($input->getOption('cache-only')) {
-            $remove_paths = $this->cache_remove;
+            $remove = 'cache-only';
         } else {
-            $remove_paths = $this->standard_remove;
+            $remove = 'standard';
         }
 
-        foreach ($remove_paths as $path) {
-
-            $files = glob(ROOT_DIR . $path . '*');
-
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    if (@unlink($file)) {
-                        $anything = true;
-                    }
-                } elseif (is_dir($file)) {
-                    if (@Folder::delete($file)) {
-                        $anything = true;
-                    }
-                }
-            }
-
-            if ($anything) {
-                $output->writeln('<red>Cleared:  </red>' . $path . '*');
-            }
+        foreach (Cache::clearCache($remove) as $result) {
+            $output->writeln($result);
         }
-
-        if (file_exists($user_config)) {
-            touch($user_config);
-            $output->writeln('');
-            $output->writeln('<red>Touched: </red>' . $user_config);
-            $output->writeln('');
-        }
-
-        if (!$anything) {
-            $output->writeln('<green>Nothing to clear...</green>');
-            $output->writeln('');
-        }
-
     }
 }
 

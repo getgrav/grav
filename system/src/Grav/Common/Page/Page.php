@@ -1186,7 +1186,7 @@ class Page
      */
     public function isFirst()
     {
-        $collection = $this->parent()->collection();
+        $collection = $this->parent()->collection('content', false);
         return $collection->isFirst($this->path());
     }
 
@@ -1197,7 +1197,7 @@ class Page
      */
     public function isLast()
     {
-        $collection = $this->parent()->collection();
+        $collection = $this->parent()->collection('content', false);
         return $collection->isLast($this->path());
     }
 
@@ -1229,7 +1229,7 @@ class Page
      */
     public function adjacentSibling($direction = 1)
     {
-        $collection = $this->parent()->collection();
+        $collection = $this->parent()->collection('content', false);
         return $collection->adjacentSibling($this->path(), $direction);
     }
 
@@ -1318,10 +1318,11 @@ class Page
      * Get a collection of pages in the current context.
      *
      * @param string|array $params
+     * @param boolean $pagination
      * @return Collection
      * @throws \InvalidArgumentException
      */
-    public function collection($params = 'content')
+    public function collection($params = 'content', $pagination = true)
     {
         if (is_string($params)) {
             $params = (array) $this->value('header.'.$params);
@@ -1378,13 +1379,16 @@ class Page
         // New Custom event to handle things like pagination.
         $grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));
 
-        $params = $collection->params();
+        // Slice and dice the collection if pagination is required
+        if ($pagination) {
+            $params = $collection->params();
 
-        $limit = isset($params['limit']) ? $params['limit'] : 0;
-        $start = !empty($params['pagination']) ? ($uri->currentPage() - 1) * $limit : 0;
+            $limit = isset($params['limit']) ? $params['limit'] : 0;
+            $start = !empty($params['pagination']) ? ($uri->currentPage() - 1) * $limit : 0;
 
-        if ($limit && $collection->count() > $limit) {
-            $collection->slice($start, $limit);
+            if ($limit && $collection->count() > $limit) {
+                $collection->slice($start, $limit);
+            }
         }
 
         return $collection;
