@@ -8,6 +8,10 @@
 
     font-family: $font-family-default;
 
+    &:active {
+        margin: 1px 0 -1px 0;
+    }
+
     i {
         margin-right: 5px;
     }
@@ -27,7 +31,7 @@
 		background: lighten($color,5%);
 		color: $white;
 	}
-	&:active {
-		box-shadow: 0 1px 0 darken($color, 12%);
-	}
+//	&:active {
+//		box-shadow: 0 1px 0 darken($color, 12%);
+//	}
 }

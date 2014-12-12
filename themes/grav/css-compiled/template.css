@@ -17,6 +17,8 @@
   cursor: pointer;
   vertical-align: middle;
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+  .button:active {
+    margin: 1px 0 -1px 0; }
   .button i {
     margin-right: 5px; }
   .button-small.button {
@@ -690,8 +692,6 @@ tr {
   .button:hover {
     background: #54c5b0;
     color: #fff; }
-  .button:active {
-    box-shadow: 0 1px 0 #31907f; }
   .button.secondary {
     background: #29796b;
     color: rgba(255, 255, 255, 0.85);
@@ -699,8 +699,6 @@ tr {
     .button.secondary:hover {
       background: #2f8c7c;
       color: #fff; }
-    .button.secondary:active {
-      box-shadow: 0 1px 0 #1a4b43; }
 
 #error {
   text-align: center;
@@ -890,8 +888,6 @@ tr {
       #admin-main .grav-update .button:hover {
         background: #814c9d;
         color: #fff; }
-      #admin-main .grav-update .button:active {
-        box-shadow: 0 1px 0 #513063; }
     #admin-main .grav-update p {
       line-height: 3rem;
       margin: 0; }
@@ -948,8 +944,6 @@ tr {
         #admin-main .danger.button-bar .button:hover {
           background: #de605b;
           color: #fff; }
-        #admin-main .danger.button-bar .button:active {
-          box-shadow: 0 1px 0 #bd2b26; }
 
 #admin-dashboard:after {
   content: "";
