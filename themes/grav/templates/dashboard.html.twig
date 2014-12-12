@@ -2,7 +2,7 @@
 
 {% block titlebar %}
     <div class="button-bar">
-        <button href="#" class="button"><i class="fa fa-times"></i> Clear Cache</button>
+        <button data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache" class="button"><i class="fa fa-trash"></i> Clear Cache</button>
     </div>
     <h1><i class="fa fa-fw fa-th"></i> Dashboard</h1>
 {% endblock %}

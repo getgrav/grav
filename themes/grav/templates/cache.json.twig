@@ -1,0 +1,4 @@
+{% if admin.json_response %}
+{% set output = {'status':admin.json_response[0], 'message':admin.json_response[1] } %}
+{{ output|json_encode }}
+{% endif %}

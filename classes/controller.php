@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Plugin;
 
+use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
@@ -133,6 +134,18 @@ class AdminController
         $this->admin->session()->invalidate()->start();
         $this->admin->setMessage('You have been logged out.');
         $this->setRedirect('/');
+
+        return true;
+    }
+
+    protected function taskClearCache()
+    {
+        $results = Cache::clearCache('standard');
+        if (count($results) > 0) {
+            $this->admin->json_response = ['success', 'Cache cleared'];
+        } else {
+            $this->admin->json_response = ['error', 'Error clearing cache'];
+        }
 
         return true;
     }
