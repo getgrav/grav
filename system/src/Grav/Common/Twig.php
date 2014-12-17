@@ -177,16 +177,21 @@ class Twig
 
         $local_twig = clone($this->twig);
 
-        // Get Twig template layout
-        if ($item->modularTwig()) {
-            $twig_vars['content'] = $content;
-            $template = $item->template() . TEMPLATE_EXT;
-            $output = $local_twig->render($template, $twig_vars);
-        } else {
-            $name = '@Page:' . $item->path();
-            $this->setTemplate($name, $content);
-            $output = $local_twig->render($name, $twig_vars);
+        try {
+            // Get Twig template layout
+            if ($item->modularTwig()) {
+                $twig_vars['content'] = $content;
+                $template = $item->template() . TEMPLATE_EXT;
+                $output = $local_twig->render($template, $twig_vars);
+            } else {
+                $name = '@Page:' . $item->path();
+                $this->setTemplate($name, $content);
+                $output = $local_twig->render($name, $twig_vars);
+            }
+        } catch (\Twig_Error_Loader $e) {
+            throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
+
 
         return $output;
     }
@@ -204,7 +209,12 @@ class Twig
 
         $name = '@Var:' . $string;
         $this->setTemplate($name, $string);
-        $output = $this->twig->render($name, $vars);
+
+        try {
+            $output = $this->twig->render($name, $vars);
+        } catch (\Twig_Error_Loader $e) {
+            throw new \RuntimeException($e->getRawMessage(), 404, $e);
+        }
 
         return $output;
     }
