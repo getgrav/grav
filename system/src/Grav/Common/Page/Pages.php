@@ -236,10 +236,18 @@ class Pages
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
 
-        // If the page cannot be reached, look into site wide routes + wildcards
+
+
+        // If the page cannot be reached, look into site wide redirects, routes + wildcards
         if (!$all && (!$page || !$page->routable())) {
             /** @var Config $config */
             $config = $this->grav['config'];
+
+            // Try redirects
+            $redirect = $config->get("site.redirects.{$url}");
+            if ($redirect) {
+                $this->grav->redirect($redirect);
+            }
 
             // See if route matches one in the site configuration
             $route = $config->get("site.routes.{$url}");
