@@ -8,6 +8,12 @@
 {% endblock %}
 
 {% block content_top %}
+
+    {% set gpm = admin.gpm() %}
+    {% set updatable = gpm.getUpdatablePlugins() %}
+
+    {{ dump(admin) }}
+
     <div id="admin-dashboard">
         <div id="updates" class="dashboard-item dashboard-left">
             <div class="tertiary-accent default-box-shadow">
@@ -126,11 +132,8 @@
         <table>
         {% for latest in admin.latestPages %}
             <tr><td><a href="{{ base_url }}/pages/{{ latest.route|trim('/') }}"><i class="fa fa-fw fa-file-o"></i> {{ latest.title }}</a></td><td>{{ latest.route }}</td><td><b>{{ latest.modified|nicetime }}</b></td></tr>
-
-
         {% endfor %}
         </table>
-
     </div>
 
 {% endblock %}

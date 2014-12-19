@@ -1,14 +1,4 @@
-{% set gpm = admin.gpm() %}
-{% set updatable = gpm.getUpdatableThemes() %}
-<div class="grav-update themes">
-    {% if updatable |length %}
-        <p>
-            <i class="fa fa-bullhorn"></i>
-            {{ updatable |length }} of your themes have an <strong>update available</strong>.
-            <button class="button button-small secondary">Update All Themes</button>
-        </p>
-    {% endif %}
-</div>
+<div class="grav-update themes"></div>
 
 <h1>
     Installed Themes
@@ -39,11 +29,6 @@
             {% else %}
                 <div class="gpm-actions">
                     <a href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a>
-                </div>
-            {% endif %}
-            {% if gpm.isThemeUpdatable(slug) %}
-                <div class="gpm-ribbon">
-                    <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">UPDATE</a>
                 </div>
             {% endif %}
         </div>

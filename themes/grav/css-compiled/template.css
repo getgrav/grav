@@ -815,11 +815,23 @@ tr {
   list-style: none; }
   #admin-menu li {
     font-family: "Montserrat", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
-    #admin-menu li .badge {
-      background-color: #141f25;
-      color: #e5e5e5;
+    #admin-menu li .badges {
       float: right;
       margin-right: 1rem; }
+      #admin-menu li .badges .badge {
+        display: inline-block;
+        margin-right: -5px;
+        color: #e5e5e5; }
+      #admin-menu li .badges .count {
+        background-color: #141f25; }
+      #admin-menu li .badges .updates {
+        background-color: #2693B7; }
+      #admin-menu li .badges .count ~ .updates {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0; }
+      #admin-menu li .badges .updates ~ .count {
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0; }
     #admin-menu li a {
       -webkit-transition: all 0.2s ease;
       -moz-transition: all 0.2s ease;

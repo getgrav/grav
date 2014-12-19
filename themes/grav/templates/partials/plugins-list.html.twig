@@ -1,14 +1,4 @@
-{% set gpm = admin.gpm() %}
-{% set updatable = gpm.getUpdatablePlugins() %}
-<div class="grav-update plugins">
-    {% if updatable |length %}
-        <p>
-            <i class="fa fa-bullhorn"></i>
-            {{ updatable |length }} of your plugins have an <strong>update available</strong>.
-            <button class="button button-small secondary">Update All Plugins</button>
-        </p>
-    {% endif %}
-</div>
+<div class="grav-update plugins"></div>
 
 <h1>
     Installed Plugins
@@ -29,9 +19,6 @@
                 </span>
                 {% endif %}
                 <span class="gpm-version">v{{ plugin.version }}</span>
-                {% if gpm.isPluginUpdatable(slug) %}
-                <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}"><span class="badge update">Update available!</span></a>
-                {% endif %}
             </td>
             <td class="gpm-actions">
                 <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">

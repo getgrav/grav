@@ -85,11 +85,34 @@ $update-height: 3rem;
     li {
         font-family: $font-family-header;
 
-        .badge {
-            background-color: darken($accent-bg, 10%);
-            color: shade($accent-fg,10%);
+        .badges {
             float: right;
             margin-right:1rem;
+
+            .badge {
+                display: inline-block;
+                margin-right: -5px;
+
+                color: shade($accent-fg,10%);
+            }
+
+            .count {
+                background-color: darken($accent-bg, 10%);
+            }
+
+            .updates {
+                background-color: $tertiary-accent-bg;
+            }
+
+            .count ~ .updates {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+            }
+
+            .updates ~ .count {
+                border-bottom-right-radius: 0;
+                border-top-right-radius: 0;
+            }
         }
 
         a {
