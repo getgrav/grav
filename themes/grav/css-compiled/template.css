@@ -825,13 +825,15 @@ tr {
       #admin-menu li .badges .count {
         background-color: #141f25; }
       #admin-menu li .badges .updates {
-        background-color: #2693B7; }
-      #admin-menu li .badges .count ~ .updates {
-        border-bottom-left-radius: 0;
-        border-top-left-radius: 0; }
-      #admin-menu li .badges .updates ~ .count {
+        background-color: #2693B7;
+        display: none; }
+      #admin-menu li .badges.with-updates .count {
         border-bottom-right-radius: 0;
         border-top-right-radius: 0; }
+      #admin-menu li .badges.with-updates .updates {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        display: inline-block; }
     #admin-menu li a {
       -webkit-transition: all 0.2s ease;
       -moz-transition: all 0.2s ease;

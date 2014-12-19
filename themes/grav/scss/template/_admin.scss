@@ -102,16 +102,20 @@ $update-height: 3rem;
 
             .updates {
                 background-color: $tertiary-accent-bg;
+                display: none;
             }
 
-            .count ~ .updates {
-                border-bottom-left-radius: 0;
-                border-top-left-radius: 0;
-            }
+            &.with-updates {
+                .count {
+                    border-bottom-right-radius: 0;
+                    border-top-right-radius: 0;
+                }
 
-            .updates ~ .count {
-                border-bottom-right-radius: 0;
-                border-top-right-radius: 0;
+                .updates {
+                    border-bottom-left-radius: 0;
+                    border-top-left-radius: 0;
+                    display: inline-block;
+                }
             }
         }
 

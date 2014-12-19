@@ -73,7 +73,24 @@ $(function () {
                 content = '{updates} of your {type} have an <strong>update available</strong>',
                 button = '<button class="button button-small secondary">Update {Type}</button>',
                 plugins = $('.grav-update.plugins'),
-                themes = $('.grav-update.themes');
+                themes = $('.grav-update.themes'),
+                sidebar = {plugins: $('#admin-menu a[href$="/plugins"]'), themes: $('#admin-menu a[href$="/themes"]')};
+
+            // sidebar
+            if (sidebar.plugins.length || sidebar.themes.length) {
+                var length, badges;
+                if (sidebar.plugins.length && (length = Object.keys(resources.plugins).length)) {
+                    badges = sidebar.plugins.find('.badges');
+                    badges.addClass('with-updates');
+                    badges.find('.badge.updates').text(length);
+                }
+
+                if (sidebar.themes.length && (length = Object.keys(resources.themes).length)) {
+                    badges = sidebar.themes.find('.badges');
+                    badges.addClass('with-updates');
+                    badges.find('.badge.updates').text(length);
+                }
+            }
 
             // list page
             if (plugins[0] && (length = Object.keys(resources.plugins).length)) {
