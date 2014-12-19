@@ -97,7 +97,7 @@ $update-height: 3rem;
             }
 
             .count {
-                background-color: darken($accent-bg, 10%);
+                background-color: lighten($accent-bg, 10%);
             }
 
             .updates {
@@ -107,13 +107,14 @@ $update-height: 3rem;
 
             &.with-updates {
                 .count {
-                    border-bottom-right-radius: 0;
-                    border-top-right-radius: 0;
+                    border-bottom-left-radius: 0;
+                    border-top-left-radius: 0;
                 }
 
                 .updates {
-                    border-bottom-left-radius: 0;
-                    border-top-left-radius: 0;
+                    border-bottom-right-radius: 0;
+                    border-top-right-radius: 0;
+
                     display: inline-block;
                 }
             }

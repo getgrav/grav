@@ -26,23 +26,28 @@
         <li class="{{ (location == 'pages') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/pages">
                 <i class="fa fa-fw fa-file-text-o"></i> Pages
-                <span class="badge count">{{ admin.routes|length }}</span>
+                <span class="badges">
+                    <span class="badge count">{{ admin.routes|length }}</span>
+                </span>
             </a>
-
         </li>
         <li class="{{ (location == 'plugins') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/plugins">
                 <i class="fa fa-fw fa-plug"></i> Plugins
                 <span class="badges">
-                    <span class="badge count">{{ admin.plugins|length }}</span>
                     <span class="badge updates"></span>
+                    <span class="badge count">{{ admin.plugins|length }}</span>
+
                 </span>
             </a>
         </li>
         <li class="{{ (location == 'themes') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/themes">
                 <i class="fa fa-fw fa-tint"></i> Themes
-                <span class="badge count">{{ admin.themes|length }}</span>
+                <span class="badges">
+                    <span class="badge updates"></span>
+                    <span class="badge count">{{ admin.themes|length }}</span>
+                </span>
             </a>
         </li>
         <li class="{{ (location == 'users') ? 'selected' : '' }}">
@@ -57,7 +62,9 @@
         <li class="{{ (location == 'logs') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/logs">
                 <i class="fa fa-fw fa-warning"></i> Error Logs
-                <span class="badge count">{{ admin.logs|length }}</span>
+                <span class="badges">
+                    <span class="badge count">{{ admin.logs|length }}</span>
+                </span>
             </a>
         </li>
         <li>
