@@ -93,7 +93,7 @@ $(function () {
 
         // dashboard
         if ($('.updates-chart').length) {
-            var missing = resources.total * 100 / installed,
+            var missing = (resources.total + (grav.isUpdatable ? 1 : 0)) * 100 / (installed + (grav.isUpdatable ? 1 : 0)),
                 updated = 100 - missing;
             UpdatesChart.update({series: [updated, missing]});
         }
