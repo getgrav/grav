@@ -258,7 +258,7 @@ class AdminPlugin extends Plugin
 
                     echo json_encode([
                         "success" => true,
-                        "payload" => ["resources" => $resources_updates, "grav" => $grav_updates]
+                        "payload" => ["resources" => $resources_updates, "grav" => $grav_updates, "installed" => $gpm->countInstalled()]
                     ]);
                     break;
             }

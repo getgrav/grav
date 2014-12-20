@@ -26,6 +26,29 @@ $(function () {
         "positionClass": "toast-top-right"
     }
 
+    // dashboard
+    var chart = $('.updates-chart'), UpdatesChart;
+    if (chart.length) {
+        var data = {
+          series: [100, 0]
+        };
+
+        var options = {
+          donut: true,
+          donutWidth: 10,
+          startAngle: 0,
+          total: 100,
+          showLabel: false,
+          height: 150
+        };
+
+        UpdatesChart = Chartist.Pie('.updates-chart .ct-chart', data, options);
+        UpdatesChart.on('draw', function(data){
+            if (data.index) { return; }
+            chart.find('.numeric span').text(Math.round(data.value) + '%');
+        });
+    }
+
     // Cache Clear
     $('[data-clear-cache]').on('click', function(e) {
 
@@ -53,6 +76,7 @@ $(function () {
         }
 
         var grav = response.payload.grav,
+            installed = response.payload.installed,
             resources = response.payload.resources;
 
         //console.log(grav, resources);
@@ -65,6 +89,13 @@ $(function () {
 
             content = jQuery.substitute(content, {available: grav.available, version: grav.version});
             $('[data-gpm-grav]').addClass('grav').html('<p>' + icon + content + button + '</p>');
+        }
+
+        // dashboard
+        if ($('.updates-chart').length) {
+            var missing = resources.total * 100 / installed,
+                updated = 100 - missing;
+            UpdatesChart.update({series: [updated, missing]});
         }
 
         if (resources.total > 0) {
