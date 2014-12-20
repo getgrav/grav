@@ -158,7 +158,7 @@ trait MarkdownGravLinkTrait
             }
 
             // build the new url
-            $new_url = $relative_path . '/' . implode('/', $newpath);
+            $new_url = rtrim($relative_path, '/') . '/' . implode('/', $newpath);
         }
 
         return $new_url;
