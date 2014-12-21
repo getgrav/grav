@@ -132,16 +132,12 @@ trait MarkdownGravLinkTrait
         } elseif (strpos($markdown_url, '/') === 0) {
             $new_url = rtrim($this->base_url, '/') . $markdown_url;
         } else {
-           $relative_path = rtrim($this->base_url, '/') . $this->page->route();
+            $relative_path = rtrim($this->base_url, '/') . $this->page->route();
 
             // If this is a 'real' filepath clean it up
-            if (file_exists($this->page->path().'/'.$markdown_url)) {
-                $relative_path = rtrim($this->base_url, '/') .
-                                 preg_replace('/\/([\d]+.)/', '/',
-                                 str_replace(PAGES_DIR, '/', $this->page->path()));
-                $markdown_url = preg_replace('/^([\d]+.)/', '',
-                                preg_replace('/\/([\d]+.)/', '/',
-                                trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
+            if (file_exists($this->page->path().'/'.parse_url($markdown_url, PHP_URL_PATH))) {
+                $relative_path = rtrim($this->base_url, '/') . preg_replace('/\/([\d]+.)/', '/', str_replace(PAGES_DIR, '/', $this->page->path()));
+                $markdown_url = preg_replace('/^([\d]+.)/', '', preg_replace('/\/([\d]+.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
             }
 
             // else its a relative path already
