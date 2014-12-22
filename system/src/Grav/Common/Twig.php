@@ -248,7 +248,16 @@ class Twig
         try {
             $output = $this->twig->render($template, $twig_vars);
         } catch (\Twig_Error_Loader $e) {
-            throw new \RuntimeException($e->getRawMessage(), 404, $e);
+            // If loader error, and not .html.twig, try it as fallback
+            if ($ext != '.html'.TWIG_EXT) {
+                try {
+                    $output = $this->twig->render($page->template().'.html'.TWIG_EXT, $twig_vars);
+                } catch (\Twig_Error_Loader $e) {
+                    throw new \RuntimeException($e->getRawMessage(), 404, $e);
+                }
+            } else {
+                throw new \RuntimeException($e->getRawMessage(), 404, $e);
+            }
         }
 
         return $output;
