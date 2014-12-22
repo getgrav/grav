@@ -4,13 +4,18 @@ namespace Grav\Common;
 /**
  * Simple wrapper for the very simple parse_user_agent() function
  */
-class Browser {
+class Browser
+{
 
-    protected $useragent;
+    protected $useragent = [];
 
     public function __construct()
     {
-        $this->useragent = parse_user_agent();
+        try {
+            $this->useragent = parse_user_agent();
+        } catch (\InvalidArgumentException $e) {
+            $this->useragent = parse_user_agent("Mozilla/5.0 (compatible; Unknown;)");
+        }
     }
 
     public function getBrowser()
