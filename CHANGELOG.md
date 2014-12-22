@@ -1,4 +1,16 @@
-# v0.9.10 beta
+# v0.9.11
+## 12/21/2014
+
+1. [](#new)
+    * Added support for simple redirects as well as routes
+2. [](#improved)
+    * Handle Twig errors more cleanly
+3. [](#bugfix)
+    * Fix for error caused by invalid or missing user agent string
+    * Fix for directory relative links and URL fragments (#pagelink)
+    * Fix for relative links with no subfolder in `base_url`
+
+# v0.9.10
 ## 12/12/2014
 
 1. [](#new)
@@ -8,7 +20,7 @@
 3. [](#bugfix)
     * Fix for undefined index with previous/next buttons
 
-# v0.9.9 beta
+# v0.9.9
 ## 12/05/2014
 
 1. [](#new)
@@ -22,7 +34,7 @@
 3. [](#bugfix)
     * Fix for over-escaped apostrophes in YAML
 
-# v0.9.8 beta
+# v0.9.8
 ## 12/01/2014
 
 1. [](#new)
@@ -38,7 +50,7 @@
 3. [](#bugfix)
     * Fix issue with miscalculation of blog separator location `===`
 
-# v0.9.7 beta
+# v0.9.7
 ## 11/24/2014
 
 1. [](#improved)
@@ -51,7 +63,7 @@
     * Fix for JS asset pipeline and scripts that don't end in `;`
     * Fix for schema-based markdown URLs broken routes (eg `mailto:`)
 
-# v0.9.6 beta
+# v0.9.6
 ## 11/17/2014
 
 1. [](#improved)
@@ -66,7 +78,7 @@
     * Fix for relative URLs in markdown on installs with no base_url
     * Fix for page media images with uppercase extension
 
-# v0.9.5 beta
+# v0.9.5
 ## 11/09/2014
 
 1. [](#new)
@@ -89,7 +101,7 @@
     * Fix for Data URLs in CSS being badly formed
     * Fix Markdown links with fragment and query elements
 
-# v0.9.4 beta
+# v0.9.4
 ## 10/29/2014
 
 1. [](#new)
@@ -114,7 +126,7 @@
     * Fix potential double // in assets
     * Load debugger as early as possible
 
-# v0.9.3 beta
+# v0.9.3
 ## 10/09/2014
 
 1. [](#new)
@@ -142,7 +154,7 @@
     * Switched debugger to PRODUCTION mode by default
     * Various fixes in URI class for increased reliability
 
-# v0.9.2 beta
+# v0.9.2
 ## 09/15/2014
 
 1. [](#new)
@@ -175,7 +187,7 @@
     * Fix broken password validation
     * Back to proper PSR-4 Autoloader
 
-# v0.9.1 beta
+# v0.9.1
 ## 09/02/2014
 
 1. [](#new)
@@ -196,7 +208,7 @@
     * Fixed template inheritance
     * Moved Browser class to proper location
 
-# v0.9.0 beta
+# v0.9.0
 ## 08/25/2014
 
 1. [](#new)
@@ -224,7 +236,7 @@
     * Various minor bug fixes
 
 
-# v0.8.0 beta
+# v0.8.0
 ## 08/13/2014
 
 1. [](#new)
