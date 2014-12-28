@@ -55,7 +55,11 @@ class Plugins extends Iterator
             $pluginClass = 'Grav\\Plugin\\'.ucfirst($plugin).'Plugin';
 
             if (!class_exists($pluginClass)) {
-                throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $plugin));
+                // Try once more with `_` stripped
+                $pluginClass = 'Grav\\Plugin\\' . str_replace('_', '', $plugin) . 'Plugin';
+                if (!class_exists($pluginClass)) {
+                    throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $plugin));
+                }
             }
 
             $instance = new $pluginClass($this->grav, $config);
