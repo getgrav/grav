@@ -75,16 +75,18 @@ class AdminPlugin extends Plugin
      */
     public function login()
     {
-        // Check for Pro version and disable this plugin if found
-        // if (file_exists(PLUGINS_DIR . 'admin_pro/admin_pro.php')) {
-        //     $this->enabled = false;
-        //     return;
-        // }
+        // Check for Pro version is enabled
+        if ($this->config->get('plugins.admin-pro.enabled')) {
+            $this->active = false;
+            return;
+        }
 
         $route = $this->config->get('plugins.admin.route');
         if (!$route) {
             return;
         }
+
+        $this->grav['debugger']->addMessage("Admin Basic");
 
         $this->base = '/' . trim($route, '/');
         $this->uri = $this->grav['uri'];
@@ -193,8 +195,6 @@ class AdminPlugin extends Plugin
         // Dynamic type support
         $format = $this->uri->extension();
         $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
-
-        // \Tracy\Debugger::dump($this->admin);
 
         $twig->template = $this->template . $ext;
         $twig->twig_vars['location'] = $this->template;

@@ -50,15 +50,9 @@
                 </span>
             </a>
         </li>
-        <li class="{{ (location == 'users') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/users"><i class="fa fa-fw fa-child"></i> Users</a>
-        </li>
-        <li class="{{ (location == 'installer') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/installer"><i class="fa fa-fw fa-cloud-download"></i> Installer</a>
-        </li>
-        <li class="{{ (location == 'statistics') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/statistics"><i class="fa fa-fw fa-bar-chart"></i> Statistics</a>
-        </li>
+
+        {% include 'nav-pro.html.twig' ignore missing %}
+
         <li class="{{ (location == 'logs') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/logs">
                 <i class="fa fa-fw fa-warning"></i> Error Logs
