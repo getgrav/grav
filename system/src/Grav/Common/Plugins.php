@@ -53,11 +53,11 @@ class Plugins extends Iterator
             require_once $filePath;
 
             $pluginClassFormat = [
-                  'Grav\\Plugin\\'.ucfirst($plugin).'Plugin',
-                  'Grav\\Plugin\\' . str_replace('_', '', $plugin) . 'Plugin'
+                'Grav\\Plugin\\'.ucfirst($plugin).'Plugin',
+                'Grav\\Plugin\\'.str_replace(['_','-'], '', $plugin).'Plugin'
             ];
             $pluginClassName = false;
-            
+
             foreach ($pluginClassFormat as $pluginClass) {
                 if (class_exists($pluginClass)) {
                     $pluginClassName = $pluginClass;
