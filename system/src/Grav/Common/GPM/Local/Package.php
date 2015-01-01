@@ -30,6 +30,7 @@ class Package
         if ($package_type) {
             $html_description = \Parsedown::instance()->line($this->blueprints->get('description'));
             $this->blueprints->set('package_type', $package_type);
+            $this->blueprints->set('slug', $this->blueprints->name);
             $this->blueprints->set('description_html', $html_description);
             $this->blueprints->set('description_plain', strip_tags($html_description));
             $this->blueprints->set('symlink', is_link(USER_DIR . $package_type . DS . $this->blueprints->name));
