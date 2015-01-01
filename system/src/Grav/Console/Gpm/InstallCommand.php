@@ -119,7 +119,8 @@ class InstallCommand extends Command
 
         foreach ($this->data as $data) {
             foreach ($data as $package) {
-                $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $package->version . "]");
+                $version = isset($package->available) ? $package->available : $package->version;
+                $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
 
                 $this->output->write("  |- Downloading package...     0%");
                 $this->file = $this->downloadPackage($package);
