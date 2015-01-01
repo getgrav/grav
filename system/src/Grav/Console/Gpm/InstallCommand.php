@@ -71,7 +71,7 @@ class InstallCommand extends Command
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'The package of which more informations are desired. Use the "index" command for a list of packages'
+                'The package(s) that are desired to be installed. Use the "index" command for a list of packages'
             )
             ->setDescription("Performs the installation of plugins and themes")
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
