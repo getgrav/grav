@@ -183,6 +183,10 @@ class Twig
                 $twig_vars['content'] = $content;
                 $template = $item->template() . TEMPLATE_EXT;
                 $output = $local_twig->render($template, $twig_vars);
+                
+                // Render page content
+                $this->setTemplate($template, $output);
+                $output = $local_twig->render($template, $twig_vars);
             } else {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
