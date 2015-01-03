@@ -90,6 +90,27 @@ class Twig
                 $collector = new \DebugBar\Bridge\Twig\TwigCollector($this->twig);
                 $debugger->addCollector($collector);
             }
+
+            if ($config->get('system.twig.undefined_functions')) {
+                $this->twig->registerUndefinedFunctionCallback(function ($name) {
+                    if (function_exists($name)) {
+                        return new \Twig_Function_Function($name);
+                    }
+
+                    return new \Twig_Function_Function(function() {});
+                });
+            }
+
+            if ($config->get('system.twig.undefined_filters')) {
+                $this->twig->registerUndefinedFilterCallback(function ($name) {
+                    if (function_exists($name)) {
+                        return new \Twig_Filter_Function($name);
+                    }
+
+                    return new \Twig_Filter_Function(function() {});
+                });
+            }
+
             $this->grav->fireEvent('onTwigInitialized');
 
             // set default date format if set in config
