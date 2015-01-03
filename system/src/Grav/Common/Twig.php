@@ -176,14 +176,19 @@ class Twig
         $twig_vars['header'] = $item->header();
 
         $local_twig = clone($this->twig);
+        $modular_twig = $item->modularTwig();
+        $process_twig = isset($item->header()->process['twig']) ? $item->header()->process['twig'] : false;
 
         try {
-            // Get Twig template layout
-            if ($item->modularTwig()) {
+            // Process Modular Twig
+            if ($modular_twig) {
                 $twig_vars['content'] = $content;
                 $template = $item->template() . TEMPLATE_EXT;
-                $output = $local_twig->render($template, $twig_vars);
-            } else {
+                $output = $content = $local_twig->render($template, $twig_vars);
+            }
+
+            // Process in-page Twig
+            if (!$modular_twig || ($modular_twig && $process_twig)) {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
                 $output = $local_twig->render($name, $twig_vars);
@@ -191,7 +196,6 @@ class Twig
         } catch (\Twig_Error_Loader $e) {
             throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
-
 
         return $output;
     }
