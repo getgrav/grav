@@ -1264,7 +1264,7 @@ class Page
         if ($this->home()) {
             $paths = $uri->paths();
             $home = ltrim($config->get('system.home.alias'), '/');
-            if ($paths[0] == $home) {
+            if (isset($paths[0]) && $paths[0] == $home) {
                 return true;
             }
         } else {

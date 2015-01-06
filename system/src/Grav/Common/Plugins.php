@@ -52,13 +52,24 @@ class Plugins extends Iterator
 
             require_once $filePath;
 
-            $pluginClass = 'Grav\\Plugin\\'.ucfirst($plugin).'Plugin';
+            $pluginClassFormat = [
+                'Grav\\Plugin\\'.ucfirst($plugin).'Plugin',
+                'Grav\\Plugin\\'.str_replace(['_','-'], '', $plugin).'Plugin'
+            ];
+            $pluginClassName = false;
 
-            if (!class_exists($pluginClass)) {
+            foreach ($pluginClassFormat as $pluginClass) {
+                if (class_exists($pluginClass)) {
+                    $pluginClassName = $pluginClass;
+                    break;
+                }
+            }
+
+            if (false === $pluginClassName) {
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $plugin));
             }
 
-            $instance = new $pluginClass($this->grav, $config);
+            $instance = new $pluginClassName($this->grav, $config);
             if ($instance instanceof EventSubscriberInterface) {
                 $events->addSubscriber($instance);
             }

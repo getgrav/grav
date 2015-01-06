@@ -90,6 +90,27 @@ class Twig
                 $collector = new \DebugBar\Bridge\Twig\TwigCollector($this->twig);
                 $debugger->addCollector($collector);
             }
+
+            if ($config->get('system.twig.undefined_functions')) {
+                $this->twig->registerUndefinedFunctionCallback(function ($name) {
+                    if (function_exists($name)) {
+                        return new \Twig_Function_Function($name);
+                    }
+
+                    return new \Twig_Function_Function(function() {});
+                });
+            }
+
+            if ($config->get('system.twig.undefined_filters')) {
+                $this->twig->registerUndefinedFilterCallback(function ($name) {
+                    if (function_exists($name)) {
+                        return new \Twig_Filter_Function($name);
+                    }
+
+                    return new \Twig_Filter_Function(function() {});
+                });
+            }
+
             $this->grav->fireEvent('onTwigInitialized');
 
             // set default date format if set in config
@@ -176,14 +197,19 @@ class Twig
         $twig_vars['header'] = $item->header();
 
         $local_twig = clone($this->twig);
+        $modular_twig = $item->modularTwig();
+        $process_twig = isset($item->header()->process['twig']) ? $item->header()->process['twig'] : false;
 
         try {
-            // Get Twig template layout
-            if ($item->modularTwig()) {
+            // Process Modular Twig
+            if ($modular_twig) {
                 $twig_vars['content'] = $content;
                 $template = $item->template() . TEMPLATE_EXT;
-                $output = $local_twig->render($template, $twig_vars);
-            } else {
+                $output = $content = $local_twig->render($template, $twig_vars);
+            }
+
+            // Process in-page Twig
+            if (!$modular_twig || ($modular_twig && $process_twig)) {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
                 $output = $local_twig->render($name, $twig_vars);
@@ -191,7 +217,6 @@ class Twig
         } catch (\Twig_Error_Loader $e) {
             throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
-
 
         return $output;
     }
@@ -248,7 +273,16 @@ class Twig
         try {
             $output = $this->twig->render($template, $twig_vars);
         } catch (\Twig_Error_Loader $e) {
-            throw new \RuntimeException($e->getRawMessage(), 404, $e);
+            // If loader error, and not .html.twig, try it as fallback
+            if ($ext != '.html'.TWIG_EXT) {
+                try {
+                    $output = $this->twig->render($page->template().'.html'.TWIG_EXT, $twig_vars);
+                } catch (\Twig_Error_Loader $e) {
+                    throw new \RuntimeException($e->getRawMessage(), 404, $e);
+                }
+            } else {
+                throw new \RuntimeException($e->getRawMessage(), 404, $e);
+            }
         }
 
         return $output;

@@ -71,7 +71,7 @@ class InstallCommand extends Command
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'The package of which more informations are desired. Use the "index" command for a list of packages'
+                'The package(s) that are desired to be installed. Use the "index" command for a list of packages'
             )
             ->setDescription("Performs the installation of plugins and themes")
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
@@ -119,7 +119,8 @@ class InstallCommand extends Command
 
         foreach ($this->data as $data) {
             foreach ($data as $package) {
-                $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $package->version . "]");
+                $version = isset($package->available) ? $package->available : $package->version;
+                $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
 
                 $this->output->write("  |- Downloading package...     0%");
                 $this->file = $this->downloadPackage($package);

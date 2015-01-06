@@ -69,8 +69,8 @@ class SelfupgradeCommand extends Command
                 InputOption::VALUE_NONE,
                 'Assumes yes (or best approach) instead of prompting'
             )
-            ->setDescription("Detects and performs an update of plugins and themes when available")
-            ->setHelp('The <info>update</info> command updates plugins and themes when a new version is available');
+            ->setDescription("Detects and performs an update of Grav itself when available")
+            ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
 
     /**

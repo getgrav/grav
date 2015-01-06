@@ -34,6 +34,8 @@ twig:
   debug: false                         # Enable Twig debug
   auto_reload: true                    # Refresh cache on changes
   autoescape: false                    # Autoescape Twig vars
+  undefined_functions: true            # Allow undefined functions
+  undefined_filters: true              # Allow undefined filters
 
 assets:                                # Configuration for Assets Manager (JS, CSS)
   css_pipeline: false                  # The CSS pipeline is the unification of multiple CSS resources into one file

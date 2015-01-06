@@ -159,6 +159,26 @@ class Installer
         return true;
     }
 
+
+    /**
+     * Unnstalls one or more given package
+     *
+     * @param  string $package     The slug of the package(s)
+     * @param  array  $options     Options to use for uninstalling
+     *
+     * @return boolean True if everything went fine, False otherwise.
+     */
+    public static function uninstall($path, $options = [])
+    {
+        $options = array_merge(self::$options, $options);
+        if (!self::isValidDestination($path, $options['exclude_checks'])
+        ) {
+            return false;
+        }
+
+        return Folder::delete($path);
+    }
+
     /**
      * Runs a set of checks on the destination and sets the Error if any
      *
