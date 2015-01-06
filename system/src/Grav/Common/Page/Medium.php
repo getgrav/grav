@@ -313,12 +313,7 @@ class Medium extends Data
         if (!$this->image) {
             $this->image();
         }
-
-        if (method_exists($this->image, $method)) {
-            $result = call_user_func_array(array($this->image, $method), $args);
-        } else {
-            $result = null;
-        }
+        $result = call_user_func_array(array($this->image, $method), $args);
 
         // Returns either current object or result of the action.
         return $result instanceof ImageFile ? $this : $result;
