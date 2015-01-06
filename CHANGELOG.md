@@ -1,3 +1,22 @@
+# v0.9.12
+## 01/06/2015
+
+1. [](#new)
+    * Added an all-access robots.txt file for search engines
+    * Added new GPM `uninstall` command
+    * Added support for **in-page** Twig processing in **modular** pages
+    * Added configurable support for `undefined` Twig functions and filters
+2. [](#improved)
+    * Fallback to default `.html` template if error occurs on non-html pages
+    * Added ability to have PSR-1 friendly plugin names (camelcase, no-dashes)
+    * Fix to `composer.json` to deter API rate-limit errors
+    * Added **non-exception-throwing** handler for undefined methods on `Medium` objects
+3. [](#bugfix)
+    * Fix description for `self-upgrade` method of GPM command
+    * Fix for incorrect version number when performing GPM `update`
+    * Fix for argument description of GPM `install` command
+    * Fix for recalcitrant CodeKit mac application
+
 # v0.9.11
 ## 12/21/2014
 
