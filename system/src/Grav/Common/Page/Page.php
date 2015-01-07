@@ -31,9 +31,8 @@ class Page
     use GravTrait;
 
     const ALL_PAGES = 0;        // both standard and modular pages
-    const STANDARD_PAGES = 1;   // visible and invisible pages (e.g. 01.regular/, invisible/)
+    const STANDARD_PAGES = 1;   // only non-modular pages
     const MODULAR_PAGES = 2;    // modular pages (e.g. _modular/)
-
 
     /**
      * @var string Filename. Leave as null if page is folder.
@@ -53,6 +52,7 @@ class Page
     protected $parent;
     protected $template;
     protected $visible;
+    protected $published;
     protected $slug;
     protected $route;
     protected $routable;
@@ -103,6 +103,7 @@ class Page
         $this->routable = true;
         $this->taxonomy = array();
         $this->process = $config->get('system.pages.process');
+        $this->published = true;
     }
 
     /**
@@ -246,6 +247,9 @@ class Page
                 foreach ($this->header->process as $process => $status) {
                     $this->process[$process] = $status;
                 }
+            }
+            if (isset($this->header->published)) {
+                $this->published($this->header->published);
             }
         }
 
@@ -726,6 +730,26 @@ class Page
             }
         }
         return $this->visible;
+    }
+
+    /**
+     * Gets and Sets whether or not this Page is considered published
+     *
+     * @param  bool $var true if the page is published
+     * @return bool      true if the page is published
+     */
+    public function published($var = null)
+    {
+        if ($var !== null) {
+            $this->published = (bool) $var;
+        }
+
+        // if unpublished let's make sure you can't reach it
+        if ($this->published == false) {
+            $this->routable = false;
+            $this->visible = false;
+        }
+        return $this->published;
     }
 
     /**
@@ -1334,7 +1358,13 @@ class Page
             return array();
         }
 
-        $collection = $this->evaluate($params['items']);
+        if (isset($params['filters'])) {
+            $filters = $params['filters'];
+        } else {
+            $filters = null;
+        }
+
+        $collection = $this->evaluate($params['items'], $filters);
         if (!$collection instanceof Collection) {
             $collection = new Collection();
         }
@@ -1396,10 +1426,12 @@ class Page
 
     /**
      * @param string $value
+     * @param null   $filters
+     *
      * @return mixed
      * @internal
      */
-    protected function evaluate($value)
+    protected function evaluate($value, $filters = null)
     {
         // Parse command.
         if (is_string($value)) {
@@ -1421,6 +1453,10 @@ class Page
 
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
+
+        $include_visible = true;
+        $include_routable = true;
+        $include_published = true;
 
         $results = null;
         switch ($current) {
