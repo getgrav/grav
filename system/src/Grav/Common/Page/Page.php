@@ -34,6 +34,14 @@ class Page
     const STANDARD_PAGES = 1;   // only non-modular pages
     const MODULAR_PAGES = 2;    // modular pages (e.g. _modular/)
 
+    const MODULAR = 'modular';
+    const VISIBLE = 'visible';
+    const ROUTABLE = 'routable';
+    const PUBLISHED = 'published';
+    const ANY_STATE = 'any';
+
+    protected $default_filters = [Page::MODULAR=>false, Page::VISIBLE=>true, Page::ROUTABLE=>Page::ANY_STATE, Page::PUBLISHED=>true];
+
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -99,7 +107,7 @@ class Page
     {
         /** @var Config $config */
         $config = self::$grav['config'];
-
+        $this->visible = true;
         $this->routable = true;
         $this->taxonomy = array();
         $this->process = $config->get('system.pages.process');
@@ -1182,25 +1190,56 @@ class Page
     /**
      * Returns children of this page.
      *
-     * @param  bool $modular|null whether or not to return modular children
-     * @return Collection
+     * @param null $filters
+     *
+     * @return \Grav\Common\Page\Collection
+     * @internal param bool $modular |null whether or not to return modular children
      */
-    public function children($type = Page::STANDARD_PAGES)
+    public function children($filters = null)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
         $children = $pages->children($this->path());
 
+        // merge any filter overrides
+        if (is_array($filters)) {
+            $filters = array_merge($this->default_filters, $filters);
+        } else {
+            $filters = $this->default_filters;
+        }
+
         // Filter out modular pages on regular call
         // Filter out non-modular pages when all you want is modular
         foreach ($children as $child) {
+            // Modular filtering
             $is_modular_page = $child->modular();
-            if (($is_modular_page && $type == Page::STANDARD_PAGES) || (!$is_modular_page && $type == Page::MODULAR_PAGES)) {
+            $modular_filter = $this->filterActive($filters, Page::MODULAR);
+            if (($is_modular_page && !$modular_filter) || (!$is_modular_page && $modular_filter)) {
                 $children->remove($child->path());
+                break;
             }
+
+            // Visible filtering
+            $is_visible_page = $child->visible();
+            $visible_filter = $this->filterActive($filters, Page::VISIBLE);
+            if (($is_visible_page && !$visible_filter) || (!$is_visible_page && $visible_filter)) {
+                $children->remove($child->path());
+                break;
+            }
+
         }
 
         return $children;
+    }
+
+    protected function filterActive($filters, $filter)
+    {
+        if (array_key_exists($filter, $filters)) {
+            if ($filters[$filter] === true || $filters[$filter] == Page::ANY_STATE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1358,13 +1397,7 @@ class Page
             return array();
         }
 
-        if (isset($params['filters'])) {
-            $filters = $params['filters'];
-        } else {
-            $filters = null;
-        }
-
-        $collection = $this->evaluate($params['items'], $filters);
+        $collection = $this->evaluate($params['items'], isset($params['filters']) ? $params['filters'] : null);
         if (!$collection instanceof Collection) {
             $collection = new Collection();
         }
@@ -1454,20 +1487,18 @@ class Page
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
 
-        $include_visible = true;
-        $include_routable = true;
-        $include_published = true;
-
         $results = null;
         switch ($current) {
             case '@self':
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
-                            $results = $this->children(Page::MODULAR_PAGES);
+                            $filters[Page::MODULAR] = true;
+                            $results = $this->children($filters);
                             break;
                         case 'children':
-                            $results = $this->children(Page::STANDARD_PAGES);
+                            $filters[Page::MODULAR] = false;
+                            $results = $this->children($filters);
                             break;
                     }
                 }
@@ -1477,7 +1508,7 @@ class Page
                 if (!empty($params)) {
                     $page = $this->find($params[0]);
                     if ($page) {
-                        $results = $page->children(Page::STANDARD_PAGES);
+                        $results = $page->children($filters);
                     }
                 }
                 break;
