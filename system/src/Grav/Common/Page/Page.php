@@ -119,6 +119,14 @@ class Page
         $this->slug();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
+
+         // if enabled, unpublish this page if its date is set in the future
+        $config = self::$grav['config'];
+        if ($config->get('system.pages.future_pages_unpublished') && $this->date != $this->modified && ($this->date > time())) {
+            $this->published(false);
+        } else {
+            $this->published();
+        }
     }
 
     /**
@@ -246,7 +254,7 @@ class Page
                 }
             }
             if (isset($this->header->published)) {
-                $this->published($this->header->published);
+                $this->published = $this->header->published;
             }
         }
 
@@ -1027,19 +1035,14 @@ class Page
      */
     public function date($var = null)
     {
-        $config = self::$grav['config'];
-
         if ($var !== null) {
             $this->date = strtotime($var);
         }
+
         if (!$this->date) {
             $this->date = $this->modified;
         }
 
-        // if enabled, unpublish this page if its date is set in the future
-        if ($config->get('system.pages.future_pages_unpublished') && $this->date && ($this->date > time())) {
-            $this->published = false;
-        }
         return $this->date;
     }
 
