@@ -141,13 +141,13 @@ class UninstallCommand extends Command
     private function uninstallPackage($package)
     {
         $path = self::$grav['locator']->findResource($package->package_type . '://' . $package->slug);
-        Installer::uninstall($path, ['exclude_checks' => [Installer::IS_LINK]]);
+        Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
 
-        if ($errorCode && $errorCode !== Installer::IS_LINK) {
+        if ($errorCode && $errorCode !== Installer::IS_LINK && $errorCode !== Installer::EXISTS) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- Uninstalling package...    <red>error</red>                             ");
+            $this->output->writeln("  |- Uninstalling package...  <red>error</red>                             ");
             $this->output->writeln("  |  '- " . Installer::lastErrorMsg());
 
             return false;
@@ -155,7 +155,7 @@ class UninstallCommand extends Command
 
         $this->output->write("\x0D");
         // extra white spaces to clear out the buffer properly
-        $this->output->writeln("  |- Uninstalling package...    <green>ok</green>                             ");
+        $this->output->writeln("  |- Uninstalling package...  <green>ok</green>                             ");
 
         return true;
     }
@@ -172,23 +172,6 @@ class UninstallCommand extends Command
         $skipPrompt = $this->input->getOption('all-yes');
 
         Installer::isValidDestination($path);
-
-        if (Installer::lastErrorCode() == Installer::EXISTS) {
-            if (!$skipPrompt) {
-                $this->output->write("\x0D");
-                $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
-
-                $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ",
-                    false);
-                $answer = $questionHelper->ask($this->input, $this->output, $question);
-
-                if (!$answer) {
-                    $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
-
-                    return false;
-                }
-            }
-        }
 
         if (Installer::lastErrorCode() == Installer::IS_LINK) {
             $this->output->write("\x0D");
