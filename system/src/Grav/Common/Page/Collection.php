@@ -176,7 +176,6 @@ class Collection extends Iterator
      */
     public function adjacentSibling($path, $direction = 1)
     {
-
         $values = array_keys($this->items);
         $keys = array_flip($values);
 
@@ -243,7 +242,8 @@ class Collection extends Iterator
                 $visible[$path] = $slug;
             }
         }
-        return new static($visible, $this->params, $this->pages);
+        $this->items = $visible;
+        return $this;
     }
 
     /**
@@ -261,7 +261,8 @@ class Collection extends Iterator
                 $visible[$path] = $slug;
             }
         }
-        return new static($visible, $this->params, $this->pages);
+        $this->items = $visible;
+        return $this;
     }
 
     /**
@@ -279,7 +280,8 @@ class Collection extends Iterator
                 $modular[$path] = $slug;
             }
         }
-        return new static($modular, $this->params, $this->pages);
+        $this->items = $modular;
+        return $this;
     }
 
     /**
@@ -297,7 +299,8 @@ class Collection extends Iterator
                 $modular[$path] = $slug;
             }
         }
-        return new static($modular, $this->params, $this->pages);
+        $this->items = $modular;
+        return $this;
     }
 
     /**
@@ -315,7 +318,8 @@ class Collection extends Iterator
                 $published[$path] = $slug;
             }
         }
-        return new static($published, $this->params, $this->pages);
+        $this->items = $published;
+        return $this;
     }
 
     /**
@@ -333,7 +337,8 @@ class Collection extends Iterator
                 $published[$path] = $slug;
             }
         }
-        return new static($published, $this->params, $this->pages);
+        $this->items = $published;
+        return $this;
     }
 
     /**
@@ -351,7 +356,8 @@ class Collection extends Iterator
                 $routable[$path] = $slug;
             }
         }
-        return new static($routable, $this->params, $this->pages);
+        $this->items = $routable;
+        return $this;
     }
 
     /**
@@ -369,6 +375,7 @@ class Collection extends Iterator
                 $routable[$path] = $slug;
             }
         }
-        return new static($routable, $this->params, $this->pages);
+        $this->items = $routable;
+        return $this;
     }
 }
