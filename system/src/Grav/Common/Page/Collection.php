@@ -201,6 +201,34 @@ class Collection extends Iterator
     }
 
     /**
+     * Returns the items between a set of date ranges where second value is optional
+     * Dates can be passed in as text that strtotime() can process
+     * http://php.net/manual/en/function.strtotime.php
+     *
+     * @param      $startDate
+     * @param bool $endDate
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function dateRange($startDate, $endDate = false)
+    {
+        $start = strtotime($startDate);
+        $end = $endDate ? strtotime($endDate) : strtotime("now +1000 years");
+
+        $daterange = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->date() > $start && $page->date() < $end) {
+                $daterange[$path] = $slug;
+            }
+        }
+        $this->items = $daterange;
+        return $this;
+    }
+
+    /**
      * Creates new collection with only visible pages
      *
      * @return Collection The collection with only visible pages
