@@ -1385,6 +1385,12 @@ class Page
         }
         // TODO: END OF MOVE
 
+        if (isset($params['dateRange'])) {
+            $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;
+            $end = isset($params['dateRange']['end']) ? $params['dateRange']['end'] : false;
+            $collection->dateRange($start, $end);
+        }
+
         if (isset($params['order'])) {
             $by = isset($params['order']['by']) ? $params['order']['by'] : 'default';
             $dir = isset($params['order']['dir']) ? $params['order']['dir'] : 'asc';
