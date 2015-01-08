@@ -35,12 +35,10 @@ class Page
     const MODULAR_PAGES = 2;    // modular pages (e.g. _modular/)
 
     const MODULAR = 'modular';
-    const VISIBLE = 'visible';
-    const ROUTABLE = 'routable';
     const PUBLISHED = 'published';
     const ANY_STATE = 'any';
 
-    protected $default_filters = [Page::MODULAR=>false, Page::VISIBLE=>true, Page::ROUTABLE=>Page::ANY_STATE, Page::PUBLISHED=>true];
+    protected $default_filters = [Page::MODULAR=>false, Page::PUBLISHED=>true];
 
     /**
      * @var string Filename. Leave as null if page is folder.
@@ -107,7 +105,7 @@ class Page
     {
         /** @var Config $config */
         $config = self::$grav['config'];
-        $this->visible = true;
+
         $this->routable = true;
         $this->taxonomy = array();
         $this->process = $config->get('system.pages.process');
@@ -735,6 +733,8 @@ class Page
             $regex = '/^[0-9]+\./u';
             if (preg_match($regex, $this->folder)) {
                 $this->visible = true;
+            } else {
+                $this->visible = false;
             }
         }
         return $this->visible;
@@ -752,11 +752,6 @@ class Page
             $this->published = (bool) $var;
         }
 
-        // if unpublished let's make sure you can't reach it
-        if ($this->published == false) {
-            $this->routable = false;
-            $this->visible = false;
-        }
         return $this->published;
     }
 
@@ -1208,39 +1203,31 @@ class Page
             $filters = $this->default_filters;
         }
 
-        // Filter out modular pages on regular call
-        // Filter out non-modular pages when all you want is modular
         foreach ($children as $child) {
             // Modular filtering
-            $is_modular_page = $child->modular();
-            $modular_filter = $this->filterActive($filters, Page::MODULAR);
-            if (($is_modular_page && !$modular_filter) || (!$is_modular_page && $modular_filter)) {
-                $children->remove($child->path());
-                break;
+            if ($filters[self::MODULAR] !== self::ANY_STATE) {
+                $is_modular_page = $child->modular();
+                $modular_filter = $filters[self::MODULAR] === true;
+                if (($is_modular_page && !$modular_filter) || (!$is_modular_page && $modular_filter)) {
+                    $children->remove($child->path());
+                    continue;
+                }
             }
 
-            // Visible filtering
-            $is_visible_page = $child->visible();
-            $visible_filter = $this->filterActive($filters, Page::VISIBLE);
-            if (($is_visible_page && !$visible_filter) || (!$is_visible_page && $visible_filter)) {
-                $children->remove($child->path());
-                break;
+            // Published filtering
+            if ($filters[self::PUBLISHED] !== self::ANY_STATE) {
+                $is_published_page = $child->published();
+                $published_filter = $filters[self::PUBLISHED] === true;
+                if (($is_published_page && !$published_filter) || (!$is_published_page && $published_filter)) {
+                    $children->remove($child->path());
+                    continue;
+                }
             }
-
         }
 
         return $children;
     }
 
-    protected function filterActive($filters, $filter)
-    {
-        if (array_key_exists($filter, $filters)) {
-            if ($filters[$filter] === true || $filters[$filter] == Page::ANY_STATE) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Check to see if this item is the first in an array of sub-pages.
