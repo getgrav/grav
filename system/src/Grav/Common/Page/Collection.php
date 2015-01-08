@@ -214,6 +214,96 @@ class Collection extends Iterator
     }
 
     /**
+     * Creates new collection with only non-visible pages
+     *
+     * @return Collection The collection with only non-visible pages
+     */
+    public function nonVisible()
+    {
+        $visible = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->visible()) {
+                $visible[$path] = $slug;
+            }
+        }
+        return new static($visible, $this->params, $this->pages);
+    }
+
+    /**
+     * Creates new collection with only modular pages
+     *
+     * @return Collection The collection with only modular pages
+     */
+    public function modular()
+    {
+        $modular = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->modular()) {
+                $modular[$path] = $slug;
+            }
+        }
+        return new static($modular, $this->params, $this->pages);
+    }
+
+    /**
+     * Creates new collection with only non-modular pages
+     *
+     * @return Collection The collection with only non-modular pages
+     */
+    public function nonModular()
+    {
+        $modular = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->modular()) {
+                $modular[$path] = $slug;
+            }
+        }
+        return new static($modular, $this->params, $this->pages);
+    }
+
+    /**
+     * Creates new collection with only published pages
+     *
+     * @return Collection The collection with only published pages
+     */
+    public function published()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->published()) {
+                $published[$path] = $slug;
+            }
+        }
+        return new static($published, $this->params, $this->pages);
+    }
+
+    /**
+     * Creates new collection with only non-published pages
+     *
+     * @return Collection The collection with only non-published pages
+     */
+    public function nonPublished()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->published()) {
+                $published[$path] = $slug;
+            }
+        }
+        return new static($published, $this->params, $this->pages);
+    }
+
+    /**
      * Creates new collection with only routable pages
      *
      * @return Collection The collection with only routable pages
@@ -225,6 +315,24 @@ class Collection extends Iterator
         foreach (array_keys($this->items) as $path => $slug) {
             $page = $this->pages->get($path);
             if ($page->routable()) {
+                $routable[$path] = $slug;
+            }
+        }
+        return new static($routable, $this->params, $this->pages);
+    }
+
+    /**
+     * Creates new collection with only non-routable pages
+     *
+     * @return Collection The collection with only non-routable pages
+     */
+    public function nonRoutable()
+    {
+        $routable = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->routable()) {
                 $routable[$path] = $slug;
             }
         }
