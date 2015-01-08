@@ -114,6 +114,7 @@ class Page
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
         $this->header();
+        $this->date();
         $this->metadata();
         $this->slug();
         $this->visible();
@@ -1026,11 +1027,18 @@ class Page
      */
     public function date($var = null)
     {
+        $config = self::$grav['config'];
+
         if ($var !== null) {
             $this->date = strtotime($var);
         }
         if (!$this->date) {
             $this->date = $this->modified;
+        }
+
+        // if enabled, unpublish this page if its date is set in the future
+        if ($config->get('system.pages.future_pages_unpublished') && $this->date && ($this->date > time())) {
+            $this->published = false;
         }
         return $this->date;
     }
