@@ -179,9 +179,14 @@ class Collection extends Iterator
 
         $values = array_keys($this->items);
         $keys = array_flip($values);
-        $index = $keys[$path] - $direction;
 
-        return isset($values[$index]) ? $this->offsetGet($values[$index]) : $this;
+        if (array_key_exists($path, $keys)) {
+            $index = $keys[$path] - $direction;
+
+            return isset($values[$index]) ? $this->offsetGet($values[$index]) : $this;
+        }
+        return $this;
+
     }
 
     /**
