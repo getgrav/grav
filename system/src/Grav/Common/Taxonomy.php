@@ -52,6 +52,10 @@ class Taxonomy
             $page_taxonomy = $page->taxonomy();
         }
 
+        if (!$page->published()) {
+            return;
+        }
+
         /** @var Config $config */
         $config = $this->grav['config'];
         if ($config->get('site.taxonomies') && count($page_taxonomy) > 0) {
