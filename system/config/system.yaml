@@ -14,7 +14,7 @@ pages:
   dateformat:
     short: 'jS M Y'                    # Short date format
     long: 'F jS \a\t g:ia'             # Long date format
-  future_pages_unpublished: true       # pages with dates in the future are considered unpublished
+  publish_dates: true                  # automatically publish/unpublish based on dates
   process:
     markdown: true                     # Process Markdown
     twig: false                        # Process Twig
