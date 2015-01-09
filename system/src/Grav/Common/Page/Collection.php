@@ -176,12 +176,16 @@ class Collection extends Iterator
      */
     public function adjacentSibling($path, $direction = 1)
     {
-
         $values = array_keys($this->items);
         $keys = array_flip($values);
-        $index = $keys[$path] - $direction;
 
-        return isset($values[$index]) ? $this->offsetGet($values[$index]) : $this;
+        if (array_key_exists($path, $keys)) {
+            $index = $keys[$path] - $direction;
+
+            return isset($values[$index]) ? $this->offsetGet($values[$index]) : $this;
+        }
+        return $this;
+
     }
 
     /**
@@ -193,6 +197,34 @@ class Collection extends Iterator
     public function currentPosition($path)
     {
         return array_search($path, array_keys($this->items));
+    }
+
+    /**
+     * Returns the items between a set of date ranges where second value is optional
+     * Dates can be passed in as text that strtotime() can process
+     * http://php.net/manual/en/function.strtotime.php
+     *
+     * @param      $startDate
+     * @param bool $endDate
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function dateRange($startDate, $endDate = false)
+    {
+        $start = strtotime($startDate);
+        $end = $endDate ? strtotime($endDate) : strtotime("now +1000 years");
+
+        $daterange = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->date() > $start && $page->date() < $end) {
+                $daterange[$path] = $slug;
+            }
+        }
+        $this->items = $daterange;
+        return $this;
     }
 
     /**
@@ -210,7 +242,103 @@ class Collection extends Iterator
                 $visible[$path] = $slug;
             }
         }
-        return new static($visible, $this->params, $this->pages);
+        $this->items = $visible;
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only non-visible pages
+     *
+     * @return Collection The collection with only non-visible pages
+     */
+    public function nonVisible()
+    {
+        $visible = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->visible()) {
+                $visible[$path] = $slug;
+            }
+        }
+        $this->items = $visible;
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only modular pages
+     *
+     * @return Collection The collection with only modular pages
+     */
+    public function modular()
+    {
+        $modular = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->modular()) {
+                $modular[$path] = $slug;
+            }
+        }
+        $this->items = $modular;
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only non-modular pages
+     *
+     * @return Collection The collection with only non-modular pages
+     */
+    public function nonModular()
+    {
+        $modular = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->modular()) {
+                $modular[$path] = $slug;
+            }
+        }
+        $this->items = $modular;
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only published pages
+     *
+     * @return Collection The collection with only published pages
+     */
+    public function published()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->published()) {
+                $published[$path] = $slug;
+            }
+        }
+        $this->items = $published;
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only non-published pages
+     *
+     * @return Collection The collection with only non-published pages
+     */
+    public function nonPublished()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->published()) {
+                $published[$path] = $slug;
+            }
+        }
+        $this->items = $published;
+        return $this;
     }
 
     /**
@@ -228,6 +356,26 @@ class Collection extends Iterator
                 $routable[$path] = $slug;
             }
         }
-        return new static($routable, $this->params, $this->pages);
+        $this->items = $routable;
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only non-routable pages
+     *
+     * @return Collection The collection with only non-routable pages
+     */
+    public function nonRoutable()
+    {
+        $routable = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (!$page->routable()) {
+                $routable[$path] = $slug;
+            }
+        }
+        $this->items = $routable;
+        return $this;
     }
 }

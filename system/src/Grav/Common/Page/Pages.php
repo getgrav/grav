@@ -522,11 +522,6 @@ class Pages
 
                 $this->children[$page->path()][$child->path()] = array('slug' => $child->slug());
 
-                // set the modified time if not already set
-                if (!$page->date()) {
-                    $page->date($modified);
-                }
-
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
