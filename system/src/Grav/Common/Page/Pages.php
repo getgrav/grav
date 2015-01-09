@@ -522,11 +522,6 @@ class Pages
 
                 $this->children[$page->path()][$child->path()] = array('slug' => $child->slug());
 
-                // set the modified time if not already set
-                if (!$page->date()) {
-                    $page->date($modified);
-                }
-
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
@@ -602,6 +597,16 @@ class Pages
     protected function buildSort($path, array $pages, $order_by = 'default', $manual = null)
     {
         $list = array();
+        $header_default = null;
+        $header_query = null;
+
+        // do this headery query work only once
+        if (strpos($order_by, 'header.') === 0) {
+            $header_query = explode('|', str_replace('header.', '', $order_by));
+            if (isset($header_query[1])) {
+                $header_default = $header_query[1];
+            }
+        }
 
         foreach ($pages as $key => $info) {
 
@@ -621,10 +626,19 @@ class Pages
                     $list[$key] = $child->modified();
                     break;
                 case 'slug':
-                    $list[$key] = $info['slug'];
+                    $list[$key] = $child->slug();
                     break;
                 case 'basename':
                     $list[$key] = basename($key);
+                    break;
+                case (is_string($header_query[0])):
+                    $child_header = new Header((array)$child->header());
+                    $header_value = $child_header->get($header_query[0]);
+                    if ($header_value) {
+                        $list[$key] = $header_value;
+                    } else {
+                        $list[$key] = $header_default ?: $key;
+                    }
                     break;
                 case 'manual':
                 case 'default':

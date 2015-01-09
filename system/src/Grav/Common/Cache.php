@@ -26,6 +26,11 @@ class Cache extends Getters
      */
     protected $key;
 
+    protected $lifetime;
+    protected $now;
+
+    protected $config;
+
     /**
      * @var DoctrineCache
      */
@@ -85,6 +90,7 @@ class Cache extends Getters
     {
         /** @var Config $config */
         $this->config = $grav['config'];
+        $this->now = time();
 
         $this->cache_dir = $grav['locator']->findResource('cache://doctrine', true, true);
 
@@ -184,7 +190,7 @@ class Cache extends Getters
         if ($this->enabled) {
 
             if ($lifetime == null) {
-                $lifetime = $this->config->get('system.cache.lifetime') ?: null;
+                $lifetime = $this->getLifetime();
             }
             $this->driver->save($id, $data, $lifetime);
         }
@@ -262,5 +268,38 @@ class Cache extends Getters
         }
 
         return $output;
+    }
+
+
+    /**
+     * Set the cache lifetime programatically
+     *
+     * @param int $future timestamp
+     */
+    public function setLifetime($future)
+    {
+        if (!$future) {
+            return;
+        }
+
+        $interval = $future - $this->now;
+        if ($interval > 0 && $interval < $this->getLifetime()) {
+            $this->lifetime = $interval;
+        }
+    }
+
+
+    /**
+     * Retrieve the cache lifetime (in seconds)
+     *
+     * @return mixed
+     */
+    public function getLifetime()
+    {
+        if ($this->lifetime === null) {
+            $this->lifetime = $this->config->get('system.cache.lifetime') ?: 604800; // 1 week default
+        }
+
+        return $this->lifetime;
     }
 }

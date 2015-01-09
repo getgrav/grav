@@ -30,11 +30,6 @@ class Page
 {
     use GravTrait;
 
-    const ALL_PAGES = 0;        // both standard and modular pages
-    const STANDARD_PAGES = 1;   // visible and invisible pages (e.g. 01.regular/, invisible/)
-    const MODULAR_PAGES = 2;    // modular pages (e.g. _modular/)
-
-
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -53,6 +48,9 @@ class Page
     protected $parent;
     protected $template;
     protected $visible;
+    protected $published;
+    protected $publish_date;
+    protected $unpublish_date;
     protected $slug;
     protected $route;
     protected $routable;
@@ -103,6 +101,7 @@ class Page
         $this->routable = true;
         $this->taxonomy = array();
         $this->process = $config->get('system.pages.process');
+        $this->published = true;
     }
 
     /**
@@ -117,10 +116,33 @@ class Page
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
         $this->header();
+        $this->date();
         $this->metadata();
         $this->slug();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
+
+         // Handle publishing dates
+        $config = self::$grav['config'];
+
+        if ($config->get('system.pages.publish_dates')) {
+
+            if ($this->unpublishDate()) {
+                if ($this->unpublishDate() < time()) {
+                    $this->published(false);
+                } else {
+                    $this->published();
+                    self::$grav['cache']->setLifeTime($this->unpublishDate());
+                }
+            }
+
+            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
+                $this->published(false);
+                self::$grav['cache']->setLifeTime($this->publishDate());
+            }
+        }
+        $this->published();
+
     }
 
     /**
@@ -246,6 +268,15 @@ class Page
                 foreach ($this->header->process as $process => $status) {
                     $this->process[$process] = $status;
                 }
+            }
+            if (isset($this->header->published)) {
+                $this->published = $this->header->published;
+            }
+            if (isset($this->header->publish_date)) {
+                $this->publish_date = strtotime($this->header->publish_date);
+            }
+            if (isset($this->header->unpublish_date)) {
+                $this->unpublish_date = strtotime($this->header->unpublish_date);
             }
         }
 
@@ -723,9 +754,65 @@ class Page
             $regex = '/^[0-9]+\./u';
             if (preg_match($regex, $this->folder)) {
                 $this->visible = true;
+            } else {
+                $this->visible = false;
             }
         }
         return $this->visible;
+    }
+
+    /**
+     * Gets and Sets whether or not this Page is considered published
+     *
+     * @param  bool $var true if the page is published
+     * @return bool      true if the page is published
+     */
+    public function published($var = null)
+    {
+        if ($var !== null) {
+            $this->published = (bool) $var;
+        }
+
+        // If not published, should not be visible in menus either
+        if ($this->published === false) {
+            $this->visible = false;
+        }
+
+        return $this->published;
+    }
+
+    /**
+     * Gets and Sets the Page publish date
+     *
+     * @param  string $var string representation of a date
+     * @return int         unix timestamp representation of the date
+     */
+    public function publishDate($var = null)
+    {
+        if ($var !== null) {
+            $this->publish_date = strtotime($var);
+        }
+
+        if ($this->publish_date === null) {
+            $this->publish_date = $this->date();
+        }
+
+        return $this->publish_date;
+    }
+
+    /**
+     * Gets and Sets the Page unpublish date
+     *
+     * @param  string $var string representation of a date
+     * @return int|null         unix timestamp representation of the date
+     */
+    public function unpublishDate($var = null)
+    {
+        if ($var !== null) {
+            $this->unpublish_date = strtotime($var);
+        }
+
+        return $this->unpublish_date;
     }
 
     /**
@@ -1007,9 +1094,11 @@ class Page
         if ($var !== null) {
             $this->date = strtotime($var);
         }
+
         if (!$this->date) {
             $this->date = $this->modified;
         }
+
         return $this->date;
     }
 
@@ -1158,26 +1247,15 @@ class Page
     /**
      * Returns children of this page.
      *
-     * @param  bool $modular|null whether or not to return modular children
-     * @return Collection
+     * @return \Grav\Common\Page\Collection
      */
-    public function children($type = Page::STANDARD_PAGES)
+    public function children()
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
-        $children = $pages->children($this->path());
-
-        // Filter out modular pages on regular call
-        // Filter out non-modular pages when all you want is modular
-        foreach ($children as $child) {
-            $is_modular_page = $child->modular();
-            if (($is_modular_page && $type == Page::STANDARD_PAGES) || (!$is_modular_page && $type == Page::MODULAR_PAGES)) {
-                $children->remove($child->path());
-            }
-        }
-
-        return $children;
+        return $pages->children($this->path());
     }
+
 
     /**
      * Check to see if this item is the first in an array of sub-pages.
@@ -1366,6 +1444,12 @@ class Page
         }
         // TODO: END OF MOVE
 
+        if (isset($params['dateRange'])) {
+            $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;
+            $end = isset($params['dateRange']['end']) ? $params['dateRange']['end'] : false;
+            $collection->dateRange($start, $end);
+        }
+
         if (isset($params['order'])) {
             $by = isset($params['order']['by']) ? $params['order']['by'] : 'default';
             $dir = isset($params['order']['dir']) ? $params['order']['dir'] : 'asc';
@@ -1396,6 +1480,7 @@ class Page
 
     /**
      * @param string $value
+     *
      * @return mixed
      * @internal
      */
@@ -1428,10 +1513,10 @@ class Page
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
-                            $results = $this->children(Page::MODULAR_PAGES);
+                            $results = $this->children()->modular()->published();
                             break;
                         case 'children':
-                            $results = $this->children(Page::STANDARD_PAGES);
+                            $results = $this->children()->nonModular()->published();
                             break;
                     }
                 }
@@ -1441,7 +1526,7 @@ class Page
                 if (!empty($params)) {
                     $page = $this->find($params[0]);
                     if ($page) {
-                        $results = $page->children(Page::STANDARD_PAGES);
+                        $results = $page->children()->nonModular()->published();
                     }
                 }
                 break;
@@ -1465,32 +1550,6 @@ class Page
         return $results;
     }
 
-    /**
-     * @throws \Exception
-     * @deprecated
-     */
-    public function subPages()
-    {
-        throw new \Exception('Use $page->collection() instead.');
-    }
-
-    /**
-     * Sorting of sub-pages based on how to sort and the order.
-     *
-     * default - is the order based on the filesystem, ie 01.Home before 02.Advark
-     * title - is the order based on the title set in the pages
-     * date - is the order based on the date set in the pages
-     * modified - is the order based on the last modified date of the pages
-     * slug - is the order based on the URL slug
-     *
-     * @param  string $order_by  The order by which the sub-pages should be sorted "default", "title", "date", "folder"
-     * @param  string $order_dir The order, either "asc" or "desc"
-     * @return $this|bool        This Page object if sub-pages exist, else false
-     */
-    public function sort($order_by = null, $order_dir = null)
-    {
-        throw new \Exception('Use $page->children()->sort() instead.');
-    }
 
     /**
      * Returns whether or not this Page object has a .md file associated with it or if its just a directory.
@@ -1524,14 +1583,6 @@ class Page
     {
         $file = $this->file();
         return $file && $file->exists();
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function hasSubPages()
-    {
-        throw new \Exception('Use $page->collection()->count() instead.');
     }
 
     /**
