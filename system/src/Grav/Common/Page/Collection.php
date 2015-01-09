@@ -36,6 +36,17 @@ class Collection extends Iterator
     }
 
     /**
+     *
+     * Create a copy of this collection
+     *
+     * @return static
+     */
+    public function copy()
+    {
+        return new static($this->items, $this->params, $this->pages);
+    }
+
+    /**
      * Set parameters to the Collection
      *
      * @param array $params
