@@ -94,7 +94,6 @@ trait MarkdownGravLinkTrait
                     if (!isset($actions['lightbox']) && !is_array($src)) {
                         $Excerpt['element']['attributes']['src'] = $src;
                     } else {
-
                         // Create the custom lightbox element
                         $Element = array(
                             'name' => 'a',
@@ -105,6 +104,11 @@ trait MarkdownGravLinkTrait
                                 'attributes' => array('src' => $src['img_url'], 'alt' => $alt, 'title' => $title)
                             ),
                         );
+
+                        // Set any custom classes on the lightbox element
+                        if (isset($Excerpt['element']['attributes']['class'])) {
+                            $Element['attributes']['class'] = $Excerpt['element']['attributes']['class'];
+                        }
 
                         // Set the lightbox element on the Excerpt
                         $Excerpt['element'] = $Element;
