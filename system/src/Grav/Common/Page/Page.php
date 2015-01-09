@@ -124,6 +124,7 @@ class Page
         $config = self::$grav['config'];
         if ($config->get('system.pages.future_pages_unpublished') && $this->date != $this->modified && ($this->date > time())) {
             $this->published(false);
+            self::$grav['cache']->setLifeTime($this->date);
         } else {
             $this->published();
         }
