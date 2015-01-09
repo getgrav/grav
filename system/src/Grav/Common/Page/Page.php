@@ -1550,32 +1550,6 @@ class Page
         return $results;
     }
 
-    /**
-     * @throws \Exception
-     * @deprecated
-     */
-    public function subPages()
-    {
-        throw new \Exception('Use $page->collection() instead.');
-    }
-
-    /**
-     * Sorting of sub-pages based on how to sort and the order.
-     *
-     * default - is the order based on the filesystem, ie 01.Home before 02.Advark
-     * title - is the order based on the title set in the pages
-     * date - is the order based on the date set in the pages
-     * modified - is the order based on the last modified date of the pages
-     * slug - is the order based on the URL slug
-     *
-     * @param  string $order_by  The order by which the sub-pages should be sorted "default", "title", "date", "folder"
-     * @param  string $order_dir The order, either "asc" or "desc"
-     * @return $this|bool        This Page object if sub-pages exist, else false
-     */
-    public function sort($order_by = null, $order_dir = null)
-    {
-        throw new \Exception('Use $page->children()->sort() instead.');
-    }
 
     /**
      * Returns whether or not this Page object has a .md file associated with it or if its just a directory.
@@ -1609,14 +1583,6 @@ class Page
     {
         $file = $this->file();
         return $file && $file->exists();
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function hasSubPages()
-    {
-        throw new \Exception('Use $page->collection()->count() instead.');
     }
 
     /**
