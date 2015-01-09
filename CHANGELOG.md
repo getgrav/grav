@@ -1,3 +1,23 @@
+# v0.9.13
+## 01/09/2015
+
+1. [](#new)
+    * Added new published `true|false` state in page headers
+    * Added `publish_date` in page headers to automatically publish page
+    * Added `unpublish_date` in page headers to automatically unpublish page
+    * Added `dateRange()` capability for collections
+    * Added ability to dynamically control Cache lifetime programatically
+    * Added ability to sort by anything in the page header. E.g. `sort: header.taxonomy.year`
+    * Added various helper methods to collections: `copy, nonVisible, modular, nonModular, published, nonPublished, nonRoutable`
+2. [](#improved)
+    * Modified all Collection methods so they can be chained together: `$collection->published()->visible()`
+    * Set default Cache lifetime to default of 1 week (604800 seconds) - was infinite
+    * House-cleaning of some unused methods in Pages object
+3. [](#bugfix)
+    * Fix `uninstall` GPM command that was broken in last release
+    * Fix for intermitten `undefined index` error when working with Collections
+    * Fix for date of some pages being set to incorrect future timestamps
+
 # v0.9.12
 ## 01/06/2015
 
