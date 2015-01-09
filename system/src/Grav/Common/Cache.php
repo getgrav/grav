@@ -190,7 +190,7 @@ class Cache extends Getters
         if ($this->enabled) {
 
             if ($lifetime == null) {
-                $lifetime = $this->lifetime ?: $this->config->get('system.cache.lifetime') ?: 0;
+                $lifetime = $this->getLifetime();
             }
             $this->driver->save($id, $data, $lifetime);
         }
@@ -283,11 +283,9 @@ class Cache extends Getters
         }
 
         $interval = $future - $this->now;
-        if ($this->lifetime && ($interval > $this->lifetime)) {
+        if ($interval > 0 && $interval < $this->getLifetime()) {
             $this->lifetime = $interval;
-            return;
         }
-        $this->lifetime = $interval;
     }
 
 
@@ -298,6 +296,10 @@ class Cache extends Getters
      */
     public function getLifetime()
     {
+        if ($this->lifetime === null) {
+            $this->lifetime = $this->config->get('system.cache.lifetime') ?: 604800; // 1 week default
+        }
+
         return $this->lifetime;
     }
 }
