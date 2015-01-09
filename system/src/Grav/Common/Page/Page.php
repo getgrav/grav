@@ -49,6 +49,8 @@ class Page
     protected $template;
     protected $visible;
     protected $published;
+    protected $publish_date;
+    protected $unpublish_date;
     protected $slug;
     protected $route;
     protected $routable;
@@ -120,14 +122,27 @@ class Page
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
 
-         // if enabled, unpublish this page if its date is set in the future
+         // Handle publishing dates
         $config = self::$grav['config'];
-        if ($config->get('system.pages.future_pages_unpublished') && $this->date != $this->modified && ($this->date > time())) {
-            $this->published(false);
-            self::$grav['cache']->setLifeTime($this->date);
-        } else {
-            $this->published();
+
+        if ($config->get('system.pages.publish_dates')) {
+
+            if ($this->unpublishDate()) {
+                if ($this->unpublishDate() < time()) {
+                    $this->published(false);
+                } else {
+                    $this->published();
+                    self::$grav['cache']->setLifeTime($this->unpublishDate());
+                }
+            }
+
+            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
+                $this->published(false);
+                self::$grav['cache']->setLifeTime($this->publishDate());
+            }
         }
+        $this->published();
+
     }
 
     /**
@@ -256,6 +271,12 @@ class Page
             }
             if (isset($this->header->published)) {
                 $this->published = $this->header->published;
+            }
+            if (isset($this->header->publish_date)) {
+                $this->publish_date = strtotime($this->header->publish_date);
+            }
+            if (isset($this->header->unpublish_date)) {
+                $this->unpublish_date = strtotime($this->header->unpublish_date);
             }
         }
 
@@ -758,6 +779,40 @@ class Page
         }
 
         return $this->published;
+    }
+
+    /**
+     * Gets and Sets the Page publish date
+     *
+     * @param  string $var string representation of a date
+     * @return int         unix timestamp representation of the date
+     */
+    public function publishDate($var = null)
+    {
+        if ($var !== null) {
+            $this->publish_date = strtotime($var);
+        }
+
+        if ($this->publish_date === null) {
+            $this->publish_date = $this->date();
+        }
+
+        return $this->publish_date;
+    }
+
+    /**
+     * Gets and Sets the Page unpublish date
+     *
+     * @param  string $var string representation of a date
+     * @return int|null         unix timestamp representation of the date
+     */
+    public function unpublishDate($var = null)
+    {
+        if ($var !== null) {
+            $this->unpublish_date = strtotime($var);
+        }
+
+        return $this->unpublish_date;
     }
 
     /**
