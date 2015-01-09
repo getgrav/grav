@@ -278,7 +278,7 @@ class Pages
      */
     public function root()
     {
-        return $this->instances[rtrim(PAGES_DIR, DS)];
+        return $this->instances[rtrim($this->grav['locator']->findResource('page://'), DS)];
     }
 
     /**
@@ -460,8 +460,12 @@ class Pages
      * @throws \RuntimeException
      * @internal
      */
-    protected function recurse($directory = PAGES_DIR, Page &$parent = null)
+    protected function recurse($directory = null, Page &$parent = null)
     {
+        if (null === $directory) {
+          $directory = $this->grav['locator']->findResource('page://');
+        }
+        
         $directory  = rtrim($directory, DS);
         $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
