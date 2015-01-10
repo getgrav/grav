@@ -17,47 +17,49 @@ trait MarkdownGravLinkTrait
     /**
      * Ensure Twig tags are treated as block level items with no <p></p> tags
      */
-    protected function identifyTwigTag($Line)
+    protected function blockTwigTag($Line)
     {
         if (preg_match('/[{%|{{|{#].*[#}|}}|%}]/', $Line['body'], $matches)) {
             $Block = array(
-                'element' => $Line['body'],
+                'element' => array(
+                    'text' => $Line['body']
+                )
             );
             return $Block;
         }
     }
 
-    protected function identifyLink($Excerpt)
+    protected function inlineLink($excerpt)
     {
         /** @var Config $config */
         $config = self::$grav['config'];
 
         // Run the parent method to get the actual results
-        $Excerpt = parent::identifyLink($Excerpt);
+        $excerpt = parent::inlineLink($excerpt);
         $actions = array();
         $this->base_url = self::$grav['base_url'];
 
         // if this is a link
-        if (isset($Excerpt['element']['attributes']['href'])) {
+        if (isset($excerpt['element']['attributes']['href'])) {
 
-            $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['href']));
+            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
             // if there is no scheme, the file is local
             if (!isset($url['scheme'])) {
 
                 // convert the URl is required
-                $Excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
+                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
             }
         }
 
         // if this is an image
-        if (isset($Excerpt['element']['attributes']['src'])) {
+        if (isset($excerpt['element']['attributes']['src'])) {
 
-            $alt = isset($Excerpt['element']['attributes']['alt']) ? $Excerpt['element']['attributes']['alt'] : '';
-            $title = isset($Excerpt['element']['attributes']['title']) ? $Excerpt['element']['attributes']['title'] : '';
+            $alt = isset($excerpt['element']['attributes']['alt']) ? $excerpt['element']['attributes']['alt'] : '';
+            $title = isset($excerpt['element']['attributes']['title']) ? $excerpt['element']['attributes']['title'] : '';
 
             //get the url and parse it
-            $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['src']));
+            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
 
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
@@ -92,10 +94,10 @@ trait MarkdownGravLinkTrait
 
                     // set the src element with the new generated url
                     if (!isset($actions['lightbox']) && !is_array($src)) {
-                        $Excerpt['element']['attributes']['src'] = $src;
+                        $excerpt['element']['attributes']['src'] = $src;
                     } else {
                         // Create the custom lightbox element
-                        $Element = array(
+                        $element = array(
                             'name' => 'a',
                             'attributes' => array('rel' => $src['a_rel'], 'href' => $src['a_url']),
                             'handler' => 'element',
@@ -106,20 +108,20 @@ trait MarkdownGravLinkTrait
                         );
 
                         // Set any custom classes on the lightbox element
-                        if (isset($Excerpt['element']['attributes']['class'])) {
-                            $Element['attributes']['class'] = $Excerpt['element']['attributes']['class'];
+                        if (isset($excerpt['element']['attributes']['class'])) {
+                            $element['attributes']['class'] = $excerpt['element']['attributes']['class'];
                         }
 
                         // Set the lightbox element on the Excerpt
-                        $Excerpt['element'] = $Element;
+                        $excerpt['element'] = $element;
                     }
                 } else {
                     // not a current page media file, see if it needs converting to relative
-                    $Excerpt['element']['attributes']['src'] = $this->convertUrl(Uri::build_url($url));
+                    $excerpt['element']['attributes']['src'] = $this->convertUrl(Uri::build_url($url));
                 }
             }
         }
-        return $Excerpt;
+        return $excerpt;
     }
 
     /**
