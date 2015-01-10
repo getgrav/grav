@@ -14,6 +14,8 @@ trait MarkdownGravLinkTrait
 {
     use GravTrait;
 
+    protected $base_url;
+
     /**
      * Ensure Twig tags are treated as block level items with no <p></p> tags
      */
@@ -29,28 +31,15 @@ trait MarkdownGravLinkTrait
         }
     }
 
-    protected function inlineLink($excerpt)
+    protected function inlineImage($excerpt)
     {
         /** @var Config $config */
         $config = self::$grav['config'];
 
         // Run the parent method to get the actual results
-        $excerpt = parent::inlineLink($excerpt);
+        $excerpt = parent::inlineImage($excerpt);
         $actions = array();
         $this->base_url = self::$grav['base_url'];
-
-        // if this is a link
-        if (isset($excerpt['element']['attributes']['href'])) {
-
-            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
-
-            // if there is no scheme, the file is local
-            if (!isset($url['scheme'])) {
-
-                // convert the URl is required
-                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
-            }
-        }
 
         // if this is an image
         if (isset($excerpt['element']['attributes']['src'])) {
@@ -61,10 +50,17 @@ trait MarkdownGravLinkTrait
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
 
+            //get back to current page if possible
+
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
                 // get the media objects for this page
                 $media = $this->page->media();
+
+                // get the local path to page media if possible
+                if (strpos($url['path'], $this->page->url()) !== false) {
+                    $url['path'] = ltrim(str_replace($this->page->url(), '', $url['path']), '/');
+                }
 
                 // if there is a media file that matches the path referenced..
                 if (isset($media->images()[$url['path']])) {
@@ -121,6 +117,33 @@ trait MarkdownGravLinkTrait
                 }
             }
         }
+
+        return $excerpt;
+    }
+
+    protected function inlineLink($excerpt)
+    {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        // Run the parent method to get the actual results
+        $excerpt = parent::inlineLink($excerpt);
+        $actions = array();
+        $this->base_url = self::$grav['base_url'];
+
+        // if this is a link
+        if (isset($excerpt['element']['attributes']['href'])) {
+
+            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
+
+            // if there is no scheme, the file is local
+            if (!isset($url['scheme'])) {
+
+                // convert the URl is required
+                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
+            }
+        }
+
         return $excerpt;
     }
 
