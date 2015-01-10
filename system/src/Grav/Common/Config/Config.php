@@ -168,6 +168,8 @@ class Config extends Data
 
         $this->loadCompiledBlueprints($this->blueprintLookup, $this->pluginLookup, 'master');
         $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
+
+        $this->initializeLocator($locator);
     }
 
     public function checksum()
@@ -330,5 +332,48 @@ class Config extends Data
             $file = CompiledYamlFile::instance($item['file']);
             $this->join($name, $file->content(), '/');
         }
+    }
+
+    /**
+     * Initialize resource locator by using the configuration.
+     *
+     * @param UniformResourceLocator $locator
+     */
+    public function initializeLocator(UniformResourceLocator $locator)
+    {
+        $locator->reset();
+
+        $schemes = (array) $this->get('streams.schemes', []);
+
+        foreach ($schemes as $scheme => $config) {
+            if (isset($config['paths'])) {
+                $locator->addPath($scheme, '', $config['paths']);
+            }
+            if (isset($config['prefixes'])) {
+                foreach ($config['prefixes'] as $prefix => $paths) {
+                    $locator->addPath($scheme, $prefix, $paths);
+                }
+            }
+        }
+    }
+
+    /**
+     * Get available streams and their types from the configuration.
+     *
+     * @return array
+     */
+    public function getStreams()
+    {
+        $schemes = [];
+        foreach ((array) $this->get('streams.schemes') as $scheme => $config) {
+            $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
+            if ($type[0] != '\\') {
+                $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
+            }
+
+            $schemes[$scheme] = $type;
+        }
+
+        return $schemes;
     }
 }

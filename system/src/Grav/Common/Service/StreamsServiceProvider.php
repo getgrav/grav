@@ -11,52 +11,32 @@ use RocketTheme\Toolbox\StreamWrapper\StreamBuilder;
 
 class StreamsServiceProvider implements ServiceProviderInterface
 {
-    protected $schemes = [];
-
     public function register(Container $container)
     {
         $self = $this;
 
         $container['locator'] = function($c) use ($self) {
             $locator = new UniformResourceLocator(ROOT_DIR);
-            $self->init($c, $locator);
+
+            /** @var Config $config */
+            $config = $c['config'];
+            $config->initializeLocator($locator);
 
             return $locator;
         };
 
         $container['streams'] = function($c) use ($self) {
+            /** @var Config $config */
+            $config = $c['config'];
+
+            /** @var UniformResourceLocator $locator */
             $locator = $c['locator'];
 
             // Set locator to both streams.
             Stream::setLocator($locator);
             ReadOnlyStream::setLocator($locator);
 
-            return new StreamBuilder($this->schemes);
+            return new StreamBuilder($config->getStreams($c));
         };
-    }
-
-    protected function init(Container $container, UniformResourceLocator $locator)
-    {
-        /** @var Config $config */
-        $config = $container['config'];
-        $schemes = (array) $config->get('streams.schemes', []);
-
-        foreach ($schemes as $scheme => $config) {
-            if (isset($config['paths'])) {
-                $locator->addPath($scheme, '', $config['paths']);
-            }
-            if (isset($config['prefixes'])) {
-                foreach ($config['prefixes'] as $prefix => $paths) {
-                    $locator->addPath($scheme, $prefix, $paths);
-                }
-            }
-
-            $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
-            if ($type[0] != '\\') {
-                $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
-            }
-
-            $this->schemes[$scheme] = $type;
-        }
     }
 }
