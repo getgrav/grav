@@ -129,7 +129,7 @@ trait MarkdownGravLinkTrait
      */
     protected function convertUrl($markdown_url)
     {
-        // if absolue and starts with a base_url move on
+        // if absolute and starts with a base_url move on
         if ($this->base_url != '' && strpos($markdown_url, $this->base_url) === 0) {
             $new_url = $markdown_url;
         // if its absolute with /
@@ -139,7 +139,7 @@ trait MarkdownGravLinkTrait
             $relative_path = rtrim($this->base_url, '/') . $this->page->route();
 
             // If this is a 'real' filepath clean it up
-            if (file_exists($this->page->path().'/'.parse_url($markdown_url, PHP_URL_PATH))) {
+            if (file_exists($this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH))) {
                 $relative_path = rtrim($this->base_url, '/') . preg_replace('/\/([\d]+.)/', '/', str_replace(PAGES_DIR, '/', $this->page->path()));
                 $markdown_url = preg_replace('/^([\d]+.)/', '', preg_replace('/\/([\d]+.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
             }

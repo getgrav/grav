@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\ErrorServiceProvider;
@@ -97,17 +98,22 @@ class Grav extends Container
         $container['page'] = function ($c) {
             /** @var Pages $pages */
             $pages = $c['pages'];
-            $page = $pages->dispatch($c['uri']->route());
+
+            // If base URI is set, we want to remove it from the URL.
+            $path = '/' . ltrim(Folder::getRelativePath($c['uri']->route(), $pages->base()), '/');
+
+            $page = $pages->dispatch($path);
 
             if (!$page || !$page->routable()) {
 
                 // special  case where a media file is requested
                 if (!$page) {
-                    $path_parts = pathinfo($c['uri']->route());
+                    $path_parts = pathinfo($path);
+
                     $page = $c['pages']->dispatch($path_parts['dirname']);
                     if ($page) {
                         $media = $page->media()->all();
-                        $media_file = urldecode($path_parts['basename']);
+                        $media_file = urldecode($path_parts['dirname']);
                         if (isset($media[$media_file])) {
                             $medium = $media[$media_file];
 

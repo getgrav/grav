@@ -33,17 +33,41 @@ abstract class Folder
         return $last_modified;
     }
 
-
-    public static function getRelativePath($to, $from = ROOT_DIR)
+    /**
+     * Get relative path between target and base path. If path isn't relative, return full path.
+     *
+     * @param  string  $path
+     * @param  string  $base
+     * @return string
+     */
+    public static function getRelativePath($path, $base = GRAV_ROOT)
     {
-        $from = preg_replace('![\\|/]+!', '/', $from);
-        $to = preg_replace('![\\|/]+!', '/', $to);
-        if (strpos($to, $from) === 0) {
-            $to = substr($to, strlen($from));
+        if ($base) {
+            $base = preg_replace('![\\|/]+!', '/', $base);
+            $path = preg_replace('![\\|/]+!', '/', $path);
+            if (strpos($path, $base) === 0) {
+                $path = ltrim(substr($path, strlen($base)), '/');
+            }
         }
 
-        return $to;
+        return $path;
     }
+
+    /**
+     * Shift first directory out of the path.
+     *
+     * @param string $path
+     * @return string
+     */
+    public static function shift(&$path)
+    {
+        $parts = explode('/', trim($path, '/'), 2);
+        $result = array_shift($parts);
+        $path = array_shift($parts);
+
+        return $result ?: null;
+    }
+
     /**
      * Recursively find the last modified time under given path by file.
      *

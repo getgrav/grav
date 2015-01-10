@@ -10,6 +10,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
@@ -33,6 +34,11 @@ class Pages
      * @var array|string[]
      */
     protected $children;
+
+    /**
+     * @var string
+     */
+    protected $base;
 
     /**
      * @var array|string[]
@@ -67,6 +73,22 @@ class Pages
     public function __construct(Grav $c)
     {
         $this->grav = $c;
+    }
+
+    /**
+     * Get or set base path for the pages.
+     *
+     * @param  string $path
+     * @return string
+     */
+    public function base($path = null)
+    {
+        if ($path !== null) {
+            $path = trim($path, '/');
+            $this->base = $path ? '/' . $path : null;
+        }
+
+        return $this->base;
     }
 
     /**
@@ -236,8 +258,6 @@ class Pages
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
 
-
-
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
         if (!$all && (!$page || !$page->routable())) {
             /** @var Config $config */
@@ -278,7 +298,10 @@ class Pages
      */
     public function root()
     {
-        return $this->instances[rtrim(PAGES_DIR, DS)];
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        return $this->instances[rtrim($locator->findResource('page://'), DS)];
     }
 
     /**
@@ -408,6 +431,10 @@ class Pages
         /** @var Config $config */
         $config = $this->grav['config'];
 
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $pagesDir = $locator->findResource('page://');
+
         if ($config->get('system.cache.enabled')) {
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
@@ -421,10 +448,10 @@ class Pages
                     $last_modified = 0;
                     break;
                 case 'folder':
-                    $last_modified = Folder::lastModifiedFolder(PAGES_DIR);
+                    $last_modified = Folder::lastModifiedFolder($pagesDir);
                     break;
                 default:
-                    $last_modified = Folder::lastModifiedFile(PAGES_DIR);
+                    $last_modified = Folder::lastModifiedFile($pagesDir);
             }
 
             $page_cache_id = md5(USER_DIR.$last_modified.$config->checksum());
@@ -432,7 +459,7 @@ class Pages
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
-                $this->recurse();
+                $this->recurse($pagesDir);
                 $this->buildRoutes();
 
                 // save pages, routes, taxonomy, and sort to cache
@@ -446,7 +473,7 @@ class Pages
                 $taxonomy->taxonomy($taxonomy_map);
             }
         } else {
-            $this->recurse();
+            $this->recurse($pagesDir);
             $this->buildRoutes();
         }
     }
@@ -460,7 +487,7 @@ class Pages
      * @throws \RuntimeException
      * @internal
      */
-    protected function recurse($directory = PAGES_DIR, Page &$parent = null)
+    protected function recurse($directory, Page &$parent = null)
     {
         $directory  = rtrim($directory, DS);
         $iterator   = new \DirectoryIterator($directory);

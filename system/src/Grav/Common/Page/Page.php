@@ -966,9 +966,13 @@ class Page
      */
     public function url($include_host = false)
     {
+        /** @var Pages $pages */
+        $pages = self::$grav['pages'];
+
         /** @var Uri $uri */
         $uri = self::$grav['uri'];
-        $rootUrl = $uri->rootUrl($include_host);
+
+        $rootUrl = $uri->rootUrl($include_host) . $pages->base();
         $url = $rootUrl.'/'.trim($this->route(), '/');
 
         // trim trailing / if not root
