@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% macro loop(page, base_url, depth, warn) %}
-    {% for p in page.children(0) %}
+    {% for p in page.children() %}
         {% set description = (not p.page ? 'Folder &bull; ' : 'Page &bull; ') ~
                              (p.modular ? 'Modular &bull; ' : '') ~
                              (p.routable ? 'Routable &bull; ' : 'Not Routable &bull; ') ~
@@ -62,7 +62,7 @@
                 </span>
                 <p class="page-route">{{ p.route }}</p>
             </div>
-            {% if p.children(0).count > 0 and not p.modular() %}
+            {% if p.children().count > 0 and not p.modular() %}
 
             <ul class="depth-{{ depth + 1 }}">
                 {{ _self.loop(p, base_url, depth + 1, warn) }}
