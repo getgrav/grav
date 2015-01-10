@@ -129,7 +129,7 @@ class AdminPlugin extends Plugin
         $home = '/' . trim($this->config->get('system.home.alias'), '/');
 
         // set the default if not set before
-        $this->session->expert = $this->session->expert ?: true;
+        $this->session->expert = $this->session->expert ?: false;
 
         // set session variable if it's passed via the url
         if ($this->uri->param('mode') == 'expert') {
@@ -143,11 +143,15 @@ class AdminPlugin extends Plugin
 
         $this->grav['admin']->routes = $pages->routes();
 
+        // Remove default route from routes.
+        if (isset($this->grav['admin']->routes[$this->grav['config']->get('system.home.alias')])) {
+            unset($this->grav['admin']->routes[$this->grav['config']->get('system.home.alias')]);
+        }
+
         $pages->dispatch('/', true)->route($home);
 
         // Make local copy of POST.
         $post = !empty($_POST) ? $_POST : array();
-
 
         // Handle tasks.
         $this->admin->task = $task = !empty($post['task']) ? $post['task'] : $this->uri->param('task');
