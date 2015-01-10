@@ -113,7 +113,7 @@ class Grav extends Container
                     $page = $c['pages']->dispatch($path_parts['dirname']);
                     if ($page) {
                         $media = $page->media()->all();
-                        $media_file = urldecode($path_parts['dirname']);
+                        $media_file = urldecode($path_parts['basename']);
                         if (isset($media[$media_file])) {
                             $medium = $media[$media_file];
 
