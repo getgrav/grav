@@ -165,7 +165,8 @@ trait MarkdownGravLinkTrait
 
             // If this is a 'real' filepath clean it up
             if (file_exists($this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH))) {
-                $relative_path = rtrim($this->base_url, '/') . preg_replace('/\/([\d]+.)/', '/', str_replace(PAGES_DIR, '/', $this->page->path()));
+                $pages_dir = self::$grav['locator']->findResource('page://');
+                $relative_path = rtrim($this->base_url, '/') . preg_replace('/\/([\d]+.)/', '/', str_replace($pages_dir, '/', $this->page->path()));
                 $markdown_url = preg_replace('/^([\d]+.)/', '', preg_replace('/\/([\d]+.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
             }
 
