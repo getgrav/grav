@@ -1,0 +1,16 @@
+{% set form_id = form_id ? form_id : 'blueprints' %}
+
+<form id="{{ form_id }}" method="post">
+    {% for field in blueprints.fields %}
+        {% if field.type %}
+            {% set value = data.value(field.name) %}
+            <div class="block block-{{field.type}}">
+                {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="button-bar">
+        <button class="button primary" name="task" value="continue">Continue</button>
+    </div>
+</form>

@@ -1,0 +1,193 @@
+{% extends 'partials/base.html.twig' %}
+
+{% if admin.route %}
+    {% set context = admin.page(true) %}
+{% endif %}
+
+{% if uri.param('new') %}
+    {% set mode = 'new' %}
+{%  elseif context %}
+    {% set mode = 'edit' %}
+    {% if context.exists %}
+        {% set exists = true %}
+    {% endif %}
+{% else %}
+    {% set mode = 'list' %}
+{% endif %}
+
+{% set modular = context.modular ? 'modular_' : '' %}
+
+{% set warn = config.plugins.admin.warnings.delete_page %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if mode == 'edit' %}
+
+    <link rel="stylesheet" href="{{ theme_url }}/css/codemirror/codemirror.css" type="text/css" />
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ theme_url }}/js/pages-all.js"></script>
+    {% if mode == 'edit' %}
+    <script type="text/javascript" src="{{ theme_url }}/js/uikit.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/codemirror-compressed.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/marked.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/htmleditor.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/dropzone.min.js"></script>
+    {% endif %}
+{% endblock %}
+
+{% macro loop(page, base_url, depth, warn) %}
+    {% for p in page.children() %}
+        {% set description = (not p.page ? 'Folder &bull; ' : 'Page &bull; ') ~
+                             (p.modular ? 'Modular &bull; ' : '') ~
+                             (p.routable ? 'Routable &bull; ' : 'Not Routable &bull; ') ~
+                             (p.visible ? 'Visible &bull; ' : 'Not Visible &bull; ') %}
+
+        <li class="page-item">
+            <div class="row">
+                <span data-hint="{{ description|trim(' &bull; ') }}" class="hint--bottom">
+                <i class="page-icon fa fa-fw fa-circle-o {{ p.children(0).count > 0 ? 'children-open' : ''}} {{ p.modular ? 'modular' : (not p.routable ? 'not-routable' : (not p.visible ? 'not-visible' : (not p.page ? 'folder' :  ''))) }}"></i>
+                </span>
+                <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}" class="page-edit">{{ p.menu }}</a>
+                <span class="page-home">{{ p.home ? '<i class="fa fa-home"></i>' }}</span>
+                <span class="page-tools">
+                    {% if warn %}
+                    <a href="#delete" data-remodal-target="delete" data-delete-url="{{ base_url }}/pages/{{ p.route|trim('/') }}/task:delete" class="page-delete" ><i class="fa fa-close"></i></a>
+                    {% else %}
+                    <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}/task:delete" class="page-delete" ><i class="fa fa-close"></i></a>
+                    {% endif %}
+                </span>
+                <p class="page-route">{{ p.route }}</p>
+            </div>
+            {% if p.children().count > 0 and not p.modular() %}
+
+            <ul class="depth-{{ depth + 1 }}">
+                {{ _self.loop(p, base_url, depth + 1, warn) }}
+            </ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endmacro %}
+
+
+{% block titlebar %}
+    <div class="button-bar">
+        {% if mode == 'list' %}
+            <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Page</a>
+            <a class="button" href="#modular" data-remodal-target="modular"><i class="fa fa-plus"></i> Add Modular</a>
+        {% elseif mode == 'edit' %}
+            <a class="button" href="{{ base_url }}/pages"><i class="fa fa-reply"></i> Back</a>
+            {% if exists %}
+                <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
+                {% if warn %}
+                    <a class="button" href="#delete" data-remodal-target="delete" data-delete-url="{{ uri.route(true) }}/task:delete"><i class="fa fa-close"></i> Delete</a>
+                {% else %}
+                    <a class="button" href="{{ uri.route(true) }}/task:delete" class="page-delete" ><i class="fa fa-close"></i></a>
+                {% endif %}
+            {% endif %}
+            <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+
+        {% endif %}
+    </div>
+    {% if mode == 'new' %}
+        <h1><i class="fa fa-fw fa-file-text-o"></i> Add Page</h1>
+    {% elseif mode == 'edit' %}
+        <h1><i class="fa fa-fw fa-file-text-o"></i>
+            {{ context.exists ? "Edit '#{context.menu}'" : "Create '#{context.menu}'" }}
+        </h1>
+    {% else %}
+        <h1><i class="fa fa-fw fa-file-text-o"></i> Manage Pages</h1>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="admin-block clear">
+    {% include 'partials/messages.html.twig' %}
+    {% if mode == 'new' %}
+        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/page'), data: context } %}
+    {% elseif mode == 'edit' %}
+        <div class="admin-form-wrapper" data-media-url="{{ base_url }}/media/{{ admin.route|trim('/') }}.json" data-media-local="{{ base_url_relative_frontend }}/{{ admin.route|trim('/') }}" data-media-types="{{ media_types }}">
+            {% if context.blueprints.fields %}
+            <form id="admin-mode-toggle">
+                <div class="switch-toggle switch-grav">
+                    <input type="radio" value="normal" data-leave-url="{{ uri.route(true) }}/mode:normal" id="normal" name="mode-switch" class="highlight" {% if admin.session.expert == '0' %} checked="checked"{% endif %}>
+                    <label for="normal">Normal</label>
+                    <input type="radio" value="expert" data-leave-url="{{ uri.route(true) }}/mode:expert" id="expert" name="mode-switch" class="highlight" {% if admin.session.expert == '1' %} checked="checked"{% endif %}>
+                    <label for="expert">Expert</label>
+                    <a></a>
+                </div>
+            </form>
+            {% endif %}
+
+            {% if admin.session.expert == '0' %}
+                {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('pages/'~modular~'raw'), data: context } %}
+
+            {% else %}
+                 {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
+            {% endif %}
+        </div>
+    {% else %}
+        <form id="page-filtering">
+            <div class="page-filters">
+                <input type="text" placeholder="Add Filters" class="page-filter" value="Routable,Visible,Modular" name="page-filter" />
+            </div>
+            <div class="page-search">
+                <input type="text" placeholder="Search Pages" name="page-search" />
+            </div>
+        </form>
+        <ul class="pages-list depth-0">
+            {{ _self.loop(pages, base_url_relative, 0, warn) }}
+        </ul>
+    {% endif %}
+    </div>
+
+    <div class="remodal" data-remodal-id="generic" data-remodal-options="hashTracking: false">
+        <form>
+            <h1>Error</h1>
+            <div class="error-content"></div>
+            <div class="button-bar">
+                <a class="button remodal-confirm" href="#">Close</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
+        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/new'), data: context } %}
+    </div>
+
+    <div class="remodal" data-remodal-id="modular" data-remodal-options="hashTracking: false">
+        {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/modular_new'), data: context } %}
+    </div>
+
+    <div class="remodal" data-remodal-id="delete" data-remodal-options="hashTracking: false">
+        <form>
+            <h1>Confirmation Required</h1>
+            <p class="bigger">
+              Are you sure you want to delete this page and all it's children? This action cannot be undone.
+            </p>
+            <br>
+            <div class="button-bar">
+            <a class="button secondary remodal-cancel" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
+            <a class="button" data-delete-action href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="remodal" data-remodal-id="changes">
+        <form>
+            <h1>Changes Detected</h1>
+            <p class="bigger">
+              You have unsaved changes.  Are you sure you want to leave without saving?
+            </p>
+            <br>
+            <div class="button-bar">
+            <a class="button secondary" data-leave-action="cancel" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
+            <a class="button" data-leave-action="continue" href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+

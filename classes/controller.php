@@ -1,7 +1,8 @@
 <?php
 namespace Grav\Plugin;
 
-use Grav\Common\Config;
+use Grav\Common\Cache;
+use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Themes;
@@ -73,10 +74,6 @@ class AdminController
      */
     public function execute()
     {
-        // Grab redirect parameter.
-        $redirect = isset($this->post['_redirect']) ? $this->post['_redirect'] : null;
-        unset($this->post['_redirect']);
-
         $success = false;
         $method = 'task' . ucfirst($this->task);
         if (method_exists($this, $method)) {
@@ -86,6 +83,11 @@ class AdminController
                 $success = true;
                 $this->admin->setMessage($e->getMessage());
             }
+
+            // Grab redirect parameter.
+            $redirect = isset($this->post['_redirect']) ? $this->post['_redirect'] : null;
+            unset($this->post['_redirect']);
+
             // Redirect if requested.
             if ($redirect) {
                 $this->setRedirect($redirect);
@@ -101,8 +103,7 @@ class AdminController
         }
 
         $base = $this->admin->base;
-        $path = trim(substr($this->redirect, 0, strlen($base)) == $base
-            ? substr($this->redirect, strlen($base)) : $this->redirect, '/');
+        $path = trim(substr($this->redirect, 0, strlen($base)) == $base ? substr($this->redirect, strlen($base)) : $this->redirect, '/');
 
         $this->grav->redirect($base . '/' . preg_replace('|/+|', '/', $path), $this->redirectCode);
     }
@@ -114,8 +115,11 @@ class AdminController
      */
     protected function taskLogin()
     {
-        $this->admin->authenticate($this->post);
-        $this->admin->setMessage('You have been logged in.');
+        if ($this->admin->authenticate($this->post)) {
+            $this->admin->setMessage('You have been logged in.');
+        } else {
+            $this->admin->setMessage('Login failed.');
+        }
 
         return true;
     }
@@ -134,6 +138,121 @@ class AdminController
         return true;
     }
 
+    protected function taskClearCache()
+    {
+        $results = Cache::clearCache('standard');
+        if (count($results) > 0) {
+            $this->admin->json_response = ['success', 'Cache cleared'];
+        } else {
+            $this->admin->json_response = ['error', 'Error clearing cache'];
+        }
+
+        return true;
+    }
+
+    protected function taskListmedia()
+    {
+        $page = $this->admin->page(true);
+
+        if (!$page) {
+            $this->admin->json_response = ['error', 'No Page found'];
+            return false;
+        }
+
+        $media_list = array();
+        foreach ($page->media()->all() as $name => $media) {
+            $media_list[$name] = ['url' => $media->cropZoom(150, 100)->url(),'size' => $media->get('size')];
+        }
+        $this->admin->media = $media_list;
+
+        return true;
+    }
+
+    protected function taskAddmedia()
+    {
+        $page = $this->admin->page(true);
+
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        if (!isset($_FILES['file']['error']) || is_array($_FILES['file']['error'])) {
+            $this->admin->json_response = ['error', 'Invalid Parameters'];
+            return;
+        }
+
+        // Check $_FILES['file']['error'] value.
+        switch ($_FILES['file']['error']) {
+            case UPLOAD_ERR_OK:
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $this->admin->json_response = ['error', 'No files sent'];
+                return;
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $this->admin->json_response = ['error', 'Exceeded filesize limit.'];
+                return;
+            default:
+                $this->admin->json_response = ['error', 'Unkown errors'];
+                return;
+        }
+
+        // You should also check filesize here.
+        if ($_FILES['file']['size'] > 1000000) {
+            $this->admin->json_response = ['error', 'Exceeded filesize limit.'];
+            return;
+        }
+
+
+        // Check extension
+        $fileParts = pathinfo($_FILES['file']['name']);
+        $fileExt = strtolower($fileParts['extension']);
+
+        // If not a supported type, return
+        if (!$config->get("media.{$fileExt}")) {
+            $this->admin->json_response = ['error', 'Unsupported file type: '.$fileExt];
+            return;
+        }
+
+
+        // Upload it
+        if (!move_uploaded_file($_FILES['file']['tmp_name'], sprintf('%s/%s', $page->path(), $_FILES['file']['name']))) {
+            $this->admin->json_response = ['error', 'Failed to move uploaded file.'];
+            return;
+        }
+
+        $this->admin->json_response = ['success', 'File uploaded successfully'];
+
+        return;
+    }
+
+    protected function taskDelmedia()
+    {
+        $page = $this->admin->page(true);
+
+        if (!$page) {
+            $this->admin->json_response = ['error', 'No Page found'];
+            return false;
+        }
+
+        $filename = !empty($this->post['filename']) ? $this->post['filename'] : null;
+        if ($filename) {
+            $targetPath = $page->path().'/'.$filename;
+
+            if (file_exists($targetPath)) {
+                if (unlink($targetPath)) {
+                    $this->admin->json_response = ['success', 'File deleted: '.$filename];
+                } else {
+                    $this->admin->json_response = ['error', 'File could not be deleted: '.$filename];
+                }
+            } else {
+                $this->admin->json_response = ['error', 'File not found: '.$filename];
+            }
+        } else {
+            $this->admin->json_response = ['error', 'No file found'];
+        }
+        return true;
+    }
+
     /**
      * Enable plugin.
      *
@@ -146,10 +265,30 @@ class AdminController
         }
 
         // Filter value and save it.
-        $this->post = array('enabled' => !empty($this->post['enabled']));
+        $this->post = array('enabled' => 1, '_redirect' => 'plugins');
         $obj = $this->prepareData();
         $obj->save();
-        $this->admin->setMessage('Successfully saved');
+        $this->admin->setMessage('Successfully enabled plugin');
+
+        return true;
+    }
+
+    /**
+     * Enable plugin.
+     *
+     * @return bool True if the action was performed.
+     */
+    public function taskDisable()
+    {
+        if ($this->view != 'plugins') {
+            return false;
+        }
+
+        // Filter value and save it.
+        $this->post = array('enabled' => 0, '_redirect' => 'plugins');
+        $obj = $this->prepareData();
+        $obj->save();
+        $this->admin->setMessage('Successfully disabled plugin');
 
         return true;
     }
@@ -159,15 +298,17 @@ class AdminController
      *
      * @return bool True if the action was performed.
      */
-    public function taskSet_theme()
+    public function taskActivate()
     {
         if ($this->view != 'themes') {
             return false;
         }
 
+        $this->post = array('_redirect' => 'themes');
+
         // Make sure theme exists (throws exception)
-        $name = !empty($this->post['theme']) ? $this->post['theme'] : '';
-        Themes::get($name);
+        $name = $this->route;
+        $this->grav['themes']->get($name);
 
         // Store system configuration.
         $system = $this->admin->data('system');
@@ -203,7 +344,7 @@ class AdminController
 
             // Find new parent page in order to build the path.
             $route = !isset($data['route']) ? dirname($this->admin->route) : $data['route'];
-            $parent = $route ? $pages->dispatch($route, true) : $pages->root();
+            $parent = $route && $route != '/' ? $pages->dispatch($route, true) : $pages->root();
             $obj = $this->admin->page(true);
 
             // Change parent if needed and initialize move (might be needed also on ordering/folder change).
@@ -222,7 +363,14 @@ class AdminController
             $obj->validate();
             $obj->filter();
             $obj->save();
-            $this->admin->setMessage('Page successfully saved');
+            $this->admin->setMessage('Successfully saved');
+        }
+
+        if ($this->view != 'pages') {
+            // Force configuration reload.
+            /** @var Config $config */
+            $config = $this->grav['config'];
+            $config->reload();
         }
 
         // Redirect to new location.
@@ -241,19 +389,25 @@ class AdminController
      */
     public function taskContinue()
     {
-        // Only applies to pages.
+        if ($this->view == 'users') {
+            $this->setRedirect("{$this->view}/{$this->post['username']}");
+            return true;
+        }
+
         if ($this->view != 'pages') {
             return false;
         }
 
         $data = $this->post;
-        $route = $data['route'];
-        $folder = $data['folder'];
-        $type = $data['type'];
+        $route = $data['route'] != '/' ? $data['route'] : '';
+        $folder = ltrim($data['folder'], '_');
+        if (!empty($data['modular'])) {
+            $folder = '_' . $folder;
+        }
         $path = $route . '/' . $folder;
 
-        $this->admin->session()->{$path} = $type;
-        $this->setRedirect($this->view . '/' . $path);
+        $this->admin->session()->{$path} = $data;
+        $this->setRedirect("{$this->view}/{$path}");
 
         return true;
     }
@@ -302,7 +456,7 @@ class AdminController
             $page->save();
 
             // Enqueue message and redirect to new location.
-            $this->admin->setMessage('Page successfully copied');
+            $this->admin->setMessage('Successfully copied');
             $this->setRedirect($this->view . '/' . $page->route());
 
         } catch (\Exception $e) {
@@ -348,13 +502,13 @@ class AdminController
             $page = $this->admin->page();
             Folder::delete($page->path());
 
-            // Set redirect to either referrer or one level up.
+            // Set redirect to either referrer or pages list.
             $redirect = $uri->referrer();
             if ($redirect == $uri->route()) {
-                $redirect = dirname($redirect);
+                $redirect = 'pages';
             }
 
-            $this->admin->setMessage('Page successfully deleted');
+            $this->admin->setMessage('Successfully deleted');
             $this->setRedirect($redirect);
 
         } catch (\Exception $e) {
@@ -400,7 +554,8 @@ class AdminController
         return $data;
     }
 
-    protected function setRedirect($path, $code = 303) {
+    protected function setRedirect($path, $code = 303)
+    {
         $this->redirect = $path;
         $this->code = $code;
     }
@@ -423,11 +578,16 @@ class AdminController
         $page->folder($ordering . $slug);
 
         if (isset($input['type'])) {
-            $page->name(((string) $input['type']) . '.md');
+            $type = (string) $input['type'];
+            $name = preg_replace('|.*/|', '', $type) . '.md';
+            $page->name($name);
+            $page->template($type);
         }
 
-        if (isset($input['_raw'])) {
-            $page->raw((string) $input['_raw']);
+        // special case for Expert mode build the raw, unset content
+        if (isset($input['frontmatter']) && isset($input['content'])) {
+            $page->raw("---\n" . (string) $input['frontmatter'] . "\n---\n" . (string) $input['content']);
+            unset($input['content']);
         }
 
         if (isset($input['header'])) {

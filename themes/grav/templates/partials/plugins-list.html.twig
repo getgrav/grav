@@ -1,0 +1,30 @@
+<div class="grav-update plugins"></div>
+
+<h1>
+    Installed Plugins
+</h1>
+
+<table>
+    {% for slug, package in admin.plugins %}
+        {% set plugin = package.toArray() %}
+        {% set data = admin.data('plugins/' ~ slug) %}
+
+        <tr data-gpm-plugin="{{ slug|url_encode }}">
+            <td class="gpm-name">
+                <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
+                <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a>
+                {% if plugin.symlink %}
+                <span class="hint--bottom"  data-hint="This plugin is symbolically linked. Updates won't be detected.">
+                    <i class="fa fa-fw fa-link"></i>
+                </span>
+                {% endif %}
+                <span class="gpm-version">v{{ plugin.version }}</span>
+            </td>
+            <td class="gpm-actions">
+                <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
+                    <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>

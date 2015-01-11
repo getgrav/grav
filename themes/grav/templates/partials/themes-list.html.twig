@@ -1,0 +1,36 @@
+<div class="grav-update themes"></div>
+
+<h1>
+    Installed Themes
+</h1>
+
+<div class="themes card-row grid fixed-blocks pure-g">
+    {% for slug, package in admin.themes %}
+        {% set theme = package.toArray() %}
+
+        <div class="theme card-item pure-u-1-3" data-gpm-theme="{{ slug|url_encode }}">
+            <div class="gpm-name">
+                <i class="fa fa-fw fa-{{ theme.icon }}"></i>
+                <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">{{ theme.name }}</a>
+                {% if theme.symlink %}
+                    <span class="hint--bottom"  data-hint="This theme is symbolically linked. Updates won't be detected.">
+                    <i class="fa fa-fw fa-link"></i>
+                </span>
+                {% endif %}
+                <span class="gpm-version">v{{ theme.version }}</span>
+            </div>
+            <div class="gpm-screenshot">
+                <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}"><img src="{{ theme.thumbnail }}" /></a>
+            </div>
+            {% if config.get('system.pages.theme') == slug %}
+                <div class="gpm-actions active-theme">
+                    <i class="fa fa-star"></i> Active Theme
+                </div>
+            {% else %}
+                <div class="gpm-actions">
+                    <a href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

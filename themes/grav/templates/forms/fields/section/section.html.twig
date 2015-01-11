@@ -1,0 +1,18 @@
+{% if field.title %}
+<h1 {% if not field.underline %}class="no_underline"{% endif %}>{{ field.title }}</h1>
+{% endif %}
+
+{% if field.text %}
+<p>{{ field.text }}<p>
+{% endif %}
+
+{% if field.fields %}
+    <div class="form-section">
+    {% for field in field.fields %}
+        {% if field.type %}
+            {% set value = data.value(field.name) %}
+            {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+        {% endif %}
+    {% endfor %}
+    </div>
+{% endif %}

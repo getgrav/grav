@@ -1,0 +1,18 @@
+{% if user.exists %}
+<div class="user-details">
+    <img src="http://www.gravatar.com/avatar/{{ user.email|md5 }}?s=128" />
+    <h2>{{ user.fullname }}</h2>
+    {% if user.title %}<h5>{{ user.title }}</h5>{% endif %}
+</div>
+{% else %}
+<h1>Create new user</h1>
+{% endif %}
+
+{% include 'partials/blueprints.html.twig' with { data: user, blueprints: user.blueprints } %}
+
+{% if user.exists and admin.user.username != user.username %}
+<div class="button-bar danger">
+    <span class="danger-zone"></span>
+    <a class="button" href="#"><i class="fa fa-fw fa-warning"></i>Remove User</a>
+</div>
+{% endif %}

@@ -1,0 +1,68 @@
+<nav id="admin-sidebar">
+    <div id="admin-logo">
+        <h3><a href="{{ base_url_relative }}">Grav Admin</a> <a href="{{ base_url_relative_frontend }}"><i class="fa fa-fw fa-angle-double-right"></i></a></h3>
+    </div>
+
+    {% if admin.authorise %}
+    <div id="admin-user-details">
+        <a href="{{ base_url_relative }}/users/{{ admin.user.username }}">
+            <img src="http://www.gravatar.com/avatar/{{ admin.user.email|md5 }}?s=32" />
+
+            <div class="admin-user-names">
+                <h4>{{ admin.user.fullname }}</h4>
+                <h5>{{ admin.user.title }}</h5>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
+    <ul id="admin-menu">
+        <li class="{{ (location == 'dashboard') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}"><i class="fa fa-fw fa-th"></i> Dashboard</a>
+        </li>
+        <li class="{{ (location == 'configuration' or location == 'settings') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/configuration"><i class="fa fa-fw fa-wrench"></i> Configuration</a>
+        </li>
+        <li class="{{ (location == 'pages') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/pages">
+                <i class="fa fa-fw fa-file-text-o"></i> Pages
+                <span class="badges">
+                    <span class="badge count">{{ admin.routes|length }}</span>
+                </span>
+            </a>
+        </li>
+        <li class="{{ (location == 'plugins') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/plugins">
+                <i class="fa fa-fw fa-plug"></i> Plugins
+                <span class="badges">
+                    <span class="badge updates"></span>
+                    <span class="badge count">{{ admin.plugins|length }}</span>
+
+                </span>
+            </a>
+        </li>
+        <li class="{{ (location == 'themes') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/themes">
+                <i class="fa fa-fw fa-tint"></i> Themes
+                <span class="badges">
+                    <span class="badge updates"></span>
+                    <span class="badge count">{{ admin.themes|length }}</span>
+                </span>
+            </a>
+        </li>
+
+        {% include 'nav-pro.html.twig' ignore missing %}
+
+        <li class="{{ (location == 'logs') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/logs">
+                <i class="fa fa-fw fa-warning"></i> Error Logs
+                <span class="badges">
+                    <span class="badge count">{{ admin.logs|length }}</span>
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ base_url_relative }}/task:logout"><i class="fa fa-fw fa-sign-out"></i> Logout</a>
+        </li>
+    </ul>
+</nav>

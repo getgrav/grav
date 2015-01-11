@@ -1,0 +1,11 @@
+field:
+  checkbox:
+    node: boolean
+    key: name
+    fields:
+      name:
+        type: text
+        validation:
+          required: true
+      value:
+        type: text
