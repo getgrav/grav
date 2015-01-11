@@ -144,8 +144,8 @@ class AdminPlugin extends Plugin
         $this->grav['admin']->routes = $pages->routes();
 
         // Remove default route from routes.
-        if (isset($this->grav['admin']->routes[$this->grav['config']->get('system.home.alias')])) {
-            unset($this->grav['admin']->routes[$this->grav['config']->get('system.home.alias')]);
+        if (isset($this->grav['admin']->routes['/'])) {
+            unset($this->grav['admin']->routes['/']);
         }
 
         $pages->dispatch('/', true)->route($home);
