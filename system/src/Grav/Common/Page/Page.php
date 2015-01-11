@@ -1210,6 +1210,7 @@ class Page
             $this->modular_twig = (bool) $var;
             if ($var) {
                 $this->process['twig'] = true;
+                $this->visible(false);
             }
         }
         return $this->modular_twig;
