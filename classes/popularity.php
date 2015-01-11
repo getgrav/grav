@@ -38,7 +38,7 @@ class Popularity
     {
         $this->config = self::$grav['config'];
 
-        $this->data_path = LOG_DIR . 'popularity';
+        $this->data_path = self::$grav['locator']->findResource('log://') . 'popularity';
         $this->daily_file = $this->data_path.'/'.self::DAILY_FILE;
         $this->monthly_file = $this->data_path.'/'.self::MONTHLY_FILE;
         $this->totals_file = $this->data_path.'/'.self::TOTALS_FILE;

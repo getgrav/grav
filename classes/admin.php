@@ -198,7 +198,7 @@ class Admin
     public function blueprints($type)
     {
         if ($this->blueprints === null) {
-            $this->blueprints = new Data\Blueprints(ROOT_DIR . 'system/blueprints/');
+            $this->blueprints = new Data\Blueprints($this->grav['locator']->findResource('blueprints://'));
         }
         return $this->blueprints->get($type);
     }
