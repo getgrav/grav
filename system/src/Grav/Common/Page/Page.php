@@ -122,11 +122,9 @@ class Page
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
 
-         // Handle publishing dates
-        $config = self::$grav['config'];
-
-        if ($config->get('system.pages.publish_dates')) {
-
+         // Handle publishing dates if no explict published option set
+        if (self::$grav['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
+            // unpublish if required, if not clear cache right before page should be unpublished
             if ($this->unpublishDate()) {
                 if ($this->unpublishDate() < time()) {
                     $this->published(false);
@@ -135,14 +133,13 @@ class Page
                     self::$grav['cache']->setLifeTime($this->unpublishDate());
                 }
             }
-
+            // publish if required, if not clear cache right before page is published
             if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
                 $this->published(false);
                 self::$grav['cache']->setLifeTime($this->publishDate());
             }
         }
         $this->published();
-
     }
 
     /**
