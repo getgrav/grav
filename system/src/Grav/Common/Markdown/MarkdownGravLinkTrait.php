@@ -17,7 +17,7 @@ trait MarkdownGravLinkTrait
     /**
      * Ensure Twig tags are treated as block level items with no <p></p> tags
      */
-    protected function blockTwigTag($Line)
+    protected function identifyTwigTag($Line)
     {
         if (preg_match('/[{%|{{|{#].*[#}|}}|%}]/', $Line['body'], $matches)) {
             $Block = array(
