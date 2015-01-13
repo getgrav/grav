@@ -14,55 +14,51 @@ trait MarkdownGravLinkTrait
 {
     use GravTrait;
 
+    protected $base_url;
+
     /**
      * Ensure Twig tags are treated as block level items with no <p></p> tags
      */
-    protected function identifyTwigTag($Line)
+    protected function blockTwigTag($Line)
     {
         if (preg_match('/[{%|{{|{#].*[#}|}}|%}]/', $Line['body'], $matches)) {
             $Block = array(
-                'element' => $Line['body'],
+                'markup' => $Line['body'],
             );
             return $Block;
         }
     }
 
-    protected function identifyLink($Excerpt)
+    protected function inlineImage($excerpt)
     {
         /** @var Config $config */
         $config = self::$grav['config'];
 
         // Run the parent method to get the actual results
-        $Excerpt = parent::identifyLink($Excerpt);
+        $excerpt = parent::inlineImage($excerpt);
         $actions = array();
         $this->base_url = self::$grav['base_url'];
 
-        // if this is a link
-        if (isset($Excerpt['element']['attributes']['href'])) {
-
-            $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['href']));
-
-            // if there is no scheme, the file is local
-            if (!isset($url['scheme'])) {
-
-                // convert the URl is required
-                $Excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
-            }
-        }
-
         // if this is an image
-        if (isset($Excerpt['element']['attributes']['src'])) {
+        if (isset($excerpt['element']['attributes']['src'])) {
 
-            $alt = isset($Excerpt['element']['attributes']['alt']) ? $Excerpt['element']['attributes']['alt'] : '';
-            $title = isset($Excerpt['element']['attributes']['title']) ? $Excerpt['element']['attributes']['title'] : '';
+            $alt = $excerpt['element']['attributes']['alt'] ?: '';
+            $title = $excerpt['element']['attributes']['title'] ?: '';
 
             //get the url and parse it
-            $url = parse_url(htmlspecialchars_decode($Excerpt['element']['attributes']['src']));
+            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
+
+            //get back to current page if possible
 
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
                 // get the media objects for this page
                 $media = $this->page->media();
+
+                // get the local path to page media if possible
+                if (strpos($url['path'], $this->page->url()) !== false) {
+                    $url['path'] = ltrim(str_replace($this->page->url(), '', $url['path']), '/');
+                }
 
                 // if there is a media file that matches the path referenced..
                 if (isset($media->images()[$url['path']])) {
@@ -92,10 +88,10 @@ trait MarkdownGravLinkTrait
 
                     // set the src element with the new generated url
                     if (!isset($actions['lightbox']) && !is_array($src)) {
-                        $Excerpt['element']['attributes']['src'] = $src;
+                        $excerpt['element']['attributes']['src'] = $src;
                     } else {
                         // Create the custom lightbox element
-                        $Element = array(
+                        $element = array(
                             'name' => 'a',
                             'attributes' => array('rel' => $src['a_rel'], 'href' => $src['a_url']),
                             'handler' => 'element',
@@ -106,20 +102,47 @@ trait MarkdownGravLinkTrait
                         );
 
                         // Set any custom classes on the lightbox element
-                        if (isset($Excerpt['element']['attributes']['class'])) {
-                            $Element['attributes']['class'] = $Excerpt['element']['attributes']['class'];
+                        if (isset($excerpt['element']['attributes']['class'])) {
+                            $element['attributes']['class'] = $excerpt['element']['attributes']['class'];
                         }
 
                         // Set the lightbox element on the Excerpt
-                        $Excerpt['element'] = $Element;
+                        $excerpt['element'] = $element;
                     }
                 } else {
                     // not a current page media file, see if it needs converting to relative
-                    $Excerpt['element']['attributes']['src'] = $this->convertUrl(Uri::build_url($url));
+                    $excerpt['element']['attributes']['src'] = $this->convertUrl(Uri::build_url($url));
                 }
             }
         }
-        return $Excerpt;
+
+        return $excerpt;
+    }
+
+    protected function inlineLink($excerpt)
+    {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        // Run the parent method to get the actual results
+        $excerpt = parent::inlineLink($excerpt);
+        $actions = array();
+        $this->base_url = self::$grav['base_url'];
+
+        // if this is a link
+        if (isset($excerpt['element']['attributes']['href'])) {
+
+            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
+
+            // if there is no scheme, the file is local
+            if (!isset($url['scheme'])) {
+
+                // convert the URl is required
+                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
+            }
+        }
+
+        return $excerpt;
     }
 
     /**
@@ -129,7 +152,7 @@ trait MarkdownGravLinkTrait
      */
     protected function convertUrl($markdown_url)
     {
-        // if absolue and starts with a base_url move on
+        // if absolute and starts with a base_url move on
         if ($this->base_url != '' && strpos($markdown_url, $this->base_url) === 0) {
             $new_url = $markdown_url;
             // if its absolute with /
@@ -139,7 +162,7 @@ trait MarkdownGravLinkTrait
             $relative_path = rtrim($this->base_url, '/') . $this->page->route();
 
             // If this is a 'real' filepath clean it up
-            if (file_exists($this->page->path().'/'.parse_url($markdown_url, PHP_URL_PATH))) {
+            if (file_exists($this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH))) {
                 $pages_dir = self::$grav['locator']->findResource('page://');
                 $relative_path = rtrim($this->base_url, '/') . preg_replace('/\/([\d]+.)/', '/', str_replace($pages_dir, '/', $this->page->path()));
                 $markdown_url = preg_replace('/^([\d]+.)/', '', preg_replace('/\/([\d]+.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
