@@ -136,7 +136,7 @@ class Admin
     public function authenticate($form)
     {
         if (!$this->user->authenticated && isset($form['username']) && isset($form['password'])) {
-            $file = CompiledYamlFile::instance(ACCOUNTS_DIR . $form['username'] . YAML_EXT);
+            $file = CompiledYamlFile::instance($this->grav['locator']->findResource('account://' . $form['username'] . YAML_EXT));
             if ($file->exists()) {
                 $user = new User($file->content());
                 $user->authenticated = true;
@@ -198,7 +198,7 @@ class Admin
     public function blueprints($type)
     {
         if ($this->blueprints === null) {
-            $this->blueprints = new Data\Blueprints(SYSTEM_DIR . '/blueprints/');
+            $this->blueprints = new Data\Blueprints($this->grav['locator']->findResource('blueprints://'));
         }
         return $this->blueprints->get($type);
     }
@@ -231,7 +231,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('system'), $blueprints);
                 $obj->merge($post);
-                $file = CompiledYamlFile::instance(USER_DIR . "config/{$type}.yaml");
+                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("user://config/{$type}.yaml"));
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
@@ -243,7 +243,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('site'), $blueprints);
                 $obj->merge($post);
-                $file = CompiledYamlFile::instance(USER_DIR . "config/{$type}.yaml");
+                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("user://config/{$type}.yaml"));
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
@@ -350,7 +350,7 @@ class Admin
     public function logs()
     {
         if (!isset($this->logs)) {
-            $file = LogFile::instance(LOG_DIR . 'exception.log');
+            $file = LogFile::instance($this->grav['locator']->findResource('log://exception.log'));
 
             $content = $file->content();
 
@@ -405,7 +405,7 @@ class Admin
      */
     public function logEntry()
     {
-        $file = File::instance(LOG_DIR . $this->route . '.html');
+        $file = File::instance($this->grav['locator']->findResource("log://{$this->route}.html"));
         $content = $file->content();
 
         return $content;
