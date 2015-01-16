@@ -450,6 +450,9 @@ class Page
         if ($name == 'media.image') {
             return $this->media()->images();
         }
+        if ($name == 'media.audio') {
+            return $this->media()->audios();
+        }
 
         $path = explode('.', $name);
         $scope = array_shift($path);
