@@ -660,7 +660,7 @@ class Page
     }
 
     /**
-     * Gets and sets the name field.  If no name field is set, it will return 'home.md'.
+     * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
      *
      * @param  string $var The name of this page.
      * @return string      The name of this page.
