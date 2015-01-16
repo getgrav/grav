@@ -183,6 +183,9 @@ class Themes extends Iterator
             "themes.{$name}.streams.schemes",
             ['theme' => ['paths' => $locator->findResources("themes://{$name}", false)]]
         );
+        
+        // Merge config streams with theme streams
+        $schemes = array_merge($schemes, $this->get($name)->get('streams.scheme'));
 
         foreach ($schemes as $scheme => $config) {
             if (isset($config['paths'])) {
