@@ -29,6 +29,7 @@ cache:
   driver: auto                         # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                     # Lifetime of cached data in seconds (0 = infinite)
+  gzip: false                          # GZip compress the page output
 
 twig:
   cache: true                          # Set to true to enable twig caching

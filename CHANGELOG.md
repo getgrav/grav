@@ -1,3 +1,18 @@
+# v0.9.14
+## XX/XX/2015
+
+1. [](#new)
+    * Added **GZip** support
+    * Added multiple configurations via `setup.php`
+2. [](#improved)
+    * Various updates and fixes for streams resulting in better multisite support
+    * Updated Twig, Parsedown, ParsedownExtra, DoctrineCache libraries
+    * Force modular pages to be non-visible in menus
+    * Moved RewriteBase before Exploits in `.htaccess`
+3. [](#bugfix)
+    * Fix for `published` setting to have prcedent of `publish_date` and `unpublish_date`
+    * Fix for `onShutdown()` events not closing connections properly in **php-fpm** environments
+
 # v0.9.13
 ## 01/09/2015
 
