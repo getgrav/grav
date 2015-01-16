@@ -40,6 +40,31 @@ swf:
   type: video
   thumb: media/thumb-swf.png
   mime: video/x-flv
+flv:
+  type: video
+  thumb: media/thumb-flv.png
+  mime: video/x-flv
+
+mp3:
+  type: audio
+  thumb: media/thumb-mp3.png
+  mime: audio/mp3
+ogg:
+  type: audio
+  thumb: media/thumb-ogg.png
+  mine: audio/ogg
+wma:
+  type: audio
+  thumb: media/thumb-wma.png
+  mine: audio/wma
+m4a:
+  type: audio
+  thumb: media/thumb-m4a.png
+  mine: audio/m4a
+wav:
+  type: audio
+  thumb: media/thumb-wav.png
+  mine: audio/wav
 
 txt:
   type: file
@@ -65,3 +90,4 @@ gz:
   type: file
   thumb: media/thumb-gz.png
   mime: application/gzip
+

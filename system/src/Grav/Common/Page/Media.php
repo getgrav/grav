@@ -23,6 +23,7 @@ class Media extends Getters
     protected $instances = array();
     protected $images = array();
     protected $videos = array();
+    protected $audios = array();
     protected $files = array();
 
     /**
@@ -156,6 +157,17 @@ class Media extends Getters
     }
 
     /**
+     * Get a list of all audio media.
+     *
+     * @return array|Medium[]
+     */
+    public function audios()
+    {
+        ksort($this->audios, SORT_NATURAL | SORT_FLAG_CASE);
+        return $this->audios;
+    }
+
+    /**
      * Get a list of all file media.
      *
      * @return array|Medium[]
@@ -178,6 +190,9 @@ class Media extends Getters
                 break;
             case 'video':
                 $this->videos[$file->filename] = $file;
+                break;
+            case 'audio':
+                $this->audios[$file->filename] = $file;
                 break;
             default:
                 $this->files[$file->filename] = $file;

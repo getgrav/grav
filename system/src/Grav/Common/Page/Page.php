@@ -450,6 +450,9 @@ class Page
         if ($name == 'media.image') {
             return $this->media()->images();
         }
+        if ($name == 'media.audio') {
+            return $this->media()->audios();
+        }
 
         $path = explode('.', $name);
         $scope = array_shift($path);
@@ -1387,11 +1390,11 @@ class Page
      * @return  Page page you were looking for if it exists
      * @deprecated
      */
-    public function find($url, $all=false)
+    public function find($url)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
-        return $pages->dispatch($url, $all);
+        return $pages->dispatch($url);
     }
 
     /**
