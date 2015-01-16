@@ -170,6 +170,10 @@ class Grav extends Container
     {
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
+        if ($this['config']->get('system.cache.gzip')) {
+            ob_start('ob_gzhandler');
+        }
+
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
@@ -325,12 +329,21 @@ class Grav extends Container
                 $this['session']->close();
             }
 
-            header('Content-length: ' . ob_get_length());
+            if ($this['config']->get('system.cache.gzip')) {
+                ob_end_flush(); // gzhandler buffer
+            }
+
+            header('Content-Length: ' . ob_get_length());
             header("Connection: close\r\n");
 
-            ob_end_flush();
+            ob_end_flush(); // regular buffer
             ob_flush();
             flush();
+
+            if (function_exists('fastcgi_finish_request')) {
+                @fastcgi_finish_request();
+            }
+
         }
 
         $this->fireEvent('onShutdown');
