@@ -1387,11 +1387,11 @@ class Page
      * @return  Page page you were looking for if it exists
      * @deprecated
      */
-    public function find($url)
+    public function find($url, $all=false)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
-        return $pages->dispatch($url);
+        return $pages->dispatch($url, $all);
     }
 
     /**
