@@ -450,6 +450,9 @@ class Page
         if ($name == 'media.image') {
             return $this->media()->images();
         }
+        if ($name == 'media.audio') {
+            return $this->media()->audios();
+        }
 
         $path = explode('.', $name);
         $scope = array_shift($path);
@@ -657,7 +660,7 @@ class Page
     }
 
     /**
-     * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
+     * Gets and sets the name field.  If no name field is set, it will return 'home.md'.
      *
      * @param  string $var The name of this page.
      * @return string      The name of this page.
@@ -1387,11 +1390,11 @@ class Page
      * @return  Page page you were looking for if it exists
      * @deprecated
      */
-    public function find($url, $all=false)
+    public function find($url)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
-        return $pages->dispatch($url, $all);
+        return $pages->dispatch($url);
     }
 
     /**
