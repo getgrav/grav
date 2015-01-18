@@ -130,7 +130,7 @@ class Twig
                 'grav' => $this->grav,
                 'config' => $config,
                 'uri' => $this->grav['uri'],
-                'base_dir' => rtrim(ROOT_DIR, '/'),
+                'base_dir' => rtrim(GRAV_ROOT, '/'),
                 'base_url' => $this->grav['base_url'],
                 'base_url_absolute' => $this->grav['base_url_absolute'],
                 'base_url_relative' => $this->grav['base_url_relative'],

@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Grav\Common\Grav;
 
 /**
  * Class InstallCommand
@@ -156,7 +157,10 @@ class InstallCommand extends Command
      */
     private function downloadPackage($package)
     {
-        $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+
+        $this->tmp = $locator->findResource('cache://' . DS . 'tmp/Grav-' . uniqid(), true, true);
         $filename = $package->slug . basename($package->zipball_url);
         $output = Response::get($package->zipball_url, [], [$this, 'progress']);
 

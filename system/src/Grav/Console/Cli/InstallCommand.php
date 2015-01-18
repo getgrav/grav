@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
+use Grav\Common\Grav;
 
 /**
  * Class InstallCommand
@@ -15,7 +16,6 @@ use Symfony\Component\Yaml\Yaml;
  */
 class InstallCommand extends Command
 {
-
     /**
      * @var
      */
@@ -64,14 +64,21 @@ class InstallCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
         $dependencies_file = '.dependencies';
         $local_config_file = exec('eval echo ~/.grav/config');
-        $this->destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : ROOT_DIR;
+        $this->destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : GRAV_ROOT;
 
         // fix trailing slash
-        $this->destination = rtrim($this->destination, DS) . DS;
-        $this->user_path = $this->destination . USER_PATH;
+        $this->destination = rtrim($this->destination, DS);
+
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+        if (GRAV_ROOT == $this->destination) {
+            $this->user_path = $locator->findResource('user://', true, true);
+        } else {
+            $user_path = str_replace(GRAV_ROOT, '', $locator->findResource('user://'));
+            $this->user_path = $this->destination . $user_path;
+        }
 
         // Create a red output option
         $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
@@ -90,7 +97,7 @@ class InstallCommand extends Command
         } elseif (file_exists($this->destination . $dependencies_file)) {
             $this->config = Yaml::parse($this->destination . $dependencies_file);
         } else {
-            $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
+            $output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder'); // @todo: change to full path?
         }
 
         // If yaml config, process

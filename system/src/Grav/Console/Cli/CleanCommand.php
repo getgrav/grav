@@ -200,7 +200,7 @@ class CleanCommand extends Command
         $anything = false;
 
         foreach ($this->paths_to_remove as $path) {
-            $path = ROOT_DIR . $path;
+            $path = GRAV_ROOT . $path;
 
             if (is_dir($path) && @Folder::delete($path)) {
                 $anything = true;
