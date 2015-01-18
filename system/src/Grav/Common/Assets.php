@@ -298,8 +298,12 @@ class Assets
     public function addInlineCss($asset, $priority = 10)
     {
 
-        if (is_string($asset) && !in_array($asset, $this->inline_css)) {
-            $this->inline_css[] = $asset;
+        if (is_string($asset) && !array_key_exists(md5($asset), $this->inline_css)) {
+            $this->inline_css[md5($asset)] = [
+                'priority'  => $priority,
+                'order'     => count($this->inline_css),
+                'asset'     => $asset
+            ];
         }
 
         return $this;
@@ -312,14 +316,19 @@ class Assets
      * For adding chunks of string-based inline JS
      *
      * @param  mixed $asset
+     * @param  int   $priority the priority, bigger comes first
      *
      * @return $this
      */
-    public function addInlineJs($asset)
+    public function addInlineJs($asset, $priority = 10)
     {
 
-        if (is_string($asset) && !in_array($asset, $this->inline_js)) {
-            $this->inline_js[] = $asset;
+        if (is_string($asset) && !array_key_exists(md5($asset), $this->inline_js)) {
+            $this->inline_js[md5($asset)] = [
+                'priority'  => $priority,
+                'count'     => count($this->inline_js),
+                'asset'     => $asset
+            ];
         }
 
         return $this;
@@ -346,8 +355,16 @@ class Assets
                 }
                 return $a['priority'] - $b['priority'];
             });
+
+            usort($this->inline_css, function ($a, $b) {
+                if ($a['priority'] == $b['priority']) {
+                    return $b['order'] - $a['order'];
+                }
+                return $a['priority'] - $b['priority'];
+            });
         }
         $this->css = array_reverse($this->css);
+        $this->inline_css = array_reverse($this->inline_css);
 
         $attributes = $this->attributes(array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes));
 
@@ -368,7 +385,7 @@ class Assets
         if (count($this->inline_css) > 0) {
             $output .= "<style>\n";
             foreach ($this->inline_css as $inline) {
-                $output .= $inline . "\n";
+                $output .= $inline['asset'] . "\n";
             }
             $output .= "</style>\n";
         }
@@ -397,7 +414,16 @@ class Assets
             }
             return $a['priority'] - $b['priority'];
         });
+
+        usort($this->inline_js, function ($a, $b) {
+            if ($a['priority'] == $b['priority']) {
+                return $b['order'] - $a['order'];
+            }
+            return $a['priority'] - $b['priority'];
+        });
+
         $this->js = array_reverse($this->js);
+        $this->inline_js = array_reverse($this->inline_js);
 
         $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
 
@@ -417,7 +443,7 @@ class Assets
         if (count($this->inline_js) > 0) {
             $output .= "<script>\n";
             foreach ($this->inline_js as $inline) {
-                $output .= $inline . "\n";
+                $output .= $inline['asset'] . "\n";
             }
             $output .= "</script>\n";
         }
