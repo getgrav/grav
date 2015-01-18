@@ -7,25 +7,25 @@ define('DS', '/');
 
 // Directories and Paths
 if (!defined('GRAV_ROOT')) {
-    define('GRAV_ROOT', getcwd());
+    define('GRAV_ROOT', getcwd() . '/');
 }
-define('ROOT_DIR', GRAV_ROOT . '/');
-define('USER_PATH', 'user/');
-define('USER_DIR', ROOT_DIR . USER_PATH);
-define('SYSTEM_DIR', ROOT_DIR .'system/');
-define('ASSETS_DIR', ROOT_DIR . 'assets/');
-define('CACHE_DIR', ROOT_DIR . 'cache/');
-define('IMAGES_DIR', ROOT_DIR . 'images/');
-define('LOG_DIR', ROOT_DIR .'logs/');
-define('ACCOUNTS_DIR', USER_DIR .'accounts/');
-define('PAGES_DIR', USER_DIR .'pages/');
+define('USER_PATH', 'user/'); // @todo: deprecated but used fo USER_DIR into system/src/Grav/Common/Config/Config.php:212.
+define('USER_DIR', GRAV_ROOT . USER_PATH); // @todo: deprecated but need for USER_PATH.
+define('CACHE_DIR', GRAV_ROOT . 'cache/');
+define('LOG_DIR', GRAV_ROOT .'logs/');
 
 // DEPRECATED: Do not use!
-define('DATA_DIR', USER_DIR .'data/');
+define('ROOT_DIR', rtrim(GRAV_ROOT, '/'));
+define('SYSTEM_DIR', GRAV_ROOT .'system/');
+define('IMAGES_DIR', GRAV_ROOT . 'images/');
+define('ASSETS_DIR', GRAV_ROOT . 'assets/');
+define('VENDOR_DIR', GRAV_ROOT .'vendor/');
 define('LIB_DIR', SYSTEM_DIR .'src/');
 define('PLUGINS_DIR', USER_DIR .'plugins/');
 define('THEMES_DIR', USER_DIR .'themes/');
-define('VENDOR_DIR', ROOT_DIR .'vendor/');
+define('PAGES_DIR', USER_DIR .'pages/');
+define('ACCOUNTS_DIR', USER_DIR .'accounts/');
+define('DATA_DIR', USER_DIR .'data/');
 // END DEPRECATED
 
 // Some extensions
