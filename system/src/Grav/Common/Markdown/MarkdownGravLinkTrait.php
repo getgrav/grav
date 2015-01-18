@@ -121,12 +121,9 @@ trait MarkdownGravLinkTrait
 
     protected function inlineLink($excerpt)
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
         // Run the parent method to get the actual results
         $excerpt = parent::inlineLink($excerpt);
-        $actions = array();
+
         $this->base_url = self::$grav['base_url'];
 
         // if this is a link
@@ -152,6 +149,8 @@ trait MarkdownGravLinkTrait
      */
     protected function convertUrl($markdown_url)
     {
+        $pages = self::$grav['pages'];
+
         // if absolute and starts with a base_url move on
         if ($this->base_url != '' && strpos($markdown_url, $this->base_url) === 0) {
             $new_url = $markdown_url;
@@ -164,12 +163,12 @@ trait MarkdownGravLinkTrait
             // If this is a 'real' filepath clean it up
             if (file_exists($this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH))) {
                 $pages_dir = self::$grav['locator']->findResource('page://');
-                $relative_path = rtrim($this->base_url, '/') . preg_replace('/\/([\d]+.)/', '/', str_replace($pages_dir, '/', $this->page->path()));
+                $relative_path = rtrim($pages->base(), '/') . preg_replace('/\/([\d]+.)/', '/', str_replace($pages_dir, '/', $this->page->path()));
                 $markdown_url = preg_replace('/^([\d]+.)/', '', preg_replace('/\/([\d]+.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
             }
 
             // else its a relative path already
-            $newpath = array();
+            $new_path = array();
             $paths = explode('/', $markdown_url);
 
             // remove the updirectory references (..)
@@ -177,12 +176,12 @@ trait MarkdownGravLinkTrait
                 if ($path == '..') {
                     $relative_path = dirname($relative_path);
                 } else {
-                    $newpath[] = $path;
+                    $new_path[] = $path;
                 }
             }
 
             // build the new url
-            $new_url = rtrim($relative_path, '/') . '/' . implode('/', $newpath);
+            $new_url = rtrim($relative_path, '/') . '/' . implode('/', $new_path);
         }
 
         return $new_url;
