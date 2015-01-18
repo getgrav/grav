@@ -1052,7 +1052,7 @@ class Page
      */
     public function filePathClean()
     {
-        return str_replace(ROOT_DIR, '', $this->filePath());
+        return str_replace(GRAV_ROOT, '', $this->filePath());
     }
 
     /**
