@@ -1366,7 +1366,8 @@ class Page
      */
     public function home()
     {
-        return $this->find('/') == $this;
+        $pages = self::$grav['pages'];
+        return $pages->dispatch('/', false) == $this;
     }
 
     /**
@@ -1387,10 +1388,11 @@ class Page
      * Helper method to return a page.
      *
      * @param  string $url the url of the page
+     * @param bool $all
      * @return  Page page you were looking for if it exists
      * @deprecated
      */
-    public function find($url, $all=false)
+    public function find($url, $all = false)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
@@ -1645,9 +1647,9 @@ class Page
      */
     protected function cleanPath($path)
     {
-        $lastchunk = strrchr($path, DS);
-        if (strpos($lastchunk, ':') !== false) {
-            $path = str_replace($lastchunk, '', $path);
+        $last_chunk = strrchr($path, DS);
+        if (strpos($last_chunk, ':') !== false) {
+            $path = str_replace($last_chunk, '', $path);
         }
         return $path;
     }
@@ -1657,14 +1659,14 @@ class Page
      *
      * @internal
      */
-    protected function doRelocation($reorder)
+    protected function doRelocation($re_order)
     {
         if (empty($this->_original)) {
             return;
         }
 
-        // Do reordering.
-        if ($reorder && $this->order() != $this->_original->order()) {
+        // Do re ordering.
+        if ($re_order && $this->order() != $this->_original->order()) {
             /** @var Pages $pages */
             $pages = self::$grav['pages'];
 
