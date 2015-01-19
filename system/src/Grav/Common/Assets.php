@@ -328,7 +328,7 @@ class Assets
         if (is_string($asset) && !array_key_exists($key, $this->inline_js)) {
             $this->inline_js[$key] = [
                 'priority'  => $priority,
-                'count'     => count($this->inline_js),
+                'order'     => count($this->inline_js),
                 'asset'     => $asset
             ];
         }
