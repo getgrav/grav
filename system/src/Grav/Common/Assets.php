@@ -234,8 +234,9 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
-        if ($asset && !array_key_exists($asset, $this->css)) {
-            $this->css[$asset] = [
+        $key = md5($asset);
+        if ($asset && !array_key_exists($key, $this->css)) {
+            $this->css[$key] = [
                 'asset'    => $asset,
                 'priority' => $priority,
                 'order'    => count($this->css),
@@ -272,8 +273,9 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
-        if ($asset && !array_key_exists($asset, $this->js)) {
-            $this->js[$asset] = [
+        $key = md5($asset);
+        if ($asset && !array_key_exists($key, $this->js)) {
+            $this->js[$key] = [
                 'asset'    => $asset,
                 'priority' => $priority,
                 'order'    => count($this->js),
@@ -297,9 +299,9 @@ class Assets
      */
     public function addInlineCss($asset, $priority = 10)
     {
-
-        if (is_string($asset) && !array_key_exists(md5($asset), $this->inline_css)) {
-            $this->inline_css[md5($asset)] = [
+        $key = md5($asset);
+        if (is_string($asset) && !array_key_exists($key, $this->inline_css)) {
+            $this->inline_css[$key] = [
                 'priority'  => $priority,
                 'order'     => count($this->inline_css),
                 'asset'     => $asset
@@ -322,9 +324,9 @@ class Assets
      */
     public function addInlineJs($asset, $priority = 10)
     {
-
-        if (is_string($asset) && !array_key_exists(md5($asset), $this->inline_js)) {
-            $this->inline_js[md5($asset)] = [
+        $key = md5($asset);
+        if (is_string($asset) && !array_key_exists($key, $this->inline_js)) {
+            $this->inline_js[$key] = [
                 'priority'  => $priority,
                 'count'     => count($this->inline_js),
                 'asset'     => $asset
