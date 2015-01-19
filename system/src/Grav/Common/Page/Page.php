@@ -1387,10 +1387,12 @@ class Page
      * Helper method to return a page.
      *
      * @param  string $url the url of the page
-     * @return  Page page you were looking for if it exists
+     * @param bool    $all
+     *
+     * @return \Grav\Common\Page\Page page you were looking for if it exists
      * @deprecated
      */
-    public function find($url, $all=false)
+    public function find($url, $all = false)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
