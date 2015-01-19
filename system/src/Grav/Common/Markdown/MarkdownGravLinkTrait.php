@@ -13,8 +13,22 @@ use Grav\Common\Uri;
 trait MarkdownGravLinkTrait
 {
     use GravTrait;
-
+    protected $page;
     protected $base_url;
+    protected $pages_dir;
+
+    /**
+     * Initialiazation function to setup key variables needed by the MarkdownGravLinkTrait
+     *
+     * @param $page
+     */
+    protected function init($page)
+    {
+        $this->page = $page;
+        $this->BlockTypes['{'] [] = "TwigTag";
+        $this->base_url = rtrim(self::$grav['base_url'] . self::$grav['pages']->base(), '/');
+        $this->pages_dir = self::$grav['locator']->findResource('page://');
+    }
 
     /**
      * Ensure Twig tags are treated as block level items with no <p></p> tags
@@ -31,13 +45,9 @@ trait MarkdownGravLinkTrait
 
     protected function inlineImage($excerpt)
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
         // Run the parent method to get the actual results
         $excerpt = parent::inlineImage($excerpt);
         $actions = array();
-        $this->base_url = self::$grav['base_url'];
 
         // if this is an image
         if (isset($excerpt['element']['attributes']['src'])) {
@@ -121,13 +131,8 @@ trait MarkdownGravLinkTrait
 
     protected function inlineLink($excerpt)
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
         // Run the parent method to get the actual results
         $excerpt = parent::inlineLink($excerpt);
-        $actions = array();
-        $this->base_url = self::$grav['base_url'];
 
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
@@ -155,16 +160,15 @@ trait MarkdownGravLinkTrait
         // if absolute and starts with a base_url move on
         if ($this->base_url != '' && strpos($markdown_url, $this->base_url) === 0) {
             $new_url = $markdown_url;
-            // if its absolute with /
+        // if its absolute and starts with /
         } elseif (strpos($markdown_url, '/') === 0) {
-            $new_url = rtrim($this->base_url, '/') . $markdown_url;
+            $new_url = $this->base_url . $markdown_url;
         } else {
-            $relative_path = rtrim($this->base_url, '/') . $this->page->route();
+            $relative_path = $this->base_url . $this->page->route();
 
             // If this is a 'real' filepath clean it up
             if (file_exists($this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH))) {
-                $pages_dir = self::$grav['locator']->findResource('page://');
-                $relative_path = rtrim($this->base_url, '/') . preg_replace('/\/([\d]+.)/', '/', str_replace($pages_dir, '/', $this->page->path()));
+                $relative_path = $this->base_url . preg_replace('/\/([\d]+.)/', '/', str_replace($this->pages_dir, '/', $this->page->path()));
                 $markdown_url = preg_replace('/^([\d]+.)/', '', preg_replace('/\/([\d]+.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
             }
 

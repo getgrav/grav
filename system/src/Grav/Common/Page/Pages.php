@@ -73,6 +73,7 @@ class Pages
     public function __construct(Grav $c)
     {
         $this->grav = $c;
+        $this->base = '';
     }
 
     /**

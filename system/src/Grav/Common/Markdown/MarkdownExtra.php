@@ -8,7 +8,6 @@ class MarkdownExtra extends \ParsedownExtra
     public function __construct($page)
     {
         parent::__construct();
-        $this->page = $page;
-        $this->BlockTypes['{'] [] = "TwigTag";
+        $this->init($page);
     }
 }

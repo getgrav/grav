@@ -7,8 +7,7 @@ class Markdown extends \Parsedown
 
     public function __construct($page)
     {
-        $this->page = $page;
-        $this->BlockTypes['{'] [] = "TwigTag";
+        $this->init($page);
     }
 
 }
