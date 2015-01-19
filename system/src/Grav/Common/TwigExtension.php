@@ -343,7 +343,7 @@ class TwigExtension extends \Twig_Extension
         /** @var Uri $uri */
         $uri = $this->grav['uri'];
 
-        return $uri->rootUrl($domain) .'/'. $locator->findResource($input, false);
+        return ($locator->findResource($input, false)) ? $uri->rootUrl($domain) .'/'. $locator->findResource($input, false) : '';
     }
 
     /**
