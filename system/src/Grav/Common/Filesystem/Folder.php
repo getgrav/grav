@@ -232,8 +232,9 @@ abstract class Folder
     /**
      * Recursively delete directory from filesystem.
      *
-     * @param  string            $target
+     * @param  string $target
      * @throws \RuntimeException
+     * @return bool
      */
     public static function delete($target)
     {
