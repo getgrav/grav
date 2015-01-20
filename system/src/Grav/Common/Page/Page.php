@@ -348,8 +348,7 @@ class Page
 
             $update_cache = false;
             if ($this->content === false) {
-                // Process Markdown
-                $this->content = $this->processMarkdown();
+                $this->content = $this->shouldProcess('markdown') ? $this->parseMarkdownContent($this->raw_content) : $this->raw_content;
                 $update_cache = true;
             }
 
@@ -1590,32 +1589,6 @@ class Page
     {
         $file = $this->file();
         return $file && $file->exists();
-    }
-
-    /**
-     * Process the Markdown if processing is enabled for it. If not, process as 'raw' which simply strips the
-     * header YAML from the raw, and sends back the content portion. i.e. the bit below the header.
-     *
-     * @return string the content for the page
-     */
-    protected function processMarkdown()
-    {
-        // Process Markdown if required
-        $process_method = $this->shouldProcess('markdown') ? 'parseMarkdownContent' : 'rawContent';
-        $content = $this->$process_method($this->raw_content);
-
-        return $content;
-    }
-
-    /**
-     * Process the raw content. Basically just strips the headers out and returns the rest.
-     *
-     * @param  string $content Input raw content
-     * @return string          Output content after headers have been stripped
-     */
-    protected function rawContent($content)
-    {
-        return $content;
     }
 
     /**
