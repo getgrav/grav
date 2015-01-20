@@ -2,6 +2,7 @@
 namespace Grav\Common\File;
 
 use RocketTheme\Toolbox\File\PhpFile;
+use Grav\Common\GravTrait;
 
 /**
  * Class CompiledFile
@@ -14,6 +15,8 @@ use RocketTheme\Toolbox\File\PhpFile;
  */
 trait CompiledFile
 {
+    use GravTrait;
+
     /**
      * Get/set parsed file contents.
      *
@@ -24,8 +27,11 @@ trait CompiledFile
     {
         // If nothing has been loaded, attempt to get pre-compiled version of the file first.
         if ($var === null && $this->raw === null && $this->content === null) {
+            $locator = self::$grav['locator'];
+
             $key = md5($this->filename);
-            $file = PhpFile::instance(CACHE_DIR . "/compiled/files/{$key}{$this->extension}.php");
+            $file_path = $locator->findResource("cache://compiled/files/{$key}{$this->extension}.php", true, true);
+            $file = PhpFile::instance($file_path);
             $modified = $this->modified();
 
             if (!$modified) {

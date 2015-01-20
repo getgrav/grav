@@ -106,10 +106,9 @@ class Media extends Getters
                 'modified' => filemtime($filePath),
             );
 
-            $lookup = array(
-                USER_DIR . 'images/',
-                SYSTEM_DIR . 'images/',
-            );
+            $locator = self::$grav['locator'];
+
+            $lookup = $locator->findResources('image://');
             foreach ($lookup as $path) {
                 if (is_file($path . $params['thumb'])) {
                     $params['thumb'] = $path . $params['thumb'];

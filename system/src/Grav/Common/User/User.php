@@ -4,6 +4,7 @@ namespace Grav\Common\User;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\GravTrait;
 
 /**
  * User object
@@ -13,6 +14,8 @@ use Grav\Common\File\CompiledYamlFile;
  */
 class User extends Data
 {
+    use GravTrait;
+
     /**
      * Load user account.
      *
@@ -23,10 +26,13 @@ class User extends Data
      */
     public static function load($username)
     {
+        $locator = self::$grav['locator'];
+
         // FIXME: validate directory name
         $blueprints = new Blueprints('blueprints://user');
         $blueprint = $blueprints->get('account');
-        $file = CompiledYamlFile::instance(ACCOUNTS_DIR . $username . YAML_EXT);
+        $file_path = $locator->findResource('account://' . $username . YAML_EXT, true, true);
+        $file = CompiledYamlFile::instance($file_path);
         $content = $file->content();
         if (!isset($content['username'])) {
             $content['username'] = $username;

@@ -207,7 +207,7 @@ class Config extends Data
     protected function autoDetectEnvironmentConfig($items)
     {
         $environment = $this->environment;
-        $env_stream = 'user://'.$environment.'/config';
+        $env_stream = 'user://'.$environment.'/config'; // @todo: need to find a good solution for load locator.
 
         if (file_exists(USER_DIR.$environment.'/config')) {
             array_unshift($items['streams']['schemes']['config']['prefixes'][''], $env_stream);
@@ -221,7 +221,7 @@ class Config extends Data
         $checksum = md5(json_encode($blueprints));
         $filename = $filename
             ? CACHE_DIR . 'compiled/blueprints/' . $filename . '-' . $this->environment . '.php'
-            : CACHE_DIR . 'compiled/blueprints/' . $checksum . '-' . $this->environment . '.php';
+            : CACHE_DIR . 'compiled/blueprints/' . $checksum . '-' . $this->environment . '.php'; // @todo: need to find a good solution for load locator.
         $file = PhpFile::instance($filename);
         $cache = $file->exists() ? $file->content() : null;
         $blueprintFiles = $this->finder->locateBlueprintFiles($blueprints, $plugins);
