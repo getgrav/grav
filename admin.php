@@ -94,6 +94,7 @@ class AdminPlugin extends Plugin
         if (substr($this->uri->route(), 0, strlen($this->base)) == $this->base) {
             // Change login behavior.
             $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
+            $this->config->set('plugins.login.session.path', $this->uri->rootUrl(false) . $this->base);
 
             $this->active = true;
         }
@@ -277,9 +278,6 @@ class AdminPlugin extends Plugin
             'onTwigSiteVariables' => ['onTwigSiteVariables', 1000],
             'onTask.GPM'          => ['onTaskGPM', 0]
         ]);
-
-        // Change login behavior.
-        $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
 
         // Decide admin template and route.
         $path = trim(substr($this->uri->route(), strlen($this->base)), '/');
