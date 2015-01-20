@@ -17,6 +17,8 @@ trait MarkdownGravLinkTrait
     protected $base_url;
     protected $pages_dir;
 
+    protected $twig_link_regex = '/\!*\[(?:.*)\]\(([{{|{%|{#].*[#}|%}|}}])\)/';
+
     /**
      * Initialiazation function to setup key variables needed by the MarkdownGravLinkTrait
      *
@@ -45,8 +47,16 @@ trait MarkdownGravLinkTrait
 
     protected function inlineImage($excerpt)
     {
-        // Run the parent method to get the actual results
-        $excerpt = parent::inlineImage($excerpt);
+        if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
+            $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
+            $excerpt = parent::inlineImage($excerpt);
+            $excerpt['element']['attributes']['src'] = $matches[1];
+            $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+            return $excerpt;
+        } else {
+            $excerpt = parent::inlineImage($excerpt);
+        }
+
         $actions = array();
 
         // if this is an image
@@ -131,8 +141,16 @@ trait MarkdownGravLinkTrait
 
     protected function inlineLink($excerpt)
     {
-        // Run the parent method to get the actual results
-        $excerpt = parent::inlineLink($excerpt);
+        // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
+        if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
+            $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
+            $excerpt = parent::inlineLink($excerpt);
+            $excerpt['element']['attributes']['href'] = $matches[1];
+            $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+            return $excerpt;
+        } else {
+            $excerpt = parent::inlineLink($excerpt);
+        }
 
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
