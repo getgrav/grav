@@ -331,20 +331,32 @@ class TwigExtension extends \Twig_Extension
     /**
      * Return URL to the resource.
      *
-     * @param  string $input
-     * @param  bool $domain
-     * @return string
+     * @example {{ url('theme://images/logo.png')|default('http://www.placehold.it/150x100/f4f4f4') }}
+     *
+     * @param  string $input    Resource to be located.
+     * @param  bool $domain     True to include domain name.
+     * @return string|null      Returns url to the resource or null if resource was not found.
      */
     public function urlFunc($input, $domain = false)
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
+        if (!trim((string) $input)) {
+            return false;
+        }
+
+        if (strpos((string) $input, '://')) {
+            /** @var UniformResourceLocator $locator */
+            $locator = $this->grav['locator'];
+
+            // Get relative path to the resource (or false if not found).
+            $resource = $locator->findResource((string) $input, false);
+        } else {
+            $resource = (string) $input;
+        }
 
         /** @var Uri $uri */
         $uri = $this->grav['uri'];
-        $resource = $locator->findResource($input, false);
 
-        return $uri->rootUrl($domain) .'/'. $resource;
+        return $resource ? rtrim($uri->rootUrl($domain), '/') . '/' . $resource : null;
     }
 
     /**
