@@ -8,6 +8,7 @@ use Grav\Common\Config\Config;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
+use Grav\Common\GravTrait;
 
 define('CSS_ASSET', true);
 define('JS_ASSET', false);
@@ -105,6 +106,8 @@ class Assets
      */
     public function config(array $config)
     {
+        $locator = self::$grav['locator'];
+
         // Set pipeline modes
         if (isset($config['css_pipeline'])) {
             $this->css_pipeline = $config['css_pipeline'];
@@ -115,7 +118,7 @@ class Assets
         }
 
         // Pipeline requires public dir
-        if (($this->js_pipeline || $this->css_pipeline) && !is_dir(ASSETS_DIR)) {
+        if (($this->js_pipeline || $this->css_pipeline) && !is_dir($locator->findResource('asset://'))) {
             throw new \Exception('Assets: Public dir not found');
         }
 
@@ -462,6 +465,8 @@ class Assets
      */
     protected function pipeline($css = true)
     {
+        $locator = self::$grav['locator'];
+
         /** @var Cache $cache */
         $cache = self::$grav['cache'];
         $key = '?' . $cache->getKey();
@@ -484,8 +489,8 @@ class Assets
             }
         }
 
-        $relative_path = "{$this->base_url}" . basename(ASSETS_DIR) . "/{$file}";
-        $absolute_path = ASSETS_DIR . $file;
+        $relative_path = "{$this->base_url}" . basename($locator->findResource('asset://')) . "/{$file}";
+        $absolute_path = $locator->findResource("asset://{$file}");
 
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
@@ -613,13 +618,15 @@ class Assets
      */
     public function addDir($directory, $pattern = self::DEFAULT_REGEX)
     {
+        $locator = self::$grav['locator'];
+
         // Check if public_dir exists
-        if (!is_dir(ASSETS_DIR)) {
+        if (!is_dir($locator->findResource('asset://'))) {
             throw new Exception('Assets: Public dir not found');
         }
 
         // Get files
-        $files = $this->rglob(ASSETS_DIR . DIRECTORY_SEPARATOR . $directory, $pattern, ASSETS_DIR);
+        $files = $this->rglob($locator->findResource('asset://') . DS . $directory, $pattern, $locator->findResource('asset://'));
 
         // No luck? Nothing to do
         if (!$files) {
@@ -745,7 +752,7 @@ class Assets
                 }
 
                 $relative_dir = dirname($relative_path);
-                $link = ROOT_DIR . $relative_path;
+                $link = GRAV_ROOT . $relative_path;
             }
 
             $file = ($this->fetch_command instanceof Closure) ? $this->fetch_command->__invoke($link) : file_get_contents($link);
