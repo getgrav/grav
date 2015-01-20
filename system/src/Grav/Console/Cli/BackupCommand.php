@@ -67,7 +67,7 @@ class BackupCommand extends Command
         $date = date('YmdHis', time());
         $filename = $name . '-' . $date . '.zip';
 
-        $destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : ROOT_DIR;
+        $destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : GRAV_ROOT;
         $destination = rtrim($destination, DS) . DS . $filename;
 
         $output->writeln('');

@@ -2,6 +2,7 @@
 namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Data\Data;
+use Grav\Common\GravTrait;
 
 /**
  * Class Package
@@ -9,6 +10,8 @@ use Grav\Common\Data\Data;
  */
 class Package
 {
+    use GravTrait;
+
     /**
      * @var Data
      */
@@ -27,13 +30,15 @@ class Package
         $this->data       = $package;
         $this->blueprints = $this->data->blueprints();
 
+        $locator = self::$grav['locator'];
+
         if ($package_type) {
             $html_description = \Parsedown::instance()->line($this->blueprints->get('description'));
             $this->blueprints->set('package_type', $package_type);
             $this->blueprints->set('slug', $this->blueprints->name);
             $this->blueprints->set('description_html', $html_description);
             $this->blueprints->set('description_plain', strip_tags($html_description));
-            $this->blueprints->set('symlink', is_link(USER_DIR . $package_type . DS . $this->blueprints->name));
+            $this->blueprints->set('symlink', is_link($locator->findResource('user://' . $package_type . DS . $this->blueprints->name, true, true)));
         }
     }
 

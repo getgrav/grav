@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Grav\Common\Grav;
 
 /**
  * Class SelfupgradeCommand
@@ -163,7 +164,10 @@ class SelfupgradeCommand extends Command
      */
     private function download($package)
     {
-        $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+
+        $this->tmp = $locator->findResource('cache://' . DS . 'tmp/Grav-' . uniqid(), true, true);
         $output = Response::get($package->download, [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);

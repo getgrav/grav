@@ -16,7 +16,7 @@ class StreamsServiceProvider implements ServiceProviderInterface
         $self = $this;
 
         $container['locator'] = function($c) use ($self) {
-            $locator = new UniformResourceLocator(ROOT_DIR);
+            $locator = new UniformResourceLocator(GRAV_ROOT);
 
             /** @var Config $config */
             $config = $c['config'];

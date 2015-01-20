@@ -41,7 +41,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
     public function loadMasterConfig(Container $container)
     {
         $environment = $this->getEnvironment($container);
-        $file = CACHE_DIR . 'compiled/config/master-'.$environment.'.php';
+        $file = CACHE_DIR . 'compiled/config/master-'.$environment.'.php'; // @todo: need to find a good solution for load locator.
         $data = is_file($file) ? (array) include $file : [];
         if ($data) {
             try {
@@ -60,7 +60,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
     public function loadMasterBlueprints(Container $container)
     {
         $environment = $this->getEnvironment($container);
-        $file = CACHE_DIR . 'compiled/blueprints/master-'.$environment.'.php';
+        $file = CACHE_DIR . 'compiled/blueprints/master-'.$environment.'.php'; // @todo: need to find a good solution for load locator.
         $data = is_file($file) ? (array) include $file : [];
 
         return new Blueprints($data, $container);

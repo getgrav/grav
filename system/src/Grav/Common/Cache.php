@@ -31,6 +31,8 @@ class Cache extends Getters
 
     protected $config;
 
+    protected $locator;
+
     /**
      * @var DoctrineCache
      */
@@ -213,9 +215,10 @@ class Cache extends Getters
      */
     public static function clearCache($remove = 'standard')
     {
+        $grav = Grav::instance();
 
         $output = [];
-        $user_config = USER_DIR . 'config/system.yaml';
+        $user_config = $grav['locator']->findResource('user://config/system.yaml');
 
         switch($remove) {
             case 'all':
@@ -238,7 +241,7 @@ class Cache extends Getters
         foreach ($remove_paths as $path) {
 
             $anything = false;
-            $files = glob(ROOT_DIR . $path . '*');
+            $files = glob(GRAV_ROOT . $path . '*');
 
             foreach ($files as $file) {
                 if (is_file($file)) {

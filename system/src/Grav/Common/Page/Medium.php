@@ -115,7 +115,7 @@ class Medium extends Data
         if ($this->image) {
             $output = $this->image->cacheFile($this->type, $this->quality);
             $this->reset();
-            $output = ROOT_DIR . $output;
+            $output = GRAV_ROOT . $output;
         } else {
             $output = $this->get('path') . '/' . $this->get('filename');
         }
@@ -144,7 +144,7 @@ class Medium extends Data
             $output = $this->image->cacheFile($this->type, $this->quality);
             $this->reset();
         } else {
-            $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
+            $relPath = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path'));
             $output = $relPath . '/' . $this->get('filename');
         }
 
@@ -270,7 +270,7 @@ class Medium extends Data
             $this->linkTarget = $image->cacheFile($this->type, $this->quality);
         } else {
             // TODO: we need to find out URI in a bit better way.
-            $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
+            $relPath = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path'));
             $this->linkTarget = $relPath. '/' . $this->get('filename');
         }
 
@@ -332,11 +332,14 @@ class Medium extends Data
      */
     public function image($variable = 'thumb')
     {
+        $locator = self::$grav['locator'];
+        $images_dir = $locator->findResource('image://', true, true);
+
         // TODO: add default file
         $file = $this->get($variable);
         $this->image = ImageFile::open($file)
-            ->setCacheDir(basename(IMAGES_DIR))
-            ->setActualCacheDir(IMAGES_DIR)
+            ->setCacheDir(basename($images_dir))
+            ->setActualCacheDir($images_dir)
             ->setPrettyName(basename($this->get('basename')));
 
         $this->filter();

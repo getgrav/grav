@@ -42,18 +42,15 @@ class Blueprints extends BaseBlueprints
 
     protected function loadCompiledBlueprints($blueprints, $blueprintFiles)
     {
+        $locator = $this->grav['locator'];
+
         $checksum = md5(serialize($blueprints));
-        $filename = CACHE_DIR . 'compiled/blueprints/' . $checksum .'.php';
+        $filename = $locator->findResource('cache://compiled/blueprints/' . $checksum .'.php', true, true);
         $checksum .= ':'.md5(serialize($blueprintFiles));
         $class = get_class($this);
         $file = PhpFile::instance($filename);
 
-        if ($file->exists()) {
-            $cache = $file->exists() ? $file->content() : null;
-        } else {
-            $cache = null;
-        }
-
+        $cache = $file->exists() ? $file->content() : null;
 
         // Load real file if cache isn't up to date (or is invalid).
         if (
@@ -133,8 +130,13 @@ class Blueprints extends BaseBlueprints
      * @return array
      * @internal
      */
-    protected function detectPlugins($lookup = SYSTEM_DIR, $blueprints = false)
+    protected function detectPlugins($lookup = 'system://', $blueprints = false)
     {
+        if (!is_dir($lookup)) {
+            $locator = $this->grav['locator'];
+            $lookup = $locator->findResource($lookup, true, true);
+        }
+
         $find = $blueprints ? 'blueprints.yaml' : '.yaml';
         $location = $blueprints ? 'blueprintFiles' : 'configFiles';
         $path = trim(Folder::getRelativePath($lookup), '/');
@@ -175,8 +177,13 @@ class Blueprints extends BaseBlueprints
      * @return array
      * @internal
      */
-    protected function detectConfig($lookup = SYSTEM_DIR, $blueprints = false)
+    protected function detectConfig($lookup = 'system://', $blueprints = false)
     {
+        if (!is_dir($lookup)) {
+            $locator = $this->grav['locator'];
+            $lookup = $locator->findResource($lookup, true, true);
+        }
+
         $location = $blueprints ? 'blueprintFiles' : 'configFiles';
         $path = trim(Folder::getRelativePath($lookup), '/');
         if (isset($this->{$location}[$path])) {
