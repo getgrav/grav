@@ -10,7 +10,7 @@ use Grav\Common\Uri;
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
  */
-trait MarkdownGravLinkTrait
+trait ParsedownGravTrait
 {
     use GravTrait;
     protected $page;

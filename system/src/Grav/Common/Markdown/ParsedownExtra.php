@@ -1,9 +1,9 @@
 <?php
 namespace Grav\Common\Markdown;
 
-class MarkdownExtra extends \ParsedownExtra
+class ParsedownExtra extends \ParsedownExtra
 {
-    use MarkdownGravLinkTrait;
+    use ParsedownGravTrait;
 
     public function __construct($page)
     {

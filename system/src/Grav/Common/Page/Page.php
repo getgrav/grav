@@ -10,8 +10,8 @@ use Grav\Common\Twig;
 use Grav\Common\Uri;
 use Grav\Common\Grav;
 use Grav\Common\Taxonomy;
-use Grav\Common\Markdown\Markdown;
-use Grav\Common\Markdown\MarkdownExtra;
+use Grav\Common\Markdown\Parsedown;
+use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Data\Blueprint;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
@@ -1607,9 +1607,9 @@ class Page
 
         // get the appropriate setting for markdown extra
         if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
-            $parsedown = new MarkdownExtra($this);
+            $parsedown = new ParsedownExtra($this);
         } else {
-            $parsedown = new Markdown($this);
+            $parsedown = new Parsedown($this);
         }
         $content = $parsedown->text($content);
         return $content;
