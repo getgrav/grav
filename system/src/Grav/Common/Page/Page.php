@@ -850,9 +850,16 @@ class Page
     /**
      * Function to merge page metadata tags and build an array of Metadata objects
      * that can then be rendered in the page.
+     *
+     * @param  array $var an Array of metadata values to set
+     * @return array      an Array of metadata values for the page
      */
-    public function metadata()
+    public function metadata($var = null)
     {
+        if ($var !== null) {
+            $this->metadata = (array) $var;
+        }
+
         // if not metadata yet, process it.
         if (null === $this->metadata) {
 
