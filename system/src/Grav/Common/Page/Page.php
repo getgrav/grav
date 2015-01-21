@@ -360,6 +360,7 @@ class Page
 
                 // Do we want to cache markdown, but process twig in each page?
                 if ($update_cache && $process_twig) {
+                    self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
                     $cache->save($cache_id, $this->content);
                     $update_cache = false;
                 }
