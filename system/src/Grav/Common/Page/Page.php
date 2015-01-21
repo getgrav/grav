@@ -348,7 +348,9 @@ class Page
 
             $update_cache = false;
             if ($this->content === false) {
-                $this->content = $this->shouldProcess('markdown') ? $this->parseMarkdownContent($this->raw_content) : $this->raw_content;
+                $this->content = $this->raw_content;
+                self::$grav->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+                $this->content = $this->shouldProcess('markdown') ? $this->parseMarkdownContent($this->content) : $this->content;
                 $update_cache = true;
             }
 
