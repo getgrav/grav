@@ -881,14 +881,14 @@ class Page
                     if (is_array($value)) {
                         foreach ($value as $property => $prop_value) {
                             $prop_key =  $key.":".$property;
-                            $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_HTML5));
+                            $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
                         }
                     // If it this is a standard meta data type
                     } else {
                         if (in_array($key, $header_tag_http_equivs)) {
-                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_HTML5));
+                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                         } else {
-                            $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_HTML5));
+                            $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                         }
                     }
                 }
