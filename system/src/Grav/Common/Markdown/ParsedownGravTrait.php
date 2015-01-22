@@ -16,6 +16,7 @@ trait ParsedownGravTrait
     protected $page;
     protected $base_url;
     protected $pages_dir;
+    protected $special_chars;
 
     protected $twig_link_regex = '/\!*\[(?:.*)\]\(([{{|{%|{#].*[#}|%}|}}])\)/';
 
@@ -30,6 +31,21 @@ trait ParsedownGravTrait
         $this->BlockTypes['{'] [] = "TwigTag";
         $this->base_url = rtrim(self::$grav['base_url'] . self::$grav['pages']->base(), '/');
         $this->pages_dir = self::$grav['locator']->findResource('page://');
+        $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
+    }
+
+    /**
+     * Setter for special chars
+     *
+     * @param $special_chars
+     *
+     * @return $this
+     */
+    function setSpecialChars($special_chars)
+    {
+        $this->special_chars = $special_chars;
+
+        return $this;
     }
 
     /**
@@ -42,6 +58,23 @@ trait ParsedownGravTrait
                 'markup' => $Line['body'],
             );
             return $Block;
+        }
+    }
+
+    protected function inlineSpecialCharacter($Excerpt)
+    {
+        if ($Excerpt['text'][0] === '&' and ! preg_match('/^&#?\w+;/', $Excerpt['text'])) {
+            return array(
+                'markup' => '&amp;',
+                'extent' => 1,
+            );
+        }
+
+        if (isset($this->special_chars[$Excerpt['text'][0]])) {
+            return array(
+                'markup' => '&'.$this->special_chars[$Excerpt['text'][0]].';',
+                'extent' => 1,
+            );
         }
     }
 
