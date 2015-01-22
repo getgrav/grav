@@ -346,40 +346,50 @@ class Page
             $cache_id = md5('page'.$this->id());
             $this->content = $cache->fetch($cache_id);
 
-            $update_cache = false;
-            if ($this->content === false) {
+            $process_markdown = $this->shouldProcess('markdown');
+            $process_twig = $this->shouldProcess('twig');
+            $cache_twig = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
+            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : false;
+            $twig_already_processed = false;
+
+            // if no cached-content run everything
+            if ($this->content == false) {
+
                 $this->content = $this->raw_content;
                 self::$grav->fireEvent('onPageContentRaw', new Event(['page' => $this]));
-                $this->content = $this->shouldProcess('markdown') ? $this->parseMarkdownContent($this->content) : $this->content;
-                $update_cache = true;
+
+                if ($twig_first) {
+                    if ($process_twig) {
+                        $this->processTwig();
+                        $twig_already_processed = true;
+                    }
+                    if ($process_markdown) {
+                        $this->processMarkdown();
+                    }
+                    if ($cache_twig) {
+                        $this->cachePageContent();
+                    }
+                } else {
+                    if ($process_markdown) {
+                        $this->processMarkdown();
+                    }
+                    if (!$cache_twig) {
+                        $this->cachePageContent();
+                    }
+                    if ($process_twig) {
+                        $this->processTwig();
+                        $twig_already_processed = true;
+                    }
+                    if ($cache_twig) {
+                        $this->cachePageContent();
+                    }
+                }
+            // content cached, but twig cache off
             }
 
-            // Process Twig if enabled
-            if ($this->shouldProcess('twig')) {
-
-                // Always process twig if caching in the page is disabled
-                $process_twig = (isset($this->header->cache_enable) && !$this->header->cache_enable);
-
-                // Do we want to cache markdown, but process twig in each page?
-                if ($update_cache && $process_twig) {
-                    self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-                    $cache->save($cache_id, $this->content);
-                    $update_cache = false;
-                }
-
-                // Do we need to process twig this time?
-                if ($update_cache || $process_twig) {
-                    /** @var Twig $twig */
-                    $twig = self::$grav['twig'];
-                    $this->content = $twig->processPage($this, $this->content);
-                }
-            }
-
-            // Cache the whole page, including processed content
-            if ($update_cache) {
-                // Process any post-processing but pre-caching functionality
-                self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-                $cache->save($cache_id, $this->content);
+            // only markdown content cached, process twig if required and not already processed
+            if ($process_twig && !$cache_twig && !$twig_already_processed) {
+                $this->processTwig();
             }
 
             // Handle summary divider
@@ -392,6 +402,45 @@ class Page
         }
 
         return $this->content;
+    }
+
+    /**
+     * Process the Markdown content.  Uses Parsedown or Parsedown Extra depending on configuration
+     */
+    protected function processMarkdown()
+    {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        // get the appropriate setting for markdown extra
+        if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
+            $parsedown = new ParsedownExtra($this);
+        } else {
+            $parsedown = new Parsedown($this);
+        }
+        $this->content = $parsedown->text($this->content);
+    }
+
+
+    /**
+     * Process the Twig page content.
+     */
+    private function processTwig()
+    {
+        $twig = self::$grav['twig'];
+        $this->content = $twig->processPage($this, $this->content);
+    }
+
+    /**
+     * Fires the onPageContentProcessed event, and caches the page content using a unique ID for the page
+     */
+    private function cachePageContent()
+    {
+        $cache = self::$grav['cache'];
+        $cache_id = md5('page'.$this->id());
+
+        self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+        $cache->save($cache_id, $this->content);
     }
 
     /**
@@ -1599,27 +1648,6 @@ class Page
     {
         $file = $this->file();
         return $file && $file->exists();
-    }
-
-    /**
-     * Process the Markdown content.  This strips the headers, the process the resulting content as Markdown.
-     *
-     * @param  string $content Input raw content
-     * @return string          Output content that has been processed as Markdown
-     */
-    protected function parseMarkdownContent($content)
-    {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
-        // get the appropriate setting for markdown extra
-        if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
-            $parsedown = new ParsedownExtra($this);
-        } else {
-            $parsedown = new Parsedown($this);
-        }
-        $content = $parsedown->text($content);
-        return $content;
     }
 
     /**
