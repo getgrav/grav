@@ -412,12 +412,28 @@ class Page
         /** @var Config $config */
         $config = self::$grav['config'];
 
-        // get the appropriate setting for markdown extra
-        if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
+        $defaults = (array) $config->get('system.pages.markdown');
+        if (isset($this->header()->markdown)) {
+            $defaults = array_merge($defaults, $this->header()->markdown);
+        }
+
+        // pages.markdown_extra is deprecated, but still check it...
+        if (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null) {
+            $defaults['extra'] = $this->markdown_extra;
+        }
+
+        // Initialize the preferred variant of Parsedown
+        if ($defaults['extra']) {
             $parsedown = new ParsedownExtra($this);
         } else {
             $parsedown = new Parsedown($this);
         }
+
+        $parsedown->setBreaksEnabled($defaults['auto_line_breaks']);
+        $parsedown->setSpecialChars($defaults['special_chars']);
+        $parsedown->setUrlsLinked($defaults['auto_url_links']);
+        $parsedown->setMarkupEscaped($defaults['escape_markup']);
+
         $this->content = $parsedown->text($this->content);
     }
 
