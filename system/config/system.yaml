@@ -22,7 +22,7 @@ pages:
     twig: true                         # Enable twig level events
   markdown:
     extra: false                       # Enable support for Markdown Extra support (GFM by default)
-    auto_line_breaks: true             # Enable automatic line breaks
+    auto_line_breaks: false            # Enable automatic line breaks
     auto_url_links: false              # Enable automatic HTML links
     escape_markup: false               # Escape markup tags into entities
     special_chars:                     # List of special characters to automatically convert to entities

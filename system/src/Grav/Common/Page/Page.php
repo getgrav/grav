@@ -430,9 +430,9 @@ class Page
         }
 
         $parsedown->setBreaksEnabled($defaults['auto_line_breaks']);
-        $parsedown->setSpecialChars($defaults['special_chars']);
         $parsedown->setUrlsLinked($defaults['auto_url_links']);
         $parsedown->setMarkupEscaped($defaults['escape_markup']);
+        $parsedown->setSpecialChars($defaults['special_chars']);
 
         $this->content = $parsedown->text($this->content);
     }
