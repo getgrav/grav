@@ -18,10 +18,16 @@ use RocketTheme\Toolbox\Blueprints\Blueprints;
 class ConfigServiceProvider implements ServiceProviderInterface
 {
     private $environment;
+    private $setup;
 
     public function register(Container $container)
     {
         $self = $this;
+
+        // Pre-load setup.php as it contains our initial configuration.
+        $file = GRAV_ROOT . '/setup.php';
+        $this->setup = is_file($file) ? (array) include $file : [];
+        $this->environment = isset($this->setup['environment']) ? $this->setup['environment'] : null;
 
         $container['blueprints'] = function ($c) use ($self) {
             return $self->loadMasterBlueprints($c);
@@ -45,9 +51,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         }
 
         if (!isset($config)) {
-            $file = GRAV_ROOT . '/setup.php';
-            $data = is_file($file) ? (array) include $file : [];
-            $config = new Config($data, $container, $environment);
+            $config = new Config($this->setup, $container, $environment);
         }
 
         return $config;

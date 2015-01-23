@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\ErrorServiceProvider;
@@ -97,13 +98,18 @@ class Grav extends Container
         $container['page'] = function ($c) {
             /** @var Pages $pages */
             $pages = $c['pages'];
-            $page = $pages->dispatch($c['uri']->route());
+
+            // If base URI is set, we want to remove it from the URL.
+            $path = '/' . ltrim(Folder::getRelativePath($c['uri']->route(), $pages->base()), '/');
+
+            $page = $pages->dispatch($path);
 
             if (!$page || !$page->routable()) {
 
                 // special  case where a media file is requested
                 if (!$page) {
-                    $path_parts = pathinfo($c['uri']->route());
+                    $path_parts = pathinfo($path);
+
                     $page = $c['pages']->dispatch($path_parts['dirname']);
                     if ($page) {
                         $media = $page->media()->all();
@@ -164,6 +170,10 @@ class Grav extends Container
     {
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
+        if ($this['config']->get('system.cache.gzip')) {
+            ob_start('ob_gzhandler');
+        }
+
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
@@ -319,12 +329,21 @@ class Grav extends Container
                 $this['session']->close();
             }
 
-            header('Content-length: ' . ob_get_length());
+            if ($this['config']->get('system.cache.gzip')) {
+                ob_end_flush(); // gzhandler buffer
+            }
+
+            header('Content-Length: ' . ob_get_length());
             header("Connection: close\r\n");
 
-            ob_end_flush();
+            ob_end_flush(); // regular buffer
             ob_flush();
             flush();
+
+            if (function_exists('fastcgi_finish_request')) {
+                @fastcgi_finish_request();
+            }
+
         }
 
         $this->fireEvent('onShutdown');

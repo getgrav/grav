@@ -125,9 +125,6 @@ class Twig
 
             $this->grav->fireEvent('onTwigExtensions');
 
-            $theme = $config->get('system.pages.theme');
-            $themeUrl = $this->grav['base_url'] .'/'. USER_PATH . basename(THEMES_DIR) .'/'. $theme;
-
             // Set some standard variables for twig
             $this->twig_vars = array(
                 'grav' => $this->grav,
@@ -138,7 +135,7 @@ class Twig
                 'base_url_absolute' => $this->grav['base_url_absolute'],
                 'base_url_relative' => $this->grav['base_url_relative'],
                 'theme_dir' => $locator->findResource('theme://'),
-                'theme_url' => $themeUrl,
+                'theme_url' => $this->grav['base_url'] .'/'. $locator->findResource('theme://', false),
                 'site' => $config->get('site'),
                 'assets' => $this->grav['assets'],
                 'taxonomy' => $this->grav['taxonomy'],

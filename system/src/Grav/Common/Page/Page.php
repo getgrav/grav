@@ -10,8 +10,8 @@ use Grav\Common\Twig;
 use Grav\Common\Uri;
 use Grav\Common\Grav;
 use Grav\Common\Taxonomy;
-use Grav\Common\Markdown\Markdown;
-use Grav\Common\Markdown\MarkdownExtra;
+use Grav\Common\Markdown\Parsedown;
+use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Data\Blueprint;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
@@ -122,11 +122,9 @@ class Page
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
 
-         // Handle publishing dates
-        $config = self::$grav['config'];
-
-        if ($config->get('system.pages.publish_dates')) {
-
+         // Handle publishing dates if no explict published option set
+        if (self::$grav['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
+            // unpublish if required, if not clear cache right before page should be unpublished
             if ($this->unpublishDate()) {
                 if ($this->unpublishDate() < time()) {
                     $this->published(false);
@@ -135,14 +133,13 @@ class Page
                     self::$grav['cache']->setLifeTime($this->unpublishDate());
                 }
             }
-
+            // publish if required, if not clear cache right before page is published
             if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
                 $this->published(false);
                 self::$grav['cache']->setLifeTime($this->publishDate());
             }
         }
         $this->published();
-
     }
 
     /**
@@ -349,38 +346,50 @@ class Page
             $cache_id = md5('page'.$this->id());
             $this->content = $cache->fetch($cache_id);
 
-            $update_cache = false;
-            if ($this->content === false) {
-                // Process Markdown
-                $this->content = $this->processMarkdown();
-                $update_cache = true;
+            $process_markdown = $this->shouldProcess('markdown');
+            $process_twig = $this->shouldProcess('twig');
+            $cache_twig = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
+            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : false;
+            $twig_already_processed = false;
+
+            // if no cached-content run everything
+            if ($this->content == false) {
+
+                $this->content = $this->raw_content;
+                self::$grav->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+
+                if ($twig_first) {
+                    if ($process_twig) {
+                        $this->processTwig();
+                        $twig_already_processed = true;
+                    }
+                    if ($process_markdown) {
+                        $this->processMarkdown();
+                    }
+                    if ($cache_twig) {
+                        $this->cachePageContent();
+                    }
+                } else {
+                    if ($process_markdown) {
+                        $this->processMarkdown();
+                    }
+                    if (!$cache_twig) {
+                        $this->cachePageContent();
+                    }
+                    if ($process_twig) {
+                        $this->processTwig();
+                        $twig_already_processed = true;
+                    }
+                    if ($cache_twig) {
+                        $this->cachePageContent();
+                    }
+                }
+            // content cached, but twig cache off
             }
 
-            // Process Twig if enabled
-            if ($this->shouldProcess('twig')) {
-
-                // Always process twig if caching in the page is disabled
-                $process_twig = (isset($this->header->cache_enable) && !$this->header->cache_enable);
-
-                // Do we want to cache markdown, but process twig in each page?
-                if ($update_cache && $process_twig) {
-                    $cache->save($cache_id, $this->content);
-                    $update_cache = false;
-                }
-
-                // Do we need to process twig this time?
-                if ($update_cache || $process_twig) {
-                    /** @var Twig $twig */
-                    $twig = self::$grav['twig'];
-                    $this->content = $twig->processPage($this, $this->content);
-                }
-            }
-
-            // Cache the whole page, including processed content
-            if ($update_cache) {
-                // Process any post-processing but pre-caching functionality
-                self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-                $cache->save($cache_id, $this->content);
+            // only markdown content cached, process twig if required and not already processed
+            if ($process_twig && !$cache_twig && !$twig_already_processed) {
+                $this->processTwig();
             }
 
             // Handle summary divider
@@ -393,6 +402,61 @@ class Page
         }
 
         return $this->content;
+    }
+
+    /**
+     * Process the Markdown content.  Uses Parsedown or Parsedown Extra depending on configuration
+     */
+    protected function processMarkdown()
+    {
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        $defaults = (array) $config->get('system.pages.markdown');
+        if (isset($this->header()->markdown)) {
+            $defaults = array_merge($defaults, $this->header()->markdown);
+        }
+
+        // pages.markdown_extra is deprecated, but still check it...
+        if (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null) {
+            $defaults['extra'] = $this->markdown_extra;
+        }
+
+        // Initialize the preferred variant of Parsedown
+        if ($defaults['extra']) {
+            $parsedown = new ParsedownExtra($this);
+        } else {
+            $parsedown = new Parsedown($this);
+        }
+
+        $parsedown->setBreaksEnabled($defaults['auto_line_breaks']);
+        $parsedown->setUrlsLinked($defaults['auto_url_links']);
+        $parsedown->setMarkupEscaped($defaults['escape_markup']);
+        $parsedown->setSpecialChars($defaults['special_chars']);
+
+        $this->content = $parsedown->text($this->content);
+    }
+
+
+    /**
+     * Process the Twig page content.
+     */
+    private function processTwig()
+    {
+        $twig = self::$grav['twig'];
+        $this->content = $twig->processPage($this, $this->content);
+    }
+
+    /**
+     * Fires the onPageContentProcessed event, and caches the page content using a unique ID for the page
+     */
+    private function cachePageContent()
+    {
+        $cache = self::$grav['cache'];
+        $cache_id = md5('page'.$this->id());
+
+        self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+        $cache->save($cache_id, $this->content);
     }
 
     /**
@@ -452,6 +516,9 @@ class Page
         }
         if ($name == 'media.image') {
             return $this->media()->images();
+        }
+        if ($name == 'media.audio') {
+            return $this->media()->audios();
         }
 
         $path = explode('.', $name);
@@ -848,9 +915,16 @@ class Page
     /**
      * Function to merge page metadata tags and build an array of Metadata objects
      * that can then be rendered in the page.
+     *
+     * @param  array $var an Array of metadata values to set
+     * @return array      an Array of metadata values for the page
      */
-    public function metadata()
+    public function metadata($var = null)
     {
+        if ($var !== null) {
+            $this->metadata = (array) $var;
+        }
+
         // if not metadata yet, process it.
         if (null === $this->metadata) {
 
@@ -879,14 +953,14 @@ class Page
                     if (is_array($value)) {
                         foreach ($value as $property => $prop_value) {
                             $prop_key =  $key.":".$property;
-                            $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>$prop_value);
+                            $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
                         }
                     // If it this is a standard meta data type
                     } else {
                         if (in_array($key, $header_tag_http_equivs)) {
-                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>$value);
+                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                         } else {
-                            $this->metadata[$key] = array('name'=>$key, 'content'=>$value);
+                            $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                         }
                     }
                 }
@@ -966,9 +1040,13 @@ class Page
      */
     public function url($include_host = false)
     {
+        /** @var Pages $pages */
+        $pages = self::$grav['pages'];
+
         /** @var Uri $uri */
         $uri = self::$grav['uri'];
-        $rootUrl = $uri->rootUrl($include_host);
+
+        $rootUrl = $uri->rootUrl($include_host) . $pages->base();
         $url = $rootUrl.'/'.trim($this->route(), '/');
 
         // trim trailing / if not root
@@ -1209,6 +1287,7 @@ class Page
             $this->modular_twig = (bool) $var;
             if ($var) {
                 $this->process['twig'] = true;
+                $this->visible(false);
             }
         }
         return $this->modular_twig;
@@ -1382,14 +1461,16 @@ class Page
      * Helper method to return a page.
      *
      * @param  string $url the url of the page
-     * @return  Page page you were looking for if it exists
+     * @param bool    $all
+     *
+     * @return \Grav\Common\Page\Page page you were looking for if it exists
      * @deprecated
      */
-    public function find($url)
+    public function find($url, $all = false)
     {
         /** @var Pages $pages */
         $pages = self::$grav['pages'];
-        return $pages->dispatch($url);
+        return $pages->dispatch($url, $all);
     }
 
     /**
@@ -1583,53 +1664,6 @@ class Page
     {
         $file = $this->file();
         return $file && $file->exists();
-    }
-
-    /**
-     * Process the Markdown if processing is enabled for it. If not, process as 'raw' which simply strips the
-     * header YAML from the raw, and sends back the content portion. i.e. the bit below the header.
-     *
-     * @return string the content for the page
-     */
-    protected function processMarkdown()
-    {
-        // Process Markdown if required
-        $process_method = $this->shouldProcess('markdown') ? 'parseMarkdownContent' : 'rawContent';
-        $content = $this->$process_method($this->raw_content);
-
-        return $content;
-    }
-
-    /**
-     * Process the raw content. Basically just strips the headers out and returns the rest.
-     *
-     * @param  string $content Input raw content
-     * @return string          Output content after headers have been stripped
-     */
-    protected function rawContent($content)
-    {
-        return $content;
-    }
-
-    /**
-     * Process the Markdown content.  This strips the headers, the process the resulting content as Markdown.
-     *
-     * @param  string $content Input raw content
-     * @return string          Output content that has been processed as Markdown
-     */
-    protected function parseMarkdownContent($content)
-    {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
-        // get the appropriate setting for markdown extra
-        if (isset($this->markdown_extra) ? $this->markdown_extra : $config->get('system.pages.markdown_extra')) {
-            $parsedown = new MarkdownExtra($this);
-        } else {
-            $parsedown = new Markdown($this);
-        }
-        $content = $parsedown->text($content);
-        return $content;
     }
 
     /**

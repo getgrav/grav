@@ -226,15 +226,15 @@ class Collection extends Iterator
         $start = strtotime($startDate);
         $end = $endDate ? strtotime($endDate) : strtotime("now +1000 years");
 
-        $daterange = [];
+        $date_range = [];
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
             if ($page->date() > $start && $page->date() < $end) {
-                $daterange[$path] = $slug;
+                $date_range[$path] = $slug;
             }
         }
-        $this->items = $daterange;
+        $this->items = $date_range;
         return $this;
     }
 

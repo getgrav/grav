@@ -2,7 +2,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '0.9.13');
+define('GRAV_VERSION', '0.9.14');
 define('DS', '/');
 
 // Directories and Paths
@@ -17,14 +17,16 @@ define('ASSETS_DIR', ROOT_DIR . 'assets/');
 define('CACHE_DIR', ROOT_DIR . 'cache/');
 define('IMAGES_DIR', ROOT_DIR . 'images/');
 define('LOG_DIR', ROOT_DIR .'logs/');
-define('VENDOR_DIR', ROOT_DIR .'vendor/');
-define('LIB_DIR', SYSTEM_DIR .'src/');
 define('ACCOUNTS_DIR', USER_DIR .'accounts/');
-define('DATA_DIR', USER_DIR .'data/');
 define('PAGES_DIR', USER_DIR .'pages/');
 
+// DEPRECATED: Do not use!
+define('DATA_DIR', USER_DIR .'data/');
+define('LIB_DIR', SYSTEM_DIR .'src/');
 define('PLUGINS_DIR', USER_DIR .'plugins/');
 define('THEMES_DIR', USER_DIR .'themes/');
+define('VENDOR_DIR', ROOT_DIR .'vendor/');
+// END DEPRECATED
 
 // Some extensions
 define('CONTENT_EXT', '.md');
