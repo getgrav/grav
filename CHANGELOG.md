@@ -1,5 +1,5 @@
 # v0.9.14
-## XX/XX/2015
+## 01/23/2015
 
 1. [](#new)
     * Added **GZip** support
