@@ -4,13 +4,25 @@
 1. [](#new)
     * Added **GZip** support
     * Added multiple configurations via `setup.php`
+    * Added base structure for unit tests
+    * New `onPageContentRaw()` plugin event that processes before any page processing
+    * Added ability to dynamically set Metadata on page
+    * Added ability to dynamically configure Markdown processing via Parsedown options
 2. [](#improved)
-    * Various updates and fixes for streams resulting in better multisite support
+    * Refactored `page.content()` method to be more flexible and reliable
+    * Various updates and fixes for streams resulting in better multi-site support
     * Updated Twig, Parsedown, ParsedownExtra, DoctrineCache libraries
+    * Refactored Parsedown trait
     * Force modular pages to be non-visible in menus
     * Moved RewriteBase before Exploits in `.htaccess`
+    * Added standard video formats to Media support
+    * Added priority for inline assets
+    * Check for uniqueness when adding multiple inline assets
+    * Improved support for Twig-based URLs inside Markdown links and images
+    * Improved Twig `url()` function
 3. [](#bugfix)
-    * Fix for `published` setting to have prcedent of `publish_date` and `unpublish_date`
+    * Fix for HTML entities quotes in Metadata values
+    * Fix for `published` setting to have precedent of `publish_date` and `unpublish_date`
     * Fix for `onShutdown()` events not closing connections properly in **php-fpm** environments
 
 # v0.9.13
@@ -30,7 +42,7 @@
     * House-cleaning of some unused methods in Pages object
 3. [](#bugfix)
     * Fix `uninstall` GPM command that was broken in last release
-    * Fix for intermitten `undefined index` error when working with Collections
+    * Fix for intermittent `undefined index` error when working with Collections
     * Fix for date of some pages being set to incorrect future timestamps
 
 # v0.9.12
@@ -42,8 +54,8 @@
     * Added support for **in-page** Twig processing in **modular** pages
     * Added configurable support for `undefined` Twig functions and filters
 2. [](#improved)
-    * Fallback to default `.html` template if error occurs on non-html pages
-    * Added ability to have PSR-1 friendly plugin names (camelcase, no-dashes)
+    * Fall back to default `.html` template if error occurs on non-html pages
+    * Added ability to have PSR-1 friendly plugin names (CamelCase, no-dashes)
     * Fix to `composer.json` to deter API rate-limit errors
     * Added **non-exception-throwing** handler for undefined methods on `Medium` objects
 3. [](#bugfix)
