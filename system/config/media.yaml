@@ -52,19 +52,19 @@ mp3:
 ogg:
   type: audio
   thumb: media/thumb-ogg.png
-  mine: audio/ogg
+  mime: audio/ogg
 wma:
   type: audio
   thumb: media/thumb-wma.png
-  mine: audio/wma
+  mime: audio/wma
 m4a:
   type: audio
   thumb: media/thumb-m4a.png
-  mine: audio/m4a
+  mime: audio/m4a
 wav:
   type: audio
   thumb: media/thumb-wav.png
-  mine: audio/wav
+  mime: audio/wav
 
 txt:
   type: file
