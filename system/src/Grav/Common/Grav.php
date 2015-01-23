@@ -107,28 +107,27 @@ class Grav extends Container
             if (!$page || !$page->routable()) {
 
                 // special  case where a media file is requested
-                if (!$page) {
-                    $path_parts = pathinfo($path);
+                $path_parts = pathinfo($path);
 
-                    $page = $c['pages']->dispatch($path_parts['dirname']);
-                    if ($page) {
-                        $media = $page->media()->all();
-                        $media_file = urldecode($path_parts['basename']);
-                        if (isset($media[$media_file])) {
-                            $medium = $media[$media_file];
+                $page = $c['pages']->dispatch($path_parts['dirname']);
+                if ($page) {
+                    $media = $page->media()->all();
+                    $media_file = urldecode($path_parts['basename']);
+                    if (isset($media[$media_file])) {
+                        $medium = $media[$media_file];
 
-                            // loop through actions for the image and call them
-                            foreach ($c['uri']->query(null, true) as $action => $params) {
-                                if (in_array($action, Medium::$valid_actions)) {
-                                    call_user_func_array(array(&$medium, $action), explode(',', $params));
-                                }
+                        // loop through actions for the image and call them
+                        foreach ($c['uri']->query(null, true) as $action => $params) {
+                            if (in_array($action, Medium::$valid_actions)) {
+                                call_user_func_array(array(&$medium, $action), explode(',', $params));
                             }
-                            header('Content-type: '. $mime = $medium->get('mime'));
-                            echo file_get_contents($medium->path());
-                            die;
                         }
+                        header('Content-type: '. $medium->get('mime'));
+                        echo file_get_contents($medium->path());
+                        die;
                     }
                 }
+
 
                 // If no page found, fire event
                 $event = $c->fireEvent('onPageNotFound');
