@@ -138,10 +138,12 @@ trait ParsedownGravTrait
                     } else {
                         $src = $medium->lightboxRaw();
                     }
+                    $srcset = $medium->srcset();
 
                     // set the src element with the new generated url
                     if (!isset($actions['lightbox']) && !is_array($src)) {
                         $excerpt['element']['attributes']['src'] = $src;
+                        $excerpt['element']['attributes']['srcset'] = $srcset;
                     } else {
                         // Create the custom lightbox element
                         $element = array(
@@ -150,7 +152,12 @@ trait ParsedownGravTrait
                             'handler' => 'element',
                             'text' => array(
                                 'name' => 'img',
-                                'attributes' => array('src' => $src['img_url'], 'alt' => $alt, 'title' => $title)
+                                'attributes' => array(
+                                    'src' => $src['img_url'],
+                                    'srcset' => $srcset,
+                                    'alt' => $alt,
+                                    'title' => $title
+                                )
                             ),
                         );
 

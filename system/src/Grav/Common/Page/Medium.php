@@ -59,6 +59,11 @@ class Medium extends Data
     protected $meta = array();
 
     /**
+     * @var array
+     */
+    protected $alternatives = array();
+
+    /**
      * @var string
      */
     protected $linkTarget;
@@ -149,6 +154,22 @@ class Medium extends Data
         }
 
         return self::$grav['base_url'] . '/'. $output;
+    }
+
+    /**
+     * Return srcset string for this Medium and its alternatives
+     * 
+     * @return string
+     */
+    public function srcset()
+    {
+        $srcset = [ $this->url() . $this->get('width') . 'w' ];
+
+        foreach ($this->alternatives as $type => $medium) {
+            $srcset[] = $medium->url() . ' ' . $type;
+        }
+        
+        return implode(', ', $srcset);
     }
 
     /**
@@ -363,6 +384,18 @@ class Medium extends Data
         $this->reset();
 
         return $this;
+    }
+
+    /**
+     * Add alternative Medium to this Medium
+     *
+     * @param $type
+     * @param $alternative
+     * @return $this
+     */
+    public function addAlternative($type, Medium $alternative)
+    {
+        $this->alternatives[$type] = $alternative;
     }
 
     /**

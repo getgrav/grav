@@ -49,7 +49,7 @@ class Media extends Getters
 
             // Find out the real filename, in case of we are at the metadata.
             $filename = $info->getFilename();
-            list($basename, $ext, $meta) = $this->getFileParts($filename);
+            list($basename, $ext, $meta, $alternative) = $this->getFileParts($filename);
 
             // Get medium instance creating it if it didn't exist.
             $medium = $this->get("{$basename}.{$ext}", true);
@@ -57,12 +57,24 @@ class Media extends Getters
                 continue;
             }
 
-            //set file size
-            $medium->set('size', $info->getSize());
+            if ($alternative) {
+                $altMedium = $this->get("{$basename}@{$alternative}.$ext", true, false);
+                if (!$altMedium) {
+                    continue;
+                }
 
-            // Assign meta files to the medium.
-            if ($meta) {
-                $medium->addMetaFile($meta);
+                $altMedium->set('size', $info->getSize());
+                
+                $medium->addAlternative($alternative, $altMedium);
+            } else {
+
+                //set file size
+                $medium->set('size', $info->getSize());
+
+                // Assign meta files to the medium.
+                if ($meta) {
+                    $medium->addMetaFile($meta);
+                }
             }
         }
     }
@@ -74,7 +86,7 @@ class Media extends Getters
      * @param bool   $create
      * @return Medium|null
      */
-    public function get($filename, $create = false)
+    public function get($filename, $create = false, $add = true)
     {
         if ($create && !isset($this->instances[$filename])) {
             $parts = explode('.', $filename);
@@ -117,6 +129,9 @@ class Media extends Getters
                 }
             }
 
+            if (!$add)
+                return new Medium($params);
+            
             $this->add(new Medium($params));
         }
 
@@ -210,6 +225,13 @@ class Media extends Getters
         $fileParts = explode('.', $filename);
 
         $name = array_shift($fileParts);
+        $alternative = false;
+
+        if (preg_match('/(.*)@(\d+[wx])$/', $name, $matches)) {
+            $name = $matches[1];
+            $alternative = $matches[2];
+        }
+
         $extension = null;
         while (($part = array_shift($fileParts)) !== null) {
             if ($part != 'meta') {
@@ -223,6 +245,6 @@ class Media extends Getters
         }
         $meta = implode('.', $fileParts);
 
-        return array($name, $extension, $meta);
+        return array($name, $extension, $meta, $alternative);
     }
 }
