@@ -419,7 +419,7 @@ class Page
 
         // pages.markdown_extra is deprecated, but still check it...
         if (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null) {
-            $defaults['extra'] = $this->markdown_extra;
+            $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }
 
         // Initialize the preferred variant of Parsedown

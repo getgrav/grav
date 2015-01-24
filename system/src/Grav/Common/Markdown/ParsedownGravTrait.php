@@ -210,17 +210,17 @@ trait ParsedownGravTrait
     {
         // if absolute and starts with a base_url move on
         if ($this->base_url != '' && strpos($markdown_url, $this->base_url) === 0) {
-            $new_url = $markdown_url;
+            return $markdown_url;
         // if its absolute and starts with /
         } elseif (strpos($markdown_url, '/') === 0) {
-            $new_url = $this->base_url . $markdown_url;
+            return $this->base_url . $markdown_url;
         } else {
             $relative_path = $this->base_url . $this->page->route();
+            $real_path = $this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH);
 
-            // If this is a 'real' filepath clean it up
-            if (file_exists($this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH))) {
-                $relative_path = $this->base_url . preg_replace('/\/([\d]+.)/', '/', str_replace($this->pages_dir, '', $this->page->path()));
-                $markdown_url = preg_replace('/^([\d]+.)/', '', preg_replace('/\/([\d]+.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
+            // strip numeric order from markdown path
+            if (($real_path)) {
+                $markdown_url = preg_replace('/^([\d]+\.)/', '', preg_replace('/\/([\d]+\.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
             }
 
             // else its a relative path already

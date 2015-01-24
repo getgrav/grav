@@ -1,3 +1,13 @@
+# v0.9.15
+## 01/23/2015
+
+3. [](#bugfix)
+     * Typo in video mime types
+     * Fix for old `markdown_extra` system setting not getting picked up
+     * Fix in regex for Markdown links with numeric values in path
+     * Fix for broken image routing mechanism that got broken at some point
+     * Fix for markdown images/links in pages with page slug override
+
 # v0.9.14
 ## 01/23/2015
 
