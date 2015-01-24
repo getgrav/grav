@@ -128,7 +128,6 @@ class Grav extends Container
                     }
                 }
 
-
                 // If no page found, fire event
                 $event = $c->fireEvent('onPageNotFound');
 
