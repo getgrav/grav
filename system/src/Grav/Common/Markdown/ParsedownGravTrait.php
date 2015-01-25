@@ -104,7 +104,6 @@ trait ParsedownGravTrait
 
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
-
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
 
@@ -151,25 +150,24 @@ trait ParsedownGravTrait
                     } else {
                         $src = $medium->lightboxRaw();
                     }
-                    $srcset = $medium->srcset();
 
                     // set the src element with the new generated url
                     if (!isset($actions['lightbox']) && !is_array($src)) {
                         $excerpt['element']['attributes']['src'] = $src;
-                        $excerpt['element']['attributes']['srcset'] = $srcset;
+                        $excerpt['element']['attributes']['srcset'] = $medium->srcset();
                         $excerpt['element']['attributes']['sizes'] = '100vw';
                     } else {
                         // Create the custom lightbox element
                         $element = array(
                             'name' => 'a',
-                            'attributes' => array('rel' => $src['a_rel'], 'href' => $src['a_url']),
+                            'attributes' => array('rel' => $src['a_rel'], 'href' => $src['a_url'], 'data-srcset' => $src['a_srcset']),
                             'handler' => 'element',
                             'text' => array(
                                 'name' => 'img',
                                 'attributes' => array(
                                     'src' => $src['img_url'],
-                                    'srcset' => $srcset,
-                                    'sizes' => '(min-width: 36em) 80vw, 100vw',
+                                    'srcset' => $src['img_srcset'],
+                                    'sizes' => '100vw',
                                     'alt' => $alt,
                                     'title' => $title
                                 )

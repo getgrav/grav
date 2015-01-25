@@ -68,6 +68,11 @@ class Medium extends Data
      */
     protected $linkTarget;
 
+        /**
+     * @var string
+     */
+    protected $linkSrcset;
+
     /**
      * @var string
      */
@@ -228,10 +233,12 @@ class Medium extends Data
             $type = $type ? $type : $this->type;
             $quality = $quality ? $quality : $this->quality;
 
+            // @note these arguments are ignored, is this obsolete code?
             $url = $this->url($type, $quality);
+            $srcset = $this->srcset();
             $this->reset();
 
-            $output = '<img src="' . $url . '" class="'. $class . '" alt="' . $title . '" />';
+            $output = '<img src="' . $url . '" srcset="' . $srcset . '" sizes="100vw" class="'. $class . '" alt="' . $title . '" />';
         } else {
             $output = $title;
         }
@@ -265,13 +272,14 @@ class Medium extends Data
 
     public function lightboxRaw($width = null, $height = null)
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
         $url = $this->url();
-        $this->link($width, $height);
-        $lightbox_url = self::$grav['base_url'] . '/'. $this->linkTarget;
+        $srcset = $this->srcset();
 
-        return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
+        $this->link($width, $height);
+        $lightbox_url = $this->linkTarget;
+        $lightbox_srcset = $this->linkSrcset;
+
+        return array('a_url' => $lightbox_url, 'a_srcset' => $lightbox_srcset, 'a_rel' => 'lightbox', 'img_url' => $url, 'img_srcset' => $srcset);
     }
 
     /**
@@ -284,11 +292,12 @@ class Medium extends Data
     public function link($width = null, $height = null)
     {
         if ($this->image) {
-            $image = clone $this->image;
+            $medium = clone $this;
             if ($width && $height) {
-                $image->cropResize($width, $height);
+                $medium->cropResize($width, $height);
             }
-            $this->linkTarget = $image->cacheFile($this->type, $this->quality);
+            $this->linkTarget = $medium->url();
+            $this->linkSrcset = $medium->srcset();
         } else {
             // TODO: we need to find out URI in a bit better way.
             $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
