@@ -144,6 +144,7 @@ trait ParsedownGravTrait
                     if (!isset($actions['lightbox']) && !is_array($src)) {
                         $excerpt['element']['attributes']['src'] = $src;
                         $excerpt['element']['attributes']['srcset'] = $srcset;
+                        $excerpt['element']['attributes']['sizes'] = '100vw';
                     } else {
                         // Create the custom lightbox element
                         $element = array(
@@ -155,6 +156,7 @@ trait ParsedownGravTrait
                                 'attributes' => array(
                                     'src' => $src['img_url'],
                                     'srcset' => $srcset,
+                                    'sizes' => '(min-width: 36em) 80vw, 100vw',
                                     'alt' => $alt,
                                     'title' => $title
                                 )

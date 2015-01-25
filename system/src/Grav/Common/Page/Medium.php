@@ -163,10 +163,10 @@ class Medium extends Data
      */
     public function srcset()
     {
-        $srcset = [ $this->url() . $this->get('width') . 'w' ];
+        $srcset = [ $this->url() . ' ' . $this->get('width') . 'w' ];
 
         foreach ($this->alternatives as $type => $medium) {
-            $srcset[] = $medium->url() . ' ' . $type;
+            $srcset[] = $medium->url() . ' ' . $medium->get('width') . 'w';
         }
         
         return implode(', ', $srcset);
