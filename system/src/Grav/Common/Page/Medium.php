@@ -362,7 +362,7 @@ class Medium extends Data
                 if (isset(self::$size_param_actions[$method])) {
                     foreach (self::$size_param_actions[$method] as $param) {
                         if (isset($args_copy[$param]))
-                            $args_copy[$param] = $args_copy[$param] * $ratio;
+                            $args_copy[$param] = (int) $args_copy[$param] * $ratio;
                     }
                 }
 
