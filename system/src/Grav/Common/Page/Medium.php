@@ -53,6 +53,15 @@ class Medium extends Data
     public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
 
+    public static $size_param_actions = [
+        'resize' => [ 0, 1 ],
+        'forceResize' => [ 0, 1 ],
+        'cropResize' => [ 0, 1 ],
+        'crop' => [ 0, 1, 2, 3 ],
+        'cropResize' => [ 0, 1 ],
+        'zoomCrop' => [ 0, 1 ]
+    ];
+
     /**
      * @var array
      */
@@ -148,11 +157,12 @@ class Medium extends Data
      *
      * @return string
      */
-    public function url()
+    public function url($reset = true)
     {
         if ($this->image) {
             $output = $this->image->cacheFile($this->type, $this->quality);
-            $this->reset();
+            
+            if ($reset) $this->reset();
         } else {
             $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
             $output = $relPath . '/' . $this->get('filename');
@@ -166,12 +176,12 @@ class Medium extends Data
      * 
      * @return string
      */
-    public function srcset()
+    public function srcset($reset = true)
     {
-        $srcset = [ $this->url() . ' ' . $this->get('width') . 'w' ];
+        $srcset = [ $this->url($reset) . ' ' . $this->get('width') . 'w' ];
 
-        foreach ($this->alternatives as $type => $medium) {
-            $srcset[] = $medium->url() . ' ' . $medium->get('width') . 'w';
+        foreach ($this->alternatives as $ratio => $medium) {
+            $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
         }
         
         return implode(', ', $srcset);
@@ -204,13 +214,13 @@ class Medium extends Data
      * @param int $quality
      * @return string
      */
-    public function img($title = null, $class = null, $type = null, $quality = 80)
+    public function img($title = null, $class = null, $type = null, $quality = 80, $reset = true)
     {
         if (!$this->image) {
             $this->image();
         }
 
-        $output = $this->html($title, $class, $type, $quality);
+        $output = $this->html($title, $class, $type, $quality, $reset);
 
         return $output;
     }
@@ -224,19 +234,17 @@ class Medium extends Data
      * @param int $quality
      * @return string
      */
-    public function html($title = null, $class = null, $type = null, $quality = 80)
+    public function html($title = null, $class = null, $type = null, $quality = 80, $reset = true)
     {
         $title = $title ? $title : $this->get('title');
         $class = $class ? $class : '';
 
         if ($this->image) {
-            $type = $type ? $type : $this->type;
-            $quality = $quality ? $quality : $this->quality;
-
-            // @note these arguments are ignored, is this obsolete code?
-            $url = $this->url($type, $quality);
-            $srcset = $this->srcset();
-            $this->reset();
+            if ($type) $this->type = $type;
+            if ($quality) $this->quality = $quality;
+            
+            $url = $this->url(false);
+            $srcset = $this->srcset($reset);
 
             $output = '<img src="' . $url . '" srcset="' . $srcset . '" sizes="100vw" class="'. $class . '" alt="' . $title . '" />';
         } else {
@@ -270,10 +278,10 @@ class Medium extends Data
         return $this->link($width, $height);
     }
 
-    public function lightboxRaw($width = null, $height = null)
+    public function lightboxRaw($width = null, $height = null, $reset = true)
     {
-        $url = $this->url();
-        $srcset = $this->srcset();
+        $url = $this->url(false);
+        $srcset = $this->srcset($reset);
 
         $this->link($width, $height);
         $lightbox_url = $this->linkTarget;
@@ -346,6 +354,20 @@ class Medium extends Data
 
         try {
             $result = call_user_func_array(array($this->image, $method), $args);
+
+            foreach ($this->alternatives as $ratio => $medium) {
+
+                $args_copy = $args;
+
+                if (isset(self::$size_param_actions[$method])) {
+                    foreach (self::$size_param_actions[$method] as $param) {
+                        if (isset($args_copy[$param]))
+                            $args_copy[$param] = $args_copy[$param] * $ratio;
+                    }
+                }
+
+                call_user_func_array(array($medium, $method), $args_copy);
+            }
         } catch (\BadFunctionCallException $e) {
             $result = null;
         }
@@ -402,9 +424,17 @@ class Medium extends Data
      * @param $alternative
      * @return $this
      */
-    public function addAlternative($type, Medium $alternative)
+    public function addAlternative($ratio, Medium $alternative)
     {
-        $this->alternatives[$type] = $alternative;
+        if (!is_numeric($ratio)) {
+            $ratio = (float) trim($ratio, 'x');
+        }
+
+        if ($ratio === 0) {
+            return;
+        }
+
+        $this->alternatives[$ratio] = $alternative;
     }
 
     /**
