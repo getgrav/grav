@@ -14,6 +14,7 @@ trait ParsedownGravTrait
 {
     use GravTrait;
     protected $page;
+    protected $pages;
     protected $base_url;
     protected $pages_dir;
     protected $special_chars;
@@ -28,6 +29,7 @@ trait ParsedownGravTrait
     protected function init($page)
     {
         $this->page = $page;
+        $this->pages = self::$grav['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
         $this->base_url = rtrim(self::$grav['base_url'] . self::$grav['pages']->base(), '/');
         $this->pages_dir = self::$grav['locator']->findResource('page://');
@@ -90,7 +92,9 @@ trait ParsedownGravTrait
             $excerpt = parent::inlineImage($excerpt);
         }
 
+        // Some stuff we will need
         $actions = array();
+        $media = null;
 
         // if this is an image
         if (isset($excerpt['element']['attributes']['src'])) {
@@ -101,20 +105,29 @@ trait ParsedownGravTrait
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
 
-            //get back to current page if possible
-
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
-                // get the media objects for this page
-                $media = $this->page->media();
 
                 // get the local path to page media if possible
                 if (strpos($url['path'], $this->page->url()) !== false) {
                     $url['path'] = ltrim(str_replace($this->page->url(), '', $url['path']), '/');
+                    // get the media objects for this page
+                    $media = $this->page->media();
+
+                } else {
+                    // see if this is an external page to this one
+                    $path_parts = pathinfo($url['path']);
+                    $page_route = str_replace($this->base_url, '', $path_parts['dirname']);
+
+                    $ext_page = $this->pages->dispatch($page_route, true);
+                    if ($ext_page) {
+                        $media = $ext_page->media();
+                        $url['path'] = $path_parts['basename'];
+                    }
                 }
 
                 // if there is a media file that matches the path referenced..
-                if (isset($media->images()[$url['path']])) {
+                if ($media && isset($media->images()[$url['path']])) {
                     // get the medium object
                     $medium = $media->images()[$url['path']];
 
