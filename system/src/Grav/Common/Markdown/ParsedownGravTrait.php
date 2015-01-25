@@ -143,30 +143,23 @@ trait ParsedownGravTrait
                         }
                     }
 
-                    // Get the URL for regular images, or an array of bits needed to put together
-                    // the lightbox HTML
-                    if (!isset($actions['lightbox'])) {
-                        $src = $medium->url();
-                    } else {
-                        $src = $medium->lightboxRaw();
-                    }
-
                     // set the src element with the new generated url
-                    if (!isset($actions['lightbox']) && !is_array($src)) {
-                        $excerpt['element']['attributes']['src'] = $src;
+                    if (!isset($actions['lightbox'])) {
+                        $excerpt['element']['attributes']['src'] = $medium->url(false);
                         $excerpt['element']['attributes']['srcset'] = $medium->srcset();
                         $excerpt['element']['attributes']['sizes'] = '100vw';
                     } else {
                         // Create the custom lightbox element
+                        $lightboxRaw = $medium->lightboxRaw();
                         $element = array(
                             'name' => 'a',
-                            'attributes' => array('rel' => $src['a_rel'], 'href' => $src['a_url'], 'data-srcset' => $src['a_srcset']),
+                            'attributes' => array('rel' => $lightboxRaw['a_rel'], 'href' => $lightboxRaw['a_url'], 'data-srcset' => $lightboxRaw['a_srcset']),
                             'handler' => 'element',
                             'text' => array(
                                 'name' => 'img',
                                 'attributes' => array(
-                                    'src' => $src['img_url'],
-                                    'srcset' => $src['img_srcset'],
+                                    'src' => $lightboxRaw['img_url'],
+                                    'srcset' => $lightboxRaw['img_srcset'],
                                     'sizes' => '100vw',
                                     'alt' => $alt,
                                     'title' => $title
