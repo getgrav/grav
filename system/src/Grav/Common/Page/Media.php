@@ -53,7 +53,7 @@ class Media extends Getters
 
             // Get medium instance creating it if it didn't exist.
             $medium = $this->get("{$basename}.{$ext}", true);
-            if (!$medium) {
+            if (!$medium && !$alternative) {
                 continue;
             }
 
@@ -64,6 +64,25 @@ class Media extends Getters
                 }
 
                 $altMedium->set('size', $info->getSize());
+
+                if (!$medium) {
+                    $ratio = (float) trim($alternative, 'x');
+                    $width = (int) ($altMedium->get('width') / $ratio);
+                    $height = (int) ($altMedium->get('height') / $ratio);
+
+                    $cache_file = dirname(IMAGES_DIR) . $altMedium->resize($width, $height)->url();
+
+                    // Temporarily change path because we don't want to save our generated images in page folder
+                    $path = $this->path;
+                    $this->path = dirname($cache_file);
+
+                    $cache_file = basename($cache_file);
+                    $medium = $this->get($cache_file, true, false);
+                    $this->add($medium, "{$basename}.{$ext}");
+
+                    // Reset path
+                    $this->path = $path;
+                }
                 
                 $medium->addAlternative($alternative, $altMedium);
             } else {
@@ -103,6 +122,10 @@ class Media extends Getters
             }
 
             $filePath = $this->path . '/' . $filename;
+
+            if (!file_exists($filePath)) {
+                return null;
+            }
 
             // Add default settings for undefined variables.
             $params += $config->get('media.defaults');
@@ -196,21 +219,23 @@ class Media extends Getters
     /**
      * @internal
      */
-    protected function add($file)
+    protected function add($file, $filename = null)
     {
-        $this->instances[$file->filename] = $file;
+        $filename = $filename ? $filename : $file->filename;
+
+        $this->instances[$filename] = $file;
         switch ($file->type) {
             case 'image':
-                $this->images[$file->filename] = $file;
+                $this->images[$filename] = $file;
                 break;
             case 'video':
-                $this->videos[$file->filename] = $file;
+                $this->videos[$filename] = $file;
                 break;
             case 'audio':
-                $this->audios[$file->filename] = $file;
+                $this->audios[$filename] = $file;
                 break;
             default:
-                $this->files[$file->filename] = $file;
+                $this->files[$filename] = $file;
         }
     }
 
@@ -227,7 +252,7 @@ class Media extends Getters
         $name = array_shift($fileParts);
         $alternative = false;
 
-        if (preg_match('/(.*)@(\d+[wx])$/', $name, $matches)) {
+        if (preg_match('/(.*)@(\d+x)$/', $name, $matches)) {
             $name = $matches[1];
             $alternative = $matches[2];
         }
