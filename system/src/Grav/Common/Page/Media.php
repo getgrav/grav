@@ -70,7 +70,8 @@ class Media extends Getters
                     $width = (int) ($altMedium->get('width') / $ratio);
                     $height = (int) ($altMedium->get('height') / $ratio);
 
-                    $cache_file = dirname(IMAGES_DIR) . $altMedium->resize($width, $height)->url();
+                    $cache_file = $altMedium->resize($width, $height)->url();
+                    $cache_file = preg_replace('|'. preg_quote(self::$grav['base_url_relative']) .'$|', '', GRAV_ROOT) . $cache_file;
 
                     // Temporarily change path because we don't want to save our generated images in page folder
                     $path = $this->path;
