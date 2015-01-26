@@ -146,23 +146,28 @@ trait ParsedownGravTrait
                         }
                     }
 
+                    $data = $medium->htmlRaw();
+
                     // set the src element with the new generated url
                     if (!isset($actions['lightbox'])) {
-                        $excerpt['element']['attributes']['src'] = $medium->url(false);
-                        $excerpt['element']['attributes']['srcset'] = $medium->srcset();
+                        $excerpt['element']['attributes']['src'] = $data['img_src'];
+                        $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
                         $excerpt['element']['attributes']['sizes'] = '100vw';
                     } else {
                         // Create the custom lightbox element
-                        $lightboxRaw = $medium->lightboxRaw();
+                        
+                        $attributes = $data['a_attributes'];
+                        $attributes['href'] = $data['a_href'];
+
                         $element = array(
                             'name' => 'a',
-                            'attributes' => array('rel' => $lightboxRaw['a_rel'], 'href' => $lightboxRaw['a_url'], 'data-srcset' => $lightboxRaw['a_srcset']),
+                            'attributes' => $attributes,
                             'handler' => 'element',
                             'text' => array(
                                 'name' => 'img',
                                 'attributes' => array(
-                                    'src' => $lightboxRaw['img_url'],
-                                    'srcset' => $lightboxRaw['img_srcset'],
+                                    'src' => $data['img_src'],
+                                    'srcset' => $data['img_srcset'],
                                     'sizes' => '100vw',
                                     'alt' => $alt,
                                     'title' => $title

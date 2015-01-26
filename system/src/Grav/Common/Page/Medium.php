@@ -50,7 +50,12 @@ class Medium extends Data
     protected $type = 'guess';
     protected $quality = 85;
 
-    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
+    public static $valid_actions = [
+        // Medium functions
+        'format', 'lightbox', 'link', 'reset',
+        
+        // Gregwar Image functions
+        'resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
 
     public static $size_param_actions = [
@@ -85,7 +90,7 @@ class Medium extends Data
     /**
      * @var string
      */
-    protected $linkAttributes;
+    protected $linkAttributes = [];
 
     public function __construct($items = array(), Blueprint $blueprint = null)
     {
@@ -142,17 +147,6 @@ class Medium extends Data
     }
 
     /**
-     * Sets the quality of the image
-     * @param  Int $quality 0-100 quality
-     * @return Medium
-     */
-    public function quality($quality)
-    {
-        $this->quality = $quality;
-        return $this;
-    }
-
-    /**
      * Return URL to file.
      *
      * @return string
@@ -170,6 +164,7 @@ class Medium extends Data
 
         return self::$grav['base_url'] . '/'. $output;
     }
+    
 
     /**
      * Return srcset string for this Medium and its alternatives
@@ -185,24 +180,6 @@ class Medium extends Data
         }
         
         return implode(', ', $srcset);
-    }
-
-    /**
-     * Sets image output format.
-     *
-     * @param string $type
-     * @param int $quality
-     * @return $this
-     */
-    public function format($type = null, $quality = 80)
-    {
-        if (!$this->image) {
-            $this->image();
-        }
-
-        $this->type = $type;
-        $this->quality = $quality;
-        return $this;
     }
 
     /**
@@ -234,64 +211,88 @@ class Medium extends Data
      * @param int $quality
      * @return string
      */
-    public function html($title = null, $class = null, $type = null, $quality = 80, $reset = true)
+    public function html($title = null, $class = null, $reset = true)
     {
+        $data = $this->htmlRaw($title, $class, $reset);
+
         $title = $title ? $title : $this->get('title');
         $class = $class ? $class : '';
 
         if ($this->image) {
-            if ($type) $this->type = $type;
-            if ($quality) $this->quality = $quality;
-            
-            $url = $this->url(false);
-            $srcset = $this->srcset($reset);
-
-            $output = '<img src="' . $url . '" srcset="' . $srcset . '" sizes="100vw" class="'. $class . '" alt="' . $title . '" />';
+            $output = '<img src="' . $data['img_src'] . '" srcset="' . $data['img_srcset'] . '" sizes="100vw" class="'. $class . '" alt="' . $title . '" />';
         } else {
-            $output = $title;
+            $output = $data['text'];
+        }
+
+        if (isset($data['a_href'])) {
+
+            $attributes = '';
+            foreach ($data['a_attributes'] as $prop => $value) {
+                $attributes .= " {$prop}=\"{$value}\"";
+            }
+
+            $output = '<a href="' . $data['a_href'] . '"' . $attributes . ' class="'. $class . '">' . $output . '</a>';
+        }
+
+        return $output;
+    }
+
+    public function htmlRaw($reset = true)
+    {
+        $output = [];
+
+        if ($this->image) {
+            $output['img_src'] = $this->url(false);
+            $output['img_srcset'] = $this->srcset($reset);
+        } else {
+            $output['text'] = $title;
         }
 
         if ($this->linkTarget) {
             /** @var Config $config */
             $config = self::$grav['config'];
 
-            $output = '<a href="' . rtrim(self::$grav['base_url'], '/') . '/'. ltrim($this->linkTarget, '/')
-                . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';
-
-            $this->linkTarget = $this->linkAttributes = null;
+            $output['a_href'] = rtrim(self::$grav['base_url'], '/') . '/'. ltrim($this->linkTarget, '/');
+            $output['a_attributes'] = $this->linkAttributes;
+            
+            $this->linkTarget = null;
+            $this->linkAttributes = [];
         }
 
         return $output;
     }
 
     /**
-     * Return lightbox HTML for the medium.
-     *
-     * @param int $width
-     * @param int $height
-     * @return $this
+     * Sets the quality of the image
+     * @param  Int $quality 0-100 quality
+     * @return Medium
      */
-    public function lightbox($width = null, $height = null)
+    public function quality($quality)
     {
-        $this->linkAttributes = ' rel="lightbox" data-srcset="' . $this->srcset(false) . '"';
-
-        return $this->link($width, $height);
-    }
-
-    public function lightboxRaw($width = null, $height = null, $reset = true)
-    {
-        $url = $this->url(false);
-        $srcset = $this->srcset($reset);
-
-        $this->link($width, $height);
-        $lightbox_url = $this->linkTarget;
-        $lightbox_srcset = $this->linkSrcset;
-
-        return array('a_url' => $lightbox_url, 'a_srcset' => $lightbox_srcset, 'a_rel' => 'lightbox', 'img_url' => $url, 'img_srcset' => $srcset);
+        $this->quality = $quality;
+        return $this;
     }
 
     /**
-     * Return link HTML for the medium.
+     * Sets image output format.
+     *
+     * @param string $type
+     * @param int $quality
+     * @return $this
+     */
+    public function format($type = null, $quality = 80)
+    {
+        if (!$this->image) {
+            $this->image();
+        }
+
+        $this->type = $type;
+        $this->quality = $quality;
+        return $this;
+    }
+
+    /**
+     * Enable link for the medium object
      *
      * @param int $width
      * @param int $height
@@ -305,7 +306,7 @@ class Medium extends Data
                 $medium->cropResize($width, $height);
             }
             $this->linkTarget = $medium->url(false);
-            $this->linkSrcset = $medium->srcset();
+            $this->linkAttributes['data-srcset'] = $medium->srcset();
         } else {
             // TODO: we need to find out URI in a bit better way.
             $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
@@ -313,6 +314,20 @@ class Medium extends Data
         }
 
         return $this;
+    }
+
+    /**
+     * Enable lightbox for the medium.
+     *
+     * @param int $width
+     * @param int $height
+     * @return $this
+     */
+    public function lightbox($width = null, $height = null)
+    {
+        $this->linkAttributes['rel'] = 'lightbox';
+
+        return $this->link($width, $height);
     }
 
     /**
