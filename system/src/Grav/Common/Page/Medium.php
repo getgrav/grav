@@ -255,7 +255,7 @@ class Medium extends Data
             /** @var Config $config */
             $config = self::$grav['config'];
 
-            $output = '<a href="' . self::$grav['base_url'] . '/'. $this->linkTarget
+            $output = '<a href="' . rtrim(self::$grav['base_url'], '/') . '/'. ltrim($this->linkTarget, '/')
                 . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';
 
             $this->linkTarget = $this->linkAttributes = null;
@@ -273,7 +273,7 @@ class Medium extends Data
      */
     public function lightbox($width = null, $height = null)
     {
-        $this->linkAttributes = ' rel="lightbox"';
+        $this->linkAttributes = ' rel="lightbox" data-srcset="' . $this->srcset(false) . '"';
 
         return $this->link($width, $height);
     }
@@ -304,7 +304,7 @@ class Medium extends Data
             if ($width && $height) {
                 $medium->cropResize($width, $height);
             }
-            $this->linkTarget = $medium->url();
+            $this->linkTarget = $medium->url(false);
             $this->linkSrcset = $medium->srcset();
         } else {
             // TODO: we need to find out URI in a bit better way.
