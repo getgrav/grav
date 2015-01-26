@@ -152,10 +152,10 @@ trait ParsedownGravTrait
                     if (!isset($actions['lightbox'])) {
                         $excerpt['element']['attributes']['src'] = $data['img_src'];
 
-			if ($data['img_srcset']) {
-			    $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
-			    $excerpt['element']['attributes']['sizes'] = '100vw';
-			}
+                        if ($data['img_srcset']) {
+                            $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
+                            $excerpt['element']['attributes']['sizes'] = '100vw';
+                        }
 
                     } else {
                         // Create the custom lightbox element
@@ -163,16 +163,16 @@ trait ParsedownGravTrait
                         $attributes = $data['a_attributes'];
                         $attributes['href'] = $data['a_href'];
 
-			$img_attributes = [
-			    'src' => $data['img_src'],
-			    'alt' => $alt,
-			    'title' => $title
-			];
+                        $img_attributes = [
+                            'src' => $data['img_src'],
+                            'alt' => $alt,
+                            'title' => $title
+                        ];
 
-			if ($data['img_srcset']) {
-			    $img_attributes['srcset'] = $data['img_srcset'];
-			    $img_attributes['sizes'] = '100vw';
-			}
+                        if ($data['img_srcset']) {
+                            $img_attributes['srcset'] = $data['img_srcset'];
+                            $img_attributes['sizes'] = '100vw';
+                        }
 
                         $element = array(
                             'name' => 'a',
@@ -180,8 +180,8 @@ trait ParsedownGravTrait
                             'handler' => 'element',
                             'text' => array(
                                 'name' => 'img',
-				'attributes' => $img_attributes
-			    )
+                                'attributes' => $img_attributes
+                            )
                         );
 
                         // Set any custom classes on the lightbox element

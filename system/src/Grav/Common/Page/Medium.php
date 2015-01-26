@@ -173,10 +173,10 @@ class Medium extends Data
      */
     public function srcset($reset = true)
     {
-	if (empty($this->alternatives)) {
-	    if ($reset) $this->reset();
-	    return '';
-	}
+        if (empty($this->alternatives)) {
+            if ($reset) $this->reset();
+            return '';
+        }
 
         $srcset = [ $this->url($reset) . ' ' . $this->get('width') . 'w' ];
 
@@ -218,14 +218,14 @@ class Medium extends Data
      */
     public function html($title = null, $class = null, $reset = true)
     {
-	$data = $this->htmlRaw($reset);
+        $data = $this->htmlRaw($reset);
 
         $title = $title ? $title : $this->get('title');
         $class = $class ? $class : '';
 
         if ($this->image) {
-	    $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
-	    $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
+            $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
+            $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
         } else {
             $output = $data['text'];
         }
@@ -307,12 +307,12 @@ class Medium extends Data
     public function link($width = null, $height = null)
     {
         if ($this->image) {
-            $medium = clone $this;
-            if ($width && $height) {
-                $medium->cropResize($width, $height);
+            $this->linkTarget = $this->url(false);
+            $srcset = $this->srcset();
+
+            if ($srcset) {
+                $this->linkAttributes['data-srcset'] = $srcset;
             }
-            $this->linkTarget = $medium->url(false);
-            $this->linkAttributes['data-srcset'] = $medium->srcset();
         } else {
             // TODO: we need to find out URI in a bit better way.
             $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
@@ -367,7 +367,6 @@ class Medium extends Data
         if ($method == 'cropZoom') {
             $method = 'zoomCrop';
         }
-
         // Always initialize image.
         if (!$this->image) {
             $this->image();
