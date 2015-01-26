@@ -258,7 +258,7 @@ class Medium extends Data
             /** @var Config $config */
             $config = self::$grav['config'];
 
-            $output['a_href'] = rtrim(self::$grav['base_url'], '/') . '/'. ltrim($this->linkTarget, '/');
+            $output['a_href'] = $this->linkTarget;
             $output['a_attributes'] = $this->linkAttributes;
             
             $this->linkTarget = null;
