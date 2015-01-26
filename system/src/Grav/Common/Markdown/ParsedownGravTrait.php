@@ -104,18 +104,23 @@ trait ParsedownGravTrait
 
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
+<<<<<<< HEAD
+=======
+            $path_parts = pathinfo($url['path']);
+
+>>>>>>> 304c7519d14945d6b69bc83ecb89dbf5b3fbbee3
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
 
                 // get the local path to page media if possible
-                if (strpos($url['path'], $this->page->url()) !== false) {
+                if ($path_parts['dirname'] == $this->page->url()) {
                     $url['path'] = ltrim(str_replace($this->page->url(), '', $url['path']), '/');
                     // get the media objects for this page
                     $media = $this->page->media();
 
                 } else {
+
                     // see if this is an external page to this one
-                    $path_parts = pathinfo($url['path']);
                     $page_route = str_replace($this->base_url, '', $path_parts['dirname']);
 
                     $ext_page = $this->pages->dispatch($page_route, true);
@@ -177,7 +182,7 @@ trait ParsedownGravTrait
                     }
                 } else {
                     // not a current page media file, see if it needs converting to relative
-                    $excerpt['element']['attributes']['src'] = $this->convertUrl(Uri::build_url($url));
+                    $excerpt['element']['attributes']['src'] = Uri::build_url($url);
                 }
             }
         }
