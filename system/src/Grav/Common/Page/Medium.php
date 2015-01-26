@@ -367,6 +367,7 @@ class Medium extends Data
         if ($method == 'cropZoom') {
             $method = 'zoomCrop';
         }
+
         // Always initialize image.
         if (!$this->image) {
             $this->image();

@@ -251,7 +251,10 @@ class Media extends Getters
         $width = (int) ($medium->get('width') * $ratio);
         $height = (int) ($medium->get('height') * $ratio);
 
-        $file = $medium->resize($width, $height)->url();
+        $basename = $medium->get('basename');
+        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $basename);
+
+        $file = $medium->resize($width, $height)->setPrettyName($basename)->url();
         $file = preg_replace('|'. preg_quote(self::$grav['base_url_relative']) .'$|', '', GRAV_ROOT) . $file;
 
         $size = filesize($file);
