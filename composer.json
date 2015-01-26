@@ -8,7 +8,7 @@
     "require": {
         "php": ">=5.4.0",
         "twig/twig": "~1.16",
-        "erusev/parsedown-extra": "~0.6",
+        "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~2.6",
         "symfony/console": "~2.6",
         "symfony/event-dispatcher": "~2.6",
