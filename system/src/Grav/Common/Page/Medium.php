@@ -173,6 +173,11 @@ class Medium extends Data
      */
     public function srcset($reset = true)
     {
+	if (empty($this->alternatives)) {
+	    if ($reset) $this->reset();
+	    return '';
+	}
+
         $srcset = [ $this->url($reset) . ' ' . $this->get('width') . 'w' ];
 
         foreach ($this->alternatives as $ratio => $medium) {
@@ -213,13 +218,14 @@ class Medium extends Data
      */
     public function html($title = null, $class = null, $reset = true)
     {
-        $data = $this->htmlRaw($title, $class, $reset);
+	$data = $this->htmlRaw($reset);
 
         $title = $title ? $title : $this->get('title');
         $class = $class ? $class : '';
 
         if ($this->image) {
-            $output = '<img src="' . $data['img_src'] . '" srcset="' . $data['img_srcset'] . '" sizes="100vw" class="'. $class . '" alt="' . $title . '" />';
+	    $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
+	    $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
         } else {
             $output = $data['text'];
         }
