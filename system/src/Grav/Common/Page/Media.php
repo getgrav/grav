@@ -97,6 +97,10 @@ class Media extends Getters
 
             $alternatives = $medium->getAlternatives();
 
+            if (empty($alternatives)) {
+                continue;
+            }
+
             $max = max(array_keys($alternatives));
 
             for ($i=2; $i < $max; $i++) {
