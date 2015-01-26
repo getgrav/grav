@@ -104,11 +104,9 @@ trait ParsedownGravTrait
 
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
-<<<<<<< HEAD
-=======
+
             $path_parts = pathinfo($url['path']);
 
->>>>>>> 304c7519d14945d6b69bc83ecb89dbf5b3fbbee3
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
 
