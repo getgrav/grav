@@ -426,15 +426,16 @@ class Medium extends Data
      */
     public function addAlternative($ratio, Medium $alternative)
     {
-        if (!is_numeric($ratio)) {
-            $ratio = (float) trim($ratio, 'x');
-        }
-
-        if ($ratio === 0) {
+        if (!is_numeric($ratio) || $ratio === 0) {
             return;
         }
 
-        $this->alternatives[$ratio] = $alternative;
+        $this->alternatives[(float) $ratio] = $alternative;
+    }
+
+    public function getAlternatives()
+    {
+        return $this->alternatives;
     }
 
     /**
