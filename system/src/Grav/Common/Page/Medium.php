@@ -49,6 +49,7 @@ class Medium extends Data
 
     protected $type = 'guess';
     protected $quality = 85;
+    protected $debug_watermarked = false;
 
     public static $valid_actions = [
         // Medium functions
@@ -137,7 +138,7 @@ class Medium extends Data
         $config = self::$grav['config'];
 
         if ($this->image) {
-            $output = $this->image->cacheFile($this->type, $this->quality);
+            $output = $this->saveImage();
             $this->reset();
             $output = ROOT_DIR . $output;
         } else {
@@ -154,7 +155,7 @@ class Medium extends Data
     public function url($reset = true)
     {
         if ($this->image) {
-            $output = $this->image->cacheFile($this->type, $this->quality);
+            $output = $this->saveImage();
             
             if ($reset) $this->reset();
         } else {
@@ -351,6 +352,7 @@ class Medium extends Data
         }
         $this->type = 'guess';
         $this->quality = 80;
+        $this->debug_watermarked = false;
 
         return $this;
     }
@@ -417,6 +419,28 @@ class Medium extends Data
         return $this;
     }
 
+    protected function saveImage()
+    {
+        if (!$this->image) {
+            $this->image();
+        }
+
+        if (self::$grav['config']->get('system.images.debug') && !$this->debug_watermarked) {
+
+            $ratio = $this->get('ratio');
+            if (!$ratio) {
+                $ratio = 1;
+            }
+
+            $overlay = SYSTEM_DIR . '/assets/responsive-overlays/' . $ratio . 'x.png';
+            $overlay = file_exists($overlay) ? $overlay : SYSTEM_DIR . '/assets/responsive-overlays/unknown.png';
+
+            $this->image->merge(ImageFile::open($overlay));
+        }
+
+        return $this->image->cacheFile($this->type, $this->quality);
+    }
+
     /**
      * Add meta file for the medium.
      *
@@ -450,6 +474,8 @@ class Medium extends Data
         if (!is_numeric($ratio) || $ratio === 0) {
             return;
         }
+
+        $alternative->set('ratio', $ratio);
 
         $this->alternatives[(float) $ratio] = $alternative;
     }
