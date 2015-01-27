@@ -21,6 +21,12 @@ class Config extends Data
 {
     protected $grav;
     protected $streams = [
+        'system' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['system'],
+            ]
+        ],
         'user' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
