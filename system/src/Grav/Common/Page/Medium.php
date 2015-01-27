@@ -447,7 +447,7 @@ class Medium extends Data
 
             $locator = self::$grav['locator'];
 
-            $overlay = $locator->findReference("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
+            $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
 
             $this->image->merge(ImageFile::open($overlay));
         }
