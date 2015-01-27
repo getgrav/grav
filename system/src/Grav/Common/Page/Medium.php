@@ -307,7 +307,7 @@ class Medium extends Data
     }
 
     /**
-     * Enable link for the medium object
+     * Enable link for the medium object.
      *
      * @return $this
      */
@@ -332,11 +332,17 @@ class Medium extends Data
     /**
      * Enable lightbox for the medium.
      *
-     * @return $this
+     * @param null $width
+     * @param null $height
+     * @return Medium
      */
-    public function lightbox()
+    public function lightbox($width = null, $height = null)
     {
         $this->linkAttributes['rel'] = 'lightbox';
+
+        if ($width && $height) {
+            $this->cropResize($width, $height);
+        }
 
         return $this->link();
     }
