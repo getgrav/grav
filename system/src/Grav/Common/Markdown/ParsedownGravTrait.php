@@ -104,6 +104,7 @@ trait ParsedownGravTrait
 
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
+
             $path_parts = pathinfo($url['path']);
 
             // if there is no host set but there is a path, the file is local
@@ -145,27 +146,42 @@ trait ParsedownGravTrait
                         }
                     }
 
-                    // Get the URL for regular images, or an array of bits needed to put together
-                    // the lightbox HTML
-                    if (!isset($actions['lightbox'])) {
-                        $src = $medium->url();
-                    } else {
-                        $src = $medium->lightboxRaw();
-                    }
+                    $data = $medium->htmlRaw();
 
                     // set the src element with the new generated url
-                    if (!isset($actions['lightbox']) && !is_array($src)) {
-                        $excerpt['element']['attributes']['src'] = $src;
+                    if (!isset($actions['lightbox'])) {
+                        $excerpt['element']['attributes']['src'] = $data['img_src'];
+
+                        if ($data['img_srcset']) {
+                            $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
+                            $excerpt['element']['attributes']['sizes'] = '100vw';
+                        }
+
                     } else {
                         // Create the custom lightbox element
+                        
+                        $attributes = $data['a_attributes'];
+                        $attributes['href'] = $data['a_href'];
+
+                        $img_attributes = [
+                            'src' => $data['img_src'],
+                            'alt' => $alt,
+                            'title' => $title
+                        ];
+
+                        if ($data['img_srcset']) {
+                            $img_attributes['srcset'] = $data['img_srcset'];
+                            $img_attributes['sizes'] = '100vw';
+                        }
+
                         $element = array(
                             'name' => 'a',
-                            'attributes' => array('rel' => $src['a_rel'], 'href' => $src['a_url']),
+                            'attributes' => $attributes,
                             'handler' => 'element',
                             'text' => array(
                                 'name' => 'img',
-                                'attributes' => array('src' => $src['img_url'], 'alt' => $alt, 'title' => $title)
-                            ),
+                                'attributes' => $img_attributes
+                            )
                         );
 
                         // Set any custom classes on the lightbox element

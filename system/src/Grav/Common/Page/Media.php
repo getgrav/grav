@@ -49,77 +49,81 @@ class Media extends Getters
 
             // Find out the real filename, in case of we are at the metadata.
             $filename = $info->getFilename();
-            list($basename, $ext, $meta) = $this->getFileParts($filename);
+            list($basename, $ext, $meta, $alternative) = $this->getFileParts($filename);
 
-            // Get medium instance creating it if it didn't exist.
-            $medium = $this->get("{$basename}.{$ext}", true);
-            if (!$medium) {
+            // Get medium instance if it already exists.
+            $medium = $this->get("{$basename}.{$ext}");
+
+            if (!$alternative) {
+                
+                $medium = $medium ? $medium : $this->createMedium($info->getPathname());
+
+                if (!$medium) {
+                    continue;
+                }
+
+                if ($meta) {
+                    $medium->addMetaFile($meta);
+                } else {
+                    $medium->set('size', $info->getSize());
+                }
+            } else {
+
+                $altMedium = $this->createMedium($info->getPathname());
+                
+                if (!$altMedium) {
+                    continue;
+                }
+
+                $altMedium->set('size', $info->getSize());
+
+                if (!$medium) {
+                    $medium = $this->createMedium("{$path}/${basename}.${ext}");
+
+                    if ($medium) {
+                        $medium->set('size', filesize("{$path}/${basename}.${ext}"));
+                    }
+                }
+
+                $medium = $medium ? $medium : $this->scaleMedium($altMedium, $alternative, 1);
+                
+                $medium->addAlternative($this->parseRatio($alternative), $altMedium);
+            }
+
+            $this->add("{$basename}.{$ext}", $medium);
+        }
+
+        foreach ($this->images() as $medium) {
+
+            $alternatives = $medium->getAlternatives();
+
+            if (empty($alternatives)) {
                 continue;
             }
 
-            //set file size
-            $medium->set('size', $info->getSize());
+            $max = max(array_keys($alternatives));
 
-            // Assign meta files to the medium.
-            if ($meta) {
-                $medium->addMetaFile($meta);
+            for ($i=2; $i < $max; $i++) {
+
+                if (isset($alternatives[$i])) {
+                    continue;
+                }
+
+                $medium->addAlternative($i, $this->scaleMedium($alternatives[$max], $max, $i));
             }
         }
     }
 
+
+
     /**
-     * Get medium by basename and extension.
+     * Get medium by filename.
      *
      * @param string $filename
-     * @param bool   $create
      * @return Medium|null
      */
-    public function get($filename, $create = false)
+    public function get($filename)
     {
-        if ($create && !isset($this->instances[$filename])) {
-            $parts = explode('.', $filename);
-            $ext = array_pop($parts);
-            $basename = implode('.', $parts);
-
-            /** @var Config $config */
-            $config = self::$grav['config'];
-
-            // Check if medium type has been configured.
-            $params = $config->get("media.".strtolower($ext));
-            if (!$params) {
-                return null;
-            }
-
-            $filePath = $this->path . '/' . $filename;
-
-            // Add default settings for undefined variables.
-            $params += $config->get('media.defaults');
-            $params += array(
-                'type' => 'file',
-                'thumb' => 'media/thumb.png',
-                'mime' => 'application/octet-stream',
-                'name' => $filename,
-                'filename' => $filename,
-                'basename' => $basename,
-                'extension' => $ext,
-                'path' => $this->path,
-                'modified' => filemtime($filePath),
-            );
-
-            $lookup = array(
-                USER_DIR . 'images/',
-                SYSTEM_DIR . 'images/',
-            );
-            foreach ($lookup as $path) {
-                if (is_file($path . $params['thumb'])) {
-                    $params['thumb'] = $path . $params['thumb'];
-                    break;
-                }
-            }
-
-            $this->add(new Medium($params));
-        }
-
         return isset($this->instances[$filename]) ? $this->instances[$filename] : null;
     }
 
@@ -179,23 +183,112 @@ class Media extends Getters
     }
 
     /**
+     * Create a Medium object from a file
+     *
+     * @param string $file
+     * 
+     * @return Medium|null
+     */
+    protected function createMedium($file)
+    {
+        if (!file_exists($file)) {
+            return null;
+        }
+
+        $path = dirname($file);
+        $filename = basename($file);
+        $parts = explode('.', $filename);
+        $ext = array_pop($parts);
+        $basename = implode('.', $parts);
+
+        /** @var Config $config */
+        $config = self::$grav['config'];
+
+        // Check if medium type has been configured.
+        $params = $config->get("media.".strtolower($ext));
+        if (!$params) {
+            return null;
+        }
+
+        // Add default settings for undefined variables.
+        $params += $config->get('media.defaults');
+        $params += array(
+            'type' => 'file',
+            'thumb' => 'media/thumb.png',
+            'mime' => 'application/octet-stream',
+            'name' => $filename,
+            'filename' => $filename,
+            'basename' => $basename,
+            'extension' => $ext,
+            'path' => $path,
+            'modified' => filemtime($file),
+        );
+
+        $lookup = array(
+            USER_DIR . 'images/',
+            SYSTEM_DIR . 'images/',
+        );
+        foreach ($lookup as $lookupPath) {
+            if (is_file($lookupPath . $params['thumb'])) {
+                $params['thumb'] = $lookupPath . $params['thumb'];
+                break;
+            }
+        }
+
+        return new Medium($params);
+    }
+
+    protected function scaleMedium($medium, $from, $to)
+    {
+        $from = $this->parseRatio($from);
+        $to = $this->parseRatio($to);
+
+        if ($to > $from) {
+            return $medium;
+        }
+
+        $ratio = $to / $from;
+        $width = (int) ($medium->get('width') * $ratio);
+        $height = (int) ($medium->get('height') * $ratio);
+
+        $basename = $medium->get('basename');
+        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $basename);
+
+        $debug = $medium->get('debug');
+        $medium->set('debug', false);
+
+        $file = $medium->resize($width, $height)->setPrettyName($basename)->url();
+        $file = preg_replace('|'. preg_quote(self::$grav['base_url_relative']) .'$|', '', GRAV_ROOT) . $file;
+
+        $medium->set('debug', $debug);
+
+        $size = filesize($file);
+
+        $medium = $this->createMedium($file);
+        $medium->set('size', $size);
+
+        return $medium;
+    }
+
+
+    /**
      * @internal
      */
-    protected function add($file)
+    protected function add($name, $file)
     {
-        $this->instances[$file->filename] = $file;
+        $this->instances[$name] = $file;
         switch ($file->type) {
             case 'image':
-                $this->images[$file->filename] = $file;
+                $this->images[$name] = $file;
                 break;
             case 'video':
-                $this->videos[$file->filename] = $file;
+                $this->videos[$name] = $file;
                 break;
             case 'audio':
-                $this->audios[$file->filename] = $file;
+                $this->audios[$name] = $file;
                 break;
             default:
-                $this->files[$file->filename] = $file;
+                $this->files[$name] = $file;
         }
     }
 
@@ -210,6 +303,13 @@ class Media extends Getters
         $fileParts = explode('.', $filename);
 
         $name = array_shift($fileParts);
+        $alternative = false;
+
+        if (preg_match('/(.*)@(\d+x)$/', $name, $matches)) {
+            $name = $matches[1];
+            $alternative = $matches[2];
+        }
+
         $extension = null;
         while (($part = array_shift($fileParts)) !== null) {
             if ($part != 'meta') {
@@ -223,6 +323,15 @@ class Media extends Getters
         }
         $meta = implode('.', $fileParts);
 
-        return array($name, $extension, $meta);
+        return array($name, $extension, $meta, $alternative);
+    }
+
+    protected function parseRatio($ratio)
+    {
+        if (!is_numeric($ratio)) {
+            $ratio = (float) trim($ratio, 'x');
+        }
+
+        return $ratio;
     }
 }
