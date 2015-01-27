@@ -254,8 +254,13 @@ class Media extends Getters
         $basename = $medium->get('basename');
         $basename = str_replace('@'.$from.'x', '@'.$to.'x', $basename);
 
+        $debug = $medium->get('debug');
+        $medium->set('debug', false);
+
         $file = $medium->resize($width, $height)->setPrettyName($basename)->url();
         $file = preg_replace('|'. preg_quote(self::$grav['base_url_relative']) .'$|', '', GRAV_ROOT) . $file;
+
+        $medium->set('debug', $debug);
 
         $size = filesize($file);
 

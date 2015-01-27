@@ -114,7 +114,7 @@ class Medium extends Data
             $this->def('mime', 'application/octet-stream');
         }
 
-
+        $this->set('debug', self::$grav['config']->get('system.images.debug')); 
     }
 
     /**
@@ -425,7 +425,7 @@ class Medium extends Data
             $this->image();
         }
 
-        if (self::$grav['config']->get('system.images.debug') && !$this->debug_watermarked) {
+        if ($this->get('debug') && !$this->debug_watermarked) {
 
             $ratio = $this->get('ratio');
             if (!$ratio) {
