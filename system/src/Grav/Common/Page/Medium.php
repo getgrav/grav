@@ -93,6 +93,12 @@ class Medium extends Data
      */
     protected $linkAttributes = [];
 
+    /**
+     * Construct.
+     *
+     * @param array $items
+     * @param Blueprint $blueprint
+     */
     public function __construct($items = array(), Blueprint $blueprint = null)
     {
         parent::__construct($items, $blueprint);
@@ -134,9 +140,6 @@ class Medium extends Data
      */
     public function path()
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
         if ($this->image) {
             $output = $this->saveImage();
             $this->reset();
@@ -150,6 +153,7 @@ class Medium extends Data
     /**
      * Return URL to file.
      *
+     * @param bool $reset
      * @return string
      */
     public function url($reset = true)
@@ -165,11 +169,12 @@ class Medium extends Data
 
         return self::$grav['base_url'] . '/'. $output;
     }
-    
+
 
     /**
-     * Return srcset string for this Medium and its alternatives
-     * 
+     * Return srcset string for this Medium and its alternatives.
+     *
+     * @param bool $reset
      * @return string
      */
     public function srcset($reset = true)
@@ -195,6 +200,7 @@ class Medium extends Data
      * @param string $class
      * @param string $type
      * @param int $quality
+     * @param bool $reset
      * @return string
      */
     public function img($title = null, $class = null, $type = null, $quality = 80, $reset = true)
@@ -213,8 +219,7 @@ class Medium extends Data
      *
      * @param string $title
      * @param string $class
-     * @param string $type
-     * @param int $quality
+     * @param bool $reset
      * @return string
      */
     public function html($title = null, $class = null, $reset = true)
@@ -244,6 +249,12 @@ class Medium extends Data
         return $output;
     }
 
+    /**
+     * Return HTML array from medium.
+     *
+     * @param bool $reset
+     * @return array
+     */
     public function htmlRaw($reset = true)
     {
         $output = [];
@@ -256,9 +267,6 @@ class Medium extends Data
         }
 
         if ($this->linkTarget) {
-            /** @var Config $config */
-            $config = self::$grav['config'];
-
             $output['a_href'] = $this->linkTarget;
             $output['a_attributes'] = $this->linkAttributes;
             
@@ -299,13 +307,11 @@ class Medium extends Data
     }
 
     /**
-     * Enable link for the medium object
+     * Enable link for the medium object.
      *
-     * @param int $width
-     * @param int $height
      * @return $this
      */
-    public function link($width = null, $height = null)
+    public function link()
     {
         if ($this->image) {
             $this->linkTarget = $this->url(false);
@@ -326,15 +332,19 @@ class Medium extends Data
     /**
      * Enable lightbox for the medium.
      *
-     * @param int $width
-     * @param int $height
-     * @return $this
+     * @param null $width
+     * @param null $height
+     * @return Medium
      */
     public function lightbox($width = null, $height = null)
     {
         $this->linkAttributes['rel'] = 'lightbox';
 
-        return $this->link($width, $height);
+        if ($width && $height) {
+            $this->cropResize($width, $height);
+        }
+
+        return $this->link();
     }
 
     /**
@@ -407,11 +417,15 @@ class Medium extends Data
      */
     public function image($variable = 'thumb')
     {
+        $locator = self::$grav['locator'];
+
+        $images_dir = $locator->findResource('image://');
+
         // TODO: add default file
         $file = $this->get($variable);
         $this->image = ImageFile::open($file)
-            ->setCacheDir(basename(IMAGES_DIR))
-            ->setActualCacheDir(IMAGES_DIR)
+            ->setCacheDir(str_replace(ROOT_DIR, '', $images_dir))
+            ->setActualCacheDir($images_dir)
             ->setPrettyName(basename($this->get('basename')));
 
         $this->filter();
@@ -419,6 +433,11 @@ class Medium extends Data
         return $this;
     }
 
+    /**
+     * Save the image with cache.
+     *
+     * @return mixed|string
+     */
     protected function saveImage()
     {
         if (!$this->image) {
@@ -432,8 +451,9 @@ class Medium extends Data
                 $ratio = 1;
             }
 
-            $overlay = SYSTEM_DIR . '/assets/responsive-overlays/' . $ratio . 'x.png';
-            $overlay = file_exists($overlay) ? $overlay : SYSTEM_DIR . '/assets/responsive-overlays/unknown.png';
+            $locator = self::$grav['locator'];
+
+            $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
 
             $this->image->merge(ImageFile::open($overlay));
         }
@@ -463,11 +483,10 @@ class Medium extends Data
     }
 
     /**
-     * Add alternative Medium to this Medium
+     * Add alternative Medium to this Medium.
      *
-     * @param $type
-     * @param $alternative
-     * @return $this
+     * @param $ratio
+     * @param Medium $alternative
      */
     public function addAlternative($ratio, Medium $alternative)
     {
