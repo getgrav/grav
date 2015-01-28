@@ -161,7 +161,9 @@ class Medium extends Data
         if ($this->image) {
             $output = $this->saveImage();
 
-            if ($reset) $this->reset();
+            if ($reset) {
+                $this->reset();
+            }
         } else {
             $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
             $output = $relPath . '/' . $this->get('filename');
@@ -180,7 +182,9 @@ class Medium extends Data
     public function srcset($reset = true)
     {
         if (empty($this->alternatives)) {
-            if ($reset) $this->reset();
+            if ($reset) {
+                $this->reset();
+            }
             return '';
         }
 
@@ -237,7 +241,6 @@ class Medium extends Data
         }
 
         if (isset($data['a_href'])) {
-
             $attributes = '';
             foreach ($data['a_attributes'] as $prop => $value) {
                 $attributes .= " {$prop}=\"{$value}\"";
@@ -252,10 +255,12 @@ class Medium extends Data
     /**
      * Return HTML array from medium.
      *
-     * @param bool $reset
+     * @param bool   $reset
+     * @param string $title
+     *
      * @return array
      */
-    public function htmlRaw($reset = true)
+    public function htmlRaw($reset = true, $title = '')
     {
         $output = [];
 
@@ -391,13 +396,13 @@ class Medium extends Data
             $result = call_user_func_array(array($this->image, $method), $args);
 
             foreach ($this->alternatives as $ratio => $medium) {
-
                 $args_copy = $args;
 
                 if (isset(self::$size_param_actions[$method])) {
                     foreach (self::$size_param_actions[$method] as $param) {
-                        if (isset($args_copy[$param]))
+                        if (isset($args_copy[$param])) {
                             $args_copy[$param] = (int) $args_copy[$param] * $ratio;
+                        }
                     }
                 }
 
@@ -447,16 +452,13 @@ class Medium extends Data
         }
 
         if ($this->get('debug') && !$this->debug_watermarked) {
-
             $ratio = $this->get('ratio');
             if (!$ratio) {
                 $ratio = 1;
             }
 
             $locator = self::$grav['locator'];
-
             $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
-
             $this->image->merge(ImageFile::open($overlay));
         }
 
