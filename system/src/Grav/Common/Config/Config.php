@@ -66,7 +66,8 @@ class Config extends Data
         'cache' => [
             'type' => 'Stream',
             'prefixes' => [
-                '' => ['cache']
+                '' => ['cache'],
+                'images' => ['images']
             ]
         ],
         'log' => [

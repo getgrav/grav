@@ -427,8 +427,8 @@ class Medium extends Data
         // TODO: add default file
         $file = $this->get($variable);
         $this->image = ImageFile::open($file)
-            ->setCacheDir($locator->findResource('image://', false))
-            ->setActualCacheDir($locator->findResource('image://', true))
+            ->setCacheDir($locator->findResource('cache://images', false))
+            ->setActualCacheDir($locator->findResource('cache://images', true))
             ->setPrettyName(basename($this->get('basename')));
 
         $this->filter();

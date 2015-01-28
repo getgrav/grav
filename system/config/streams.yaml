@@ -7,7 +7,7 @@ schemes:
   image:
     type: ReadOnlyStream
     paths:
-      - images
+      - user://images
 
   page:
     type: ReadOnlyStream
