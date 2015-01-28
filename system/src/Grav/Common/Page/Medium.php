@@ -54,7 +54,7 @@ class Medium extends Data
     public static $valid_actions = [
         // Medium functions
         'format', 'lightbox', 'link', 'reset',
-        
+
         // Gregwar Image functions
         'resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
@@ -120,7 +120,7 @@ class Medium extends Data
             $this->def('mime', 'application/octet-stream');
         }
 
-        $this->set('debug', self::$grav['config']->get('system.images.debug')); 
+        $this->set('debug', self::$grav['config']->get('system.images.debug'));
     }
 
     /**
@@ -160,7 +160,7 @@ class Medium extends Data
     {
         if ($this->image) {
             $output = $this->saveImage();
-            
+
             if ($reset) $this->reset();
         } else {
             $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
@@ -189,7 +189,7 @@ class Medium extends Data
         foreach ($this->alternatives as $ratio => $medium) {
             $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
         }
-        
+
         return implode(', ', $srcset);
     }
 
@@ -269,7 +269,7 @@ class Medium extends Data
         if ($this->linkTarget) {
             $output['a_href'] = $this->linkTarget;
             $output['a_attributes'] = $this->linkAttributes;
-            
+
             $this->linkTarget = null;
             $this->linkAttributes = [];
         }
@@ -309,11 +309,17 @@ class Medium extends Data
     /**
      * Enable link for the medium object.
      *
+     * @param null $width
+     * @param null $height
      * @return $this
      */
-    public function link()
+    public function link($width = null, $height = null)
     {
         if ($this->image) {
+            if ($width && $height) {
+                $this->cropResize($width, $height);
+            }
+
             $this->linkTarget = $this->url(false);
             $srcset = $this->srcset();
 
@@ -340,11 +346,7 @@ class Medium extends Data
     {
         $this->linkAttributes['rel'] = 'lightbox';
 
-        if ($width && $height) {
-            $this->cropResize($width, $height);
-        }
-
-        return $this->link();
+        return $this->link($width, $height);
     }
 
     /**
@@ -419,7 +421,7 @@ class Medium extends Data
     {
         $locator = self::$grav['locator'];
 
-        $images_dir = $locator->findResource('image://');
+        $images_dir = $locator->findResource('imagecache://');
 
         // TODO: add default file
         $file = $this->get($variable);
