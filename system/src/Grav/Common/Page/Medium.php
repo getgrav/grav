@@ -143,7 +143,7 @@ class Medium extends Data
         if ($this->image) {
             $output = $this->saveImage();
             $this->reset();
-            $output = ROOT_DIR . $output;
+            $output = GRAV_ROOT . '/' . $output;
         } else {
             $output = $this->get('path') . '/' . $this->get('filename');
         }
@@ -159,17 +159,16 @@ class Medium extends Data
     public function url($reset = true)
     {
         if ($this->image) {
-            $output = $this->saveImage();
+            $output = '/' . $this->saveImage();
 
             if ($reset) {
                 $this->reset();
             }
         } else {
-            $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
-            $output = $relPath . '/' . $this->get('filename');
+            $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
         }
 
-        return self::$grav['base_url'] . '/'. $output;
+        return self::$grav['base_url'] . $output;
     }
 
 
@@ -333,8 +332,7 @@ class Medium extends Data
             }
         } else {
             // TODO: we need to find out URI in a bit better way.
-            $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
-            $this->linkTarget = $relPath. '/' . $this->get('filename');
+            $this->linkTarget = self::$grav['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
         }
 
         return $this;
@@ -426,13 +424,11 @@ class Medium extends Data
     {
         $locator = self::$grav['locator'];
 
-        $images_dir = $locator->findResource('image://');
-
         // TODO: add default file
         $file = $this->get($variable);
         $this->image = ImageFile::open($file)
-            ->setCacheDir(str_replace(ROOT_DIR, '', $images_dir))
-            ->setActualCacheDir($images_dir)
+            ->setCacheDir($locator->findResource('image://', false))
+            ->setActualCacheDir($locator->findResource('image://', true))
             ->setPrettyName(basename($this->get('basename')));
 
         $this->filter();
