@@ -421,7 +421,7 @@ class Medium extends Data
     {
         $locator = self::$grav['locator'];
 
-        $images_dir = $locator->findResource('imagecache://');
+        $images_dir = $locator->findResource('image://');
 
         // TODO: add default file
         $file = $this->get($variable);
