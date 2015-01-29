@@ -5,6 +5,7 @@ use Grav\Common\Getters;
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
+use Grav\Common\Page\Medium\Medium;
 
 /**
  * Media is a holder object that contains references to the media of page. This object is created and
@@ -49,23 +50,30 @@ class Media extends Getters
 
             // Find out the real filename, in case of we are at the metadata.
             $filename = $info->getFilename();
-            list($basename, $ext, $meta, $alternative) = $this->getFileParts($filename);
+            list($basename, $ext, $type, $extra) = $this->getFileParts($filename);
 
             // Get medium instance if it already exists.
             $medium = $this->get("{$basename}.{$ext}");
 
-            if (!$alternative) {
+            if ($type !== 'alternative') {
                 
-                $medium = $medium ? $medium : $this->createMedium($info->getPathname());
+                $medium = $medium ? $medium : $this->createMedium("{$path}/{$basename}.{$ext}");
 
                 if (!$medium) {
                     continue;
                 }
 
-                if ($meta) {
-                    $medium->addMetaFile($meta);
-                } else {
-                    $medium->set('size', $info->getSize());
+                switch ($type) {
+                    case 'base':
+                        $medium->set('size', $info->getSize());
+                        break;
+                    case 'meta':
+                        $medium->addMetaFile("{$path}/{$basename}.{$ext}{$extra}");
+                        break;
+                    case 'thumb':
+                        $thumbnail = $this->createMedium("{$path}/{$basename}.{$ext}{$extra}");
+                        $thumbnail->set('size', $info->getSize());
+                        $medium->set('thumb', $thumbnail);
                 }
             } else {
 
@@ -93,23 +101,38 @@ class Media extends Getters
             $this->add("{$basename}.{$ext}", $medium);
         }
 
-        foreach ($this->images() as $medium) {
+        foreach ($this->all() as $medium) {
 
-            $alternatives = $medium->getAlternatives();
+            $thumb = $medium->get('thumb');
 
-            if (empty($alternatives)) {
-                continue;
+            if ($thumb && !$thumb instanceof Medium) {
+                $thumb = $this->createMedium($thumb);
+
+                if ($thumb) {
+                    $thumb->set('size', filesize($thumb));
+                    $medium->set('thumb', $thumb);
+                } else {
+                    $medium->set('thumb', null);
+                }
             }
 
-            $max = max(array_keys($alternatives));
+            if ($medium->get('type') == 'image') {
+                $alternatives = $medium->getAlternatives();
 
-            for ($i=2; $i < $max; $i++) {
-
-                if (isset($alternatives[$i])) {
+                if (empty($alternatives)) {
                     continue;
                 }
 
-                $medium->addAlternative($i, $this->scaleMedium($alternatives[$max], $max, $i));
+                $max = max(array_keys($alternatives));
+
+                for ($i=2; $i < $max; $i++) {
+
+                    if (isset($alternatives[$i])) {
+                        continue;
+                    }
+
+                    $medium->addAlternative($i, $this->scaleMedium($alternatives[$max], $max, $i));
+                }
             }
         }
     }
@@ -216,7 +239,7 @@ class Media extends Getters
             'type' => 'file',
             'thumb' => 'media/thumb.png',
             'mime' => 'application/octet-stream',
-            'name' => $filename,
+            'filepath' => $file,
             'filename' => $filename,
             'basename' => $basename,
             'extension' => $ext,
@@ -234,7 +257,7 @@ class Media extends Getters
             }
         }
 
-        return new Medium($params);
+        return Medium::factory($params);
     }
 
     protected function scaleMedium($medium, $from, $to)
@@ -302,27 +325,31 @@ class Media extends Getters
         $fileParts = explode('.', $filename);
 
         $name = array_shift($fileParts);
-        $alternative = false;
+        $type = 'base';
+        $extra = null;
 
-        if (preg_match('/(.*)@(\d+x)$/', $name, $matches)) {
+        if (preg_match('/(.+)@(\d+x)\.(.+)$/', $name, $matches)) {
             $name = $matches[1];
-            $alternative = $matches[2];
-        }
-
-        $extension = null;
-        while (($part = array_shift($fileParts)) !== null) {
-            if ($part != 'meta') {
-                if (isset($extension)) {
-                    $name .= '.' . $extension;
+            $extension = $matches[3];
+            $type = 'alternative';
+            $extra = $matches[2];
+        } else {
+            $extension = null;
+            while (($part = array_shift($fileParts)) !== null) {
+                if ($part != 'meta' && $part != 'thumb') {
+                    if (isset($extension)) {
+                        $name .= '.' . $extension;
+                    }
+                    $extension = $part;
+                } else {
+                    $type = $part;
+                    $extra = '.' . $part . '.' . implode('.', $fileParts);
+                    break;
                 }
-                $extension = $part;
-            } else {
-                break;
             }
         }
-        $meta = implode('.', $fileParts);
 
-        return array($name, $extension, $meta, $alternative);
+        return array($name, $extension, $type, $extra);
     }
 
     protected function parseRatio($ratio)

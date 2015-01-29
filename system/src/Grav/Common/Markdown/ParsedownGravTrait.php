@@ -4,7 +4,7 @@ namespace Grav\Common\Markdown;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
-use Grav\Common\Page\Medium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Uri;
 
 /**
@@ -141,7 +141,7 @@ trait ParsedownGravTrait
                     // loop through actions for the image and call them
                     foreach ($actions as $action => $params) {
                         // as long as it's a valid action
-                        if (in_array($action, Medium::$valid_actions)) {
+                        if (in_array($action, $medium::$valid_actions)) {
                             call_user_func_array(array(&$medium, $action), explode(',', $params));
                         }
                     }

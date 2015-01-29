@@ -1,5 +1,5 @@
 <?php
-namespace Grav\Common\Page;
+namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
@@ -33,22 +33,17 @@ use Gregwar\Image\Image as ImageFile;
  * - video.mov.thumb.jpg    Thumbnail image for the medium.
  *
  */
-class Medium extends Data
+class ImageMedium extends Medium
 {
-    use GravTrait;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
     /**
      * @var ImageFile
      */
     protected $image;
 
     protected $type = 'guess';
+    
     protected $quality = 85;
+    
     protected $debug_watermarked = false;
 
     public static $valid_actions = [
@@ -69,31 +64,6 @@ class Medium extends Data
     ];
 
     /**
-     * @var array
-     */
-    protected $meta = array();
-
-    /**
-     * @var array
-     */
-    protected $alternatives = array();
-
-    /**
-     * @var string
-     */
-    protected $linkTarget;
-
-        /**
-     * @var string
-     */
-    protected $linkSrcset;
-
-    /**
-     * @var string
-     */
-    protected $linkAttributes = [];
-
-    /**
      * Construct.
      *
      * @param array $items
@@ -103,34 +73,13 @@ class Medium extends Data
     {
         parent::__construct($items, $blueprint);
 
-        $file_path = $this->get('path') . '/' . $this->get('filename');
-        $file_parts = pathinfo($file_path);
+        $image_info = getimagesize($this->get('filepath'));
+        $this->def('width', $image_info[0]);
+        $this->def('height', $image_info[1]);
+        $this->def('mime', $image_info['mime']);
+        $this->def('debug', self::$grav['config']->get('system.images.debug'));
 
-        $this->set('thumb', $file_path);
-        $this->set('extension', $file_parts['extension']);
-        $this->set('filename', $this->get('filename'));
-
-        if ($this->get('type') == 'image') {
-            $image_info = getimagesize($file_path);
-            $this->def('width', $image_info[0]);
-            $this->def('height', $image_info[1]);
-            $this->def('mime', $image_info['mime']);
-            $this->reset();
-        } else {
-            $this->def('mime', 'application/octet-stream');
-        }
-
-        $this->set('debug', self::$grav['config']->get('system.images.debug'));
-    }
-
-    /**
-     * Return string representation of the object (html or url).
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->linkImage ? $this->html() : $this->url();
+        $this->reset();
     }
 
     /**
@@ -138,16 +87,13 @@ class Medium extends Data
      *
      * @return  string path to file
      */
-    public function path()
+    public function path($reset = true)
     {
-        if ($this->image) {
-            $output = $this->saveImage();
-            $this->reset();
-            $output = GRAV_ROOT . '/' . $output;
-        } else {
-            $output = $this->get('path') . '/' . $this->get('filename');
-        }
-        return $output;
+        $output = $this->saveImage();
+
+        if ($reset) $this->reset();
+        
+        return GRAV_ROOT . '/' . $output;
     }
 
     /**
@@ -158,14 +104,10 @@ class Medium extends Data
      */
     public function url($reset = true)
     {
-        if ($this->image) {
-            $output = '/' . $this->saveImage();
+        $output = '/' . $this->saveImage();
 
-            if ($reset) {
-                $this->reset();
-            }
-        } else {
-            $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
+        if ($reset) {
+            $this->reset();
         }
 
         return self::$grav['base_url'] . $output;
@@ -197,27 +139,6 @@ class Medium extends Data
     }
 
     /**
-     * Returns <img> tag from the medium.
-     *
-     * @param string $title
-     * @param string $class
-     * @param string $type
-     * @param int $quality
-     * @param bool $reset
-     * @return string
-     */
-    public function img($title = null, $class = null, $type = null, $quality = 80, $reset = true)
-    {
-        if (!$this->image) {
-            $this->image();
-        }
-
-        $output = $this->html($title, $class, $type, $quality, $reset);
-
-        return $output;
-    }
-
-    /**
      * Return HTML markup from the medium.
      *
      * @param string $title
@@ -232,12 +153,8 @@ class Medium extends Data
         $title = $title ? $title : $this->get('title');
         $class = $class ? $class : '';
 
-        if ($this->image) {
-            $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
-            $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
-        } else {
-            $output = $data['text'];
-        }
+        $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
+        $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
 
         if (isset($data['a_href'])) {
             $attributes = '';
@@ -263,12 +180,8 @@ class Medium extends Data
     {
         $output = [];
 
-        if ($this->image) {
-            $output['img_src'] = $this->url(false);
-            $output['img_srcset'] = $this->srcset($reset);
-        } else {
-            $output['text'] = $title;
-        }
+        $output['img_src'] = $this->url(false);
+        $output['img_srcset'] = $this->srcset($reset);
 
         if ($this->linkTarget) {
             $output['a_href'] = $this->linkTarget;
@@ -301,10 +214,6 @@ class Medium extends Data
      */
     public function format($type = null, $quality = 80)
     {
-        if (!$this->image) {
-            $this->image();
-        }
-
         $this->type = $type;
         $this->quality = $quality;
         return $this;
@@ -319,37 +228,18 @@ class Medium extends Data
      */
     public function link($width = null, $height = null)
     {
-        if ($this->image) {
-            if ($width && $height) {
-                $this->cropResize($width, $height);
-            }
+        if ($width && $height) {
+            $this->cropResize($width, $height);
+        }
 
-            $this->linkTarget = $this->url(false);
-            $srcset = $this->srcset();
+        $this->linkTarget = $this->url(false);
+        $srcset = $this->srcset();
 
-            if ($srcset) {
-                $this->linkAttributes['data-srcset'] = $srcset;
-            }
-        } else {
-            // TODO: we need to find out URI in a bit better way.
-            $this->linkTarget = self::$grav['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
+        if ($srcset) {
+            $this->linkAttributes['data-srcset'] = $srcset;
         }
 
         return $this;
-    }
-
-    /**
-     * Enable lightbox for the medium.
-     *
-     * @param null $width
-     * @param null $height
-     * @return Medium
-     */
-    public function lightbox($width = null, $height = null)
-    {
-        $this->linkAttributes['rel'] = 'lightbox';
-
-        return $this->link($width, $height);
     }
 
     /**
@@ -361,10 +251,9 @@ class Medium extends Data
     {
         $this->image = null;
 
-        if ($this->get('type') == 'image') {
-            $this->image();
-            $this->filter();
-        }
+        $this->image();
+        $this->filter();
+
         $this->type = 'guess';
         $this->quality = 80;
         $this->debug_watermarked = false;
@@ -420,12 +309,12 @@ class Medium extends Data
      * @param string $variable
      * @return $this
      */
-    public function image($variable = 'thumb')
+    public function image()
     {
         $locator = self::$grav['locator'];
 
         // TODO: add default file
-        $file = $this->get($variable);
+        $file = $this->get('filepath');
         $this->image = ImageFile::open($file)
             ->setCacheDir($locator->findResource('cache://images', false))
             ->setActualCacheDir($locator->findResource('cache://images', true))
@@ -467,41 +356,14 @@ class Medium extends Data
      * @param $type
      * @return $this
      */
-    public function addMetaFile($type)
+    public function addMetaFile($filepath)
     {
-        $this->meta[$type] = $type;
+        parent::addMetaFile($filepath);
 
-        $path = $this->get('path') . '/' . $this->get('filename') . '.meta.' . $type;
-        if ($type == 'yaml') {
-            $this->merge(CompiledYamlFile::instance($path)->content());
-        } elseif (in_array($type, array('jpg', 'jpeg', 'png', 'gif'))) {
-            $this->set('thumb', $path);
-        }
+        // Apply filters in meta file
         $this->reset();
 
         return $this;
-    }
-
-    /**
-     * Add alternative Medium to this Medium.
-     *
-     * @param $ratio
-     * @param Medium $alternative
-     */
-    public function addAlternative($ratio, Medium $alternative)
-    {
-        if (!is_numeric($ratio) || $ratio === 0) {
-            return;
-        }
-
-        $alternative->set('ratio', $ratio);
-
-        $this->alternatives[(float) $ratio] = $alternative;
-    }
-
-    public function getAlternatives()
-    {
-        return $this->alternatives;
     }
 
     /**

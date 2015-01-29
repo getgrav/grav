@@ -10,7 +10,7 @@ use Grav\Common\Service\StreamsServiceProvider;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
-use Grav\Common\Page\Medium;
+use Grav\Common\Page\Medium\Medium;
 
 /**
  * Grav
