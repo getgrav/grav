@@ -293,7 +293,7 @@ class Page
         $content = $this->content();
 
         // Return summary based on settings in site config file
-        if (!$config->get('site.summary.enabled', TRUE)) {
+        if (!$config->get('site.summary.enabled', true)) {
             return $content;
         }
 

@@ -198,7 +198,7 @@ class Assets
 
             // Strip query from pathinfo extension
             $query_pos = strpos($extension, '?');
-            if ($query_pos !== FALSE) {
+            if ($query_pos !== false) {
                 $extension = substr($extension, 0, $query_pos);
             }
 
