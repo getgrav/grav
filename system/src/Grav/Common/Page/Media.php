@@ -93,9 +93,9 @@ class Media extends Getters
                     }
                 }
 
-                $medium = $medium ? $medium : $this->scaleMedium($altMedium, $alternative, 1);
+                $medium = $medium ? $medium : $this->scaleMedium($altMedium, $extra, 1);
                 
-                $medium->addAlternative($this->parseRatio($alternative), $altMedium);
+                $medium->addAlternative($this->parseRatio($extra), $altMedium);
             }
 
             $this->add("{$basename}.{$ext}", $medium);
