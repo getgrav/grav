@@ -193,13 +193,21 @@ class Assets
         } elseif (isset($this->collections[$asset])) {
             $this->add($this->collections[$asset], $priority, $pipeline);
         } else {
+            // Get extension
+            $extension = pathinfo($asset, PATHINFO_EXTENSION);
+
+            // Strip query from pathinfo extension
+            $query_pos = strpos($extension, '?');
+            if ($query_pos !== FALSE) {
+                $extension = substr($extension, 0, $query_pos);
+            }
+
             // JavaScript or CSS
-            $info = pathinfo($asset);
-            if (isset($info['extension'])) {
-                $ext = strtolower($info['extension']);
-                if ($ext === 'css') {
+            if (strlen($extension) > 0) {
+                $extension = strtolower($extension);
+                if ($extension === 'css') {
                     $this->addCss($asset, $priority, $pipeline);
-                } elseif ($ext === 'js') {
+                } elseif ($extension === 'js') {
                     $this->addJs($asset, $priority, $pipeline);
                 }
             }
