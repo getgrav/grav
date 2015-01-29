@@ -194,13 +194,7 @@ class Assets
             $this->add($this->collections[$asset], $priority, $pipeline);
         } else {
             // Get extension
-            $extension = pathinfo($asset, PATHINFO_EXTENSION);
-
-            // Strip query from pathinfo extension
-            $query_pos = strpos($extension, '?');
-            if ($query_pos !== false) {
-                $extension = substr($extension, 0, $query_pos);
-            }
+            $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
 
             // JavaScript or CSS
             if (strlen($extension) > 0) {
