@@ -281,6 +281,17 @@ class Page
     }
 
     /**
+     * Modify a header value directly
+     *
+     * @param $key
+     * @param $value
+     */
+    public function modifyHeader($key, $value)
+    {
+        $this->header->$key = $value;
+    }
+
+    /**
      * Get the summary.
      *
      * @param int $size  Max summary size.

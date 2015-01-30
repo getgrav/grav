@@ -27,6 +27,10 @@ class Plugin implements EventSubscriberInterface
     protected $config;
 
     protected $active = true;
+    /**
+     * @var \Grav\Common\string
+     */
+    protected $name;
 
     /**
      * By default assign all methods as listeners using the default priority.
@@ -50,13 +54,15 @@ class Plugin implements EventSubscriberInterface
     /**
      * Constructor.
      *
-     * @param Grav $grav
-     * @param Config $config
+     * @param string              $name
+     * @param Grav                $grav
+     * @param Config              $config
      */
-    public function __construct(Grav $grav, Config $config)
+    public function __construct($name, Grav $grav, Config $config)
     {
         $this->grav = $grav;
         $this->config = $config;
+        $this->name = $name;
     }
 
     public function isAdmin()
@@ -112,47 +118,35 @@ class Plugin implements EventSubscriberInterface
     /**
      * Merge global and page configurations.
      *
-     * @param  Page   $page The page to merge the configurations with the
+     * @param  Page  $page  The page to merge the configurations with the
      *                      plugin settings.
+     *
+     * @return \Grav\Common\Data\Data
      */
     protected function mergeConfig(Page $page)
     {
-        static $className;
+        $class_name = $this->name;
+        $class_name_merged = $class_name . '.merged';
+        $defaults = $this->config->get('plugins.' . $class_name, array());
+        $header = array();
 
-        if ( is_null($className) ) {
-            // Load configuration based on class name
-            $reflector = new \ReflectionClass($this);
-
-            // Remove namespace and trailing "Plugin" word
-            $name = $reflector->getShortName();
-            $name = substr($name, 0, -strlen('Plugin'));
-
-            // Guess configuration path from class name
-            $class_formats = array(
-                strtolower($name),                # all lowercased
-                Inflector::underscorize($name),   # underscored
-            );
-
-            $defaults = array();
-            // Try to load configuration
-            foreach ( $class_formats as $name ) {
-                if ( !is_null($this->config->get('plugins.' . $name, NULL)) ) {
-                    $className = $name;
-                    break;
-                }
+        if (isset($page->header()->$class_name_merged)) {
+            $merged = $page->header()->$class_name_merged;
+            if (count($merged) > 0) {
+                return $merged;
+            } else {
+                return new Data($defaults);
             }
         }
 
         // Get default plugin configurations and retrieve page header configuration
-        $plugin = (array) $this->config->get('plugins.' . $className, array());
-        $header = (array) $page->header();
+        if (isset($page->header()->$class_name)) {
+            $header =  array_merge($defaults, $page->header()->$class_name);
+        }
 
-        // Create new config data class
-        $config = new Data();
-
-        // Join configuration options
-        $config->setDefaults($header);
-        $config->joinDefaults($className, $plugin);
+        // Create new config object and set it on the page object so it's cached for next time
+        $config = new Data($header);
+        $page->modifyHeader($class_name_merged, $config);
 
         // Return configurations as a new data config class
         return $config;
