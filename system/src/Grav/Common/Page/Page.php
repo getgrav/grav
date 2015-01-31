@@ -352,7 +352,6 @@ class Page
 
         // If no content, process it
         if ($this->content === null) {
-
             // Get media
             $this->media();
 
@@ -370,7 +369,6 @@ class Page
 
             // if no cached-content run everything
             if ($this->content == false) {
-
                 $this->content = $this->raw_content;
                 self::$grav->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
