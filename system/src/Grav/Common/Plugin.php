@@ -142,6 +142,8 @@ class Plugin implements EventSubscriberInterface
         // Get default plugin configurations and retrieve page header configuration
         if (isset($page->header()->$class_name)) {
             $header =  array_merge($defaults, $page->header()->$class_name);
+        } else {
+            $header = $defaults;
         }
 
         // Create new config object and set it on the page object so it's cached for next time
