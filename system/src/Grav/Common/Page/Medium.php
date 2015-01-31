@@ -49,9 +49,24 @@ class Medium extends Data
 
     protected $type = 'guess';
     protected $quality = 85;
+    protected $debug_watermarked = false;
 
-    public static $valid_actions = ['resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
+    public static $valid_actions = [
+        // Medium functions
+        'format', 'lightbox', 'link', 'reset',
+
+        // Gregwar Image functions
+        'resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
+
+    public static $size_param_actions = [
+        'resize' => [ 0, 1 ],
+        'forceResize' => [ 0, 1 ],
+        'cropResize' => [ 0, 1 ],
+        'crop' => [ 0, 1, 2, 3 ],
+        'cropResize' => [ 0, 1 ],
+        'zoomCrop' => [ 0, 1 ]
+    ];
 
     /**
      * @var array
@@ -59,15 +74,31 @@ class Medium extends Data
     protected $meta = array();
 
     /**
-     * @var string
+     * @var array
      */
-    protected $linkTarget;
+    protected $alternatives = array();
 
     /**
      * @var string
      */
-    protected $linkAttributes;
+    protected $linkTarget;
 
+        /**
+     * @var string
+     */
+    protected $linkSrcset;
+
+    /**
+     * @var string
+     */
+    protected $linkAttributes = [];
+
+    /**
+     * Construct.
+     *
+     * @param array $items
+     * @param Blueprint $blueprint
+     */
     public function __construct($items = array(), Blueprint $blueprint = null)
     {
         parent::__construct($items, $blueprint);
@@ -89,7 +120,16 @@ class Medium extends Data
             $this->def('mime', 'application/octet-stream');
         }
 
+        $debug = self::$grav['config']->get('system.images.debug');
+        // try to override with page setting if possible
+        $page = self::$grav['page'];
+        if (!is_null($page)) {
+            if (isset($page->header()->images['debug'])) {
+                $debug =  $page->header()->images['debug'];
+            }
+        }
 
+        $this->set('debug', $debug);
     }
 
     /**
@@ -109,16 +149,144 @@ class Medium extends Data
      */
     public function path()
     {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-
         if ($this->image) {
-            $output = $this->image->cacheFile($this->type, $this->quality);
+            $output = $this->saveImage();
             $this->reset();
-            $output = ROOT_DIR . $output;
+            $output = GRAV_ROOT . '/' . $output;
         } else {
             $output = $this->get('path') . '/' . $this->get('filename');
         }
+        return $output;
+    }
+
+    /**
+     * Return URL to file.
+     *
+     * @param bool $reset
+     * @return string
+     */
+    public function url($reset = true)
+    {
+        if ($this->image) {
+            $output = '/' . $this->saveImage();
+
+            if ($reset) {
+                $this->reset();
+            }
+        } else {
+            $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
+        }
+
+        return self::$grav['base_url'] . $output;
+    }
+
+
+    /**
+     * Return srcset string for this Medium and its alternatives.
+     *
+     * @param bool $reset
+     * @return string
+     */
+    public function srcset($reset = true)
+    {
+        if (empty($this->alternatives)) {
+            if ($reset) {
+                $this->reset();
+            }
+            return '';
+        }
+
+        $srcset = [ $this->url($reset) . ' ' . $this->get('width') . 'w' ];
+
+        foreach ($this->alternatives as $ratio => $medium) {
+            $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
+        }
+
+        return implode(', ', $srcset);
+    }
+
+    /**
+     * Returns <img> tag from the medium.
+     *
+     * @param string $title
+     * @param string $class
+     * @param string $type
+     * @param int $quality
+     * @param bool $reset
+     * @return string
+     */
+    public function img($title = null, $class = null, $type = null, $quality = 80, $reset = true)
+    {
+        if (!$this->image) {
+            $this->image();
+        }
+
+        $output = $this->html($title, $class, $type, $quality, $reset);
+
+        return $output;
+    }
+
+    /**
+     * Return HTML markup from the medium.
+     *
+     * @param string $title
+     * @param string $class
+     * @param bool $reset
+     * @return string
+     */
+    public function html($title = null, $class = null, $reset = true)
+    {
+        $data = $this->htmlRaw($reset);
+
+        $title = $title ? $title : $this->get('title');
+        $class = $class ? $class : '';
+
+        if ($this->image) {
+            $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
+            $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
+        } else {
+            $output = $data['text'];
+        }
+
+        if (isset($data['a_href'])) {
+            $attributes = '';
+            foreach ($data['a_attributes'] as $prop => $value) {
+                $attributes .= " {$prop}=\"{$value}\"";
+            }
+
+            $output = '<a href="' . $data['a_href'] . '"' . $attributes . ' class="'. $class . '">' . $output . '</a>';
+        }
+
+        return $output;
+    }
+
+    /**
+     * Return HTML array from medium.
+     *
+     * @param bool   $reset
+     * @param string $title
+     *
+     * @return array
+     */
+    public function htmlRaw($reset = true, $title = '')
+    {
+        $output = [];
+
+        if ($this->image) {
+            $output['img_src'] = $this->url(false);
+            $output['img_srcset'] = $this->srcset($reset);
+        } else {
+            $output['text'] = $title;
+        }
+
+        if ($this->linkTarget) {
+            $output['a_href'] = $this->linkTarget;
+            $output['a_attributes'] = $this->linkAttributes;
+
+            $this->linkTarget = null;
+            $this->linkAttributes = [];
+        }
+
         return $output;
     }
 
@@ -131,24 +299,6 @@ class Medium extends Data
     {
         $this->quality = $quality;
         return $this;
-    }
-
-    /**
-     * Return URL to file.
-     *
-     * @return string
-     */
-    public function url()
-    {
-        if ($this->image) {
-            $output = $this->image->cacheFile($this->type, $this->quality);
-            $this->reset();
-        } else {
-            $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
-            $output = $relPath . '/' . $this->get('filename');
-        }
-
-        return self::$grav['base_url'] . '/'. $output;
     }
 
     /**
@@ -170,111 +320,45 @@ class Medium extends Data
     }
 
     /**
-     * Returns <img> tag from the medium.
+     * Enable link for the medium object.
      *
-     * @param string $title
-     * @param string $class
-     * @param string $type
-     * @param int $quality
-     * @return string
-     */
-    public function img($title = null, $class = null, $type = null, $quality = 80)
-    {
-        if (!$this->image) {
-            $this->image();
-        }
-
-        $output = $this->html($title, $class, $type, $quality);
-
-        return $output;
-    }
-
-    /**
-     * Return HTML markup from the medium.
-     *
-     * @param string $title
-     * @param string $class
-     * @param string $type
-     * @param int $quality
-     * @return string
-     */
-    public function html($title = null, $class = null, $type = null, $quality = 80)
-    {
-        $title = $title ? $title : $this->get('title');
-        $class = $class ? $class : '';
-
-        if ($this->image) {
-            $type = $type ? $type : $this->type;
-            $quality = $quality ? $quality : $this->quality;
-
-            $url = $this->url($type, $quality);
-            $this->reset();
-
-            $output = '<img src="' . $url . '" class="'. $class . '" alt="' . $title . '" />';
-        } else {
-            $output = $title;
-        }
-
-        if ($this->linkTarget) {
-            /** @var Config $config */
-            $config = self::$grav['config'];
-
-            $output = '<a href="' . self::$grav['base_url'] . '/'. $this->linkTarget
-                . '"' . $this->linkAttributes. ' class="'. $class . '">' . $output . '</a>';
-
-            $this->linkTarget = $this->linkAttributes = null;
-        }
-
-        return $output;
-    }
-
-    /**
-     * Return lightbox HTML for the medium.
-     *
-     * @param int $width
-     * @param int $height
-     * @return $this
-     */
-    public function lightbox($width = null, $height = null)
-    {
-        $this->linkAttributes = ' rel="lightbox"';
-
-        return $this->link($width, $height);
-    }
-
-    public function lightboxRaw($width = null, $height = null)
-    {
-        /** @var Config $config */
-        $config = self::$grav['config'];
-        $url = $this->url();
-        $this->link($width, $height);
-        $lightbox_url = self::$grav['base_url'] . '/'. $this->linkTarget;
-
-        return array('a_url' => $lightbox_url, 'a_rel' => 'lightbox', 'img_url' => $url);
-    }
-
-    /**
-     * Return link HTML for the medium.
-     *
-     * @param int $width
-     * @param int $height
+     * @param null $width
+     * @param null $height
      * @return $this
      */
     public function link($width = null, $height = null)
     {
         if ($this->image) {
-            $image = clone $this->image;
             if ($width && $height) {
-                $image->cropResize($width, $height);
+                $this->cropResize($width, $height);
             }
-            $this->linkTarget = $image->cacheFile($this->type, $this->quality);
+
+            $this->linkTarget = $this->url(false);
+            $srcset = $this->srcset();
+
+            if ($srcset) {
+                $this->linkAttributes['data-srcset'] = $srcset;
+            }
         } else {
             // TODO: we need to find out URI in a bit better way.
-            $relPath = preg_replace('|^' . ROOT_DIR . '|', '', $this->get('path'));
-            $this->linkTarget = $relPath. '/' . $this->get('filename');
+            $this->linkTarget = self::$grav['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
         }
 
         return $this;
+    }
+
+    /**
+     * Enable lightbox for the medium.
+     *
+     * @param null $width
+     * @param null $height
+     * @return Medium
+     */
+    public function lightbox($width = null, $height = null)
+    {
+        $this->linkAttributes['rel'] = 'lightbox';
+
+        return $this->link($width, $height);
     }
 
     /**
@@ -292,6 +376,7 @@ class Medium extends Data
         }
         $this->type = 'guess';
         $this->quality = 80;
+        $this->debug_watermarked = false;
 
         return $this;
     }
@@ -316,6 +401,20 @@ class Medium extends Data
 
         try {
             $result = call_user_func_array(array($this->image, $method), $args);
+
+            foreach ($this->alternatives as $ratio => $medium) {
+                $args_copy = $args;
+
+                if (isset(self::$size_param_actions[$method])) {
+                    foreach (self::$size_param_actions[$method] as $param) {
+                        if (isset($args_copy[$param])) {
+                            $args_copy[$param] = (int) $args_copy[$param] * $ratio;
+                        }
+                    }
+                }
+
+                call_user_func_array(array($medium, $method), $args_copy);
+            }
         } catch (\BadFunctionCallException $e) {
             $result = null;
         }
@@ -332,16 +431,43 @@ class Medium extends Data
      */
     public function image($variable = 'thumb')
     {
+        $locator = self::$grav['locator'];
+
         // TODO: add default file
         $file = $this->get($variable);
         $this->image = ImageFile::open($file)
-            ->setCacheDir(basename(IMAGES_DIR))
-            ->setActualCacheDir(IMAGES_DIR)
+            ->setCacheDir($locator->findResource('cache://images', false))
+            ->setActualCacheDir($locator->findResource('cache://images', true))
             ->setPrettyName(basename($this->get('basename')));
 
         $this->filter();
 
         return $this;
+    }
+
+    /**
+     * Save the image with cache.
+     *
+     * @return mixed|string
+     */
+    protected function saveImage()
+    {
+        if (!$this->image) {
+            $this->image();
+        }
+
+        if ($this->get('debug') && !$this->debug_watermarked) {
+            $ratio = $this->get('ratio');
+            if (!$ratio) {
+                $ratio = 1;
+            }
+
+            $locator = self::$grav['locator'];
+            $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
+            $this->image->merge(ImageFile::open($overlay));
+        }
+
+        return $this->image->cacheFile($this->type, $this->quality);
     }
 
     /**
@@ -363,6 +489,28 @@ class Medium extends Data
         $this->reset();
 
         return $this;
+    }
+
+    /**
+     * Add alternative Medium to this Medium.
+     *
+     * @param $ratio
+     * @param Medium $alternative
+     */
+    public function addAlternative($ratio, Medium $alternative)
+    {
+        if (!is_numeric($ratio) || $ratio === 0) {
+            return;
+        }
+
+        $alternative->set('ratio', $ratio);
+
+        $this->alternatives[(float) $ratio] = $alternative;
+    }
+
+    public function getAlternatives()
+    {
+        return $this->alternatives;
     }
 
     /**

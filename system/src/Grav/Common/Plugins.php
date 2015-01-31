@@ -69,7 +69,7 @@ class Plugins extends Iterator
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $plugin));
             }
 
-            $instance = new $pluginClassName($this->grav, $config);
+            $instance = new $pluginClassName($plugin, $this->grav, $config);
             if ($instance instanceof EventSubscriberInterface) {
                 $events->addSubscriber($instance);
             }

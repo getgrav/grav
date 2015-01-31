@@ -109,7 +109,7 @@ class Grav extends Container
                 // special  case where a media file is requested
                 $path_parts = pathinfo($path);
 
-                $page = $c['pages']->dispatch($path_parts['dirname']);
+                $page = $c['pages']->dispatch($path_parts['dirname'], true);
                 if ($page) {
                     $media = $page->media()->all();
                     $media_file = urldecode($path_parts['basename']);

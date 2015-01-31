@@ -14,6 +14,7 @@ trait ParsedownGravTrait
 {
     use GravTrait;
     protected $page;
+    protected $pages;
     protected $base_url;
     protected $pages_dir;
     protected $special_chars;
@@ -28,6 +29,7 @@ trait ParsedownGravTrait
     protected function init($page)
     {
         $this->page = $page;
+        $this->pages = self::$grav['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
         $this->base_url = rtrim(self::$grav['base_url'] . self::$grav['pages']->base(), '/');
         $this->pages_dir = self::$grav['locator']->findResource('page://');
@@ -90,7 +92,9 @@ trait ParsedownGravTrait
             $excerpt = parent::inlineImage($excerpt);
         }
 
+        // Some stuff we will need
         $actions = array();
+        $media = null;
 
         // if this is an image
         if (isset($excerpt['element']['attributes']['src'])) {
@@ -101,20 +105,31 @@ trait ParsedownGravTrait
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
 
-            //get back to current page if possible
+            $path_parts = pathinfo($url['path']);
 
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
-                // get the media objects for this page
-                $media = $this->page->media();
 
                 // get the local path to page media if possible
-                if (strpos($url['path'], $this->page->url()) !== false) {
+                if ($path_parts['dirname'] == $this->page->url()) {
                     $url['path'] = ltrim(str_replace($this->page->url(), '', $url['path']), '/');
+                    // get the media objects for this page
+                    $media = $this->page->media();
+
+                } else {
+
+                    // see if this is an external page to this one
+                    $page_route = str_replace($this->base_url, '', $path_parts['dirname']);
+
+                    $ext_page = $this->pages->dispatch($page_route, true);
+                    if ($ext_page) {
+                        $media = $ext_page->media();
+                        $url['path'] = $path_parts['basename'];
+                    }
                 }
 
                 // if there is a media file that matches the path referenced..
-                if (isset($media->images()[$url['path']])) {
+                if ($media && isset($media->images()[$url['path']])) {
                     // get the medium object
                     $medium = $media->images()[$url['path']];
 
@@ -131,27 +146,42 @@ trait ParsedownGravTrait
                         }
                     }
 
-                    // Get the URL for regular images, or an array of bits needed to put together
-                    // the lightbox HTML
-                    if (!isset($actions['lightbox'])) {
-                        $src = $medium->url();
-                    } else {
-                        $src = $medium->lightboxRaw();
-                    }
+                    $data = $medium->htmlRaw();
 
                     // set the src element with the new generated url
-                    if (!isset($actions['lightbox']) && !is_array($src)) {
-                        $excerpt['element']['attributes']['src'] = $src;
+                    if (!isset($actions['lightbox'])) {
+                        $excerpt['element']['attributes']['src'] = $data['img_src'];
+
+                        if ($data['img_srcset']) {
+                            $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
+                            $excerpt['element']['attributes']['sizes'] = '100vw';
+                        }
+
                     } else {
                         // Create the custom lightbox element
+                        
+                        $attributes = $data['a_attributes'];
+                        $attributes['href'] = $data['a_href'];
+
+                        $img_attributes = [
+                            'src' => $data['img_src'],
+                            'alt' => $alt,
+                            'title' => $title
+                        ];
+
+                        if ($data['img_srcset']) {
+                            $img_attributes['srcset'] = $data['img_srcset'];
+                            $img_attributes['sizes'] = '100vw';
+                        }
+
                         $element = array(
                             'name' => 'a',
-                            'attributes' => array('rel' => $src['a_rel'], 'href' => $src['a_url']),
+                            'attributes' => $attributes,
                             'handler' => 'element',
                             'text' => array(
                                 'name' => 'img',
-                                'attributes' => array('src' => $src['img_url'], 'alt' => $alt, 'title' => $title)
-                            ),
+                                'attributes' => $img_attributes
+                            )
                         );
 
                         // Set any custom classes on the lightbox element
@@ -164,7 +194,7 @@ trait ParsedownGravTrait
                     }
                 } else {
                     // not a current page media file, see if it needs converting to relative
-                    $excerpt['element']['attributes']['src'] = $this->convertUrl(Uri::build_url($url));
+                    $excerpt['element']['attributes']['src'] = Uri::build_url($url);
                 }
             }
         }

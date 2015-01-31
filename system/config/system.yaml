@@ -63,3 +63,6 @@ debugger:
   twig: true                           # Enable debugging of Twig templates
   shutdown:
     close_connection: true             # Close the connection before calling onShutdown(). false for debugging
+
+images:
+  debug: false                         # Show an overlay over images indicating the pixel depth of the image when working with retina for example

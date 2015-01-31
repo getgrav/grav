@@ -18,6 +18,6 @@ class Theme extends Plugin
     {
         $this->name = $name;
 
-        parent::__construct($grav, $config);
+        parent::__construct($name, $grav, $config);
     }
 }

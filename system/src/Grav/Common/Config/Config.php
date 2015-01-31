@@ -21,6 +21,12 @@ class Config extends Data
 {
     protected $grav;
     protected $streams = [
+        'system' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['system'],
+            ]
+        ],
         'user' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
@@ -60,7 +66,8 @@ class Config extends Data
         'cache' => [
             'type' => 'Stream',
             'prefixes' => [
-                '' => ['cache']
+                '' => ['cache'],
+                'images' => ['images']
             ]
         ],
         'log' => [

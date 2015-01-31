@@ -1,3 +1,22 @@
+# v0.9.16
+## 01/30/2015
+
+1. [](#new)
+    * Added **Retina** and **Responsive** image support via Grav media and `srcset` image attribute
+    * Added image debug option that overlays responsive resolution
+    * Added a new image cache stream
+2. [](#improved)
+    * Improved the markdown Lightbox functionality to better mimic Twig version
+    * Fullsize Lightbox can now have filters applied
+    * Added a new `mergeConfig()` method to Plugin class to merge system + page header configuration
+    * Added a new `disable()` method to Plugin class to programatically disable a plugin
+    * Updated Parsedown and Parsedown Extra to address bugs
+    * Various PSR fixes
+3. [](#bugfix)
+     * Fix bug with image dispatch in traditionally _non-routable_ pages
+     * Fix for markdown link not working on non-current pages
+     * Fix for markdown images not being found on homepage
+
 # v0.9.15
 ## 01/23/2015
 

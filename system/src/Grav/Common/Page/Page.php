@@ -281,6 +281,17 @@ class Page
     }
 
     /**
+     * Modify a header value directly
+     *
+     * @param $key
+     * @param $value
+     */
+    public function modifyHeader($key, $value)
+    {
+        $this->header->$key = $value;
+    }
+
+    /**
      * Get the summary.
      *
      * @param int $size  Max summary size.
@@ -288,7 +299,14 @@ class Page
      */
     public function summary($size = null)
     {
+        /** @var Config $config */
+        $config = self::$grav['config'];
         $content = $this->content();
+
+        // Return summary based on settings in site config file
+        if (!$config->get('site.summary.enabled', true)) {
+            return $content;
+        }
 
         // Return calculated summary based on summary divider's position
         if (!$size && isset($this->summary_size)) {
@@ -296,14 +314,12 @@ class Page
         }
 
         // Return calculated summary based on setting in site config file
-        /** @var Config $config */
-        $config = self::$grav['config'];
-        if (!$size && $config->get('site.summary.size')) {
+        if (is_null($size) && $config->get('site.summary.size')) {
             $size = $config->get('site.summary.size');
         }
 
         // Return calculated summary based on defaults
-        if (!$size) {
+        if (!is_numeric($size) || ($size < 0)) {
             $size = 300;
         }
 
@@ -336,7 +352,6 @@ class Page
 
         // If no content, process it
         if ($this->content === null) {
-
             // Get media
             $this->media();
 
@@ -354,7 +369,6 @@ class Page
 
             // if no cached-content run everything
             if ($this->content == false) {
-
                 $this->content = $this->raw_content;
                 self::$grav->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 

@@ -193,13 +193,15 @@ class Assets
         } elseif (isset($this->collections[$asset])) {
             $this->add($this->collections[$asset], $priority, $pipeline);
         } else {
+            // Get extension
+            $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
+
             // JavaScript or CSS
-            $info = pathinfo($asset);
-            if (isset($info['extension'])) {
-                $ext = strtolower($info['extension']);
-                if ($ext === 'css') {
+            if (strlen($extension) > 0) {
+                $extension = strtolower($extension);
+                if ($extension === 'css') {
                     $this->addCss($asset, $priority, $pipeline);
-                } elseif ($ext === 'js') {
+                } elseif ($extension === 'js') {
                     $this->addJs($asset, $priority, $pipeline);
                 }
             }
