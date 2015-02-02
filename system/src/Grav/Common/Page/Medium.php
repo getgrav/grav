@@ -120,16 +120,7 @@ class Medium extends Data
             $this->def('mime', 'application/octet-stream');
         }
 
-        $debug = self::$grav['config']->get('system.images.debug');
-        // try to override with page setting if possible
-        $page = self::$grav['page'];
-        if (!is_null($page)) {
-            if (isset($page->header()->images['debug'])) {
-                $debug =  $page->header()->images['debug'];
-            }
-        }
-
-        $this->set('debug', $debug);
+        $this->set('debug', self::$grav['config']->get('system.images.debug'));
     }
 
     /**
