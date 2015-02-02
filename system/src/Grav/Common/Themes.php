@@ -145,10 +145,19 @@ class Themes extends Iterator
             $class = include $file;
 
             if (!is_object($class)) {
-                $className = '\\Grav\\Theme\\' . ucfirst($name);
 
-                if (class_exists($className)) {
-                    $class = new $className($grav, $config, $name);
+                $themeClassFormat = [
+                    'Grav\\Theme\\'.ucfirst($name),
+                    'Grav\\Theme\\'.Inflector::camelize($name)
+                ];
+                $themeClassName = false;
+
+                foreach ($themeClassFormat as $themeClass) {
+                    if (class_exists($themeClass)) {
+                        $themeClassName = $themeClass;
+                        $class = new $themeClassName($grav, $config, $name);
+                        break;
+                    }
                 }
             }
         } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
