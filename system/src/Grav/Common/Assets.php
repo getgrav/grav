@@ -301,6 +301,7 @@ class Assets
      */
     public function addInlineCss($asset, $priority = 10)
     {
+        $asset = (string) $asset;
         $key = md5($asset);
         if (is_string($asset) && !array_key_exists($key, $this->inline_css)) {
             $this->inline_css[$key] = [
@@ -326,6 +327,7 @@ class Assets
      */
     public function addInlineJs($asset, $priority = 10)
     {
+        $asset = (string) $asset;
         $key = md5($asset);
         if (is_string($asset) && !array_key_exists($key, $this->inline_js)) {
             $this->inline_js[$key] = [
