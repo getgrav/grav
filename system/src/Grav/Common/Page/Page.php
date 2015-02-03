@@ -308,25 +308,30 @@ class Page
             return $content;
         }
 
+        // Get summary size from site config's file
+        if (is_null($size)) {
+            $size = $config->get('site.summary.size', null);
+        }
+
         // Return calculated summary based on summary divider's position
-        if (!$size && isset($this->summary_size)) {
+        $format = $config->get('site.summary.format', 'short');
+        // Return entire page content on wrong/ unknown format
+        if (!in_array($format, array('short', 'long'))) {
+            return $content;
+        } elseif (($format === 'short') && isset($this->summary_size)) {
             return substr($content, 0, $this->summary_size);
         }
 
-        // Return calculated summary based on setting in site config file
-        if (is_null($size) && $config->get('site.summary.size')) {
-            $size = $config->get('site.summary.size');
-        }
-
+        // If the size is zero, return the entire page content
+        if ($size === 0) {
+            return $content;
         // Return calculated summary based on defaults
-        if (!is_numeric($size) || ($size < 0)) {
+        } elseif (!is_numeric($size) || ($size < 0)) {
             $size = 300;
         }
 
         return Utils::truncateHTML($content, $size);
     }
-
-
 
     /**
      * Gets and Sets the content based on content portion of the .md file
