@@ -46,7 +46,8 @@ abstract class Utils
      * @param $dir
      * @return bool
      */
-    public static function rrmdir($dir) {
+    public static function rrmdir($dir)
+    {
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST
@@ -55,9 +56,13 @@ abstract class Utils
         /** @var \DirectoryIterator $fileinfo */
         foreach ($files as $fileinfo) {
             if ($fileinfo->isDir()) {
-                if (false === rmdir($fileinfo->getRealPath())) return false;
+                if (false === rmdir($fileinfo->getRealPath())) {
+                    return false;
+                }
             } else {
-                if (false === unlink($fileinfo->getRealPath())) return false;
+                if (false === unlink($fileinfo->getRealPath())) {
+                    return false;
+                }
             }
         }
 
@@ -74,7 +79,8 @@ abstract class Utils
      * @param  bool   $considerHtml
      * @return string
      */
-    public static function truncateHtml($text, $length = 100, $ending = '...', $exact = false, $considerHtml = true) {
+    public static function truncateHtml($text, $length = 100, $ending = '...', $exact = false, $considerHtml = true)
+    {
         $open_tags = array();
         if ($considerHtml) {
             // if the plain text is shorter than the maximum length, return the whole text
