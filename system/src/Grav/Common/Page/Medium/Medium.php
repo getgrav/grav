@@ -7,6 +7,7 @@ use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
+use Grav\Common\Markdown\Parsedown;
 use Gregwar\Image\Image as ImageFile;
 
 /**
@@ -38,19 +39,15 @@ class Medium extends Data
 {
     use GravTrait;
 
-    public static $valid_actions = [
-        'format', 'lightbox', 'link', 'reset',
-    ];
+    /**
+     * @var \Grav\Common\Markdown\Parsedown
+     */
+    protected $parsedown = null;
 
     /**
      * @var Medium[]
      */
     protected $alternatives = array();
-
-    /**
-     * @var string
-     */
-    protected $linkTarget;
 
     /**
      * @var string
@@ -130,48 +127,44 @@ class Medium extends Data
      * @param bool $reset
      * @return string
      */
-    public function html($title = null, $class = null, $reset = true)
+    public function html($title = null, $alt = null, $class = null, $reset = true)
     {
-        $data = $this->htmlRaw($reset);
+        $element = $this->parsedownElement($title, $alt, $class, $reset);
 
-        $output = $data['text'];
-
-        if (isset($data['a_href'])) {
-            
-            $attributes = '';
-            foreach ($data['a_attributes'] as $prop => $value) {
-                $attributes .= " {$prop}=\"{$value}\"";
-            }
-
-            $output = '<a href="' . $data['a_href'] . '"' . $attributes . ' class="'. $class . '">' . $output . '</a>';
+        if (!$this->parsedown) {
+            $this->parsedown = new Parsedown(null);
         }
 
-        return $output;
+        return $this->parsedown->elementToHtml($element);
     }
 
-    /**
-     * Return HTML array from medium.
-     *
-     * @param bool   $reset
-     * @param string $title
-     *
-     * @return array
-     */
-    public function htmlRaw($reset = true, $title = '')
+    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
     {
-        $data = [
-            'text' => $title ? $title : $this->path($reset)
+        $text = $title ? $title : $this->path($reset);
+        $text_attributes = [];
+
+        if ($class) {
+            $text_attributes['class'] = $class;
+        }
+
+        $element = [
+            'name' => 'p',
+            'text' => $text,
+            'attributes' => $attributes
         ];
 
-        if ($this->linkTarget) {
-            $output['a_href'] = $this->linkTarget;
-            $output['a_attributes'] = $this->linkAttributes;
+        if ($this->linkAttributes) {
+            $element = [
+                'name' => 'a',
+                'handler' => 'element',
+                'text' => $element,
+                'attributes' => $this->linkAttributes
+            ];
 
-            $this->linkTarget = null;
             $this->linkAttributes = [];
         }
 
-        return $output;
+        return $element;
     }
 
     /**
@@ -181,10 +174,10 @@ class Medium extends Data
      * @param null $height
      * @return $this
      */
-    public function link($width = null, $height = null)
+    public function link($width = null, $height = null, $reset = true)
     {        
         // TODO: we need to find out URI in a bit better way.
-        $this->linkTarget = self::$grav['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('filepath'));
+        $this->linkAttributes['href'] = self::$grav['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('filepath'));
 
         return $this;
     }
@@ -196,7 +189,7 @@ class Medium extends Data
      * @param null $height
      * @return Medium
      */
-    public function lightbox($width = null, $height = null)
+    public function lightbox($width = null, $height = null, $reset = true)
     {
         $this->linkAttributes['rel'] = 'lightbox';
 
@@ -233,7 +226,6 @@ class Medium extends Data
      */
     public function addMetaFile($filepath)
     {
-        self::$grav['debugger']->addMessage($filepath);
         $this->merge(CompiledYamlFile::instance($filepath)->content());
 
         return $this;

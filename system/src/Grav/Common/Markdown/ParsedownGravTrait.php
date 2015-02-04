@@ -37,6 +37,17 @@ trait ParsedownGravTrait
     }
 
     /**
+     * Make the element function publicly accessible, Medium uses this to render from Twig
+     * 
+     * @param  array  $Element
+     * @return string markup
+     */
+    public function elementToHtml(array $Element)
+    {
+        return $this->element($Element);
+    }
+
+    /**
      * Setter for special chars
      *
      * @param $special_chars
@@ -101,6 +112,7 @@ trait ParsedownGravTrait
 
             $alt = $excerpt['element']['attributes']['alt'] ?: '';
             $title = $excerpt['element']['attributes']['title'] ?: '';
+            $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
 
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
@@ -129,9 +141,9 @@ trait ParsedownGravTrait
                 }
 
                 // if there is a media file that matches the path referenced..
-                if ($media && isset($media->images()[$url['path']])) {
+                if ($media && isset($media->all()[$url['path']])) {
                     // get the medium object
-                    $medium = $media->images()[$url['path']];
+                    $medium = $media->all()[$url['path']];
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
@@ -140,58 +152,10 @@ trait ParsedownGravTrait
 
                     // loop through actions for the image and call them
                     foreach ($actions as $action => $params) {
-                        // as long as it's a valid action
-                        if (in_array($action, $medium::$valid_actions)) {
-                            call_user_func_array(array(&$medium, $action), explode(',', $params));
-                        }
+                        call_user_func_array(array(&$medium, $action), explode(',', $params));
                     }
 
-                    $data = $medium->htmlRaw();
-
-                    // set the src element with the new generated url
-                    if (!isset($actions['lightbox'])) {
-                        $excerpt['element']['attributes']['src'] = $data['img_src'];
-
-                        if ($data['img_srcset']) {
-                            $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
-                            $excerpt['element']['attributes']['sizes'] = '100vw';
-                        }
-
-                    } else {
-                        // Create the custom lightbox element
-                        
-                        $attributes = $data['a_attributes'];
-                        $attributes['href'] = $data['a_href'];
-
-                        $img_attributes = [
-                            'src' => $data['img_src'],
-                            'alt' => $alt,
-                            'title' => $title
-                        ];
-
-                        if ($data['img_srcset']) {
-                            $img_attributes['srcset'] = $data['img_srcset'];
-                            $img_attributes['sizes'] = '100vw';
-                        }
-
-                        $element = array(
-                            'name' => 'a',
-                            'attributes' => $attributes,
-                            'handler' => 'element',
-                            'text' => array(
-                                'name' => 'img',
-                                'attributes' => $img_attributes
-                            )
-                        );
-
-                        // Set any custom classes on the lightbox element
-                        if (isset($excerpt['element']['attributes']['class'])) {
-                            $element['attributes']['class'] = $excerpt['element']['attributes']['class'];
-                        }
-
-                        // Set the lightbox element on the Excerpt
-                        $excerpt['element'] = $element;
-                    }
+                    $excerpt['element'] = $medium->parseDownElement($title, $alt, $class);
                 } else {
                     // not a current page media file, see if it needs converting to relative
                     $excerpt['element']['attributes']['src'] = Uri::build_url($url);

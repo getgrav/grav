@@ -9,30 +9,6 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Gregwar\Image\Image as ImageFile;
 
-/**
- * The Image medium holds information related to an individual image. These are then stored in the Media object.
- *
- * @author RocketTheme
- * @license MIT
- *
- * @property string $file_name
- * @property string $type
- * @property string $name       Alias of file_name
- * @property string $description
- * @property string $url
- * @property string $path
- * @property string $thumb
- * @property int    $width
- * @property int    $height
- * @property string $mime
- * @property int    $modified
- *
- * Medium can have up to 3 files:
- * - video.mov              Medium file itself.
- * - video.mov.meta.yaml    Metadata for the medium.
- * - video.mov.thumb.jpg    Thumbnail image for the medium.
- *
- */
 class ImageMedium extends Medium
 {
     /**
@@ -46,13 +22,11 @@ class ImageMedium extends Medium
     
     protected $debug_watermarked = false;
 
-    public static $valid_actions = [
-        // Medium functions
-        'format', 'lightbox', 'link', 'reset',
-
-        // Gregwar Image functions
-        'resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
-        'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
+    public static $magic_actions = [
+        'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
+        'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
+        'smooth', 'sharp', 'edge', 'colorize', 'sepia'
+    ];
 
     public static $size_param_actions = [
         'resize' => [ 0, 1 ],
@@ -139,62 +113,77 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Return HTML markup from the medium.
-     *
-     * @param string $title
-     * @param string $class
-     * @param bool $reset
-     * @return string
+     * Called from Parsedown (ParsedownGravTrait::inlineImage calls this method on the Medium)
      */
-    public function html($title = null, $class = null, $reset = true)
+    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
     {
-        $data = $this->htmlRaw($reset);
-
-        $title = $title ? $title : $this->get('title');
-        $class = $class ? $class : '';
-
-        $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
-        $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
-
-        if (isset($data['a_href'])) {
-            $attributes = '';
-            foreach ($data['a_attributes'] as $prop => $value) {
-                $attributes .= " {$prop}=\"{$value}\"";
-            }
-
-            $output = '<a href="' . $data['a_href'] . '"' . $attributes . ' class="'. $class . '">' . $output . '</a>';
+        $outer_attributes = [];
+        $image_attributes = [
+            'src' => $this->url(false),
+        ];
+        
+        $srcset = $this->srcset($reset);
+        if ($srcset) {
+            $image_attributes['srcset'] = $srcset;
+            $image_attributes['sizes'] = '100vw';
         }
 
-        return $output;
-    }
+        if ($title) {
+            $image_attributes['title'] = $title;
+            $outer_attributes['title'] = $title;
+        }
 
-    /**
-     * Return HTML array from medium.
-     *
-     * @param bool   $reset
-     * @param string $title
-     *
-     * @return array
-     */
-    public function htmlRaw($reset = true, $title = '')
-    {
-        $output = [];
+        if ($alt) {
+            $image_attributes['alt'] = $alt;
+        }
 
-        $output['img_src'] = $this->url(false);
-        $output['img_srcset'] = $this->srcset($reset);
+        if ($class) {
+            $image_attributes['class'] = $class;
+            $outer_attributes['class'] = $class;
+        }
 
-        if ($this->linkTarget) {
-            $output['a_href'] = $this->linkTarget;
-            $output['a_attributes'] = $this->linkAttributes;
+        $element = [ 'name' => 'image', 'attributes' => $image_attributes ];
+        
+        if ($this->linkAttributes) {
+            $element = [
+                'name' => 'a',
+                'handler' => 'element',
+                'text' => $element,
+                'attributes' => $this->linkAttributes
+            ];
 
-            $this->linkTarget = null;
             $this->linkAttributes = [];
         }
 
-        return $output;
+        $element['attributes'] = array_merge($outer_attributes, $element['attributes']);
+
+        return $element;
     }
 
     /**
+     * Enable link for the medium object.
+     *
+     * @param null $width
+     * @param null $height
+     * @return $this
+     */
+    public function link($width = null, $height = null, $reset = true)
+    {
+        if ($width && $height) {
+            $this->cropResize($width, $height);
+        }
+
+        $this->linkAttributes['href'] = $this->url(false);
+        $srcset = $this->srcset($reset);
+
+        if ($srcset) {
+            $this->linkAttributes['data-srcset'] = $srcset;
+        }
+
+        return $this;
+    }
+
+        /**
      * Sets the quality of the image
      * @param  Int $quality 0-100 quality
      * @return Medium
@@ -216,29 +205,6 @@ class ImageMedium extends Medium
     {
         $this->type = $type;
         $this->quality = $quality;
-        return $this;
-    }
-
-    /**
-     * Enable link for the medium object.
-     *
-     * @param null $width
-     * @param null $height
-     * @return $this
-     */
-    public function link($width = null, $height = null)
-    {
-        if ($width && $height) {
-            $this->cropResize($width, $height);
-        }
-
-        $this->linkTarget = $this->url(false);
-        $srcset = $this->srcset();
-
-        if ($srcset) {
-            $this->linkAttributes['data-srcset'] = $srcset;
-        }
-
         return $this;
     }
 
@@ -274,6 +240,10 @@ class ImageMedium extends Medium
             $method = 'zoomCrop';
         }
 
+        if (!in_array($method, self::$magic_actions)) {
+            return $this;
+        }
+
         // Always initialize image.
         if (!$this->image) {
             $this->image();
@@ -285,6 +255,8 @@ class ImageMedium extends Medium
             foreach ($this->alternatives as $ratio => $medium) {
                 $args_copy = $args;
 
+                // regular image: resize 400x400 -> 200x200
+                // --> @2x: resize 800x800->400x400
                 if (isset(self::$size_param_actions[$method])) {
                     foreach (self::$size_param_actions[$method] as $param) {
                         if (isset($args_copy[$param])) {

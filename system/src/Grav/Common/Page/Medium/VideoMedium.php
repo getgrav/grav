@@ -9,112 +9,70 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Gregwar\Image\Image as ImageFile;
 
-/**
- * The Image medium holds information related to an individual image. These are then stored in the Media object.
- *
- * @author RocketTheme
- * @license MIT
- *
- * @property string $file_name
- * @property string $type
- * @property string $name       Alias of file_name
- * @property string $description
- * @property string $url
- * @property string $path
- * @property string $thumb
- * @property int    $width
- * @property int    $height
- * @property string $mime
- * @property int    $modified
- *
- * Medium can have up to 3 files:
- * - video.mov              Medium file itself.
- * - video.mov.meta.yaml    Metadata for the medium.
- * - video.mov.thumb.jpg    Thumbnail image for the medium.
- *
- */
 class VideoMedium extends Medium
 {
     protected $mode = 'video';
 
     protected $videoAttributes = [];
 
-	public static $valid_actions = [
-        // Medium functions
-        'format', 'lightbox', 'link', 'reset',
-
+	public static $magic_actions = [
         // Gregwar OR internal depending on context
         'resize',
 
         // Gregwar Image functions
         'forceResize', 'cropResize', 'crop', 'cropZoom',
-        'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
-
-    public static $valid_video_actions = [
-        'lightbox', 'link', 'reset', 'resize'
+        'negate', 'brightness', 'contrast', 'grayscale',
+        'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia'
     ];
 
-	public function html($title = null, $class = null, $reset = true)
-	{
-		$data = $this->htmlRaw(false);
-        if ($reset) {
-            $this->reset();
-        }
+    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
+    {
+        $element;
 
-        $title = $title ? $title : $this->get('title');
-        $class = $class ? $class : '';
+        if (!$this->linkAttributes) {
+            $video_location = $this->url(false);
+            $video_attributes = $this->video_attributes;
+            $video_attributes['controls'] = true;
 
-        if (isset($data['a_href'])) {
+            if ($reset) {
+                $this->reset();
+            }
 
-            $thumb = $this->get('thumb');
-            if ($thumb) {
-                $output = $thumb->html($reset);
+            $element = [
+                'name' => 'video',
+                'text' => '<source src="' . $video_location . '">Your browser does not support the video tag.',
+                'attributes' => $video_attributes
+            ];
+        } else {
+
+            $thumbnail = $this->get('thumb');
+            if ($thumbnail) {
+                $innerElement = $thumbnail->parsedownElement($title, $alt, $class, $reset);
             } else {
-                $output = $title ? $title : $this->get('basename');
+                $innerElement = $title ? $title : $this->path(false);
             }
 
-            $attributes = '';
-            foreach ($data['a_attributes'] as $prop => $value) {
-                $attributes .= " {$prop}=\"{$value}\"";
+            $link_attributes = $this->linkAttributes;
+
+            if ($class) {
+                $link_attributes['class'] = $class;
             }
 
-            $output = '<a href="' . $data['a_href'] . '"' . $attributes . ' class="'. $class . '">' . $output . '</a>';
-        } else {
-            $attributes = '';
-            foreach ($data['video_attributes'] as $prop => $value) {
-                $attributes .= " {$prop}=\"{$value}\"";
-            }
+            $element = [
+                'name' => 'a',
+                'attributes' => $this->linkAttributes,
+                'handler' => is_string($innerElement) ? 'line' : 'element',
+                'text' => $innerElement
+            ];
 
-            $output = '<video class="'. $class . '" alt="' . $title . '"' . $attributes . ' controls><source src="' . $data['video_src'] . '" type="' . $this->get('mime') . '">Your browser does not support the video tag.</video>';
-        }
-
-        return $output;
-	}
-
-	public function htmlRaw($reset = true, $title = '')
-	{
-		$output = [];
-
-        if ($this->linkTarget) {
-            $output['a_href'] = $this->linkTarget;
-            $output['a_attributes'] = $this->linkAttributes;
-
-            $this->linkTarget = null;
             $this->linkAttributes = [];
-
-            $thumb = $this->get('thumb');
-            if ($thumb) {
-                $raw_thumb = $thumb->htmlRaw($reset);
-
-                $output['thumb_src'] = $raw_thumb['img_src'];
+            if ($reset) {
+                $this->reset();
             }
-        } else {
-            $output['video_src'] = $this->url($reset);
-            $output['video_attributes'] = $this->videoAttributes;
         }
 
-        return $output;
-	}
+        return $element;
+    }
 
     /**
      * Enable link for the medium object.
@@ -123,14 +81,18 @@ class VideoMedium extends Medium
      * @param null $height
      * @return $this
      */
-    public function link($width = null, $height = null)
+    public function link($width = null, $height = null, $reset = true)
     {
-        // TODO: we need to find out URI in a bit better way.
-        $this->linkTarget = $this->url();
+        $this->linkAttributes['href'] = $this->url();
                 
         $this->mode = 'thumb';
 
         return $this;
+    }
+
+    public function reset()
+    {
+        $this->videoAttributes = [];
     }
 
     protected function _resize($width = null, $height = null)
@@ -160,17 +122,19 @@ class VideoMedium extends Medium
         if ($mode == 'video') {
 
             $target = $this;
+            $valid = in_array($method, self::$magic_actions);
+
             $method = '_' . $method;
 
         } else if ($mode == 'thumb') {
 
             $target = $this->get('thumb');
+            $target_class = get_class($target);
+            $valid = $target && in_array($method, $target_class::$magic_actions);
 
         }
 
-        self::$grav['debugger']->addMessage('Calling ' . $method . ' on ' . $mode);
-
-        if ($target) {
+        if ($valid) {
             try {
                 $result = call_user_func_array(array($target, $method), $args);
             } catch (\BadFunctionCallException $e) {
