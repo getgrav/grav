@@ -76,7 +76,6 @@ class Media extends Getters
                         $medium->set('thumb', $thumbnail);
                 }
             } else {
-
                 $altMedium = $this->createMedium($info->getPathname());
                 
                 if (!$altMedium) {
@@ -100,7 +99,6 @@ class Media extends Getters
 
             $this->add("{$basename}.{$ext}", $medium);
         }
-
         foreach ($this->all() as $medium) {
 
             $thumb = $medium->get('thumb');
@@ -328,7 +326,7 @@ class Media extends Getters
         $type = 'base';
         $extra = null;
 
-        if (preg_match('/(.+)@(\d+x)\.(.+)$/', $name, $matches)) {
+        if (preg_match('/(.*)@(\d+x)\.(.*)$/', $filename, $matches)) {
             $name = $matches[1];
             $extension = $matches[3];
             $type = 'alternative';
