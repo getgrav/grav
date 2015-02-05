@@ -36,9 +36,9 @@ class Popularity
 
     public function __construct()
     {
-        $this->config = self::$grav['config'];
+        $this->config = self::getGrav()['config'];
 
-        $this->data_path = self::$grav['locator']->findResource('log://') . 'popularity';
+        $this->data_path = self::getGrav()['locator']->findResource('log://') . 'popularity';
         $this->daily_file = $this->data_path.'/'.self::DAILY_FILE;
         $this->monthly_file = $this->data_path.'/'.self::MONTHLY_FILE;
         $this->totals_file = $this->data_path.'/'.self::TOTALS_FILE;
@@ -49,8 +49,8 @@ class Popularity
     public function trackHit()
     {
         /** @var Page $page */
-        $page = self::$grav['page'];
-        $relative_url = str_replace(self::$grav['base_url_relative'], '', $page->url());
+        $page = self::getGrav()['page'];
+        $relative_url = str_replace(self::getGrav()['base_url_relative'], '', $page->url());
 
         // Don't track error pages or pages that have no route
         if ($page->template() == 'error' || !$page->route()) {
@@ -74,7 +74,7 @@ class Popularity
         $this->updateDaily();
         $this->updateMonthly();
         $this->updateTotals($page->route());
-        $this->updateVisitors(self::$grav['uri']->ip());
+        $this->updateVisitors(self::getGrav()['uri']->ip());
 
     }
 
