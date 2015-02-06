@@ -163,8 +163,8 @@ class Assets
     public function init()
     {
         /** @var Config $config */
-        $config = self::$grav['config'];
-        $base_url = self::$grav['base_url'];
+        $config = self::getGrav()['config'];
+        $base_url = self::getGrav()['base_url'];
         $asset_config = (array)$config->get('system.assets');
 
         $this->config($asset_config);
@@ -301,6 +301,9 @@ class Assets
      */
     public function addInlineCss($asset, $priority = 10)
     {
+        if (is_a($asset, 'Twig_Markup')) {
+            $asset = strip_tags((string)$asset);
+        }
         $key = md5($asset);
         if (is_string($asset) && !array_key_exists($key, $this->inline_css)) {
             $this->inline_css[$key] = [
@@ -326,6 +329,9 @@ class Assets
      */
     public function addInlineJs($asset, $priority = 10)
     {
+        if (is_a($asset, 'Twig_Markup')) {
+            $asset = strip_tags((string)$asset);
+        }
         $key = md5($asset);
         if (is_string($asset) && !array_key_exists($key, $this->inline_js)) {
             $this->inline_js[$key] = [
@@ -352,7 +358,7 @@ class Assets
         }
 
         // Sort array by priorities (larger priority first)
-        if (self::$grav) {
+        if (self::getGrav()) {
             usort($this->css, function ($a, $b) {
                 if ($a['priority'] == $b['priority']) {
                     return $b['order'] - $a['order'];
@@ -465,7 +471,7 @@ class Assets
     protected function pipeline($css = true)
     {
         /** @var Cache $cache */
-        $cache = self::$grav['cache'];
+        $cache = self::getGrav()['cache'];
         $key = '?' . $cache->getKey();
 
         if ($css) {
@@ -681,7 +687,7 @@ class Assets
     protected function buildLocalLink($asset)
     {
         try {
-            $asset = self::$grav['locator']->findResource($asset, false);
+            $asset = self::getGrav()['locator']->findResource($asset, false);
         } catch (\Exception $e) {
         }
 

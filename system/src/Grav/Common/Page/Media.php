@@ -55,7 +55,7 @@ class Media extends Getters
             $medium = $this->get("{$basename}.{$ext}");
 
             if (!$alternative) {
-                
+
                 $medium = $medium ? $medium : $this->createMedium($info->getPathname());
 
                 if (!$medium) {
@@ -70,7 +70,7 @@ class Media extends Getters
             } else {
 
                 $altMedium = $this->createMedium($info->getPathname());
-                
+
                 if (!$altMedium) {
                     continue;
                 }
@@ -86,7 +86,7 @@ class Media extends Getters
                 }
 
                 $medium = $medium ? $medium : $this->scaleMedium($altMedium, $alternative, 1);
-                
+
                 $medium->addAlternative($this->parseRatio($alternative), $altMedium);
             }
 
@@ -186,7 +186,7 @@ class Media extends Getters
      * Create a Medium object from a file
      *
      * @param string $file
-     * 
+     *
      * @return Medium|null
      */
     protected function createMedium($file)
@@ -202,7 +202,7 @@ class Media extends Getters
         $basename = implode('.', $parts);
 
         /** @var Config $config */
-        $config = self::$grav['config'];
+        $config = self::getGrav()['config'];
 
         // Check if medium type has been configured.
         $params = $config->get("media.".strtolower($ext));
@@ -224,7 +224,7 @@ class Media extends Getters
             'modified' => filemtime($file),
         );
 
-        $locator = self::$grav['locator'];
+        $locator = self::getGrav()['locator'];
 
         $lookup = $locator->findResources('image://');
         foreach ($lookup as $lookupPath) {
@@ -257,7 +257,7 @@ class Media extends Getters
         $medium->set('debug', false);
 
         $file = $medium->resize($width, $height)->setPrettyName($basename)->url();
-        $file = preg_replace('|'. preg_quote(self::$grav['base_url_relative']) .'$|', '', GRAV_ROOT) . $file;
+        $file = preg_replace('|'. preg_quote(self::getGrav()['base_url_relative']) .'$|', '', GRAV_ROOT) . $file;
 
         $medium->set('debug', $debug);
 

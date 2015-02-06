@@ -54,7 +54,7 @@ class Plugins extends Iterator
 
             $pluginClassFormat = [
                 'Grav\\Plugin\\'.ucfirst($plugin).'Plugin',
-                'Grav\\Plugin\\'.str_replace(['_','-'], '', $plugin).'Plugin'
+                'Grav\\Plugin\\'.Inflector::camelize($plugin).'Plugin'
             ];
             $pluginClassName = false;
 

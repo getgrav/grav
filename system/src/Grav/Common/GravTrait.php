@@ -13,6 +13,9 @@ trait GravTrait
      */
     public function getGrav()
     {
+        if (!self::$grav) {
+            self::$grav = Grav::instance();
+        }
         return self::$grav;
     }
 

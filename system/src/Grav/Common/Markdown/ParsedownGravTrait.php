@@ -29,10 +29,10 @@ trait ParsedownGravTrait
     protected function init($page)
     {
         $this->page = $page;
-        $this->pages = self::$grav['pages'];
+        $this->pages = self::getGrav()['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->base_url = rtrim(self::$grav['base_url'] . self::$grav['pages']->base(), '/');
-        $this->pages_dir = self::$grav['locator']->findResource('page://');
+        $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
+        $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
     }
 
@@ -159,7 +159,7 @@ trait ParsedownGravTrait
 
                     } else {
                         // Create the custom lightbox element
-                        
+
                         $attributes = $data['a_attributes'];
                         $attributes['href'] = $data['a_href'];
 

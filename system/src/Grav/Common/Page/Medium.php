@@ -120,16 +120,7 @@ class Medium extends Data
             $this->def('mime', 'application/octet-stream');
         }
 
-        $debug = self::$grav['config']->get('system.images.debug');
-        // try to override with page setting if possible
-        $page = self::$grav['page'];
-        if (!is_null($page)) {
-            if (isset($page->header()->images['debug'])) {
-                $debug =  $page->header()->images['debug'];
-            }
-        }
-
-        $this->set('debug', $debug);
+        $this->set('debug', self::getGrav()['config']->get('system.images.debug'));
     }
 
     /**
@@ -177,7 +168,7 @@ class Medium extends Data
             $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
         }
 
-        return self::$grav['base_url'] . $output;
+        return self::getGrav()['base_url'] . $output;
     }
 
 
@@ -341,7 +332,7 @@ class Medium extends Data
             }
         } else {
             // TODO: we need to find out URI in a bit better way.
-            $this->linkTarget = self::$grav['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
+            $this->linkTarget = self::getGrav()['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('path')) . '/' . $this->get('filename');
         }
 
         return $this;
@@ -431,7 +422,7 @@ class Medium extends Data
      */
     public function image($variable = 'thumb')
     {
-        $locator = self::$grav['locator'];
+        $locator = self::getGrav()['locator'];
 
         // TODO: add default file
         $file = $this->get($variable);
@@ -462,7 +453,7 @@ class Medium extends Data
                 $ratio = 1;
             }
 
-            $locator = self::$grav['locator'];
+            $locator = self::getGrav()['locator'];
             $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
             $this->image->merge(ImageFile::open($overlay));
         }

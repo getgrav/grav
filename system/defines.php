@@ -2,7 +2,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '0.9.16');
+define('GRAV_VERSION', '0.9.17');
 define('DS', '/');
 
 // Directories and Paths
@@ -40,6 +40,3 @@ define('RAW_CONTENT', 1);
 define('TWIG_CONTENT', 2);
 define('TWIG_CONTENT_LIST', 3);
 define('TWIG_TEMPLATES', 4);
-
-// Misc Defines
-define('SUMMARY_DELIMITER', '===');
