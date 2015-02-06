@@ -39,6 +39,10 @@ class Medium extends Data
 {
     use GravTrait;
 
+    protected $mode = 'medium';
+
+    public static $magic_actions = [];
+
     /**
      * @var \Grav\Common\Markdown\Parsedown
      */
@@ -140,28 +144,47 @@ class Medium extends Data
 
     public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
     {
-        $text = $title ? $title : $this->path($reset);
-        $text_attributes = [];
+        $element;
 
-        if ($class) {
-            $text_attributes['class'] = $class;
-        }
+        if (!$this->linkAttributes) {
+            $text = $title ? $title : $this->url($reset);
+            $text_attributes = [];
 
-        $element = [
-            'name' => 'p',
-            'text' => $text,
-            'attributes' => $attributes
-        ];
+            if ($class) {
+                $text_attributes['class'] = $class;
+            }
 
-        if ($this->linkAttributes) {
+            $element = [
+                'name' => 'p',
+                'text' => $text,
+                'attributes' => $text_attributes
+            ];
+        } else {
+
+            $thumbnail = $this->get('thumb');
+            if ($thumbnail) {
+                $innerElement = $thumbnail->parsedownElement($title, $alt, $class, $reset);
+            } else {
+                $innerElement = $title ? $title : $this->url(false);
+            }
+
+            $link_attributes = $this->linkAttributes;
+
+            if ($class) {
+                $link_attributes['class'] = $class;
+            }
+
             $element = [
                 'name' => 'a',
-                'handler' => 'element',
-                'text' => $element,
-                'attributes' => $this->linkAttributes
+                'attributes' => $this->linkAttributes,
+                'handler' => is_string($innerElement) ? 'line' : 'element',
+                'text' => $innerElement
             ];
 
             $this->linkAttributes = [];
+            if ($reset) {
+                $this->reset();
+            }
         }
 
         return $element;
@@ -175,9 +198,15 @@ class Medium extends Data
      * @return $this
      */
     public function link($width = null, $height = null, $reset = true)
-    {        
-        // TODO: we need to find out URI in a bit better way.
-        $this->linkAttributes['href'] = self::$grav['base_url'] . preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('filepath'));
+    {
+        $this->linkAttributes['href'] = $this->url();
+        
+        if ($width && $height) {
+            $this->linkAttributes['data-width'] = $width;
+            $this->linkAttributes['data-height'] = $height;
+        }
+                
+        $this->mode = 'thumb';
 
         return $this;
     }
@@ -215,6 +244,40 @@ class Medium extends Data
      */
     public function __call($method, $args)
     {
+        if ($method == 'cropZoom') {
+            $method = 'zoomCrop';
+        }
+
+        $mode = $this->mode;
+        $target = null;
+
+        if ($mode == 'medium') {
+
+            $target = $this;
+            $valid = in_array($method, static::$magic_actions);
+
+            $method = '_' . $method;
+
+        } else if ($mode == 'thumb') {
+
+            $target = $this->get('thumb');
+            $target_class = get_class($target);
+            $valid = $target && in_array($method, $target_class::$magic_actions);
+
+        }
+
+        if ($valid) {
+            try {
+                $result = call_user_func_array(array($target, $method), $args);
+            } catch (\BadFunctionCallException $e) {
+                $result = null;
+            }
+
+            if ($mode == 'thumb' && $result) {
+                $this->set('thumb', $result);
+            }
+        }
+
         return $this;
     }
 

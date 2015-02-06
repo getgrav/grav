@@ -107,7 +107,7 @@ class Media extends Getters
                 $thumb = $this->createMedium($thumb);
 
                 if ($thumb) {
-                    $thumb->set('size', filesize($thumb));
+                    $thumb->set('size', filesize($thumb->path()));
                     $medium->set('thumb', $thumb);
                 } else {
                     $medium->set('thumb', null);
@@ -249,8 +249,8 @@ class Media extends Getters
 
         $lookup = $locator->findResources('image://');
         foreach ($lookup as $lookupPath) {
-            if (is_file($lookupPath . $params['thumb'])) {
-                $params['thumb'] = $lookupPath . $params['thumb'];
+            if (is_file($lookupPath . '/' . $params['thumb'])) {
+                $params['thumb'] = $lookupPath . '/' . $params['thumb'];
                 break;
             }
         }
