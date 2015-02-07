@@ -1136,7 +1136,7 @@ class Page
             // Path to the page.
             $this->path = dirname(dirname($var));
         }
-        return $this->path . '/' . $this->folder . '/' . ($this->name ? $this->name : '');
+        return $this->path . '/' . $this->folder . '/' . ($this->name ?: '');
     }
 
     /**
