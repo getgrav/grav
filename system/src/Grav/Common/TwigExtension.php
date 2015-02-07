@@ -49,6 +49,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
+            new \Twig_SimpleFilter('absoluteUrl', [$this, 'absoluteUrlFilter'])
         ];
     }
 
@@ -314,6 +315,14 @@ class TwigExtension extends \Twig_Extension
         }
 
         return "$difference $periods[$j] {$tense}";
+    }
+
+    public function absoluteUrlFilter($string)
+    {
+        $url = $this->grav['uri']->base();
+        $string = preg_replace('/((?:href|src) *= *[\'"](?!(http|ftp)))/i', "$1$url", $string);
+        return $string;
+
     }
 
     /**
