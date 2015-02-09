@@ -49,7 +49,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
-            new \Twig_SimpleFilter('absoluteUrl', [$this, 'absoluteUrlFilter'])
+            new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter'])
         ];
     }
 
@@ -165,8 +165,8 @@ class TwigExtension extends \Twig_Extension
      * {{ 'send_email'|camelize }} => SendEmail
      * {{ 'CamelCased'|underscorize }} => camel_cased
      * {{ 'Something Text'|hyphenize }} => something-text
-     * {{ 'something text to read'|humanize }} => "Something text to read"
-     * {{ '181'|monthize}} => 6
+     * {{ 'something_text_to_read'|humanize }} => "Something text to read"
+     * {{ '181'|monthize }} => 6
      * {{ '10'|ordinalize }} => 10th
      *
      * @param string $action
