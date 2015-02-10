@@ -34,6 +34,13 @@ trait ParsedownGravTrait
         $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
+
+        $defaults = self::getGrav()['config']->get('system.pages.markdown');
+
+        $this->setBreaksEnabled($defaults['auto_line_breaks']);
+        $this->setUrlsLinked($defaults['auto_url_links']);
+        $this->setMarkupEscaped($defaults['escape_markup']);
+        $this->setSpecialChars($defaults['special_chars']);
     }
 
     /**

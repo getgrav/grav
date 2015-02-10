@@ -449,11 +449,6 @@ class Page
             $parsedown = new Parsedown($this);
         }
 
-        $parsedown->setBreaksEnabled($defaults['auto_line_breaks']);
-        $parsedown->setUrlsLinked($defaults['auto_url_links']);
-        $parsedown->setMarkupEscaped($defaults['escape_markup']);
-        $parsedown->setSpecialChars($defaults['special_chars']);
-
         $this->content = $parsedown->text($this->content);
     }
 
@@ -947,7 +942,6 @@ class Page
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
             $this->metadata = array();
             $page_header = $this->header;
