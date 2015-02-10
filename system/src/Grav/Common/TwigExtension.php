@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Markdown\Parsedown;
+use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 
@@ -49,7 +51,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
-            new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter'])
+            new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
+            new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter'])
         ];
     }
 
@@ -323,6 +326,23 @@ class TwigExtension extends \Twig_Extension
         $string = preg_replace('/((?:href|src) *= *[\'"](?!(http|ftp)))/i', "$1$url", $string);
         return $string;
 
+    }
+
+    public function markdownFilter($string)
+    {
+        $page = $this->grav['page'];
+        $defaults = $this->grav['config']->get('system.pages.markdown');
+
+        // Initialize the preferred variant of Parsedown
+        if ($defaults['extra']) {
+            $parsedown = new ParsedownExtra($page);
+        } else {
+            $parsedown = new Parsedown($page);
+        }
+
+        $string = $parsedown->text($string);
+
+        return $string;
     }
 
     /**
