@@ -29,6 +29,16 @@ abstract class Utils
     }
 
     /**
+     * @param  string  $haystack
+     * @param  string  $needle
+     * @return bool
+     */
+    public static function contains($haystack, $needle)
+    {
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+
+    /**
      * Merge two objects into one.
      *
      * @param  object $obj1
