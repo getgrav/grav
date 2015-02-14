@@ -172,11 +172,6 @@ class Grav extends Container
             ob_start('ob_gzhandler');
         }
 
-        // Initialize the timezone
-        if ($this['config']->get('system.timezone')) {
-            date_default_timezone_set($this['config']->get('system.timezone'));
-        }
-
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
 
@@ -187,6 +182,11 @@ class Grav extends Container
         $debugger->init();
         $this['config']->debug();
         $debugger->stopTimer('_config');
+
+        // Initialize the timezone
+        if ($this['config']->get('system.timezone')) {
+            date_default_timezone_set($this['config']->get('system.timezone'));
+        }
 
         $debugger->startTimer('streams', 'Streams');
         $this['streams'];
