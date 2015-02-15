@@ -47,7 +47,8 @@ class Plugins extends Iterator
 
             $filePath = $this->grav['locator']('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
             if (!is_file($filePath)) {
-                throw new \RuntimeException(sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $plugin));
+                $this->grav['log']->addWarning(sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $plugin));
+                continue;
             }
 
             require_once $filePath;

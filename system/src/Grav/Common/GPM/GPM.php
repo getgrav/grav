@@ -1,7 +1,9 @@
 <?php
 namespace Grav\Common\GPM;
 
+use Grav\Common\Inflector;
 use Grav\Common\Iterator;
+use Grav\Common\Utils;
 
 class GPM extends Iterator
 {
@@ -27,6 +29,8 @@ class GPM extends Iterator
      * @var
      */
     protected $cache;
+
+    protected $install_paths = ['plugins' => 'user/plugins/%name%', 'themes' => 'user/themes/%name%', 'skeletons' => 'user/'];
 
     /**
      * Creates a new GPM instance with Local and Remote packages available
@@ -347,7 +351,20 @@ class GPM extends Iterator
         $packages = ['total' => 0, 'not_found' => []];
 
         foreach ($searches as $search) {
+            $repository = '';
+            // if this is an object, get the search data from the key
+            if (is_object($search)) {
+                $search = (array) $search;
+                $key = key($search);
+                $repository = $search[$key];
+                $search = $key;
+            }
+
             if ($found = $this->findPackage($search)) {
+                // set override respository if provided
+                if ($repository) {
+                    $found->override_repository = $repository;
+                }
                 if (!isset($packages[$found->package_type])) {
                     $packages[$found->package_type] = [];
                 }
@@ -355,7 +372,19 @@ class GPM extends Iterator
                 $packages[$found->package_type][$found->slug] = $found;
                 $packages['total']++;
             } else {
-                $packages['not_found'][] = $search;
+                // make a best guess at the type based on the repo URL
+                if (Utils::contains($repository, '-theme')) {
+                    $type = 'themes';
+                } else {
+                    $type = 'plugins';
+                }
+
+                $not_found = new \stdClass();
+                $not_found->name = Inflector::camelize($search);
+                $not_found->slug = $search;
+                $not_found->install_path = str_replace('%name%', $search, $this->install_paths[$type]);
+                $not_found->override_repository = $repository;
+                $packages['not_found'][$search] = $not_found;
             }
         }
 
