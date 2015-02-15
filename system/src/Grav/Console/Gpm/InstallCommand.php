@@ -189,6 +189,8 @@ class InstallCommand extends Command
 
         if (count($install_options) == 0) {
             // no valid install options - error and return
+            $this->output->writeln("<red>not valid installation methods found!</red>");
+            return;
         } elseif (count($install_options) == 1) {
             // only one option, use it...
             $method = $install_options[0];
@@ -264,21 +266,26 @@ class InstallCommand extends Command
                     $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                     $this->output->writeln('');
                 } else {
+                    if (file_exists($to)) {
+                        $this->output->writeln("  '- <red>Symlink cannot overwrite an existing folder</red>");
+                        $this->output->writeln('');
+                    } else {
+                        symlink($from, $to);
 
-                    symlink($from, $to);
+                        // extra white spaces to clear out the buffer properly
+                        $this->output->writeln("  |- Symlinking package...    <green>ok</green>                             ");
 
-                    // extra white spaces to clear out the buffer properly
-                    $this->output->writeln("  |- Symlinking package...    <green>ok</green>                             ");
+                        $this->output->writeln("  '- <green>Success!</green>  ");
+                        $this->output->writeln('');
+                    }
 
-                    $this->output->writeln("  '- <green>Success!</green>  ");
-                    $this->output->writeln('');
 
                 }
                 return;
-            } else {
-                $this->output->writeln("<red>not found!</red>");
             }
         }
+        $this->output->writeln("<red>not found!</red>");
+        $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
     }
 
     /**
