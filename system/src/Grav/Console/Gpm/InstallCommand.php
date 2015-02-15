@@ -220,7 +220,7 @@ class InstallCommand extends Command
             // Demo content exists, prompt to install it.
             $this->output->writeln("<white>Attention: </white><cyan>".$package->name . "</cyan> contains demo content");
             $helper = $this->getHelper('question');
-            $question = new ConfirmationQuestion('Do you wish to install this demo content? <red>(DANGER: May merge or overwrite existing user data)</red> [y|N]', false);
+            $question = new ConfirmationQuestion('Do you wish to install this demo content? <red>(DANGER: May merge or overwrite existing user data)</red> [y|N] ', false);
 
             if (!$helper->ask($this->input, $this->output, $question)) {
                 $this->output->writeln("  '- <red>Skipped!</red>  ");
