@@ -297,7 +297,7 @@ class InstallCommand extends Command
 
         $to = $this->destination . DS . $package->install_path;
 
-        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan>");
+        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan> from " . $matches[0]);
 
         $this->output->write("  |- Checking destination...  ");
         $checks = $this->checkDestination($package);
