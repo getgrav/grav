@@ -267,7 +267,7 @@ class InstallCommand extends Command
                     $this->output->writeln('');
                 } else {
                     if (file_exists($to)) {
-                        $this->output->writeln("  '- <red>Symlink cannot overwrite an existing folder</red>");
+                        $this->output->writeln("  '- <red>Symlink cannot overwrite an existing package, please remove first</red>");
                         $this->output->writeln('');
                     } else {
                         symlink($from, $to);
