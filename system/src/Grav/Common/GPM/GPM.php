@@ -1,7 +1,9 @@
 <?php
 namespace Grav\Common\GPM;
 
+use Grav\Common\Inflector;
 use Grav\Common\Iterator;
+use Grav\Common\Utils;
 
 class GPM extends Iterator
 {
@@ -27,6 +29,8 @@ class GPM extends Iterator
      * @var
      */
     protected $cache;
+
+    protected $install_paths = ['plugins' => 'user/plugins/%name%', 'themes' => 'user/themes/%name%', 'skeletons' => 'user/'];
 
     /**
      * Creates a new GPM instance with Local and Remote packages available
@@ -368,7 +372,17 @@ class GPM extends Iterator
                 $packages[$found->package_type][$found->slug] = $found;
                 $packages['total']++;
             } else {
+                // make a best guess at the type based on the repo URL
+                if (Utils::contains($repository, '-theme')) {
+                    $type = 'themes';
+                } else {
+                    $type = 'plugins';
+                }
+
                 $not_found = new \stdClass();
+                $not_found->name = Inflector::camelize($search);
+                $not_found->slug = $search;
+                $not_found->install_path = str_replace('%name%', $search, $this->install_paths[$type]);
                 $not_found->override_repository = $repository;
                 $packages['not_found'][$search] = $not_found;
             }

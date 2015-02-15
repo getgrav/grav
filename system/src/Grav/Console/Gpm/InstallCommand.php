@@ -5,6 +5,8 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
+use Grav\Common\Inflector;
+use Grav\Common\Utils;
 use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,6 +17,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Yaml\Yaml;
 
+define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
 
 /**
  * Class InstallCommand
@@ -46,6 +49,7 @@ class InstallCommand extends Command
     protected $tmp;
 
     protected $local_config;
+
 
     /**
      *
@@ -132,49 +136,126 @@ class InstallCommand extends Command
 
                 //Check for dependencies
                 if (isset($package->dependencies)) {
-                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has required dependencies that must be installed first...");
+                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has ". count($package->dependencies) . " required dependencies that must be installed first...");
                     $this->output->writeln('');
 
                     $dependency_data = $this->gpm->findPackages($package->dependencies);
 
                     if (!$dependency_data['total']) {
-                        $this->output->writeln("No dependcies found...");
+                        $this->output->writeln("No dependencies found...");
                         $this->output->writeln('');
                     } else {
                         unset($dependency_data['total']);
 
                         foreach($dependency_data as $type => $dep_data) {
                             foreach($dep_data as $name => $dep_package) {
-                                $this->output->writeln("Preparing to install dependency: <cyan>" . $name . "</cyan>");
+
                                 $this->processPackage($dep_package);
                             }
-
                         }
-
-//                        foreach((array)$package->dependencies as $dependency) {
-//                            if (is_object($dependency)) {
-//                                foreach($dependency as $key=>$val) {
-//                                    $dep = $key;
-//                                    $install_options[] = 'git';
-//                                }
-//                            } else {
-//                                // just name for GPM retrieval
-//                                $dep = $dependency;
-//                            }
-//
-//
-//
-//
-//                        }
                     }
                 }
 
-                $version = isset($package->available) ? $package->available : $package->version;
+                $this->processPackage($package);
+            }
+        }
 
-                $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
+        // clear cache after successful upgrade
+        $this->clearCache();
+    }
 
-                $this->output->write("  |- Downloading package...     0%");
-                $this->file = $this->downloadPackage($package);
+    /**
+     * @param $package
+     */
+    private function processPackage($package)
+    {
+        $install_options = ['GPM'];
+
+        // if no name, not found in GPM
+        if (!isset($package->version)) {
+            unset($install_options[0]);
+        }
+        // if local config found symlink is a valid option
+        if (isset($this->local_config)) {
+            $install_options[] = 'Symlink';
+        }
+        // if override set, can install via git
+        if (isset($package->override_repository)) {
+            $install_options[] = 'Git';
+        }
+
+        // reindex list
+        $install_options = array_values($install_options);
+
+        if (count($install_options) == 0) {
+            // no valid install options - error and return
+        } elseif (count($install_options) == 1) {
+            // only one option, use it...
+            $method = $install_options[0];
+        } else {
+            $helper = $this->getHelper('question');
+            $question = new ChoiceQuestion(
+                'Please select installation method for <cyan>' . $package->name . '</cyan> (<magenta>'.$install_options[0].' is default</magenta>)', array_values($install_options), 0
+            );
+            $question->setErrorMessage('Method %s is invalid');
+            $method = $helper->ask($this->input, $this->output, $question);
+        }
+
+        $this->output->writeln('');
+
+        $method_name = 'process'.$method;
+
+        $this->$method_name($package);
+    }
+
+    /**
+     * @param $package
+     *
+     * @return array
+     */
+    private function getGitRegexMatches($package)
+    {
+        if (isset($package->override_repository)) {
+            $repository = $package->override_repository;
+        } elseif (isset($package->repository)) {
+            $repository = $package->repository;
+        } else {
+            return false;
+        }
+
+        preg_match(GIT_REGEX, $repository, $matches);
+
+        return $matches;
+    }
+
+    /**
+     * @param $package
+     */
+    private function processSymlink($package)
+    {
+
+        exec('cd ' . $this->destination);
+
+        $to = $this->destination . DS . $package->install_path;
+
+        $matches = $this->getGitRegexMatches($package);
+
+        $this->output->writeln("Preparing to Symlink <cyan>" . $package->name . "</cyan>");
+        $this->output->write("  |- Checking source...  ");
+
+        foreach ($this->local_config as $path) {
+
+            if (Utils::endsWith($matches[2], '.git')) {
+                $repo_dir = preg_replace('/\.git$/', '', $matches[2]);
+            } else {
+                $repo_dir = $matches[2];
+            }
+
+            $from = rtrim($path, '/') . '/' . $repo_dir;
+
+            if (file_exists($from)) {
+
+                $this->output->writeln("<green>ok</green>");
 
                 $this->output->write("  |- Checking destination...  ");
                 $checks = $this->checkDestination($package);
@@ -183,56 +264,80 @@ class InstallCommand extends Command
                     $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                     $this->output->writeln('');
                 } else {
-                    $this->output->write("  |- Installing package...  ");
-                    //$installation = $this->installPackage($package);
-                    $installation = true;
-                    if (!$installation) {
-                        $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-                        $this->output->writeln('');
-                    } else {
-                        $this->output->writeln("  '- <green>Success!</green>  ");
-                        $this->output->writeln('');
-                    }
+
+                    symlink($from, $to);
+
+                    // extra white spaces to clear out the buffer properly
+                    $this->output->writeln("  |- Symlinking package...    <green>ok</green>                             ");
+
+                    $this->output->writeln("  '- <green>Success!</green>  ");
+                    $this->output->writeln('');
+
                 }
+                return;
+            } else {
+                $this->output->writeln("<red>not found!</red>");
             }
         }
-
-        // clear cache after successful upgrade
-        $this->clearCache();
     }
 
-    private function processPackage($package)
+    /**
+     * @param $package
+     */
+    private function processGit($package)
     {
-        $install_options = ['gpm'];
+        $matches = $this->getGitRegexMatches($package);
 
-        // if no name, not found in GPM
-        if (!isset($package->name)) {
-            unset($install_options[0]);
-        }
-        // if local config found symlink is a valid option
-        if (isset($this->local_config)) {
-            $install_options[] = 'symlink';
-        }
-        // if override set, can install via git
-        if (isset($package->override_repository)) {
-            $install_options[] = 'git';
-        }
+        $to = $this->destination . DS . $package->install_path;
 
-        if (count($install_options) == 0) {
-            // no valid install options
-        } elseif (count($install_options) == 1) {
-            // only one option, use it...
+        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan>");
+
+        $this->output->write("  |- Checking destination...  ");
+        $checks = $this->checkDestination($package);
+
+        if (!$checks) {
+            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+            $this->output->writeln('');
         } else {
-            $helper = $this->getHelper('question');
-            $install_list = array_values($install_options);
-            $default = $install_list[0];
-            $question = new ChoiceQuestion(
-                'Please select installation method ('.$default.' is default)', array_values($install_list), 0
-            );
-            $question->setErrorMessage('Method %s is invalid');
-            $method = $helper->ask($this->input, $this->output, $question);
-            $this->output->writeln('You chose: ' . $method);
+            $cmd = 'cd ' . $this->destination . ' && git clone ' . $matches[0] . ' ' . $package->install_path;
+            exec($cmd);
 
+            // extra white spaces to clear out the buffer properly
+            $this->output->writeln("  |- Cloning package...    <green>ok</green>                             ");
+
+            $this->output->writeln("  '- <green>Success!</green>  ");
+            $this->output->writeln('');
+        }
+    }
+
+    /**
+     * @param $package
+     */
+    private function processGPM($package)
+    {
+        $version = isset($package->available) ? $package->available : $package->version;
+
+        $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
+
+        $this->output->write("  |- Downloading package...     0%");
+        $this->file = $this->downloadPackage($package);
+
+        $this->output->write("  |- Checking destination...  ");
+        $checks = $this->checkDestination($package);
+
+        if (!$checks) {
+            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+            $this->output->writeln('');
+        } else {
+            $this->output->write("  |- Installing package...  ");
+            $installation = $this->installPackage($package);
+            if (!$installation) {
+                $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+                $this->output->writeln('');
+            } else {
+                $this->output->writeln("  '- <green>Success!</green>  ");
+                $this->output->writeln('');
+            }
         }
     }
 
@@ -305,6 +410,8 @@ class InstallCommand extends Command
                 $this->output->writeln("  |     '- <red>You decided to not delete the symlink automatically.</red>");
 
                 return false;
+            } else {
+                unlink($this->destination . DS . $package->install_path);
             }
         }
 
