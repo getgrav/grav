@@ -382,6 +382,7 @@ class GPM extends Iterator
                 $not_found = new \stdClass();
                 $not_found->name = Inflector::camelize($search);
                 $not_found->slug = $search;
+                $not_found->package_type = $type;
                 $not_found->install_path = str_replace('%name%', $search, $this->install_paths[$type]);
                 $not_found->override_repository = $repository;
                 $packages['not_found'][$search] = $not_found;
