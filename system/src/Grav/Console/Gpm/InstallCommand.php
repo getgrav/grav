@@ -206,8 +206,34 @@ class InstallCommand extends Command
         $this->output->writeln('');
 
         $method_name = 'process'.$method;
-
         $this->$method_name($package);
+
+        $this->installDemoContent($package);
+    }
+
+
+    private function installDemoContent($package)
+    {
+        $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
+
+        if (file_exists($demo_dir)) {
+            // Demo content exists, prompt to install it.
+            $this->output->writeln("<white>Attention: </white><cyan>".$package->name . "</cyan> contains demo content");
+            $helper = $this->getHelper('question');
+            $question = new ConfirmationQuestion('Do you wish to install this demo content? <red>(DANGER: May merge or overwrite existing user data)</red> [y|N]', false);
+
+            if (!$helper->ask($this->input, $this->output, $question)) {
+                $this->output->writeln("  '- <red>Skipped!</red>  ");
+                $this->output->writeln('');
+                return;
+            }
+
+            // Confirmation received, copy over the data
+            $this->output->writeln("  |- Installing demo content...    <green>ok</green>                             ");
+            Utils::rcopy($demo_dir, $this->destination . DS . 'user');
+            $this->output->writeln("  '- <green>Success!</green>  ");
+            $this->output->writeln('');
+        }
     }
 
     /**
