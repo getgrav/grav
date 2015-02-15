@@ -12,6 +12,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Yaml\Yaml;
+
 
 /**
  * Class InstallCommand
@@ -41,6 +44,8 @@ class InstallCommand extends Command
      * @var
      */
     protected $tmp;
+
+    protected $local_config;
 
     /**
      *
@@ -93,6 +98,11 @@ class InstallCommand extends Command
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
+        $local_config_file = exec('eval echo ~/.grav/config');
+        if (file_exists($local_config_file)) {
+            $this->local_config = Yaml::parse($local_config_file);
+        }
+
         if (
             !Installer::isGravInstance($this->destination) ||
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
@@ -111,7 +121,7 @@ class InstallCommand extends Command
 
         if (count($this->data['not_found'])) {
             $this->output->writeln("These packages were not found on Grav: <red>" . implode('</red>, <red>',
-                    $this->data['not_found']) . "</red>");
+                    array_keys($this->data['not_found'])) . "</red>");
         }
 
         unset($this->data['not_found']);
@@ -119,7 +129,48 @@ class InstallCommand extends Command
 
         foreach ($this->data as $data) {
             foreach ($data as $package) {
+
+                //Check for dependencies
+                if (isset($package->dependencies)) {
+                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has required dependencies that must be installed first...");
+                    $this->output->writeln('');
+
+                    $dependency_data = $this->gpm->findPackages($package->dependencies);
+
+                    if (!$dependency_data['total']) {
+                        $this->output->writeln("No dependcies found...");
+                        $this->output->writeln('');
+                    } else {
+                        unset($dependency_data['total']);
+
+                        foreach($dependency_data as $type => $dep_data) {
+                            foreach($dep_data as $name => $dep_package) {
+                                $this->output->writeln("Preparing to install dependency: <cyan>" . $name . "</cyan>");
+                                $this->processPackage($dep_package);
+                            }
+
+                        }
+
+//                        foreach((array)$package->dependencies as $dependency) {
+//                            if (is_object($dependency)) {
+//                                foreach($dependency as $key=>$val) {
+//                                    $dep = $key;
+//                                    $install_options[] = 'git';
+//                                }
+//                            } else {
+//                                // just name for GPM retrieval
+//                                $dep = $dependency;
+//                            }
+//
+//
+//
+//
+//                        }
+                    }
+                }
+
                 $version = isset($package->available) ? $package->available : $package->version;
+
                 $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
 
                 $this->output->write("  |- Downloading package...     0%");
@@ -133,7 +184,8 @@ class InstallCommand extends Command
                     $this->output->writeln('');
                 } else {
                     $this->output->write("  |- Installing package...  ");
-                    $installation = $this->installPackage($package);
+                    //$installation = $this->installPackage($package);
+                    $installation = true;
                     if (!$installation) {
                         $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                         $this->output->writeln('');
@@ -147,6 +199,41 @@ class InstallCommand extends Command
 
         // clear cache after successful upgrade
         $this->clearCache();
+    }
+
+    private function processPackage($package)
+    {
+        $install_options = ['gpm'];
+
+        // if no name, not found in GPM
+        if (!isset($package->name)) {
+            unset($install_options[0]);
+        }
+        // if local config found symlink is a valid option
+        if (isset($this->local_config)) {
+            $install_options[] = 'symlink';
+        }
+        // if override set, can install via git
+        if (isset($package->override_repository)) {
+            $install_options[] = 'git';
+        }
+
+        if (count($install_options) == 0) {
+            // no valid install options
+        } elseif (count($install_options) == 1) {
+            // only one option, use it...
+        } else {
+            $helper = $this->getHelper('question');
+            $install_list = array_values($install_options);
+            $default = $install_list[0];
+            $question = new ChoiceQuestion(
+                'Please select installation method ('.$default.' is default)', array_values($install_list), 0
+            );
+            $question->setErrorMessage('Method %s is invalid');
+            $method = $helper->ask($this->input, $this->output, $question);
+            $this->output->writeln('You chose: ' . $method);
+
+        }
     }
 
     /**

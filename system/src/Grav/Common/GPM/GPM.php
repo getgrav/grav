@@ -347,7 +347,20 @@ class GPM extends Iterator
         $packages = ['total' => 0, 'not_found' => []];
 
         foreach ($searches as $search) {
+            $repository = '';
+            // if this is an object, get the search data from the key
+            if (is_object($search)) {
+                $search = (array) $search;
+                $key = key($search);
+                $repository = $search[$key];
+                $search = $key;
+            }
+
             if ($found = $this->findPackage($search)) {
+                // set override respository if provided
+                if ($repository) {
+                    $found->override_repository = $repository;
+                }
                 if (!isset($packages[$found->package_type])) {
                     $packages[$found->package_type] = [];
                 }
@@ -355,7 +368,9 @@ class GPM extends Iterator
                 $packages[$found->package_type][$found->slug] = $found;
                 $packages['total']++;
             } else {
-                $packages['not_found'][] = $search;
+                $not_found = new \stdClass();
+                $not_found->override_repository = $repository;
+                $packages['not_found'][$search] = $not_found;
             }
         }
 
