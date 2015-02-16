@@ -269,7 +269,7 @@ class SandboxCommand extends Command
 
         if (count($pages_files) == 0) {
             $destination = $this->source . '/user/pages';
-            $this->rcopy($destination, $pages_dir);
+            Utils::rcopy($destination, $pages_dir);
             $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
 
         }
