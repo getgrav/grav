@@ -94,7 +94,8 @@ class Plugins extends Iterator
     public static function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator('plugins://');
+        $locator = Grav::instance()['locator'];
+        $iterator = new \DirectoryIterator($locator->findResource('plugins://', false));
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {
