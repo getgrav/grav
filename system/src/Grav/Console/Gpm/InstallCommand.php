@@ -215,12 +215,14 @@ class InstallCommand extends Command
     private function installDemoContent($package)
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
+        $dest_dir = $this->destination . DS . 'user';
+        $pages_dir = $dest_dir . DS . 'pages';
 
         if (file_exists($demo_dir)) {
             // Demo content exists, prompt to install it.
             $this->output->writeln("<white>Attention: </white><cyan>".$package->name . "</cyan> contains demo content");
             $helper = $this->getHelper('question');
-            $question = new ConfirmationQuestion('Do you wish to install this demo content? <red>(DANGER: May merge or overwrite existing user data)</red> [y|N] ', false);
+            $question = new ConfirmationQuestion('Do you wish to install this demo content? [y|N] ', false);
 
             if (!$helper->ask($this->input, $this->output, $question)) {
                 $this->output->writeln("  '- <red>Skipped!</red>  ");
@@ -228,9 +230,30 @@ class InstallCommand extends Command
                 return;
             }
 
+            // if pages folder exists in demo
+            if (file_exists($demo_dir . DS . 'pages')) {
+                $pages_backup = 'pages.' . date('m-d-Y-H-i-s');
+                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/'. $pages_backup. '`, continue? [y|N]', false);
+
+                if (!$helper->ask($this->input, $this->output, $question)) {
+                    $this->output->writeln("  '- <red>Skipped!</red>  ");
+                    $this->output->writeln('');
+                    return;
+                }
+
+                // backup current pages folder
+                if (file_exists($dest_dir)) {
+                    if (rename($pages_dir, $dest_dir . DS . $pages_backup)) {
+                        $this->output->writeln("  |- Backing up pages...    <green>ok</green>");
+                    } else {
+                        $this->output->writeln("  |- Backing up pages...    <red>failed</red>");
+                    }
+                }
+            }
+
             // Confirmation received, copy over the data
             $this->output->writeln("  |- Installing demo content...    <green>ok</green>                             ");
-            Utils::rcopy($demo_dir, $this->destination . DS . 'user');
+            Utils::rcopy($demo_dir, $dest_dir);
             $this->output->writeln("  '- <green>Success!</green>  ");
             $this->output->writeln('');
         }
