@@ -133,7 +133,6 @@ class InstallCommand extends Command
 
         foreach ($this->data as $data) {
             foreach ($data as $package) {
-
                 //Check for dependencies
                 if (isset($package->dependencies)) {
                     $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has ". count($package->dependencies) . " required dependencies that must be installed first...");
@@ -176,7 +175,7 @@ class InstallCommand extends Command
             unset($install_options[0]);
         }
         // if local config found symlink is a valid option
-        if (isset($this->local_config)) {
+        if (isset($this->local_config) && $this->getSymlinkSource($package)) {
             $install_options[] = 'Symlink';
         }
         // if override set, can install via git
@@ -212,6 +211,9 @@ class InstallCommand extends Command
     }
 
 
+    /**
+     * @param $package
+     */
     private function installDemoContent($package)
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
@@ -281,21 +283,14 @@ class InstallCommand extends Command
 
     /**
      * @param $package
+     *
+     * @return bool|string
      */
-    private function processSymlink($package)
+    private function getSymlinkSource($package)
     {
-
-        exec('cd ' . $this->destination);
-
-        $to = $this->destination . DS . $package->install_path;
-
         $matches = $this->getGitRegexMatches($package);
 
-        $this->output->writeln("Preparing to Symlink <cyan>" . $package->name . "</cyan>");
-        $this->output->write("  |- Checking source...  ");
-
         foreach ($this->local_config as $path) {
-
             if (Utils::endsWith($matches[2], '.git')) {
                 $repo_dir = preg_replace('/\.git$/', '', $matches[2]);
             } else {
@@ -305,34 +300,54 @@ class InstallCommand extends Command
             $from = rtrim($path, '/') . '/' . $repo_dir;
 
             if (file_exists($from)) {
-
-                $this->output->writeln("<green>ok</green>");
-
-                $this->output->write("  |- Checking destination...  ");
-                $checks = $this->checkDestination($package);
-
-                if (!$checks) {
-                    $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-                    $this->output->writeln('');
-                } else {
-                    if (file_exists($to)) {
-                        $this->output->writeln("  '- <red>Symlink cannot overwrite an existing package, please remove first</red>");
-                        $this->output->writeln('');
-                    } else {
-                        symlink($from, $to);
-
-                        // extra white spaces to clear out the buffer properly
-                        $this->output->writeln("  |- Symlinking package...    <green>ok</green>                             ");
-
-                        $this->output->writeln("  '- <green>Success!</green>  ");
-                        $this->output->writeln('');
-                    }
-
-
-                }
-                return;
+                return $from;
             }
         }
+        return false;
+    }
+
+    /**
+     * @param $package
+     */
+    private function processSymlink($package)
+    {
+
+        exec('cd ' . $this->destination);
+
+        $to = $this->destination . DS . $package->install_path;
+        $from = $this->getSymlinkSource($package);
+
+        $this->output->writeln("Preparing to Symlink <cyan>" . $package->name . "</cyan>");
+        $this->output->write("  |- Checking source...  ");
+
+        if (file_exists($from)) {
+            $this->output->writeln("<green>ok</green>");
+
+            $this->output->write("  |- Checking destination...  ");
+            $checks = $this->checkDestination($package);
+
+            if (!$checks) {
+                $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+                $this->output->writeln('');
+            } else {
+                if (file_exists($to)) {
+                    $this->output->writeln("  '- <red>Symlink cannot overwrite an existing package, please remove first</red>");
+                    $this->output->writeln('');
+                } else {
+                    symlink($from, $to);
+
+                    // extra white spaces to clear out the buffer properly
+                    $this->output->writeln("  |- Symlinking package...    <green>ok</green>                             ");
+
+                    $this->output->writeln("  '- <green>Success!</green>  ");
+                    $this->output->writeln('');
+                }
+
+
+            }
+            return;
+        }
+
         $this->output->writeln("<red>not found!</red>");
         $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
     }
