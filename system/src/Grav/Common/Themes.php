@@ -59,7 +59,8 @@ class Themes extends Iterator
     public function all()
     {
         $list = array();
-        $iterator = new \DirectoryIterator('themes://');
+        $locator = Grav::instance()['locator'];
+        $iterator = new \DirectoryIterator($locator->findResource('themes://', false));
 
         /** @var \DirectoryIterator $directory */
         foreach ($iterator as $directory) {

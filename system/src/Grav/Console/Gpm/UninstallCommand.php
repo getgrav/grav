@@ -140,7 +140,7 @@ class UninstallCommand extends Command
      */
     private function uninstallPackage($package)
     {
-        $path = self::$grav['locator']->findResource($package->package_type . '://' . $package->slug);
+        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $package->slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
 
@@ -167,7 +167,7 @@ class UninstallCommand extends Command
 
     private function checkDestination($package)
     {
-        $path = self::$grav['locator']->findResource($package->package_type . '://' . $package->slug);
+        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $package->slug);
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
 

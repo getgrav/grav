@@ -29,6 +29,16 @@ abstract class Utils
     }
 
     /**
+     * @param  string  $haystack
+     * @param  string  $needle
+     * @return bool
+     */
+    public static function contains($haystack, $needle)
+    {
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+
+    /**
      * Merge two objects into one.
      *
      * @param  object $obj1
@@ -41,7 +51,7 @@ abstract class Utils
     }
 
     /**
-     * Recurseive remove a directory - DANGEROUS! USE WITH CARE!!!!
+     * Recursive remove a directory - DANGEROUS! USE WITH CARE!!!!
      *
      * @param $dir
      * @return bool
@@ -67,6 +77,46 @@ abstract class Utils
         }
 
         return rmdir($dir);
+    }
+
+    /**
+     * Recursive copy of one directory to another
+     *
+     * @param $src
+     * @param $dest
+     *
+     * @return bool
+     */
+    public static function rcopy($src, $dest)
+    {
+
+        // If the src is not a directory do a simple file copy
+        if (!is_dir($src)) {
+            copy($src, $dest);
+            return true;
+        }
+
+        // If the destination directory does not exist create it
+        if (!is_dir($dest)) {
+            if (!mkdir($dest)) {
+                // If the destination directory could not be created stop processing
+                return false;
+            }
+        }
+
+        // Open the source directory to read in files
+        $i = new \DirectoryIterator($src);
+        /** @var \DirectoryIterator $f */
+        foreach ($i as $f) {
+            if ($f->isFile()) {
+                copy($f->getRealPath(), "$dest/" . $f->getFilename());
+            } else {
+                if (!$f->isDot() && $f->isDir()) {
+                    static::rcopy($f->getRealPath(), "$dest/$f");
+                }
+            }
+        }
+        return true;
     }
 
     /**

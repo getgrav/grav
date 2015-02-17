@@ -17,7 +17,7 @@ class Plugins extends Collection
      */
     public function __construct()
     {
-        $grav = self::$grav;
+        $grav = self::getGrav();
 
         foreach ($grav['plugins']->all() as $name => $data) {
             $this->items[$name] = new Package($data, $this->type);

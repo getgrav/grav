@@ -11,8 +11,11 @@ trait GravTrait
     /**
      * @return Grav
      */
-    public function getGrav()
+    public static function getGrav()
     {
+        if (!self::$grav) {
+            self::$grav = Grav::instance();
+        }
         return self::$grav;
     }
 

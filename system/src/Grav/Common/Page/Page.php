@@ -96,7 +96,7 @@ class Page
     public function __construct($array = array())
     {
         /** @var Config $config */
-        $config = self::$grav['config'];
+        $config = self::getGrav()['config'];
 
         $this->routable = true;
         $this->taxonomy = array();
@@ -123,20 +123,20 @@ class Page
         $this->modularTwig($this->slug[0] == '_');
 
          // Handle publishing dates if no explict published option set
-        if (self::$grav['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
+        if (self::getGrav()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
             // unpublish if required, if not clear cache right before page should be unpublished
             if ($this->unpublishDate()) {
                 if ($this->unpublishDate() < time()) {
                     $this->published(false);
                 } else {
                     $this->published();
-                    self::$grav['cache']->setLifeTime($this->unpublishDate());
+                    self::getGrav()['cache']->setLifeTime($this->unpublishDate());
                 }
             }
             // publish if required, if not clear cache right before page is published
             if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
                 $this->published(false);
-                self::$grav['cache']->setLifeTime($this->publishDate());
+                self::getGrav()['cache']->setLifeTime($this->publishDate());
             }
         }
         $this->published();
@@ -300,7 +300,7 @@ class Page
     public function summary($size = null)
     {
         /** @var Config $config */
-        $config = self::$grav['config'];
+        $config = self::getGrav()['config'];
         $content = $this->content();
 
         // Return summary based on settings in site config file
@@ -362,7 +362,7 @@ class Page
 
             // Load cached content
             /** @var Cache $cache */
-            $cache = self::$grav['cache'];
+            $cache = self::getGrav()['cache'];
             $cache_id = md5('page'.$this->id());
             $this->content = $cache->fetch($cache_id);
 
@@ -375,7 +375,7 @@ class Page
             // if no cached-content run everything
             if ($this->content == false) {
                 $this->content = $this->raw_content;
-                self::$grav->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+                self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                 if ($twig_first) {
                     if ($process_twig) {
@@ -412,7 +412,7 @@ class Page
             }
 
             // Handle summary divider
-            $delimiter = self::$grav['config']->get('site.summary.delimiter', '===');
+            $delimiter = self::getGrav()['config']->get('site.summary.delimiter', '===');
             $divider_pos = strpos($this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
@@ -430,7 +430,7 @@ class Page
     protected function processMarkdown()
     {
         /** @var Config $config */
-        $config = self::$grav['config'];
+        $config = self::getGrav()['config'];
 
         $defaults = (array) $config->get('system.pages.markdown');
         if (isset($this->header()->markdown)) {
@@ -449,11 +449,6 @@ class Page
             $parsedown = new Parsedown($this);
         }
 
-        $parsedown->setBreaksEnabled($defaults['auto_line_breaks']);
-        $parsedown->setUrlsLinked($defaults['auto_url_links']);
-        $parsedown->setMarkupEscaped($defaults['escape_markup']);
-        $parsedown->setSpecialChars($defaults['special_chars']);
-
         $this->content = $parsedown->text($this->content);
     }
 
@@ -463,7 +458,7 @@ class Page
      */
     private function processTwig()
     {
-        $twig = self::$grav['twig'];
+        $twig = self::getGrav()['twig'];
         $this->content = $twig->processPage($this, $this->content);
     }
 
@@ -472,10 +467,10 @@ class Page
      */
     private function cachePageContent()
     {
-        $cache = self::$grav['cache'];
+        $cache = self::getGrav()['cache'];
         $cache_id = md5('page'.$this->id());
 
-        self::$grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+        self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
         $cache->save($cache_id, $this->content);
     }
 
@@ -650,7 +645,7 @@ class Page
     public function blueprints()
     {
         /** @var Pages $pages */
-        $pages = self::$grav['pages'];
+        $pages = self::getGrav()['pages'];
 
         return $pages->blueprints($this->template());
     }
@@ -729,7 +724,7 @@ class Page
     public function media($var = null)
     {
         /** @var Cache $cache */
-        $cache = self::$grav['cache'];
+        $cache = self::getGrav()['cache'];
 
         if ($var) {
             $this->media = $var;
@@ -947,7 +942,6 @@ class Page
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
             $this->metadata = array();
             $page_header = $this->header;
@@ -958,7 +952,7 @@ class Page
             // Safety check to ensure we have a header
             if ($page_header) {
                 // Merge any site.metadata settings in with page metadata
-                $defaults = (array) self::$grav['config']->get('site.metadata');
+                $defaults = (array) self::getGrav()['config']->get('site.metadata');
 
                 if (isset($page_header->metadata)) {
                     $page_header->metadata = array_merge($defaults, $page_header->metadata);
@@ -1061,10 +1055,10 @@ class Page
     public function url($include_host = false)
     {
         /** @var Pages $pages */
-        $pages = self::$grav['pages'];
+        $pages = self::getGrav()['pages'];
 
         /** @var Uri $uri */
-        $uri = self::$grav['uri'];
+        $uri = self::getGrav()['uri'];
 
         $rootUrl = $uri->rootUrl($include_host) . $pages->base();
         $url = $rootUrl.'/'.trim($this->route(), '/');
@@ -1136,7 +1130,7 @@ class Page
             // Path to the page.
             $this->path = dirname(dirname($var));
         }
-        return $this->name ? $this->path . '/' . $this->folder . '/' . $this->name : null;
+        return $this->path . '/' . $this->folder . '/' . ($this->name ?: '');
     }
 
     /**
@@ -1263,7 +1257,7 @@ class Page
         }
         if (empty($this->max_count)) {
             /** @var Config $config */
-            $config = self::$grav['config'];
+            $config = self::getGrav()['config'];
             $this->max_count = (int) $config->get('system.pages.list.count');
         }
         return $this->max_count;
@@ -1338,7 +1332,7 @@ class Page
         }
 
         /** @var Pages $pages */
-        $pages = self::$grav['pages'];
+        $pages = self::getGrav()['pages'];
 
         return $pages->get($this->parent);
     }
@@ -1351,7 +1345,7 @@ class Page
     public function children()
     {
         /** @var Pages $pages */
-        $pages = self::$grav['pages'];
+        $pages = self::getGrav()['pages'];
         return $pages->children($this->path());
     }
 
@@ -1418,7 +1412,7 @@ class Page
     public function active()
     {
         /** @var Uri $uri */
-        $uri = self::$grav['uri'];
+        $uri = self::getGrav()['uri'];
         if ($this->url() == $uri->url()) {
             return true;
         }
@@ -1434,8 +1428,8 @@ class Page
     public function activeChild()
     {
         /** @var Uri $uri */
-        $uri = self::$grav['uri'];
-        $config = self::$grav['config'];
+        $uri = self::getGrav()['uri'];
+        $config = self::getGrav()['config'];
 
         // Special check when item is home
         if ($this->home()) {
@@ -1489,7 +1483,7 @@ class Page
     public function find($url, $all = false)
     {
         /** @var Pages $pages */
-        $pages = self::$grav['pages'];
+        $pages = self::getGrav()['pages'];
         return $pages->dispatch($url, $all);
     }
 
@@ -1521,9 +1515,9 @@ class Page
 
         // TODO: MOVE THIS INTO SOMEWHERE ELSE?
         /** @var Uri $uri */
-        $uri = self::$grav['uri'];
+        $uri = self::getGrav()['uri'];
         /** @var Config $config */
-        $config = self::$grav['config'];
+        $config = self::getGrav()['config'];
 
         foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
             if ($uri->param($taxonomy)) {
@@ -1559,7 +1553,7 @@ class Page
         }
 
         /** @var Grav $grav */
-        $grav = self::$grav['grav'];
+        $grav = self::getGrav()['grav'];
 
         // New Custom event to handle things like pagination.
         $grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));
@@ -1639,7 +1633,7 @@ class Page
                 // @taxonomy: { category: [ blog, featured ], level: 1 }
 
                 /** @var Taxonomy $taxonomy_map */
-                $taxonomy_map = self::$grav['taxonomy'];
+                $taxonomy_map = self::getGrav()['taxonomy'];
 
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
@@ -1715,7 +1709,7 @@ class Page
         // Do reordering.
         if ($reorder && $this->order() != $this->_original->order()) {
             /** @var Pages $pages */
-            $pages = self::$grav['pages'];
+            $pages = self::getGrav()['pages'];
 
             $parent = $this->parent();
 

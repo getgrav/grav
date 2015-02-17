@@ -31,7 +31,7 @@ class Collection extends Iterator {
             throw new \RuntimeException("A repository is required for storing the cache");
         }
 
-        $cache_dir = self::$grav['locator']->findResource('cache://gpm', true, true);
+        $cache_dir = self::getGrav()['locator']->findResource('cache://gpm', true, true);
         $this->cache = new FilesystemCache($cache_dir);
 
         $this->repository = $repository;

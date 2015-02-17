@@ -29,11 +29,18 @@ trait ParsedownGravTrait
     protected function init($page)
     {
         $this->page = $page;
-        $this->pages = self::$grav['pages'];
+        $this->pages = self::getGrav()['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->base_url = rtrim(self::$grav['base_url'] . self::$grav['pages']->base(), '/');
-        $this->pages_dir = self::$grav['locator']->findResource('page://');
+        $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
+        $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
+
+        $defaults = self::getGrav()['config']->get('system.pages.markdown');
+
+        $this->setBreaksEnabled($defaults['auto_line_breaks']);
+        $this->setUrlsLinked($defaults['auto_url_links']);
+        $this->setMarkupEscaped($defaults['escape_markup']);
+        $this->setSpecialChars($defaults['special_chars']);
     }
 
     /**
@@ -156,6 +163,7 @@ trait ParsedownGravTrait
                     }
 
                     $excerpt['element'] = $medium->parseDownElement($title, $alt, $class);
+
                 } else {
                     // not a current page media file, see if it needs converting to relative
                     $excerpt['element']['attributes']['src'] = Uri::build_url($url);

@@ -35,8 +35,8 @@ trait ConsoleTrait
      */
     public function setupConsole(InputInterface $input, OutputInterface $output)
     {
-        if (self::$grav) {
-            self::$grav['config']->set('system.cache.driver', 'default');
+        if (self::getGrav()) {
+            self::getGrav()['config']->set('system.cache.driver', 'default');
         }
 
         $this->argv = $_SERVER['argv'][0];

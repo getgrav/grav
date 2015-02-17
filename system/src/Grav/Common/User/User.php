@@ -26,7 +26,7 @@ class User extends Data
      */
     public static function load($username)
     {
-        $locator = self::$grav['locator'];
+        $locator = self::getGrav()['locator'];
 
         // FIXME: validate directory name
         $blueprints = new Blueprints('blueprints://user');

@@ -1,3 +1,18 @@
+# v0.9.17
+## 02/05/2015
+
+1. [](#new)
+    * Added **full HHVM support!** Get your speed on with Facebook's crazy fast PHP JIT compiler
+2. [](#improved)
+    * More flexible page summary control
+    * Support **CamelCase** plugin and theme class names. Replaces dashes and underscores
+    * Moved summary delimiter into `site.yaml` so it can be configurable
+    * Various PSR fixes
+3. [](#bugfix)
+     * Fix for `mergeConfig()` not falling back to defaults
+     * Fix for `addInlineCss()` and `addInlineJs()` Assets not working between Twig tags
+     * Fix for Markdown adding HTML tags into inline CSS and JS
+
 # v0.9.16
 ## 01/30/2015
 
