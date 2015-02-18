@@ -201,7 +201,7 @@ trait ParsedownGravTrait
                     }
                 } else {
                     // not a current page media file, see if it needs converting to relative
-                    $excerpt['element']['attributes']['src'] = Uri::build_url($url);
+                    $excerpt['element']['attributes']['src'] = Uri::buildUrl($url);
                 }
             }
         }
@@ -224,14 +224,12 @@ trait ParsedownGravTrait
 
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
-
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
             // if there is no scheme, the file is local
             if (!isset($url['scheme'])) {
-
                 // convert the URl is required
-                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
+                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::buildUrl($url));
             }
         }
 
