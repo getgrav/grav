@@ -292,7 +292,6 @@ class Grav extends Container
         // Set debugger data in headers
         if (!($extension === null || $extension == 'html')) {
             $this['debugger']->enabled(false);
-            // $this['debugger']->sendDataInHeaders();
         }
 
         // Set HTTP response code
