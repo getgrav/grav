@@ -2,9 +2,6 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Grav;
-use Grav\Common\Uri;
-use Grav\Common\Filesystem\Folder;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Blueprints\Blueprints;

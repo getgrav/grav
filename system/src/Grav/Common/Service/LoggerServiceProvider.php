@@ -5,7 +5,6 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use \Monolog\Logger;
 use \Monolog\Handler\StreamHandler;
-use \Monolog\Handler\RotatingFileHandler;
 
 class LoggerServiceProvider implements ServiceProviderInterface
 {

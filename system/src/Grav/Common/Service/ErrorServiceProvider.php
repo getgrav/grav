@@ -7,7 +7,6 @@ use Pimple\ServiceProviderInterface;
 use Whoops\Handler\JsonResponseHandler;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Handler\PlainTextHandler;
-use Whoops\Run;
 
 class ErrorServiceProvider implements ServiceProviderInterface
 {

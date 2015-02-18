@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Inflector;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Page;
 use Grav\Common\Config\Config;

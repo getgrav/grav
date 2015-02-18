@@ -1,10 +1,8 @@
 <?php
 namespace Grav\Common;
 
-use DebugBar\Bridge\Twig\TraceableTwigEnvironment;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
-//use \Tracy\Debugger as TracyDebugger;
 
 /**
  * Class Debugger

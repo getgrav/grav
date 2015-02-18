@@ -4,9 +4,6 @@ namespace Grav\Common\Errors;
 use Grav\Common\Grav;
 use Whoops\Handler\CallbackHandler;
 use Whoops\Handler\HandlerInterface;
-use Whoops\Handler\JsonResponseHandler;
-use Whoops\Handler\PrettyPageHandler;
-use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
 /**

@@ -1,9 +1,6 @@
 <?php
 namespace Grav\Common\GPM;
 
-use Grav\Common\Filesystem\Folder;
-use Grav\Common\GPM\Installer;
-
 class Upgrader
 {
     /**
