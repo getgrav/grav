@@ -21,9 +21,7 @@ class SimplePageHandler extends Handler
      */
     public function handle()
     {
-        $exception = $this->getException();
         $inspector = $this->getInspector();
-        $run       = $this->getRun();
 
         $helper = new TemplateHelper();
         $templateFile = $this->getResource("layout.html.php");
