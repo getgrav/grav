@@ -95,7 +95,8 @@ class TwigExtension extends \Twig_Extension
     public function safeEmailFilter($str)
     {
         $email = '';
-        for ($i = 0; $i < strlen($str); $i++) {
+        $str_len = strlen($str);
+        for ($i = 0; $i < $str_len; $i++) {
             $email .= "&#" . ord($str[$i]);
         }
         return $email;
