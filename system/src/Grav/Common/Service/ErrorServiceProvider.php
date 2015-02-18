@@ -30,7 +30,7 @@ class ErrorServiceProvider implements ServiceProviderInterface
         $errors->pushHandler($json_page, 'json');
 
         $logger = $container['log'];
-        $errors->pushHandler(function ($exception, $inspector, $run) use($logger) {
+        $errors->pushHandler(function (\Exception $exception, $inspector, $run) use ($logger) {
             $logger->addCritical($exception->getMessage(). ' - Trace: '. $exception->getTraceAsString());
         }, 'log');
 

@@ -110,7 +110,7 @@ class Page
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
      * @return void
      */
-    public function init($file)
+    public function init(\SplFileInfo $file)
     {
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
