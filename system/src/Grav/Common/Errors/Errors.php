@@ -23,7 +23,7 @@ class Errors extends \Whoops\Run
         }
 
         if (!$handler instanceof HandlerInterface) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 "Argument to " . __METHOD__ . " must be a callable, or instance of"
                 . "Whoops\\Handler\\HandlerInterface"
             );

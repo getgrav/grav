@@ -120,7 +120,7 @@ class Assets
         }
 
         // Set custom pipeline fetch command
-        if (isset($config['fetch_command']) and ($config['fetch_command'] instanceof Closure)) {
+        if (isset($config['fetch_command']) && ($config['fetch_command'] instanceof Closure)) {
             $this->fetch_command = $config['fetch_command'];
         }
 
@@ -143,12 +143,12 @@ class Assets
         }
 
         // Set collections
-        if (isset($config['collections']) and is_array($config['collections'])) {
+        if (isset($config['collections']) && is_array($config['collections'])) {
             $this->collections = $config['collections'];
         }
 
         // Autoload assets
-        if (isset($config['autoload']) and is_array($config['autoload'])) {
+        if (isset($config['autoload']) && is_array($config['autoload'])) {
             foreach ($config['autoload'] as $asset) {
                 $this->add($asset);
             }
@@ -651,9 +651,9 @@ class Assets
             $info = pathinfo($asset);
             if (isset($info['extension'])) {
                 $ext = strtolower($info['extension']);
-                if ($ext === 'css' and !in_array($asset, $this->css)) {
+                if ($ext === 'css' && !in_array($asset, $this->css)) {
                     $this->css[] = $asset;
-                } elseif ($ext === 'js' and !in_array($asset, $this->js)) {
+                } elseif ($ext === 'js' && !in_array($asset, $this->js)) {
                     $this->js[] = $asset;
                 }
             }
@@ -673,8 +673,8 @@ class Assets
      */
     protected function isRemoteLink($link)
     {
-        return ('http://' === substr($link, 0, 7) or 'https://' === substr($link, 0, 8)
-            or '//' === substr($link, 0, 2));
+        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8)
+            || '//' === substr($link, 0, 2));
     }
 
     /**
