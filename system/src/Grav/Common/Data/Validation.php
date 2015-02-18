@@ -517,7 +517,7 @@ class Validation
 
     public static function validateRequired($value, $params)
     {
-        return (bool) $params != true || !empty($value);
+        return (bool) $params !== true || !empty($value);
     }
 
     public static function validatePattern($value, $params)
