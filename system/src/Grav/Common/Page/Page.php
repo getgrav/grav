@@ -1464,7 +1464,7 @@ class Page
      */
     public function root()
     {
-        if (!$this->parent && !$this->name and !$this->visible) {
+        if (!$this->parent && !$this->name && !$this->visible) {
             return true;
         } else {
             return false;
