@@ -172,17 +172,22 @@ class Grav extends Container
             ob_start('ob_gzhandler');
         }
 
-
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
 
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $this['uri']->init();
         $this['errors']->resetHandlers();
         $debugger->init();
         $this['config']->debug();
         $debugger->stopTimer('_config');
+
+        // Initialize the timezone
+        if ($this['config']->get('system.timezone')) {
+            date_default_timezone_set($this['config']->get('system.timezone'));
+        }
 
         $debugger->startTimer('streams', 'Streams');
         $this['streams'];
@@ -286,9 +291,8 @@ class Grav extends Container
         header('Content-type: ' . $this->mime($extension));
 
         // Set debugger data in headers
-        if (!($extension == null || $extension == 'html')) {
+        if (!($extension === null || $extension == 'html')) {
             $this['debugger']->enabled(false);
-            // $this['debugger']->sendDataInHeaders();
         }
 
         // Set HTTP response code

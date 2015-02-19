@@ -47,7 +47,6 @@ class Blueprints
                 $file = CompiledYamlFile::instance($filename);
                 $blueprints = $file->content();
             } else {
-                // throw new \RuntimeException("Blueprints for '{$type}' cannot be found! {$this->search}{$type}");
                 $blueprints = [];
             }
 

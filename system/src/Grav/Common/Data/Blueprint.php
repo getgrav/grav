@@ -478,14 +478,15 @@ class Blueprint
      * @throws \RuntimeException
      * @internal
      */
-    protected function checkRequired(array $data, array $fields) {
+    protected function checkRequired(array $data, array $fields)
+    {
         foreach ($fields as $name => $field) {
             if (!is_string($field)) {
                 continue;
             }
             $field = $this->rules[$field];
             if (isset($field['validate']['required'])
-                && $field['validate']['required'] == true
+                && $field['validate']['required'] === true
                 && empty($data[$name])) {
                 throw new \RuntimeException("Missing required field: {$field['name']}");
             }

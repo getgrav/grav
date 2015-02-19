@@ -34,6 +34,13 @@ trait ParsedownGravTrait
         $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
+
+        $defaults = self::getGrav()['config']->get('system.pages.markdown');
+
+        $this->setBreaksEnabled($defaults['auto_line_breaks']);
+        $this->setUrlsLinked($defaults['auto_url_links']);
+        $this->setMarkupEscaped($defaults['escape_markup']);
+        $this->setSpecialChars($defaults['special_chars']);
     }
 
     /**
@@ -65,7 +72,7 @@ trait ParsedownGravTrait
 
     protected function inlineSpecialCharacter($Excerpt)
     {
-        if ($Excerpt['text'][0] === '&' and ! preg_match('/^&#?\w+;/', $Excerpt['text'])) {
+        if ($Excerpt['text'][0] === '&' && ! preg_match('/^&#?\w+;/', $Excerpt['text'])) {
             return array(
                 'markup' => '&amp;',
                 'extent' => 1,
@@ -194,7 +201,7 @@ trait ParsedownGravTrait
                     }
                 } else {
                     // not a current page media file, see if it needs converting to relative
-                    $excerpt['element']['attributes']['src'] = Uri::build_url($url);
+                    $excerpt['element']['attributes']['src'] = Uri::buildUrl($url);
                 }
             }
         }
@@ -217,14 +224,12 @@ trait ParsedownGravTrait
 
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
-
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
             // if there is no scheme, the file is local
             if (!isset($url['scheme'])) {
-
                 // convert the URl is required
-                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::build_url($url));
+                $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::buildUrl($url));
             }
         }
 

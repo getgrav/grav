@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Inflector;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Page;
 use Grav\Common\Config\Config;
@@ -118,12 +117,14 @@ class Plugin implements EventSubscriberInterface
     /**
      * Merge global and page configurations.
      *
-     * @param  Page  $page  The page to merge the configurations with the
+     * @param  Page $page   The page to merge the configurations with the
      *                      plugin settings.
+     *
+     * @param bool  $deep   Should you use deep or shallow merging
      *
      * @return \Grav\Common\Data\Data
      */
-    protected function mergeConfig(Page $page)
+    protected function mergeConfig(Page $page, $deep = false)
     {
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
@@ -141,7 +142,11 @@ class Plugin implements EventSubscriberInterface
 
         // Get default plugin configurations and retrieve page header configuration
         if (isset($page->header()->$class_name)) {
-            $header =  array_merge($defaults, $page->header()->$class_name);
+            if ($deep) {
+                $header =  array_replace_recursive($defaults, $page->header()->$class_name);
+            } else {
+                $header =  array_merge($defaults, $page->header()->$class_name);
+            }
         } else {
             $header = $defaults;
         }

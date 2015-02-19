@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Markdown\Parsedown;
+use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 
@@ -49,6 +51,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
+            new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
+            new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter'])
         ];
     }
 
@@ -64,7 +68,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
-            new \Twig_SimpleFunction('gist', [$this, 'gistFunc'])
+            new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
+            new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
         ];
     }
 
@@ -90,7 +95,8 @@ class TwigExtension extends \Twig_Extension
     public function safeEmailFilter($str)
     {
         $email = '';
-        for ($i = 0; $i < strlen($str); $i++) {
+        $str_len = strlen($str);
+        for ($i = 0; $i < $str_len; $i++) {
             $email .= "&#" . ord($str[$i]);
         }
         return $email;
@@ -164,8 +170,8 @@ class TwigExtension extends \Twig_Extension
      * {{ 'send_email'|camelize }} => SendEmail
      * {{ 'CamelCased'|underscorize }} => camel_cased
      * {{ 'Something Text'|hyphenize }} => something-text
-     * {{ 'something text to read'|humanize }} => "Something text to read"
-     * {{ '181'|monthize}} => 6
+     * {{ 'something_text_to_read'|humanize }} => "Something text to read"
+     * {{ '181'|monthize }} => 6
      * {{ '10'|ordinalize }} => 10th
      *
      * @param string $action
@@ -316,6 +322,31 @@ class TwigExtension extends \Twig_Extension
         return "$difference $periods[$j] {$tense}";
     }
 
+    public function absoluteUrlFilter($string)
+    {
+        $url = $this->grav['uri']->base();
+        $string = preg_replace('/((?:href|src) *= *[\'"](?!(http|ftp)))/i', "$1$url", $string);
+        return $string;
+
+    }
+
+    public function markdownFilter($string)
+    {
+        $page = $this->grav['page'];
+        $defaults = $this->grav['config']->get('system.pages.markdown');
+
+        // Initialize the preferred variant of Parsedown
+        if ($defaults['extra']) {
+            $parsedown = new ParsedownExtra($page);
+        } else {
+            $parsedown = new Parsedown($page);
+        }
+
+        $string = $parsedown->text($string);
+
+        return $string;
+    }
+
     /**
      * Repeat given string x times.
      *
@@ -403,5 +434,17 @@ class TwigExtension extends \Twig_Extension
     public function gistFunc($id)
     {
         return '<script src="https://gist.github.com/'.$id.'.js"></script>';
+    }
+
+    /**
+     * Generate a random string
+     *
+     * @param int $count
+     *
+     * @return string
+     */
+    public function randomStringFunc($count = 5)
+    {
+        return Utils::generateRandomString($count);
     }
 }

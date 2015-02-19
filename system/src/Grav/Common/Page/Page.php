@@ -110,7 +110,7 @@ class Page
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
      * @return void
      */
-    public function init($file)
+    public function init(\SplFileInfo $file)
     {
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
@@ -373,7 +373,7 @@ class Page
             $twig_already_processed = false;
 
             // if no cached-content run everything
-            if ($this->content == false) {
+            if ($this->content === false) {
                 $this->content = $this->raw_content;
                 self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
@@ -448,11 +448,6 @@ class Page
         } else {
             $parsedown = new Parsedown($this);
         }
-
-        $parsedown->setBreaksEnabled($defaults['auto_line_breaks']);
-        $parsedown->setUrlsLinked($defaults['auto_url_links']);
-        $parsedown->setMarkupEscaped($defaults['escape_markup']);
-        $parsedown->setSpecialChars($defaults['special_chars']);
 
         $this->content = $parsedown->text($this->content);
     }
@@ -947,7 +942,6 @@ class Page
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
             $this->metadata = array();
             $page_header = $this->header;
@@ -1136,7 +1130,7 @@ class Page
             // Path to the page.
             $this->path = dirname(dirname($var));
         }
-        return $this->name ? $this->path . '/' . $this->folder . '/' . $this->name : null;
+        return $this->path . '/' . $this->folder . '/' . ($this->name ?: '');
     }
 
     /**
@@ -1470,7 +1464,7 @@ class Page
      */
     public function root()
     {
-        if (!$this->parent && !$this->name and !$this->visible) {
+        if (!$this->parent && !$this->name && !$this->visible) {
             return true;
         } else {
             return false;

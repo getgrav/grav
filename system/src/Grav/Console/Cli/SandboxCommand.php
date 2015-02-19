@@ -2,6 +2,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Utils;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
@@ -188,7 +189,7 @@ class SandboxCommand extends Command
             $to = $this->destination . $target;
 
             $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
-            $this->rcopy($from, $to);
+            Utils::rcopy($from, $to);
         }
     }
 
@@ -268,7 +269,7 @@ class SandboxCommand extends Command
 
         if (count($pages_files) == 0) {
             $destination = $this->source . '/user/pages';
-            $this->rcopy($destination, $pages_dir);
+            Utils::rcopy($destination, $pages_dir);
             $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
 
         }
@@ -325,43 +326,5 @@ class SandboxCommand extends Command
             $this->output->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');
             exit;
         }
-    }
-
-    /**
-     * @param $src
-     * @param $dest
-     *
-     * @return bool
-     */
-    private function rcopy($src, $dest)
-    {
-
-        // If the src is not a directory do a simple file copy
-        if (!is_dir($src)) {
-            copy($src, $dest);
-            return true;
-        }
-
-        // If the destination directory does not exist create it
-        if (!is_dir($dest)) {
-            if (!mkdir($dest)) {
-                // If the destination directory could not be created stop processing
-                return false;
-            }
-        }
-
-        // Open the source directory to read in files
-        $i = new \DirectoryIterator($src);
-        /** @var \DirectoryIterator $f */
-        foreach ($i as $f) {
-            if ($f->isFile()) {
-                copy($f->getRealPath(), "$dest/" . $f->getFilename());
-            } else {
-                if (!$f->isDot() && $f->isDir()) {
-                    $this->rcopy($f->getRealPath(), "$dest/$f");
-                }
-            }
-        }
-        return true;
     }
 }

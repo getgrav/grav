@@ -28,7 +28,7 @@ class User extends Data
     {
         $locator = self::getGrav()['locator'];
 
-        // FIXME: validate directory name
+        // TODO: validate directory name
         $blueprints = new Blueprints('blueprints://user');
         $blueprint = $blueprints->get('account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);

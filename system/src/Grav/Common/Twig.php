@@ -219,6 +219,34 @@ class Twig
     }
 
     /**
+     * Process a Twig template directly by using a template name
+     * and optional array of variables
+     *
+     * @param string $template template to render with
+     * @param array $vars      Optional variables
+     * @return string
+     */
+    public function processTemplate($template, $vars = array())
+    {
+        // override the twig header vars for local resolution
+        $this->grav->fireEvent('onTwigTemplateVariables');
+        $vars += $this->twig_vars;
+
+        try {
+            $output = $this->twig->render($template, $vars);
+        } catch (\Twig_Error_Loader $e) {
+            throw new \RuntimeException($e->getRawMessage(), 404, $e);
+        }
+
+        return $output;
+
+    }
+
+
+    /**
+     * Process a Twig template directly by using a Twig string
+     * and optional array of variables
+     *
      * @param string $string  string to render.
      * @param array $vars     Optional variables
      * @return string

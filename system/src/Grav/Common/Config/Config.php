@@ -3,10 +3,7 @@ namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Common\GravTrait;
-use Grav\Common\Uri;
 use Grav\Common\Data\Data;
-use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\Blueprints\Blueprints;
 use RocketTheme\Toolbox\File\PhpFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;

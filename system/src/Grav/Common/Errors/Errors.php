@@ -4,9 +4,6 @@ namespace Grav\Common\Errors;
 use Grav\Common\Grav;
 use Whoops\Handler\CallbackHandler;
 use Whoops\Handler\HandlerInterface;
-use Whoops\Handler\JsonResponseHandler;
-use Whoops\Handler\PrettyPageHandler;
-use Whoops\Handler\PlainTextHandler;
 use Whoops\Run;
 
 /**
@@ -23,7 +20,7 @@ class Errors extends \Whoops\Run
         }
 
         if (!$handler instanceof HandlerInterface) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 "Argument to " . __METHOD__ . " must be a callable, or instance of"
                 . "Whoops\\Handler\\HandlerInterface"
             );
