@@ -1,3 +1,26 @@
+# v0.9.18
+## 02/19/2015
+
+1. [](#new)
+    * Added ability for GPM `install` to automatically install `_demo` content if found (w/backup)
+    * Added ability for themes and plugins to have dependencies required to install via GPM
+    * Added ability to override the system timezone rather than relying on server setting only
+    * Added new Twig filter `random_string` for generating random id values
+    * Added new Twig filter `markdown` for on-the-fly markdown processing
+    * Added new Twig filter `absoluteUrl` to convert relative to absolute URLs
+    * Added new `processTemplate()` method to Twig object for on-the-fly processing of twig template
+    * Added `rcopy()` and `contains()` helper methods in Utils
+2. [](#improved)
+    * Provied new `param_sep` variable to better support Apache on Windows
+    * Moved parsedown configuration into the trait
+    * Added optional **deep-copy** option to `mergeConfig()` for plugins
+    * Updated bundled `composer.phar` package
+    * Various Sensiolabs Insight fixes - Silver level now!
+    * Various PSR Fixes
+3. [](#bugfix)
+    * Fix for windows platforms not displaying installed themes/plugins via GPM
+    * Fix page IDs not picking up folder-only pages
+
 # v0.9.17
 ## 02/05/2015
 
