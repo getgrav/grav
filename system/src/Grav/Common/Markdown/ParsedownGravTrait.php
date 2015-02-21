@@ -154,12 +154,18 @@ trait ParsedownGravTrait
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
-                        parse_str($url['query'], $actions);
+                        $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
+                            $parts = explode('=', $item, 2);
+                            $value = isset($parts[1]) ? $parts[1] : null;
+                            $carry[] = [ 'method' => $parts[0], 'params' => $value ];
+
+                            return $carry;
+                        }, []);
                     }
 
                     // loop through actions for the image and call them
-                    foreach ($actions as $action => $params) {
-                        call_user_func_array(array(&$medium, $action), explode(',', $params));
+                    foreach ($actions as $action) {
+                        $medium = call_user_func_array(array($medium, $action['method']), explode(',', $action['params']));
                     }
 
                     $excerpt['element'] = $medium->parseDownElement($title, $alt, $class);
