@@ -13,35 +13,28 @@ use Gregwar\Image\Image as ImageFile;
 /**
  * The Image medium holds information related to an individual image. These are then stored in the Media object.
  *
- * @author RocketTheme
+ * @author Grav
  * @license MIT
- *
- * @property string $file_name
- * @property string $type
- * @property string $name       Alias of file_name
- * @property string $description
- * @property string $url
- * @property string $path
- * @property string $thumb
- * @property int    $width
- * @property int    $height
- * @property string $mime
- * @property int    $modified
- *
- * Medium can have a few files:
- * - video.mov              Medium file itself.
- * - video.mov.meta.yaml    Metadata for the medium.
- * - video.mov.thumb.jpg    Thumbnail image for the medium.
- * - video@2x.mov           Alternate sizes of medium
  *
  */
 class Medium extends Data
 {
     use GravTrait;
 
-    protected $mode = 'medium';
+    /**
+     * @var string
+     */
+    protected $mode = 'source';
 
-    public static $magic_actions = [];
+    /**
+     * @var Medium
+     */
+    protected $_thumbnail = null;
+
+    /**
+     * @var array
+     */
+    protected $thumbnailTypes = [ 'page', 'default' ];
 
     /**
      * @var \Grav\Common\Markdown\Parsedown
@@ -54,26 +47,14 @@ class Medium extends Data
     protected $alternatives = array();
 
     /**
-     * @var string
+     * @var array
+     */
+    protected $attributes = [];
+
+    /**
+     * @var array
      */
     protected $linkAttributes = [];
-
-    public static function factory($items = array(), Blueprint $blueprint = null)
-    {
-        $type = isset($items['type']) ? $items['type'] : null;
-
-        switch ($type) {
-            case 'image':
-                return new ImageMedium($items, $blueprint);
-                break;
-            case 'video':
-                return new VideoMedium($items, $blueprint);
-                break;
-            default:
-                return new self($items, $blueprint);
-                break;
-        }
-    }
 
     /**
      * Construct.
@@ -89,18 +70,45 @@ class Medium extends Data
     }
 
     /**
-     * Return string representation of the object (html or url).
+     * Add meta file for the medium.
+     *
+     * @param $filepath
+     */
+    public function addMetaFile($filepath)
+    {
+        $this->merge(CompiledYamlFile::instance($filepath)->content());
+    }
+
+    /**
+     * Add alternative Medium to this Medium.
+     *
+     * @param $ratio
+     * @param Medium $alternative
+     */
+    public function addAlternative($ratio, Medium $alternative)
+    {
+        if (!is_numeric($ratio) || $ratio === 0) {
+            return;
+        }
+
+        $alternative->set('ratio', $ratio);
+        $this->alternatives[(float) $ratio] = $alternative;
+    }
+
+    /**
+     * Return string representation of the object (html).
      *
      * @return string
      */
     public function __toString()
     {
-        return $this->linkImage ? $this->html() : $this->url();
+        return $this->html();
     }
 
     /**
      * Return PATH to file.
      *
+     * @param bool $reset
      * @return  string path to file
      */
     public function path($reset = true)
@@ -146,34 +154,28 @@ class Medium extends Data
     {
         $element;
 
-        if (!$this->linkAttributes) {
-            $text = $title ? $title : $this->url($reset);
-            $text_attributes = [];
+        $attributes = $this->attributes;
+        $link_attributes = $this->linkAttributes;
 
-            if ($class) {
-                $text_attributes['class'] = $class;
-            }
+        !empty($title) && empty($attributes['title']) && $attributes['title'] = $title;
+        !empty($alt) && empty($attributes['alt']) && $attributes['alt'] = $alt;
+        !empty($class) && empty($attributes['class']) && $attributes['class'] = $class;
 
-            $element = [
-                'name' => 'p',
-                'text' => $text,
-                'attributes' => $text_attributes
-            ];
-        } else {
+        switch ($this->mode) {
+            case 'text':
+                $element = $this->textParsedownElement($attributes, $reset);
+                break;
+            case 'thumbnail':
+                $element = $this->getThumbnail()->sourceParsedownElement($attributes, $reset);
+                break;
+            case 'source':
+                $element = $this->sourceParsedownElement($attributes, $reset);
+                break;
+        }
 
-            $thumbnail = $this->get('thumb');
-            if ($thumbnail) {
-                $innerElement = $thumbnail->parsedownElement($title, $alt, $class, $reset);
-            } else {
-                $innerElement = $title ? $title : $this->url(false);
-            }
-
-            $link_attributes = $this->linkAttributes;
-
-            if ($class) {
-                $link_attributes['class'] = $class;
-            }
-
+        if ($link_attributes) {
+            
+            $innerElement = $element;
             $element = [
                 'name' => 'a',
                 'attributes' => $this->linkAttributes,
@@ -181,13 +183,84 @@ class Medium extends Data
                 'text' => $innerElement
             ];
 
-            $this->linkAttributes = [];
             if ($reset) {
-                $this->reset();
+                $this->linkAttributes = [];
             }
         }
 
+        $this->display('source');
+
         return $element;
+    }
+
+    public function sourceParsedownElement($attributes, $reset)
+    {
+        return $this->textParsedownElement($attributes, $reset);
+    }
+
+    public function textParsedownElement($attributes, $reset)
+    {
+        $text = empty($attributes['title']) ? empty($attributes['alt']) ? $this->get('filename') : $attributes['alt'] : $attributes['title'];
+
+        $element = [
+            'name' => 'p',
+            'attributes' => $attributes,
+            'text' => $text
+        ];
+
+        if ($reset) {
+            $this->reset();
+        }
+
+        return $element;
+    }
+
+    /**
+     * Reset medium.
+     *
+     * @return $this
+     */
+    public function reset()
+    {
+        return $this;
+    }
+
+    /**
+     * Switch display mode.
+     *
+     * @param string $mode
+     *
+     * @return $this
+     */
+    public function display($mode)
+    {
+        if ($this->mode === $mode)
+            return $this;
+
+        $this->mode = $mode;
+
+        return $mode === 'thumbnail' ? $this->getThumbnail()->reset() : $this->reset();
+    }
+
+    /**
+     * Switch thumbnail.
+     *
+     * @param string $type
+     *
+     * @return $this
+     */
+    public function thumbnail($type)
+    {
+        if (!in_array($type, $this->thumbnailTypes))
+            return;
+
+        if ($this->thumbnailType !== $type) {
+            $this->_thumbnail = null;
+        }
+
+        $this->thumbnailType = $type;
+
+        return $this;
     }
 
     /**
@@ -197,18 +270,19 @@ class Medium extends Data
      * @param null $height
      * @return $this
      */
-    public function link($width = null, $height = null, $reset = true)
+    public function link($reset = true)
     {
-        $this->linkAttributes['href'] = $this->url();
-        
-        if ($width && $height) {
-            $this->linkAttributes['data-width'] = $width;
-            $this->linkAttributes['data-height'] = $height;
+        if ($this->mode !== 'source') {
+            $this->display('source');
         }
-                
-        $this->mode = 'thumb';
 
-        return $this;
+        $this->linkAttributes['href'] = $this->url();
+
+        $this->thumbnail('auto');
+        $thumb = $this->display('thumbnail');
+        $thumb->linked = true;
+
+        return $thumb;
     }
 
     /**
@@ -222,17 +296,12 @@ class Medium extends Data
     {
         $this->linkAttributes['rel'] = 'lightbox';
 
-        return $this->link($width, $height);
-    }
+        if ($width && $height) {
+            $this->linkAttributes['data-width'] = $width;
+            $this->linkAttributes['data-height'] = $height;
+        }
 
-    /**
-     * Reset image.
-     *
-     * @return $this
-     */
-    public function reset()
-    {
-        return $this;
+        return $this->link($reset);
     }
 
     /**
@@ -244,74 +313,33 @@ class Medium extends Data
      */
     public function __call($method, $args)
     {
-        if ($method == 'cropZoom') {
-            $method = 'zoomCrop';
-        }
-
-        $mode = $this->mode;
-        $target = null;
-
-        if ($mode == 'medium') {
-
-            $target = $this;
-            $valid = in_array($method, static::$magic_actions);
-
-            $method = '_' . $method;
-
-        } else if ($mode == 'thumb') {
-
-            $target = $this->get('thumb');
-            $target_class = get_class($target);
-            $valid = $target && in_array($method, $target_class::$magic_actions);
-
-        }
-
-        if ($valid) {
-            try {
-                $result = call_user_func_array(array($target, $method), $args);
-            } catch (\BadFunctionCallException $e) {
-                $result = null;
-            }
-
-            if ($mode == 'thumb' && $result) {
-                $this->set('thumb', $result);
-            }
-        }
-
         return $this;
     }
 
-    /**
-     * Add meta file for the medium.
-     *
-     * @param $type
-     * @return $this
-     */
-    public function addMetaFile($filepath)
+    protected function getThumbnail()
     {
-        $this->merge(CompiledYamlFile::instance($filepath)->content());
+        if (!$this->_thumbnail) {
+            $types = $this->thumbnailTypes;
 
-        return $this;
-    }
+            if ($this->thumbnailType !== 'auto') {
+                array_unshift($types, $this->thumbnailType);
+            }
 
-    /**
-     * Add alternative Medium to this Medium.
-     *
-     * @param $ratio
-     * @param Medium $alternative
-     */
-    public function addAlternative($ratio, Medium $alternative)
-    {
-        if (!is_numeric($ratio) || $ratio === 0) {
-            return;
+            foreach ($types as $type) {
+                $thumb = $this->get('thumbnails.' . $type, false);
+
+                if ($thumb) {
+                    $thumb = $thumb instanceof ThumbnailMedium ? $thumb : Factory::fromFile($thumb, ['type' => 'thumbnail']);
+                    $thumb->parent = $this;
+                }
+
+                if ($thumb) {
+                    $this->_thumbnail = $thumb;
+                    break;
+                }
+            }
         }
 
-        $alternative->set('ratio', $ratio);
-        $this->alternatives[(float) $ratio] = $alternative;
-    }
-
-    public function getAlternatives()
-    {
-        return $this->alternatives;
+        return $this->_thumbnail;
     }
 }

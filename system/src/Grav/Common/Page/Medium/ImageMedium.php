@@ -12,23 +12,43 @@ use Gregwar\Image\Image as ImageFile;
 class ImageMedium extends Medium
 {
     /**
+     * @var array
+     */
+    protected $thumbnailTypes = [ 'page', 'media', 'default' ];    
+
+    /**
      * @var ImageFile
      */
     protected $image;
 
-    protected $type = 'guess';
+    /**
+     * @var string
+     */
+    protected $format = 'guess';
     
+    /**
+     * @var int
+     */
     protected $quality = 85;
     
+    /**
+     * @var boolean
+     */
     protected $debug_watermarked = false;
 
+    /**
+     * @var array
+     */
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
         'smooth', 'sharp', 'edge', 'colorize', 'sepia'
     ];
 
-    public static $size_param_actions = [
+    /**
+     * @var array
+     */
+    public static $magic_resize_actions = [
         'resize' => [ 0, 1 ],
         'forceResize' => [ 0, 1 ],
         'cropResize' => [ 0, 1 ],
@@ -53,13 +73,31 @@ class ImageMedium extends Medium
         $this->def('mime', $image_info['mime']);
         $this->def('debug', self::$grav['config']->get('system.images.debug'));
 
+        $this->set('thumbnails.media', $this->get('filepath'));
+
         $this->reset();
     }
 
     /**
-     * Return PATH to file.
+     * Add meta file for the medium.
      *
-     * @return  string path to file
+     * @param $format
+     * @return $this
+     */
+    public function addMetaFile($filepath)
+    {
+        parent::addMetaFile($filepath);
+
+        // Apply filters in meta file
+        $this->reset();
+
+        return $this;
+    }
+
+    /**
+     * Return PATH to image.
+     *
+     * @return  string path to image
      */
     public function path($reset = true)
     {
@@ -71,7 +109,7 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Return URL to file.
+     * Return URL to image.
      *
      * @param bool $reset
      * @return string
@@ -115,97 +153,17 @@ class ImageMedium extends Medium
     /**
      * Called from Parsedown (ParsedownGravTrait::inlineImage calls this method on the Medium)
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
+    public function sourceParsedownElement($attributes, $reset = true)
     {
-        $outer_attributes = [];
-        $image_attributes = [
-            'src' => $this->url(false),
-        ];
+        empty($attributes['src']) && $attributes['src'] = $this->url(false);
         
         $srcset = $this->srcset($reset);
         if ($srcset) {
-            $image_attributes['srcset'] = $srcset;
-            $image_attributes['sizes'] = '100vw';
+            empty($attributes['srcset']) && $attributes['srcset'] = $srcset;
+            empty($attributes['sizes']) && $attributes['sizes'] = '100vw';
         }
 
-        if ($title) {
-            $image_attributes['title'] = $title;
-            $outer_attributes['title'] = $title;
-        }
-
-        if ($alt) {
-            $image_attributes['alt'] = $alt;
-        }
-
-        if ($class) {
-            $image_attributes['class'] = $class;
-            $outer_attributes['class'] = $class;
-        }
-
-        $element = [ 'name' => 'image', 'attributes' => $image_attributes ];
-        
-        if ($this->linkAttributes) {
-            $element = [
-                'name' => 'a',
-                'handler' => 'element',
-                'text' => $element,
-                'attributes' => $this->linkAttributes
-            ];
-
-            $this->linkAttributes = [];
-        }
-
-        $element['attributes'] = array_merge($outer_attributes, $element['attributes']);
-
-        return $element;
-    }
-
-    /**
-     * Enable link for the medium object.
-     *
-     * @param null $width
-     * @param null $height
-     * @return $this
-     */
-    public function link($width = null, $height = null, $reset = true)
-    {
-        if ($width && $height) {
-            $this->cropResize($width, $height);
-        }
-
-        $this->linkAttributes['href'] = $this->url(false);
-        $srcset = $this->srcset($reset);
-
-        if ($srcset) {
-            $this->linkAttributes['data-srcset'] = $srcset;
-        }
-
-        return $this;
-    }
-
-        /**
-     * Sets the quality of the image
-     * @param  Int $quality 0-100 quality
-     * @return Medium
-     */
-    public function quality($quality)
-    {
-        $this->quality = $quality;
-        return $this;
-    }
-
-    /**
-     * Sets image output format.
-     *
-     * @param string $type
-     * @param int $quality
-     * @return $this
-     */
-    public function format($type = null, $quality = 80)
-    {
-        $this->type = $type;
-        $this->quality = $quality;
-        return $this;
+        return [ 'name' => 'image', 'attributes' => $attributes ];
     }
 
     /**
@@ -220,10 +178,81 @@ class ImageMedium extends Medium
         $this->image();
         $this->filter();
 
-        $this->type = 'guess';
+        $this->format = 'guess';
         $this->quality = 80;
         $this->debug_watermarked = false;
 
+        return parent::reset();
+    }
+
+    /**
+     * Enable link for the medium object.
+     *
+     * @param null $width
+     * @param null $height
+     * @return $this
+     */
+    public function link($reset = true)
+    {
+        if ($this->mode !== 'source') {
+            $this->display('source');
+        }
+
+        $this->linkAttributes['href'] = $this->url(false);
+        $srcset = $this->srcset($reset);
+
+        if ($srcset) {
+            $this->linkAttributes['data-srcset'] = $srcset;
+        }
+
+        $this->thumbnail('auto');
+        $thumb = $this->display('thumbnail');
+        $thumb->linked = true;
+
+        return $thumb;
+    }
+
+    /**
+     * Enable lightbox for the medium.
+     *
+     * @param null $width
+     * @param null $height
+     * @return Medium
+     */
+    public function lightbox($width = null, $height = null, $reset = true)
+    {
+        if ($this->mode !== 'source') {
+            $this->display('source');
+        }
+
+        if ($width && $height) {
+            $this->cropResize($width, $height);
+        }
+
+        return parent::lightbox($width, $height, $reset);
+    }
+
+    /**
+     * Sets the quality of the image
+     * @param  Int $quality 0-100 quality
+     * @return Medium
+     */
+    public function quality($quality)
+    {
+        $this->quality = $quality;
+        return $this;
+    }
+
+    /**
+     * Sets image output format.
+     *
+     * @param string $format
+     * @param int $quality
+     * @return $this
+     */
+    public function format($format)
+    {
+        $this->format = $format;
         return $this;
     }
 
@@ -257,8 +286,8 @@ class ImageMedium extends Medium
 
                 // regular image: resize 400x400 -> 200x200
                 // --> @2x: resize 800x800->400x400
-                if (isset(self::$size_param_actions[$method])) {
-                    foreach (self::$size_param_actions[$method] as $param) {
+                if (isset(self::$magic_resize_actions[$method])) {
+                    foreach (self::$magic_resize_actions[$method] as $param) {
                         if (isset($args_copy[$param])) {
                             $args_copy[$param] = (int) $args_copy[$param] * $ratio;
                         }
@@ -267,12 +296,9 @@ class ImageMedium extends Medium
 
                 call_user_func_array(array($medium, $method), $args_copy);
             }
-        } catch (\BadFunctionCallException $e) {
-            $result = null;
-        }
+        } catch (\BadFunctionCallException $e) { }
 
-        // Returns either current object or result of the action.
-        return $result instanceof ImageFile ? $this : $result;
+        return $this;
     }
 
     /**
@@ -281,7 +307,7 @@ class ImageMedium extends Medium
      * @param string $variable
      * @return $this
      */
-    public function image()
+    protected function image()
     {
         $locator = self::$grav['locator'];
 
@@ -319,23 +345,7 @@ class ImageMedium extends Medium
             $this->image->merge(ImageFile::open($overlay));
         }
 
-        return $this->image->cacheFile($this->type, $this->quality);
-    }
-
-    /**
-     * Add meta file for the medium.
-     *
-     * @param $type
-     * @return $this
-     */
-    public function addMetaFile($filepath)
-    {
-        parent::addMetaFile($filepath);
-
-        // Apply filters in meta file
-        $this->reset();
-
-        return $this;
+        return $this->image->cacheFile($this->format, $this->quality);
     }
 
     /**
