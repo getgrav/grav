@@ -46,8 +46,10 @@ class Debugger
     public function addAssets()
     {
         if ($this->enabled()) {
-
             $assets = $this->grav['assets'];
+
+            // Add jquery library
+            $assets->add('jquery', 101);
 
             $this->renderer = $this->debugbar->getJavascriptRenderer();
             $this->renderer->setIncludeVendors(false);
