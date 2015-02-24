@@ -30,7 +30,6 @@ abstract class Authentication
     public static function verify($password, $hash)
     {
         // Always accept plaintext passwords (needs an update).
-        // FIXME: not safe to do this...
         if ($password && $password == $hash) {
             return 2;
         }

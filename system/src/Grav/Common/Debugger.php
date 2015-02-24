@@ -1,10 +1,8 @@
 <?php
 namespace Grav\Common;
 
-use DebugBar\Bridge\Twig\TraceableTwigEnvironment;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
-//use \Tracy\Debugger as TracyDebugger;
 
 /**
  * Class Debugger
@@ -48,8 +46,10 @@ class Debugger
     public function addAssets()
     {
         if ($this->enabled()) {
-
             $assets = $this->grav['assets'];
+
+            // Add jquery library
+            $assets->add('jquery', 101);
 
             $this->renderer = $this->debugbar->getJavascriptRenderer();
             $this->renderer->setIncludeVendors(false);

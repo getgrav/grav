@@ -64,9 +64,6 @@ class Uri
         $this->base = $base;
         $this->root = $base . $root_path;
         $this->url = $base . $uri;
-
-        $this->init();
-
     }
 
     /**
@@ -74,25 +71,16 @@ class Uri
      */
     public function init()
     {
+        $config = Grav::instance()['config'];
+
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
-        $this->params = array();
-        if (strpos($uri, ':')) {
-            $bits = explode('/', $uri);
-            $path = array();
-            foreach ($bits as $bit) {
-                if (strpos($bit, ':') !== false) {
-                    $param = explode(':', $bit);
-                    if (count($param) == 2) {
-                        $this->params[$param[0]] = str_replace('%7C', '/', filter_var($param[1], FILTER_SANITIZE_STRING));
-                    }
-                } else {
-                    $path[] = $bit;
-                }
-            }
-            $uri = implode('/', $path);
-        }
+        // reset params
+        $this->params = [];
+
+        // process params
+        $uri = $this->processParams($uri, $config->get('system.param_sep'));
 
         // remove the extension if there is one set
         $parts = pathinfo($uri);
@@ -118,6 +106,34 @@ class Uri
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
         }
+    }
+
+    /**
+     * Process any params based in this URL, supports any valid delimiter
+     *
+     * @param        $uri
+     * @param string $delimiter
+     *
+     * @return string
+     */
+    private function processParams($uri, $delimiter = ':')
+    {
+        if (strpos($uri, $delimiter) !== false) {
+            $bits = explode('/', $uri);
+            $path = array();
+            foreach ($bits as $bit) {
+                if (strpos($bit, $delimiter) !== false) {
+                    $param = explode($delimiter, $bit);
+                    if (count($param) == 2) {
+                        $this->params[$param[0]] = str_replace(urlencode($delimiter), '/', filter_var($param[1], FILTER_SANITIZE_STRING));
+                    }
+                } else {
+                    $path[] = $bit;
+                }
+            }
+            $uri = implode('/', $path);
+        }
+        return $uri;
     }
 
     /**
@@ -174,15 +190,17 @@ class Uri
      */
     public function params($id = null)
     {
+        $config = Grav::instance()['config'];
+
         $params = null;
         if ($id === null) {
             $output = array();
             foreach ($this->params as $key => $value) {
-                $output[] = $key . ':' . $value;
+                $output[] = $key . $config->get('system.param_sep') . $value;
                 $params = '/'.implode('/', $output);
             }
         } elseif (isset($this->params[$id])) {
-            $params = "/{$id}:".$this->params[$id];
+            $params = "/{$id}". $config->get('system.param_sep') . $this->params[$id];
         }
 
         return $params;
@@ -231,6 +249,8 @@ class Uri
 
     /**
      * Return the Extension of the URI
+     *
+     * @param null $default
      *
      * @return String The extension of the URI
      */
@@ -365,7 +385,7 @@ class Uri
      * @param $parsed_url
      * @return string
      */
-    public static function build_url($parsed_url)
+    public static function buildUrl($parsed_url)
     {
         $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
         $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';

@@ -178,6 +178,7 @@ class Grav extends Container
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $this['uri']->init();
         $this['errors']->resetHandlers();
         $debugger->init();
         $this['config']->debug();
@@ -290,9 +291,8 @@ class Grav extends Container
         header('Content-type: ' . $this->mime($extension));
 
         // Set debugger data in headers
-        if (!($extension == null || $extension == 'html')) {
+        if (!($extension === null || $extension == 'html')) {
             $this['debugger']->enabled(false);
-            // $this['debugger']->sendDataInHeaders();
         }
 
         // Set HTTP response code

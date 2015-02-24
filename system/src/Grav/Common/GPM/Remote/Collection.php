@@ -26,8 +26,9 @@ class Collection extends Iterator {
 
     private $plugins, $themes;
 
-    public function __construct($repository = null) {
-        if ($repository == null) {
+    public function __construct($repository = null)
+    {
+        if ($repository === null) {
             throw new \RuntimeException("A repository is required for storing the cache");
         }
 
@@ -38,7 +39,8 @@ class Collection extends Iterator {
         $this->raw        = $this->cache->fetch(md5($this->repository));
     }
 
-    public function toJson() {
+    public function toJson()
+    {
         $items = [];
 
         foreach ($this->items as $name => $theme) {
@@ -48,7 +50,8 @@ class Collection extends Iterator {
         return json_encode($items);
     }
 
-    public function toArray() {
+    public function toArray()
+    {
         $items = [];
 
         foreach ($this->items as $name => $theme) {
@@ -58,7 +61,8 @@ class Collection extends Iterator {
         return $items;
     }
 
-    public function fetch($refresh = false, $callback = null) {
+    public function fetch($refresh = false, $callback = null)
+    {
         if (!$this->raw || $refresh) {
             $response  = Response::get($this->repository, [], $callback);
             $this->raw = $response;

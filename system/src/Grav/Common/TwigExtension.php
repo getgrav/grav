@@ -68,7 +68,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
-            new \Twig_SimpleFunction('gist', [$this, 'gistFunc'])
+            new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
+            new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
         ];
     }
 
@@ -94,7 +95,8 @@ class TwigExtension extends \Twig_Extension
     public function safeEmailFilter($str)
     {
         $email = '';
-        for ($i = 0; $i < strlen($str); $i++) {
+        $str_len = strlen($str);
+        for ($i = 0; $i < $str_len; $i++) {
             $email .= "&#" . ord($str[$i]);
         }
         return $email;
@@ -432,5 +434,17 @@ class TwigExtension extends \Twig_Extension
     public function gistFunc($id)
     {
         return '<script src="https://gist.github.com/'.$id.'.js"></script>';
+    }
+
+    /**
+     * Generate a random string
+     *
+     * @param int $count
+     *
+     * @return string
+     */
+    public function randomStringFunc($count = 5)
+    {
+        return Utils::generateRandomString($count);
     }
 }

@@ -110,7 +110,7 @@ class Page
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
      * @return void
      */
-    public function init($file)
+    public function init(\SplFileInfo $file)
     {
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
@@ -373,7 +373,7 @@ class Page
             $twig_already_processed = false;
 
             // if no cached-content run everything
-            if ($this->content == false) {
+            if ($this->content === false) {
                 $this->content = $this->raw_content;
                 self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
@@ -1464,7 +1464,7 @@ class Page
      */
     public function root()
     {
-        if (!$this->parent && !$this->name and !$this->visible) {
+        if (!$this->parent && !$this->name && !$this->visible) {
             return true;
         } else {
             return false;

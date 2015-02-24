@@ -375,7 +375,7 @@ class Validation
      * @param  array  $field   Blueprint for the field.
      * @return bool   True if validation succeeded.
      */
-    public static function typeDatetime_local($value, array $params, array $field)
+    public static function typeDatetimeLocal($value, array $params, array $field)
     {
         return self::typeDatetime($value, $params, $field);
     }
@@ -517,7 +517,7 @@ class Validation
 
     public static function validateRequired($value, $params)
     {
-        return (bool) $params != true || !empty($value);
+        return (bool) $params !== true || !empty($value);
     }
 
     public static function validatePattern($value, $params)

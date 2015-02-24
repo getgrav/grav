@@ -21,9 +21,7 @@ class SimplePageHandler extends Handler
      */
     public function handle()
     {
-        $exception = $this->getException();
         $inspector = $this->getInspector();
-        $run       = $this->getRun();
 
         $helper = new TemplateHelper();
         $templateFile = $this->getResource("layout.html.php");
@@ -46,6 +44,11 @@ class SimplePageHandler extends Handler
         return Handler::QUIT;
     }
 
+    /**
+     * @param $resource
+     *
+     * @return string
+     */
     protected function getResource($resource)
     {
         // If the resource was found before, we can speed things up
@@ -67,7 +70,7 @@ class SimplePageHandler extends Handler
         }
 
         // If we got this far, nothing was found.
-        throw new RuntimeException(
+        throw new \RuntimeException(
             "Could not find resource '$resource' in any resource paths."
             . "(searched: " . join(", ", $this->searchPaths). ")"
         );
@@ -76,7 +79,7 @@ class SimplePageHandler extends Handler
     public function addResourcePath($path)
     {
         if (!is_dir($path)) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 "'$path' is not a valid directory"
             );
         }

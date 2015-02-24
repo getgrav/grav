@@ -61,15 +61,12 @@ class Installer
         $options = array_merge(self::$options, $options);
         $install_path = rtrim($destination . DS . ltrim($options['install_path'], DS), DS);
 
-        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path, $options['exclude_checks'])
-        ) {
+        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path, $options['exclude_checks'])) {
             return false;
         }
 
-        if (
-            self::lastErrorCode() == self::IS_LINK && $options['ignore_symlinks'] ||
-            self::lastErrorCode() == self::EXISTS && !$options['overwrite']
-        ) {
+        if (self::lastErrorCode() == self::IS_LINK && $options['ignore_symlinks'] ||
+            self::lastErrorCode() == self::EXISTS && !$options['overwrite']) {
             return false;
         }
 
@@ -112,7 +109,7 @@ class Installer
 
     }
 
-    public static function nonSophisticatedInstall($zip, $install_path, $tmp)
+    public static function nonSophisticatedInstall(\ZipArchive $zip, $install_path, $tmp)
     {
         $container = $zip->getNameIndex(0); // TODO: better way of determining if zip has container folder
         if (file_exists($install_path)) {
@@ -124,7 +121,7 @@ class Installer
         return true;
     }
 
-    public static function sophisticatedInstall($zip, $install_path, $tmp)
+    public static function sophisticatedInstall(\ZipArchive $zip, $install_path, $tmp)
     {
         for ($i = 0, $l = $zip->numFiles; $i < $l; $i++) {
             $filename = $zip->getNameIndex($i);

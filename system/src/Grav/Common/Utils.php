@@ -219,4 +219,16 @@ abstract class Utils
         }
         return $truncate;
     }
+
+    /**
+     * Generate a random string of a given length
+     *
+     * @param int $length
+     *
+     * @return string
+     */
+    public static function generateRandomString($length = 5)
+    {
+        return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
+    }
 }

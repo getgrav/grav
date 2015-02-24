@@ -3,7 +3,6 @@ namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Common\GravTrait;
 use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\Blueprints\Blueprints as BaseBlueprints;
 use RocketTheme\Toolbox\File\PhpFile;

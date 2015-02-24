@@ -120,7 +120,7 @@ class Assets
         }
 
         // Set custom pipeline fetch command
-        if (isset($config['fetch_command']) and ($config['fetch_command'] instanceof Closure)) {
+        if (isset($config['fetch_command']) && ($config['fetch_command'] instanceof Closure)) {
             $this->fetch_command = $config['fetch_command'];
         }
 
@@ -143,12 +143,12 @@ class Assets
         }
 
         // Set collections
-        if (isset($config['collections']) and is_array($config['collections'])) {
+        if (isset($config['collections']) && is_array($config['collections'])) {
             $this->collections = $config['collections'];
         }
 
         // Autoload assets
-        if (isset($config['autoload']) and is_array($config['autoload'])) {
+        if (isset($config['autoload']) && is_array($config['autoload'])) {
             foreach ($config['autoload'] as $asset) {
                 $this->add($asset);
             }
@@ -169,6 +169,11 @@ class Assets
 
         $this->config($asset_config);
         $this->base_url = $base_url . '/';
+
+        // Register any preconfigured collections
+        foreach ($config->get('system.assets.collections') as $name => $collection) {
+            $this->registerCollection($name, (array)$collection);
+        }
     }
 
     /**
@@ -228,7 +233,9 @@ class Assets
             foreach ($asset as $a) {
                 $this->addCss($a, $priority, $pipeline);
             }
-
+            return $this;
+        } elseif (isset($this->collections[$asset])) {
+            $this->add($this->collections[$asset], $priority, $pipeline);
             return $this;
         }
 
@@ -267,7 +274,9 @@ class Assets
             foreach ($asset as $a) {
                 $this->addJs($a, $priority, $pipeline);
             }
-
+            return $this;
+        } elseif (isset($this->collections[$asset])) {
+            $this->add($this->collections[$asset], $priority, $pipeline);
             return $this;
         }
 
@@ -530,16 +539,67 @@ class Assets
     }
 
     /**
+     * Return the array of all the registered CSS assets
+     *
+     * @return array
+     */
+    public function getCss()
+    {
+        return $this->css;
+    }
+
+    /**
+     * Return the array of all the registered JS assets
+     *
+     * @return array
+     */
+    public function getJs()
+    {
+        return $this->js;
+    }
+
+    /**
+     * Return the array of all the registered collections
+     *
+     * @return array
+     */
+    public function getCollections()
+    {
+        return $this->collections;
+    }
+
+    /**
+     * Determines if an asset exists as a collection, CSS or JS reference
+     *
+     * @param $asset
+     *
+     * @return bool
+     */
+    public function exists($asset)
+    {
+        if (isset($this->collections[$asset]) ||
+            isset($this->css[$asset]) ||
+            isset($this->js[$asset])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Add/replace collection.
      *
      * @param  string $collectionName
      * @param  array  $assets
+     * @param bool    $overwrite
      *
      * @return $this
      */
-    public function registerCollection($collectionName, Array $assets)
+    public function registerCollection($collectionName, Array $assets, $overwrite = false)
     {
-        $this->collections[$collectionName] = $assets;
+        if ($overwrite || !isset($this->collections[$collectionName])) {
+            $this->collections[$collectionName] = $assets;
+        }
 
         return $this;
     }
@@ -576,26 +636,6 @@ class Assets
         $this->css = array();
 
         return $this;
-    }
-
-    /**
-     * Get all CSS assets already added.
-     *
-     * @return array
-     */
-    public function getCss()
-    {
-        return $this->css;
-    }
-
-    /**
-     * Get all JavaScript assets already added.
-     *
-     * @return array
-     */
-    public function getJs()
-    {
-        return $this->js;
     }
 
     /**
@@ -651,9 +691,9 @@ class Assets
             $info = pathinfo($asset);
             if (isset($info['extension'])) {
                 $ext = strtolower($info['extension']);
-                if ($ext === 'css' and !in_array($asset, $this->css)) {
+                if ($ext === 'css' && !in_array($asset, $this->css)) {
                     $this->css[] = $asset;
-                } elseif ($ext === 'js' and !in_array($asset, $this->js)) {
+                } elseif ($ext === 'js' && !in_array($asset, $this->js)) {
                     $this->js[] = $asset;
                 }
             }
@@ -673,8 +713,8 @@ class Assets
      */
     protected function isRemoteLink($link)
     {
-        return ('http://' === substr($link, 0, 7) or 'https://' === substr($link, 0, 8)
-            or '//' === substr($link, 0, 2));
+        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8)
+            || '//' === substr($link, 0, 2));
     }
 
     /**
