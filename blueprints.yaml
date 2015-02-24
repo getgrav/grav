@@ -11,17 +11,6 @@ keywords: admin, plugin, manager, panel
 form:
   validation: strict
   fields:
-    enabled:
-        type: toggle
-        label: Plugin status
-        highlight: 1
-        default: 1
-        options:
-            1: Enabled
-            0: Disabled
-        validate:
-            type: bool
-
     route:
         type: text
         label: Administrator path

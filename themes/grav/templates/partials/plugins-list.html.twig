@@ -21,9 +21,11 @@
                 <span class="gpm-version">v{{ plugin.version }}</span>
             </td>
             <td class="gpm-actions">
-                <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
-                    <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
-                </a>
+                {% if (plugin.form.fields.enabled) %}
+                    <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
+                        <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
+                    </a>
+                {% endif %}
             </td>
         </tr>
     {% endfor %}
