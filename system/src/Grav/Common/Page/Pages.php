@@ -523,6 +523,11 @@ class Pages
 
         /** @var \DirectoryIterator $file */
         foreach ($iterator as $file) {
+
+            if ($file->isDot()) {
+                continue;
+            }
+
             $name = $file->getFilename();
             $modified = $file->getMTime();
 
@@ -535,7 +540,7 @@ class Pages
                     $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
                 }
 
-            } elseif ($file->isDir() && !$file->isDot()) {
+            } elseif ($file->isDir()) {
 
                 if (!$page->path()) {
                     $page->path($file->getPath());
