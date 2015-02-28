@@ -184,7 +184,7 @@ class AdminPlugin extends Plugin
      */
     public function onTwigTemplatePaths()
     {
-        $this->theme = $this->config->get('plugins.admin.theme', 'grav');
+
         $this->grav['twig']->twig_paths = array(__DIR__ . '/themes/' . $this->theme . '/templates');
     }
 
@@ -193,8 +193,6 @@ class AdminPlugin extends Plugin
      */
     public function onTwigSiteVariables()
     {
-        // TODO: use real plugin name instead
-        $theme_url = $this->grav['base_url'] . '/user/plugins/admin/themes/' . $this->theme;
         $twig = $this->grav['twig'];
 
         // Dynamic type support
@@ -207,7 +205,7 @@ class AdminPlugin extends Plugin
         $twig->twig_vars['base_url_relative'] .=
             ($twig->twig_vars['base_url_relative'] != '/' ? '/' : '') . trim($this->config->get('plugins.admin.route'),
                 '/');
-        $twig->twig_vars['theme_url'] = $theme_url;
+        $twig->twig_vars['theme_url'] = '/user/plugins/admin/themes/' . $this->theme;
         $twig->twig_vars['base_url'] = $twig->twig_vars['base_url_relative'];
         $twig->twig_vars['admin'] = $this->admin;
 
@@ -299,5 +297,8 @@ class AdminPlugin extends Plugin
 
         // And store the class into DI container.
         $this->grav['admin'] = $this->admin;
+
+        // Get theme for admin
+        $this->theme = $this->config->get('plugins.admin.theme', 'grav');
     }
 }
