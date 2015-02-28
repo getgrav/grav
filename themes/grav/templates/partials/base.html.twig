@@ -13,31 +13,31 @@
         <meta name="robots" content="{{ header.robots }}">
     {% endif %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ theme_url }}/images/favicon.png">
+    <link rel="icon" type="image/png" href="{{ base_url_relative_frontend }}{{ theme_url }}/images/favicon.png">
 
     {% block stylesheets %}
-    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/nucleus.css" type="text/css" />
-    <link rel="stylesheet" href="{{ theme_url }}/css-compiled/template.css" type="text/css" />
-    <link rel="stylesheet" href="{{ theme_url }}/css/font-awesome.min.css" type="text/css" />
-    <link rel="stylesheet" href="{{ theme_url }}/css/chartist.min.css" type="text/css" />
-    <link rel="stylesheet" href="{{ theme_url }}/css/selectize.min.css" type="text/css" />
-    <link rel="stylesheet" href="{{ theme_url }}/css/hint.base.min.css" type="text/css" />
-    <!--[if IE 9]>
-        <link rel="stylesheet" href="{{ theme_url }}/css/nucleus-ie9.css" type="text/css" />
-        <link rel="stylesheet" href="{{ theme_url }}/css/pure-0.5.0/grids-min.css" type="text/css" />
-    <![endif]-->
-    {{ assets.css() }}
+        {% do assets.addCss(theme_url~'/css-compiled/nucleus.css') %}
+        {% do assets.addCss(theme_url~'/css-compiled/template.css') %}
+        {% do assets.addCss(theme_url~'/css/font-awesome.min.css') %}
+        {% do assets.addCss(theme_url~'/css/chartist.min.css') %}
+        {% do assets.addCss(theme_url~'/css/selectize.min.css') %}
+        {% do assets.addCss(theme_url~'/css/hint.base.min.css') %}
+        {% if browser.getBrowser == 'msie' and browser.getVersion >= 8 and browser.getVersion <= 9 %}
+            {% do assets.addCss(theme_url~'/css/nucleus-ie9.css') %}
+            {% do assets.addCss(theme_url~'/css/pure-0.5.0/grids-min.css') %}
+        {% endif %}
+        {{ assets.css() }}
     {% endblock %}
 
     {% block javascripts %}
-    <script type="text/javascript" src="{{ theme_url }}/js/jquery-2.1.1.min.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/modernizr.custom.71422.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/chartist.min.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/selectize.min.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/toastr.min.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/jquery.remodal.min.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/admin-all.js"></script>
-    {{ assets.js() }}
+        {% do assets.add('jquery',101) %}
+        {% do assets.addJs(theme_url~'/js/modernizr.custom.71422.js') %}
+        {% do assets.addJs(theme_url~'/js/chartist.min.js') %}
+        {% do assets.addJs(theme_url~'/js/selectize.min.js') %}
+        {% do assets.addJs(theme_url~'/js/toastr.min.js') %}
+        {% do assets.addJs(theme_url~'/js/jquery.remodal.min.js') %}
+        {% do assets.addJs(theme_url~'/js/admin-all.js') %}
+        {{ assets.js() }}
     {% endblock %}
 {% endblock %}
 </head>
