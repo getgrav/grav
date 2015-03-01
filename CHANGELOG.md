@@ -1,5 +1,5 @@
 # v0.9.19
-## 02/38/2015
+## 02/28/2015
 
 1. [](#new)
     * Added named assets capability and bundled jQuery into Grav core
