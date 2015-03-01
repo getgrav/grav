@@ -84,8 +84,41 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      */
     public function nth($key)
     {
-        $items = array_values($this->items);
+        $items = array_keys($this->items);
         return (isset($items[$key])) ? $this->offsetGet($items[$key]) : false;
+    }
+
+    /**
+     * Get the first item
+     *
+     * @return mixed
+     */
+    public function first()
+    {
+        $items = array_keys($this->items);
+        return $this->offsetGet(array_shift($items));
+    }
+
+    /**
+     * Get the last item
+     *
+     * @return mixed
+     */
+    public function last()
+    {
+        $items = array_keys($this->items);
+        return $this->offsetGet(array_pop($items));
+    }
+
+    /**
+     * Reverse the Iterator
+     *
+     * @return $this
+     */
+    public function reverse()
+    {
+        $this->items = array_reverse($this->items);
+        return $this;
     }
 
     /**

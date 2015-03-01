@@ -169,6 +169,11 @@ class Assets
 
         $this->config($asset_config);
         $this->base_url = $base_url . '/';
+
+        // Register any preconfigured collections
+        foreach ($config->get('system.assets.collections') as $name => $collection) {
+            $this->registerCollection($name, (array)$collection);
+        }
     }
 
     /**
@@ -228,7 +233,9 @@ class Assets
             foreach ($asset as $a) {
                 $this->addCss($a, $priority, $pipeline);
             }
-
+            return $this;
+        } elseif (isset($this->collections[$asset])) {
+            $this->add($this->collections[$asset], $priority, $pipeline);
             return $this;
         }
 
@@ -267,7 +274,9 @@ class Assets
             foreach ($asset as $a) {
                 $this->addJs($a, $priority, $pipeline);
             }
-
+            return $this;
+        } elseif (isset($this->collections[$asset])) {
+            $this->add($this->collections[$asset], $priority, $pipeline);
             return $this;
         }
 
@@ -530,16 +539,67 @@ class Assets
     }
 
     /**
+     * Return the array of all the registered CSS assets
+     *
+     * @return array
+     */
+    public function getCss()
+    {
+        return $this->css;
+    }
+
+    /**
+     * Return the array of all the registered JS assets
+     *
+     * @return array
+     */
+    public function getJs()
+    {
+        return $this->js;
+    }
+
+    /**
+     * Return the array of all the registered collections
+     *
+     * @return array
+     */
+    public function getCollections()
+    {
+        return $this->collections;
+    }
+
+    /**
+     * Determines if an asset exists as a collection, CSS or JS reference
+     *
+     * @param $asset
+     *
+     * @return bool
+     */
+    public function exists($asset)
+    {
+        if (isset($this->collections[$asset]) ||
+            isset($this->css[$asset]) ||
+            isset($this->js[$asset])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Add/replace collection.
      *
      * @param  string $collectionName
      * @param  array  $assets
+     * @param bool    $overwrite
      *
      * @return $this
      */
-    public function registerCollection($collectionName, Array $assets)
+    public function registerCollection($collectionName, Array $assets, $overwrite = false)
     {
-        $this->collections[$collectionName] = $assets;
+        if ($overwrite || !isset($this->collections[$collectionName])) {
+            $this->collections[$collectionName] = $assets;
+        }
 
         return $this;
     }
@@ -576,26 +636,6 @@ class Assets
         $this->css = array();
 
         return $this;
-    }
-
-    /**
-     * Get all CSS assets already added.
-     *
-     * @return array
-     */
-    public function getCss()
-    {
-        return $this->css;
-    }
-
-    /**
-     * Get all JavaScript assets already added.
-     *
-     * @return array
-     */
-    public function getJs()
-    {
-        return $this->js;
     }
 
     /**

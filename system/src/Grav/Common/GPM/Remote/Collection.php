@@ -24,8 +24,6 @@ class Collection extends Iterator {
     private $repository;
     private $cache;
 
-    private $plugins, $themes;
-
     public function __construct($repository = null)
     {
         if ($repository === null) {

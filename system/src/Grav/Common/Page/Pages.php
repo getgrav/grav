@@ -523,19 +523,30 @@ class Pages
 
         /** @var \DirectoryIterator $file */
         foreach ($iterator as $file) {
+
+            if ($file->isDot()) {
+                continue;
+            }
+
             $name = $file->getFilename();
-            $modified = $file->getMTime();
 
-            if ($file->isFile() && Utils::endsWith($name, CONTENT_EXT)) {
+            if ($file->isFile()) {
 
-                $page->init($file);
-                $content_exists = true;
-
-                if ($config->get('system.pages.events.page')) {
-                    $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+                // Update the last modified if it's newer than already found
+                if ($file->getBasename() !== '.DS_Store' && ($modified = $file->getMTime()) > $last_modified) {
+                    $last_modified = $modified;
                 }
 
-            } elseif ($file->isDir() && !$file->isDot()) {
+                if (Utils::endsWith($name, CONTENT_EXT)) {
+
+                    $page->init($file);
+                    $content_exists = true;
+
+                    if ($config->get('system.pages.events.page')) {
+                        $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+                    }
+                }
+            } elseif ($file->isDir()) {
 
                 if (!$page->path()) {
                     $page->path($file->getPath());
@@ -553,11 +564,6 @@ class Pages
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
                 }
-            }
-
-            // Update the last modified if it's newer than already found
-            if ($modified > $last_modified) {
-                $last_modified = $modified;
             }
         }
 
