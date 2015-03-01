@@ -1,3 +1,17 @@
+# v0.9.19
+## 02/38/2015
+
+1. [](#new)
+    * Added named assets capability and bundled jQuery into Grav core
+    * Added `first()` and `last()` to `Iterator` class
+2. [](#improved)
+    * Improved page modification routine to skip _dot files_
+    * Only use files to calculate page modification dates
+    * Broke out Folder iterators into their own classes
+    * Various Sensiolabs Insight fixes
+3. [](#bugfix)
+    * Fixed `Iterator.nth()` method
+
 # v0.9.18
 ## 02/19/2015
 
@@ -11,7 +25,7 @@
     * Added new `processTemplate()` method to Twig object for on-the-fly processing of twig template
     * Added `rcopy()` and `contains()` helper methods in Utils
 2. [](#improved)
-    * Provied new `param_sep` variable to better support Apache on Windows
+    * Provided new `param_sep` variable to better support Apache on Windows
     * Moved parsedown configuration into the trait
     * Added optional **deep-copy** option to `mergeConfig()` for plugins
     * Updated bundled `composer.phar` package
