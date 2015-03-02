@@ -90,10 +90,8 @@ class Page
 
     /**
      * Page Object Constructor
-     *
-     * @param array $array An array of existing page objects
      */
-    public function __construct($array = array())
+    public function __construct()
     {
         /** @var Config $config */
         $config = self::getGrav()['config'];

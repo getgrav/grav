@@ -20,7 +20,7 @@ abstract class Folder
         $last_modified = 0;
 
         $dirItr     = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $filterItr  = new GravRecursiveFolderFilterIterator($dirItr);
+        $filterItr  = new RecursiveFolderFilterIterator($dirItr);
         $itr        = new \RecursiveIteratorIterator($filterItr, \RecursiveIteratorIterator::SELF_FIRST);
 
         /** @var \RecursiveDirectoryIterator $file */
@@ -45,7 +45,7 @@ abstract class Folder
         $last_modified = 0;
 
         $dirItr    = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $filterItr = new GravRecursiveFileFilterIterator($dirItr);
+        $filterItr = new RecursiveFileFilterIterator($dirItr);
         $itr       = new \RecursiveIteratorIterator($filterItr, \RecursiveIteratorIterator::SELF_FIRST);
 
         /** @var \RecursiveDirectoryIterator $file */
@@ -299,25 +299,5 @@ abstract class Folder
         }
 
         return @rmdir($folder);
-    }
-}
-
-class GravRecursiveFolderFilterIterator extends \RecursiveFilterIterator
-{
-    public function accept()
-    {
-        // only accept directories
-        return $this->current()->isDir();
-    }
-}
-
-class GravRecursiveFileFilterIterator extends \RecursiveFilterIterator
-{
-    public static $FILTERS = ['.DS_Store'];
-
-    public function accept()
-    {
-        // Ensure any filtered file names are skipped
-        return !in_array($this->current()->getFilename(), self::$FILTERS, true);
     }
 }
