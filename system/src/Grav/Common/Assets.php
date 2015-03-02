@@ -265,10 +265,11 @@ class Assets
      * @param  mixed $asset
      * @param  int   $priority the priority, bigger comes first
      * @param  bool  $pipeline false if this should not be pipelined
+     * @param string $loading how the asset is loaded (async/defer)
      *
      * @return $this
      */
-    public function addJs($asset, $priority = 10, $pipeline = true)
+    public function addJs($asset, $priority = 10, $pipeline = true, $loading = '')
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
@@ -290,11 +291,40 @@ class Assets
                 'asset'    => $asset,
                 'priority' => $priority,
                 'order'    => count($this->js),
-                'pipeline' => $pipeline
+                'pipeline' => $pipeline,
+                'loading'  => $loading
             ];
         }
 
         return $this;
+    }
+
+    /**
+     * Convenience wrapper for async loading of JavaScript
+     *
+     * @param      $asset
+     * @param int  $priority
+     * @param bool $pipeline
+     *
+     * @return \Grav\Common\Assets
+     */
+    public function addAsyncJs($asset, $priority = 10, $pipeline = true)
+    {
+        return $this->addJs($asset, $priority, $pipeline, 'async');
+    }
+
+    /**
+     * Convenience wrapper for deferred loading of JavaScript
+     *
+     * @param      $asset
+     * @param int  $priority
+     * @param bool $pipeline
+     *
+     * @return \Grav\Common\Assets
+     */
+    public function addDeferJs($asset, $priority = 10, $pipeline = true)
+    {
+        return $this->addJs($asset, $priority, $pipeline, 'defer');
     }
 
     /**
@@ -450,11 +480,11 @@ class Assets
         if ($this->js_pipeline) {
             $output .= '<script src="' . $this->pipeline(JS_ASSET) . '"' . $attributes . ' ></script>' . "\n";
             foreach ($this->js_no_pipeline as $file) {
-                $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ></script>' . "\n";
+                $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
             }
         } else {
             foreach ($this->js as $file) {
-                $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ></script>' . "\n";
+                $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ' . $file['loading'].'></script>' . "\n";
             }
         }
 
