@@ -227,7 +227,7 @@ trait ParsedownGravTrait
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
             // if there is no scheme, the file is local
-            if (!isset($url['scheme'])) {
+            if (!isset($url['scheme']) and (count($url) > 0)) {
                 // convert the URl is required
                 $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::buildUrl($url));
             }
