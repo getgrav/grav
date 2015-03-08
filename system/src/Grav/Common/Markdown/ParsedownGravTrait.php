@@ -19,7 +19,7 @@ trait ParsedownGravTrait
     protected $pages_dir;
     protected $special_chars;
 
-    protected $twig_link_regex = '/\!*\[(?:.*)\]\(([{{|{%|{#].*[#}|%}|}}])\)/';
+    protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
 
     /**
      * Initialiazation function to setup key variables needed by the MarkdownGravLinkTrait
