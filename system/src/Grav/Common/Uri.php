@@ -378,6 +378,20 @@ class Uri
         return $ipaddress;
 
     }
+    /**
+     * Is this an external URL? if it starts with `http` then yes, else false
+     *
+     * @param  string  $url the URL in question
+     * @return boolean      is eternal state
+     */
+    public function isExternal($url)
+    {
+        if (Utils::startsWith($url, 'http')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * The opposite of built-in PHP method parse_url()
