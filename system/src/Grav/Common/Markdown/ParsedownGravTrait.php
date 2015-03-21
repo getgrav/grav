@@ -139,6 +139,7 @@ trait ParsedownGravTrait
                 if ($media && isset($media->images()[$url['path']])) {
                     // get the medium object
                     $medium = $media->images()[$url['path']];
+                    $medium->reset();
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
@@ -153,15 +154,15 @@ trait ParsedownGravTrait
                         }
                     }
 
-                    $data = $medium->htmlRaw();
+                    $data = $medium->htmlRaw(false, $title);
 
                     // set the src element with the new generated url
                     if (!isset($actions['lightbox'])) {
                         $excerpt['element']['attributes']['src'] = $data['img_src'];
 
                         if ($data['img_srcset']) {
-                            $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
-                            $excerpt['element']['attributes']['sizes'] = '100vw';
+                            $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];
+                            $excerpt['element']['attributes']['sizes'] = $data['img_sizes'];
                         }
 
                     } else {
@@ -178,7 +179,7 @@ trait ParsedownGravTrait
 
                         if ($data['img_srcset']) {
                             $img_attributes['srcset'] = $data['img_srcset'];
-                            $img_attributes['sizes'] = '100vw';
+                            $img_attributes['sizes'] = $data['img_sizes'];
                         }
 
                         $element = array(
@@ -227,7 +228,7 @@ trait ParsedownGravTrait
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
             // if there is no scheme, the file is local
-            if (!isset($url['scheme']) and (count($url) > 0)) {
+            if (!isset($url['scheme']) && (count($url) > 0)) {
                 // convert the URl is required
                 $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::buildUrl($url));
             }
