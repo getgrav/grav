@@ -1,5 +1,5 @@
 # v0.9.20
-## 02/XX/2015
+## 03/24/2015
 
 1. [](#new)
     * Added `addAsyncJs()` and `addDeferJs()` to Assets manager
