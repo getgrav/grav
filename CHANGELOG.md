@@ -1,3 +1,18 @@
+# v0.9.20
+## 03/24/2015
+
+1. [](#new)
+    * Added `addAsyncJs()` and `addDeferJs()` to Assets manager
+    * Added support for extranal URL redirects
+2. [](#improved)
+    * Fix unpredictable asset ordering when set from plugin/system
+    * Updated `nginx.conf` to ensure system assets are accessible
+    * Ensure images are served as static files in Nginx
+    * Updated vendor libraries to latest versions
+    * Updated included composer.phar to latest version
+3. [](#bugfix)
+    * Fixed issue with markdown links to `#` breaking HTML
+
 # v0.9.19
 ## 02/28/2015
 
