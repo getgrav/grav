@@ -56,7 +56,7 @@ class Medium extends Data
         'format', 'lightbox', 'link', 'reset',
 
         // Gregwar Image functions
-        'resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
+        'resize', 'forceResize', 'cropResize', 'crop', 'cropZoom', 'quality',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
 
     public static $size_param_actions = [
