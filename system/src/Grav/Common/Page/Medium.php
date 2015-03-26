@@ -48,7 +48,7 @@ class Medium extends Data
     protected $image;
 
     protected $type = 'guess';
-    protected $quality = 85;
+    protected $quality = DEFAULT_IMG_QUALITY;
     protected $debug_watermarked = false;
 
     public static $valid_actions = [
@@ -206,7 +206,7 @@ class Medium extends Data
      * @param bool $reset
      * @return string
      */
-    public function img($title = null, $class = null, $type = null, $quality = 80, $reset = true)
+    public function img($title = null, $class = null, $type = null, $quality = DEFAULT_IMG_QUALITY, $reset = true)
     {
         if (!$this->image) {
             $this->image();
@@ -299,7 +299,7 @@ class Medium extends Data
      * @param int $quality
      * @return $this
      */
-    public function format($type = null, $quality = 80)
+    public function format($type = null, $quality = DEFAULT_IMG_QUALITY)
     {
         if (!$this->image) {
             $this->image();
@@ -366,7 +366,7 @@ class Medium extends Data
             $this->filter();
         }
         $this->type = 'guess';
-        $this->quality = 80;
+        $this->quality = DEFAULT_IMG_QUALITY;
         $this->debug_watermarked = false;
 
         return $this;
