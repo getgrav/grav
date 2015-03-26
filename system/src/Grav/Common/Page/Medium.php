@@ -47,24 +47,47 @@ class Medium extends Data
      */
     protected $image;
 
+    /**
+     * @var string
+     */
+    protected $sizes = '100vw';
+
+    /**
+     * @var string
+     */
     protected $type = 'guess';
+
+    /**
+     * @var integer
+     */
     protected $quality = 85;
+
+    /**
+     * @var boolean
+     */
     protected $debug_watermarked = false;
 
+    /**
+     * @var array
+     */
     public static $valid_actions = [
         // Medium functions
-        'format', 'lightbox', 'link', 'reset',
+        'format', 'lightbox', 'link', 'reset', 'quality', 'sizes',
 
         // Gregwar Image functions
         'resize', 'forceResize', 'cropResize', 'crop', 'cropZoom',
-        'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth', 'sharp', 'edge', 'colorize', 'sepia' ];
+        'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
+        'smooth', 'sharp', 'edge', 'colorize', 'sepia'
+    ];
 
+    /**
+     * @var array
+     */
     public static $size_param_actions = [
         'resize' => [ 0, 1 ],
         'forceResize' => [ 0, 1 ],
         'cropResize' => [ 0, 1 ],
         'crop' => [ 0, 1, 2, 3 ],
-        'cropResize' => [ 0, 1 ],
         'zoomCrop' => [ 0, 1 ]
     ];
 
@@ -197,6 +220,20 @@ class Medium extends Data
     }
 
     /**
+     * Return sizes parameter for srcset media action
+     *
+     * @param  string $sizes
+     * @return [object|string]
+     */
+    public function sizes($sizes = null) {
+        if ($sizes) {
+            $this->sizes = $sizes;
+            return $this;
+        }
+        return $this->sizes;
+    }
+
+    /**
      * Returns <img> tag from the medium.
      *
      * @param string $title
@@ -233,7 +270,7 @@ class Medium extends Data
         $class = $class ? $class : '';
 
         if ($this->image) {
-            $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="100vw"' : '';
+            $attributes = $data['img_srcset'] ? ' srcset="' . $data['img_srcset'] . '" sizes="' . $data['img_sizes'] . '"' : '';
             $output = '<img src="' . $data['img_src'] . '"' . $attributes . ' class="'. $class . '" alt="' . $title . '" />';
         } else {
             $output = $data['text'];
@@ -266,6 +303,7 @@ class Medium extends Data
         if ($this->image) {
             $output['img_src'] = $this->url(false);
             $output['img_srcset'] = $this->srcset($reset);
+            $output['img_sizes'] = $this->sizes();
         } else {
             $output['text'] = $title;
         }
@@ -365,6 +403,7 @@ class Medium extends Data
             $this->image();
             $this->filter();
         }
+        $this->sizes = '100vw';
         $this->type = 'guess';
         $this->quality = 80;
         $this->debug_watermarked = false;

@@ -7,7 +7,8 @@ define('DS', '/');
 
 // Directories and Paths
 if (!defined('GRAV_ROOT')) {
-    define('GRAV_ROOT', getcwd());
+		// Normalize root path (i.e. on Windows convert backslashes to slashes)
+    define('GRAV_ROOT', str_replace(DIRECTORY_SEPARATOR, DS, getcwd()));
 }
 define('ROOT_DIR', GRAV_ROOT . '/');
 define('USER_PATH', 'user/');
