@@ -11,31 +11,19 @@ use Gregwar\Image\Image as ImageFile;
 
 class VideoMedium extends Medium
 {
-    /**
-     * @var int
-     */
-    protected $width = null;
+    use StaticResizeTrait;
 
     /**
-     * @var int
+     * Parsedown element for source display mode
+     *
+     * @param  array $attributes
+     * @param  boolean $reset
+     * @return array
      */
-    protected $height = null;
-
-    public function __construct($items = array(), Blueprint $blueprint = null)
+    protected function sourceParsedownElement(array $attributes, $reset = true)
     {
-        parent::__construct($items, $blueprint);
-
-        $this->attributes['controls'] = true;
-    }
-
-    public function sourceParsedownElement($attributes, $reset)
-    {
-        $attributes = $this->attributes;
         $location = $this->url($reset);
 
-        !empty($this->width) && $attributes['width'] = $this->width;
-        !empty($this->height) && $attributes['height'] = $this->height;
-        
         return [
             'name' => 'video',
             'text' => '<source src="' . $location . '">Your browser does not support the video tag.',
@@ -44,29 +32,15 @@ class VideoMedium extends Medium
     }
 
     /**
-     * Enable link for the medium object.
+     * Reset medium.
      *
-     * @param null $width
-     * @param null $height
      * @return $this
      */
-    public function link($reset = true)
+    public function reset()
     {
-        if ($this->mode !== 'source') {
-            $this->display('source');
-        }
+        parent::reset();
 
-        !empty($this->width) && $this->linkAttributes['data-width'] = $this->width;
-        !empty($this->height) && $this->linkAttributes['data-height'] = $this->height;
-
-        return parent::link($reset);
-    }
-
-    protected function resize($width = null, $height = null)
-    {
-        $this->attributes['width'] = $width;
-        $this->attributes['height'] = $height;
-
+        $this->attributes['controls'] = true;
         return $this;
     }
 }

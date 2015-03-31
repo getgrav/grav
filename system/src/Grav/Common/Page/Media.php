@@ -76,7 +76,6 @@ class Media extends Getters
             if (!empty($types['base'])) {
                 $medium = MediumFactory::fromFile($types['base']);
             } else if (!empty($types['alternative'])) {
-                
                 $altMedium = reset($types['alternative']);
                 $ratio = key($types['alternative']);
 
@@ -101,7 +100,7 @@ class Media extends Getters
             if (!empty($types['alternative'])) {
 
                 $alternatives = $types['alternative'];
-                    
+
                 $max = max(array_keys($alternatives));
 
                 for ($i=2; $i < $max; $i++) {
@@ -112,7 +111,7 @@ class Media extends Getters
 
                     $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max], $max, $i);
                 }
-                
+
                 foreach ($types['alternative'] as $ratio => $altMedium) {
                     $medium->addAlternative($ratio, $altMedium);
                 }

@@ -1,18 +1,16 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Config\Config;
-use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
-use Grav\Common\GravTrait;
-use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\Data;
-use Gregwar\Image\Image as ImageFile;
-
 class ThumbnailImageMedium extends ImageMedium
 {
+    /**
+     * @var Medium
+     */
     public $parent = null;
 
+    /**
+     * @var boolean
+     */
     public $linked = false;
 
     /**
@@ -26,32 +24,80 @@ class ThumbnailImageMedium extends ImageMedium
         return '';
     }
 
+    /**
+     * Get an element (is array) that can be rendered by the Parsedown engine
+     *
+     * @param  string  $title
+     * @param  string  $alt
+     * @param  string  $class
+     * @param  boolean $reset
+     * @return array
+     */
     public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
     {
         return $this->bubble('parsedownElement', [$title, $alt, $class, $reset]);
     }
 
+    /**
+     * Return HTML markup from the medium.
+     *
+     * @param string $title
+     * @param string $alt
+     * @param string $class
+     * @param bool $reset
+     * @return string
+     */
     public function html($title = null, $alt = null, $class = null, $reset = true)
     {
         return $this->bubble('html', [$title, $alt, $class, $reset]);
     }
 
-    public function display($mode)
+    /**
+     * Switch display mode.
+     *
+     * @param string $mode
+     *
+     * @return $this
+     */
+    public function display($mode = 'source')
     {
         return $this->bubble('display', [$mode], false);
     }
 
-    public function link($reset = true)
+    /**
+     * Turn the current Medium into a Link
+     *
+     * @param  boolean $reset
+     * @param  array  $attributes
+     * @return Link
+     */
+    public function link($reset = true, array $attributes = [])
     {
-        return $this->bubble('link', [$reset], false);
+        return $this->bubble('link', [$reset, $attributes], false);
     }
 
+    /**
+     * Turn the current Medium inta a Link with lightbox enabled
+     *
+     * @param  int  $width
+     * @param  int  $height
+     * @param  boolean $reset
+     * @return Link
+     */
     public function lightbox($width = null, $height = null, $reset = true)
     {
         return $this->bubble('lightbox', [$width, $height, $reset], false);
     }
 
-    public function bubble($method, $arguments = [], $testLinked = true)
+    /**
+     * Bubble a function call up to either the superclass function or the parent Medium instance
+     *
+     * @param  string  $method
+     * @param  array  $arguments
+     * @param  boolean $testLinked
+     * @return Medium
+     */
+    protected function bubble($method, array $arguments = [], $testLinked = true)
     {
         if (!$testLinked || $this->linked) {
             return call_user_func_array(array($this->parent, $method), $arguments);

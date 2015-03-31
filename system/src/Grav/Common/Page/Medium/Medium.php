@@ -1,25 +1,21 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
 use Grav\Common\GravTrait;
-use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
-use Grav\Common\Markdown\Parsedown;
-use Gregwar\Image\Image as ImageFile;
 
 /**
- * The Image medium holds information related to an individual image. These are then stored in the Media object.
+ * The Medium is a general class for multimedia objects in Grav pages, specific implementations will derive from
  *
  * @author Grav
  * @license MIT
  *
  */
-class Medium extends Data
+class Medium extends Data implements RenderableInterface
 {
     use GravTrait;
+    use ParsedownHtmlTrait;
 
     /**
      * @var string
@@ -37,14 +33,9 @@ class Medium extends Data
     protected $thumbnailTypes = [ 'page', 'default' ];
 
     /**
-     * @var \Grav\Common\Markdown\Parsedown
-     */
-    protected $parsedown = null;
-
-    /**
      * @var Medium[]
      */
-    protected $alternatives = array();
+    protected $alternatives = [];
 
     /**
      * @var array
@@ -52,17 +43,12 @@ class Medium extends Data
     protected $attributes = [];
 
     /**
-     * @var array
-     */
-    protected $linkAttributes = [];
-
-    /**
      * Construct.
      *
      * @param array $items
      * @param Blueprint $blueprint
      */
-    public function __construct($items = array(), Blueprint $blueprint = null)
+    public function __construct($items = [], Blueprint $blueprint = null)
     {
         parent::__construct($items, $blueprint);
 
@@ -128,34 +114,47 @@ class Medium extends Data
     {
         $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('filepath'));
 
-        return self::$grav['base_url'] . $output;
+        if ($reset) $this->reset();
+
+        return self::$grav['base_url'] . $output . $this->urlHash();
     }
 
     /**
-     * Return HTML markup from the medium.
+     * Get/set hash for the file's url
      *
-     * @param string $title
-     * @param string $class
-     * @param bool $reset
+     * @param  string  $hash
+     * @param  boolean $withHash
      * @return string
      */
-    public function html($title = null, $alt = null, $class = null, $reset = true)
+    public function urlHash($hash = null, $withHash = true)
     {
-        $element = $this->parsedownElement($title, $alt, $class, $reset);
-
-        if (!$this->parsedown) {
-            $this->parsedown = new Parsedown(null);
+        if ($hash) {
+            $this->set('urlHash', ltrim($hash, '#'));
         }
 
-        return $this->parsedown->elementToHtml($element);
+        $hash = $this->get('urlHash', '');
+
+        if ($withHash && !empty($hash)) {
+            return '#' . $hash;
+        } else {
+            return $hash;
+        }
     }
 
+    /**
+     * Get an element (is array) that can be rendered by the Parsedown engine
+     *
+     * @param  string  $title
+     * @param  string  $alt
+     * @param  string  $class
+     * @param  boolean $reset
+     * @return array
+     */
     public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
     {
         $element;
 
         $attributes = $this->attributes;
-        $link_attributes = $this->linkAttributes;
 
         !empty($title) && empty($attributes['title']) && $attributes['title'] = $title;
         !empty($alt) && empty($attributes['alt']) && $attributes['alt'] = $alt;
@@ -163,29 +162,18 @@ class Medium extends Data
 
         switch ($this->mode) {
             case 'text':
-                $element = $this->textParsedownElement($attributes, $reset);
+                $element = $this->textParsedownElement($attributes, false);
                 break;
             case 'thumbnail':
-                $element = $this->getThumbnail()->sourceParsedownElement($attributes, $reset);
+                $element = $this->getThumbnail()->sourceParsedownElement($attributes, false);
                 break;
             case 'source':
-                $element = $this->sourceParsedownElement($attributes, $reset);
+                $element = $this->sourceParsedownElement($attributes, false);
                 break;
         }
 
-        if ($link_attributes) {
-            
-            $innerElement = $element;
-            $element = [
-                'name' => 'a',
-                'attributes' => $this->linkAttributes,
-                'handler' => is_string($innerElement) ? 'line' : 'element',
-                'text' => $innerElement
-            ];
-
-            if ($reset) {
-                $this->linkAttributes = [];
-            }
+        if ($reset) {
+            $this->reset();
         }
 
         $this->display('source');
@@ -193,12 +181,26 @@ class Medium extends Data
         return $element;
     }
 
-    public function sourceParsedownElement($attributes, $reset)
+    /**
+     * Parsedown element for source display mode
+     *
+     * @param  array $attributes
+     * @param  boolean $reset
+     * @return array
+     */
+    protected function sourceParsedownElement(array $attributes, $reset = true)
     {
         return $this->textParsedownElement($attributes, $reset);
     }
 
-    public function textParsedownElement($attributes, $reset)
+    /**
+     * Parsedown element for text display mode
+     *
+     * @param  array $attributes
+     * @param  boolean $reset
+     * @return array
+     */
+    protected function textParsedownElement(array $attributes, $reset = true)
     {
         $text = empty($attributes['title']) ? empty($attributes['alt']) ? $this->get('filename') : $attributes['alt'] : $attributes['title'];
 
@@ -222,6 +224,7 @@ class Medium extends Data
      */
     public function reset()
     {
+        $this->attributes = [];
         return $this;
     }
 
@@ -232,7 +235,7 @@ class Medium extends Data
      *
      * @return $this
      */
-    public function display($mode)
+    public function display($mode = 'source')
     {
         if ($this->mode === $mode)
             return $this;
@@ -249,10 +252,10 @@ class Medium extends Data
      *
      * @return $this
      */
-    public function thumbnail($type)
+    public function thumbnail($type = 'auto')
     {
         if (!in_array($type, $this->thumbnailTypes))
-            return;
+            return $this;
 
         if ($this->thumbnailType !== $type) {
             $this->_thumbnail = null;
@@ -264,58 +267,64 @@ class Medium extends Data
     }
 
     /**
-     * Enable link for the medium object.
+     * Turn the current Medium into a Link
      *
-     * @param null $width
-     * @param null $height
-     * @return $this
+     * @param  boolean $reset
+     * @param  array  $attributes
+     * @return Link
      */
-    public function link($reset = true)
+    public function link($reset = true, array $attributes = [])
     {
         if ($this->mode !== 'source') {
             $this->display('source');
         }
 
-        $this->linkAttributes['href'] = $this->url();
+        foreach ($this->attributes as $key => $value) {
+            empty($attributes['data-' . $key]) && $attributes['data-' . $key] = $value;
+        }
 
-        $this->thumbnail('auto');
-        $thumb = $this->display('thumbnail');
-        $thumb->linked = true;
+        empty($attributes['href']) && $attributes['href'] = $this->url();
 
-        return $thumb;
+        return new Link($attributes, $this);
     }
 
     /**
-     * Enable lightbox for the medium.
+     * Turn the current Medium inta a Link with lightbox enabled
      *
-     * @param null $width
-     * @param null $height
-     * @return Medium
+     * @param  int  $width
+     * @param  int  $height
+     * @param  boolean $reset
+     * @return Link
      */
     public function lightbox($width = null, $height = null, $reset = true)
     {
-        $this->linkAttributes['rel'] = 'lightbox';
+        $attributes = ['rel' => 'lightbox'];
 
         if ($width && $height) {
-            $this->linkAttributes['data-width'] = $width;
-            $this->linkAttributes['data-height'] = $height;
+            $attributes['data-width'] = $width;
+            $attributes['data-height'] = $height;
         }
 
-        return $this->link($reset);
+        return $this->link($reset, $attributes);
     }
 
     /**
-     * Forward the call to the image processing method.
+     * Allow any action to be called on this medium from twig or markdown
      *
      * @param string $method
      * @param mixed $args
-     * @return $this|mixed
+     * @return $this
      */
     public function __call($method, $args)
     {
         return $this;
     }
 
+    /**
+     * Get the thumbnail Medium object
+     *
+     * @return ThumbnailImageMedium
+     */
     protected function getThumbnail()
     {
         if (!$this->_thumbnail) {

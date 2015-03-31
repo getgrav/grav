@@ -1,12 +1,7 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Config\Config;
-use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
-use Grav\Common\GravTrait;
 use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\Data;
 use Gregwar\Image\Image as ImageFile;
 
 class ImageMedium extends Medium
@@ -14,7 +9,7 @@ class ImageMedium extends Medium
     /**
      * @var array
      */
-    protected $thumbnailTypes = [ 'page', 'media', 'default' ];    
+    protected $thumbnailTypes = [ 'page', 'media', 'default' ];
 
     /**
      * @var ImageFile
@@ -25,12 +20,12 @@ class ImageMedium extends Medium
      * @var string
      */
     protected $format = 'guess';
-    
+
     /**
      * @var int
      */
     protected $quality = 85;
-    
+
     /**
      * @var boolean
      */
@@ -63,7 +58,7 @@ class ImageMedium extends Medium
      * @param array $items
      * @param Blueprint $blueprint
      */
-    public function __construct($items = array(), Blueprint $blueprint = null)
+    public function __construct($items = [], Blueprint $blueprint = null)
     {
         parent::__construct($items, $blueprint);
 
@@ -104,8 +99,8 @@ class ImageMedium extends Medium
         $output = $this->saveImage();
 
         if ($reset) $this->reset();
-        
-        return GRAV_ROOT . '/' . $output;
+
+        return $output;
     }
 
     /**
@@ -116,13 +111,11 @@ class ImageMedium extends Medium
      */
     public function url($reset = true)
     {
-        $output = '/' . $this->saveImage();
+        $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->saveImage());
 
-        if ($reset) {
-            $this->reset();
-        }
+        if ($reset) $this->reset();
 
-        return self::$grav['base_url'] . $output;
+        return self::$grav['base_url'] . $output . $this->urlHash();
     }
 
 
@@ -151,16 +144,20 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Called from Parsedown (ParsedownGravTrait::inlineImage calls this method on the Medium)
+     * Parsedown element for source display mode
+     *
+     * @param  array $attributes
+     * @param  boolean $reset
+     * @return array
      */
-    public function sourceParsedownElement($attributes, $reset = true)
+    public function sourceParsedownElement(array $attributes, $reset = true)
     {
         empty($attributes['src']) && $attributes['src'] = $this->url(false);
-        
+
         $srcset = $this->srcset($reset);
         if ($srcset) {
             empty($attributes['srcset']) && $attributes['srcset'] = $srcset;
-            empty($attributes['sizes']) && $attributes['sizes'] = '100vw';
+            empty($attributes['sizes']) && $attributes['sizes'] = $this->sizes();
         }
 
         return [ 'name' => 'image', 'attributes' => $attributes ];
@@ -173,51 +170,46 @@ class ImageMedium extends Medium
      */
     public function reset()
     {
-        $this->image = null;
+        parent::reset();
 
-        $this->image();
-        $this->filter();
+        if ($this->image) {
+            $this->image();
+            $this->filter();
+        }
 
         $this->format = 'guess';
-        $this->quality = 80;
+        $this->quality = 85;
+
         $this->debug_watermarked = false;
 
-        return parent::reset();
+        return $this;
     }
 
     /**
-     * Enable link for the medium object.
+     * Turn the current Medium into a Link
      *
-     * @param null $width
-     * @param null $height
-     * @return $this
+     * @param  boolean $reset
+     * @param  array  $attributes
+     * @return Link
      */
-    public function link($reset = true)
+    public function link($reset = true, array $attributes = [])
     {
-        if ($this->mode !== 'source') {
-            $this->display('source');
-        }
-
-        $this->linkAttributes['href'] = $this->url(false);
-        $srcset = $this->srcset($reset);
-
+        $attributes['href'] = $this->url(false);
+        $srcset = $this->srcset(false);
         if ($srcset) {
-            $this->linkAttributes['data-srcset'] = $srcset;
+            $attributes['data-srcset'] = $srcset;
         }
 
-        $this->thumbnail('auto');
-        $thumb = $this->display('thumbnail');
-        $thumb->linked = true;
-
-        return $thumb;
+        return parent::link($reset, $attributes);
     }
 
     /**
-     * Enable lightbox for the medium.
+     * Turn the current Medium inta a Link with lightbox enabled
      *
-     * @param null $width
-     * @param null $height
-     * @return Medium
+     * @param  int  $width
+     * @param  int  $height
+     * @param  boolean $reset
+     * @return Link
      */
     public function lightbox($width = null, $height = null, $reset = true)
     {
@@ -234,11 +226,16 @@ class ImageMedium extends Medium
 
     /**
      * Sets the quality of the image
-     * @param  Int $quality 0-100 quality
+     *
+     * @param  int $quality 0-100 quality
      * @return Medium
      */
     public function quality($quality)
     {
+        if (!$this->image) {
+            $this->image();
+        }
+
         $this->quality = $quality;
         return $this;
     }
@@ -247,13 +244,32 @@ class ImageMedium extends Medium
      * Sets image output format.
      *
      * @param string $format
-     * @param int $quality
      * @return $this
      */
     public function format($format)
     {
+        if (!$this->image) {
+            $this->image();
+        }
+
         $this->format = $format;
         return $this;
+    }
+
+    /**
+     * Set or get sizes parameter for srcset media action
+     *
+     * @param  string $sizes
+     * @return $this
+     */
+    public function sizes($sizes = null) {
+
+        if ($sizes) {
+            $this->attributes['sizes'] = $sizes;
+            return $this;
+        }
+
+        return empty($this->attributes['sizes']) ? '100vw' : $this->attributes['sizes'];
     }
 
     /**
@@ -279,7 +295,7 @@ class ImageMedium extends Medium
         }
 
         try {
-            $result = call_user_func_array(array($this->image, $method), $args);
+            $result = call_user_func_array([$this->image, $method], $args);
 
             foreach ($this->alternatives as $ratio => $medium) {
                 $args_copy = $args;
@@ -294,7 +310,7 @@ class ImageMedium extends Medium
                     }
                 }
 
-                call_user_func_array(array($medium, $method), $args_copy);
+                call_user_func_array([$medium, $method], $args_copy);
             }
         } catch (\BadFunctionCallException $e) { }
 
@@ -311,11 +327,12 @@ class ImageMedium extends Medium
     {
         $locator = self::$grav['locator'];
 
-        // TODO: add default file
         $file = $this->get('filepath');
+        $cacheDir = $locator->findResource('cache://images', true);
+
         $this->image = ImageFile::open($file)
-            ->setCacheDir($locator->findResource('cache://images', false))
-            ->setActualCacheDir($locator->findResource('cache://images', true))
+            ->setCacheDir($cacheDir)
+            ->setActualCacheDir($cacheDir)
             ->setPrettyName(basename($this->get('basename')));
 
         $this->filter();
@@ -331,7 +348,7 @@ class ImageMedium extends Medium
     protected function saveImage()
     {
         if (!$this->image) {
-            $this->image();
+            return parent::path(false);
         }
 
         if ($this->get('debug') && !$this->debug_watermarked) {
@@ -345,7 +362,9 @@ class ImageMedium extends Medium
             $this->image->merge(ImageFile::open($overlay));
         }
 
-        return $this->image->cacheFile($this->format, $this->quality);
+        $result = $this->image->cacheFile($this->format, $this->quality);
+
+        return $result;
     }
 
     /**
@@ -355,7 +374,7 @@ class ImageMedium extends Medium
      */
     public function filter($filter = 'image.filters.default')
     {
-        $filters = (array) $this->get($filter, array());
+        $filters = (array) $this->get($filter, []);
         foreach ($filters as $params) {
             $params = (array) $params;
             $method = array_shift($params);

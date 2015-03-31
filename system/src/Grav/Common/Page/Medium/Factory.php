@@ -1,17 +1,12 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Config\Config;
-use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\Data;
-use Grav\Common\Markdown\Parsedown;
-use Gregwar\Image\Image as ImageFile;
 
 /**
- * The Image medium holds information related to an individual image. These are then stored in the Media object.
+ * Factory can be used to more easily create various Medium objects from files or arrays, it should
+ * contain most logic for instantiating a Medium object.
  *
  * @author Grav
  * @license MIT
@@ -21,7 +16,14 @@ class Factory
 {
     use GravTrait;
 
-    public static function fromFile($file, $params = [])
+    /**
+     * Create Medium from a file
+     *
+     * @param  string $file
+     * @param  array  $params
+     * @return Medium
+     */
+    public static function fromFile($file, array $params = [])
     {
         if (!file_exists($file)) {
             return null;
@@ -44,7 +46,7 @@ class Factory
 
         // Add default settings for undefined variables.
         $params += $config->get('media.defaults');
-        $params += array(
+        $params += [
             'type' => 'file',
             'thumb' => 'media/thumb.png',
             'mime' => 'application/octet-stream',
@@ -55,7 +57,7 @@ class Factory
             'path' => $path,
             'modified' => filemtime($file),
             'thumbnails' => []
-        );
+        ];
 
         $locator = self::getGrav()['locator'];
 
@@ -70,7 +72,14 @@ class Factory
         return static::fromArray($params);
     }
 
-    public static function fromArray($items = array(), Blueprint $blueprint = null)
+    /**
+     * Create Medium from array of parameters
+     *
+     * @param  array          $items
+     * @param  Blueprint|null $blueprint
+     * @return Medium
+     */
+    public static function fromArray(array $items = [], Blueprint $blueprint = null)
     {
         $type = isset($items['type']) ? $items['type'] : null;
 
@@ -94,6 +103,14 @@ class Factory
         }
     }
 
+    /**
+     * Create a new ImageMedium by scaling another ImageMedium object.
+     *
+     * @param  ImageMedium $medium
+     * @param  int         $from
+     * @param  int         $to
+     * @return Medium
+     */
     public static function scaledFromMedium($medium, $from, $to)
     {
         if (! $medium instanceof ImageMedium)

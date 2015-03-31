@@ -45,7 +45,7 @@ trait ParsedownGravTrait
 
     /**
      * Make the element function publicly accessible, Medium uses this to render from Twig
-     * 
+     *
      * @param  array  $Element
      * @return string markup
      */
@@ -167,6 +167,11 @@ trait ParsedownGravTrait
                     foreach ($actions as $action) {
                         $medium = call_user_func_array(array($medium, $action['method']), explode(',', $action['params']));
                     }
+
+                    if (isset($url['fragment'])) {
+                        $medium->urlHash($url['fragment']);
+                    }
+                    self::$grav['debugger']->addMessage($url);
 
                     $excerpt['element'] = $medium->parseDownElement($title, $alt, $class);
 
