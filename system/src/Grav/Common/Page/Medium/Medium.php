@@ -43,6 +43,11 @@ class Medium extends Data implements RenderableInterface
     protected $attributes = [];
 
     /**
+     * @var array
+     */
+    protected $styleAttributes = [];
+
+    /**
      * Construct.
      *
      * @param array $items
@@ -155,6 +160,12 @@ class Medium extends Data implements RenderableInterface
         $element;
 
         $attributes = $this->attributes;
+
+        $style = '';
+        foreach ($this->styleAttributes as $key => $value) {
+            $style .= $key . ': ' . $value . ';';
+        }
+        $attributes['style'] = $style;
 
         !empty($title) && empty($attributes['title']) && $attributes['title'] = $title;
         !empty($alt) && empty($attributes['alt']) && $attributes['alt'] = $alt;
