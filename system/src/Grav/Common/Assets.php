@@ -244,7 +244,7 @@ class Assets
         }
 
         $key = md5($asset);
-        if ($asset && !array_key_exists($key, $this->css)) {
+        if ($asset) {
             $this->css[$key] = [
                 'asset'    => $asset,
                 'priority' => $priority,
@@ -286,7 +286,7 @@ class Assets
         }
 
         $key = md5($asset);
-        if ($asset && !array_key_exists($key, $this->js)) {
+        if ($asset) {
             $this->js[$key] = [
                 'asset'    => $asset,
                 'priority' => $priority,

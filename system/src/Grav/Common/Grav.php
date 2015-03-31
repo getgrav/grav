@@ -255,7 +255,13 @@ class Grav extends Container
             $this['session']->close();
         }
 
-        header("Location: " . rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'), true, $code);
+        if ($this['uri']->isExternal($route)) {
+            $url = $route;
+        } else {
+            $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/');
+        }
+
+        header("Location: {$url}", true, $code);
         exit();
     }
 

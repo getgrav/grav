@@ -2,7 +2,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '0.9.19');
+define('GRAV_VERSION', '0.9.20');
 define('DS', '/');
 
 // Directories and Paths
@@ -40,3 +40,6 @@ define('RAW_CONTENT', 1);
 define('TWIG_CONTENT', 2);
 define('TWIG_CONTENT_LIST', 3);
 define('TWIG_TEMPLATES', 4);
+
+// Other defines
+define('DEFAULT_IMG_QUALITY', 85);

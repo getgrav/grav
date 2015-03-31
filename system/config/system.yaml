@@ -1,6 +1,6 @@
 absolute_urls: false                   # Absolute or relative URLs for `base_url`
 timezone: ''                           # Valid values: http://php.net/manual/en/timezones.php
-param_sep: ':'                         # Parameter separator
+param_sep: ':'                         # Parameter separator, use ';' for Apache on windows
 
 home:
   alias: '/home'                       # Default path for home, ie /
