@@ -6,7 +6,7 @@ use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
 use Grav\Common\Page\Medium\Medium;
-use Grav\Common\Page\Medium\Factory as MediumFactory;
+use Grav\Common\Page\Medium\MediumFactory;
 
 /**
  * Media is a holder object that contains references to the media of page. This object is created and

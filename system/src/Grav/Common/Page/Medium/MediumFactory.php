@@ -5,14 +5,14 @@ use Grav\Common\GravTrait;
 use Grav\Common\Data\Blueprint;
 
 /**
- * Factory can be used to more easily create various Medium objects from files or arrays, it should
+ * MediumFactory can be used to more easily create various Medium objects from files or arrays, it should
  * contain most logic for instantiating a Medium object.
  *
  * @author Grav
  * @license MIT
  *
  */
-class Factory
+class MediumFactory
 {
     use GravTrait;
 
