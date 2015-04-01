@@ -58,6 +58,7 @@ class Medium extends Data implements RenderableInterface
         parent::__construct($items, $blueprint);
 
         $this->def('mime', 'application/octet-stream');
+        $this->reset();
     }
 
     /**
