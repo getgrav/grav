@@ -171,7 +171,6 @@ trait ParsedownGravTrait
                     if (isset($url['fragment'])) {
                         $medium->urlHash($url['fragment']);
                     }
-                    self::$grav['debugger']->addMessage($url);
 
                     $excerpt['element'] = $medium->parseDownElement($title, $alt, $class);
 

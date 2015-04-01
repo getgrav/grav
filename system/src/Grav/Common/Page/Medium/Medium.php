@@ -58,6 +58,7 @@ class Medium extends Data implements RenderableInterface
         parent::__construct($items, $blueprint);
 
         $this->def('mime', 'application/octet-stream');
+        $this->reset();
     }
 
     /**
@@ -265,7 +266,7 @@ class Medium extends Data implements RenderableInterface
      */
     public function thumbnail($type = 'auto')
     {
-        if (!in_array($type, $this->thumbnailTypes))
+        if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes))
             return $this;
 
         if ($this->thumbnailType !== $type) {
