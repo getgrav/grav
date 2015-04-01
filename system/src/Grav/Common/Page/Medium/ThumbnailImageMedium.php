@@ -65,6 +65,19 @@ class ThumbnailImageMedium extends ImageMedium
     }
 
     /**
+     * Switch thumbnail.
+     *
+     * @param string $type
+     *
+     * @return $this
+     */
+    public function thumbnail($type = 'auto')
+    {
+        $this->bubble('thumbnail', [$type], false);
+        return $this->bubble('getThumbnail', [], false);
+    }
+
+    /**
      * Turn the current Medium into a Link
      *
      * @param  boolean $reset
@@ -100,7 +113,7 @@ class ThumbnailImageMedium extends ImageMedium
     protected function bubble($method, array $arguments = [], $testLinked = true)
     {
         if (!$testLinked || $this->linked) {
-            return call_user_func_array(array($this->parent, $method), $arguments);
+            return $this->parent ? call_user_func_array(array($this->parent, $method), $arguments) : $this;
         } else {
             return call_user_func_array(array($this, 'parent::' . $method), $arguments);
         }
