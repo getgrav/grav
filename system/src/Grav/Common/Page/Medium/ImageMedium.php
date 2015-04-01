@@ -160,7 +160,7 @@ class ImageMedium extends Medium
             empty($attributes['sizes']) && $attributes['sizes'] = $this->sizes();
         }
 
-        return [ 'name' => 'image', 'attributes' => $attributes ];
+        return [ 'name' => 'img', 'attributes' => $attributes ];
     }
 
     /**
