@@ -225,8 +225,12 @@ class Media extends Getters
         if (preg_match('/(.*)@(\d+)x\.(.*)$/', $filename, $matches)) {
             $name = $matches[1];
             $extension = $matches[3];
-            $type = 'alternative';
             $extra = (int) $matches[2];
+
+            if ($extra === 1) {
+                $type = 'base';
+                $extra = null;
+            }
         } else {
             $extension = null;
             while (($part = array_shift($fileParts)) !== null) {
