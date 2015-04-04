@@ -18,7 +18,10 @@
     }
 
     .gpm-actions {
-        font-size: 1.6rem;
+
+        .enabled, .disabled {
+            font-size: 1.6rem;
+        }
 
         .disabled {
             color: lighten($content-fg,10%);
@@ -98,9 +101,8 @@
             background: darken($content-bg, 2%);
             margin: 1rem -1rem -1rem -1rem;
             height: 4rem;
-            line-height: 4rem;
             text-align: right;
-            padding-right: 1rem;
+            padding: 1rem;
 
             &.active-theme {
                 font-size: 1rem;
@@ -109,12 +111,14 @@
                 background: $page-bg;
                 color: $content-bg;
             }
+            &.active-theme, &.inactive-theme {
+                line-height: 2rem;
 
-            a {
-                color: $content-fg;
-                vertical-align: middle;
-
+                a {
+                    color: $content-fg;
+                }
             }
+
 
         }
 
