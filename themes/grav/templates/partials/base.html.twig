@@ -29,6 +29,7 @@
         {{ assets.css() }}
     {% endblock %}
 
+    {% include 'partials/javascript-config.html.twig' %}
     {% block javascripts %}
         {% do assets.add('jquery',101) %}
         {% do assets.addJs(theme_url~'/js/modernizr.custom.71422.js') %}
