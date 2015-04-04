@@ -1,9 +1,11 @@
 <?php
 namespace Grav\Common\GPM\Remote;
 
-class Grav extends Collection
+use \Doctrine\Common\Cache\FilesystemCache;
+
+class Grav extends AbstractPackageCollection
 {
-    private $repository = 'http://getgrav.org/downloads/grav.json';
+    protected $repository = 'http://getgrav.org/downloads/grav.json';
     private $data;
 
     private $version;
@@ -15,15 +17,17 @@ class Grav extends Collection
      */
     public function __construct($refresh = false, $callback = null)
     {
-        parent::__construct($this->repository);
+        $cache_dir      = self::getGrav()['locator']->findResource('cache://gpm', true, true);
+        $this->cache    = new FilesystemCache($cache_dir);
+        $this->raw      = $this->cache->fetch(md5($this->repository));
 
         $this->fetch($refresh, $callback);
-        $this->data = json_decode($this->raw);
 
-        $this->version = @$this->data->version ?: '-';
-        $this->date = @$this->data->date ?: '-';
+        $this->data = json_decode($this->raw, true);
+        $this->version = @$this->data['version'] ?: '-';
+        $this->date = @$this->data['date'] ?: '-';
 
-        foreach ($this->data->assets as $slug => $data) {
+        foreach ($this->data['assets'] as $slug => $data) {
             $this->items[$slug] = new Package($data);
         }
     }
