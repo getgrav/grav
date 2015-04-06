@@ -1,21 +1,24 @@
 <?php
 namespace Grav\Common\GPM\Remote;
 
-class Plugins extends Collection
+/**
+ * Class Plugins
+ * @package Grav\Common\GPM\Remote
+ */
+class Plugins extends AbstractPackageCollection
 {
-    private $repository = 'http://getgrav.org/downloads/plugins.json';
-    private $type       = 'plugins';
-    private $data;
+    /**
+     * @var string
+     */
+    protected $type = 'plugins';
 
+    protected $repository = 'http://getgrav.org/downloads/plugins.json';
+
+    /**
+     * Local Plugins Constructor
+     */
     public function __construct($refresh = false, $callback = null)
     {
-        parent::__construct($this->repository);
-
-        $this->fetch($refresh, $callback);
-        $this->data = json_decode($this->raw);
-
-        foreach ($this->data as $slug => $data) {
-            $this->items[$slug] = new Package($data, $this->type);
-        }
+        parent::__construct($this->repository, $refresh, $callback);
     }
 }

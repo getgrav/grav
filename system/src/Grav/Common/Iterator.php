@@ -197,4 +197,23 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
 
         return $this;
     }
+
+    /**
+     * Filter elements from the list
+     * @param  callable|null $callback A function the receives ($value, $key) and must return a boolean to indicate filter status
+     * @return $this
+     */
+    public function filter(callable $callback = null)
+    {
+        foreach ($this->items as $key => $value) {
+            if (
+                ($callback && !call_user_func($callback, $value, $key)) ||
+                (!$callback && !(bool) $value)
+            ) {
+                unset($this->items[$key]);
+            }
+        }
+
+        return $this;
+    }
 }
