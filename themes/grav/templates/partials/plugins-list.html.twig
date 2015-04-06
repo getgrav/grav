@@ -1,11 +1,11 @@
 <div class="grav-update plugins"></div>
 
 <h1>
-    Installed Plugins
+    {{ installing ? 'Available' : 'Installed' }}  Plugins
 </h1>
 
 <table>
-    {% for slug, package in admin.plugins %}
+    {% for slug, package in admin.plugins(not installing) %}
         {% set plugin = package.toArray() %}
         {% set data = admin.data('plugins/' ~ slug) %}
 
@@ -21,10 +21,12 @@
                 <span class="gpm-version">v{{ plugin.version }}</span>
             </td>
             <td class="gpm-actions">
-                {% if (plugin.form.fields.enabled) %}
+                {% if (not installing and plugin.form.fields.enabled) %}
                     <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
                         <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
                     </a>
+                {% elseif (installing) %}
+                    <a class="button" href="{{ base_url_relative }}/plugins/{{ slug }}/task:install"><i class="fa fa-plus"></i> Install</a>
                 {% endif %}
             </td>
         </tr>

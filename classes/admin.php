@@ -10,7 +10,7 @@ use Grav\Common\Uri;
 use Grav\Common\Page\Pages;
 use Grav\Common\Page\Page;
 use Grav\Common\Data;
-use Grav\Common\GPM\Local\Packages as LocalPackages;
+use Grav\Common\GPM\GPM;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\LogFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -66,9 +66,9 @@ class Admin
     public $user;
 
     /**
-     * @var Packages
+     * @var Grav\Common\GPM\GPM
      */
-    public $localPackages;
+    protected $gpm;
 
 
     /**
@@ -287,6 +287,15 @@ class Admin
         return $data[$type];
     }
 
+    public function gpm()
+    {
+        if (!$this->gpm) {
+            $this->gpm = new GPM();
+        }
+
+        return $this->gpm;
+    }
+
     /**
      * Converts dot notation to array notation.
      *
@@ -317,13 +326,12 @@ class Admin
      *
      * @return array
      */
-    public function plugins()
+    public function plugins($local = true)
     {
-        if (!$this->localPackages) {
-            $this->localPackages = new LocalPackages();
-        }
-
-        return $this->localPackages['plugins'];
+        $gpm = $this->gpm();
+        return $local ? $gpm->getInstalledPlugins() : $gpm->getRepositoryPlugins()->filter(function ($package, $slug) use ($gpm) {
+            return !$gpm->isPluginInstalled($slug);
+        });
     }
 
     /**
@@ -331,15 +339,12 @@ class Admin
      *
      * @return array
      */
-    public function themes()
+    public function themes($local = true)
     {
-
-
-        if (!$this->localPackages) {
-            $this->localPackages = new LocalPackages();
-        }
-
-        return $this->localPackages['themes'];
+        $gpm = $this->gpm();
+        return $local ? $gpm->getInstalledThemes() : $gpm->getRepositoryThemes()->filter(function ($package, $slug) use ($gpm) {
+            return !$gpm->isThemeInstalled($slug);
+        });
     }
 
     /**
