@@ -78,12 +78,12 @@ class InfoCommand extends Command
         $this->output->writeln('');
 
         $packageURL = '';
-        if (isset($foundPackage->author->url)) {
-            $packageURL = '<' . $foundPackage->author->url . '>';
+        if (isset($foundPackage->author['url'])) {
+            $packageURL = '<' . $foundPackage->author['url'] . '>';
         }
 
         $this->output->writeln("<green>" . str_pad("Author",
-                12) . ":</green> " . $foundPackage->author->name . ' <' . $foundPackage->author->email . '> ' . $packageURL);
+                12) . ":</green> " . $foundPackage->author['name'] . ' <' . $foundPackage->author['email'] . '> ' . $packageURL);
 
         foreach (array(
                      'version',

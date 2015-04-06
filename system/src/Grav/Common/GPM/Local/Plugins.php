@@ -5,22 +5,18 @@ namespace Grav\Common\GPM\Local;
  * Class Plugins
  * @package Grav\Common\GPM\Local
  */
-class Plugins extends Collection
+class Plugins extends AbstractPackageCollection
 {
     /**
      * @var string
      */
-    private $type = 'plugins';
+    protected $type = 'plugins';
 
     /**
      * Local Plugins Constructor
      */
     public function __construct()
     {
-        $grav = self::getGrav();
-
-        foreach ($grav['plugins']->all() as $name => $data) {
-            $this->items[$name] = new Package($data, $this->type);
-        }
+        parent::__construct(self::getGrav()['plugins']->all());
     }
 }
