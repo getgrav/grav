@@ -4,6 +4,7 @@
 1. [](#new)
     * Major Media functionality enhancements: SVG, Animated GIF, Video support!
     * Added ability to configure default image quality in system configuration
+    * Added `sizes` attributes for custom retina image breakpoints
 2. [](#improved)
     * Don't scale @1x retina images
     * Add filter to Iterator class
