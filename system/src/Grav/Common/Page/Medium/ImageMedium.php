@@ -24,7 +24,12 @@ class ImageMedium extends Medium
     /**
      * @var int
      */
-    protected $quality = DEFAULT_IMG_QUALITY;
+    protected $quality;
+
+    /**
+     * @var int
+     */
+    protected $default_quality;
 
     /**
      * @var boolean
@@ -69,6 +74,8 @@ class ImageMedium extends Medium
         $this->def('debug', self::$grav['config']->get('system.images.debug'));
 
         $this->set('thumbnails.media', $this->get('filepath'));
+
+        $this->default_quality = self::$grav['config']->get('system.images.default_image_quality', 85);
 
         $this->reset();
     }
@@ -183,7 +190,7 @@ class ImageMedium extends Medium
         }
 
         $this->format = 'guess';
-        $this->quality = DEFAULT_IMG_QUALITY;
+        $this->quality = $this->default_quality;
 
         $this->debug_watermarked = false;
 
