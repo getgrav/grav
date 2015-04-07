@@ -1,3 +1,15 @@
+# v0.9.21
+## 04/07/2015
+
+1. [](#new)
+    * Major Media functionality enhancements: SVG, Animated GIF, Video support!
+    * Added ability to configure default image quality in system configuration
+2. [](#improved)
+    * Don't scale @1x retina images
+    * Add filter to Iterator class
+    * Updated various composer packages
+    * Various PSR fixes
+
 # v0.9.20
 ## 03/24/2015
 
