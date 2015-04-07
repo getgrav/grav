@@ -226,6 +226,7 @@ class Media extends Getters
             $name = $matches[1];
             $extension = $matches[3];
             $extra = (int) $matches[2];
+            $type = 'alternative';
 
             if ($extra === 1) {
                 $type = 'base';
