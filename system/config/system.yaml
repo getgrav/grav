@@ -69,4 +69,5 @@ debugger:
     close_connection: true             # Close the connection before calling onShutdown(). false for debugging
 
 images:
+  default_image_quality: 85            # Default image quality to use when resampling images (85%)
   debug: false                         # Show an overlay over images indicating the pixel depth of the image when working with retina for example

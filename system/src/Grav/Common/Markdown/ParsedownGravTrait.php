@@ -4,7 +4,7 @@ namespace Grav\Common\Markdown;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
-use Grav\Common\Page\Medium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Uri;
 
 /**
@@ -41,6 +41,17 @@ trait ParsedownGravTrait
         $this->setUrlsLinked($defaults['auto_url_links']);
         $this->setMarkupEscaped($defaults['escape_markup']);
         $this->setSpecialChars($defaults['special_chars']);
+    }
+
+    /**
+     * Make the element function publicly accessible, Medium uses this to render from Twig
+     *
+     * @param  array  $Element
+     * @return string markup
+     */
+    public function elementToHtml(array $Element)
+    {
+        return $this->element($Element);
     }
 
     /**
@@ -108,6 +119,7 @@ trait ParsedownGravTrait
 
             $alt = $excerpt['element']['attributes']['alt'] ?: '';
             $title = $excerpt['element']['attributes']['title'] ?: '';
+            $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
 
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
@@ -136,69 +148,32 @@ trait ParsedownGravTrait
                 }
 
                 // if there is a media file that matches the path referenced..
-                if ($media && isset($media->images()[$url['path']])) {
+                if ($media && isset($media->all()[$url['path']])) {
                     // get the medium object
-                    $medium = $media->images()[$url['path']];
+                    $medium = $media->all()[$url['path']];
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
-                        parse_str($url['query'], $actions);
+                        $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
+                            $parts = explode('=', $item, 2);
+                            $value = isset($parts[1]) ? $parts[1] : null;
+                            $carry[] = [ 'method' => $parts[0], 'params' => $value ];
+
+                            return $carry;
+                        }, []);
                     }
 
                     // loop through actions for the image and call them
-                    foreach ($actions as $action => $params) {
-                        // as long as it's a valid action
-                        if (in_array($action, Medium::$valid_actions)) {
-                            call_user_func_array(array(&$medium, $action), explode(',', $params));
-                        }
+                    foreach ($actions as $action) {
+                        $medium = call_user_func_array(array($medium, $action['method']), explode(',', $action['params']));
                     }
 
-                    $data = $medium->htmlRaw();
-
-                    // set the src element with the new generated url
-                    if (!isset($actions['lightbox'])) {
-                        $excerpt['element']['attributes']['src'] = $data['img_src'];
-
-                        if ($data['img_srcset']) {
-                            $excerpt['element']['attributes']['srcset'] = $data['img_srcset'];;
-                            $excerpt['element']['attributes']['sizes'] = '100vw';
-                        }
-
-                    } else {
-                        // Create the custom lightbox element
-
-                        $attributes = $data['a_attributes'];
-                        $attributes['href'] = $data['a_href'];
-
-                        $img_attributes = [
-                            'src' => $data['img_src'],
-                            'alt' => $alt,
-                            'title' => $title
-                        ];
-
-                        if ($data['img_srcset']) {
-                            $img_attributes['srcset'] = $data['img_srcset'];
-                            $img_attributes['sizes'] = '100vw';
-                        }
-
-                        $element = array(
-                            'name' => 'a',
-                            'attributes' => $attributes,
-                            'handler' => 'element',
-                            'text' => array(
-                                'name' => 'img',
-                                'attributes' => $img_attributes
-                            )
-                        );
-
-                        // Set any custom classes on the lightbox element
-                        if (isset($excerpt['element']['attributes']['class'])) {
-                            $element['attributes']['class'] = $excerpt['element']['attributes']['class'];
-                        }
-
-                        // Set the lightbox element on the Excerpt
-                        $excerpt['element'] = $element;
+                    if (isset($url['fragment'])) {
+                        $medium->urlHash($url['fragment']);
                     }
+
+                    $excerpt['element'] = $medium->parseDownElement($title, $alt, $class);
+
                 } else {
                     // not a current page media file, see if it needs converting to relative
                     $excerpt['element']['attributes']['src'] = Uri::buildUrl($url);
@@ -227,7 +202,7 @@ trait ParsedownGravTrait
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
             // if there is no scheme, the file is local
-            if (!isset($url['scheme']) and (count($url) > 0)) {
+            if (!isset($url['scheme']) && (count($url) > 0)) {
                 // convert the URl is required
                 $excerpt['element']['attributes']['href'] = $this->convertUrl(Uri::buildUrl($url));
             }

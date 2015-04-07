@@ -78,7 +78,6 @@ class Response
         $method  = 'get' . ucfirst(strtolower(self::$method));
 
         self::$callback = $callback;
-
         return static::$method($uri, $options, $callback);
     }
 

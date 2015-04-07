@@ -960,7 +960,6 @@ class Page
 
                 // Build an array of meta objects..
                 foreach ((array)$page_header->metadata as $key => $value) {
-
                     // If this is a property type metadata: "og", "twitter", "facebook" etc
                     if (is_array($value)) {
                         foreach ($value as $property => $prop_value) {

@@ -20,9 +20,14 @@ png:
   thumb: media/thumb-png.png
   mime: image/png
 gif:
-  type: image
+  type: animated
   thumb: media/thumb-gif.png
   mime: image/gif
+
+svg:
+  type: vector
+  thumb: media/thumb-gif.png
+  mime: image/svg+xml
 
 mp4:
   type: video

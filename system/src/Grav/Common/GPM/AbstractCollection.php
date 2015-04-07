@@ -1,19 +1,19 @@
 <?php
-namespace Grav\Common\GPM\Local;
+namespace Grav\Common\GPM;
 
 use Grav\Common\GravTrait;
 use Grav\Common\Iterator;
 
-class Collection extends Iterator
-{
+abstract class AbstractCollection extends Iterator {
+
     use GravTrait;
 
     public function toJson()
     {
         $items = [];
 
-        foreach ($this->items as $name => $theme) {
-            $items[$name] = $theme->toArray();
+        foreach ($this->items as $name => $package) {
+            $items[$name] = $package->toArray();
         }
 
         return json_encode($items);
@@ -23,8 +23,8 @@ class Collection extends Iterator
     {
         $items = [];
 
-        foreach ($this->items as $name => $theme) {
-            $items[$name] = $theme->toArray();
+        foreach ($this->items as $name => $package) {
+            $items[$name] = $package->toArray();
         }
 
         return $items;

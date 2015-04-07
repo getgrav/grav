@@ -1,32 +1,12 @@
 <?php
 namespace Grav\Common\GPM\Remote;
 
-class Package {
-    public function __construct($package, $package_type = false) {
-        $this->data = $package;
-        if ($package_type) {
-            $this->data->package_type = $package_type;
-        }
-    }
+use Grav\Common\Data\Data;
+use Grav\Common\GPM\Common\Package as BasePackage;
 
-    public function getData() {
-        return $this->data;
+class Package extends BasePackage {
+    public function __construct($package, $package_type = null) {
+        $data = new Data($package);
+        parent::__construct($data, $package_type);
     }
-
-    public function __get($key) {
-        return $this->data->$key;
-    }
-
-    public function __toString() {
-        return $this->toJson();
-    }
-
-    public function toJson() {
-        return json_encode($this->data);
-    }
-
-    public function toArray() {
-        return $this->data;
-    }
-
 }

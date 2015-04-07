@@ -1,15 +1,22 @@
 <?php
 namespace Grav\Common\GPM\Local;
 
-class Themes extends Collection
+/**
+ * Class Themes
+ * @package Grav\Common\GPM\Local
+ */
+class Themes extends AbstractPackageCollection
 {
-    private $type = 'themes';
+    /**
+     * @var string
+     */
+    protected $type = 'themes';
+
+    /**
+     * Local Themes Constructor
+     */
     public function __construct()
     {
-        $grav = self::getGrav();
-
-        foreach ($grav['themes']->all() as $name => $data) {
-            $this->items[$name] = new Package($data, $this->type);
-        }
+        parent::__construct(self::getGrav()['themes']->all());
     }
 }
