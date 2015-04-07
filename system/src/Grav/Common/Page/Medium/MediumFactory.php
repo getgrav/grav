@@ -113,8 +113,9 @@ class MediumFactory
      */
     public static function scaledFromMedium($medium, $from, $to)
     {
-        if (! $medium instanceof ImageMedium)
+        if (! $medium instanceof ImageMedium) {
             return $medium;
+        }
 
         if ($to > $from) {
             return $medium;

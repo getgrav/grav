@@ -98,13 +98,11 @@ class Media extends Getters
 
             // Build missing alternatives
             if (!empty($types['alternative'])) {
-
                 $alternatives = $types['alternative'];
 
                 $max = max(array_keys($alternatives));
 
                 for ($i=2; $i < $max; $i++) {
-
                     if (isset($alternatives[$i])) {
                         continue;
                     }

@@ -24,7 +24,7 @@ class ImageMedium extends Medium
     /**
      * @var int
      */
-    protected $quality = 85;
+    protected $quality = DEFAULT_IMG_QUALITY;
 
     /**
      * @var boolean
@@ -76,7 +76,7 @@ class ImageMedium extends Medium
     /**
      * Add meta file for the medium.
      *
-     * @param $format
+     * @param $filepath
      * @return $this
      */
     public function addMetaFile($filepath)
@@ -92,13 +92,16 @@ class ImageMedium extends Medium
     /**
      * Return PATH to image.
      *
-     * @return  string path to image
+     * @param bool $reset
+     * @return string path to image
      */
     public function path($reset = true)
     {
         $output = $this->saveImage();
 
-        if ($reset) $this->reset();
+        if ($reset) {
+            $this->reset();
+        }
 
         return $output;
     }
@@ -113,7 +116,9 @@ class ImageMedium extends Medium
     {
         $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->saveImage());
 
-        if ($reset) $this->reset();
+        if ($reset) {
+            $this->reset();
+        }
 
         return self::$grav['base_url'] . $output . $this->urlHash();
     }
@@ -178,7 +183,7 @@ class ImageMedium extends Medium
         }
 
         $this->format = 'guess';
-        $this->quality = 85;
+        $this->quality = DEFAULT_IMG_QUALITY;
 
         $this->debug_watermarked = false;
 
@@ -262,7 +267,8 @@ class ImageMedium extends Medium
      * @param  string $sizes
      * @return $this
      */
-    public function sizes($sizes = null) {
+    public function sizes($sizes = null)
+    {
 
         if ($sizes) {
             $this->attributes['sizes'] = $sizes;
@@ -312,7 +318,8 @@ class ImageMedium extends Medium
 
                 call_user_func_array([$medium, $method], $args_copy);
             }
-        } catch (\BadFunctionCallException $e) { }
+        } catch (\BadFunctionCallException $e) {
+        }
 
         return $this;
     }
@@ -320,7 +327,6 @@ class ImageMedium extends Medium
     /**
      * Gets medium image, resets image manipulation operations.
      *
-     * @param string $variable
      * @return $this
      */
     protected function image()

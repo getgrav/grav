@@ -12,6 +12,7 @@ class Link implements RenderableInterface
      * @var array
      */
     protected $attributes = [];
+    protected $source;
 
     /**
      * Construct.

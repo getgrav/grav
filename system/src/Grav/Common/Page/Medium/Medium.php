@@ -4,6 +4,7 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\GravTrait;
 use Grav\Common\Data\Data;
+use Grav\Common\Data\Blueprint;
 
 /**
  * The Medium is a general class for multimedia objects in Grav pages, specific implementations will derive from
@@ -31,6 +32,8 @@ class Medium extends Data implements RenderableInterface
      * @var array
      */
     protected $thumbnailTypes = [ 'page', 'default' ];
+
+    protected $thumbnailType = null;
 
     /**
      * @var Medium[]
@@ -105,7 +108,9 @@ class Medium extends Data implements RenderableInterface
      */
     public function path($reset = true)
     {
-        if ($reset) $this->reset();
+        if ($reset) {
+            $this->reset();
+        }
 
         return $this->get('filepath');
     }
@@ -120,7 +125,9 @@ class Medium extends Data implements RenderableInterface
     {
         $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('filepath'));
 
-        if ($reset) $this->reset();
+        if ($reset) {
+            $this->reset();
+        }
 
         return self::$grav['base_url'] . $output . $this->urlHash();
     }
@@ -158,8 +165,6 @@ class Medium extends Data implements RenderableInterface
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
     {
-        $element;
-
         $attributes = $this->attributes;
 
         $style = '';
@@ -249,8 +254,10 @@ class Medium extends Data implements RenderableInterface
      */
     public function display($mode = 'source')
     {
-        if ($this->mode === $mode)
+        if ($this->mode === $mode) {
             return $this;
+        }
+
 
         $this->mode = $mode;
 
@@ -266,8 +273,9 @@ class Medium extends Data implements RenderableInterface
      */
     public function thumbnail($type = 'auto')
     {
-        if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes))
+        if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes)) {
             return $this;
+        }
 
         if ($this->thumbnailType !== $type) {
             $this->_thumbnail = null;
