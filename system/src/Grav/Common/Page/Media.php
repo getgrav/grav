@@ -58,9 +58,9 @@ class Media extends Getters
 
             if ($type === 'alternative') {
                 $media["{$basename}.{$ext}"][$type] = isset($media["{$basename}.{$ext}"][$type]) ? $media["{$basename}.{$ext}"][$type] : [];
-                $media["{$basename}.{$ext}"][$type][$extra] = str_replace(DIRECTORY_SEPARATOR, DS, $info->getPathname());;
+                $media["{$basename}.{$ext}"][$type][$extra] = str_replace(DIRECTORY_SEPARATOR, DS, $info->getPathname());
             } else {
-                $media["{$basename}.{$ext}"][$type] = str_replace(DIRECTORY_SEPARATOR, DS, $info->getPathname());;
+                $media["{$basename}.{$ext}"][$type] = str_replace(DIRECTORY_SEPARATOR, DS, $info->getPathname());
             }
         }
 
