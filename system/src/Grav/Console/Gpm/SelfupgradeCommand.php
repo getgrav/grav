@@ -84,15 +84,18 @@ class SelfupgradeCommand extends Command
         $this->setupConsole($input, $output);
         $this->upgrader = new Upgrader($this->input->getOption('force'));
 
+
+
         $local = $this->upgrader->getLocalVersion();
         $remote = $this->upgrader->getRemoteVersion();
-        $update = $this->upgrader->getAssets()->{'grav-update'};
         $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
 
         if (!$this->upgrader->isUpgradable()) {
             $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);
             exit;
         }
+
+        $update = $this->upgrader->getAssets()->{'grav-update'};
 
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
