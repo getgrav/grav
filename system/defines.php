@@ -2,12 +2,12 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '0.9.21');
+define('GRAV_VERSION', '0.9.22');
 define('DS', '/');
 
 // Directories and Paths
 if (!defined('GRAV_ROOT')) {
-    define('GRAV_ROOT', getcwd());
+    define('GRAV_ROOT', str_replace(DIRECTORY_SEPARATOR, DS, getcwd()));
 }
 define('ROOT_DIR', GRAV_ROOT . '/');
 define('USER_PATH', 'user/');
