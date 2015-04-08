@@ -1,3 +1,11 @@
+# v0.9.22
+## 04/08/2015
+
+1. [](#bugfix)
+    * Fix to normalize GRAV_ROOT path for Windows
+    * Fix to normalize Media image paths for Windows
+    * Fix for GPM `selfupgrade` when you are on latest version
+
 # v0.9.21
 ## 04/07/2015
 
