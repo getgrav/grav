@@ -24,8 +24,8 @@ class Grav extends AbstractPackageCollection
         $this->fetch($refresh, $callback);
 
         $this->data = json_decode($this->raw, true);
-        $this->version = @$this->data['version'] ?: '-';
-        $this->date = @$this->data['date'] ?: '-';
+        $this->version = isset($this->data['version']) ? $this->data['version'] : '-';
+        $this->date = isset($this->data['date']) ? $this->data['date'] : '-';
 
         foreach ($this->data['assets'] as $slug => $data) {
             $this->items[$slug] = new Package($data);
@@ -38,7 +38,7 @@ class Grav extends AbstractPackageCollection
      */
     public function getAssets()
     {
-        return $this->data->assets;
+        return $this->data['assets'];
     }
 
     /**
@@ -50,11 +50,11 @@ class Grav extends AbstractPackageCollection
     public function getChangelog($diff = null)
     {
         if (!$diff) {
-            return $this->data->changelog;
+            return $this->data['changelog'];
         }
 
         $diffLog = [];
-        foreach ($this->data->changelog as $version => $changelog) {
+        foreach ($this->data['changelog'] as $version => $changelog) {
             preg_match("/[\d\.]+/", $version, $cleanVersion);
 
             if (!$cleanVersion || version_compare($diff, $cleanVersion[0], ">=")) { continue; }

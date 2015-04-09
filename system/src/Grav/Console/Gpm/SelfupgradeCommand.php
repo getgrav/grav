@@ -84,7 +84,7 @@ class SelfupgradeCommand extends Command
         $this->setupConsole($input, $output);
         $this->upgrader = new Upgrader($this->input->getOption('force'));
 
-
+        $update = $this->upgrader->getAssets()['grav-update'];
 
         $local = $this->upgrader->getLocalVersion();
         $remote = $this->upgrader->getRemoteVersion();
@@ -94,8 +94,6 @@ class SelfupgradeCommand extends Command
             $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);
             exit;
         }
-
-        $update = $this->upgrader->getAssets()->{'grav-update'};
 
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
@@ -113,10 +111,10 @@ class SelfupgradeCommand extends Command
 
                 $this->output->writeln("");
                 foreach ($changelog as $version => $log) {
-                    $title = $version . ' [' . $log->date . ']';
+                    $title = $version . ' [' . $log['date'] . ']';
                     $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
                         return "\n" . ucfirst($match[1]) . ":";
-                    }, $log->content);
+                    }, $log['content']);
 
                     $this->output->writeln($title);
                     $this->output->writeln(str_repeat('-', strlen($title)));
@@ -141,7 +139,7 @@ class SelfupgradeCommand extends Command
         $this->output->writeln("");
         $this->output->writeln("Preparing to upgrade to v<cyan>$remote</cyan>..");
 
-        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($update->size) . "]...     0%");
+        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($update['size']) . "]...     0%");
         $this->file = $this->download($update);
 
         $this->output->write("  |- Installing upgrade...  ");
@@ -167,17 +165,17 @@ class SelfupgradeCommand extends Command
     private function download($package)
     {
         $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
-        $output = Response::get($package->download, [], [$this, 'progress']);
+        $output = Response::get($package['download'], [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
 
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($package->size) . "]...   100%");
+        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($package['size']) . "]...   100%");
         $this->output->writeln('');
 
-        file_put_contents($this->tmp . DS . $package->name, $output);
+        file_put_contents($this->tmp . DS . $package['name'], $output);
 
-        return $this->tmp . DS . $package->name;
+        return $this->tmp . DS . $package['name'];
     }
 
     /**
