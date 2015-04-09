@@ -111,10 +111,10 @@ class SelfupgradeCommand extends Command
 
                 $this->output->writeln("");
                 foreach ($changelog as $version => $log) {
-                    $title = $version . ' [' . $log->date . ']';
+                    $title = $version . ' [' . $log['date'] . ']';
                     $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
                         return "\n" . ucfirst($match[1]) . ":";
-                    }, $log->content);
+                    }, $log['content']);
 
                     $this->output->writeln($title);
                     $this->output->writeln(str_repeat('-', strlen($title)));
