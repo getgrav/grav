@@ -1,3 +1,9 @@
+# v0.9.23
+## 04/09/2015
+
+1. [](#bugfix)
+    * Fix for broken GPM `selfupgrade` (Grav 0.9.21 and 0.9.22 will need to manually upgrade to this version)
+
 # v0.9.22
 ## 04/08/2015
 
