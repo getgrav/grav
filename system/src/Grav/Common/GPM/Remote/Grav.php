@@ -38,7 +38,7 @@ class Grav extends AbstractPackageCollection
      */
     public function getAssets()
     {
-        return $this->data->assets;
+        return $this->data['assets'];
     }
 
     /**
@@ -50,11 +50,11 @@ class Grav extends AbstractPackageCollection
     public function getChangelog($diff = null)
     {
         if (!$diff) {
-            return $this->data->changelog;
+            return $this->data['changelog'];
         }
 
         $diffLog = [];
-        foreach ($this->data->changelog as $version => $changelog) {
+        foreach ($this->data['changelog'] as $version => $changelog) {
             preg_match("/[\d\.]+/", $version, $cleanVersion);
 
             if (!$cleanVersion || version_compare($diff, $cleanVersion[0], ">=")) { continue; }
