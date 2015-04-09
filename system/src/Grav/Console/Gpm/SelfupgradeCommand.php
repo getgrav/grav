@@ -165,17 +165,17 @@ class SelfupgradeCommand extends Command
     private function download($package)
     {
         $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
-        $output = Response::get($package->download, [], [$this, 'progress']);
+        $output = Response::get($package['download'], [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
 
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($package->size) . "]...   100%");
+        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($package['size']) . "]...   100%");
         $this->output->writeln('');
 
-        file_put_contents($this->tmp . DS . $package->name, $output);
+        file_put_contents($this->tmp . DS . $package['name'], $output);
 
-        return $this->tmp . DS . $package->name;
+        return $this->tmp . DS . $package['name'];
     }
 
     /**
