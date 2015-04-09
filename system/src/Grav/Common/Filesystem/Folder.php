@@ -72,8 +72,8 @@ abstract class Folder
     public static function getRelativePath($path, $base = GRAV_ROOT)
     {
         if ($base) {
-            $base = preg_replace('![\\|/]+!', '/', $base);
-            $path = preg_replace('![\\|/]+!', '/', $path);
+            $base = preg_replace('![\\\/]+!', '/', $base);
+            $path = preg_replace('![\\\/]+!', '/', $path);
             if (strpos($path, $base) === 0) {
                 $path = ltrim(substr($path, strlen($base)), '/');
             }

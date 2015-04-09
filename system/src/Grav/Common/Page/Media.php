@@ -40,14 +40,14 @@ class Media extends Getters
 
         $this->path = $path;
 
-        $iterator = new \DirectoryIterator($path);
+        $iterator = new \FilesystemIterator($path, \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
 
         $media = [];
 
         /** @var \DirectoryIterator $info */
-        foreach ($iterator as $info) {
+        foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if ($info->isDot() || !$info->isFile() || $info->getExtension() == 'md') {
+            if (!$info->isFile() || $info->getExtension() == 'md') {
                 continue;
             }
 
@@ -58,9 +58,9 @@ class Media extends Getters
 
             if ($type === 'alternative') {
                 $media["{$basename}.{$ext}"][$type] = isset($media["{$basename}.{$ext}"][$type]) ? $media["{$basename}.{$ext}"][$type] : [];
-                $media["{$basename}.{$ext}"][$type][$extra] = str_replace(DIRECTORY_SEPARATOR, DS, $info->getPathname());
+                $media["{$basename}.{$ext}"][$type][$extra] = $path;
             } else {
-                $media["{$basename}.{$ext}"][$type] = str_replace(DIRECTORY_SEPARATOR, DS, $info->getPathname());
+                $media["{$basename}.{$ext}"][$type] = $path;
             }
         }
 
