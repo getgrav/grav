@@ -99,32 +99,31 @@ class Grav extends Container
             /** @var Pages $pages */
             $pages = $c['pages'];
 
-            // If base URI is set, we want to remove it from the URL.
-            $path = '/' . ltrim(Folder::getRelativePath($c['uri']->route(), $pages->base()), '/');
+            /** @var Uri $uri */
+            $uri = $c['uri'];
+
+            $path = $uri->path();
 
             $page = $pages->dispatch($path);
 
             if (!$page || !$page->routable()) {
-
-                // special  case where a media file is requested
                 $path_parts = pathinfo($path);
-
                 $page = $c['pages']->dispatch($path_parts['dirname'], true);
                 if ($page) {
                     $media = $page->media()->all();
-                    $media_file = urldecode($path_parts['basename']);
+                    $media_file = urldecode($uri->basename());
+
+                    // if this is a media object, try actions first
                     if (isset($media[$media_file])) {
                         $medium = $media[$media_file];
-
-                        // loop through actions for the image and call them
-                        foreach ($c['uri']->query(null, true) as $action => $params) {
+                        foreach ($uri->query(null, true) as $action => $params) {
                             if (in_array($action, Medium::$valid_actions)) {
                                 call_user_func_array(array(&$medium, $action), explode(',', $params));
                             }
                         }
-                        header('Content-type: '. $medium->get('mime'));
-                        echo file_get_contents($medium->path());
-                        die;
+                        Utils::download($medium->path(), false);
+                    } else {
+                        Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), true);
                     }
                 }
 
