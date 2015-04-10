@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use RocketTheme\Toolbox\Event\Event;
+
 /**
  * Misc utilities.
  *
@@ -8,6 +10,8 @@ namespace Grav\Common;
  */
 abstract class Utils
 {
+    use GravTrait;
+
     /**
      * @param  string  $haystack
      * @param  string  $needle
@@ -241,6 +245,9 @@ abstract class Utils
     public static function download($file, $force_download = true)
     {
         if (file_exists($file)) {
+            // fire download event
+            self::getGrav()->fireEvent('onBeforeDownload', new Event(['file' => $file]));
+
             $file_parts = pathinfo($file);
             $filesize = filesize($file);
             $range = false;
