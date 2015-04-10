@@ -111,7 +111,10 @@ class Grav extends Container
                 $page = $c['pages']->dispatch($path_parts['dirname'], true);
                 if ($page) {
                     $media = $page->media()->all();
-                    $media_file = urldecode($path_parts['basename']);
+
+                    $parsed_url = parse_url(urldecode($uri->basename()));
+
+                    $media_file = $parsed_url['path'];
 
                     // if this is a media object, try actions first
                     if (isset($media[$media_file])) {
