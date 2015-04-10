@@ -11,6 +11,7 @@ class Uri
 {
     public $url;
 
+    protected $basename;
     protected $base;
     protected $root;
     protected $bits;
@@ -64,6 +65,7 @@ class Uri
         $this->base = $base;
         $this->root = $base . $root_path;
         $this->url = $base . $uri;
+
     }
 
     /**
@@ -284,6 +286,17 @@ class Uri
     public function environment()
     {
         return $this->host();
+    }
+
+
+    /**
+     * Return the basename of the URI
+     *
+     * @return String The basename of the URI
+     */
+    public function basename()
+    {
+        return $this->basename;
     }
 
     /**
