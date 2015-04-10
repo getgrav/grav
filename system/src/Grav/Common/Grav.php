@@ -2,6 +2,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\ErrorServiceProvider;
@@ -10,7 +11,6 @@ use Grav\Common\Service\StreamsServiceProvider;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
-use Grav\Common\Page\Medium\Medium;
 
 /**
  * Grav
@@ -111,13 +111,13 @@ class Grav extends Container
                 $page = $c['pages']->dispatch($path_parts['dirname'], true);
                 if ($page) {
                     $media = $page->media()->all();
-                    $media_file = urldecode($uri->basename());
+                    $media_file = urldecode($path_parts['basename']);
 
                     // if this is a media object, try actions first
                     if (isset($media[$media_file])) {
                         $medium = $media[$media_file];
                         foreach ($uri->query(null, true) as $action => $params) {
-                            if (in_array($action, Medium::$valid_actions)) {
+                            if (in_array($action, ImageMedium::$magic_actions)) {
                                 call_user_func_array(array(&$medium, $action), explode(',', $params));
                             }
                         }
