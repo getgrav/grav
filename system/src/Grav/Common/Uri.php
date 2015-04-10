@@ -84,7 +84,11 @@ class Uri
 
         // remove the extension if there is one set
         $parts = pathinfo($uri);
-        if (preg_match("/\.(txt|xml|html|json|rss|atom)$/", $parts['basename'])) {
+
+        // set the original basename
+        $this->basename = $parts['basename'];
+
+        if (preg_match("/\.(".$config->get('system.pages.types').")$/", $parts['basename'])) {
             $uri = rtrim($parts['dirname'], '/').'/'.$parts['filename'];
             $this->extension = $parts['extension'];
         }
