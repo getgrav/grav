@@ -9,6 +9,7 @@ use Grav\Common\Themes;
 use Grav\Common\Uri;
 use Grav\Common\Data;
 use Grav\Common\Page;
+use Grav\Common\User\User;
 
 class AdminController
 {
@@ -385,6 +386,10 @@ class AdminController
             /** @var Config $config */
             $config = $this->grav['config'];
             $config->reload();
+
+            if ($this->view === 'users') {
+                $this->grav['user']->merge(User::load($this->admin->route)->toArray());
+            }
         }
 
         // Redirect to new location.
