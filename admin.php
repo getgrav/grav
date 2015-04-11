@@ -97,6 +97,7 @@ class AdminPlugin extends Plugin
             // Change login behavior.
             $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
             $this->config->set('plugins.login.session.path', $this->uri->rootUrl(false) . $this->base);
+            $this->config->set('plugins.login.session.name', 'grav_admin');
 
             $this->active = true;
         }
