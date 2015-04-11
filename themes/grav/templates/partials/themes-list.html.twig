@@ -1,11 +1,11 @@
 <div class="grav-update themes"></div>
 
 <h1>
-    Installed Themes
+    {{ installing ? 'Available' : 'Installed' }} Themes
 </h1>
 
 <div class="themes card-row grid fixed-blocks pure-g">
-    {% for slug, package in admin.themes %}
+    {% for slug, package in admin.themes(not installing) %}
         {% set theme = package.toArray() %}
 
         <div class="theme card-item pure-u-1-3" data-gpm-theme="{{ slug|url_encode }}">
@@ -22,15 +22,21 @@
             <div class="gpm-screenshot">
                 <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}"><img src="{{ theme.thumbnail }}" /></a>
             </div>
-            {% if config.get('system.pages.theme') == slug %}
+            {% if (installing) %}
+                <div class="gpm-actions">
+                    <a class="button" href="{{ base_url_relative }}/themes/{{ slug }}/task:install"><i class="fa fa-plus"></i> Install</a>
+                </div>
+            {% elseif config.get('system.pages.theme') == slug %}
                 <div class="gpm-actions active-theme">
                     <i class="fa fa-star"></i> Active Theme
                 </div>
             {% else %}
-                <div class="gpm-actions">
-                    <a href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a>
+                <div class="gpm-actions inactive-theme">
+                    <a class="disabled" href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a>
                 </div>
             {% endif %}
+
+
         </div>
     {% endfor %}
 </div>

@@ -1,20 +1,33 @@
 {% extends 'partials/base.html.twig' %}
 
 {% if admin.route %}
-{% set package = admin.plugins[admin.route] %}
-{% set plugin     = package.toArray() %}
+    {% set installing = admin.route starts with 'install' %}
+    {% set installed = true %}
+
+    {# Try installed packages first, then remote #}
+    {% set package = admin.plugins(true)[admin.route] %}
+    {% if (not package) %}
+        {% set package = admin.plugins(false)[admin.route] %}
+        {% set installed = false %}
+    {% endif %}
+
+    {% set plugin = package.toArray() %}
 {% endif %}
 
 {% block titlebar %}
-    {% if not admin.route %}
+    {% if not admin.route or installing %}
+        {% if (not installing) %}
         <div class="button-bar">
-            <button class="button" type="submit" name="task" value="add"><i class="fa fa-plus"></i> Add</button>
+            <a class="button" href="{{ base_url_relative }}/plugins/install"><i class="fa fa-plus"></i> Add</a>
         </div>
+        {% endif %}
         <h1><i class="fa fa-fw fa-plug"></i> Plugins</h1>
     {% else %}
+        {% if (installed) %}
         <div class="button-bar">
             <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
         </div>
+        {% endif %}
         <h1><i class="fa fa-fw fa-plug"></i> Plugin: {{ plugin.name|e }}</h1>
     {% endif %}
 {% endblock %}
@@ -25,7 +38,7 @@
 
         {% include 'partials/messages.html.twig' %}
 
-        {% if not admin.route %}
+        {% if not admin.route or installing %}
             {%  include 'partials/plugins-list.html.twig' %}
         {% else %}
             {% include 'partials/plugins-details.html.twig' %}

@@ -329,6 +329,20 @@ class AdminController
     }
 
     /**
+     * Handles installing plugins and themes
+     *
+     * @return bool True is the action was performed
+     */
+    public function taskInstall()
+    {
+        $mode = $this->view === 'plugins' ? 'plugin' : 'theme';
+        $package = $this->route;
+
+        $this->admin->setMessage("Actual installation is not hooked up to GPM yet.");
+        return true;
+    }
+
+    /**
      * Handles form and saves the input data if its valid.
      *
      * @return bool True if the action was performed.
