@@ -136,9 +136,8 @@ class Admin
     public function authenticate($form)
     {
         if (!$this->user->authenticated && isset($form['username']) && isset($form['password'])) {
-            $file = CompiledYamlFile::instance($this->grav['locator']->findResource('account://' . $form['username'] . YAML_EXT));
-            if ($file->exists()) {
-                $user = new User($file->content());
+            $user = User::load($form['username']);
+            if ($user->exists()) {
                 $user->authenticated = true;
 
                 // Authenticate user.
