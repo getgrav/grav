@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use RocketTheme\Toolbox\Event\Event;
+
 /**
  * Misc utilities.
  *
@@ -8,6 +10,8 @@ namespace Grav\Common;
  */
 abstract class Utils
 {
+    use GravTrait;
+
     /**
      * @param  string  $haystack
      * @param  string  $needle
@@ -230,5 +234,166 @@ abstract class Utils
     public static function generateRandomString($length = 5)
     {
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
+    }
+
+    /**
+     * Provides the ability to download a file to the browser
+     *
+     * @param      $file            the full path to the file to be downloaded
+     * @param bool $force_download  as opposed to letting browser choose if to download or render
+     */
+    public static function download($file, $force_download = true)
+    {
+        if (file_exists($file)) {
+            // fire download event
+            self::getGrav()->fireEvent('onBeforeDownload', new Event(['file' => $file]));
+
+            $file_parts = pathinfo($file);
+            $filesize = filesize($file);
+            $range = false;
+
+            set_time_limit(0);
+            ignore_user_abort(false);
+            ini_set('output_buffering', 0);
+            ini_set('zlib.output_compression', 0);
+
+            if ($force_download) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename='.$file_parts['basename']);
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Pragma: public');
+            } else {
+                header("Content-Type: " . Utils::getMimeType($file_parts['extension']));
+            }
+            header('Content-Length: ' . $filesize);
+
+            // 8kb chunks for now
+            $chunk = 8 * 1024;
+
+            $fh = fopen($file, "rb");
+
+            if ($fh === false) {
+                return;
+            }
+
+            // Repeat reading until EOF
+            while (!feof($fh)) {
+                echo fread($fh, $chunk);
+
+                ob_flush();  // flush output
+                flush();
+            }
+
+            exit;
+        }
+    }
+
+    /**
+     * Return the mimetype based on filename
+     *
+     * @param $extension Extension of file (eg .txt)
+     *
+     * @return string
+     */
+    public static function getMimeType($extension)
+    {
+        $extension = strtolower($extension);
+
+        switch($extension)
+        {
+            case "js":
+                return "application/x-javascript";
+
+            case "json":
+                return "application/json";
+
+            case "jpg":
+            case "jpeg":
+            case "jpe":
+                return "image/jpg";
+
+            case "png":
+            case "gif":
+            case "bmp":
+            case "tiff":
+                return "image/" . $extension;
+
+            case "css":
+                return "text/css";
+
+            case "xml":
+                return "application/xml";
+
+            case "doc":
+            case "docx":
+                return "application/msword";
+
+            case "xls":
+            case "xlt":
+            case "xlm":
+            case "xld":
+            case "xla":
+            case "xlc":
+            case "xlw":
+            case "xll":
+                return "application/vnd.ms-excel";
+
+            case "ppt":
+            case "pps":
+                return "application/vnd.ms-powerpoint";
+
+            case "rtf":
+                return "application/rtf";
+
+            case "pdf":
+                return "application/pdf";
+
+            case "html":
+            case "htm":
+            case "php":
+                return "text/html";
+
+            case "txt":
+                return "text/plain";
+
+            case "mpeg":
+            case "mpg":
+            case "mpe":
+                return "video/mpeg";
+
+            case "mp3":
+                return "audio/mpeg3";
+
+            case "wav":
+                return "audio/wav";
+
+            case "aiff":
+            case "aif":
+                return "audio/aiff";
+
+            case "avi":
+                return "video/msvideo";
+
+            case "wmv":
+                return "video/x-ms-wmv";
+
+            case "mov":
+                return "video/quicktime";
+
+            case "zip":
+                return "application/zip";
+
+            case "tar":
+                return "application/x-tar";
+
+            case "swf":
+                return "application/x-shockwave-flash";
+
+            default:
+                return "application/octet-stream";
+        }
     }
 }

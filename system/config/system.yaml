@@ -30,6 +30,7 @@ pages:
     special_chars:                     # List of special characters to automatically convert to entities
       '>': 'gt'
       '<': 'lt'
+  types: 'txt|xml|html|json|rss|atom'  # Pipe separated list of valid page types
 
 cache:
   enabled: true                        # Set to true to enable caching

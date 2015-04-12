@@ -11,6 +11,7 @@ class Uri
 {
     public $url;
 
+    protected $basename;
     protected $base;
     protected $root;
     protected $bits;
@@ -64,6 +65,7 @@ class Uri
         $this->base = $base;
         $this->root = $base . $root_path;
         $this->url = $base . $uri;
+
     }
 
     /**
@@ -84,7 +86,11 @@ class Uri
 
         // remove the extension if there is one set
         $parts = pathinfo($uri);
-        if (preg_match("/\.(txt|xml|html|json|rss|atom)$/", $parts['basename'])) {
+
+        // set the original basename
+        $this->basename = $parts['basename'];
+
+        if (preg_match("/\.(".$config->get('system.pages.types').")$/", $parts['basename'])) {
             $uri = rtrim($parts['dirname'], '/').'/'.$parts['filename'];
             $this->extension = $parts['extension'];
         }
@@ -280,6 +286,17 @@ class Uri
     public function environment()
     {
         return $this->host();
+    }
+
+
+    /**
+     * Return the basename of the URI
+     *
+     * @return String The basename of the URI
+     */
+    public function basename()
+    {
+        return $this->basename;
     }
 
     /**
