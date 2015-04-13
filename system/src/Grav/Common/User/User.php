@@ -55,11 +55,23 @@ class User extends Data
     {
         $save = false;
 
+        // Plain-text is still stored
         if ($this->password) {
-            $save = true;
 
-            $this->hashed_password = Authentication::create($this->password);
-            unset($this->password);
+            if ($password !== $this->password) {
+                // Plain-text passwords do not match, we know we should fail but execute
+                // verify to protect us from timing attacks and return false regardless of
+                // the result
+                Authentication::verify($password, self::getGrav()['config']->get('system.security.default_hash'));
+                return false;
+            }  else {
+                // Plain-text does match, we can update the hash and proceed
+                $save = true;
+
+                $this->hashed_password = Authentication::create($this->password);
+                unset($this->password);
+            }
+
         }
 
         $result = Authentication::verify($password, $this->hashed_password);
