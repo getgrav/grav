@@ -16,7 +16,7 @@
         "maximebf/debugbar": "dev-master",
         "filp/whoops": "1.2.*@dev",
         "monolog/monolog": "~1.0",
-	    "gregwar/image": "~2.0",
+        "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "dev-master",
         "donatj/phpuseragentparser": "dev-master",
