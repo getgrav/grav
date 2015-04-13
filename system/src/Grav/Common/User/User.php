@@ -53,11 +53,24 @@ class User extends Data
      */
     public function authenticate($password)
     {
-        $result = Authentication::verify($password, $this->password);
+        $save = false;
+
+        if ($this->password) {
+            $save = true;
+
+            $this->hashed_password = Authentication::create($this->password);
+            unset($this->password);
+        }
+
+        $result = Authentication::verify($password, $this->hashed_password);
 
         // Password needs to be updated, save the file.
         if ($result == 2) {
-            $this->password = Authentication::create($password);
+            $save = true;
+            $this->hashed_password = Authentication::create($password);
+        }
+
+        if ($save) {
             $this->save();
         }
 
