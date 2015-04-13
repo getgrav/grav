@@ -336,10 +336,91 @@ class AdminController
      */
     public function taskInstall()
     {
-        $mode = $this->view === 'plugins' ? 'plugin' : 'theme';
+        require_once __DIR__ . '/gpm.php';
+
         $package = $this->route;
 
-        $this->admin->setMessage("Actual installation is not hooked up to GPM yet.");
+        $result = \Grav\Plugin\Admin\Gpm::install($package, []);
+
+        if ($result) {
+            $this->admin->setMessage("Installation successful.");
+        } else {
+            $this->admin->setMessage("Installation failed.");
+        }
+
+        $this->post = array('_redirect' => $this->view . '/' . $this->route);
+
+        return true;
+    }
+
+    /**
+     * Handles updating plugins and themes
+     *
+     * @return bool True is the action was performed
+     */
+    public function taskUpdate()
+    {
+        require_once __DIR__ . '/gpm.php';
+
+        $package = $this->route;
+
+        // Update multi mode
+        if (!$package) {
+            $package = [];
+
+            if ($this->view === 'plugins' || $this->view === 'update') {
+                $package = $this->admin->gpm()->getUpdatablePlugins();
+            }
+
+            if ($this->view === 'themes' || $this->view === 'update') {
+                $package = array_merge($package, $this->admin->gpm()->getUpdatableThemes());
+            }
+        }
+
+        $result = \Grav\Plugin\Admin\Gpm::update($package, []);
+
+        if ($this->view === 'update') {
+
+            if ($result) {
+                $this->admin->json_response = ['success', 'Everything updated'];
+            } else {
+                $this->admin->json_response = ['error', 'Updates failed'];
+            }
+
+        } else {
+            if ($result) {
+                $this->admin->setMessage("Installation successful.");
+            } else {
+                $this->admin->setMessage("Installation failed.");
+            }
+
+            $this->post = array('_redirect' => $this->view . '/' . $this->route);
+        }
+
+        return true;
+    }
+
+    /**
+     * Handles uninstalling plugins and themes
+     *
+     * @return bool True is the action was performed
+     */
+    public function taskUninstall()
+    {
+        require_once __DIR__ . '/gpm.php';
+
+        $package = $this->route;
+
+        $result = \Grav\Plugin\Admin\Gpm::uninstall($package, []);
+
+        if ($result) {
+            $this->admin->setMessage("Uninstall successful.");
+        } else {
+            $this->admin->setMessage("Uninstall failed.");
+        }
+
+        $this->post = array('_redirect' => $this->view);
+
         return true;
     }
 

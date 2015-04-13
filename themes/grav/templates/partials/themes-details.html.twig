@@ -1,5 +1,5 @@
 {% set gpm = admin.gpm() %}
-{% set installed = gpm.isPluginInstalled(admin.route) %}
+{% set installed = gpm.isThemeInstalled(admin.route) %}
 
 <div class="grav-update theme" data-gpm-theme="{{ admin.route }}">
     {% if installed and gpm.isThemeUpdatable(admin.route) %}
@@ -90,7 +90,7 @@
 
     <div class="button-bar danger">
         <span class="danger-zone"></span>
-        <a class="button" href="#"><i class="fa fa-fw fa-warning"></i>Remove Theme</a>
+        <a class="button" href="{{ base_url_relative }}/themes/{{ theme.slug }}/task:uninstall"><i class="fa fa-fw fa-warning"></i>Remove Theme</a>
     </div>
 {% else %}
     <div class="button-bar success">
