@@ -298,8 +298,6 @@ class Grav extends Container
         $extension = $this['uri']->extension();
         header('Content-type: ' . $this->mime($extension));
 
-        header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + $this['config']->get('system.pages.expires')));
-
         // Set debugger data in headers
         if (!($extension === null || $extension == 'html')) {
             $this['debugger']->enabled(false);
