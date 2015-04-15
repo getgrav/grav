@@ -131,8 +131,7 @@ class MediumFactory
         $debug = $medium->get('debug');
         $medium->set('debug', false);
 
-        $file = $medium->resize($width, $height)->setPrettyName($basename)->url();
-        $file = preg_replace('|'. preg_quote(self::getGrav()['base_url_relative']) .'$|', '', GRAV_ROOT) . $file;
+        $file = $medium->resize($width, $height)->path();
 
         $medium->set('debug', $debug);
 
