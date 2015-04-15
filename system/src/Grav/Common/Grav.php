@@ -347,7 +347,7 @@ class Grav extends Container
             header("Connection: close\r\n");
 
             ob_end_flush(); // regular buffer
-            ob_flush();
+            @ob_flush();
             flush();
 
             if (function_exists('fastcgi_finish_request')) {
