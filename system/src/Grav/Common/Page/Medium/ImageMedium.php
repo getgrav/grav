@@ -42,7 +42,7 @@ class ImageMedium extends Medium
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
-        'smooth', 'sharp', 'edge', 'colorize', 'sepia'
+        'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive'
     ];
 
     /**
@@ -127,7 +127,7 @@ class ImageMedium extends Medium
             $this->reset();
         }
 
-        return self::$grav['base_url'] . $output . $this->urlHash();
+        return self::$grav['base_url'] . $output . $this->querystring() . $this->urlHash();
     }
 
 
@@ -299,7 +299,7 @@ class ImageMedium extends Medium
         }
 
         if (!in_array($method, self::$magic_actions)) {
-            return $this;
+            return parent::__call($method, $args);
         }
 
         // Always initialize image.
