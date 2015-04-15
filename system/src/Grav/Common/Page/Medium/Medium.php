@@ -60,6 +60,10 @@ class Medium extends Data implements RenderableInterface
     {
         parent::__construct($items, $blueprint);
 
+        if (self::getGrav()['config']->get('media.enable_media_timestamp', true)) {
+            $this->querystring('&' . self::getGrav()['cache']->getKey());
+        }
+
         $this->def('mime', 'application/octet-stream');
         $this->reset();
     }
@@ -129,7 +133,33 @@ class Medium extends Data implements RenderableInterface
             $this->reset();
         }
 
-        return self::$grav['base_url'] . $output . $this->urlHash();
+        return self::$grav['base_url'] . $output . $this->querystring() . $this->urlHash();
+    }
+
+    /**
+     * Get/set querystring for the file's url
+     *
+     * @param  string  $hash
+     * @param  boolean $withHash
+     * @return string
+     */
+    public function querystring($querystring = null, $withQuestionmark = true)
+    {
+        if ($querystring) {
+            $this->set('querystring', ltrim($querystring, '?&'));
+
+            foreach ($this->alternatives as $alt) {
+                $alt->querystring($querystring, $withQuestionmark);
+            }
+        }
+
+        $querystring = $this->get('querystring', '');
+
+        if ($withQuestionmark && !empty($querystring)) {
+            return '?' . $querystring;
+        } else {
+            return $querystring;
+        }
     }
 
     /**
@@ -337,6 +367,17 @@ class Medium extends Data implements RenderableInterface
      */
     public function __call($method, $args)
     {
+        $qs = $method;
+        if (count($args) > 1 || (count($args) == 1 && !empty($args[0]))) {
+            $qs .= '=' . implode(',', array_map(function ($a) { return urlencode($a); }, $args));
+        }
+
+        if (!empty($qs)) {
+            $this->querystring($this->querystring(null, false) . '&' . $qs);
+        }
+
+        self::$grav['debugger']->addMessage($this->querystring());
+
         return $this;
     }
 

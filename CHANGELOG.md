@@ -1,3 +1,18 @@
+# v0.9.24
+## 04/15/2015
+
+1. [](#new)
+    * Added support for chunked downloads of Assets
+    * Added new `onBeforeDownload()` event
+    * Added new `download()` and `getMimeType()` methods to Utils class
+    * Added configuration option for supported page types
+    * Added assets and media timestamp options (off by default)
+    * Added page expires configuration option
+2. [](#bugfix)
+    * Fixed issue with Nginx/Gzip and `ob_flush()` throwing error
+    * Fixed assets actions on 'direct media' URLs
+    * Fix for 'direct assets` with any parameters
+
 # v0.9.23
 ## 04/09/2015
 
