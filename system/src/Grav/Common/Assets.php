@@ -71,6 +71,7 @@ class Assets
     // Some configuration variables
     protected $config;
     protected $base_url;
+    protected $timestamp = '';
 
     // Default values for pipeline settings
     protected $css_minify = true;
@@ -81,7 +82,6 @@ class Assets
     // Arrays to hold assets that should NOT be pipelined
     protected $css_no_pipeline = array();
     protected $js_no_pipeline = array();
-
 
     public function __construct(array $options = array())
     {
@@ -153,6 +153,12 @@ class Assets
                 $this->add($asset);
             }
         }
+
+        // Set timestamp
+        if (isset($config['enable_asset_timestamp']) && $config['enable_asset_timestamp'] === true) {
+            $this->timestamp = '?' . self::getGrav()['cache']->getKey();
+        }
+
 
         return $this;
     }
@@ -422,11 +428,11 @@ class Assets
             $output .= '<link href="' . $this->pipeline(CSS_ASSET) . '"' . $attributes . ' />' . "\n";
 
             foreach ($this->css_no_pipeline as $file) {
-                $output .= '<link href="' . $file['asset'] . '"' . $attributes . ' />' . "\n";
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' />' . "\n";
             }
         } else {
             foreach ($this->css as $file) {
-                $output .= '<link href="' . $file['asset'] . '"' . $attributes . ' />' . "\n";
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' />' . "\n";
             }
         }
 
@@ -480,11 +486,11 @@ class Assets
         if ($this->js_pipeline) {
             $output .= '<script src="' . $this->pipeline(JS_ASSET) . '"' . $attributes . ' ></script>' . "\n";
             foreach ($this->js_no_pipeline as $file) {
-                $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
+                $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
             }
         } else {
             foreach ($this->js as $file) {
-                $output .= '<script src="' . $file['asset'] . '"' . $attributes . ' ' . $file['loading'].'></script>' . "\n";
+                $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'].'></script>' . "\n";
             }
         }
 

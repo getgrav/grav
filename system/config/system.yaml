@@ -30,6 +30,8 @@ pages:
     special_chars:                     # List of special characters to automatically convert to entities
       '>': 'gt'
       '<': 'lt'
+  types: 'txt|xml|html|json|rss|atom'  # Pipe separated list of valid page types
+  expires: 604800                      # Page expires time in seconds (default 7 days)
 
 cache:
   enabled: true                        # Set to true to enable caching
@@ -39,6 +41,7 @@ cache:
   prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                     # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                          # GZip compress the page output
+
 
 twig:
   cache: true                          # Set to true to enable twig caching
@@ -55,6 +58,7 @@ assets:                                # Configuration for Assets Manager (JS, C
   css_rewrite: true                    # Rewrite any CSS relative URLs during pipelining
   js_pipeline: false                   # The JS pipeline is the unification of multiple JS resources into one file
   js_minify: true                      # Minify the JS during pipelining
+  enable_asset_timestamp: false        # Enable asset timetsamps
   collections:
     jquery: system://assets/jquery/jquery-2.1.3.min.js
 
@@ -71,6 +75,9 @@ debugger:
 images:
   default_image_quality: 85            # Default image quality to use when resampling images (85%)
   debug: false                         # Show an overlay over images indicating the pixel depth of the image when working with retina for example
+
+media:
+  enable_media_timestamp: false        # Enable media timetsamps
 
 security:
   default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK
