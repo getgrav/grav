@@ -123,10 +123,10 @@ class Plugins extends Iterator
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = CompiledYamlFile::instance("user://config/plugins/{$name}.yaml");
-        $obj->merge($file->content());
+        $obj->merge($this->grav['config']->get('plugins.' . $name) ?: []);
 
         // Save configuration always to user/config.
+        $file = CompiledYamlFile::instance("config://plugins/{$name}.yaml");
         $obj->file($file);
 
         return $obj;
