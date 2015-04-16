@@ -13,11 +13,22 @@ abstract class Authentication
      * Create password hash from plaintext password.
      *
      * @param string $password  Plaintext password.
+     * @throws \RuntimeException
      * @return string|bool
      */
     public static function create($password)
     {
-        return password_hash($password, PASSWORD_DEFAULT);
+        if (!$password) {
+            throw new \RuntimeException('Password hashing failed: no password provided.');
+        }
+
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+        if (!$hash) {
+            throw new \RuntimeException('Password hashing failed: internal error.');
+        }
+
+        return $hash;
     }
 
     /**
@@ -29,13 +40,8 @@ abstract class Authentication
      */
     public static function verify($password, $hash)
     {
-        // Always accept plaintext passwords (needs an update).
-        if ($password && $password == $hash) {
-            return 2;
-        }
-
-        // Fail if hash doesn't match.
-        if (!$password || !password_verify($password, $hash)) {
+        // Fail if hash doesn't match
+        if (!$password || !$hash || !password_verify($password, $hash)) {
             return 0;
         }
 

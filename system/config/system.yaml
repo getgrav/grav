@@ -78,3 +78,6 @@ images:
 
 media:
   enable_media_timestamp: false        # Enable media timetsamps
+
+security:
+  default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK
