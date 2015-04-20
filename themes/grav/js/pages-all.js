@@ -37,6 +37,20 @@ $(function(){
         $(this).val(value);
     });
 
+    $('[data-toggle="children"]').on('click', function () {
+        var icon = $(this).find('.page-icon'),
+            open = icon.hasClass('children-open'),
+            children = $(this).closest('li.page-item').find('ul:first');
+
+        if (open) {
+            children.hide();
+            icon.removeClass('children-open').addClass('children-closed');
+        } else {
+            children.show();
+            icon.removeClass('children-closed').addClass('children-open');
+        }
+    });
+
     var currentValues = getState(),
         clickedLink;
 

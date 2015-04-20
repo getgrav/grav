@@ -21,7 +21,7 @@
 
 {% block stylesheets %}
     {% if mode == 'edit' %}
-	{% do assets.addCss(theme_url~'/css/codemirror/codemirror.css') %}
+        {% do assets.addCss(theme_url~'/css/codemirror/codemirror.css') %}
     {% endif %}
     {{ parent() }}
 {% endblock %}
@@ -29,11 +29,11 @@
 {% block javascripts %}
     {% do assets.addJs(theme_url~'/js/pages-all.js') %}
     {% if mode == 'edit' %}
-	{% do assets.addJs(theme_url~'/js/uikit.min.js') %}
-	{% do assets.addJs(theme_url~'/js/codemirror-compressed.js') %}
-	{% do assets.addJs(theme_url~'/js/marked.min.js') %}
-	{% do assets.addJs(theme_url~'/js/htmleditor.js') %}
-	{% do assets.addJs(theme_url~'/js/dropzone.min.js') %}
+        {% do assets.addJs(theme_url~'/js/uikit.min.js') %}
+        {% do assets.addJs(theme_url~'/js/codemirror-compressed.js') %}
+        {% do assets.addJs(theme_url~'/js/marked.min.js') %}
+        {% do assets.addJs(theme_url~'/js/htmleditor.js') %}
+        {% do assets.addJs(theme_url~'/js/dropzone.min.js') %}
     {% endif %}
     {{ parent() }}
 {% endblock %}
@@ -47,8 +47,8 @@
 
         <li class="page-item">
             <div class="row">
-                <span data-hint="{{ description|trim(' &bull; ') }}" class="hint--bottom">
-                <i class="page-icon fa fa-fw fa-circle-o {{ p.children(0).count > 0 ? 'children-open' : ''}} {{ p.modular ? 'modular' : (not p.routable ? 'not-routable' : (not p.visible ? 'not-visible' : (not p.page ? 'folder' :  ''))) }}"></i>
+                <span {{ p.children(0).count > 0 ? 'data-toggle="children"' : ''}} data-hint="{{ description|trim(' &bull; ') }}" class="hint--bottom">
+                <i class="page-icon fa fa-fw fa-circle-o {{ p.children(0).count > 0 ? 'children-closed' : ''}} {{ p.modular ? 'modular' : (not p.routable ? 'not-routable' : (not p.visible ? 'not-visible' : (not p.page ? 'folder' :  ''))) }}"></i>
                 </span>
                 <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}" class="page-edit">{{ p.menu }}</a>
                 <span class="page-home">{{ p.home ? '<i class="fa fa-home"></i>' }}</span>
@@ -63,7 +63,7 @@
             </div>
             {% if p.children().count > 0 and not p.modular() %}
 
-            <ul class="depth-{{ depth + 1 }}">
+            <ul class="depth-{{ depth + 1 }}" style="display:none;">
                 {{ _self.loop(p, base_url, depth + 1, warn) }}
             </ul>
             {% endif %}
