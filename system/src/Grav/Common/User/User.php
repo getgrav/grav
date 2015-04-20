@@ -53,11 +53,36 @@ class User extends Data
      */
     public function authenticate($password)
     {
-        $result = Authentication::verify($password, $this->password);
+        $save = false;
+
+        // Plain-text is still stored
+        if ($this->password) {
+
+            if ($password !== $this->password) {
+                // Plain-text passwords do not match, we know we should fail but execute
+                // verify to protect us from timing attacks and return false regardless of
+                // the result
+                Authentication::verify($password, self::getGrav()['config']->get('system.security.default_hash'));
+                return false;
+            }  else {
+                // Plain-text does match, we can update the hash and proceed
+                $save = true;
+
+                $this->hashed_password = Authentication::create($this->password);
+                unset($this->password);
+            }
+
+        }
+
+        $result = Authentication::verify($password, $this->hashed_password);
 
         // Password needs to be updated, save the file.
         if ($result == 2) {
-            $this->password = Authentication::create($password);
+            $save = true;
+            $this->hashed_password = Authentication::create($password);
+        }
+
+        if ($save) {
             $this->save();
         }
 
