@@ -87,7 +87,7 @@ $(function () {
         });
     });
 
-    // Cache Clear
+    // Update plugins/themes
     $('[data-maintenance-update]').on('click', function(e) {
 
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-cloud-download').addClass('fa-refresh fa-spin');
