@@ -139,6 +139,120 @@ class AdminController
         return true;
     }
 
+    protected function taskForgot()
+    {
+        $data = $this->post;
+
+        $username = isset($data['username']) ? $data['username'] : '';
+        $user = !empty($username) ? User::load($username) : null;
+
+        if (!isset($this->grav['Email'])) {
+            $this->admin->setMessage('Cannot reset password. This site is not configured to send emails.');
+            $this->setRedirect('/');
+            return true;
+        }
+
+        if (!$user || !$user->exists()) {
+            $this->admin->setMessage('User with username \'' . $username . '\' does not exist.');
+            $this->setRedirect('/forgot');
+            return true;
+        }
+
+        if (empty($user->email)) {
+            $this->admin->setMessage('Cannot reset password for \'' . $username . '\', no email address is set.');
+            $this->setRedirect('/forgot');
+            return true;
+        }
+
+        $token = md5(uniqid(mt_rand(), true));
+        $expire = time() + 604800; // next week
+
+        $user->reset = $token . '::' . $expire;
+        $user->save();
+
+        $author = $this->grav['config']->get('site.author.name', '');
+        $fullname = $user->fullname ?: $username;
+        $reset_link = rtrim($this->grav['uri']->rootUrl(true), '/') . '/' . trim($this->admin->base, '/') . '/reset/task:reset/user:' . $username . '/token:' . $token;
+
+        $from = $this->grav['config']->get('site.author.email', 'noreply@getgrav.org');
+        $to = $user->email;
+        $subject = $this->grav['config']->get('site.title', 'Website') . ' password reset';
+        $body = $this->grav['twig']->processString('{% include "email/reset.html.twig" %}', [
+            'name' => $fullname,
+            'author' => $author,
+            'reset_link' =>$reset_link
+        ]);
+
+        $message = $this->grav['Email']->message($subject, $body, 'text/html')
+            ->setFrom($from)
+            ->setTo($to);
+
+        $sent = $this->grav['Email']->send($message);
+
+        if ($sent < 1) {
+            $this->admin->setMessage('Failed to email instructions, please try again later.');
+        } else {
+            $this->admin->setMessage('Instructions to reset your password have been sent by email.');
+        }
+
+        $this->setRedirect('/');
+        return true;
+    }
+
+    public function taskReset()
+    {
+        $data = $this->post;
+
+        if (isset($data['password'])) {
+
+            $username = isset($data['username']) ? $data['username'] : null;
+            $user = !empty($username) ? User::load($username) : null;
+            $password = isset($data['password']) ? $data['password'] : null;
+            $token = isset($data['token']) ? $data['token'] : null;
+
+            if (!empty($user) && $user->exists() && !empty($user->reset)) {
+                list($good_token, $expire) = explode('::', $user->reset);
+
+                if ($good_token === $token) {
+
+                    if (time() > $expire) {
+                        $this->admin->setMessage('Reset link has expired, please try again.');
+                        $this->setRedirect('/forgot');
+                        return true;
+                    }
+
+
+                    unset($user->hashed_password);
+                    unset($user->reset);
+                    $user->password = $password;
+                    $user->save();
+
+                    $this->admin->setMessage('Password has been reset.');
+                    $this->setRedirect('/');
+                    return true;
+                }
+            }
+
+            $this->admin->setMessage('Invalid reset link used, please try again.');
+            $this->setRedirect('/forgot');
+            return true;
+
+        } else {
+            $user = $this->grav['uri']->param('user');
+            $token = $this->grav['uri']->param('token');
+
+            if (empty($user) || empty($token)) {
+                $this->admin->setMessage('Invalid reset link used, please try again.');
+                $this->setRedirect('/forgot');
+                return true;
+            }
+
+            $this->admin->forgot = [ 'username' => $user, 'token' => $token ];
+        }
+
+        return true;
+    }
+
     protected function taskClearCache()
     {
         $results = Cache::clearCache('standard');

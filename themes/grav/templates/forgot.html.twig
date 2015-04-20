@@ -3,7 +3,7 @@
 {% block page %}
     <section id="admin-login" class="default-glow-shadow">
         <h1>
-            Grav Login
+            Grav forgot password
         </h1>
 
         {% include 'partials/messages.html.twig' %}
@@ -17,8 +17,7 @@
                 {% endif %}
             {% endfor %}
             <div class="form-actions secondary-accent">
-                <a class="button secondary" href="{{ base_url_relative }}/forgot"><i class="fa fa-exclamation-circle"></i> Forgot</a>
-                <button type="submit" class="button primary" name="task" value="login"><i class="fa fa-sign-in"></i> Login</button>
+                <button type="submit" class="button primary" name="task" value="forgot"><i class="fa fa-paper-plane"></i> Send reset instructions</button>
             </div>
         </form>
     </section>
