@@ -45,7 +45,7 @@
                              (p.routable ? 'Routable &bull; ' : 'Not Routable &bull; ') ~
                              (p.visible ? 'Visible &bull; ' : 'Not Visible &bull; ') %}
 
-        <li class="page-item">
+        <li class="page-item" data-nav-id="{{ p.route }}">
             <div class="row">
                 <span {{ p.children(0).count > 0 ? 'data-toggle="children"' : ''}} data-hint="{{ description|trim(' &bull; ') }}" class="hint--bottom">
                 <i class="page-icon fa fa-fw fa-circle-o {{ p.children(0).count > 0 ? 'children-closed' : ''}} {{ p.modular ? 'modular' : (not p.routable ? 'not-routable' : (not p.visible ? 'not-visible' : (not p.page ? 'folder' :  ''))) }}"></i>
@@ -131,7 +131,7 @@
     {% else %}
         <form id="page-filtering">
             <div class="page-filters">
-                <input type="text" placeholder="Add Filters" class="page-filter" value="Routable,Visible,Modular" name="page-filter" />
+                <input type="text" placeholder="Add Filters" class="page-filter" name="page-filter" />
             </div>
             <div class="page-search">
                 <input type="text" placeholder="Search Pages" name="page-search" />

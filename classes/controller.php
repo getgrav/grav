@@ -9,6 +9,7 @@ use Grav\Common\Themes;
 use Grav\Common\Uri;
 use Grav\Common\Data;
 use Grav\Common\Page;
+use Grav\Common\Page\Collection;
 use Grav\Common\User\User;
 
 class AdminController
@@ -263,6 +264,43 @@ class AdminController
         }
 
         return true;
+    }
+
+    protected function taskFilterPages()
+    {
+        $data = $this->post;
+
+        $flags = !empty($data['flags']) ? array_map('strtolower', explode(',', $data['flags'])) : [];
+        $queries = !empty($data['query']) ? explode(',', $data['query']) : [];
+
+        $collection = $this->grav['pages']->all();
+
+        if (count($flags)) {
+            if (in_array('modular', $flags))
+                $collection = $collection->modular();
+
+            if (in_array('visible', $flags))
+                $collection = $collection->visible();
+
+            if (in_array('routable', $flags))
+                $collection = $collection->routable();
+        }
+
+        if (!empty($queries)) {
+            foreach ($collection as $page) {
+                foreach ($queries as $query) {
+                    $query = trim($query);
+
+                    // $page->content();
+                    if (stripos($page->getRawContent(), $query) === false && stripos($page->title(), $query) === false) {
+                        $collection->remove($page);
+                    }
+                }
+            }
+        }
+
+        $this->admin->json_response = ['success', 'Pages filtered'];
+        $this->admin->collection = $collection;
     }
 
     protected function taskListmedia()

@@ -60,7 +60,7 @@
         {% if plugin.keywords %}
             <tr>
                 <td>Keywords:</td>
-                <td>{{ plugin.keywords }}</td>
+                <td>{{ plugin.keywords|join(', ') }}</td>
             </tr>
         {% endif %}
         {% if plugin.license %}

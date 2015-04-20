@@ -14,9 +14,70 @@ $(function(){
 
     // selectize
     $('input.page-filter').selectize({
-        delimiter: ',',
-        create: false
+        maxItems: null,
+        valueField: 'flag',
+        labelField: 'flag',
+        searchField: ['flag'],
+        options: [
+            {flag: 'Modular'},
+            {flag: 'Visible'},
+            {flag: 'Routable'}
+        ],
     });
+
+    var startFilterPages = function () {
+
+        $('input[name="page-search"]').focus();
+        var flags = $('input[name="page-filter"]').val(),
+            query = $('input[name="page-search"]').val();
+
+        if (!flags.length && !query.length) {
+            return finishFilterPages([], true);
+        }
+
+        GravAjax({
+            dataType: 'json',
+            method: 'POST',
+            url: GravAdmin.config.base_url_relative + '/pages-filter.json/task:filterPages',
+            data: {
+                flags: flags,
+                query: query
+            },
+            success: function (result, status) {
+                finishFilterPages(result.results);
+            }
+        });
+    };
+
+    var finishFilterPages = function (pages, reset) {
+        var items = $('[data-nav-id]');
+
+        items.removeClass('search-match');
+
+        if (reset) {
+            items.addClass('search-match');
+        } else {
+            pages.forEach(function (id) {
+                var match = items.filter('[data-nav-id="' + id + '"]');
+                match.addClass('search-match');
+                match.find('[data-nav-id]').addClass('search-match');
+                match.parents('[data-nav-id]').addClass('search-match');
+            });
+        }
+
+        items.each(function (key, item) {
+            if ($(item).hasClass('search-match')) {
+                $(item).show();
+            } else {
+                $(item).hide();
+            }
+        });
+    };
+
+    // selectize
+    $('input[name="page-search"]').on('input', startFilterPages);
+    $('input[name="page-filter"]').on('change', startFilterPages);
+
 
     // auto generate folder based on title
     // on user input on folder, autogeneration stops
