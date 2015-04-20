@@ -332,6 +332,26 @@ class Pages
     }
 
     /**
+     * Get all pages
+     * @return Collection
+     */
+    public function all(Page $current = null)
+    {
+        $all = new Collection();
+        $current = $current ?: $this->root();
+
+        if ($current->routable()) {
+            $all[$current->path()] = [ 'slug' => $current->slug() ];
+        }
+
+        foreach ($current->children() as $next) {
+            $all->append($this->all($next));
+        }
+
+        return $all;
+    }
+
+    /**
      * Get list of route/title of all pages.
      *
      * @param Page $current
