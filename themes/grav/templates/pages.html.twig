@@ -20,23 +20,22 @@
 {% set warn = config.plugins.admin.warnings.delete_page %}
 
 {% block stylesheets %}
-    {{ parent() }}
     {% if mode == 'edit' %}
-
-    <link rel="stylesheet" href="{{ theme_url }}/css/codemirror/codemirror.css" type="text/css" />
+	{% do assets.addCss(theme_url~'/css/codemirror/codemirror.css') %}
     {% endif %}
+    {{ parent() }}
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
-    <script type="text/javascript" src="{{ theme_url }}/js/pages-all.js"></script>
+    {% do assets.addJs(theme_url~'/js/pages-all.js') %}
     {% if mode == 'edit' %}
-    <script type="text/javascript" src="{{ theme_url }}/js/uikit.min.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/codemirror-compressed.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/marked.min.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/htmleditor.js"></script>
-    <script type="text/javascript" src="{{ theme_url }}/js/dropzone.min.js"></script>
+	{% do assets.addJs(theme_url~'/js/uikit.min.js') %}
+	{% do assets.addJs(theme_url~'/js/codemirror-compressed.js') %}
+	{% do assets.addJs(theme_url~'/js/marked.min.js') %}
+	{% do assets.addJs(theme_url~'/js/htmleditor.js') %}
+	{% do assets.addJs(theme_url~'/js/dropzone.min.js') %}
     {% endif %}
+    {{ parent() }}
 {% endblock %}
 
 {% macro loop(page, base_url, depth, warn) %}
