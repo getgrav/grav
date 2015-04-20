@@ -125,7 +125,7 @@ class InstallCommand extends Command
         foreach ($this->config['git'] as $repo => $data) {
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
-                exec('cd ' . $this->destination . ' && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
+                exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
                 $output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
                 $output->writeln('');
             } else {
