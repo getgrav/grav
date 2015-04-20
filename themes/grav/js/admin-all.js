@@ -49,30 +49,13 @@ $(function () {
         });
     }
 
-    var ajaxRequest = function (url, settings) {
-        settings = typeof settings === 'undefined' ? typeof url === 'string' ? {} : url : settings;
-        settings.url = typeof settings.url === 'undefined' && typeof url === 'string' ? url : settings.url;
-
-        var successHandler = typeof settings.success !== 'undefined' ? typeof settings.success === 'function' ? [ settings.success ] : settings.success : [];
-        successHandler.unshift(ajaxRequest.logoutHandler);
-        settings.success = successHandler;
-
-        return $.ajax(settings);
-    };
-    ajaxRequest.logoutHandler = function (response, status, xhr) {
-        if (response.status && (response.status === "unauthorized" || response.status === "forbidden")) {
-            document.location.href = GravAdmin.config.base_url_relative;
-            throw "Logged out";
-        }
-    };
-
     // Cache Clear
     $('[data-clear-cache]').on('click', function(e) {
 
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-trash').addClass('fa-refresh fa-spin');
         var url = $(this).data('clearCache');
 
-        ajaxRequest({
+        GravAjax({
             dataType: "json",
             url: url,
             success: function(result, status) {
@@ -93,7 +76,7 @@ $(function () {
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-cloud-download').addClass('fa-refresh fa-spin');
         var url = $(this).data('maintenanceUpdate');
 
-        ajaxRequest({
+        GravAjax({
             dataType: "json",
             url: url,
             success: function(result, status) {
@@ -110,7 +93,7 @@ $(function () {
     });
 
     var GPMRefresh = function () {
-        ajaxRequest({
+        GravAjax({
             dataType: "JSON",
             url: window.location.href,
             method: "POST",
