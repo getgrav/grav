@@ -1,13 +1,16 @@
 <?php
 namespace Grav\Common\Filesystem;
 
-class RecursiveFileFilterIterator extends \RecursiveFilterIterator
-{
-    public static $FILTERS = ['.DS_Store'];
+use Grav\Common\Utils;
 
+class RecursiveFileFilterIterator extends \FilterIterator
+{
     public function accept()
     {
-        // Ensure any filtered file names are skipped
-        return !in_array($this->current()->getFilename(), self::$FILTERS, true);
+        // Ensure only valid file names are skipped
+        $current = $this->current()->getFilename();
+        $accept = Utils::endsWith($current, '.md');
+
+        return $accept;
     }
 }

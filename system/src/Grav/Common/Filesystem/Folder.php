@@ -44,15 +44,12 @@ abstract class Folder
     {
         $last_modified = 0;
 
-        $dirItr    = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $filterItr = new RecursiveFileFilterIterator($dirItr);
-        $itr       = new \RecursiveIteratorIterator($filterItr, \RecursiveIteratorIterator::SELF_FIRST);
+        $dirItr = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $itrItr = new \RecursiveIteratorIterator($dirItr, \RecursiveIteratorIterator::SELF_FIRST);
+        $itr    = new RecursiveFileFilterIterator($itrItr);
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($itr as $file) {
-            if ($file->isDir()) {
-                continue;
-            }
             $file_modified = $file->getMTime();
             if ($file_modified > $last_modified) {
                 $last_modified = $file_modified;
