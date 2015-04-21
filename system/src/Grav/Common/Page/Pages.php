@@ -333,7 +333,9 @@ class Pages
 
     /**
      * Get all pages
-     * @return Collection
+     *
+     * @param \Grav\Common\Page\Page $current
+     * @return \Grav\Common\Page\Collection
      */
     public function all(Page $current = null)
     {
