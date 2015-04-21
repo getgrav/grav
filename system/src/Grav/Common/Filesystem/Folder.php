@@ -42,13 +42,13 @@ abstract class Folder
      */
     public static function lastModifiedFile($path)
     {
-        // pipe separated list of extensions to search for
+        // pipe separated list of extensions to search for changes with
         $extensions = 'md|yaml';
         $last_modified = 0;
 
         $dirItr = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $itrDir = new \RecursiveIteratorIterator($dirItr, \RecursiveIteratorIterator::SELF_FIRST);
-        $itr = new \RegexIterator($itrDir, '/^.+\.'.$extensions.'$/i');
+        $itrItr = new \RecursiveIteratorIterator($dirItr, \RecursiveIteratorIterator::SELF_FIRST);
+        $itr = new \RegexIterator($itrItr, '/^.+\.'.$extensions.'$/i');
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($itr as $filepath => $file) {
