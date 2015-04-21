@@ -47,6 +47,7 @@ class Page
 
     protected $parent;
     protected $template;
+    protected $expires;
     protected $visible;
     protected $published;
     protected $publish_date;
@@ -273,6 +274,10 @@ class Page
             if (isset($this->header->unpublish_date)) {
                 $this->unpublish_date = strtotime($this->header->unpublish_date);
             }
+            if (isset($this->header->expires)) {
+                $this->expires = intval($this->header->expires);
+            }
+
         }
 
         return $this->header;
@@ -779,6 +784,20 @@ class Page
             $this->template = ($this->modular() ? 'modular/' : '') . str_replace(CONTENT_EXT, '', $this->name());
         }
         return $this->template;
+    }
+
+    /**
+     * Gets and sets the expires field. If not set will return the default
+     *
+     * @param  string $var The name of this page.
+     * @return string      The name of this page.
+     */
+    public function expires($var = null)
+    {
+        if ($var !== null) {
+            $this->expires = $var;
+        }
+        return empty($this->expires) ? self::getGrav()['config']->get('system.pages.expires') : $this->expires;
     }
 
     /**

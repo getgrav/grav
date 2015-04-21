@@ -296,9 +296,27 @@ class Grav extends Container
     public function header()
     {
         $extension = $this['uri']->extension();
+
+        /** @var Page $page */
+        $page = $this['page'];
+
         header('Content-type: ' . $this->mime($extension));
 
-        header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + $this['config']->get('system.pages.expires')));
+        // Calculate Expires Headers if set to > 0
+        $expires = $page->expires();
+
+        if ($expires > 0) {
+            $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
+            header('Cache-Control: max-age=' . $expires_date);
+            header('Expires: '. $expires_date);
+        }
+
+        // Set the last modified time
+        $last_modified_date = gmdate('D, d M Y H:i:s', $page->modified()) . ' GMT';
+        header('Last-Modified: ' . $last_modified_date);
+
+        // Calculate a Hash based on the raw file
+        header('ETag: ' . md5($page->raw().$page->modified()));
 
         // Set debugger data in headers
         if (!($extension === null || $extension == 'html')) {
