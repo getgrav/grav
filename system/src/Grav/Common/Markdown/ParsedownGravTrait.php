@@ -26,8 +26,9 @@ trait ParsedownGravTrait
      * Initialiazation function to setup key variables needed by the MarkdownGravLinkTrait
      *
      * @param $page
+     * @param $defaults
      */
-    protected function init($page)
+    protected function init($page, $defaults)
     {
         $this->page = $page;
         $this->pages = self::getGrav()['pages'];
@@ -36,7 +37,9 @@ trait ParsedownGravTrait
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
 
-        $defaults = self::getGrav()['config']->get('system.pages.markdown');
+        if ($defaults == null) {
+            $defaults = self::getGrav()['config']->get('system.pages.markdown');
+        }
 
         $this->setBreaksEnabled($defaults['auto_line_breaks']);
         $this->setUrlsLinked($defaults['auto_url_links']);

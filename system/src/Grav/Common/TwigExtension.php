@@ -337,9 +337,9 @@ class TwigExtension extends \Twig_Extension
 
         // Initialize the preferred variant of Parsedown
         if ($defaults['extra']) {
-            $parsedown = new ParsedownExtra($page);
+            $parsedown = new ParsedownExtra($page, $defaults);
         } else {
-            $parsedown = new Parsedown($page);
+            $parsedown = new Parsedown($page, $defaults);
         }
 
         $string = $parsedown->text($string);

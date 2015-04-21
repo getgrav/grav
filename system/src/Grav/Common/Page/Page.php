@@ -442,9 +442,9 @@ class Page
 
         // Initialize the preferred variant of Parsedown
         if ($defaults['extra']) {
-            $parsedown = new ParsedownExtra($this);
+            $parsedown = new ParsedownExtra($this, $defaults);
         } else {
-            $parsedown = new Parsedown($this);
+            $parsedown = new Parsedown($this, $defaults);
         }
 
         $this->content = $parsedown->text($this->content);
