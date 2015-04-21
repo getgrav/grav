@@ -6,6 +6,7 @@ use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
@@ -116,7 +117,6 @@ trait ParsedownGravTrait
 
         // if this is an image
         if (isset($excerpt['element']['attributes']['src'])) {
-
             $alt = $excerpt['element']['attributes']['alt'] ?: '';
             $title = $excerpt['element']['attributes']['title'] ?: '';
             $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
@@ -128,7 +128,6 @@ trait ParsedownGravTrait
 
             // if there is no host set but there is a path, the file is local
             if (!isset($url['host']) && isset($url['path'])) {
-
                 // get the local path to page media if possible
                 if ($path_parts['dirname'] == $this->page->url()) {
                     $url['path'] = ltrim(str_replace($this->page->url(), '', $url['path']), '/');
@@ -136,7 +135,6 @@ trait ParsedownGravTrait
                     $media = $this->page->media();
 
                 } else {
-
                     // see if this is an external page to this one
                     $page_route = str_replace($this->base_url, '', $path_parts['dirname']);
 
@@ -219,37 +217,43 @@ trait ParsedownGravTrait
     protected function convertUrl($markdown_url)
     {
         // if absolute and starts with a base_url move on
-        if ($this->base_url != '' && strpos($markdown_url, $this->base_url) === 0) {
+        if (Utils::startsWith($markdown_url, $this->base_url)) {
             return $markdown_url;
-        // if its absolute and starts with /
-        } elseif (strpos($markdown_url, '/') === 0) {
-            return $this->base_url . $markdown_url;
+            // if contains only a fragment
+        } elseif (Utils::startsWith($markdown_url, '#')) {
+            return $markdown_url;
         } else {
-            $relative_path = $this->base_url . $this->page->route();
-            $real_path = $this->page->path() . '/' . parse_url($markdown_url, PHP_URL_PATH);
-
-            // strip numeric order from markdown path
-            if (($real_path)) {
-                $markdown_url = preg_replace('/^([\d]+\.)/', '', preg_replace('/\/([\d]+\.)/', '/', trim(preg_replace('/[^\/]+(\.md$)/', '', $markdown_url), '/')));
+            $target = null;
+            // see if page is relative to this or absolute
+            if (Utils::startsWith($markdown_url, '/')) {
+                $normalized_path = Utils::normalizePath($this->pages_dir . $markdown_url);
+                $normalized_url = Utils::normalizePath($this->base_url . $markdown_url);
+            } else {
+                $normalized_path = Utils::normalizePath($this->page->path() . '/' . $markdown_url);
+                $normalized_url = $this->base_url . Utils::normalizePath($this->page->route() . '/' . $markdown_url);
             }
 
-            // else its a relative path already
-            $newpath = array();
-            $paths = explode('/', $markdown_url);
+            $url_bits = parse_url($normalized_path);
+            $full_path = $url_bits['path'];
 
-            // remove the updirectory references (..)
-            foreach ($paths as $path) {
-                if ($path == '..') {
-                    $relative_path = dirname($relative_path);
-                } else {
-                    $newpath[] = $path;
+            if (file_exists($full_path)) {
+                $page_path = pathinfo($full_path, PATHINFO_DIRNAME);
+
+                // get page instances and try to find one that fits
+                $instances = $this->pages->instances();
+                if (isset($instances[$full_path])) {
+                    $target = $instances[$full_path];
+                } elseif (isset($instances[$page_path])) {
+                    $target = $instances[$page_path];
+                }
+
+                // if a page target is found...
+                if ($target) {
+                    $url_bits['path'] = $this->base_url . $target->route();
+                    return Uri::buildUrl($url_bits);
                 }
             }
-
-            // build the new url
-            $new_url = rtrim($relative_path, '/') . '/' . implode('/', $newpath);
+            return $normalized_url;
         }
-
-        return $new_url;
     }
 }
