@@ -239,20 +239,27 @@ trait ParsedownGravTrait
             $url_bits = parse_url($normalized_path);
             $full_path = $url_bits['path'];
 
+            // if this file exits, get the page and work with that
             if (file_exists($full_path)) {
-                $page_path = pathinfo($full_path, PATHINFO_DIRNAME);
+                $path_info = pathinfo($full_path);
+                $page_path = $path_info['dirname'];
+                $filename = '';
+
+                // save the filename if a file is part of the path
+                $filename_regex = "/([\w\d-_]+\.([a-zA-Z]{2,4}))$/";
+                if (preg_match($filename_regex, $full_path, $matches)) {
+                    if ($matches[2] != 'md') {
+                        $filename = '/' . $matches[1];
+                    }
+                } else {
+                    $page_path = $full_path;
+                }
 
                 // get page instances and try to find one that fits
                 $instances = $this->pages->instances();
-                if (isset($instances[$full_path])) {
-                    $target = $instances[$full_path];
-                } elseif (isset($instances[$page_path])) {
+                if (isset($instances[$page_path])) {
                     $target = $instances[$page_path];
-                }
-
-                // if a page target is found...
-                if ($target) {
-                    $url_bits['path'] = $this->base_url . $target->route();
+                    $url_bits['path'] = $this->base_url . $target->route() . $filename;
                     return Uri::buildUrl($url_bits);
                 }
             }
