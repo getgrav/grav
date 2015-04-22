@@ -220,7 +220,7 @@ trait ParsedownGravTrait
     protected function convertUrl($markdown_url)
     {
         // if absolute and starts with a base_url move on
-        if (Utils::startsWith($markdown_url, $this->base_url)) {
+        if ($this->base_url != '' && Utils::startsWith($markdown_url, $this->base_url)) {
             return $markdown_url;
             // if contains only a fragment
         } elseif (Utils::startsWith($markdown_url, '#')) {
