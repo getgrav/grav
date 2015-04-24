@@ -105,8 +105,10 @@ class Uri
             parse_str($this->bits['query'], $this->query);
         }
 
+        $path = $this->bits['path'];
+
         $this->paths = array();
-        $this->path = $this->bits['path'];
+        $this->path = $path;
         $this->content_path = trim(str_replace($this->base, '', $this->path), '/');
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
@@ -136,7 +138,7 @@ class Uri
                     $path[] = $bit;
                 }
             }
-            $uri = implode('/', $path);
+            $uri = '/' . ltrim(implode('/', $path), '/');
         }
         return $uri;
     }
@@ -249,7 +251,11 @@ class Uri
      */
     public function path()
     {
-        return $this->path;
+        $path = $this->path();
+        if ($path === '') {
+            $path = '/';
+        }
+        return $path;
     }
 
     /**
