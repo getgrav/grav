@@ -251,7 +251,7 @@ class Uri
      */
     public function path()
     {
-        $path = $this->path();
+        $path = $this->path;
         if ($path === '') {
             $path = '/';
         }
