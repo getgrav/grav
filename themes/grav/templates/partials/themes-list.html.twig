@@ -20,7 +20,8 @@
                 <span class="gpm-version">v{{ theme.version }}</span>
             </div>
             <div class="gpm-screenshot">
-                <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}"><img src="{{ theme.thumbnail }}" /></a>
+                {% set thumb = installing ? 'http://getgrav.org/images/' ~ theme.screenshot : theme.thumbnail %}
+                <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}"><img src="{{ thumb }}" /></a>
             </div>
             {% if (installing) %}
                 <div class="gpm-actions">
