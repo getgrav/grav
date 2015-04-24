@@ -1,3 +1,9 @@
+# v0.9.26
+## 04/24/2015
+
+3. [](#bugfix)
+    * Fixed issue with homepage routes failing with 'dirname' error
+
 # v0.9.25
 ## 04/24/2015
 
