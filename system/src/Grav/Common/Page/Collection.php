@@ -361,12 +361,13 @@ class Collection extends Iterator
     {
         $routable = [];
 
-        foreach (array_keys($this->items) as $path => $slug) {
+        foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
             if ($page->routable()) {
                 $routable[$path] = $slug;
             }
         }
+
         $this->items = $routable;
         return $this;
     }

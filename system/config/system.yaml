@@ -31,7 +31,7 @@ pages:
       '>': 'gt'
       '<': 'lt'
   types: 'txt|xml|html|json|rss|atom'  # Pipe separated list of valid page types
-  expires: 604800                      # Page expires time in seconds (default 7 days)
+  expires: 0                           # Page expires time in seconds (604800 seconds = 7 days)
 
 cache:
   enabled: true                        # Set to true to enable caching
@@ -78,3 +78,6 @@ images:
 
 media:
   enable_media_timestamp: false        # Enable media timetsamps
+
+security:
+  default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK

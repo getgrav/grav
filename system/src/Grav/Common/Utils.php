@@ -295,7 +295,6 @@ abstract class Utils
      * Return the mimetype based on filename
      *
      * @param $extension Extension of file (eg .txt)
-     *
      * @return string
      */
     public static function getMimeType($extension)
@@ -395,5 +394,30 @@ abstract class Utils
             default:
                 return "application/octet-stream";
         }
+    }
+
+    /**
+     * Normalize path by processing relative `.` and `..` syntax and merging path
+     *
+     * @param $path
+     * @return string
+     */
+    public static function normalizePath($path)
+    {
+        $root = ($path[0] === '/') ? '/' : '';
+
+        $segments = explode('/', trim($path, '/'));
+        $ret = array();
+        foreach ($segments as $segment) {
+            if (($segment == '.') || empty($segment)) {
+                continue;
+            }
+            if ($segment == '..') {
+                array_pop($ret);
+            } else {
+                array_push($ret, $segment);
+            }
+        }
+        return $root . implode('/', $ret);
     }
 }

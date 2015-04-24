@@ -5,9 +5,9 @@ class ParsedownExtra extends \ParsedownExtra
 {
     use ParsedownGravTrait;
 
-    public function __construct($page)
+    public function __construct($page, $defaults)
     {
         parent::__construct();
-        $this->init($page);
+        $this->init($page, $defaults);
     }
 }

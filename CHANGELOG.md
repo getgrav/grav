@@ -1,3 +1,19 @@
+# v0.9.25
+## 04/24/2015
+
+1. [](#new)
+    * Added support for E-Tag, Last-Modified, Cache-Control and Page-based expires headers
+2. [](#improved)
+    * Refactored media image handling to make it more flexible and support absolute paths
+    * Refactored page modification check process to make it faster
+    * User account improvements in preparation for Admin plugin
+    * Protect against timing attacks
+    * Reset default system expires time to 0 seconds (can override if you need to)
+3. [](#bugfix)
+    * Fix issues with spaces in webroot when using `bin/grav install`
+    * Fix for spaces in relative directory
+    * Bug fix in collection filtering
+
 # v0.9.24
 ## 04/15/2015
 
