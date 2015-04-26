@@ -153,6 +153,9 @@ class SelfupgradeCommand extends Command
             $this->output->writeln('');
         }
 
+        $this->output->writeln("\nInstalling vendor dependencies");
+        $this->output->writeln(system('php bin/composer.phar --working-dir="'.$this->destination.'" --no-interaction --no-dev -o install'));
+
         // clear cache after successful upgrade
         $this->clearCache('all');
     }
