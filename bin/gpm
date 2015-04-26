@@ -26,6 +26,10 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
+if (!function_exists('curl_version')) {
+    exit('FATAL: GPM requires PHP Curl module to be installed');
+}
+
 $grav = Grav::instance(array('loader' => $autoload));
 $grav['config']->init();
 $grav['streams'];
