@@ -255,7 +255,7 @@ class InstallCommand extends Command
 
             // Confirmation received, copy over the data
             $this->output->writeln("  |- Installing demo content...    <green>ok</green>                             ");
-            Utils::rcopy($demo_dir, $dest_dir);
+            Folder::rcopy($demo_dir, $dest_dir);
             $this->output->writeln("  '- <green>Success!</green>  ");
             $this->output->writeln('');
         }
