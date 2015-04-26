@@ -154,7 +154,7 @@ class SelfupgradeCommand extends Command
         }
 
         $this->output->writeln("\nInstalling vendor dependencies");
-        $this->output->writeln(system('php bin/composer.phar --working-dir="'.$this->destination.'" --no-interaction --no-dev -o install'));
+        $this->output->writeln(system('php bin/composer.phar --working-dir="'.GRAV_ROOT.'" --no-interaction --no-dev --prefer-dist -o install'));
 
         // clear cache after successful upgrade
         $this->clearCache('all');

@@ -98,7 +98,7 @@ class InstallCommand extends Command
             if (!$input->getOption('symlink')) {
                 // Updates composer first
                 $output->writeln("\nInstalling vendor dependencies");
-                $output->writeln(system('php bin/composer.phar --working-dir="'.$this->destination.'" --no-interaction --no-dev -o install'));
+                $output->writeln(system('php bin/composer.phar --working-dir="'.$this->destination.'" --no-interaction --no-dev --prefer-dist -o install'));
 
                 $this->gitclone($output);
             } else {
