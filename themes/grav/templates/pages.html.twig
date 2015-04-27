@@ -122,10 +122,9 @@
             {% endif %}
 
             {% if admin.session.expert == '0' %}
-                {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('pages/'~modular~'raw'), data: context } %}
-
+                {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
             {% else %}
-                 {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
+                {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('pages/'~modular~'raw'), data: context } %}
             {% endif %}
         </div>
     {% else %}
