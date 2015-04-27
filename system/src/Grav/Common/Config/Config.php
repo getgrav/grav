@@ -72,6 +72,12 @@ class Config extends Data
             'prefixes' => [
                 '' => ['logs']
             ]
+        ],
+        'backup' => [
+            'type' => 'Stream',
+            'prefixes' => [
+                '' => ['backup']
+            ]
         ]
     ];
 

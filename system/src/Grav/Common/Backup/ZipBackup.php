@@ -16,6 +16,7 @@ class ZipBackup
 
     protected static $ignore = [
         '.git',
+        'backup',
         'cache',
         'images',
         'logs'
@@ -24,8 +25,11 @@ class ZipBackup
     public static function backup($destination = null, callable $messager = null)
     {
         if (!$destination) {
-            $destination = self::getGrav()['locator']->findResource('cache://', true);
-            $destination = $destination . DS . 'tmp/Grav-' . uniqid();
+            $destination = self::getGrav()['locator']->findResource('backup://', true);
+
+            if (!$destination)
+                throw new \RuntimeException('The backup folder is missing.');
+
             Folder::mkdir($destination);
         }
 

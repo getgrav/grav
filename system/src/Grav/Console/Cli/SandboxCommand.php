@@ -20,6 +20,7 @@ class SandboxCommand extends Command
      * @var array
      */
     protected $directories = array(
+        '/backup',
         '/cache',
         '/logs',
         '/images',
