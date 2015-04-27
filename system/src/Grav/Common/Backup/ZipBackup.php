@@ -22,7 +22,7 @@ class ZipBackup
             Folder::mkdir($destination);
         }
 
-        $name = basename(GRAV_ROOT);
+        $name = self::getGrav()['config']->get('site.title', basename(GRAV_ROOT));
 
         if (is_dir($destination)) {
             $date = date('YmdHis', time());
