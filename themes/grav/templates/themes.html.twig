@@ -16,11 +16,13 @@
 
 {% block titlebar %}
     {% if not admin.route or installing %}
-        {% if (not installing) %}
         <div class="button-bar">
+        {% if (installing) %}
+            <a class="button" href="{{ base_url_relative }}/themes"><i class="fa fa-reply"></i> Back to installed</a>
+        {% else %}
             <a class="button" href="{{ base_url_relative }}/themes/install"><i class="fa fa-plus"></i> Add</a>
-        </div>
         {% endif %}
+        </div>
         <h1><i class="fa fa-fw fa-plug"></i> Themes</h1>
     {% else %}
         {% if (installed) %}
