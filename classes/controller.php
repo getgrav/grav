@@ -11,6 +11,9 @@ use Grav\Common\Data;
 use Grav\Common\Page;
 use Grav\Common\Page\Collection;
 use Grav\Common\User\User;
+use Grav\Common\Utils;
+use Grav\Common\Backup\ZipBackup;
+use RocketTheme\Toolbox\File\JsonFile;
 
 class AdminController
 {
@@ -262,6 +265,38 @@ class AdminController
         } else {
             $this->admin->json_response = ['error', 'Error clearing cache'];
         }
+
+        return true;
+    }
+
+    protected function taskBackup()
+    {
+        $download = $this->grav['uri']->param('download');
+
+        if ($download) {
+            Utils::download(base64_decode(urldecode($download)), true);
+        }
+
+        $log = JsonFile::instance($this->grav['locator']->findResource("log://backup.log", true, true));
+
+        $backup = ZipBackup::backup();
+        $download = urlencode(base64_encode($backup));
+        $url = rtrim($this->grav['uri']->rootUrl(true), '/') . '/' . trim($this->admin->base, '/') . '/task:backup/download:' . $download;
+
+        $log->content([
+            'time' => time(),
+            'location' => $backup
+        ]);
+        $log->save();
+
+        $this->admin->json_response = [
+            'status' => 'success',
+            'message' => 'Your backup is ready for download. <a href="'.$url.'" class="button">Download backup</a>',
+            'toastr' => [
+                'timeOut' => 0,
+                'closeButton' => true
+            ]
+        ];
 
         return true;
     }

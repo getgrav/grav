@@ -200,7 +200,6 @@ class AdminPlugin extends Plugin
         $format = $this->uri->extension();
         $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
 
-        $twig->template = $this->template . $ext;
         $twig->twig_vars['location'] = $this->template;
         $twig->twig_vars['base_url_relative_frontend'] = $twig->twig_vars['base_url_relative'];
         $twig->twig_vars['base_url_relative'] .=

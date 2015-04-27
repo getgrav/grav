@@ -12,6 +12,7 @@ use Grav\Common\Page\Page;
 use Grav\Common\Data;
 use Grav\Common\GPM\GPM;
 use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\File\JsonFile;
 use RocketTheme\Toolbox\File\LogFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Session\Message;
@@ -413,6 +414,32 @@ class Admin
         $content = $file->content();
 
         return $content;
+    }
+
+    public function lastBackup()
+    {
+        $file = JsonFile::instance($this->grav['locator']->findResource("log://backup.log"));
+        $content = $file->content();
+        if (empty($content)) {
+            return [
+                'days' => '&infin;',
+                'chart_fill' => 100,
+                'chart_empty' => 0
+            ];
+        }
+
+        $backup = new \DateTime();
+        $backup->setTimestamp($content['time']);
+        $diff = $backup->diff(new \DateTime());
+
+        $days = $diff->days;
+        $chart_fill = $days > 30 ? 100 : round($days / 30 * 100);
+
+        return [
+            'days' => $days,
+            'chart_fill' => $chart_fill,
+            'chart_empty' => 100 - $chart_fill
+        ];
     }
 
     /**

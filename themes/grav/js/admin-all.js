@@ -92,6 +92,63 @@ $(function () {
         });
     });
 
+    // Update plugins/themes
+    $('[data-ajax]').on('click', function(e) {
+
+        var button = $(this),
+            icon = button.find('> .fa'),
+            url = button.data('ajax');
+
+        var iconClasses = [],
+            helperClasses = [ 'fa-lg', 'fa-2x', 'fa-3x', 'fa-4x', 'fa-5x',
+                              'fa-fw', 'fa-ul', 'fa-li', 'fa-border',
+                              'fa-rotate-90', 'fa-rotate-180', 'fa-rotate-270',
+                              'fa-flip-horizontal', 'fa-flip-vertical' ];
+
+        // Disable button
+        button.attr('disabled','disabled');
+
+        // Swap fontawesome icon to loader
+        $.each(icon.attr('class').split(/\s+/), function (i, classname) {
+            if (classname.indexOf('fa-') === 0 && $.inArray(classname, helperClasses) === -1) {
+                iconClasses.push(classname);
+                icon.removeClass(classname);
+            }
+        });
+        icon.addClass('fa-refresh fa-spin');
+
+        GravAjax({
+            dataType: "json",
+            url: url,
+            success: function(result, status) {
+
+                var toastrBackup = {};
+                if (result.toastr) {
+                    for (var setting in result.toastr) { if (result.toastr.hasOwnProperty(setting)) {
+                            toastrBackup[setting] = toastr.options[setting];
+                            toastr.options[setting] = result.toastr[setting];
+                        }
+                    }
+                }
+
+                if (result.status == 'success') {
+                    toastr.success(result.message || 'Task completed.');
+                } else {
+                    toastr.error(result.message || 'Something went terribly wrong.');
+                }
+
+                for (var setting in toastrBackup) { if (toastrBackup.hasOwnProperty(setting)) {
+                        toastr.options[setting] = toastrBackup[setting];
+                    }
+                }
+            }
+        }).complete(function() {
+            // Restore button
+            button.removeAttr('disabled');
+            icon.removeClass('fa-refresh fa-spin').addClass(iconClasses.join(' '));
+        });
+    });
+
     var GPMRefresh = function () {
         GravAjax({
             dataType: "JSON",

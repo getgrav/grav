@@ -11,6 +11,7 @@
 
     {% set gpm = admin.gpm() %}
     {% set updatable = gpm.getUpdatablePlugins() %}
+    {% set backup = admin.lastBackup() %}
 
     <div id="admin-dashboard">
         <div id="updates" class="dashboard-item dashboard-left">
@@ -29,7 +30,7 @@
                             <div class="ct-chart"></div>
                             <script>
                                 var data = {
-                                  series: [33,67]
+                                  series: [{{ backup.chart_fill }}, {{ backup.chart_empty }}]
                                 };
                                 var options = {
                                   donut: true,
@@ -41,14 +42,14 @@
                                 };
                                 Chartist.Pie('.backups-chart .ct-chart', data, options);
                             </script>
-                            <span class="numeric">13<em>days</em></span>
+                            <span class="numeric">{{ backup.days }}<em>days</em></span>
                         </div>
                         <p>Last Backup</p>
                     </div>
                 </div>
                 <div class="flush-bottom button-bar">
                     <button data-maintenance-update="{{ base_url_relative }}/update.json/task:update" class="button"><i class="fa fa-cloud-download"></i> Update</button>
-                    <button href="#" class="button"><i class="fa fa-database"></i> Backup</button>
+                    <button data-ajax="{{ base_url_relative }}/backup.json/task:backup" class="button"><i class="fa fa-database"></i> Backup</button>
                 </div>
             </div>
         </div>
