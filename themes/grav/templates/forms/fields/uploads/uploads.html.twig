@@ -31,8 +31,30 @@
                         }
                     };
                 Dropzone.autoDiscover = false;
+                Dropzone.confirm = function(question, accepted, rejected) {
+                    var modalContainer = $('[data-remodal-id=delete-media]'),
+                        acceptHandler = function () {
+                            if (accepted) {
+                                accepted();
+                            }
+                            $(document).off('confirm', '[data-remodal-id=delete-media]', acceptHandler);
+                            $(document).off('cancel', '[data-remodal-id=delete-media]', rejectHandler);
+                        },
+                        rejectHandler = function () {
+                            if (rejected) {
+                                rejected();
+                            }
+                            $(document).off('confirm', '[data-remodal-id=delete-media]', acceptHandler);
+                            $(document).off('cancel', '[data-remodal-id=delete-media]', rejectHandler);
+                        };
+
+                    $.remodal.lookup[modalContainer.data('remodal')].open();
+                    $(document).on('confirm', '[data-remodal-id=delete-media]', acceptHandler);
+                    $(document).on('cancel', '[data-remodal-id=delete-media]', rejectHandler);
+                };
                 Dropzone.options.gravDropzone = {
                     addRemoveLinks: false,
+                    dictRemoveFileConfirmation: '[placeholder]',
                     acceptedFiles: $('[data-media-types]').data('media-types'),
                     previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-details\">\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n    <div class=\"dz-size\" data-dz-size></div>\n    <img data-dz-thumbnail />\n  </div>\n  <div class=\"dz-progress\"><span class=\"dz-upload\" data-dz-uploadprogress></span></div>\n  <div class=\"dz-success-mark\"><span>✔</span></div>\n  <div class=\"dz-error-mark\"><span>✘</span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>Delete</a>\n<a class=\"dz-insert\" href=\"javascript:undefined;\" data-dz-insert>Insert</a>\n</div>",
                     init: function() {
