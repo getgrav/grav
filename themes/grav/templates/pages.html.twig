@@ -121,7 +121,7 @@
             </form>
             {% endif %}
 
-            {% if admin.session.expert == '0' %}
+            {% if context.blueprints.fields and admin.session.expert == '0' %}
                 {% include 'partials/blueprints.html.twig' with { blueprints: context.blueprints, data: context } %}
             {% else %}
                 {% include 'partials/blueprints-raw.html.twig' with { blueprints: admin.blueprints('pages/'~modular~'raw'), data: context } %}
