@@ -153,9 +153,6 @@ class SelfupgradeCommand extends Command
             $this->output->writeln('');
         }
 
-        $this->output->writeln("\nInstalling vendor dependencies");
-        $this->output->writeln($this->composerUpdate(GRAV_ROOT, 'update'));
-
         // clear cache after successful upgrade
         $this->clearCache('all');
     }
