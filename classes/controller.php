@@ -718,14 +718,16 @@ class AdminController
             $data = $this->post;
 
             // Find new parent page in order to build the path.
-            $parent = empty($data['route']) ? $pages->root() : $pages->dispatch($data['route'], true);
-
+            $parent = empty(trim($data['route'], '/')) ? $pages->root() : $pages->dispatch($data['route'], true);
             // And then get the current page.
             $page = $this->admin->page(true);
 
             // Make a copy of the current page and fill the updated information into it.
             $page = $page->copy($parent);
             $this->preparePage($page);
+
+            // Make sure the header is loaded in case content was set through raw() (expert mode)
+            $page->header();
 
             // Deal with folder naming conflicts, but limit number of searches to 99.
             $break = 99;
