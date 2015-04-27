@@ -14,6 +14,13 @@ class ZipBackup
 {
     use GravTrait;
 
+    protected static $ignore = [
+        '.git',
+        'cache',
+        'images',
+        'logs'
+    ];
+
     public static function backup($destination = null, callable $messager = null)
     {
         if (!$destination) {
@@ -43,7 +50,6 @@ class ZipBackup
 
         $zip = new \ZipArchive();
         $zip->open($destination, \ZipArchive::CREATE);
-        $zip->addEmptyDir($name);
 
         static::folderToZip(GRAV_ROOT, $zip, strlen(rtrim(GRAV_ROOT, DS) . DS), $messager);
 
@@ -83,6 +89,11 @@ class ZipBackup
                 $filePath = "$folder/$f";
                 // Remove prefix from file path before add to zip.
                 $localPath = substr($filePath, $exclusiveLength);
+
+                if (in_array($localPath, static::$ignore)) {
+                    continue;
+                }
+
                 if (is_file($filePath)) {
                     $zipFile->addFile($filePath, $localPath);
 
