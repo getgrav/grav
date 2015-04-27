@@ -1,8 +1,8 @@
 {% extends 'partials/base.html.twig' %}
 
-{% block javascript %}
+{% block javascripts %}
+    {% do assets.addJs(theme_url~'/js/dynfields/dynfields.js') %}
     {{ parent() }}
-    <script src="{{ theme_url }}/js/dynfields/dynfields.js"></script>
 {% endblock %}
 
 {% block titlebar %}
