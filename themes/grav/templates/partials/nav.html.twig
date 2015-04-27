@@ -53,14 +53,14 @@
 
         {% include 'nav-pro.html.twig' ignore missing %}
 
-        <li class="{{ (location == 'logs') ? 'selected' : '' }}">
+        <!-- <li class="{{ (location == 'logs') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/logs">
                 <i class="fa fa-fw fa-warning"></i> Error Logs
                 <span class="badges">
                     <span class="badge count">{{ admin.logs|length }}</span>
                 </span>
             </a>
-        </li>
+        </li> -->
         <li>
             <a href="{{ base_url_relative }}/task:logout"><i class="fa fa-fw fa-sign-out"></i> Logout</a>
         </li>
