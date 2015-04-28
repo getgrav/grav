@@ -14,12 +14,15 @@ class ZipBackup
 {
     use GravTrait;
 
-    protected static $ignore = [
-        '.git',
+    protected static $ignorePaths = [
         'backup',
         'cache',
         'images',
         'logs'
+    ];
+
+    protected static $ignoreFolders = [
+        '.git'
     ];
 
     public static function backup($destination = null, callable $messager = null)
@@ -94,7 +97,7 @@ class ZipBackup
                 // Remove prefix from file path before add to zip.
                 $localPath = substr($filePath, $exclusiveLength);
 
-                if (in_array($localPath, static::$ignore)) {
+                if (in_array($f, static::$ignoreFolders) || in_array($localPath, static::$ignorePaths)) {
                     continue;
                 }
 
