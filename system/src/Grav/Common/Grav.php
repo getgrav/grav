@@ -349,26 +349,29 @@ class Grav extends Container
     public function shutdown()
     {
         if ($this['config']->get('system.debugger.shutdown.close_connection')) {
-
+            //stop user abort
             if (function_exists('ignore_user_abort')) {
                 @ignore_user_abort(true);
             }
 
+            // close the session
             if (isset($this['session'])) {
                 $this['session']->close();
             }
 
+            // flush buffer if gzip buffer was started
             if ($this['config']->get('system.cache.gzip')) {
                 ob_end_flush(); // gzhandler buffer
             }
 
+            // get lengh and close the connection
             header('Content-Length: ' . ob_get_length());
             header("Connection: close\r\n");
 
-            ob_end_flush(); // regular buffer
-            @ob_flush();
-            flush();
+            // flush the regular buffer
+            ob_end_flush();
 
+            // fix for fastcgi close connection issue
             if (function_exists('fastcgi_finish_request')) {
                 @fastcgi_finish_request();
             }
