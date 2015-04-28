@@ -181,7 +181,6 @@ abstract class Utils
 
             $file_parts = pathinfo($file);
             $filesize = filesize($file);
-            $range = false;
 
             set_time_limit(0);
             ignore_user_abort(false);
