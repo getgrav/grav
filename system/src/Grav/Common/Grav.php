@@ -167,12 +167,6 @@ class Grav extends Container
 
     public function process()
     {
-        // Use output buffering to prevent headers from being sent too early.
-        ob_start();
-        if ($this['config']->get('system.cache.gzip')) {
-            ob_start('ob_gzhandler');
-        }
-
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
 
@@ -184,6 +178,12 @@ class Grav extends Container
         $debugger->init();
         $this['config']->debug();
         $debugger->stopTimer('_config');
+
+        // Use output buffering to prevent headers from being sent too early.
+        ob_start();
+        if ($this['config']->get('system.cache.gzip')) {
+            ob_start('ob_gzhandler');
+        }
 
         // Initialize the timezone
         if ($this['config']->get('system.timezone')) {
