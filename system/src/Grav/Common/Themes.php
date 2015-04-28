@@ -106,10 +106,10 @@ class Themes extends Iterator
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $file = CompiledYamlFile::instance("user://config/themes/{$name}" . YAML_EXT);
-        $obj->merge($file->content());
+        $obj->merge($this->grav['config']->get('themes.' . $name) ?: []);
 
         // Save configuration always to user/config.
+        $file = CompiledYamlFile::instance("config://themes/{$name}" . YAML_EXT);
         $obj->file($file);
 
         return $obj;

@@ -38,18 +38,8 @@ class ConfigServiceProvider implements ServiceProviderInterface
     public function loadMasterConfig(Container $container)
     {
         $environment = $this->getEnvironment($container);
-        $file = CACHE_DIR . 'compiled/config/master-'.$environment.'.php';
-        $data = is_file($file) ? (array) include $file : [];
-        if ($data) {
-            try {
-                $config = new Config($data, $container, $environment);
-            } catch (\Exception $e) {
-            }
-        }
 
-        if (!isset($config)) {
-            $config = new Config($this->setup, $container, $environment);
-        }
+        $config = new Config($this->setup, $container, $environment);
 
         return $config;
     }

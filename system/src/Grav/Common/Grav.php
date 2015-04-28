@@ -77,7 +77,7 @@ class Grav extends Container
             return new Cache($c);
         };
         $container['plugins'] = function ($c) {
-            return new Plugins($c);
+            return new Plugins();
         };
         $container['themes'] = function ($c) {
             return new Themes($c);
