@@ -37,7 +37,7 @@ trait ParsedownGravTrait
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
 
-        if ($defaults == null) {
+        if ($defaults === null) {
             $defaults = self::getGrav()['config']->get('system.pages.markdown');
         }
 
