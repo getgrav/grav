@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common;
 
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
