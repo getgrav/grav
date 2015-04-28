@@ -60,6 +60,6 @@ class Link implements RenderableInterface
 
         // Don't start nesting links, if user has multiple link calls in his
         // actions, we will drop the previous links.
-        return $this->source instanceof LinkMedium ? $this->source : $this;
+        return $this->source instanceof Link ? $this->source : $this;
     }
 }
