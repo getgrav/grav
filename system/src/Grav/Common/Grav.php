@@ -366,10 +366,12 @@ class Grav extends Container
 
             // get lengh and close the connection
             header('Content-Length: ' . ob_get_length());
-            header("Connection: close\r\n");
+            header("Connection: close");
 
             // flush the regular buffer
             ob_end_flush();
+            @ob_flush();
+            flush();
 
             // fix for fastcgi close connection issue
             if (function_exists('fastcgi_finish_request')) {
