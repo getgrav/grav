@@ -1,18 +1,31 @@
 title: Grav                                 # Name of the site
+
 author:
   name: John Appleseed                      # Default author name
   email: 'john@email.com'                   # Default author email
+
 taxonomies: [category,tag]                  # Arbitrary list of taxonomy types
+
 blog:
-  route: '/blog'                            # Route to blog
+  route: '/blog'                            # Route to blog (deprecated)
+
 metadata:
   description: 'My Grav Site'               # Site description
+
 summary:
   enabled: true                             # enable or disable summary of page
   format: short                             # long = summary delimiter will be ignored; short = use the first occurence of delimter or size
   size: 300                                 # Maximum length of summary (characters)
   delimiter: ===                            # The summary delimiter
+
 routes:
   /something/else: '/blog/sample-3'         # Alias for /blog/sample-3
   /another/one/here: '/blog/sample-3'       # Another alias for /blog/sample-3
   /new/*: '/blog/*'                         # Wildcard any /new/my-page URL to /blog/my-page Route
+
+#menu:                                      # Sample Menu Example
+#    - text: Source
+#      icon: github
+#      url: https://github.com/getgrav/grav
+#    - icon: twitter
+#      url: http://twitter.com/getgrav
