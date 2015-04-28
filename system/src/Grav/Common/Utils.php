@@ -185,8 +185,6 @@ abstract class Utils
 
             set_time_limit(0);
             ignore_user_abort(false);
-            ini_set('output_buffering', 0);
-            ini_set('zlib.output_compression', 0);
 
             if ($force_download) {
                 header('Content-Description: File Transfer');
