@@ -352,65 +352,63 @@ class InstallCommand extends Command
         $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
     }
 
-    /**
-     * @param $package
-     */
-    private function processGit($package)
-    {
-        $matches = $this->getGitRegexMatches($package);
-
-        $to = $this->destination . DS . $package->install_path;
-
-        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan> from " . $matches[0]);
-
-        $this->output->write("  |- Checking destination...  ");
-        $checks = $this->checkDestination($package);
-
-        if (!$checks) {
-            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-            $this->output->writeln('');
-        } else {
-            $cmd = 'cd ' . $this->destination . ' && git clone ' . $matches[0] . ' ' . $package->install_path;
-            exec($cmd);
-
-            // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- Cloning package...    <green>ok</green>                             ");
-
-            $this->output->writeln("  '- <green>Success!</green>  ");
-            $this->output->writeln('');
-        }
-    }
-
-    /**
-     * @param $package
-     */
-    private function processGPM($package)
-    {
-        $version = isset($package->available) ? $package->available : $package->version;
-
-        $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
-
-        $this->output->write("  |- Downloading package...     0%");
-        $this->file = $this->downloadPackage($package);
-
-        $this->output->write("  |- Checking destination...  ");
-        $checks = $this->checkDestination($package);
-
-        if (!$checks) {
-            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-            $this->output->writeln('');
-        } else {
-            $this->output->write("  |- Installing package...  ");
-            $installation = $this->installPackage($package);
-            if (!$installation) {
-                $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-                $this->output->writeln('');
-            } else {
-                $this->output->writeln("  '- <green>Success!</green>  ");
-                $this->output->writeln('');
-            }
-        }
-    }
+//    /**
+//     * @param $package
+//     */
+//    private function processGit($package)
+//    {
+//        $matches = $this->getGitRegexMatches($package);
+//
+//        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan> from " . $matches[0]);
+//
+//        $this->output->write("  |- Checking destination...  ");
+//        $checks = $this->checkDestination($package);
+//
+//        if (!$checks) {
+//            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+//            $this->output->writeln('');
+//        } else {
+//            $cmd = 'cd ' . $this->destination . ' && git clone ' . $matches[0] . ' ' . $package->install_path;
+//            exec($cmd);
+//
+//            // extra white spaces to clear out the buffer properly
+//            $this->output->writeln("  |- Cloning package...    <green>ok</green>                             ");
+//
+//            $this->output->writeln("  '- <green>Success!</green>  ");
+//            $this->output->writeln('');
+//        }
+//    }
+//
+//    /**
+//     * @param $package
+//     */
+//    private function processGPM($package)
+//    {
+//        $version = isset($package->available) ? $package->available : $package->version;
+//
+//        $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
+//
+//        $this->output->write("  |- Downloading package...     0%");
+//        $this->file = $this->downloadPackage($package);
+//
+//        $this->output->write("  |- Checking destination...  ");
+//        $checks = $this->checkDestination($package);
+//
+//        if (!$checks) {
+//            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+//            $this->output->writeln('');
+//        } else {
+//            $this->output->write("  |- Installing package...  ");
+//            $installation = $this->installPackage($package);
+//            if (!$installation) {
+//                $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+//                $this->output->writeln('');
+//            } else {
+//                $this->output->writeln("  '- <green>Success!</green>  ");
+//                $this->output->writeln('');
+//            }
+//        }
+//    }
 
     /**
      * @param $package
