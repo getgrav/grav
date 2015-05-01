@@ -232,13 +232,8 @@ trait ParsedownGravTrait
                 $normalized_path = Utils::normalizePath($this->pages_dir . $markdown_url);
                 $normalized_url = Utils::normalizePath($this->base_url . $markdown_url);
             } else {
-                // contains path, so need to normalize it
-                if (Utils::contains($markdown_url, '/')) {
-                    $normalized_path = Utils::normalizePath($this->page->path() . '/' . $markdown_url);
-                } else {
-                    $normalized_path = false;
-                }
                 $normalized_url = $this->base_url . Utils::normalizePath($this->page->route() . '/' . $markdown_url);
+                $normalized_path = Utils::normalizePath($this->page->path() . '/' . $markdown_url);
             }
 
             // if this file exits, get the page and work with that
