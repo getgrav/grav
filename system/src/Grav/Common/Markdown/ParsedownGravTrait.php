@@ -246,15 +246,22 @@ trait ParsedownGravTrait
                     $page_path = $path_info['dirname'];
                     $filename = '';
 
-                    // save the filename if a file is part of the path
-                    $filename_regex = "/([\w\d-_]+\.([a-zA-Z]{2,4}))$/";
-                    if (preg_match($filename_regex, $full_path, $matches)) {
-                        if ($matches[2] != 'md') {
-                            $filename = '/' . $matches[1];
-                        }
-                    } else {
+
+                    if ($markdown_url == '..') {
                         $page_path = $full_path;
+                    } else {
+                        // save the filename if a file is part of the path
+                        $filename_regex = "/([\w\d-_]+\.([a-zA-Z]{2,4}))$/";
+                        if (preg_match($filename_regex, $full_path, $matches)) {
+                            if ($matches[2] != 'md') {
+                                $filename = '/' . $matches[1];
+                            }
+                        } else {
+                            $page_path = $full_path;
+                        }
                     }
+
+
 
                     // get page instances and try to find one that fits
                     $instances = $this->pages->instances();
