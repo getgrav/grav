@@ -825,7 +825,7 @@ class Assets
             } else {
                 // Fix to remove relative dir if grav is in one
                 if (($this->base_url != '/') && (strpos($this->base_url, $link) == 0)) {
-                    $relative_path = str_replace($this->base_url, '/', $link);
+                    $relative_path = ltrim(preg_replace($this->base_url, '/', $link, 1), '/');
                 }
 
                 $relative_dir = dirname($relative_path);
