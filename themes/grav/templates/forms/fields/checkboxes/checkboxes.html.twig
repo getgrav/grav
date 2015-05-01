@@ -18,13 +18,13 @@
         {% set key = (field.use == 'keys' ? '1' : key) %}
         <span class="checkboxes">
             <input type="checkbox"
-                   id="{{ name|e }}"
+                   id="{{ name|e }}{{ key|e }}"
                    value="{{ key|e }}"
                    name="{{ (scope ~ name)|fieldName }}"
                    {% if checked %}checked="checked"{% endif %}
                    {% if field.validate.required %}required="required"{% endif %}
             >
-            <label for="{{ name|e }}">{{ text|e }}</label>
+            <label for="{{ name|e }}{{ key|e }}">{{ text|e }}</label>
         </span>
         {% endfor %}
     </div>
