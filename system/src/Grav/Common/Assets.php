@@ -881,18 +881,7 @@ class Assets
                     return $matches[0];
                 }
 
-                $newpath = array();
-                $paths = explode('/', $old_url);
-
-                foreach ($paths as $path) {
-                    if ($path == '..') {
-                        $relative_path = dirname($relative_path);
-                    } else {
-                        $newpath[] = $path;
-                    }
-                }
-
-                $new_url = rtrim($this->base_url, '/') . $relative_path . '/' . implode('/', $newpath);
+                $new_url = $this->base_url . ltrim(Utils::normalizePath($relative_path . '/' . $old_url), '/');
 
                 return str_replace($old_url, $new_url, $matches[0]);
             },
