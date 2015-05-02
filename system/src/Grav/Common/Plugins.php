@@ -42,7 +42,7 @@ class Plugins extends Iterator
             }
 
             $locator = self::getGrav()['locator'];
-            $filePath = $locator('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
+            $filePath = $locator->findResource('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
             if (!is_file($filePath)) {
                 self::getGrav()['log']->addWarning(sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $plugin));
                 continue;
