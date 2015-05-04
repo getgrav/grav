@@ -101,6 +101,16 @@ form:
                     validate:
                         type: number
                         min: 1
+                pages.publish_dates:
+                    type: toggle
+                    label: Date-based publishing
+                    help: Automatically (un)publish posts based on their date
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
 
 
 
