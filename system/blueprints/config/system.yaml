@@ -317,6 +317,32 @@ form:
                     validate:
                         type: bool
 
+        errors:
+            type: section
+            title: Error handler
+            underline: true
+
+            fields:
+                errors.display:
+                    type: toggle
+                    label: Display errors
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                errors.log:
+                    type: toggle
+                    label: Log errors
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
         debugger:
             type: section
             title: Debugger
@@ -392,6 +418,7 @@ form:
                         0: No
                     validate:
                         type: bool
+
         system:
             type: section
             title: System
