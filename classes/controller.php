@@ -279,7 +279,17 @@ class AdminController
 
         $log = JsonFile::instance($this->grav['locator']->findResource("log://backup.log", true, true));
 
-        $backup = ZipBackup::backup();
+        try {
+            $backup = ZipBackup::backup();
+        } catch (\Exception $e) {
+            $this->admin->json_response = [
+                'status' => 'error',
+                'message' => 'An error occured. '.  $e->getMessage()
+            ];
+
+            return true;
+        }
+
         $download = urlencode(base64_encode($backup));
         $url = rtrim($this->grav['uri']->rootUrl(true), '/') . '/' . trim($this->admin->base, '/') . '/task:backup/download:' . $download;
 
