@@ -348,4 +348,32 @@ abstract class Utils
         }
         return $root . implode('/', $ret);
     }
+
+    public static function timezones()
+    {
+        $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
+        $offsets = [];
+        $testDate = new \DateTime;
+
+        foreach ($timezones as $zone) {
+            $tz = new \DateTimeZone($zone);
+            $offsets[$zone] = $tz->getOffset($testDate);
+        }
+
+        asort($offsets);
+
+        $timezone_list = array();
+        foreach( $offsets as $timezone => $offset )
+        {
+            $offset_prefix = $offset < 0 ? '-' : '+';
+            $offset_formatted = gmdate( 'H:i', abs($offset) );
+
+            $pretty_offset = "UTC${offset_prefix}${offset_formatted}";
+
+            $timezone_list[$timezone] = "(${pretty_offset}) $timezone";
+        }
+
+        return $timezone_list;
+
+    }
 }

@@ -362,3 +362,26 @@ form:
                         0: No
                     validate:
                         type: bool
+        system:
+            type: section
+            title: System
+            underline: true
+
+            fields:
+                timezone:
+                    type: select
+                    label: Timezone
+                    classes: fancy
+                    @data-options: '\Grav\Common\Utils::timezones'
+                    default: ''
+                    options:
+                        '': '- None -'
+
+                param_sep:
+                    type: select
+                    label: Parameter separator
+                    classes: fancy
+                    default: ''
+                    options:
+                        ':': ': (default)'
+                        ';': '; (use this for apache on Windows)'
