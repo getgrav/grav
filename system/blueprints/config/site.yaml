@@ -24,6 +24,8 @@ form:
                     type: text
                     size: large
                     label: Default Email
+                    validate:
+                        type: email
 
                 taxonomies:
                     type: text
