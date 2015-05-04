@@ -27,7 +27,7 @@ form:
                     label: Default Theme
                     help: "Set the theme (defaults to 'default')"
 
-                pages.markdown_extra:
+                pages.markdown.extra:
                     type: toggle
                     label: Markdown Extra
                     highlight: 1
