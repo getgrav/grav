@@ -185,6 +185,16 @@ form:
                     label: Cache Prefix
                     placeholder: "Derived from base URL (override by entering random string)"
 
+                cache.gzip:
+                    type: toggle
+                    label: GZIP compression
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
         twig:
             type: section
             title: Twig Templating
