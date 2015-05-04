@@ -307,6 +307,16 @@ form:
                     validate:
                         type: bool
 
+                assets.enable_asset_timestamp:
+                    type: toggle
+                    label: Enable timestamps
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
         debugger:
             type: section
             title: Debugger
