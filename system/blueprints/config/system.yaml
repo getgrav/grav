@@ -440,7 +440,7 @@ form:
                     label: Default image quality
                     classes: x-small
                     validate:
-                        tpye: number
+                        type: number
                         min: 1
                         max: 100
 
@@ -459,7 +459,7 @@ form:
                     label: File upload limit
                     classes: small
                     validate:
-                        tpye: number
+                        type: number
 
         system:
             type: section
