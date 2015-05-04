@@ -195,6 +195,26 @@ form:
                     validate:
                         type: bool
 
+                assets.enable_asset_timestamp:
+                    type: toggle
+                    label: Enable timestamps on assets
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                media.enable_media_timestamp:
+                    type: toggle
+                    label: Enable timestamps on media
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
         twig:
             type: section
             title: Twig Templating
@@ -300,16 +320,6 @@ form:
                 assets.js_minify:
                     type: toggle
                     label: JavaScript Minify
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
-
-                assets.enable_asset_timestamp:
-                    type: toggle
-                    label: Enable timestamps
                     highlight: 1
                     options:
                         1: Yes
