@@ -28,8 +28,6 @@ form:
                     validate:
                       required: true
 
-
-
                 fullname:
                     type: text
                     size: large
@@ -41,46 +39,3 @@ form:
                     type: text
                     size: large
                     label: Title
-
-        admin:
-            type: section
-            title: Admin Access
-
-            fields:
-                access.admin.super:
-                    type: toggle
-                    label: Super user
-                    default: 0
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
-
-                access.admin.login:
-                    type: toggle
-                    label: Admin login
-                    default: 0
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
-
-        site:
-            type: section
-            title: Site Access
-
-            fields:
-                access.site.login:
-                    type: toggle
-                    label: Site login
-                    default: 1
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
