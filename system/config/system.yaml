@@ -8,7 +8,7 @@ home:
 pages:
   theme: antimatter                    # Default theme (defaults to "antimatter" theme)
   order:
-    by: defaults                       # Order pages by "default", "alpha" or "date"
+    by: default                        # Order pages by "default", "alpha" or "date"
     dir: asc                           # Default ordering direction, "asc" or "desc"
   list:
     count: 20                          # Default item count per page
