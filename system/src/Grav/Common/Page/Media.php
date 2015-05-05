@@ -69,14 +69,19 @@ class Media extends Getters
             if (!empty($types['alternative'])) {
                 foreach ($types['alternative'] as $ratio => &$alt) {
                     $alt['file'] = MediumFactory::fromFile($alt['file']);
-                    $alt['file']->set('size', $alt['size']);
+
+                    if (!$alt['file']) {
+                        unset($types['alternative'][$ratio]);
+                    } else {
+                        $alt['file']->set('size', $alt['size']);
+                    }
                 }
             }
 
             // Create the base medium
             if (!empty($types['base'])) {
                 $medium = MediumFactory::fromFile($types['base']['file']);
-                $medium->set('size', $types['base']['size']);
+                $medium && $medium->set('size', $types['base']['size']);
             } else if (!empty($types['alternative'])) {
                 $altMedium = reset($types['alternative']);
                 $ratio = key($types['alternative']);
