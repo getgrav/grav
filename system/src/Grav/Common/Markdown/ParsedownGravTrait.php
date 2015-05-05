@@ -236,6 +236,12 @@ trait ParsedownGravTrait
                 $normalized_path = Utils::normalizePath($this->page->path() . '/' . $markdown_url);
             }
 
+            // special check to see if path checking is required.
+            $just_path = str_replace($normalized_url, '', $normalized_path);
+            if ($just_path == $this->page->path()) {
+                return $normalized_url;
+            }
+
             // if this file exits, get the page and work with that
             if ($normalized_path) {
                 $url_bits = parse_url($normalized_path);
