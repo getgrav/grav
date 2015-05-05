@@ -47,7 +47,7 @@ class Media extends Getters
         /** @var \DirectoryIterator $info */
         foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() == 'md') {
+            if (!$info->isFile() || $info->getExtension() == 'md' || $info->getBasename() === '.DS_Store') {
                 continue;
             }
 
