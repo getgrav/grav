@@ -138,14 +138,13 @@ class Plugin implements EventSubscriberInterface
      *
      * @param Page  $page    The page to merge the configurations with the
      *                       plugin settings.
+     * @param bool  $deep    Should you use deep or shallow merging
      * @param array $params  Array of additional configuration options to
      *                       merge with the plugin settings.
      *
-     * @param bool  $deep    Should you use deep or shallow merging
-     *
      * @return \Grav\Common\Data\Data
      */
-    protected function mergeConfig(Page $page, $params = [], $deep = false)
+    protected function mergeConfig(Page $page, $deep = false, $params = [])
     {
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
