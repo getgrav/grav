@@ -538,8 +538,10 @@ abstract class Utils
 
         // Fire download event depending on status
         $status = (bool) ((connection_status() == 0) && !connection_aborted());
-        $eventName = $status ? 'onDownloadComplete' : 'onDownloadError';
-        self::getGrav()->fireEvent($eventName, new Event(['file' => $filename]));
+        if (!partial || (count($ranges) == 0)) {
+            $eventName = $status ? 'onDownloadComplete' : 'onDownloadError';
+            self::getGrav()->fireEvent($eventName, new Event(['file' => $filename]));
+        }
 
         // Exit?
         if ($options['exit']) {
