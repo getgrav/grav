@@ -292,6 +292,12 @@ class Twig
         $twig_vars['content'] = $page->content();
         $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
 
+        // determine if params are set, if so disable twig cache
+        $params = $this->grav['uri']->params(null, true);
+        if (!empty($params)) {
+            $this->twig->setCache(false);
+        }
+
         // Get Twig template layout
         $template = $this->template($page->template() . $ext);
 

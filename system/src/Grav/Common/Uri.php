@@ -193,20 +193,27 @@ class Uri
      * Return all or a single query parameter as a URI compatible string.
      *
      * @param  string  $id  Optional parameter name.
+     * @param  boolean $array return the array format or not
      * @return null|string
      */
-    public function params($id = null)
+    public function params($id = null, $array = false)
     {
         $config = Grav::instance()['config'];
 
         $params = null;
         if ($id === null) {
+            if ($array) {
+                return $this->params;
+            }
             $output = array();
             foreach ($this->params as $key => $value) {
                 $output[] = $key . $config->get('system.param_sep') . $value;
                 $params = '/'.implode('/', $output);
             }
         } elseif (isset($this->params[$id])) {
+            if ($array) {
+                return $this->params[$id];
+            }
             $params = "/{$id}". $config->get('system.param_sep') . $this->params[$id];
         }
 
