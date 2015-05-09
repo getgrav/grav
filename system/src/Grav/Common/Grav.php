@@ -101,7 +101,7 @@ class Grav extends Container
             /** @var Uri $uri */
             $uri = $c['uri'];
 
-            $path = $uri->path();
+            $path = rtrim($uri->path(), '/');
 
             $page = $pages->dispatch($path);
 
