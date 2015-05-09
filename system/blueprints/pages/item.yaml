@@ -10,41 +10,95 @@ form:
           type: tab
           title: Blog Item
 
+
           fields:
-            header.date:
-              type: datetime
-              label: Date
+            publishing:
+              type: section
+              title: Publishing
+              underline: true
 
-            header.published:
-              type: toggle
-              label: Published
-              highlight: 1
-              default: 1
-              options:
-                1: Yes
-                0: No
+              fields:
+                header.date:
+                  type: datetime
+                  label: Date
 
+                header.publish_date:
+                  type: datetime
+                  label: Publish post on this date
 
-   #          header.publish_date
-   #          header.unpublish_date
-   #          summary:
-   # 16:   enabled: true                             # enable or disable summary of page
-   # 17:   format: short                             # long = summary delimiter will be ignored; short = use the first occurence of delimter or size
-   # 18:   size: 300                                 # Maximum length of summary (characters)
-   # 19:   delimiter: ===                            # The summary delimiter
+                header.unpublish_date:
+                  type: datetime
+                  label: Unpublish post on this date
 
-            header.taxonomy.category:
-              type: text
-              label: Category
-              default: blog
-              classes: fancy
-              validate:
-                type: commalist
+                header.published:
+                  type: toggle
+                  label: Published
+                  highlight: 1
+                  default: 1
+                  options:
+                    1: Yes
+                    0: No
 
-            header.taxonomy.tag:
-              type: text
-              label: Tags
-              size: large
-              classes: fancy
-              validate:
-                type: commalist
+            taxonomy:
+              type: section
+              title: Taxonomy
+              underline: true
+
+              fields:
+
+                header.taxonomy.category:
+                  type: text
+                  label: Category
+                  default: blog
+                  classes: fancy
+                  validate:
+                    type: commalist
+
+                header.taxonomy.tag:
+                  type: text
+                  label: Tags
+                  size: large
+                  classes: fancy
+                  validate:
+                    type: commalist
+
+            summary:
+              type: section
+              title: Summary
+              underline: true
+
+              fields:
+
+                header.summary.enabled:
+                  type: toggle
+                  label: Summary
+                  highlight: 1
+                  default: 1
+                  options:
+                    1: Enabled
+                    0: Disabled
+
+                header.summary.format:
+                  type: select
+                  label: Format
+                  classes: fancy
+                  default: short
+                  options:
+                    'short': 'Use the first occurence of delimter or size'
+                    'long': 'Summary delimiter will be ignored'
+
+                header.summary.size:
+                  type: text
+                  label: Size
+                  classes: large
+                  default: 300
+                  validate:
+                    type: int
+                    min: 1
+
+                header.summary.delimiter:
+                  type: text
+                  label: Summary delimiter
+                  classes: large
+                  default: ===
+                  placeholder: ===
