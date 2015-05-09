@@ -1,0 +1,50 @@
+title: Item
+@extends: pages/default
+
+form:
+  fields:
+    tabs:
+
+      fields:
+        blog:
+          type: tab
+          title: Blog Item
+
+          fields:
+            header.date:
+              type: datetime
+              label: Date
+
+            header.published:
+              type: toggle
+              label: Published
+              highlight: 1
+              default: 1
+              options:
+                1: Yes
+                0: No
+
+
+   #          header.publish_date
+   #          header.unpublish_date
+   #          summary:
+   # 16:   enabled: true                             # enable or disable summary of page
+   # 17:   format: short                             # long = summary delimiter will be ignored; short = use the first occurence of delimter or size
+   # 18:   size: 300                                 # Maximum length of summary (characters)
+   # 19:   delimiter: ===                            # The summary delimiter
+
+            header.taxonomy.category:
+              type: text
+              label: Category
+              default: blog
+              classes: fancy
+              validate:
+                type: commalist
+
+            header.taxonomy.tag:
+              type: text
+              label: Tags
+              size: large
+              classes: fancy
+              validate:
+                type: commalist
