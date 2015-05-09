@@ -9,7 +9,7 @@ if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
 if (!file_exists(__DIR__ . '/../vendor')){
     // Before we can even start, we need to run composer first
     echo "Preparing to install vendor dependencies...\n\n";
-    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction install');
+    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
     echo "\n\n";
 }
 
@@ -24,6 +24,10 @@ if (!ini_get('date.timezone')) {
 
 if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
+}
+
+if (!function_exists('curl_version')) {
+    exit('FATAL: GPM requires PHP Curl module to be installed');
 }
 
 $grav = Grav::instance(array('loader' => $autoload));

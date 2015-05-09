@@ -308,7 +308,7 @@ class ImageMedium extends Medium
         }
 
         try {
-            $result = call_user_func_array([$this->image, $method], $args);
+            call_user_func_array([$this->image, $method], $args);
 
             foreach ($this->alternatives as $ratio => $medium) {
                 $args_copy = $args;

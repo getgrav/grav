@@ -83,6 +83,11 @@ trait ConsoleTrait
         }
     }
 
+    public function composerUpdate($path, $action = 'install')
+    {
+        return system('php bin/composer.phar --working-dir="'.$path.'" --no-interaction --no-dev --prefer-dist -o '. $action);
+    }
+
     /**
      * @param array $all
      *

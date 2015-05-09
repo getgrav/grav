@@ -30,7 +30,11 @@ class ErrorServiceProvider implements ServiceProviderInterface
 
         $logger = $container['log'];
         $errors->pushHandler(function (\Exception $exception, $inspector, $run) use ($logger) {
-            $logger->addCritical($exception->getMessage(). ' - Trace: '. $exception->getTraceAsString());
+            try {
+                $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
+            } catch (\Exception $e) {
+                echo $e;
+            }
         }, 'log');
 
         $errors->register();

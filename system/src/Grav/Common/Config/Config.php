@@ -72,8 +72,16 @@ class Config extends Data
             'prefixes' => [
                 '' => ['logs']
             ]
+        ],
+        'backup' => [
+            'type' => 'Stream',
+            'prefixes' => [
+                '' => ['backup']
+            ]
         ]
     ];
+
+    protected $setup = [];
 
     protected $blueprintFiles = [];
     protected $configFiles = [];
@@ -88,33 +96,25 @@ class Config extends Data
     protected $environment;
     protected $messages = [];
 
-    public function __construct(array $items = array(), Grav $grav = null, $environment = null)
+    public function __construct(array $setup = array(), Grav $grav = null, $environment = null)
     {
         $this->grav = $grav ?: Grav::instance();
         $this->finder = new ConfigFinder;
         $this->environment = $environment ?: 'localhost';
         $this->messages[] = 'Environment Name: ' . $this->environment;
 
-        if (isset($items['@class'])) {
-            if ($items['@class'] != get_class($this)) {
-                throw new \InvalidArgumentException('Unrecognized config cache file!');
-            }
-            // Loading pre-compiled configuration.
-            $this->timestamp = (int) $items['timestamp'];
-            $this->checksum = $items['checksum'];
-            $this->items = (array) $items['data'];
-        } else {
-            // Make sure that
-            if (!isset($items['streams']['schemes'])) {
-                $items['streams']['schemes'] = [];
-            }
-            $items['streams']['schemes'] += $this->streams;
-
-            $items = $this->autoDetectEnvironmentConfig($items);
-            $this->messages[] = $items['streams']['schemes']['config']['prefixes'][''];
-
-            parent::__construct($items);
+        // Make sure that
+        if (!isset($setup['streams']['schemes'])) {
+            $setup['streams']['schemes'] = [];
         }
+        $setup['streams']['schemes'] += $this->streams;
+
+        $setup = $this->autoDetectEnvironmentConfig($setup);
+        $this->messages[] = $setup['streams']['schemes']['config']['prefixes'][''];
+
+        $this->setup = $setup;
+        parent::__construct($setup);
+
         $this->check();
     }
 
@@ -125,8 +125,10 @@ class Config extends Data
 
     public function reload()
     {
+        $this->items = $this->setup;
         $this->check();
         $this->init();
+        $this->debug();
 
         return $this;
     }
@@ -150,6 +152,7 @@ class Config extends Data
         foreach ($this->messages as $message) {
             $this->grav['debugger']->addMessage($message);
         }
+        $this->messages = [];
     }
 
     public function init()
@@ -160,15 +163,6 @@ class Config extends Data
         $this->configLookup = $locator->findResources('config://');
         $this->blueprintLookup = $locator->findResources('blueprints://config');
         $this->pluginLookup = $locator->findResources('plugins://');
-
-        if (!isset($this->checksum)) {
-            $this->messages[] = 'No cached configuration, compiling new configuration..';
-        } elseif ($this->checksum() != $this->checksum) {
-            $this->messages[] = 'Configuration checksum mismatch, reloading configuration..';
-        } else {
-            $this->messages[] = 'Configuration checksum matches, using cached version.';
-            return;
-        }
 
         $this->loadCompiledBlueprints($this->blueprintLookup, $this->pluginLookup, 'master');
         $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
@@ -255,7 +249,6 @@ class Config extends Data
                 'files' => $blueprintFiles,
                 'data' => $this->blueprints->toArray()
             ];
-
             // If compiled file wasn't already locked by another process, save it.
             if ($file->locked() !== false) {
                 $this->messages[] = 'Saving compiled blueprints.';
@@ -269,44 +262,51 @@ class Config extends Data
 
     protected function loadCompiledConfig($configs, $plugins, $filename = null)
     {
-        $checksum = md5(json_encode($configs));
         $filename = $filename
             ? CACHE_DIR . 'compiled/config/' . $filename . '-' . $this->environment . '.php'
             : CACHE_DIR . 'compiled/config/' . $checksum . '-' . $this->environment . '.php';
         $file = PhpFile::instance($filename);
         $cache = $file->exists() ? $file->content() : null;
-        $configFiles = $this->finder->locateConfigFiles($configs, $plugins);
-        $checksum .= ':'.md5(json_encode($configFiles));
         $class = get_class($this);
+        $checksum = $this->checksum();
 
-        // Load real file if cache isn't up to date (or is invalid).
         if (
             !is_array($cache)
             || !isset($cache['checksum'])
             || !isset($cache['@class'])
-            || $cache['checksum'] != $checksum
             || $cache['@class'] != $class
         ) {
-            // Attempt to lock the file for writing.
-            $file->lock(false);
+            $this->messages[] = 'No cached configuration, compiling new configuration..';
+        } else if ($cache['checksum'] !== $checksum) {
+            $this->messages[] = 'Configuration checksum mismatch, reloading configuration..';
+        } else {
+            $this->messages[] = 'Configuration checksum matches, using cached version.';
 
-            // Load configuration.
-            foreach ($configFiles as $files) {
-                $this->loadConfigFiles($files);
-            }
-            $cache = [
-                '@class' => $class,
-                'timestamp' => time(),
-                'checksum' => $this->checksum(),
-                'data' => $this->toArray()
-            ];
+            $this->items = $cache['data'];
+            return;
+        }
 
-            // If compiled file wasn't already locked by another process, save it.
-            if ($file->locked() !== false) {
-                $this->messages[] = 'Saving compiled configuration.';
-                $file->save($cache);
-                $file->unlock();
-            }
+        $configFiles = $this->finder->locateConfigFiles($configs, $plugins);
+
+        // Attempt to lock the file for writing.
+        $file->lock(false);
+
+        // Load configuration.
+        foreach ($configFiles as $files) {
+            $this->loadConfigFiles($files);
+        }
+        $cache = [
+            '@class' => $class,
+            'timestamp' => time(),
+            'checksum' => $checksum,
+            'data' => $this->toArray()
+        ];
+
+        // If compiled file wasn't already locked by another process, save it.
+        if ($file->locked() !== false) {
+            $this->messages[] = 'Saving compiled configuration.';
+            $file->save($cache);
+            $file->unlock();
         }
 
         $this->items = $cache['data'];

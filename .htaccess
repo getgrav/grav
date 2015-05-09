@@ -44,7 +44,7 @@ RewriteRule .* index.php [L]
 
 ## Begin - Security
 # Block all direct access for these folders
-RewriteRule ^(cache|bin|logs)/(.*) error [L]
+RewriteRule ^(cache|bin|logs|backup)/(.*) error [L]
 # Block access to specific file types for these folders
 RewriteRule ^(system|user|vendor)/(.*)\.(txt|md|html|yaml|php|twig|sh|bat)$ error [L]
 ## End - Security

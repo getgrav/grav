@@ -37,7 +37,7 @@ trait ParsedownGravTrait
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
 
-        if ($defaults == null) {
+        if ($defaults === null) {
             $defaults = self::getGrav()['config']->get('system.pages.markdown');
         }
 
@@ -232,13 +232,14 @@ trait ParsedownGravTrait
                 $normalized_path = Utils::normalizePath($this->pages_dir . $markdown_url);
                 $normalized_url = Utils::normalizePath($this->base_url . $markdown_url);
             } else {
-                // contains path, so need to normalize it
-                if (Utils::contains($markdown_url, '/')) {
-                    $normalized_path = Utils::normalizePath($this->page->path() . '/' . $markdown_url);
-                } else {
-                    $normalized_path = false;
-                }
                 $normalized_url = $this->base_url . Utils::normalizePath($this->page->route() . '/' . $markdown_url);
+                $normalized_path = Utils::normalizePath($this->page->path() . '/' . $markdown_url);
+            }
+
+            // special check to see if path checking is required.
+            $just_path = str_replace($normalized_url, '', $normalized_path);
+            if ($just_path == $this->page->path()) {
+                return $normalized_url;
             }
 
             // if this file exits, get the page and work with that
@@ -251,15 +252,22 @@ trait ParsedownGravTrait
                     $page_path = $path_info['dirname'];
                     $filename = '';
 
-                    // save the filename if a file is part of the path
-                    $filename_regex = "/([\w\d-_]+\.([a-zA-Z]{2,4}))$/";
-                    if (preg_match($filename_regex, $full_path, $matches)) {
-                        if ($matches[2] != 'md') {
-                            $filename = '/' . $matches[1];
-                        }
-                    } else {
+
+                    if ($markdown_url == '..') {
                         $page_path = $full_path;
+                    } else {
+                        // save the filename if a file is part of the path
+                        $filename_regex = "/([\w\d-_]+\.([a-zA-Z]{2,4}))$/";
+                        if (preg_match($filename_regex, $full_path, $matches)) {
+                            if ($matches[2] != 'md') {
+                                $filename = '/' . $matches[1];
+                            }
+                        } else {
+                            $page_path = $full_path;
+                        }
                     }
+
+
 
                     // get page instances and try to find one that fits
                     $instances = $this->pages->instances();

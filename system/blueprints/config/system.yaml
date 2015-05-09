@@ -27,7 +27,7 @@ form:
                     label: Default Theme
                     help: "Set the theme (defaults to 'default')"
 
-                pages.markdown_extra:
+                pages.markdown.extra:
                     type: toggle
                     label: Markdown Extra
                     highlight: 1
@@ -101,6 +101,16 @@ form:
                     validate:
                         type: number
                         min: 1
+                pages.publish_dates:
+                    type: toggle
+                    label: Date-based publishing
+                    help: Automatically (un)publish posts based on their date
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
 
 
 
@@ -174,6 +184,36 @@ form:
                     size: x-small
                     label: Cache Prefix
                     placeholder: "Derived from base URL (override by entering random string)"
+
+                cache.gzip:
+                    type: toggle
+                    label: GZIP compression
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                assets.enable_asset_timestamp:
+                    type: toggle
+                    label: Enable timestamps on assets
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                media.enable_media_timestamp:
+                    type: toggle
+                    label: Enable timestamps on media
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
 
         twig:
             type: section
@@ -287,6 +327,32 @@ form:
                     validate:
                         type: bool
 
+        errors:
+            type: section
+            title: Error handler
+            underline: true
+
+            fields:
+                errors.display:
+                    type: toggle
+                    label: Display errors
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                errors.log:
+                    type: toggle
+                    label: Log errors
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
         debugger:
             type: section
             title: Debugger
@@ -362,3 +428,59 @@ form:
                         0: No
                     validate:
                         type: bool
+
+        media:
+            type: section
+            title: Media
+            underline: true
+
+            fields:
+                images.default_image_quality:
+                    type: text
+                    label: Default image quality
+                    classes: x-small
+                    validate:
+                        type: number
+                        min: 1
+                        max: 100
+
+                images.debug:
+                    type: toggle
+                    label: Image debug watermark
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                media.upload_limit:
+                    type: text
+                    label: File upload limit
+                    classes: small
+                    validate:
+                        type: number
+
+        system:
+            type: section
+            title: System
+            underline: true
+
+            fields:
+                timezone:
+                    type: select
+                    label: Timezone
+                    classes: fancy
+                    @data-options: '\Grav\Common\Utils::timezones'
+                    default: ''
+                    options:
+                        '': '- None -'
+
+                param_sep:
+                    type: select
+                    label: Parameter separator
+                    classes: fancy
+                    default: ''
+                    options:
+                        ':': ': (default)'
+                        ';': '; (use this for apache on Windows)'

@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,7 +16,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class InstallCommand extends Command
 {
-
+    use ConsoleTrait;
     /**
      * @var
      */
@@ -98,7 +99,7 @@ class InstallCommand extends Command
             if (!$input->getOption('symlink')) {
                 // Updates composer first
                 $output->writeln("\nInstalling vendor dependencies");
-                $output->writeln(system('php bin/composer.phar --working-dir="'.$this->destination.'" --no-interaction update'));
+                $output->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
 
                 $this->gitclone($output);
             } else {

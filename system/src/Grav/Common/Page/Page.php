@@ -303,21 +303,25 @@ class Page
     public function summary($size = null)
     {
         /** @var Config $config */
-        $config = self::getGrav()['config'];
+        $config = self::getGrav()['config']->get('site.summary');
         $content = $this->content();
 
+        if (isset($this->header->summary)) {
+            $config = array_merge($config, $this->header->summary);
+        }
+
         // Return summary based on settings in site config file
-        if (!$config->get('site.summary.enabled', true)) {
+        if (!$config['enabled']) {
             return $content;
         }
 
         // Get summary size from site config's file
         if (is_null($size)) {
-            $size = $config->get('site.summary.size', null);
+            $size = $config['size'];
         }
 
         // Return calculated summary based on summary divider's position
-        $format = $config->get('site.summary.format', 'short');
+        $format = $config['format'];
         // Return entire page content on wrong/ unknown format
         if (!in_array($format, array('short', 'long'))) {
             return $content;

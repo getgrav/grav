@@ -399,7 +399,7 @@ class Medium extends Data implements RenderableInterface
                 $thumb = $this->get('thumbnails.' . $type, false);
 
                 if ($thumb) {
-                    $thumb = $thumb instanceof ThumbnailMedium ? $thumb : MediumFactory::fromFile($thumb, ['type' => 'thumbnail']);
+                    $thumb = $thumb instanceof ThumbnailImageMedium ? $thumb : MediumFactory::fromFile($thumb, ['type' => 'thumbnail']);
                     $thumb->parent = $this;
                 }
 

@@ -8,7 +8,7 @@ home:
 pages:
   theme: antimatter                    # Default theme (defaults to "antimatter" theme)
   order:
-    by: defaults                       # Order pages by "default", "alpha" or "date"
+    by: default                        # Order pages by "default", "alpha" or "date"
     dir: asc                           # Default ordering direction, "asc" or "desc"
   list:
     count: 20                          # Default item count per page
@@ -78,6 +78,7 @@ images:
 
 media:
   enable_media_timestamp: false        # Enable media timetsamps
+  upload_limit: 0                      # Set maximum upload size in bytes (0 is unlimited)
 
 security:
   default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK

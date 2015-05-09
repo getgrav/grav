@@ -61,7 +61,7 @@ form:
                       @data-options: '\Grav\Common\Page\Pages::parents'
                       @data-default: '\Grav\Plugin\admin::route'
                       options:
-                        '/': '- Root -'
+                        '': '- Select -'
                       validate:
                         required: true
 

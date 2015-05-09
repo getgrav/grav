@@ -115,6 +115,25 @@ class Plugin implements EventSubscriberInterface
     }
 
     /**
+     * This function will search a string for markdown links in a specific format.  The link value can be
+     * optionally compared against via the $internal_regex and operated on by the callback $function
+     * provided.
+     *
+     * format: [plugin:myplugin_name](function_data)
+     *
+     * @param        $content           The string to perform operations upon
+     * @param        $function          The anonymous callback function
+     * @param string $internal_regex    Optional internal regex to extra data from
+     *
+     * @return string
+     */
+    protected function parseLinks($content, $function, $internal_regex = '(.*)')
+    {
+        $regex = '/\[plugin:(?:'.$this->name.')\]\('.$internal_regex.'\)/i';
+        return preg_replace_callback($regex, $function, $content);
+    }
+
+    /**
      * Merge global and page configurations.
      *
      * @param  Page $page   The page to merge the configurations with the

@@ -66,7 +66,6 @@ class CleanCommand extends Command
         'vendor/filp/whoops/.scrutinizer.yml',
         'vendor/filp/whoops/.travis.yml',
         'vendor/filp/whoops/phpunit.xml.dist',
-        'vendor/filp/whoops/src/deprecated',
         'vendor/gregwar/image/Gregwar/Image/composer.json',
         'vendor/gregwar/image/Gregwar/Image/phpunit.xml',
         'vendor/gregwar/image/Gregwar/Image/.gitignore',

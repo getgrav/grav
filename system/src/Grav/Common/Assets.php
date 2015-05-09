@@ -825,7 +825,7 @@ class Assets
             } else {
                 // Fix to remove relative dir if grav is in one
                 if (($this->base_url != '/') && (strpos($this->base_url, $link) == 0)) {
-                    $relative_path = str_replace($this->base_url, '/', $link);
+                    $relative_path = ltrim(preg_replace($this->base_url, '/', $link, 1), '/');
                 }
 
                 $relative_dir = dirname($relative_path);
@@ -881,18 +881,7 @@ class Assets
                     return $matches[0];
                 }
 
-                $newpath = array();
-                $paths = explode('/', $old_url);
-
-                foreach ($paths as $path) {
-                    if ($path == '..') {
-                        $relative_path = dirname($relative_path);
-                    } else {
-                        $newpath[] = $path;
-                    }
-                }
-
-                $new_url = rtrim($this->base_url, '/') . $relative_path . '/' . implode('/', $newpath);
+                $new_url = $this->base_url . ltrim(Utils::normalizePath($relative_path . '/' . $old_url), '/');
 
                 return str_replace($old_url, $new_url, $matches[0]);
             },

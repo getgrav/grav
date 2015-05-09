@@ -9,7 +9,7 @@ if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
 if (!file_exists(__DIR__ . '/../vendor')){
     // Before we can even start, we need to run composer first
     echo "Preparing to install vendor dependencies...\n\n";
-    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction install');
+    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
     echo "\n\n";
 }
 
@@ -28,6 +28,7 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
 $app = new Application('Grav CLI Application', '0.1.0');
 $app->addCommands(array(
     new Grav\Console\Cli\InstallCommand(),
+    new Grav\Console\Cli\ComposerCommand(),
     new Grav\Console\Cli\SandboxCommand(),
     new Grav\Console\Cli\CleanCommand(),
     new Grav\Console\Cli\ClearCacheCommand(),
