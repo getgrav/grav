@@ -117,7 +117,16 @@ class Blueprint
     {
         // Initialize data
         $this->fields();
-        return $this->extraArray($data, $this->nested, $prefix);
+        $rules = $this->nested;
+
+        // Drill down to prefix level
+        $parts = explode('.', trim($prefix, '.'));
+        foreach ($parts as $part) {
+            $rules = isset($rules[$part]) ? $rules[$part] : [];
+            $data = isset($data[$part]) ? $data[$part] : [];
+        }
+
+        return $this->extraArray($data, $rules, $prefix);
     }
 
     /**
@@ -286,7 +295,7 @@ class Blueprint
                 // Item has been defined in blueprints.
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
-                $array += $this->ExtraArray($field, $val, $prefix);
+                $array += $this->ExtraArray($field, $val, $prefix . $key . '.');
             } else {
                 // Undefined/extra item.
                 $array[$prefix.$key] = $field;
