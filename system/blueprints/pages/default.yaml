@@ -73,6 +73,17 @@ form:
                 nofollow: No follow
               use: keys
 
+            taxonomies:
+              type: section
+              title: Taxonomies
+              underline: true
+
+              fields:
+                header.taxonomy:
+                  type: taxonomy
+                  label: Taxonomy
+                  taxonomies: [ 'tag', 'category', 'year' ]
+
         advanced:
           type: tab
           title: Advanced

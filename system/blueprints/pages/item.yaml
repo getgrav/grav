@@ -39,29 +39,6 @@ form:
                     1: Yes
                     0: No
 
-            taxonomy:
-              type: section
-              title: Taxonomy
-              underline: true
-
-              fields:
-
-                header.taxonomy.category:
-                  type: text
-                  label: Category
-                  default: blog
-                  classes: fancy
-                  validate:
-                    type: commalist
-
-                header.taxonomy.tag:
-                  type: text
-                  label: Tags
-                  size: large
-                  classes: fancy
-                  validate:
-                    type: commalist
-
             summary:
               type: section
               title: Summary
