@@ -165,7 +165,14 @@ class Admin
      */
     public function authorise($action = 'admin.login')
     {
-        return $this->user->authorise($action);
+        $action = (array) $action;
+
+        foreach ($action as $a) {
+            if ($this->user->authorise($a))
+                return true;
+        }
+
+        return false;
     }
 
     /**
