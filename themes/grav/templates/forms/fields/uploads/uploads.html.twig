@@ -9,7 +9,7 @@
             $(function(){
                 var URI = $('[data-media-url]').data('media-url'), thisDropzone,
                     modalError = function(args){
-                        if (args.data.status == 'error'){
+                        if (args.data.status == 'error' || args.data.status == 'unauthorized'){
 
                             if (args.mode == 'addBack'){
                                 // let's add back the file
@@ -60,12 +60,20 @@
                     init: function() {
                         thisDropzone = this;
                         $.get(URI + '/task:listmedia', function(data) {
-                            $.each(data, function(filename, data){
-                                var mockFile = { name: filename, size: data.size, accepted: true, extras: data };
-                                thisDropzone.files.push(mockFile);
-                                thisDropzone.options.addedfile.call(thisDropzone, mockFile);
-                                thisDropzone.options.thumbnail.call(thisDropzone, mockFile, data.url);
-                            });
+
+                            $.proxy(modalError, this, {
+                                data: data,
+                                msg: '<p>An error occurred while trying to list files</p><pre>'+data.message+'</pre>'
+                            })();
+
+                            if (data.results) {
+                                $.each(data.results, function(filename, data){
+                                    var mockFile = { name: filename, size: data.size, accepted: true, extras: data };
+                                    thisDropzone.files.push(mockFile);
+                                    thisDropzone.options.addedfile.call(thisDropzone, mockFile);
+                                    thisDropzone.options.thumbnail.call(thisDropzone, mockFile, data.url);
+                                });
+                            }
 
                             $('.dz-preview').prop('draggable', 'true');
                         });

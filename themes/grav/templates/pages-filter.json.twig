@@ -1,5 +1,5 @@
-{"status":{{admin.json_response[0]|json_encode}}, "results":[
-{%- for search_result in admin.collection -%}
-{{- search_result.route|json_encode -}}{{ not loop.last ? ',' }}
-{%- endfor -%}
-]}
+{% if admin.json_response %}
+{{ admin.json_response|json_encode }}
+{% else %}
+{}
+{% endif %}

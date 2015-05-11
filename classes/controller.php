@@ -259,11 +259,15 @@ class AdminController
 
     protected function taskClearCache()
     {
+        if (!$this->authoriseTask('clear cache', ['admin.cache', 'admin.super'])) {
+            return;
+        }
+
         $results = Cache::clearCache('standard');
         if (count($results) > 0) {
-            $this->admin->json_response = ['success', 'Cache cleared'];
+            $this->admin->json_response = ['status' => 'success', 'message' => 'Cache cleared'];
         } else {
-            $this->admin->json_response = ['error', 'Error clearing cache'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Error clearing cache'];
         }
 
         return true;
@@ -271,6 +275,10 @@ class AdminController
 
     protected function taskBackup()
     {
+        if (!$this->authoriseTask('backup', ['admin.maintenance', 'admin.super'])) {
+            return;
+        }
+
         $download = $this->grav['uri']->param('download');
 
         if ($download) {
@@ -313,6 +321,10 @@ class AdminController
 
     protected function taskFilterPages()
     {
+        if (!$this->authoriseTask('filter pages', ['admin.pages', 'admin.super'])) {
+            return;
+        }
+
         $data = $this->post;
 
         $flags = !empty($data['flags']) ? array_map('strtolower', explode(',', $data['flags'])) : [];
@@ -344,16 +356,29 @@ class AdminController
             }
         }
 
-        $this->admin->json_response = ['success', 'Pages filtered'];
+        $results = [];
+        foreach ($collection as $path => $page) {
+            $results[] = $page->route();
+        }
+
+        $this->admin->json_response = [
+            'status' => 'success',
+            'message' => 'Pages filtered',
+            'results' => $results
+        ];
         $this->admin->collection = $collection;
     }
 
     protected function taskListmedia()
     {
+        if (!$this->authoriseTask('list media', ['admin.pages', 'admin.super'])) {
+            return;
+        }
+
         $page = $this->admin->page(true);
 
         if (!$page) {
-            $this->admin->json_response = ['error', 'No Page found'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'No Page found'];
             return false;
         }
 
@@ -361,20 +386,24 @@ class AdminController
         foreach ($page->media()->all() as $name => $media) {
             $media_list[$name] = ['url' => $media->cropZoom(150, 100)->url(),'size' => $media->get('size')];
         }
-        $this->admin->media = $media_list;
+        $this->admin->json_response = ['status' => 'ok', 'results' => $media_list];
 
         return true;
     }
 
     protected function taskAddmedia()
     {
+        if (!$this->authoriseTask('add media', ['admin.pages', 'admin.super'])) {
+            return;
+        }
+
         $page = $this->admin->page(true);
 
         /** @var Config $config */
         $config = $this->grav['config'];
 
         if (!isset($_FILES['file']['error']) || is_array($_FILES['file']['error'])) {
-            $this->admin->json_response = ['error', 'Invalid Parameters'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Invalid Parameters'];
             return;
         }
 
@@ -383,21 +412,21 @@ class AdminController
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
-                $this->admin->json_response = ['error', 'No files sent'];
+                $this->admin->json_response = ['status' => 'error', 'message' => 'No files sent'];
                 return;
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                $this->admin->json_response = ['error', 'Exceeded filesize limit.'];
+                $this->admin->json_response = ['status' => 'error', 'message' => 'Exceeded filesize limit.'];
                 return;
             default:
-                $this->admin->json_response = ['error', 'Unkown errors'];
+                $this->admin->json_response = ['status' => 'error', 'message' => 'Unkown errors'];
                 return;
         }
 
         $grav_limit = $config->get('system.media.upload_limit', 0);
         // You should also check filesize here.
         if ($grav_limit > 0 && $_FILES['file']['size'] > grav_limit) {
-            $this->admin->json_response = ['error', 'Exceeded Grav filesize limit.'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Exceeded Grav filesize limit.'];
             return;
         }
 
@@ -408,28 +437,32 @@ class AdminController
 
         // If not a supported type, return
         if (!$config->get("media.{$fileExt}")) {
-            $this->admin->json_response = ['error', 'Unsupported file type: '.$fileExt];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Unsupported file type: '.$fileExt];
             return;
         }
 
 
         // Upload it
         if (!move_uploaded_file($_FILES['file']['tmp_name'], sprintf('%s/%s', $page->path(), $_FILES['file']['name']))) {
-            $this->admin->json_response = ['error', 'Failed to move uploaded file.'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Failed to move uploaded file.'];
             return;
         }
 
-        $this->admin->json_response = ['success', 'File uploaded successfully'];
+        $this->admin->json_response = ['status' => 'success', 'message' => 'File uploaded successfully'];
 
         return;
     }
 
     protected function taskDelmedia()
     {
+        if (!$this->authoriseTask('delete media', ['admin.pages', 'admin.super'])) {
+            return;
+        }
+
         $page = $this->admin->page(true);
 
         if (!$page) {
-            $this->admin->json_response = ['error', 'No Page found'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'No Page found'];
             return false;
         }
 
@@ -439,15 +472,15 @@ class AdminController
 
             if (file_exists($targetPath)) {
                 if (unlink($targetPath)) {
-                    $this->admin->json_response = ['success', 'File deleted: '.$filename];
+                    $this->admin->json_response = ['status' => 'success', 'message' => 'File deleted: '.$filename];
                 } else {
-                    $this->admin->json_response = ['error', 'File could not be deleted: '.$filename];
+                    $this->admin->json_response = ['status' => 'error', 'message' => 'File could not be deleted: '.$filename];
                 }
             } else {
-                $this->admin->json_response = ['error', 'File not found: '.$filename];
+                $this->admin->json_response = ['status' => 'error', 'message' => 'File not found: '.$filename];
             }
         } else {
-            $this->admin->json_response = ['error', 'No file found'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'No file found'];
         }
         return true;
     }
@@ -459,6 +492,10 @@ class AdminController
      */
     public function taskEnable()
     {
+        if (!$this->authoriseTask('enable plugin', ['admin.plugins', 'admin.super'])) {
+            return;
+        }
+
         if ($this->view != 'plugins') {
             return false;
         }
@@ -479,6 +516,10 @@ class AdminController
      */
     public function taskDisable()
     {
+        if (!$this->authoriseTask('disable plugin', ['admin.plugins', 'admin.super'])) {
+            return;
+        }
+
         if ($this->view != 'plugins') {
             return false;
         }
@@ -499,6 +540,10 @@ class AdminController
      */
     public function taskActivate()
     {
+        if (!$this->authoriseTask('activate theme', ['admin.themes', 'admin.super'])) {
+            return;
+        }
+
         if ($this->view != 'themes') {
             return false;
         }
@@ -534,6 +579,11 @@ class AdminController
      */
     public function taskInstall()
     {
+        $type = $this->view === 'plugins' ? 'plugins' : 'themes';
+        if (!$this->authoriseTask('install ' . $type, ['admin.' . $type, 'admin.super'])) {
+            return;
+        }
+
         require_once __DIR__ . '/gpm.php';
 
         $package = $this->route;
@@ -561,6 +611,7 @@ class AdminController
         require_once __DIR__ . '/gpm.php';
 
         $package = $this->route;
+        $permissions = [];
 
         // Update multi mode
         if (!$package) {
@@ -568,10 +619,18 @@ class AdminController
 
             if ($this->view === 'plugins' || $this->view === 'update') {
                 $package = $this->admin->gpm()->getUpdatablePlugins();
+                $permissions['plugins'] = ['admin.super', 'admin.plugins'];
             }
 
             if ($this->view === 'themes' || $this->view === 'update') {
                 $package = array_merge($package, $this->admin->gpm()->getUpdatableThemes());
+                $permissions['themes'] = ['admin.super', 'admin.themes'];
+            }
+        }
+
+        foreach ($permissions as $type => $p) {
+            if (!$this->authoriseTask('update ' . $type , $p)) {
+                return;
             }
         }
 
@@ -580,9 +639,9 @@ class AdminController
         if ($this->view === 'update') {
 
             if ($result) {
-                $this->admin->json_response = ['success', 'Everything updated'];
+                $this->admin->json_response = ['status' => 'success', 'message' => 'Everything updated'];
             } else {
-                $this->admin->json_response = ['error', 'Updates failed'];
+                $this->admin->json_response = ['status' => 'error', 'message' => 'Updates failed'];
             }
 
         } else {
@@ -605,6 +664,11 @@ class AdminController
      */
     public function taskUninstall()
     {
+        $type = $this->view === 'plugins' ? 'plugins' : 'themes';
+        if (!$this->authoriseTask('uninstall ' . $type, ['admin.' . $type, 'admin.super'])) {
+            return;
+        }
+
         require_once __DIR__ . '/gpm.php';
 
         $package = $this->route;
@@ -629,6 +693,10 @@ class AdminController
      */
     public function taskSave()
     {
+        if (!$this->authoriseTask('save', $this->dataPermissions())) {
+            return;
+        }
+
         $data = $this->post;
 
         // Special handler for pages data.
@@ -718,6 +786,10 @@ class AdminController
      */
     protected function taskCopy()
     {
+        if (!$this->authoriseTask('copy page', ['admin.pages', 'admin.super'])) {
+            return;
+        }
+
         // Only applies to pages.
         if ($this->view != 'pages') {
             return false;
@@ -774,6 +846,10 @@ class AdminController
      */
     protected function taskReorder()
     {
+        if (!$this->authoriseTask('reorder pages', ['admin.pages', 'admin.super'])) {
+            return;
+        }
+
         // Only applies to pages.
         if ($this->view != 'pages') {
             return false;
@@ -791,6 +867,10 @@ class AdminController
      */
     protected function taskDelete()
     {
+        if (!$this->authoriseTask('delete page', ['admin.pages', 'admin.super'])) {
+            return;
+        }
+
         // Only applies to pages.
         if ($this->view != 'pages') {
             return false;
@@ -869,6 +949,34 @@ class AdminController
         return $data;
     }
 
+    protected function dataPermissions()
+    {
+        $type = $this->view;
+        $permissions = ['admin.super'];
+
+        switch ($type) {
+            case 'configuration':
+            case 'system':
+                $permissions = ['admin.configuration'];
+                break;
+            case 'settings':
+            case 'site':
+                $permissions = ['admin.settings'];
+                break;
+            case 'plugins':
+                $permissions = ['admin.plugins'];
+                break;
+            case 'themes':
+                $permissions = ['admin.themes'];
+                break;
+            case 'users':
+                $permissions = ['admin.users'];
+                break;
+        }
+
+        return $permissions;
+    }
+
     protected function preparePage(\Grav\Common\Page\Page $page)
     {
         $input = $this->post;
@@ -898,5 +1006,20 @@ class AdminController
         if (isset($input['content'])) {
             $page->content((string) $input['content']);
         }
+    }
+
+    protected function authoriseTask($task = '', $permissions = [])
+    {
+        if (!$this->admin->authorise($permissions)) {
+
+            if ($this->grav['uri']->extension() === 'json')
+                $this->admin->json_response = ['status' => 'unauthorized', 'message' => 'You have insufficient permissions for task ' . $task . '.'];
+            else
+                $this->admin->setMessage('You have insufficient permissions for task ' . $task . '.');
+
+            return false;
+        }
+
+        return true;
     }
 }

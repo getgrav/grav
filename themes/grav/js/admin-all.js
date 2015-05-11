@@ -58,14 +58,11 @@ $(function () {
         GravAjax({
             dataType: "json",
             url: url,
+            toastErrors: true,
             success: function(result, status) {
-                if (result.status == 'success') {
-                    toastr.success(result.message);
-                } else {
-                    toastr.error(result.message);
-                }
+                toastr.success(result.message);
             }
-        }).complete(function() {
+        }).always(function() {
             $('[data-clear-cache]').removeAttr('disabled').find('> .fa').removeClass('fa-refresh fa-spin').addClass('fa-trash');
         });
     });
@@ -79,14 +76,11 @@ $(function () {
         GravAjax({
             dataType: "json",
             url: url,
+            toastErrors: true,
             success: function(result, status) {
-                if (result.status == 'success') {
-                    toastr.success(result.message);
-                } else {
-                    toastr.error(result.message);
-                }
+                toastr.success(result.message);
             }
-        }).complete(function() {
+        }).always(function() {
             GPMRefresh();
             $('[data-maintenance-update]').removeAttr('disabled').find('> .fa').removeClass('fa-refresh fa-spin').addClass('fa-cloud-download');
         });
@@ -120,6 +114,7 @@ $(function () {
         GravAjax({
             dataType: "json",
             url: url,
+            toastErrors: true,
             success: function(result, status) {
 
                 var toastrBackup = {};
@@ -131,18 +126,14 @@ $(function () {
                     }
                 }
 
-                if (result.status == 'success') {
-                    toastr.success(result.message || 'Task completed.');
-                } else {
-                    toastr.error(result.message || 'Something went terribly wrong.');
-                }
+                toastr.success(result.message || 'Task completed.');
 
                 for (var setting in toastrBackup) { if (toastrBackup.hasOwnProperty(setting)) {
                         toastr.options[setting] = toastrBackup[setting];
                     }
                 }
             }
-        }).complete(function() {
+        }).always(function() {
             // Restore button
             button.removeAttr('disabled');
             icon.removeClass('fa-refresh fa-spin').addClass(iconClasses.join(' '));
@@ -158,11 +149,8 @@ $(function () {
                 task:   'GPM',
                 action: 'getUpdates'
             },
+            toastErrors: true,
             success: function (response) {
-                if (!response.success) {
-                    throw new Error(response.message);
-                }
-
                 var grav = response.payload.grav,
                     installed = response.payload.installed,
                     resources = response.payload.resources;

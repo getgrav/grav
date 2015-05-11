@@ -43,6 +43,7 @@ $(function(){
                 flags: flags,
                 query: query
             },
+            toastErrors: true,
             success: function (result, status) {
                 finishFilterPages(result.results);
             }

@@ -260,13 +260,13 @@ class AdminPlugin extends Plugin
                     ];
 
                     echo json_encode([
-                        "success" => true,
+                        "status" => "success",
                         "payload" => ["resources" => $resources_updates, "grav" => $grav_updates, "installed" => $gpm->countInstalled()]
                     ]);
                     break;
             }
         } catch (\Exception $e) {
-            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
 
         exit;
