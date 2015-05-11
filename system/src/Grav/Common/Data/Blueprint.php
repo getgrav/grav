@@ -123,7 +123,6 @@ class Blueprint
         $parts = explode('.', trim($prefix, '.'));
         foreach ($parts as $part) {
             $rules = isset($rules[$part]) ? $rules[$part] : [];
-            $data = isset($data[$part]) ? $data[$part] : [];
         }
 
         return $this->extraArray($data, $rules, $prefix);

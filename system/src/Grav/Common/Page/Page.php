@@ -686,7 +686,7 @@ class Page
     public function extra()
     {
         $blueprints = $this->blueprints();
-        return $blueprints->extra($this->toArray(), 'header.');
+        return $blueprints->extra($this->toArray()['header'], 'header.');
     }
 
     /**
