@@ -82,7 +82,8 @@ form:
                 header.taxonomy:
                   type: taxonomy
                   label: Taxonomy
-                  taxonomies: [ 'tag', 'category', 'year' ]
+                  validate:
+                    type: array
 
         advanced:
           type: tab
