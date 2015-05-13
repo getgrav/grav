@@ -742,7 +742,7 @@ class AdminController
         }
 
         // Redirect to new location.
-        if ($obj instanceof Page\Page && $obj->route() != $this->admin->route()) {
+        if ($obj instanceof Page\Page && ltrim($obj->route(), '/') != $this->admin->route) {
             $this->setRedirect($this->view . '/' . $obj->route());
         }
 
