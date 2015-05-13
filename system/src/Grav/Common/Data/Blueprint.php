@@ -120,9 +120,11 @@ class Blueprint
         $rules = $this->nested;
 
         // Drill down to prefix level
-        $parts = explode('.', trim($prefix, '.'));
-        foreach ($parts as $part) {
-            $rules = isset($rules[$part]) ? $rules[$part] : [];
+        if (!empty($prefix)) {
+            $parts = explode('.', trim($prefix, '.'));
+            foreach ($parts as $part) {
+                $rules = isset($rules[$part]) ? $rules[$part] : [];
+            }
         }
 
         return $this->extraArray($data, $rules, $prefix);
