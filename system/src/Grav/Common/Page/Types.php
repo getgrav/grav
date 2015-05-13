@@ -78,7 +78,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             if (strpos($name, 'modular/') !== 0) {
                 continue;
             }
-            $list[$name] = trim(ucfirst(strtr(basename($name), '_', ' ')));
+            $list[basename($name)] = trim(ucfirst(strtr(basename($name), '_', ' ')));
         }
         ksort($list);
         return $list;

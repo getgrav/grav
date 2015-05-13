@@ -361,7 +361,6 @@ class Page
             $this->id(time().md5($this->filePath()));
             $this->content = null;
         }
-
         // If no content, process it
         if ($this->content === null) {
             // Get media
@@ -566,6 +565,15 @@ class Page
         }
 
         return $default;
+    }
+
+    public function rawMarkdown($var = null)
+    {
+        if ($var !== null) {
+            $this->raw_content = $var;
+        }
+
+        return $this->raw_content;
     }
 
     /**
