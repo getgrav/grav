@@ -86,6 +86,8 @@ class AdminController
                 $success = call_user_func(array($this, $method));
             } catch (\RuntimeException $e) {
                 $success = true;
+                var_dump($e->getMessage() . '<br /><br');
+                die(htmlentities($e->getTraceAsString()));
                 $this->admin->setMessage($e->getMessage());
             }
 
@@ -741,8 +743,8 @@ class AdminController
             }
         }
 
-        // Redirect to new location.
-        if ($obj instanceof Page\Page && ltrim($obj->route(), '/') != $this->admin->route) {
+        // Always redirect if a page was change, to refresh it
+        if ($obj instanceof Page\Page) {
             $this->setRedirect($this->view . '/' . $obj->route());
         }
 
