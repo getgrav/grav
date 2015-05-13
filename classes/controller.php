@@ -1008,7 +1008,7 @@ class AdminController
         }
         // Fill content last because of it also renders the output.
         if (isset($input['content'])) {
-            $page->content((string) $input['content']);
+            $page->rawMarkdown((string) $input['content']);
         }
     }
 
