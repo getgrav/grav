@@ -13,13 +13,14 @@
     </div>
     <div class="form-data block size-2-3 pure-u-2-3">
         <div class="form-select-wrapper {{ field.size }}">
-            <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName }}"
+            <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName ~ (field.multiple ? '[]' : '') }}"
                     {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
                     {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
                     {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+                    {% if field.multiple in ['on', 'true', 1] %}multiple="multiple"{% endif %}
                     >
                 {% for key, text in field.options %}
-                <option {% if key == value %}selected="selected"{% endif %} value="{{ key }}">{{ text }}</option>
+                <option {% if key == value or text in value %}selected="selected"{% endif %} value="{{ key }}">{{ text }}</option>
                 {% endfor %}
             </select>
         </div>
