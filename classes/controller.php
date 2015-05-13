@@ -709,12 +709,14 @@ class AdminController
             $parent = $route && $route != '/' ? $pages->dispatch($route, true) : $pages->root();
             $obj = $this->admin->page(true);
 
+            $original_slug = $obj->slug();
+
             // Change parent if needed and initialize move (might be needed also on ordering/folder change).
             $obj = $obj->move($parent);
             $this->preparePage($obj);
 
             // Reset slug and route. For now we do not support slug twig variable on save.
-            $obj->slug('');
+            $obj->slug($original_slug);
 
 
         } else {
