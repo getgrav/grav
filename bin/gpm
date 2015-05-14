@@ -6,10 +6,13 @@ if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
     exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
 }
 
+use Grav\Common\Composer;
+
 if (!file_exists(__DIR__ . '/../vendor')){
     // Before we can even start, we need to run composer first
+    $composer = Composer::getComposerLocation();
     echo "Preparing to install vendor dependencies...\n\n";
-    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
+    echo system('php '.$composer.' --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
     echo "\n\n";
 }
 
