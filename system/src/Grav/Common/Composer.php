@@ -29,7 +29,7 @@ class Composer
 
         // fall back to grav bundled composer
         if (!$path || !preg_match('/(composer|composer\.phar)$/', $path)) {
-            $path =  self::DEFAULT_PATH;
+            $path = self::DEFAULT_PATH;
         }
 
         return $path;
