@@ -10,6 +10,9 @@ namespace Grav\Common;
  */
 class Composer
 {
+    /** @const Default composer location */
+    const DEFAULT_PATH = "bin/composer.phar";
+
     /**
      * Returns the location of composer.
      *
@@ -18,7 +21,7 @@ class Composer
     public static function getComposerLocation()
     {
         if (!function_exists('shell_exec')) {
-            return "bin/composer.phar";
+            return self::DEFAULT_PATH;
         }
 
         // check for global composer install
@@ -26,7 +29,7 @@ class Composer
 
         // fall back to grav bundled composer
         if (!$path || !preg_match('/(composer|composer\.phar)$/', $path)) {
-            $path =  "bin/composer.phar";
+            $path =  self::DEFAULT_PATH;
         }
 
         return $path;
