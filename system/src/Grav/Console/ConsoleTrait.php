@@ -85,7 +85,12 @@ trait ConsoleTrait
 
     public function composerUpdate($path, $action = 'install')
     {
-        return system('php bin/composer.phar --working-dir="'.$path.'" --no-interaction --no-dev --prefer-dist -o '. $action);
+        $composer = shell_exec("which composer");
+        if (!$composer || !preg_match('/(composer|composer\.phar)$/', $composer)) {
+            $composer =  "bin/composer.phar";
+        }
+
+        return system('php '.$composer.' --working-dir="'.$path.'" --no-interaction --no-dev --prefer-dist -o '. $action);
     }
 
     /**
