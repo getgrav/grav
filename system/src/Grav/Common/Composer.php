@@ -17,8 +17,12 @@ class Composer
      */
     public static function getComposerLocation()
     {
+        if (!function_exists('shell_exec')) {
+            return "bin/composer.phar";
+        }
+
         // check for global composer install
-        $path = trim(shell_exec("which composer"));
+        $path = trim(shell_exec("command -v composer"));
 
         // fall back to grav bundled composer
         if (!$path || !preg_match('/(composer|composer\.phar)$/', $path)) {
