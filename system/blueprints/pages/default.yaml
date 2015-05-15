@@ -32,7 +32,9 @@ form:
             header.process:
               type: checkboxes
               label: Process
-              default: [markdown: true, twig: true]
+              default:
+                markdown: true
+                twig: false
               options:
                 markdown: Markdown
                 twig: Twig
