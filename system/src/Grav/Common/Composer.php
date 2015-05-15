@@ -37,7 +37,7 @@ class Composer
 
     public static function getComposerExecutor()
     {
-        $executor = 'php ';
+        $executor = PHP_BINARY . ' ';
         $composer = static::getComposerLocation();
 
         if ($composer !== static::DEFAULT_PATH && is_executable($composer)) {
