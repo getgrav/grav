@@ -20,7 +20,7 @@ class Composer
      */
     public static function getComposerLocation()
     {
-        if (!function_exists('shell_exec')) {
+        if (!function_exists('shell_exec') || strtolower(substr(PHP_OS, 0, 3)) === 'win') {
             return self::DEFAULT_PATH;
         }
 
@@ -33,5 +33,23 @@ class Composer
         }
 
         return $path;
+    }
+
+    public static function getComposerExecutor()
+    {
+        $executor = 'php ';
+        $composer = static::getComposerLocation();
+
+        if ($composer !== static::DEFAULT_PATH && is_executable($composer)) {
+            $file = fopen($composer, 'r');
+            $firstLine = fgets($file);
+            fclose($file);
+
+            if (!preg_match('/^#!.+php/i', $firstLine)) {
+                $executor = '';
+            }
+        }
+
+        return $executor . $composer;
     }
 }

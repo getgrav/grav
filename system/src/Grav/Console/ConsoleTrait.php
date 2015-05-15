@@ -86,8 +86,9 @@ trait ConsoleTrait
 
     public function composerUpdate($path, $action = 'install')
     {
-        $composer = Composer::getComposerLocation();
-        return system('php '.$composer.' --working-dir="'.$path.'" --no-interaction --no-dev --prefer-dist -o '. $action);
+        $composer = Composer::getComposerExecutor();
+
+        return system($composer . ' --working-dir="'.$path.'" --no-interaction --no-dev --prefer-dist -o '. $action);
     }
 
     /**
