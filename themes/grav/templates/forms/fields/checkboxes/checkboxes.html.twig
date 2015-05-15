@@ -17,6 +17,9 @@
         {% set name = field.name|fieldName ~ '[' ~ (field.use == 'keys' ? key : '') ~ ']' %}
         {% set key = (field.use == 'keys' ? '1' : key) %}
         <span class="checkboxes">
+            {% if (field.use == 'keys') %}
+                <input type="hidden" class="input" name="{{ (scope ~ name)|fieldName }}" value="0" />
+            {% endif %}
             <input type="checkbox"
                    id="{{ name|e }}{{ key|e }}"
                    value="{{ key|e }}"
