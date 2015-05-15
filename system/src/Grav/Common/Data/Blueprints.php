@@ -64,14 +64,14 @@ class Blueprints
                 }
 
                 foreach ($extends as $extendConfig) {
-                    $type = !is_string($extendConfig) ? empty($extendConfig['type']) ? false : $extendConfig['type'] : $extendConfig;
+                    $extendType = !is_string($extendConfig) ? empty($extendConfig['type']) ? false : $extendConfig['type'] : $extendConfig;
 
-                    if (!$type) {
+                    if (!$extendType) {
                         continue;
                     }
 
                     $context = is_string($extendConfig) || empty($extendConfig['context']) ? $this : new self(self::getGrav()['locator']->findResource($extendConfig['context']));
-                    $blueprint->extend($context->get($type));
+                    $blueprint->extend($context->get($extendType));
                 }
             }
 
