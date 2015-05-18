@@ -74,14 +74,26 @@ class Uri
     {
         $config = Grav::instance()['config'];
 
+        // resets
+        $this->paths = [];
+        $this->params = [];
+        $this->query = [];
+
+
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
-        // reset params
-        $this->params = [];
-
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
+
+        // split the URL and params
+        $bits = parse_url($uri);
+
+        // process query string
+        if (isset($bits['query'])) {
+            parse_str($bits['query'], $this->query);
+            $uri = $bits['path'];
+        }
 
         // remove the extension if there is one set
         $parts = pathinfo($uri);
@@ -96,19 +108,7 @@ class Uri
 
         // set the new url
         $this->url = $this->root . $uri;
-
-        // split into bits
-        $this->bits = parse_url($uri);
-
-        $this->query = array();
-        if (isset($this->bits['query'])) {
-            parse_str($this->bits['query'], $this->query);
-        }
-
-        $path = $this->bits['path'];
-
-        $this->paths = array();
-        $this->path = $path;
+        $this->path = $uri;
         $this->content_path = trim(str_replace($this->base, '', $this->path), '/');
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
