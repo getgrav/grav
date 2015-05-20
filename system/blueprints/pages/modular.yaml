@@ -1,6 +1,7 @@
 title: Modular
 @extends:
-    type: pages/default
+    type: default
+    context: blueprints://pages
 
 form:
   fields:

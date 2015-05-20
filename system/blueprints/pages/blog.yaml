@@ -1,5 +1,7 @@
 title: Blog
-@extends: pages/default
+@extends:
+    type: default
+    context: blueprints://pages
 
 child_type: item
 

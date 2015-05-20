@@ -1,5 +1,7 @@
 title: Item
-@extends: pages/default
+@extends:
+    type: default
+    context: blueprints://pages
 
 form:
   fields:
