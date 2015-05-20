@@ -8,6 +8,7 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Plugin;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Session\Session;
 
 class AdminPlugin extends Plugin
@@ -185,8 +186,13 @@ class AdminPlugin extends Plugin
      */
     public function onTwigTemplatePaths()
     {
+        $twig_paths = [];
+        $this->grav->fireEvent('onAdminTwigTemplatePaths', new Event(['paths' => &$twig_paths]));
 
-        $this->grav['twig']->twig_paths = array(__DIR__ . '/themes/' . $this->theme . '/templates');
+        $twig_paths[] = __DIR__ . '/themes/' . $this->theme . '/templates';
+
+        $this->grav['twig']->twig_paths = $twig_paths;
+
     }
 
     /**
