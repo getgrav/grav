@@ -388,3 +388,45 @@ form {
     }
 }
 
+// Sortables
+.form-list-wrapper {
+    ul[data-collection-holder] {
+
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            cursor: move;
+            padding: 1rem;
+            border-radius: $form-border-radius;
+            border: 1px solid $form-border;
+            background: lighten($content-bg, 4%);
+            color: lighten($content-fg,10%);
+            margin: 3px 0;
+            position: relative;
+            font-family: $font-family-default;
+
+            .item-actions {
+                position: absolute;
+                right: 10px;
+                top: 4px;
+                color: darken($content-fg,10%);
+
+                .fa-bars {
+                }
+
+                .fa-trash-o {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    .collection-actions {
+        text-align: right;
+    }
+}
+
+
+

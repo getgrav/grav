@@ -260,4 +260,67 @@ $(function () {
         });
     };
     GPMRefresh();
+
+    function reIndex (collection) {
+        var holder = collection.find('[data-collection-holder]'),
+            addBtn = collection.find('[data-action="add"]'),
+            prefix = holder.data('collection-holder'),
+            index = 0;
+
+        holder.find('[data-collection-item]').each(function () {
+            var item = $(this),
+                currentIndex = item.attr('data-collection-key');
+
+            if (index != currentIndex) {
+                var r = new RegExp('^' + prefix.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") + '[\.\[]' + currentIndex);
+
+                item.attr('data-collection-item', item.attr('data-collection-item').replace(r, prefix + '.' + index));
+                item.attr('data-collection-key', index);
+                item.find('[name]').each(function () {
+                    $(this).attr('name', $(this).attr('name').replace(r, prefix + '[' + index));
+                });
+            }
+
+            index++;
+        });
+
+        addBtn.data('key-index', index);
+    }
+
+    $('[data-type="collection"]').each(function () {
+        var el = $(this),
+            holder = el.find('[data-collection-holder]'),
+            config = el.find('[data-collection-config]'),
+            isArray = config.data('collection-array'),
+            template = el.find('[data-collection-template="new"]').html();
+
+        // make sortable
+        new Sortable(holder[0], { onUpdate: function () {
+            if (isArray)
+                reIndex(el);
+        } });
+
+        // hook up delete
+        el.on('click', '[data-action="delete"]', function (e) {
+            $(this).closest('[data-collection-item]').remove();
+            if (isArray)
+                reIndex(el);
+        });
+
+        // hook up add
+        el.find('[data-action="add"]').on('click', function (e) {
+            var button = $(this),
+                key = button.data('key-index'),
+                newItem = $(template);
+
+            newItem.attr('data-collection-item', newItem.attr('data-collection-item').replace('*', key));
+            newItem.attr('data-collection-key', key);
+            newItem.find('[name]').each(function () {
+                $(this).attr('name', $(this).attr('name').replace('*', key));
+            });
+
+            holder.append(newItem);
+            button.data('key-index', ++key);
+        });
+    });
 });
