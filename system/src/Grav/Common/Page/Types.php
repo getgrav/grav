@@ -81,7 +81,6 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             $list[$name] = trim(ucfirst(strtr(basename($name), '_', ' ')));
         }
         ksort($list);
-        \Grav\Common\GravTrait::getGrav()['debugger']->addMessage($list);
         return $list;
     }
 }
