@@ -102,7 +102,7 @@ class Uri
         $this->basename = $parts['basename'];
 
         if (preg_match("/\.(".$config->get('system.pages.types').")$/", $parts['basename'])) {
-            $uri = rtrim($parts['dirname'], '/').'/'.$parts['filename'];
+            $uri = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, $parts['dirname']), DS). '/' .$parts['filename'];
             $this->extension = $parts['extension'];
         }
 
