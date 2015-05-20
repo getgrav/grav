@@ -78,9 +78,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             if (strpos($name, 'modular/') !== 0) {
                 continue;
             }
-            $list[basename($name)] = trim(ucfirst(strtr(basename($name), '_', ' ')));
+            $list[$name] = trim(ucfirst(strtr(basename($name), '_', ' ')));
         }
         ksort($list);
+        \Grav\Common\GravTrait::getGrav()['debugger']->addMessage($list);
         return $list;
     }
 }

@@ -524,7 +524,7 @@ class Page
             return preg_replace($regex, '', $this->folder);
         }
         if ($name == 'type') {
-            return basename($this->name(), '.md');
+            return $this->template();
         }
         if ($name == 'media') {
             return $this->media()->all();
