@@ -323,7 +323,7 @@ class Blueprint
             $field['name'] = $prefix . $key;
             $field += $params;
 
-            if (isset($field['fields'])) {
+            if (isset($field['fields']) && $field['type'] !== 'list') {
                 // Recursively get all the nested fields.
                 $newParams = array_intersect_key($this->filter, $field);
                 $this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
