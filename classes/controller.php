@@ -86,8 +86,6 @@ class AdminController
                 $success = call_user_func(array($this, $method));
             } catch (\RuntimeException $e) {
                 $success = true;
-                var_dump($e->getMessage() . '<br /><br');
-                die(htmlentities($e->getTraceAsString()));
                 $this->admin->setMessage($e->getMessage());
             }
 
@@ -719,7 +717,6 @@ class AdminController
 
             // Reset slug and route. For now we do not support slug twig variable on save.
             $obj->slug($original_slug);
-
 
         } else {
             // Handle standard data types.
