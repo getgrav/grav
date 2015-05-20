@@ -38,13 +38,6 @@ form:
                 asc: Ascending
                 desc: Descending
 
-            header.content.custom:
-              type: text
-              label: Manual ordering
-              classes: fancy
-              validate:
-                type: commalist
-
             header.process:
                 type: ignore
             content:
