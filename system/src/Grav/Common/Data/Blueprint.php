@@ -327,7 +327,7 @@ class Blueprint
                 // Recursively get all the nested fields.
                 $newParams = array_intersect_key($this->filter, $field);
                 $this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
-            } else {
+            } else if ($field['type'] !== 'ignore') {
                 // Add rule.
                 $this->rules[$prefix . $key] = &$field;
                 $this->addProperty($prefix . $key);
@@ -375,7 +375,7 @@ class Blueprint
                 }
 
                 // Initialize predefined validation rule.
-                if (isset($field['validate']['rule'])) {
+                if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
                     $field['validate'] += $this->getRule($field['validate']['rule']);
                 }
             }

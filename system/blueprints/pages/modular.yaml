@@ -46,8 +46,8 @@ form:
                 type: commalist
 
             header.process:
-                type: hidden
+                type: ignore
             content:
-                type: hidden
+                type: ignore
             uploads:
-                type: hidden
+                type: ignore

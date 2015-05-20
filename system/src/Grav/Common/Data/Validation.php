@@ -537,6 +537,11 @@ class Validation
         return true;
     }
 
+    public static function filterIgnore($value, array $params, array $field)
+    {
+        return $value;
+    }
+
     // HTML5 attributes (min, max and range are handled inside the types)
 
     public static function validateRequired($value, $params)
