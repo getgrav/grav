@@ -557,7 +557,7 @@ class Pages
                     $last_modified = $modified;
                 }
 
-                if (preg_match('/^[^.].*'.CONTENT_EXT.'$/um', $name)) {
+                if (preg_match('/^[^.].*'.CONTENT_EXT.'$/', $name)) {
                     $page->init($file);
                     $content_exists = true;
 
