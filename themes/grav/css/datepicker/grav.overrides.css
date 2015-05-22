@@ -1,0 +1,3 @@
+.k-content tr td:first-child { padding: 0; }
+.k-content tr td:last-child { padding: 0; }
+.k-content td { border: initial; }
