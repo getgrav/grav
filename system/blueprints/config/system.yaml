@@ -20,13 +20,6 @@ form:
                     show_root: false
                     help: "The page that Grav will use as the default landing page"
 
-                pages.theme:
-                    type: themeselect
-                    classes: fancy
-                    size: medium
-                    label: Default Theme
-                    help: "Set the theme (defaults to 'default')"
-
                 pages.markdown.extra:
                     type: toggle
                     label: Markdown Extra
