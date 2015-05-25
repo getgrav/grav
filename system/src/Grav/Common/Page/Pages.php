@@ -557,7 +557,7 @@ class Pages
                     $last_modified = $modified;
                 }
 
-                if (Utils::endsWith($name, CONTENT_EXT)) {
+                if (preg_match('/^[^.].*'.CONTENT_EXT.'$/', $name)) {
                     $page->init($file);
                     $content_exists = true;
 
