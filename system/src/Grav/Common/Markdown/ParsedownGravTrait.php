@@ -257,7 +257,7 @@ trait ParsedownGravTrait
                         $page_path = $full_path;
                     } else {
                         // save the filename if a file is part of the path
-                        $filename_regex = "/([\w\d-_]+\.([a-zA-Z]{2,4}))$/";
+                        $filename_regex = "/([\w\d-_\+]+\.([a-zA-Z]{2,4}))$/";
                         if (preg_match($filename_regex, $full_path, $matches)) {
                             if ($matches[2] != 'md') {
                                 $filename = '/' . $matches[1];
