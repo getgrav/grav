@@ -229,8 +229,8 @@ trait ParsedownGravTrait
             $target = null;
             // see if page is relative to this or absolute
             if (Utils::startsWith($markdown_url, '/')) {
-                $normalized_path = Utils::normalizePath($this->pages_dir . $markdown_url);
                 $normalized_url = Utils::normalizePath($this->base_url . $markdown_url);
+                $normalized_path = Utils::normalizePath($this->pages_dir . $markdown_url);
             } else {
                 $normalized_url = $this->base_url . Utils::normalizePath($this->page->route() . '/' . $markdown_url);
                 $normalized_path = Utils::normalizePath($this->page->path() . '/' . $markdown_url);
@@ -242,41 +242,41 @@ trait ParsedownGravTrait
                 return $normalized_url;
             }
 
-            // if this file exits, get the page and work with that
-            if ($normalized_path) {
-                $url_bits = parse_url($normalized_path);
-                $full_path = $url_bits['path'];
+            $url_bits = parse_url($normalized_path);
+            $full_path = ($url_bits['path']);
 
-                if ($full_path && file_exists($full_path)) {
-                    $path_info = pathinfo($full_path);
-                    $page_path = $path_info['dirname'];
-                    $filename = '';
+            if (file_exists($full_path)) {
+                // do nothing
+            } elseif (file_exists(urldecode($full_path))) {
+                $full_path = urldecode($full_path);
+            } else {
+                return $normalized_url;
+            }
+
+            $path_info = pathinfo($full_path);
+            $page_path = $path_info['dirname'];
+            $filename = '';
 
 
-                    if ($markdown_url == '..') {
-                        $page_path = $full_path;
-                    } else {
-                        // save the filename if a file is part of the path
-                        $filename_regex = "/([\w\d-_\+]+\.([a-zA-Z]{2,4}))$/";
-                        if (preg_match($filename_regex, $full_path, $matches)) {
-                            if ($matches[2] != 'md') {
-                                $filename = '/' . $matches[1];
-                            }
-                        } else {
-                            $page_path = $full_path;
-                        }
+            if ($markdown_url == '..') {
+                $page_path = $full_path;
+            } else {
+                // save the filename if a file is part of the path
+                if (is_file($full_path)) {
+                    if ($path_info['extension'] != 'md') {
+                        $filename = '/' . $path_info['basename'];
                     }
-
-
-
-                    // get page instances and try to find one that fits
-                    $instances = $this->pages->instances();
-                    if (isset($instances[$page_path])) {
-                        $target = $instances[$page_path];
-                        $url_bits['path'] = $this->base_url . $target->route() . $filename;
-                        return Uri::buildUrl($url_bits);
-                    }
+                } else {
+                    $page_path = $full_path;
                 }
+            }
+
+            // get page instances and try to find one that fits
+            $instances = $this->pages->instances();
+            if (isset($instances[$page_path])) {
+                $target = $instances[$page_path];
+                $url_bits['path'] = $this->base_url . $target->route() . $filename;
+                return Uri::buildUrl($url_bits);
             }
 
             return $normalized_url;
