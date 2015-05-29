@@ -238,7 +238,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('system'), $blueprints);
                 $obj->merge($post);
-                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("user://config/{$type}.yaml"));
+                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("config://{$type}.yaml"));
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
@@ -250,7 +250,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('site'), $blueprints);
                 $obj->merge($post);
-                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("user://config/{$type}.yaml"));
+                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("config://{$type}.yaml"));
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
