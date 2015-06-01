@@ -28,7 +28,6 @@
     CheckboxesField.prototype.disabled = function(state) {
         if (typeof state !== 'undefined') {
             this._disabled = state ? true : false;
-            this.el.css('opacity', state ? 0.6 : 1);
         }
 
         return this._disabled;

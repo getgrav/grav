@@ -57,28 +57,21 @@
 
     function linkToggle (element, toggleable) {
         element.onChange(function (value) {
-            toggleable.find('input').prop('checked', true);
-            toggleable.siblings('label').css('opacity', 1);
+            toggleable.find('input').prop('checked', false).filter('[value=1]').prop('checked', true);
             element.disabled(false);
         });
 
         toggleable.find('input').on('change', function () {
-            var el = $(this),
-                on = el.is(':checked');
+            var el = $(this);
+            if (el.is(':checked')) {
+                var on = el.val() == '1' ? true : false;
 
-            toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
-            element.disabled(!on);
-            if (!on) {
-                element.reset();
+                element.disabled(!on);
+                if (!on) {
+                    element.reset();
+                }
             }
         });
-
-        var on = toggleable.is(':checked');
-        toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
-        element.disabled(!on);
-        if (!on) {
-            element.reset();
-        }
     }
 
     var Form = function (el, options) {
@@ -117,14 +110,10 @@
 
     Form.factories = {};
 
-    Form.findElements = function(el, selector, notIn, notSelf) {
+    Form.findElements = function(el, selector) {
         el = $(el);
-        notIn = notIn || selector,
-        notSelf = notSelf ? true : false;
-
         return el.find(selector).filter(function() {
-            var parent = notSelf ? $(this) : $(this).parent();
-                nearestMatch = parent.closest(notIn);
+            var nearestMatch = $(this).parent().closest(selector);
             return nearestMatch.length == 0 || el.find(nearestMatch).length == 0;
         });
     };
@@ -196,20 +185,7 @@
     Form.prototype.submit = function(ajax) {
         var action = this.form.attr('action') || document.location,
             method = this.form.attr('method') || 'POST',
-            values = {};
-
-        // Get form values that are not handled by JS framework
-        Form.findElements(this.form, 'input, textarea', '[data-grav-field]', true).each(function(input) {
-            var input = $(this),
-                name = input.attr('name'),
-                value = input.val();
-
-            if (name) {
-                values[name] = value;
-            }
-        });
-
-        $.extend(values, this.getValues());
+            values = this.getValues();
 
         if (!values.task) {
             values.task = 'save';
