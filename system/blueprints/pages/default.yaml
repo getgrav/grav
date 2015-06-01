@@ -32,6 +32,7 @@ form:
             header.process:
               type: checkboxes
               label: Process
+              toggleable: true
               default:
                 markdown: true
                 twig: false
