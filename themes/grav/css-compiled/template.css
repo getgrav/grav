@@ -583,13 +583,13 @@ form .switch-toggle label {
   cursor: pointer; }
 form .switch-toggle a, form .switch-toggle label {
   outline: none !important; }
-form .dynfields input[type=text] {
+form .dynfields input[type=text], form [data-grav-field="array"] input[type=text] {
   width: 40%;
   float: left;
   margin: 0 5px 5px 0; }
-form .dynfields .form-row {
+form .dynfields .form-row, form [data-grav-field="array"] .form-row {
   display: inline-block; }
-  form .dynfields .form-row span {
+  form .dynfields .form-row span, form [data-grav-field="array"] .form-row span {
     padding: 0.5rem;
     display: inline-block;
     line-height: 1.7;

@@ -266,7 +266,7 @@ form {
         }
     }
 
-    .dynfields {
+    .dynfields, [data-grav-field="array"] {
 
         input[type=text] {
             width: 40%;

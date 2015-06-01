@@ -4,12 +4,15 @@
 
     {% set value = data.value('header.taxonomy.' ~ name) %}
     {% set field = {
-        type: 'text',
+        type: 'select',
         classes: 'fancy create',
         label: name|capitalize,
         name: parentname ~ '.' ~ name,
         multiple: true,
-        options: value
+        options: value,
+        selectize: {
+            create: true
+        }
     } %}
 
     {% include ['forms/fields/select/select.html.twig'] %}
