@@ -110,10 +110,14 @@
 
     Form.factories = {};
 
-    Form.findElements = function(el, selector) {
+    Form.findElements = function(el, selector, notIn, notSelf) {
         el = $(el);
+        notIn = notIn || selector,
+        notSelf = notSelf ? true : false;
+
         return el.find(selector).filter(function() {
-            var nearestMatch = $(this).parent().closest(selector);
+            var parent = notSelf ? $(this) : $(this).parent();
+                nearestMatch = parent.closest(notIn);
             return nearestMatch.length == 0 || el.find(nearestMatch).length == 0;
         });
     };
@@ -185,7 +189,20 @@
     Form.prototype.submit = function(ajax) {
         var action = this.form.attr('action') || document.location,
             method = this.form.attr('method') || 'POST',
-            values = this.getValues();
+            values = {};
+
+        // Get form values that are not handled by JS framework
+        Form.findElements(this.form, 'input, textarea', '[data-grav-field]', true).each(function(input) {
+            var input = $(this),
+                name = input.attr('name'),
+                value = input.val();
+
+            if (name) {
+                values[name] = value;
+            }
+        });
+
+        $.extend(values, this.getValues());
 
         if (!values.task) {
             values.task = 'save';
