@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
+use Grav\Common\GravTrait;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 
 /**
@@ -11,7 +12,7 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
  */
 class Blueprint
 {
-    use Export, DataMutatorTrait;
+    use Export, DataMutatorTrait, GravTrait;
 
     public $name;
 
@@ -370,6 +371,16 @@ class Blueprint
                                 // Or create/replace field with @data-field.
                                 $field[$property] = $data;
                             }
+                        }
+                    }
+
+                    elseif (substr($name, 0, 8) == '@config-') {
+                        $property = substr($name, 8);
+                        $default = isset($field[$property]) ? $field[$property] : null;
+                        $config = self::getGrav()['config']->get($value, $default);
+
+                        if (!is_null($config)) {
+                            $field[$property] = $config;
                         }
                     }
                 }

@@ -33,6 +33,7 @@ form:
               type: checkboxes
               label: Process
               toggleable: true
+              @config-default: system.pages.process
               default:
                 markdown: true
                 twig: false
