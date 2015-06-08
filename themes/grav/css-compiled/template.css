@@ -491,6 +491,8 @@ form label {
   padding: 5px 0;
   font-weight: 400;
   margin: 0; }
+  form label.toggleable {
+    display: inline; }
 form input, form select, form textarea, form button, form .selectize-input {
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
   font-size: 1rem;
@@ -631,6 +633,8 @@ form .checkboxes {
     font-size: 1.2rem;
     line-height: 1.5rem;
     text-align: center; }
+  form .checkboxes.toggleable label {
+    margin-right: 0; }
 
 .form-frontmatter-wrapper {
   margin-bottom: 3rem; }
