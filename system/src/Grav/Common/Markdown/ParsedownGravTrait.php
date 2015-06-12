@@ -133,10 +133,9 @@ trait ParsedownGravTrait
 
                 // get the local path to page media if possible
                 if ($path_parts['dirname'] == $this->page->url()) {
-                    $url['path'] = ltrim(str_replace($this->page->url(), '', $url['path']), '/');
+                    $url['path'] = $path_parts['basename'];
                     // get the media objects for this page
                     $media = $this->page->media();
-
                 } else {
                     // see if this is an external page to this one
                     $page_route = str_replace($this->base_url, '', $path_parts['dirname']);
@@ -220,7 +219,14 @@ trait ParsedownGravTrait
     protected function convertUrl($markdown_url)
     {
         // if absolute and starts with a base_url move on
-        if ($this->base_url != '' && Utils::startsWith($markdown_url, $this->base_url)) {
+        if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.') {
+            if ($this->page->url() == '/') {
+                return '/' . $markdown_url;
+            } else {
+                return $this->page->url() . '/' . $markdown_url;
+            }
+            // no path to convert
+        } elseif ($this->base_url != '' && Utils::startsWith($markdown_url, $this->base_url)) {
             return $markdown_url;
             // if contains only a fragment
         } elseif (Utils::startsWith($markdown_url, '#')) {
