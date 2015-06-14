@@ -441,4 +441,90 @@ class Uri
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
+
+    /**
+     * Converts links from absolute '/' or relative (../..) to a grav friendly format
+     *
+     * @param         $page         the current page to use as reference
+     * @param  string $markdown_url the URL as it was written in the markdown
+     *
+     * @return string the more friendly formatted url
+     */
+    public static function convertUrl($page, $markdown_url)
+    {
+        $grav = Grav::instance();
+
+        $pages_dir = $grav['locator']->findResource('page://');
+        $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/');
+
+        // if absolute and starts with a base_url move on
+        if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.') {
+            if ($page->url() == '/') {
+                return '/' . $markdown_url;
+            } else {
+                return $page->url() . '/' . $markdown_url;
+            }
+            // no path to convert
+        } elseif ($base_url != '' && Utils::startsWith($markdown_url, $base_url)) {
+            return $markdown_url;
+            // if contains only a fragment
+        } elseif (Utils::startsWith($markdown_url, '#')) {
+            return $markdown_url;
+        } else {
+            $target = null;
+            // see if page is relative to this or absolute
+            if (Utils::startsWith($markdown_url, '/')) {
+                $normalized_url = Utils::normalizePath($base_url . $markdown_url);
+                $normalized_path = Utils::normalizePath($pages_dir . $markdown_url);
+            } else {
+                $normalized_url = $base_url . Utils::normalizePath($page->route() . '/' . $markdown_url);
+                $normalized_path = Utils::normalizePath($page->path() . '/' . $markdown_url);
+            }
+
+            // special check to see if path checking is required.
+            $just_path = str_replace($normalized_url, '', $normalized_path);
+            if ($just_path == $page->path()) {
+                return $normalized_url;
+            }
+
+            $url_bits = parse_url($normalized_path);
+            $full_path = ($url_bits['path']);
+
+            if (file_exists($full_path)) {
+                // do nothing
+            } elseif (file_exists(urldecode($full_path))) {
+                $full_path = urldecode($full_path);
+            } else {
+                return $normalized_url;
+            }
+
+            $path_info = pathinfo($full_path);
+            $page_path = $path_info['dirname'];
+            $filename = '';
+
+
+            if ($markdown_url == '..') {
+                $page_path = $full_path;
+            } else {
+                // save the filename if a file is part of the path
+                if (is_file($full_path)) {
+                    if ($path_info['extension'] != 'md') {
+                        $filename = '/' . $path_info['basename'];
+                    }
+                } else {
+                    $page_path = $full_path;
+                }
+            }
+
+            // get page instances and try to find one that fits
+            $instances = $grav['pages']->instances();
+            if (isset($instances[$page_path])) {
+                $target = $instances[$page_path];
+                $url_bits['path'] = $base_url . $target->route() . $filename;
+                return Uri::buildUrl($url_bits);
+            }
+
+            return $normalized_url;
+        }
+    }
 }
