@@ -117,7 +117,7 @@ class UninstallCommand extends Command
                 $this->output->writeln('');
             } else {
                 $this->output->write("  |- Uninstalling package...  ");
-                $uninstall = $this->uninstallPackage($package);
+                $uninstall = $this->uninstallPackage($slug, $package);
 
                 if (!$uninstall) {
                     $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
@@ -135,12 +135,16 @@ class UninstallCommand extends Command
 
 
     /**
+     * @param $slug
      * @param $package
+     *
      * @return bool
      */
-    private function uninstallPackage($package)
+    private function uninstallPackage($slug, $package)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $package->slug);
+        $locator = self::getGrav()['locator'];
+
+        $path = self::getGrav()['locator']->findResource($package->package_type . '://' .$slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
 
