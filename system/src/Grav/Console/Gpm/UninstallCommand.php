@@ -110,7 +110,7 @@ class UninstallCommand extends Command
 
 
             $this->output->write("  |- Checking destination...  ");
-            $checks = $this->checkDestination($package);
+            $checks = $this->checkDestination($slug, $package);
 
             if (!$checks) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
@@ -163,15 +163,17 @@ class UninstallCommand extends Command
 
         return true;
     }
+
     /**
+     * @param $slug
      * @param $package
      *
      * @return bool
      */
 
-    private function checkDestination($package)
+    private function checkDestination($slug, $package)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $package->slug);
+        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $slug);
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
 
