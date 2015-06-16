@@ -312,11 +312,15 @@ class Grav extends Container
         }
 
         // Set the last modified time
-        $last_modified_date = gmdate('D, d M Y H:i:s', $page->modified()) . ' GMT';
-        header('Last-Modified: ' . $last_modified_date);
+        if ($this['config']->get('system.pages.last_modified')) {
+            $last_modified_date = gmdate('D, d M Y H:i:s', $page->modified()) . ' GMT';
+            header('Last-Modified: ' . $last_modified_date);
+        }
 
         // Calculate a Hash based on the raw file
-        header('ETag: ' . md5($page->raw().$page->modified()));
+        if ($this['config']->get('system.pages.etag')) {
+            header('ETag: ' . md5($page->raw() . $page->modified()));
+        }
 
         // Set debugger data in headers
         if (!($extension === null || $extension == 'html')) {

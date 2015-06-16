@@ -32,6 +32,8 @@ pages:
       '<': 'lt'
   types: 'txt|xml|html|json|rss|atom'  # Pipe separated list of valid page types
   expires: 0                           # Page expires time in seconds (604800 seconds = 7 days)
+  last_modified: true                  # Set the last modified header
+  etag: true                           # Set the expires header tag
 
 cache:
   enabled: true                        # Set to true to enable caching
