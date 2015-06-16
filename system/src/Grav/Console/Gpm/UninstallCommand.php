@@ -110,14 +110,14 @@ class UninstallCommand extends Command
 
 
             $this->output->write("  |- Checking destination...  ");
-            $checks = $this->checkDestination($package);
+            $checks = $this->checkDestination($slug, $package);
 
             if (!$checks) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                 $this->output->writeln('');
             } else {
                 $this->output->write("  |- Uninstalling package...  ");
-                $uninstall = $this->uninstallPackage($package);
+                $uninstall = $this->uninstallPackage($slug, $package);
 
                 if (!$uninstall) {
                     $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
@@ -135,12 +135,16 @@ class UninstallCommand extends Command
 
 
     /**
+     * @param $slug
      * @param $package
+     *
      * @return bool
      */
-    private function uninstallPackage($package)
+    private function uninstallPackage($slug, $package)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $package->slug);
+        $locator = self::getGrav()['locator'];
+
+        $path = self::getGrav()['locator']->findResource($package->package_type . '://' .$slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
 
@@ -159,15 +163,17 @@ class UninstallCommand extends Command
 
         return true;
     }
+
     /**
+     * @param $slug
      * @param $package
      *
      * @return bool
      */
 
-    private function checkDestination($package)
+    private function checkDestination($slug, $package)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $package->slug);
+        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $slug);
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
 

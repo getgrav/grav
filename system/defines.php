@@ -2,7 +2,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '0.9.27');
+define('GRAV_VERSION', '0.9.28');
 define('DS', '/');
 
 // Directories and Paths

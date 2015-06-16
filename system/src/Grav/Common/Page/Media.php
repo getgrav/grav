@@ -120,7 +120,7 @@ class Media extends Getters
                 }
 
                 foreach ($types['alternative'] as $ratio => $altMedium) {
-                    $medium->addAlternative($ratio, $altMedium);
+                    $medium->addAlternative($ratio, $altMedium['file']);
                 }
             }
 

@@ -78,6 +78,8 @@ class Page
     protected $process;
     protected $summary_size;
     protected $markdown_extra;
+    protected $etag;
+    protected $last_modified;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -277,6 +279,12 @@ class Page
             if (isset($this->header->expires)) {
                 $this->expires = intval($this->header->expires);
             }
+            if (isset($this->header->etag)) {
+                $this->etag = (bool)$this->header->etag;
+            }
+            if (isset($this->header->last_modified)) {
+                $this->last_modified = (bool)$this->header->last_modified;
+            }
 
         }
 
@@ -361,7 +369,6 @@ class Page
             $this->id(time().md5($this->filePath()));
             $this->content = null;
         }
-
         // If no content, process it
         if ($this->content === null) {
             // Get media
@@ -566,6 +573,15 @@ class Page
         }
 
         return $default;
+    }
+
+    public function rawMarkdown($var = null)
+    {
+        if ($var !== null) {
+            $this->raw_content = $var;
+        }
+
+        return $this->raw_content;
     }
 
     /**
@@ -1132,6 +1148,40 @@ class Page
             $this->modified = $var;
         }
         return $this->modified;
+    }
+
+    /**
+     * Gets and sets the option to show the etag header for the page.
+     *
+     * @param  boolean $var show etag header
+     * @return boolean      show etag header
+     */
+    public function eTag($var = null)
+    {
+        if ($var !== null) {
+            $this->etag = $var;
+        }
+        if (!isset($this->etag)) {
+            $this->etag = (bool) self::getGrav()['config']->get('system.pages.etag');
+        }
+        return $this->etag;
+    }
+
+    /**
+     * Gets and sets the option to show the last_modified header for the page.
+     *
+     * @param  boolean $var show last_modified header
+     * @return boolean      show last_modified header
+     */
+    public function lastModified($var = null)
+    {
+        if ($var !== null) {
+            $this->last_modified = $var;
+        }
+        if (!isset($this->last_modified)) {
+            $this->last_modified = (bool) self::getGrav()['config']->get('system.pages.last_modified');
+        }
+        return $this->last_modified;
     }
 
     /**

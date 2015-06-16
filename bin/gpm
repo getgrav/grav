@@ -7,9 +7,16 @@ if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
 }
 
 if (!file_exists(__DIR__ . '/../vendor')){
+    require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
+}
+
+use Grav\Common\Composer;
+
+if (!file_exists(__DIR__ . '/../vendor')){
     // Before we can even start, we need to run composer first
+    $composer = Composer::getComposerExecutor();
     echo "Preparing to install vendor dependencies...\n\n";
-    echo system('php bin/composer.phar --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
+    echo system($composer.' --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
     echo "\n\n";
 }
 
