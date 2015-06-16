@@ -1,3 +1,27 @@
+# v0.9.28
+## 06/16/2015
+
+1. [](#new)
+    * Added method to set raw markdown on a page
+    * Added ability to enabled system and page level `etag` and `last_modified` headers
+2. [](#improved)
+    * Improved image path processing
+    * Improved query string handling
+    * Optimization to image handling supporting URL encoded filenames
+    * Use global `composer` when available rather than Grv provided one
+    * Use `PHP_BINARY` contant rather than `php` executable
+    * Updated Doctrine Cache library
+    * Updated Symfony libraries
+    * Moved `convertUrl()` method to Uri object
+3. [](#bugfix)
+    * Fix incorrect slug causing problems with CLI `uninstall`
+    * Fix Twig runtime error with assets pipeline in sufolder installations
+    * Fix for `+` in image filenames
+    * Fix for dot files causing issues with page processing
+    * Fix for Uri path detection on Windows platform
+    * Fix for atlernative media resolutions
+    * Fix for modularTypes key properties
+
 # v0.9.27
 ## 05/09/2015
 
