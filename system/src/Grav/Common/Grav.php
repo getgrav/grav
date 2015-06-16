@@ -312,13 +312,13 @@ class Grav extends Container
         }
 
         // Set the last modified time
-        if ($this['config']->get('system.pages.last_modified')) {
+        if ($page->lastModified()) {
             $last_modified_date = gmdate('D, d M Y H:i:s', $page->modified()) . ' GMT';
             header('Last-Modified: ' . $last_modified_date);
         }
 
         // Calculate a Hash based on the raw file
-        if ($this['config']->get('system.pages.etag')) {
+        if ($page->eTag()) {
             header('ETag: ' . md5($page->raw() . $page->modified()));
         }
 
