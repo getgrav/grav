@@ -6,6 +6,7 @@ use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
 use Grav\Console\ConsoleTrait;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -94,6 +95,9 @@ class SelfupgradeCommand extends Command
             $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);
             exit;
         }
+
+        // not used but pre-loaded just in case!
+        new ArrayInput([]);
 
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
