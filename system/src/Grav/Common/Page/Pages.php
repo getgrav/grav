@@ -264,26 +264,25 @@ class Pages
             /** @var Config $config */
             $config = $this->grav['config'];
 
-            // Try redirects
-            $redirect = $config->get("site.redirects.{$url}");
-            if ($redirect) {
-                $this->grav->redirect($redirect);
-            }
-
             // See if route matches one in the site configuration
             $route = $config->get("site.routes.{$url}");
             if ($route) {
                 $page = $this->dispatch($route, $all);
             } else {
-                // Try looking for wildcards
-                foreach ($config->get("site.routes") as $alias => $route) {
-                    $match = rtrim($alias, '*');
-                    if (strpos($alias, '*') !== false && strpos($url, $match) !== false) {
-                        $wildcard_url = str_replace('*', str_replace($match, '', $url), $route);
-                        $page = isset($this->routes[$wildcard_url]) ? $this->get($this->routes[$wildcard_url]) : null;
-                        if ($page) {
-                            return $page;
-                        }
+                // Try Regex style redirects
+                foreach ((array)$config->get("site.redirects") as $pattern => $replace) {
+                    $pattern = '#'.$pattern.'#';
+                    $found = preg_replace($pattern, $replace, $url);
+                    if ($found != $url) {
+                        $this->grav->redirect($found);
+                    }
+                }
+                // Try Regex style routes
+                foreach ((array)$config->get("site.routes") as $pattern => $replace) {
+                    $pattern = '#'.$pattern.'#';
+                    $found = preg_replace($pattern, $replace, $url);
+                    if ($found != $url) {
+                        $page = $this->dispatch($found, $all);
                     }
                 }
             }
