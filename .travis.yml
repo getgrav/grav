@@ -12,7 +12,7 @@ notifications:
     rooms:
       - secure: "bqO0wM1B7bJnQw2fuhquSXEqI9gw6WmFytIh9sEWXzbYTzTUP5t0PcKOd3FT2BNMRaDxPJLVl+vG/oqmqDUBkEmOGcG504IQjeNzZqnMz0tXQMIcCc22Las9tFfc4Jf6RVi/qGomFtHGE9Wgii+TAN4zqZaufbNjwd8SyjO0+W8="
     template:
-      - '%{repository}#%{build_number} (%{branch}): Grav Core packages and all the Skeletons have been uploaded. (<a href="%{build_url}">Details</a>)'
+      - '%{repository}#%{build_number} (%{branch}): Grav Core and Skeletons packages have been uploaded. (<a href="%{build_url}">Details</a>)'
     format: html
 env:
   global:
