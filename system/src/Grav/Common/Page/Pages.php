@@ -11,6 +11,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Whoops\Exception\ErrorException;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
@@ -271,18 +272,27 @@ class Pages
             } else {
                 // Try Regex style redirects
                 foreach ((array)$config->get("site.redirects") as $pattern => $replace) {
-                    $pattern = '#'.$pattern.'#';
-                    $found = preg_replace($pattern, $replace, $url);
-                    if ($found != $url) {
-                        $this->grav->redirect($found);
+                    $pattern = '#' . $pattern . '#';
+                    try {
+                        $found = preg_replace($pattern, $replace, $url);
+                        if ($found != $url) {
+                            $this->grav->redirect($found);
+                        }
+                    } catch (ErrorException $e) {
+                        $this->grav['log']->error('site.redirects: '. $pattern . '-> ' . $e->getMessage());
                     }
                 }
+
                 // Try Regex style routes
                 foreach ((array)$config->get("site.routes") as $pattern => $replace) {
-                    $pattern = '#'.$pattern.'#';
-                    $found = preg_replace($pattern, $replace, $url);
-                    if ($found != $url) {
-                        $page = $this->dispatch($found, $all);
+                    $pattern = '#' . $pattern . '#';
+                    try {
+                        $found = preg_replace($pattern, $replace, $url);
+                        if ($found != $url) {
+                            $page = $this->dispatch($found, $all);
+                        }
+                    } catch (ErrorException $e) {
+                        $this->grav['log']->error('site.routes: '. $pattern . '-> ' . $e->getMessage());
                     }
                 }
             }
