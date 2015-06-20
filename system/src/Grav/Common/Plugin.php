@@ -151,59 +151,35 @@ class Plugin implements EventSubscriberInterface
         $defaults = $this->config->get('plugins.'. $class_name, []);
         $page_header = $page->header();
         $header = [];
-
-        if (isset($page_header->$class_name_merged)) {
-            $merged = $page_header->$class_name_merged;
-            if (count($merged) > 0) {
-                $header = $merged->toArray();
-            } else {
-                $header = $defaults;
-            }
-
-            // Merge additional parameter with configuration options
-            if ($deep) {
-                $header = array_replace_recursive($header, $params);
-            } else {
-                $header = array_merge($header, $params);
-            }
-
-            $config = new Data($header);
-            return $config;
-        }
-
-        // Get default plugin configurations and retrieve page header configuration
-        if (isset($page_header->$class_name)) {
+        if (!isset($page_header->$class_name_merged) && isset($page_header->$class_name)) {
+            // Get default plugin configurations and retrieve page header configuration
             $config = $page_header->$class_name;
             if (is_bool($config)) {
                 // Overwrite enabled option with boolean value in page header
                 $config = ['enabled' => $config];
             }
-        } else {
-            $config = [];
+            // Merge page header settings using deep or shallow merging technique
+            if ($deep) {
+                $header = array_replace_recursive($defaults, $config);
+            } else {
+                $header = array_merge($defaults, $config);
+            }
+            // Create new config object and set it on the page object so it's cached for next time
+            $page->modifyHeader($class_name_merged, new Data($header));
+        } else if (isset($page_header->$class_name_merged)) {
+            $merged = $page_header->$class_name_merged;
+            $header = $merged->toArray();
         }
-
-        // Merge page header settings using deep or shallow merging technique
-        if ($deep) {
-            $header = array_replace_recursive($defaults, $config);
-        } else {
-            $header = array_merge($defaults, $config);
+        if (empty($header)) {
+            $header = $defaults;
         }
-
-        // Create new config object and set it on the page object so it's cached for next time
-        $config = new Data($header);
-        $page->modifyHeader($class_name_merged, $config);
-
         // Merge additional parameter with configuration options
         if ($deep) {
             $header = array_replace_recursive($header, $params);
         } else {
             $header = array_merge($header, $params);
         }
-
-        // Create config data object again (now with addtional parameters)
-        $config = new Data($header);
-
         // Return configurations as a new data config class
-        return $config;
+        return new Data($header);
     }
 }
