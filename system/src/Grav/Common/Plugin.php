@@ -136,45 +136,50 @@ class Plugin implements EventSubscriberInterface
     /**
      * Merge global and page configurations.
      *
-     * @param  Page $page   The page to merge the configurations with the
-     *                      plugin settings.
-     *
-     * @param bool  $deep   Should you use deep or shallow merging
+     * @param Page  $page    The page to merge the configurations with the
+     *                       plugin settings.
+     * @param bool  $deep    Should you use deep or shallow merging
+     * @param array $params  Array of additional configuration options to
+     *                       merge with the plugin settings.
      *
      * @return \Grav\Common\Data\Data
      */
-    protected function mergeConfig(Page $page, $deep = false)
+    protected function mergeConfig(Page $page, $deep = false, $params = [])
     {
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
-        $defaults = $this->config->get('plugins.' . $class_name, array());
-        $header = array();
-
-        if (isset($page->header()->$class_name_merged)) {
-            $merged = $page->header()->$class_name_merged;
-            if (count($merged) > 0) {
-                return $merged;
-            } else {
-                return new Data($defaults);
+        $defaults = $this->config->get('plugins.'. $class_name, []);
+        $page_header = $page->header();
+        $header = [];
+        if (!isset($page_header->$class_name_merged) && isset($page_header->$class_name)) {
+            // Get default plugin configurations and retrieve page header configuration
+            $config = $page_header->$class_name;
+            if (is_bool($config)) {
+                // Overwrite enabled option with boolean value in page header
+                $config = ['enabled' => $config];
             }
-        }
-
-        // Get default plugin configurations and retrieve page header configuration
-        if (isset($page->header()->$class_name)) {
+            // Merge page header settings using deep or shallow merging technique
             if ($deep) {
-                $header =  array_replace_recursive($defaults, $page->header()->$class_name);
+                $header = array_replace_recursive($defaults, $config);
             } else {
-                $header =  array_merge($defaults, $page->header()->$class_name);
+                $header = array_merge($defaults, $config);
             }
-        } else {
+            // Create new config object and set it on the page object so it's cached for next time
+            $page->modifyHeader($class_name_merged, new Data($header));
+        } else if (isset($page_header->$class_name_merged)) {
+            $merged = $page_header->$class_name_merged;
+            $header = $merged->toArray();
+        }
+        if (empty($header)) {
             $header = $defaults;
         }
-
-        // Create new config object and set it on the page object so it's cached for next time
-        $config = new Data($header);
-        $page->modifyHeader($class_name_merged, $config);
-
+        // Merge additional parameter with configuration options
+        if ($deep) {
+            $header = array_replace_recursive($header, $params);
+        } else {
+            $header = array_merge($header, $params);
+        }
         // Return configurations as a new data config class
-        return $config;
+        return new Data($header);
     }
 }
