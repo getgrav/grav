@@ -491,6 +491,12 @@ class Pages
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
+
+                // Fire event for memory and time consuming plugins...
+                if ($config->get('system.pages.events.page')) {
+                    $this->grav->fireEvent('onBuildPagesInitialized');
+                }
+
                 $this->recurse($pagesDir);
                 $this->buildRoutes();
 
@@ -505,6 +511,11 @@ class Pages
                 $taxonomy->taxonomy($taxonomy_map);
             }
         } else {
+            // Fire event for memory and time consuming plugins...
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onBuildPagesInitialized');
+            }
+
             $this->recurse($pagesDir);
             $this->buildRoutes();
         }
