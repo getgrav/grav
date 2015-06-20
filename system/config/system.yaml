@@ -44,7 +44,6 @@ cache:
   lifetime: 604800                     # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                          # GZip compress the page output
 
-
 twig:
   cache: true                          # Set to true to enable twig caching
   debug: false                         # Enable Twig debug
@@ -81,6 +80,12 @@ images:
 media:
   enable_media_timestamp: false        # Enable media timetsamps
   upload_limit: 0                      # Set maximum upload size in bytes (0 is unlimited)
+
+download:
+  limit: 0                            # Limit download speed in KB/s (0 = N/A)
+  balance: 8                          # Quality indicator between number of flushes and buffer size. A higher number means less flushes but higher buffer sizes
+  chunk_size: 2                       # Transfer file in KB chunks to the browser
+  debug: false                        # Turn on to see buffer size and other informations about the download
 
 security:
   default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK
