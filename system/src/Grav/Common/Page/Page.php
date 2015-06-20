@@ -361,7 +361,7 @@ class Page
             $var = 300;
         }
 
-        return Utils::truncateHTML($content, $size);
+        return Utils::truncateHTML($content, $var);
     }
 
     /**
