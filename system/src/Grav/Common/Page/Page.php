@@ -61,6 +61,7 @@ class Page
     protected $header;
     protected $frontmatter;
     protected $content;
+    protected $summary;
     protected $raw_content;
     protected $pagination;
     protected $media;
@@ -164,6 +165,7 @@ class Page
             $this->id($this->modified().md5($this->filePath()));
             $this->header = null;
             $this->content = null;
+            $this->summary = null;
         }
         return $file ? $file->raw() : '';
     }
@@ -305,15 +307,13 @@ class Page
     /**
      * Get the summary.
      *
-     * @param int $size  Max summary size.
+     * @param  int    $size Max summary size.
      * @return string
      */
     public function summary($size = null)
     {
         /** @var Config $config */
         $config = self::getGrav()['config']->get('site.summary');
-        $content = $this->content();
-
         if (isset($this->header->summary)) {
             $config = array_merge($config, $this->header->summary);
         }
@@ -323,9 +323,13 @@ class Page
             return $content;
         }
 
-        // Get summary size from site config's file
-        if (is_null($size)) {
-            $size = $config['size'];
+        // Set up variables to process summary from page or from custom summary
+        if ($this->summary === null) {
+            $content = $this->content();
+            $summary_size = $this->summary_size;
+        } else {
+            $content = $this->summary;
+            $summary_size = mb_strlen($this->summary);
         }
 
         // Return calculated summary based on summary divider's position
@@ -333,8 +337,13 @@ class Page
         // Return entire page content on wrong/ unknown format
         if (!in_array($format, array('short', 'long'))) {
             return $content;
-        } elseif (($format === 'short') && isset($this->summary_size)) {
-            return substr($content, 0, $this->summary_size);
+        } elseif (($format === 'short') && isset($summary_size)) {
+            return mb_substr($content, 0, $summary_size);
+        }
+
+        // Get summary size from site config's file
+        if (is_null($size)) {
+            $size = $config['size'];
         }
 
         // If the size is zero, return the entire page content
@@ -346,6 +355,16 @@ class Page
         }
 
         return Utils::truncateHTML($content, $size);
+    }
+
+    /**
+     * Sets the summary of the page
+     *
+     * @param string $var Summary
+     */
+    public function setSummary($summary)
+    {
+        $this->summary = $summary;
     }
 
     /**
