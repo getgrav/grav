@@ -307,11 +307,10 @@ class Page
     /**
      * Get the summary.
      *
-     * @param  int|string  $var  Summary or max summary size.
-     *
+     * @param  int    $size Max summary size.
      * @return string
      */
-    public function summary($var = null)
+    public function summary($size = null)
     {
         /** @var Config $config */
         $config = self::getGrav()['config']->get('site.summary');
@@ -322,12 +321,6 @@ class Page
         // Return summary based on settings in site config file
         if (!$config['enabled']) {
             return $content;
-        }
-
-        // Set summary
-        if (is_string($var)) {
-            $this->summary = $var;
-            $var = null;
         }
 
         // Set up variables to process summary from page or from custom summary
@@ -349,19 +342,29 @@ class Page
         }
 
         // Get summary size from site config's file
-        if (is_null($var)) {
-            $var = $config['size'];
+        if (is_null($size)) {
+            $size = $config['size'];
         }
 
         // If the size is zero, return the entire page content
-        if ($var === 0) {
+        if ($size === 0) {
             return $content;
         // Return calculated summary based on defaults
-        } elseif (!is_numeric($var) || ($var < 0)) {
-            $var = 300;
+        } elseif (!is_numeric($size) || ($size < 0)) {
+            $size = 300;
         }
 
-        return Utils::truncateHTML($content, $var);
+        return Utils::truncateHTML($content, $size);
+    }
+
+    /**
+     * Sets the summary of the page
+     *
+     * @param string $var Summary
+     */
+    public function setSummary($summary)
+    {
+        $this->summary = $summary;
     }
 
     /**
