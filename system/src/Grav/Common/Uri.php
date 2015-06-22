@@ -458,12 +458,8 @@ class Uri
         $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/');
 
         // if absolute and starts with a base_url move on
-        if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.') {
-            if ($page->url() == '/') {
-                return '/' . $markdown_url;
-            } else {
-                return $page->url() . '/' . $markdown_url;
-            }
+        if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.' && $page->url() == '/') {
+            return '/' . $markdown_url;
             // no path to convert
         } elseif ($base_url != '' && Utils::startsWith($markdown_url, $base_url)) {
             return $markdown_url;
