@@ -1,3 +1,19 @@
+# v0.9.29
+## 06/22/2015
+
+1. [](#new)
+    * New and improved Regex-powered redirect and route alias logic
+    * Added new `onBuildPagesInitialized` event for memory critical or time-consuming plugins
+    * Added a `setSummary()` method for pages
+2. [](#improved)
+    * Improved `MergeConfig()` logic for more control
+    * Travis skeleton build trigger implemented
+    * Set composer.json versions to stable versions where possible
+    * Disabled `last_modified` and `etag` page headers by default (causing too much page caching)
+3. [](#bugfix)
+    * Preload classes during `bin/gpm selfupgrade` to avoid issues with updated classes
+    * Fix for directory relative _down_ links
+
 # v0.9.28
 ## 06/16/2015
 
