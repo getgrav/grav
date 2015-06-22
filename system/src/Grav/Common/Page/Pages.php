@@ -11,6 +11,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Whoops\Exception\ErrorException;
 
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
@@ -264,26 +265,34 @@ class Pages
             /** @var Config $config */
             $config = $this->grav['config'];
 
-            // Try redirects
-            $redirect = $config->get("site.redirects.{$url}");
-            if ($redirect) {
-                $this->grav->redirect($redirect);
-            }
-
             // See if route matches one in the site configuration
             $route = $config->get("site.routes.{$url}");
             if ($route) {
                 $page = $this->dispatch($route, $all);
             } else {
-                // Try looking for wildcards
-                foreach ($config->get("site.routes") as $alias => $route) {
-                    $match = rtrim($alias, '*');
-                    if (strpos($alias, '*') !== false && strpos($url, $match) !== false) {
-                        $wildcard_url = str_replace('*', str_replace($match, '', $url), $route);
-                        $page = isset($this->routes[$wildcard_url]) ? $this->get($this->routes[$wildcard_url]) : null;
-                        if ($page) {
-                            return $page;
+                // Try Regex style redirects
+                foreach ((array)$config->get("site.redirects") as $pattern => $replace) {
+                    $pattern = '#' . $pattern . '#';
+                    try {
+                        $found = preg_replace($pattern, $replace, $url);
+                        if ($found != $url) {
+                            $this->grav->redirect($found);
                         }
+                    } catch (ErrorException $e) {
+                        $this->grav['log']->error('site.redirects: '. $pattern . '-> ' . $e->getMessage());
+                    }
+                }
+
+                // Try Regex style routes
+                foreach ((array)$config->get("site.routes") as $pattern => $replace) {
+                    $pattern = '#' . $pattern . '#';
+                    try {
+                        $found = preg_replace($pattern, $replace, $url);
+                        if ($found != $url) {
+                            $page = $this->dispatch($found, $all);
+                        }
+                    } catch (ErrorException $e) {
+                        $this->grav['log']->error('site.routes: '. $pattern . '-> ' . $e->getMessage());
                     }
                 }
             }
@@ -482,6 +491,7 @@ class Pages
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
+
                 $this->recurse($pagesDir);
                 $this->buildRoutes();
 
@@ -518,6 +528,11 @@ class Pages
 
         /** @var Config $config */
         $config     = $this->grav['config'];
+
+        // Fire event for memory and time consuming plugins...
+        if ($parent === null && $config->get('system.pages.events.page')) {
+            $this->grav->fireEvent('onBuildPagesInitialized');
+        }
 
         $page->path($directory);
         if ($parent) {

@@ -18,8 +18,8 @@
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
-        "mrclay/minify": "dev-master",
-        "donatj/phpuseragentparser": "dev-master",
+        "mrclay/minify": "~2.2",
+        "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
         "rockettheme/toolbox": "1.0.*"
     },
