@@ -19,6 +19,16 @@ abstract class Utils
      */
     public static function startsWith($haystack, $needle)
     {
+        if (is_array($needle)) {
+            $status = false;
+            foreach ($needle as $each_needle) {
+                $status = $status || ($each_needle === '' || strpos($haystack, $each_needle) === 0);
+                if ($status) {
+                    return $status;
+                }
+            }
+            return $status;
+        }
         return $needle === '' || strpos($haystack, $needle) === 0;
     }
 
@@ -29,6 +39,16 @@ abstract class Utils
      */
     public static function endsWith($haystack, $needle)
     {
+        if (is_array($needle)) {
+            $status = false;
+            foreach ($needle as $each_needle) {
+                $status = $status || ($each_needle === '' || substr($haystack, -strlen($each_needle)) === $each_needle);
+                if ($status) {
+                    return $status;
+                }
+            }
+            return $status;
+        }
         return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
     }
 
