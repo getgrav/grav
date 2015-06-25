@@ -349,14 +349,14 @@ class TwigExtension extends \Twig_Extension
         return $string;
     }
 
-    public function startsWithFilter($needle, $haystack)
+    public function startsWithFilter($haystack, $needle)
     {
-        return Utils::startsWith($needle, $haystack);
+        return Utils::startsWith($haystack, $needle);
     }
 
-    public function endsWithFilter($needle, $haystack)
+    public function endsWithFilter($haystack, $needle)
     {
-        return Utils::endsWith($needle, $haystack);
+        return Utils::endsWith($haystack, $needle);
     }
 
     /**
