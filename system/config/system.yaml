@@ -60,7 +60,7 @@ assets:                                # Configuration for Assets Manager (JS, C
   css_rewrite: true                    # Rewrite any CSS relative URLs during pipelining
   js_pipeline: false                   # The JS pipeline is the unification of multiple JS resources into one file
   js_minify: true                      # Minify the JS during pipelining
-  enable_asset_timestamp: false        # Enable asset timetsamps
+  enable_asset_timestamp: false        # Enable asset timestamps
   collections:
     jquery: system://assets/jquery/jquery-2.1.3.min.js
 
