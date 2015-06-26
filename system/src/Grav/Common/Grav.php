@@ -55,6 +55,8 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
+
+
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_init', 'Initialize');
 
@@ -88,12 +90,16 @@ class Grav extends Container
         $container['taxonomy'] = function ($c) {
             return new Taxonomy($c);
         };
+        $container['language'] = function ($c) {
+            return new Language($c);
+        };
+
         $container['pages'] = function ($c) {
             return new Page\Pages($c);
         };
-        $container['assets'] = function ($c) {
-            return new Assets();
-        };
+
+        $container['assets'] = new Assets();
+
         $container['page'] = function ($c) {
             /** @var Pages $pages */
             $pages = $c['pages'];

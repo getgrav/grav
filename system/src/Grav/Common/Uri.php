@@ -73,6 +73,7 @@ class Uri
     public function init()
     {
         $config = Grav::instance()['config'];
+        $language = Grav::instance()['language'];
 
         // resets
         $this->paths = [];
@@ -85,6 +86,13 @@ class Uri
 
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
+
+        $regex = '/(\/(?:'.$language->getAvailablekeys().')\/).*/';
+
+        if (preg_match($regex, $uri, $matches)) {
+            $uri = preg_replace("/\\".$matches[1]."/", '', $matches[0], 1);
+            $lang = $matches[2];
+        }
 
         // split the URL and params
         $bits = parse_url($uri);

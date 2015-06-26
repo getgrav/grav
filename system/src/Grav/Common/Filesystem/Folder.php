@@ -38,12 +38,12 @@ abstract class Folder
      * Recursively find the last modified time under given path by file.
      *
      * @param  string $path
+     * @param string  $extensions
+     *
      * @return int
      */
-    public static function lastModifiedFile($path)
+    public static function lastModifiedFile($path, $extensions = 'md|yaml')
     {
-        // pipe separated list of extensions to search for changes with
-        $extensions = 'md|yaml';
         $last_modified = 0;
 
         $dirItr = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);

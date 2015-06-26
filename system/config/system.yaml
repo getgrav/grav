@@ -5,6 +5,10 @@ param_sep: ':'                         # Parameter separator, use ';' for Apache
 home:
   alias: '/home'                       # Default path for home, ie /
 
+languages:
+    en: English
+    fr: French
+
 pages:
   theme: antimatter                    # Default theme (defaults to "antimatter" theme)
   order:
@@ -32,7 +36,7 @@ pages:
       '<': 'lt'
   types: 'txt|xml|html|json|rss|atom'  # Pipe separated list of valid page types
   expires: 0                           # Page expires time in seconds (604800 seconds = 7 days)
-  last_modified: false                 # Set the last modified date header based on file modification timestamp
+  last_modified: false                 # Set the last modified date header based on file modifcation timestamp
   etag: false                          # Set the etag header tag
 
 cache:
@@ -79,7 +83,7 @@ images:
   debug: false                         # Show an overlay over images indicating the pixel depth of the image when working with retina for example
 
 media:
-  enable_media_timestamp: false        # Enable media timestamps
+  enable_media_timestamp: false        # Enable media timetsamps
   upload_limit: 0                      # Set maximum upload size in bytes (0 is unlimited)
 
 security:

@@ -6,6 +6,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Taxonomy;
+use Grav\Common\Language;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
@@ -61,6 +62,10 @@ class Pages
      */
     protected $last_modified;
 
+
+    protected $default_lang;
+    protected $page_extension;
+
     /**
      * @var Types
      */
@@ -75,6 +80,8 @@ class Pages
     {
         $this->grav = $c;
         $this->base = '';
+        $this->default_lang = $c['language']->getDefaultKey();
+        $this->page_extension = '.' . $this->default_lang ? $this->default_lang . CONTENT_EXT : CONTENT_EXT;
     }
 
     /**
@@ -572,7 +579,7 @@ class Pages
                     $last_modified = $modified;
                 }
 
-                if (preg_match('/^[^.].*'.CONTENT_EXT.'$/', $name)) {
+                if (preg_match('/^[^.].*'.$this->page_extension.'$/', $name)) {
                     $page->init($file);
                     $content_exists = true;
 
