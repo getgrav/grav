@@ -384,7 +384,7 @@ class Uri
     }
 
     /**
-     * Retrun the IP address of the current user
+     * Return the IP address of the current user
      *
      * @return string ip address
      */

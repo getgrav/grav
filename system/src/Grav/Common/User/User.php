@@ -90,7 +90,7 @@ class User extends Data
     }
 
     /**
-     * Checks user authorisation to the action.
+     * Checks user authorization to the action.
      *
      * @param  string  $action
      * @return bool

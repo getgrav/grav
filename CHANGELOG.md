@@ -35,7 +35,7 @@
     * Fix for `+` in image filenames
     * Fix for dot files causing issues with page processing
     * Fix for Uri path detection on Windows platform
-    * Fix for atlernative media resolutions
+    * Fix for alternative media resolutions
     * Fix for modularTypes key properties
 
 # v0.9.27
@@ -49,7 +49,7 @@
     * Added a new `parseLinks` method to Plugins class
     * Added `starts_with` and `ends_with` Twig filters
 2. [](#improved)
-    * Opitmized install of vendor libraries for speed improvement
+    * Optimized install of vendor libraries for speed improvement
     * Improved configuration handling in preparation for admin plugin
     * Cache optimization: Don't cache Twig templates when you pass dynamic params
     * Moved `Utils::rcopy` to `Folder::rcopy`
@@ -63,7 +63,7 @@
     * Fix for URLs with trailing slashes
     * Handle condition where certain errors resulted in blank page
     * Fix for issue with theme name equal to base_url and asset pipeline
-    * Fix to properly nomralize font rewrite path
+    * Fix to properly normalize font rewrite path
     * Fix for absolute URLs below the current page
     * Fix for `..` page references
 
@@ -81,7 +81,7 @@
 2. [](#improved)
     * Refactored media image handling to make it more flexible and support absolute paths
     * Refactored page modification check process to make it faster
-    * User account improvements in preparation for Admin plugin
+    * User account improvements in preparation for admin plugin
     * Protect against timing attacks
     * Reset default system expires time to 0 seconds (can override if you need to)
 3. [](#bugfix)
@@ -209,7 +209,7 @@
     * Improved the markdown Lightbox functionality to better mimic Twig version
     * Fullsize Lightbox can now have filters applied
     * Added a new `mergeConfig()` method to Plugin class to merge system + page header configuration
-    * Added a new `disable()` method to Plugin class to programatically disable a plugin
+    * Added a new `disable()` method to Plugin class to programmatically disable a plugin
     * Updated Parsedown and Parsedown Extra to address bugs
     * Various PSR fixes
 3. [](#bugfix)
@@ -262,7 +262,7 @@
     * Added `publish_date` in page headers to automatically publish page
     * Added `unpublish_date` in page headers to automatically unpublish page
     * Added `dateRange()` capability for collections
-    * Added ability to dynamically control Cache lifetime programatically
+    * Added ability to dynamically control Cache lifetime programmatically
     * Added ability to sort by anything in the page header. E.g. `sort: header.taxonomy.year`
     * Added various helper methods to collections: `copy, nonVisible, modular, nonModular, published, nonPublished, nonRoutable`
 2. [](#improved)
@@ -437,7 +437,7 @@
     * Broke cache types out into multiple directories in the cache folder
     * Removed vendor libs from github repository
     * Various PSR cleanup of code
-    * Various Blueprint updates to support upcoming Admin plugin
+    * Various Blueprint updates to support upcoming admin plugin
     * Added ability to filter page children for normal/modular/all
     * Added `sort_by_key` twig filter
     * Added `visible()` and `routable()` filters to page collections
@@ -510,7 +510,7 @@
     * Addition of Dependency Injection Container
     * Refactored plugins to use Symfony Event Dispatcher
     * New Asset Manager to provide unified management of JavaScript and CSS
-    * Asset Pipelining to provide unification, minify, and optimazation of JavaScript and CSS
+    * Asset Pipelining to provide unification, minify, and optimization of JavaScript and CSS
     * Grav Media support directly in Markdown syntax
     * Additional Grav Generator meta tag in default themes
     * Added support for PHP Stream Wrapper for resource location

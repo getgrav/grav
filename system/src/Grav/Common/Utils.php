@@ -92,7 +92,7 @@ abstract class Utils
             if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
                 return $text;
             }
-            // splits all html-tags to scanable lines
+            // splits all html-tags to scannable lines
             preg_match_all('/(<.+?>)?([^<>]*)/s', $text, $lines, PREG_SET_ORDER);
             $total_length = strlen($ending);
             $truncate = '';
@@ -157,7 +157,7 @@ abstract class Utils
         }
         // if the words shouldn't be cut in the middle...
         if (!$exact) {
-            // ...search the last occurance of a space...
+            // ...search the last occurrence of a space...
             $spacepos = strrpos($truncate, ' ');
             if (isset($spacepos)) {
                 // ...and cut the text in this position

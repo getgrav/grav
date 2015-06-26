@@ -160,7 +160,7 @@ class UpdateCommand extends Command
         $commandExec = $installCommand->run($args, $this->output);
 
         if ($commandExec != 0) {
-            $this->output->writeln("<red>Error:</red> An error occured while trying to install the extensions");
+            $this->output->writeln("<red>Error:</red> An error occurred while trying to install the extensions");
             exit;
         }
 

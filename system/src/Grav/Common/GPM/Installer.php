@@ -158,7 +158,7 @@ class Installer
 
 
     /**
-     * Unnstalls one or more given package
+     * Uninstalls one or more given package
      *
      * @param  string $path     The slug of the package(s)
      * @param  array  $options     Options to use for uninstalling

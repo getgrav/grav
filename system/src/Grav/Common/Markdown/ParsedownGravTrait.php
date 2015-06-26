@@ -23,7 +23,7 @@ trait ParsedownGravTrait
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
 
     /**
-     * Initialiazation function to setup key variables needed by the MarkdownGravLinkTrait
+     * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
      *
      * @param $page
      * @param $defaults
