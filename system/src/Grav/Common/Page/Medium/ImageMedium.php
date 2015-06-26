@@ -216,7 +216,7 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Turn the current Medium inta a Link with lightbox enabled
+     * Turn the current Medium into a Link with lightbox enabled
      *
      * @param  int  $width
      * @param  int  $height

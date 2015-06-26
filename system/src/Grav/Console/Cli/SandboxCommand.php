@@ -281,7 +281,7 @@ class SandboxCommand extends Command
     private function perms()
     {
         $this->output->writeln('');
-        $this->output->writeln('<comment>Permisions Initializing</comment>');
+        $this->output->writeln('<comment>Permissions Initializing</comment>');
 
         $dir_perms = 0755;
 

@@ -108,7 +108,7 @@ class TwigExtension extends \Twig_Extension
      * Truncate content by a limit.
      *
      * @param  string $string
-     * @param  int    $limit    Nax number of characters.
+     * @param  int    $limit    Max number of characters.
      * @param  string $break    Break point.
      * @param  string $pad      Appended padding to the end of the string.
      * @return string

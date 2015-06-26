@@ -271,7 +271,7 @@ class Cache extends Getters
 
 
     /**
-     * Set the cache lifetime programatically
+     * Set the cache lifetime programmatically
      *
      * @param int $future timestamp
      */

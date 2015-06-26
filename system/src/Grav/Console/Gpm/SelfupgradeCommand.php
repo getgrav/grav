@@ -96,7 +96,7 @@ class SelfupgradeCommand extends Command
             exit;
         }
 
-        // not used but pre-loaded just in case!
+        // not used but preloaded just in case!
         new ArrayInput([]);
 
         $questionHelper = $this->getHelper('question');
