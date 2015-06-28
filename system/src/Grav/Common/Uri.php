@@ -87,12 +87,17 @@ class Uri
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
 
-        $regex = '/(\/(?:'.$language->getAvailablekeys().')\/).*/';
+        $regex = '/(\/('.$language->getAvailablekeys().'\/)).*/';
 
-        if (preg_match($regex, $uri, $matches)) {
-            $uri = preg_replace("/\\".$matches[1]."/", '', $matches[0], 1);
-            $lang = $matches[2];
+        // if languages set
+        if ($language->defaultKey()) {
+            if (preg_match($regex, $uri, $matches)) {
+                $lang = $matches[2];
+            } else {
+                $lang = $language->getDefaultKey();
+            }
         }
+
 
         // split the URL and params
         $bits = parse_url($uri);
