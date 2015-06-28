@@ -31,7 +31,7 @@ pages:
       '>': 'gt'
       '<': 'lt'
   types: 'txt|xml|html|json|rss|atom'  # Pipe separated list of valid page types
-  expires: 0                           # Page expires time in seconds (604800 seconds = 7 days)
+  expires: 604800                      # Page expires time in seconds (604800 seconds = 7 days)
   last_modified: false                 # Set the last modified date header based on file modification timestamp
   etag: false                          # Set the etag header tag
 
