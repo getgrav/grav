@@ -54,6 +54,8 @@ class Page
     protected $unpublish_date;
     protected $slug;
     protected $route;
+    protected $url;
+    protected $routes;
     protected $routable;
     protected $modified;
     protected $id;
@@ -121,6 +123,8 @@ class Page
         $this->date();
         $this->metadata();
         $this->slug();
+        $this->route();
+        $this->url();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
 
@@ -225,6 +229,9 @@ class Page
         if ($var) {
             if (isset($this->header->slug)) {
                 $this->slug = trim($this->header->slug);
+            }
+            if (isset($this->header->routes)) {
+                $this->routes = (array)($this->header->routes);
             }
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
@@ -1050,16 +1057,13 @@ class Page
     {
         if ($var !== null) {
             $this->slug = $var;
-            $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
-            $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug : null;
         }
 
         if (empty($this->slug)) {
             $regex = '/^[0-9]+\./u';
             $this->slug = preg_replace($regex, '', $this->folder);
-            $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
-            $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug : null;
         }
+
         return $this->slug;
     }
 
@@ -1109,21 +1113,26 @@ class Page
      */
     public function url($include_host = false)
     {
-        /** @var Pages $pages */
-        $pages = self::getGrav()['pages'];
+        if (empty($this->url)) {
+            /** @var Pages $pages */
+            $pages = self::getGrav()['pages'];
 
-        /** @var Uri $uri */
-        $uri = self::getGrav()['uri'];
+            /** @var Uri $uri */
+            $uri = self::getGrav()['uri'];
 
-        $rootUrl = $uri->rootUrl($include_host) . $pages->base();
-        $url = $rootUrl.'/'.trim($this->route(), '/');
+            $rootUrl = $uri->rootUrl($include_host) . $pages->base();
+            $url = $rootUrl.'/'.trim($this->route(), '/');
 
-        // trim trailing / if not root
-        if ($url !== '/') {
-            $url = rtrim($url, '/');
+            // trim trailing / if not root
+            if ($url !== '/') {
+                $url = rtrim($url, '/');
+            }
+
+            $this->url = $url;
         }
 
-        return $url;
+
+        return $this->url;
     }
 
     /**
@@ -1138,6 +1147,19 @@ class Page
         if ($var !== null) {
             $this->route = $var;
         }
+
+        if (empty($this->route)) {
+
+            if (!empty($this->routes) && isset($this->routes['default'])) {
+                $this->route = $this->routes['default'];
+                return $this->route;
+            }
+
+            // calculate route based on parent slugs
+            $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
+            $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
+        }
+
         return $this->route;
     }
 

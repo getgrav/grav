@@ -627,11 +627,14 @@ class Pages
         /** @var $page Page */
         foreach ($this->instances as $page) {
             $parent = $page->parent();
+            $route = null;
 
             if ($parent) {
-                $route = rtrim($parent->route(), '/') . '/' . $page->slug();
-                $this->routes[$route] = $page->path();
-                $page->route($route);
+//                $route = rtrim($parent->route(), '/') . '/' . $page->slug();
+                $route = $page->route();
+                $this->routes[$page->route()] = $page->path();
+
+//                $page->route($route);
             }
 
             if (!empty($route)) {
