@@ -1136,7 +1136,8 @@ class Page
     }
 
     /**
-     * Gets the route for the page based on the parents route and the current Page's slug.
+     * Gets the route for the page based on the route headers if available, else from
+     * the parents route and the current Page's slug.
      *
      * @param  string  $var  Set new default route.
      *
@@ -1161,6 +1162,26 @@ class Page
         }
 
         return $this->route;
+    }
+
+    /**
+     * Gets the route aliases for the page based on page headers.
+     *
+     * @param  array  $var  list of route aliases
+     *
+     * @return array  The route aliases for the Page.
+     */
+    public function routeAliases($var = null)
+    {
+        if ($var != null) {
+            $this->routes['aliases'] = (array) $var;
+        }
+
+        if (!empty($this->routes) && isset($this->routes['aliases'])) {
+            return $this->routes['aliases'];
+        } else {
+            return [];
+        }
     }
 
     /**
