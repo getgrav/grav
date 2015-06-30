@@ -90,7 +90,7 @@ class Uri
         $regex = '/(\/('.$language->getAvailablekeys().'\/)).*/';
 
         // if languages set
-        if ($language->defaultKey()) {
+        if ($language->getDefaultKey()) {
             if (preg_match($regex, $uri, $matches)) {
                 $lang = $matches[2];
             } else {
