@@ -1108,31 +1108,37 @@ class Page
     /**
      * Gets the url for the Page.
      *
-     * @param  bool  $include_host  Defaults false, but true would include http://yourhost.com
-     * @return string  The url.
+     * @param  bool $include_host Defaults false, but true would include http://yourhost.com
+     * @param  bool $canonical true to return the canonical URL
+     *
+     * @return string The url.
      */
-    public function url($include_host = false)
+    public function url($include_host = false, $canonical = false)
     {
-        if (empty($this->url)) {
-            /** @var Pages $pages */
-            $pages = self::getGrav()['pages'];
 
-            /** @var Uri $uri */
-            $uri = self::getGrav()['uri'];
+        /** @var Pages $pages */
+        $pages = self::getGrav()['pages'];
 
-            $rootUrl = $uri->rootUrl($include_host) . $pages->base();
-            $url = $rootUrl.'/'.trim($this->route(), '/');
-
-            // trim trailing / if not root
-            if ($url !== '/') {
-                $url = rtrim($url, '/');
-            }
-
-            $this->url = $url;
+        // get canonical route if requested
+        if ($canonical) {
+            $route = $this->routeCanonical();
+        } else {
+            $route = $this->route();
         }
 
+        /** @var Uri $uri */
+        $uri = self::getGrav()['uri'];
 
-        return $this->url;
+        $rootUrl = $uri->rootUrl($include_host) . $pages->base();
+
+        $url = $rootUrl.'/'.trim($route, '/');
+
+        // trim trailing / if not root
+        if ($url !== '/') {
+            $url = rtrim($url, '/');
+        }
+
+        return $url;
     }
 
     /**
@@ -1182,6 +1188,27 @@ class Page
         } else {
             return [];
         }
+    }
+
+    /**
+     * Gets the canonical route for this page if its set. If provided it will use
+     * that value, else if it's `true` it will use the default route.
+     *
+     * @param null $var
+     *
+     * @return bool|string
+     */
+    public function routeCanonical($var = null)
+    {
+        if ($var != null) {
+            $this->routes['canonical'] = (array)$var;
+        }
+
+        if (!empty($this->routes) && isset($this->routes['canonical'])) {
+            return $this->routes['canonical'];
+        }
+
+        return $this->route();
     }
 
     /**
