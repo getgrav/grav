@@ -626,18 +626,20 @@ class Pages
         // Build routes and taxonomy map.
         /** @var $page Page */
         foreach ($this->instances as $page) {
-            $parent = $page->parent();
-
-            if ($parent) {
-                $route = rtrim($parent->route(), '/') . '/' . $page->slug();
-                $this->routes[$route] = $page->path();
-                $page->route($route);
-            }
-
-            if (!empty($route)) {
+            if (!$page->root()) {
+                // process taxonomy
                 $taxonomy->addTaxonomy($page);
-            } else {
-                $page->routable(false);
+
+                // add route
+                $this->routes[$page->route()] = $page->path();
+
+                // add aliases to routes list if they are provided
+                $route_aliases = $page->routeAliases();
+                if ($route_aliases) {
+                    foreach ($route_aliases as $alias) {
+                        $this->routes[$alias] = $page->path();
+                    }
+                }
             }
         }
 

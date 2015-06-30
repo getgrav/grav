@@ -52,13 +52,13 @@ class Taxonomy
             $page_taxonomy = $page->taxonomy();
         }
 
-        if (!$page->published()) {
+        if (!$page->published() || empty($page_taxonomy)) {
             return;
         }
 
         /** @var Config $config */
         $config = $this->grav['config'];
-        if ($config->get('site.taxonomies') && count($page_taxonomy) > 0) {
+        if ($config->get('site.taxonomies')) {
             foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {
                     foreach ((array) $page_taxonomy[$taxonomy] as $item) {
