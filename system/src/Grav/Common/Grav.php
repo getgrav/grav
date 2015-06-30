@@ -113,33 +113,9 @@ class Grav extends Container
             $page = $pages->dispatch($path);
 
             if (!$page || !$page->routable()) {
-                $path_parts = pathinfo($path);
-                $page = $c['pages']->dispatch($path_parts['dirname'], true);
-                if ($page) {
-                    $media = $page->media()->all();
 
-                    $parsed_url = parse_url(urldecode($uri->basename()));
-
-                    $media_file = $parsed_url['path'];
-
-                    // if this is a media object, try actions first
-                    if (isset($media[$media_file])) {
-                        $medium = $media[$media_file];
-                        foreach ($uri->query(null, true) as $action => $params) {
-                            if (in_array($action, ImageMedium::$magic_actions)) {
-                                call_user_func_array(array(&$medium, $action), explode(',', $params));
-                            }
-                        }
-                        Utils::download($medium->path(), false);
-                    } else {
-                        $download = true;
-                        // little work-around to ensure .css and .js files are always sent inline not downloaded
-                        if (Utils::endsWith($uri->basename(), ['.css', '.js'])) {
-                            $download = false;
-                        }
-                        Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
-                    }
-                }
+                // Try fallback URL stuff...
+                $c->fallbackUrl($page, $path);
 
                 // If no page found, fire event
                 $event = $c->fireEvent('onPageNotFound');
@@ -397,5 +373,47 @@ class Grav extends Container
         }
 
         $this->fireEvent('onShutdown');
+    }
+
+    /**
+     * This attempts to fine media, other files, and download them
+     * @param $page
+     * @param $path
+     */
+    protected function fallbackUrl($page, $path)
+    {
+        /** @var Uri $uri */
+        $uri = $this['uri'];
+
+        $path_parts = pathinfo($path);
+        $page = $this['pages']->dispatch($path_parts['dirname'], true);
+        if ($page) {
+            $media = $page->media()->all();
+
+            $parsed_url = parse_url(urldecode($uri->basename()));
+
+            $media_file = $parsed_url['path'];
+
+            // if this is a media object, try actions first
+            if (isset($media[$media_file])) {
+                $medium = $media[$media_file];
+                foreach ($uri->query(null, true) as $action => $params) {
+                    if (in_array($action, ImageMedium::$magic_actions)) {
+                        call_user_func_array(array(&$medium, $action), explode(',', $params));
+                    }
+                }
+                Utils::download($medium->path(), false);
+            }
+
+            // has an extension, try to download it...
+            if (isset($path_parts['extension'])) {
+                $download = true;
+                // little work-around to ensure .css and .js files are always sent inline not downloaded
+                if (in_array($path_parts['extension'], ['.css', '.js'])) {
+                    $download = false;
+                }
+                Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
+            }
+        }
     }
 }

@@ -638,7 +638,14 @@ class Pages
                 $taxonomy->addTaxonomy($page);
 
                 // add route
-                $this->routes[$page->route()] = $page->path();
+                $route =  $page->route();
+                $this->routes[$route] = $page->path();
+
+                // add canonical
+                $route_canonical = $page->routeCanonical();
+                if ($route_canonical && ($route !== $route_canonical)) {
+                    $this->routes[$route_canonical] = $page->path();
+                }
 
                 // add aliases to routes list if they are provided
                 $route_aliases = $page->routeAliases();
