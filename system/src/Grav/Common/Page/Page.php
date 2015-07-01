@@ -139,6 +139,7 @@ class Page
             }
         }
         $this->published();
+        $this->extension();
 
 //        $this->setupLanguage();
     }
@@ -619,6 +620,15 @@ class Page
         return null;
     }
 
+    public function extension()
+    {
+        if (empty($this->extension)) {
+            $language = self::getGrav()['language'];
+            $this->extension = $language->getPageExtension();
+        }
+        return $this->extension;
+    }
+
     /**
      * Save page if there's a file assigned to it.
      * @param bool $reorder Internal use.
@@ -822,7 +832,7 @@ class Page
             $this->template = $var;
         }
         if (empty($this->template)) {
-            $this->template = ($this->modular() ? 'modular/' : '') . str_replace(CONTENT_EXT, '', $this->name());
+            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension, '', $this->name());
         }
         return $this->template;
     }
