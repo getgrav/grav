@@ -5,9 +5,9 @@ param_sep: ':'                         # Parameter separator, use ';' for Apache
 home:
   alias: '/home'                       # Default path for home, ie /
 
-languages:
-    en: English
-    fr: French
+languages:                             # Supported languages
+    - en
+    - fr
 
 pages:
   theme: antimatter                    # Default theme (defaults to "antimatter" theme)

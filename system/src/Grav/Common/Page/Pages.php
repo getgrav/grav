@@ -62,10 +62,6 @@ class Pages
      */
     protected $last_modified;
 
-
-    protected $default_lang;
-    protected $page_extension;
-
     /**
      * @var Types
      */
@@ -80,8 +76,6 @@ class Pages
     {
         $this->grav = $c;
         $this->base = '';
-        $this->default_lang = $c['language']->getDefaultKey();
-        $this->page_extension = '.' . $this->default_lang ? $this->default_lang . CONTENT_EXT : CONTENT_EXT;
     }
 
     /**
@@ -470,6 +464,9 @@ class Pages
         /** @var Config $config */
         $config = $this->grav['config'];
 
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
         $pagesDir = $locator->findResource('page://');
@@ -493,7 +490,9 @@ class Pages
                     $last_modified = Folder::lastModifiedFile($pagesDir);
             }
 
-            $page_cache_id = md5(USER_DIR.$last_modified.$config->checksum());
+            $lang_key = $this->active_language ?: '';
+
+            $page_cache_id = md5(USER_DIR.$last_modified.$lang_key.$config->checksum());
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
@@ -536,9 +535,16 @@ class Pages
         /** @var Config $config */
         $config     = $this->grav['config'];
 
-        // Fire event for memory and time consuming plugins...
-        if ($parent === null && $config->get('system.pages.events.page')) {
-            $this->grav->fireEvent('onBuildPagesInitialized');
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        // stuff to do at root page
+        if ($parent === null) {
+
+            // Fire event for memory and time consuming plugins...
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onBuildPagesInitialized');
+            }
         }
 
         $page->path($directory);
@@ -548,6 +554,8 @@ class Pages
 
         $page->orderDir($config->get('system.pages.order.dir'));
         $page->orderBy($config->get('system.pages.order.by'));
+
+
 
         // Add into instances
         if (!isset($this->instances[$page->path()])) {
@@ -579,7 +587,7 @@ class Pages
                     $last_modified = $modified;
                 }
 
-                if (preg_match('/^[^.].*'.$this->page_extension.'$/', $name)) {
+                if (preg_match('/^[^.].*'.$language->getPageExtension().'$/', $name)) {
                     $page->init($file);
                     $content_exists = true;
 

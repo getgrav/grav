@@ -34,16 +34,9 @@ class Page
      * @var string Filename. Leave as null if page is folder.
      */
     protected $name;
-
-    /**
-     * @var string Folder name.
-     */
     protected $folder;
-
-    /**
-     * @var string Path to the folder. Add $this->folder to get full path.
-     */
     protected $path;
+    protected $extension;
 
     protected $parent;
     protected $template;
@@ -146,6 +139,8 @@ class Page
             }
         }
         $this->published();
+
+//        $this->setupLanguage();
     }
 
     /**
@@ -1119,11 +1114,17 @@ class Page
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
 
+        /** @var Language $language */
+        $language = self::getGrav()['language'];
+
+        // get pre-route
+        $pre_route = $language->enabled() && $language->getActive() ? '/'.$language->getActive() : '';
+
         // get canonical route if requested
         if ($canonical) {
-            $route = $this->routeCanonical();
+            $route = $pre_route . $this->routeCanonical();
         } else {
-            $route = $this->route();
+            $route = $pre_route . $this->route();
         }
 
         /** @var Uri $uri */
@@ -1802,6 +1803,18 @@ class Page
         }
 
         return $results;
+    }
+
+    public function setupLanguage()
+    {
+        /** @var Language $language */
+        $language = self::getGrav()['language'];
+
+        // add the language pre route back to the route
+        if ($language->enabled() && $language->getActive()) {
+            $this->route = '/' . $language->getActive() . $this->route;
+        }
+
     }
 
 

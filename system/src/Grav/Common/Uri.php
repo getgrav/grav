@@ -87,17 +87,8 @@ class Uri
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
 
-        $regex = '/(\/('.$language->getAvailablekeys().'\/)).*/';
-
-        // if languages set
-        if ($language->getDefaultKey()) {
-            if (preg_match($regex, $uri, $matches)) {
-                $lang = $matches[2];
-            } else {
-                $lang = $language->getDefaultKey();
-            }
-        }
-
+        // set active language
+        $uri = $language->setActiveFromUri($uri);
 
         // split the URL and params
         $bits = parse_url($uri);
@@ -420,6 +411,7 @@ class Uri
         return $ipaddress;
 
     }
+
     /**
      * Is this an external URL? if it starts with `http` then yes, else false
      *
