@@ -57,6 +57,7 @@ class Twig
     public function __construct(Grav $grav)
     {
         $this->grav = $grav;
+        $this->twig_paths = [];
     }
 
     /**
@@ -72,7 +73,19 @@ class Twig
             $locator = $this->grav['locator'];
             $debugger = $this->grav['debugger'];
 
-            $this->twig_paths = $locator->findResources('theme://templates');
+            /** @var Language $language */
+            $language = $this->grav['language'];
+
+            // handle language templates if available
+            if ($language->enabled()) {
+                $lang_templates = $locator->findResource('theme://templates/'.$language->getActive());
+                if ($lang_templates) {
+                    $this->twig_paths[] = $lang_templates;
+                }
+            }
+
+            $this->twig_paths = array_merge($this->twig_paths, $locator->findResources('theme://templates'));
+
             $this->grav->fireEvent('onTwigTemplatePaths');
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
