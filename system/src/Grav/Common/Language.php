@@ -10,20 +10,22 @@ class Language
     protected $default;
     protected $active;
     protected $page_extension;
+    protected $enabled = true;
 
     public function __construct(Grav $grav)
     {
         $this->languages = $grav['config']->get('system.languages.supported', []);
         $this->default = reset($this->languages);
 
+        if (empty($this->languages)) {
+            $this->enabled = false;
+        }
+
     }
 
     public function enabled()
     {
-        if (empty($this->languages)) {
-            return false;
-        }
-        return true;
+        return $this->enabled;
     }
 
     public function getLanguages()
