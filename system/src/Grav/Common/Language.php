@@ -13,7 +13,7 @@ class Language
 
     public function __construct(Grav $grav)
     {
-        $this->languages = $grav['config']->get('system.languages', []);
+        $this->languages = $grav['config']->get('system.languages.supported', []);
         $this->default = reset($this->languages);
 
     }

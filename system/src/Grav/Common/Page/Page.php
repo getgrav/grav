@@ -1604,7 +1604,7 @@ class Page
         // Special check when item is home
         if ($this->home()) {
             $paths = $uri->paths();
-            $home = ltrim($config->get('system.home.alias'), '/');
+            $home = Pages::getHomeRoute();
             if (isset($paths[0]) && $paths[0] == $home) {
                 return true;
             }

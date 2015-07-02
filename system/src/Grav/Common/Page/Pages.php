@@ -67,6 +67,8 @@ class Pages
      */
     static protected $types;
 
+    static protected $home_route;
+
     /**
      * Constructor
      *
@@ -453,6 +455,43 @@ class Pages
     }
 
     /**
+     * Get's the home route
+     *
+     * @return string
+     */
+    public static function getHomeRoute()
+    {
+        if (empty(self::$home)) {
+            $grav = Grav::instance();
+
+            /** @var Config $config */
+            $config = $grav['config'];
+
+            /** @var Language $language */
+            $language = $grav['language'];
+
+            $home = $config->get('system.home.alias');
+
+            if ($language->enabled()) {
+                $home_aliases = $config->get('system.home.aliases');
+                if ($home_aliases) {
+                    $active = $language->getActive();
+                    $default = $language->getDefault();
+
+                    if ($active) {
+                        $home = $home_aliases[$active];
+                    } else {
+                        $home = $home_aliases[$default];
+                    }
+                }
+            }
+
+            self::$home_route = trim($home, '/');
+        }
+        return self::$home_route;
+    }
+
+    /**
      * Builds pages.
      *
      * @internal
@@ -636,6 +675,9 @@ class Pages
         /** @var $taxonomy Taxonomy */
         $taxonomy = $this->grav['taxonomy'];
 
+        // Get the home route
+        $home = self::getHomeRoute();
+
         // Build routes and taxonomy map.
         /** @var $page Page */
         foreach ($this->instances as $page) {
@@ -667,7 +709,7 @@ class Pages
         $config = $this->grav['config'];
 
         // Alias and set default route to home page.
-        $home = trim($config->get('system.home.alias'), '/');
+
         if ($home && isset($this->routes['/' . $home])) {
             $this->routes['/'] = $this->routes['/' . $home];
             $this->get($this->routes['/' . $home])->route('/');
