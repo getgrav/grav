@@ -490,9 +490,7 @@ class Pages
                     $last_modified = Folder::lastModifiedFile($pagesDir);
             }
 
-            $lang_key = $this->active_language ?: '';
-
-            $page_cache_id = md5(USER_DIR.$last_modified.$lang_key.$config->checksum());
+            $page_cache_id = md5(USER_DIR.$last_modified.$language->getActive().$config->checksum());
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
