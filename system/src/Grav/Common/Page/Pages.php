@@ -566,7 +566,6 @@ class Pages
     protected function recurse($directory, Page &$parent = null)
     {
         $directory  = rtrim($directory, DS);
-        $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
 
         /** @var Config $config */
@@ -604,17 +603,48 @@ class Pages
             throw new \RuntimeException('Fatal error when creating page instances.');
         }
 
+        $content_exists = false;
+
         // set current modified of page
         $last_modified = $page->modified();
 
-        // flat for content availability
-        $content_exists = false;
+        $page_extension = $language->getPageExtension();
+
+        $page_found = glob($directory.'/*'.$page_extension);
+
+        // fall back to default
+        if (empty($page_found)) {
+            $page_extension = '.'.$language->getDefault().CONTENT_EXT;
+            $page_found = glob($directory.'/*'.$page_extension);
+
+            // still not found, fall back to any .md file
+            if (empty($page_found)) {
+                $page_extension = CONTENT_EXT;
+                $page_found = glob($directory.'/*'.$page_extension);
+            }
+        }
+
+
+
+        if (!empty($page_found)) {
+            $file = new \SplFileInfo(array_shift($page_found));
+            $page->init($file);
+            $page->extension($page_extension);
+
+            $content_exists = true;
+
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+            }
+        }
+
+
+
+        // flag for content availability
+
 
         /** @var \DirectoryIterator $file */
-        foreach ($iterator as $file) {
-            if ($file->isDot()) {
-                continue;
-            }
+        foreach (new \FilesystemIterator($directory) as $file) {
 
             $name = $file->getFilename();
 
@@ -623,15 +653,15 @@ class Pages
                 if ($file->getBasename() !== '.DS_Store' && ($modified = $file->getMTime()) > $last_modified) {
                     $last_modified = $modified;
                 }
-
-                if (preg_match('/^[^.].*'.$language->getPageExtension().'$/', $name)) {
-                    $page->init($file);
-                    $content_exists = true;
-
-                    if ($config->get('system.pages.events.page')) {
-                        $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
-                    }
-                }
+//
+//                if (preg_match('/^[^.].*'.$language->getPageExtension().'$/', $name)) {
+//                    $page->init($file);
+//                    $content_exists = true;
+//
+//                    if ($config->get('system.pages.events.page')) {
+//                        $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+//                    }
+//                }
             } elseif ($file->isDir()) {
                 if (!$page->path()) {
                     $page->path($file->getPath());

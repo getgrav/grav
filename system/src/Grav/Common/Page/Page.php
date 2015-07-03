@@ -620,12 +620,19 @@ class Page
         return null;
     }
 
-    public function extension()
+    /**
+     * Get page extension
+     *
+     * @param $var
+     *
+     * @return mixed
+     */
+    public function extension($var = null)
     {
-        if (empty($this->extension)) {
-            $language = self::getGrav()['language'];
-            $this->extension = $language->getPageExtension();
+        if ($var !== null) {
+            $this->extension = $var;
         }
+
         return $this->extension;
     }
 
