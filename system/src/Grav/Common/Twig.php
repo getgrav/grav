@@ -76,9 +76,13 @@ class Twig
             /** @var Language $language */
             $language = $this->grav['language'];
 
+            $active_language = $language->getActive();
+
+            $language_append = $active_language ? '/'.$active_language : '';
+
             // handle language templates if available
             if ($language->enabled()) {
-                $lang_templates = $locator->findResource('theme://templates/'.$language->getActive());
+                $lang_templates = $locator->findResource('theme://templates/'.$active_language);
                 if ($lang_templates) {
                     $this->twig_paths[] = $lang_templates;
                 }
@@ -144,9 +148,9 @@ class Twig
                 'config' => $config,
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
-                'base_url' => $this->grav['base_url'],
-                'base_url_absolute' => $this->grav['base_url_absolute'],
-                'base_url_relative' => $this->grav['base_url_relative'],
+                'base_url' => $this->grav['base_url'] . $language_append,
+                'base_url_absolute' => $this->grav['base_url_absolute'] . $language_append,
+                'base_url_relative' => $this->grav['base_url_relative'] . $language_append,
                 'theme_dir' => $locator->findResource('theme://'),
                 'theme_url' => $this->grav['base_url'] .'/'. $locator->findResource('theme://', false),
                 'site' => $config->get('site'),
