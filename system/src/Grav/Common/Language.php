@@ -9,7 +9,7 @@ class Language
     protected $languages = [];
     protected $default;
     protected $active;
-    protected $page_extension;
+    protected $page_extensions;
     protected $enabled = true;
 
     public function __construct(Grav $grav)
@@ -87,22 +87,30 @@ class Language
         return $uri;
     }
 
-    public function getPageExtension()
+    public function getValidPageExtensions()
     {
-        if (empty($this->page_extension)) {
+        if (empty($this->page_extensions)) {
 
             if ($this->enabled()) {
-                if ($this->active) {
-                    $lang = '.' . $this->active;
-                } else {
-                    $lang = '.' . $this->default;
+                $valid_lang_extensions = [];
+                foreach ($this->languages as $lang) {
+                    $valid_lang_extensions[] = '.'.$lang.CONTENT_EXT;
                 }
+
+
+                if ($this->active) {
+                    $active_extension = '.'.$this->active.CONTENT_EXT;
+                    $key = array_search($active_extension, $valid_lang_extensions);
+                    unset($valid_lang_extensions[$key]);
+                    array_unshift($valid_lang_extensions, $active_extension);
+                }
+
+                $this->page_extensions = array_merge($valid_lang_extensions, (array) CONTENT_EXT);
             } else {
-                $lang = '';
+                $this->page_extensions = (array) CONTENT_EXT;
             }
-            $this->page_extension = $lang . CONTENT_EXT;
         }
-        return $this->page_extension;
+        return $this->page_extensions;
     }
 
     public function validate($lang)

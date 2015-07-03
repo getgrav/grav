@@ -608,26 +608,24 @@ class Pages
         // set current modified of page
         $last_modified = $page->modified();
 
-        $page_extension = $language->getPageExtension();
+        $pages_found = glob($directory.'/*'.CONTENT_EXT);
+        $page_extensions = $language->getValidPageExtensions();
 
-        $page_found = glob($directory.'/*'.$page_extension);
+        if ($pages_found) {
 
-        // fall back to default
-        if (empty($page_found)) {
-            $page_extension = '.'.$language->getDefault().CONTENT_EXT;
-            $page_found = glob($directory.'/*'.$page_extension);
-
-            // still not found, fall back to any .md file
-            if (empty($page_found)) {
-                $page_extension = CONTENT_EXT;
-                $page_found = glob($directory.'/*'.$page_extension);
+            foreach ($page_extensions as $extension) {
+                foreach ($pages_found as $found) {
+                    if (Utils::endsWith($found, $extension)) {
+                        $page_found = $found;
+                        $page_extension = $extension;
+                        break 2;
+                    }
+                }
             }
         }
 
-
-
         if (!empty($page_found)) {
-            $file = new \SplFileInfo(array_shift($page_found));
+            $file = new \SplFileInfo($page_found);
             $page->init($file);
             $page->extension($page_extension);
 
@@ -637,11 +635,6 @@ class Pages
                 $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
             }
         }
-
-
-
-        // flag for content availability
-
 
         /** @var \DirectoryIterator $file */
         foreach (new \FilesystemIterator($directory) as $file) {
@@ -653,15 +646,6 @@ class Pages
                 if ($file->getBasename() !== '.DS_Store' && ($modified = $file->getMTime()) > $last_modified) {
                     $last_modified = $modified;
                 }
-//
-//                if (preg_match('/^[^.].*'.$language->getPageExtension().'$/', $name)) {
-//                    $page->init($file);
-//                    $content_exists = true;
-//
-//                    if ($config->get('system.pages.events.page')) {
-//                        $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
-//                    }
-//                }
             } elseif ($file->isDir()) {
                 if (!$page->path()) {
                     $page->path($file->getPath());
