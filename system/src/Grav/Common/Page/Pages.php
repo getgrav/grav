@@ -591,8 +591,6 @@ class Pages
         $page->orderDir($config->get('system.pages.order.dir'));
         $page->orderBy($config->get('system.pages.order.by'));
 
-
-
         // Add into instances
         if (!isset($this->instances[$page->path()])) {
             $this->instances[$page->path()] = $page;
@@ -604,10 +602,6 @@ class Pages
         }
 
         $content_exists = false;
-
-        // set current modified of page
-        $last_modified = $page->modified();
-
         $pages_found = glob($directory.'/*'.CONTENT_EXT);
         $page_extensions = $language->getValidPageExtensions();
 
@@ -615,7 +609,7 @@ class Pages
 
             foreach ($page_extensions as $extension) {
                 foreach ($pages_found as $found) {
-                    if (Utils::endsWith($found, $extension)) {
+                    if (preg_match('/^.*\/[0-9A-Za-z\-\_]+('.$extension.')$/', $found)) {
                         $page_found = $found;
                         $page_extension = $extension;
                         break 2;
@@ -635,6 +629,9 @@ class Pages
                 $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
             }
         }
+
+        // set current modified of page
+        $last_modified = $page->modified();
 
         /** @var \DirectoryIterator $file */
         foreach (new \FilesystemIterator($directory) as $file) {

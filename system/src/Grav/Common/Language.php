@@ -7,9 +7,9 @@ namespace Grav\Common;
 class Language
 {
     protected $languages = [];
+    protected $page_extensions = [];
     protected $default;
     protected $active;
-    protected $page_extensions;
     protected $enabled = true;
 
     public function __construct(Grav $grav)
@@ -85,6 +85,11 @@ class Language
             }
         }
         return $uri;
+    }
+
+    public function setValidPageExtensions($extensions)
+    {
+        $this->page_extensions = (array) $extensions;
     }
 
     public function getValidPageExtensions()
