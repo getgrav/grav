@@ -1175,14 +1175,15 @@ class Page
 
         if (empty($this->route)) {
 
-            if (!empty($this->routes) && isset($this->routes['default'])) {
-                $this->route = $this->routes['default'];
-                return $this->route;
-            }
-
             // calculate route based on parent slugs
             $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
             $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
+
+            if (!empty($this->routes) && isset($this->routes['default'])) {
+                $this->routes['aliases'][] = $this->route;
+                $this->route = $this->routes['default'];
+                return $this->route;
+            }
         }
 
         return $this->route;
