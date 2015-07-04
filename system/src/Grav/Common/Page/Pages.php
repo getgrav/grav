@@ -696,21 +696,29 @@ class Pages
                 // process taxonomy
                 $taxonomy->addTaxonomy($page);
 
-                // add route
                 $route =  $page->route();
-                $this->routes[$route] = $page->path();
+                $raw_route = $page->rawRoute();
+                $page_path = $page->path();
 
-                // add canonical
+                // add regular route
+                $this->routes[$route] = $page_path;
+
+                // add raw route
+                if ($raw_route != $route) {
+                    $this->routes[$raw_route] = $page_path;
+                }
+
+                // add canonical route
                 $route_canonical = $page->routeCanonical();
                 if ($route_canonical && ($route !== $route_canonical)) {
-                    $this->routes[$route_canonical] = $page->path();
+                    $this->routes[$route_canonical] = $page_path;
                 }
 
                 // add aliases to routes list if they are provided
                 $route_aliases = $page->routeAliases();
                 if ($route_aliases) {
                     foreach ($route_aliases as $alias) {
-                        $this->routes[$alias] = $page->path();
+                        $this->routes[$alias] = $page_path;
                     }
                 }
             }

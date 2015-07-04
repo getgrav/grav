@@ -47,6 +47,7 @@ class Page
     protected $unpublish_date;
     protected $slug;
     protected $route;
+    protected $raw_route;
     protected $url;
     protected $routes;
     protected $routable;
@@ -115,8 +116,6 @@ class Page
         $this->header();
         $this->date();
         $this->metadata();
-        $this->slug();
-        $this->route();
         $this->url();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
@@ -1174,7 +1173,6 @@ class Page
         }
 
         if (empty($this->route)) {
-
             // calculate route based on parent slugs
             $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
             $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
@@ -1187,6 +1185,24 @@ class Page
         }
 
         return $this->route;
+    }
+
+    public function rawRoute($var = null)
+    {
+        if ($var !== null) {
+            $this->raw_route = $var;
+        }
+
+        if (empty($this->raw_route)) {
+            $baseRoute = $this->parent ? (string) $this->parent()->rawRoute() : null;
+
+            $regex = '/^[0-9]+\./u';
+            $slug = preg_replace($regex, '', $this->folder);
+
+            $this->raw_route = isset($baseRoute) ? $baseRoute . '/'. $slug : null;
+        }
+
+        return $this->raw_route;
     }
 
     /**
