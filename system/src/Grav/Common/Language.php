@@ -87,21 +87,14 @@ class Language
         return $uri;
     }
 
-    public function setValidPageExtensions($extensions)
-    {
-        $this->page_extensions = (array) $extensions;
-    }
-
     public function getValidPageExtensions()
     {
         if (empty($this->page_extensions)) {
-
             if ($this->enabled()) {
                 $valid_lang_extensions = [];
                 foreach ($this->languages as $lang) {
                     $valid_lang_extensions[] = '.'.$lang.CONTENT_EXT;
                 }
-
 
                 if ($this->active) {
                     $active_extension = '.'.$this->active.CONTENT_EXT;
