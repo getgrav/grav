@@ -603,10 +603,9 @@ class Pages
 
         $content_exists = false;
         $pages_found = glob($directory.'/*'.CONTENT_EXT);
-        $page_extensions = $language->getValidPageExtensions();
+        $page_extensions = $language->getFallbackPageExtensions();
 
         if ($pages_found) {
-
             foreach ($page_extensions as $extension) {
                 foreach ($pages_found as $found) {
                     if (preg_match('/^.*\/[0-9A-Za-z\-\_]+('.$extension.')$/', $found)) {
