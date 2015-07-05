@@ -57,6 +57,7 @@ class Twig
     public function __construct(Grav $grav)
     {
         $this->grav = $grav;
+        $this->twig_paths = [];
     }
 
     /**
@@ -72,7 +73,23 @@ class Twig
             $locator = $this->grav['locator'];
             $debugger = $this->grav['debugger'];
 
-            $this->twig_paths = $locator->findResources('theme://templates');
+            /** @var Language $language */
+            $language = $this->grav['language'];
+
+            $active_language = $language->getActive();
+
+            $language_append = $active_language ? '/'.$active_language : '';
+
+            // handle language templates if available
+            if ($language->enabled()) {
+                $lang_templates = $locator->findResource('theme://templates/'.$active_language);
+                if ($lang_templates) {
+                    $this->twig_paths[] = $lang_templates;
+                }
+            }
+
+            $this->twig_paths = array_merge($this->twig_paths, $locator->findResources('theme://templates'));
+
             $this->grav->fireEvent('onTwigTemplatePaths');
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
@@ -131,9 +148,9 @@ class Twig
                 'config' => $config,
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
-                'base_url' => $this->grav['base_url'],
-                'base_url_absolute' => $this->grav['base_url_absolute'],
-                'base_url_relative' => $this->grav['base_url_relative'],
+                'base_url' => $this->grav['base_url'] . $language_append,
+                'base_url_absolute' => $this->grav['base_url_absolute'] . $language_append,
+                'base_url_relative' => $this->grav['base_url_relative'] . $language_append,
                 'theme_dir' => $locator->findResource('theme://'),
                 'theme_url' => $this->grav['base_url'] .'/'. $locator->findResource('theme://', false),
                 'site' => $config->get('site'),

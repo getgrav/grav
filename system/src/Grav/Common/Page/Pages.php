@@ -6,6 +6,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Taxonomy;
+use Grav\Common\Language;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
@@ -65,6 +66,8 @@ class Pages
      * @var Types
      */
     static protected $types;
+
+    static protected $home_route;
 
     /**
      * Constructor
@@ -452,6 +455,43 @@ class Pages
     }
 
     /**
+     * Get's the home route
+     *
+     * @return string
+     */
+    public static function getHomeRoute()
+    {
+        if (empty(self::$home)) {
+            $grav = Grav::instance();
+
+            /** @var Config $config */
+            $config = $grav['config'];
+
+            /** @var Language $language */
+            $language = $grav['language'];
+
+            $home = $config->get('system.home.alias');
+
+            if ($language->enabled()) {
+                $home_aliases = $config->get('system.home.aliases');
+                if ($home_aliases) {
+                    $active = $language->getActive();
+                    $default = $language->getDefault();
+
+                    if ($active) {
+                        $home = $home_aliases[$active];
+                    } else {
+                        $home = $home_aliases[$default];
+                    }
+                }
+            }
+
+            self::$home_route = trim($home, '/');
+        }
+        return self::$home_route;
+    }
+
+    /**
      * Builds pages.
      *
      * @internal
@@ -462,6 +502,9 @@ class Pages
 
         /** @var Config $config */
         $config = $this->grav['config'];
+
+        /** @var Language $language */
+        $language = $this->grav['language'];
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
@@ -486,7 +529,7 @@ class Pages
                     $last_modified = Folder::lastModifiedFile($pagesDir);
             }
 
-            $page_cache_id = md5(USER_DIR.$last_modified.$config->checksum());
+            $page_cache_id = md5(USER_DIR.$last_modified.$language->getActive().$config->checksum());
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
@@ -523,15 +566,21 @@ class Pages
     protected function recurse($directory, Page &$parent = null)
     {
         $directory  = rtrim($directory, DS);
-        $iterator   = new \DirectoryIterator($directory);
         $page       = new Page;
 
         /** @var Config $config */
         $config     = $this->grav['config'];
 
-        // Fire event for memory and time consuming plugins...
-        if ($parent === null && $config->get('system.pages.events.page')) {
-            $this->grav->fireEvent('onBuildPagesInitialized');
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        // stuff to do at root page
+        if ($parent === null) {
+
+            // Fire event for memory and time consuming plugins...
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onBuildPagesInitialized');
+            }
         }
 
         $page->path($directory);
@@ -552,17 +601,39 @@ class Pages
             throw new \RuntimeException('Fatal error when creating page instances.');
         }
 
+        $content_exists = false;
+        $pages_found = glob($directory.'/*'.CONTENT_EXT);
+        $page_extensions = $language->getFallbackPageExtensions();
+
+        if ($pages_found) {
+            foreach ($page_extensions as $extension) {
+                foreach ($pages_found as $found) {
+                    if (preg_match('/^.*\/[0-9A-Za-z\-\_]+('.$extension.')$/', $found)) {
+                        $page_found = $found;
+                        $page_extension = $extension;
+                        break 2;
+                    }
+                }
+            }
+        }
+
+        if (!empty($page_found)) {
+            $file = new \SplFileInfo($page_found);
+            $page->init($file);
+            $page->extension($page_extension);
+
+            $content_exists = true;
+
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+            }
+        }
+
         // set current modified of page
         $last_modified = $page->modified();
 
-        // flat for content availability
-        $content_exists = false;
-
         /** @var \DirectoryIterator $file */
-        foreach ($iterator as $file) {
-            if ($file->isDot()) {
-                continue;
-            }
+        foreach (new \FilesystemIterator($directory) as $file) {
 
             $name = $file->getFilename();
 
@@ -570,15 +641,6 @@ class Pages
                 // Update the last modified if it's newer than already found
                 if ($file->getBasename() !== '.DS_Store' && ($modified = $file->getMTime()) > $last_modified) {
                     $last_modified = $modified;
-                }
-
-                if (preg_match('/^[^.].*'.CONTENT_EXT.'$/', $name)) {
-                    $page->init($file);
-                    $content_exists = true;
-
-                    if ($config->get('system.pages.events.page')) {
-                        $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
-                    }
                 }
             } elseif ($file->isDir()) {
                 if (!$page->path()) {
@@ -623,6 +685,9 @@ class Pages
         /** @var $taxonomy Taxonomy */
         $taxonomy = $this->grav['taxonomy'];
 
+        // Get the home route
+        $home = self::getHomeRoute();
+
         // Build routes and taxonomy map.
         /** @var $page Page */
         foreach ($this->instances as $page) {
@@ -630,21 +695,29 @@ class Pages
                 // process taxonomy
                 $taxonomy->addTaxonomy($page);
 
-                // add route
                 $route =  $page->route();
-                $this->routes[$route] = $page->path();
+                $raw_route = $page->rawRoute();
+                $page_path = $page->path();
 
-                // add canonical
+                // add regular route
+                $this->routes[$route] = $page_path;
+
+                // add raw route
+                if ($raw_route != $route) {
+                    $this->routes[$raw_route] = $page_path;
+                }
+
+                // add canonical route
                 $route_canonical = $page->routeCanonical();
                 if ($route_canonical && ($route !== $route_canonical)) {
-                    $this->routes[$route_canonical] = $page->path();
+                    $this->routes[$route_canonical] = $page_path;
                 }
 
                 // add aliases to routes list if they are provided
                 $route_aliases = $page->routeAliases();
                 if ($route_aliases) {
                     foreach ($route_aliases as $alias) {
-                        $this->routes[$alias] = $page->path();
+                        $this->routes[$alias] = $page_path;
                     }
                 }
             }
@@ -654,7 +727,7 @@ class Pages
         $config = $this->grav['config'];
 
         // Alias and set default route to home page.
-        $home = trim($config->get('system.home.alias'), '/');
+
         if ($home && isset($this->routes['/' . $home])) {
             $this->routes['/'] = $this->routes['/' . $home];
             $this->get($this->routes['/' . $home])->route('/');

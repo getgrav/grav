@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Page\Pages;
+
 /**
  * The URI object provides information about the current URL
  *
@@ -72,7 +74,10 @@ class Uri
      */
     public function init()
     {
-        $config = Grav::instance()['config'];
+        $grav = Grav::instance();
+
+        $config = $grav['config'];
+        $language = $grav['language'];
 
         // resets
         $this->paths = [];
@@ -85,6 +90,15 @@ class Uri
 
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
+
+        // set active language
+        $uri = $language->setActiveFromUri($uri);
+
+        // redirect to language specific homepage if configured to do so
+        if ($uri == '/' && $language->enabled() && $config->get('system.languages.home.redirect') && !$language->getActive()) {
+            $prefix = $config->get('system.languages.home.include_lang') ? $language->getDefault() . '/' : '';
+            $grav->redirect($prefix . Pages::getHomeRoute());
+        }
 
         // split the URL and params
         $bits = parse_url($uri);
@@ -407,6 +421,7 @@ class Uri
         return $ipaddress;
 
     }
+
     /**
      * Is this an external URL? if it starts with `http` then yes, else false
      *
