@@ -49,6 +49,18 @@ class ConfigFinder
         return $list;
     }
 
+    public function locateLanguageFiles(array $languages, array $plugins)
+    {
+        $list = [];
+        foreach (array_reverse($plugins) as $folder) {
+            $list += $this->detectInFolder($folder, 'languages');
+        }
+        foreach (array_reverse($languages) as $folder) {
+            $list += $this->detectRecursive($folder);
+        }
+        return $list;
+    }
+
     /**
      * Get all locations for a single configuration file.
      *

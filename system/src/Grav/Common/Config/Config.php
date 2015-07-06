@@ -60,6 +60,12 @@ class Config extends Data
                 '' => ['user://themes'],
             ]
         ],
+        'languages' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['user://languages', 'system://languages'],
+            ]
+        ],
         'cache' => [
             'type' => 'Stream',
             'prefixes' => [
@@ -85,12 +91,14 @@ class Config extends Data
 
     protected $blueprintFiles = [];
     protected $configFiles = [];
+    protected $languageFiles = [];
     protected $checksum;
     protected $timestamp;
 
     protected $configLookup;
     protected $blueprintLookup;
     protected $pluginLookup;
+    protected $languagesLookup;
 
     protected $finder;
     protected $environment;
@@ -163,9 +171,11 @@ class Config extends Data
         $this->configLookup = $locator->findResources('config://');
         $this->blueprintLookup = $locator->findResources('blueprints://config');
         $this->pluginLookup = $locator->findResources('plugins://');
+        $this->languagesLookup = $locator->findResources('languages://');
 
         $this->loadCompiledBlueprints($this->blueprintLookup, $this->pluginLookup, 'master');
         $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
+        $this->loadCompiledLanguages($this->languagesLookup, $this->pluginLookup, 'master');
 
         $this->initializeLocator($locator);
     }
@@ -312,6 +322,58 @@ class Config extends Data
         $this->items = $cache['data'];
     }
 
+    protected function loadCompiledLanguages($languages, $plugins, $filename = null)
+    {
+        $filename = $filename
+            ? CACHE_DIR . 'compiled/languages/' . $filename . '-' . $this->environment . '.php'
+            : CACHE_DIR . 'compiled/languages/' . $checksum . '-' . $this->environment . '.php';
+        $file = PhpFile::instance($filename);
+        $cache = $file->exists() ? $file->content() : null;
+        $class = get_class($this);
+        $checksum = $this->checksum();
+
+        if (
+            !is_array($cache)
+            || !isset($cache['checksum'])
+            || !isset($cache['@class'])
+            || $cache['@class'] != $class
+        ) {
+            $this->messages[] = 'No cached languages, compiling new configuration..';
+        } else if ($cache['checksum'] !== $checksum) {
+            $this->messages[] = 'Languages checksum mismatch, reloading languages..';
+        } else {
+            $this->messages[] = 'Languages checksum matches, using cached version.';
+
+            $this->items = $cache['data'];
+            return;
+        }
+
+        $languageFiles = $this->finder->locateLanguageFiles($languages, $plugins);
+
+        // Attempt to lock the file for writing.
+        $file->lock(false);
+
+        // Load languages.
+        foreach ($languageFiles as $files) {
+            $this->loadLanguagesFiles($files);
+        }
+        $cache = [
+            '@class' => $class,
+            'timestamp' => time(),
+            'checksum' => $checksum,
+            'data' => $this->toArray()
+        ];
+
+        // If compiled file wasn't already locked by another process, save it.
+        if ($file->locked() !== false) {
+            $this->messages[] = 'Saving compiled configuration.';
+            $file->save($cache);
+            $file->unlock();
+        }
+
+        $this->items = $cache['data'];
+    }
+
     /**
      * Load blueprints.
      *
@@ -335,6 +397,14 @@ class Config extends Data
         foreach ($files as $name => $item) {
             $file = CompiledYamlFile::instance($item['file']);
             $this->join($name, $file->content(), '/');
+        }
+    }
+
+    public function loadLanguagesFiles(array $files)
+    {
+        foreach ($files as $name => $item) {
+            $file = CompiledYamlFile::instance($item['file']);
+            $this->set($name, $file->content(), '/');
         }
     }
 
