@@ -272,6 +272,8 @@ class Language
      * @return string
      */
     public function getTranslation($lang, $key) {
-        return $this->config->get('languages.'.$lang.'.'.$key, null);
+        $languages = $this->config->getLanguages();
+
+        return $languages->get($lang.'.'.$key, null);
     }
 }
