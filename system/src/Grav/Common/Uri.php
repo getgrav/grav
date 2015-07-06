@@ -95,8 +95,8 @@ class Uri
         $uri = $language->setActiveFromUri($uri);
 
         // redirect to language specific homepage if configured to do so
-        if ($uri == '/' && $language->enabled() && $config->get('system.languages.home.redirect') && !$language->getActive()) {
-            $prefix = $config->get('system.languages.home.include_lang') ? $language->getDefault() . '/' : '';
+        if ($uri == '/' && $language->enabled() && $config->get('system.languages.home.redirect', true) && !$language->getActive()) {
+            $prefix = $config->get('system.languages.home.include_lang', true) ? $language->getDefault() . '/' : '';
             $grav->redirect($prefix . Pages::getHomeRoute());
         }
 
