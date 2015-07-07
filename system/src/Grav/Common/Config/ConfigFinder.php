@@ -49,6 +49,18 @@ class ConfigFinder
         return $list;
     }
 
+    public function locateLanguageFiles(array $languages, array $plugins)
+    {
+        $list = [];
+        foreach (array_reverse($plugins) as $folder) {
+            $list += $this->detectLanguagesInFolder($folder, 'languages');
+        }
+        foreach (array_reverse($languages) as $folder) {
+            $list += $this->detectRecursive($folder);
+        }
+        return $list;
+    }
+
     /**
      * Get all locations for a single configuration file.
      *
@@ -90,11 +102,11 @@ class ConfigFinder
         $list = [];
 
         if (is_dir($folder)) {
-            $iterator = new \DirectoryIterator($folder);
+            $iterator = new \FilesystemIterator($folder);
 
             /** @var \DirectoryIterator $directory */
             foreach ($iterator as $directory) {
-                if (!$directory->isDir() || $directory->isDot()) {
+                if (!$directory->isDir()) {
                     continue;
                 }
 
@@ -104,6 +116,34 @@ class ConfigFinder
 
                 if (file_exists($filename)) {
                     $list["plugins/{$name}"] = ['file' => $filename, 'modified' => filemtime($filename)];
+                }
+            }
+        }
+
+        return [$path => $list];
+    }
+
+    protected function detectLanguagesInFolder($folder, $lookup = null)
+    {
+        $path = trim(Folder::getRelativePath($folder), '/');
+
+        $list = [];
+
+        if (is_dir($folder)) {
+            $iterator = new \FilesystemIterator($folder);
+
+            /** @var \DirectoryIterator $directory */
+            foreach ($iterator as $directory) {
+                if (!$directory->isDir()) {
+                    continue;
+                }
+
+                $name = $directory->getBasename();
+                $find = ($lookup ?: $name) . '.yaml';
+                $filename = "{$path}/{$name}/$find";
+
+                if (file_exists($filename)) {
+                    $list["plugins"] = ['file' => $filename, 'modified' => filemtime($filename)];
                 }
             }
         }

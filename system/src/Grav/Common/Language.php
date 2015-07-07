@@ -248,6 +248,13 @@ class Language
         $lookup = array_shift($args);
 
         if ($this->enabled() && $lookup) {
+
+            if ($this->config->get('system.languages.translations.fallback', true)) {
+                $languages = $this->getFallbackLanguages();
+            } else {
+                $languages = (array) $this->getDefault();
+            }
+
             foreach ($this->getFallbackLanguages() as $lang) {
                 $translation = $this->getTranslation($lang, $lookup);
 
@@ -272,6 +279,13 @@ class Language
      * @return string
      */
     public function getTranslation($lang, $key) {
-        return $this->config->get('languages.'.$lang.'.'.$key, null);
+        $languages = $this->config->getLanguages();
+
+        $translation = $languages->get($lang.'.'.$key, null);
+        if (is_array($translation)) {
+            return (string) array_shift($translation);
+        }
+
+        return $translation;
     }
 }
