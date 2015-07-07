@@ -95,9 +95,13 @@ class Uri
         $uri = $language->setActiveFromUri($uri);
 
         // redirect to language specific homepage if configured to do so
-        if ($uri == '/' && $language->enabled() && $config->get('system.languages.home.redirect', true) && !$language->getActive()) {
-            $prefix = $config->get('system.languages.home.include_lang', true) ? $language->getDefault() . '/' : '';
-            $grav->redirect($prefix . Pages::getHomeRoute());
+        if ($uri == '/' && $language->enabled()  && !$language->getActive()) {
+            if ($config->get('system.languages.home_redirect.include_route', true)) {
+                $prefix = $config->get('system.languages.home_redirect.include_lang', true) ? $language->getDefault() . '/' : '';
+                $grav->redirect($prefix . Pages::getHomeRoute());
+            } elseif ($config->get('system.languages.home_redirect.include_lang', true)) {
+                $grav->redirect($language->getDefault() . '/');
+            }
         }
 
         // split the URL and params
