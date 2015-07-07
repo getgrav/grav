@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 
 /**
@@ -469,7 +470,7 @@ class Uri
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl($page, $markdown_url)
+    public static function convertUrl(Page $page, $markdown_url)
     {
         $grav = Grav::instance();
 

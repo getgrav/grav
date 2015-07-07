@@ -723,11 +723,7 @@ class Pages
             }
         }
 
-        /** @var Config $config */
-        $config = $this->grav['config'];
-
         // Alias and set default route to home page.
-
         if ($home && isset($this->routes['/' . $home])) {
             $this->routes['/'] = $this->routes['/' . $home];
             $this->get($this->routes['/' . $home])->route('/');

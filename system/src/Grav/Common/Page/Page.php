@@ -139,8 +139,6 @@ class Page
         }
         $this->published();
         $this->extension();
-
-//        $this->setupLanguage();
     }
 
     /**
@@ -1214,7 +1212,7 @@ class Page
      */
     public function routeAliases($var = null)
     {
-        if ($var != null) {
+        if ($var !== null) {
             $this->routes['aliases'] = (array) $var;
         }
 
@@ -1235,7 +1233,7 @@ class Page
      */
     public function routeCanonical($var = null)
     {
-        if ($var != null) {
+        if ($var !== null) {
             $this->routes['canonical'] = (array)$var;
         }
 
@@ -1623,7 +1621,6 @@ class Page
     {
         /** @var Uri $uri */
         $uri = self::getGrav()['uri'];
-        $config = self::getGrav()['config'];
 
         // Special check when item is home
         if ($this->home()) {
@@ -1838,19 +1835,6 @@ class Page
 
         return $results;
     }
-
-    public function setupLanguage()
-    {
-        /** @var Language $language */
-        $language = self::getGrav()['language'];
-
-        // add the language pre route back to the route
-        if ($language->enabled() && $language->getActive()) {
-            $this->route = '/' . $language->getActive() . $this->route;
-        }
-
-    }
-
 
     /**
      * Returns whether or not this Page object has a .md file associated with it or if its just a directory.
