@@ -78,6 +78,9 @@ class Grav extends Container
         $container['cache'] = function ($c) {
             return new Cache($c);
         };
+        $container['session'] = function ($c) {
+            return new Session($c);
+        };
         $container['plugins'] = function ($c) {
             return new Plugins();
         };
@@ -161,6 +164,7 @@ class Grav extends Container
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $this['session']->init();
         $this['uri']->init();
         $this['errors']->resetHandlers();
         $debugger->init();

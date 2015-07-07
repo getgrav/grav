@@ -82,5 +82,10 @@ media:
   enable_media_timestamp: false        # Enable media timetsamps
   upload_limit: 0                      # Set maximum upload size in bytes (0 is unlimited)
 
+session:
+    enabled: true                      # Enable Session support
+    timeout: 1800                      # Timeout in seconds
+    name: grav-site                    # Name prefix of the session cookie
+
 security:
   default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK

@@ -6,6 +6,7 @@ namespace Grav\Common;
  */
 class Language
 {
+    protected $grav;
     protected $enabled = true;
     protected $languages = [];
     protected $page_extensions = [];
@@ -21,6 +22,7 @@ class Language
      */
     public function __construct(Grav $grav)
     {
+        $this->grav = $grav;
         $this->config = $grav['config'];
         $this->languages = $this->config->get('system.languages.supported', []);
         $this->init();
@@ -151,14 +153,20 @@ class Language
     public function setActiveFromUri($uri)
     {
         $regex = '/(\/('.$this->getAvailable().')).*/';
-        // if languages set
 
+        // if languages set
         if ($this->enabled()) {
+            // try setting from prefix of URL (/en/blah/blah)
             if (preg_match($regex, $uri, $matches)) {
                 $this->active = $matches[2];
-                $uri = preg_replace("/\\".$matches[1]."/", '', $matches[0], 1);
+                $uri = preg_replace("/\\" . $matches[1] . "/", '', $matches[0], 1);
             } else {
-                $this->active = null;
+                // try setting from session, else no active
+                if ($this->config->get('system.session.enabled', false)) {
+                    $this->active = $this->grav['session']->active_language ?: null;
+                } else {
+                    $this->active = null;
+                }
             }
         }
         return $uri;
