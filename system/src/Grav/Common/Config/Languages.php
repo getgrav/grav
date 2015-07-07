@@ -15,11 +15,13 @@ class Languages extends Data
     public function reformat()
     {
         if (isset($this->items['plugins'])) {
-            foreach ($this->items['plugins'] as $plugin => $data) {
-                $this->items = array_merge_recursive($this->items, $data);
-            }
+            $this->items = array_merge_recursive($this->items, $this->items['plugins']);
             unset($this->items['plugins']);
         }
     }
 
+    public function mergeRecursive(array $data)
+    {
+        $this->items = array_merge_recursive($this->items, $data);
+    }
 }
