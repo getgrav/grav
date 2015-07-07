@@ -274,6 +274,11 @@ class Language
     public function getTranslation($lang, $key) {
         $languages = $this->config->getLanguages();
 
-        return $languages->get($lang.'.'.$key, null);
+        $translation = $languages->get($lang.'.'.$key, null);
+        if (is_array($translation)) {
+            return (string) array_shift($translation);
+        }
+
+        return $translation;
     }
 }
