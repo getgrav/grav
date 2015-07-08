@@ -162,9 +162,16 @@ class Language
             if (preg_match($regex, $uri, $matches)) {
                 $this->active = $matches[2];
                 $uri = preg_replace("/\\" . $matches[1] . "/", '', $matches[0], 1);
+
+                // store in session if different
+                if ($this->config->get('system.session.enabled', false)
+                    && $this->config->get('system.language.session_store_active', true)
+                    && $this->grav['session']->active_language != $this->active) {
+                        $this->grav['session']->active_language = $this->active;
+                }
             } else {
-                // try setting from session, else no active
-                if ($this->config->get('system.session.enabled', false)) {
+                // try getting from session, else no active
+                if ($this->config->get('system.session.enabled', false) && $this->config->get('system.language.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
                 } else {
                     $this->active = null;
