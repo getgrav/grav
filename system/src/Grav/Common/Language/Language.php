@@ -253,16 +253,18 @@ class Language
      *                  other arguments can be passed and replaced in the translation with sprintf syntax
      * @return string
      */
-    public function translate(Array $args)
+    public function translate(Array $args, $languages = null)
     {
         $lookup = array_shift($args);
 
         if ($this->enabled() && $lookup) {
 
-            if ($this->config->get('system.languages.translations.fallback', true)) {
-                $languages = $this->getFallbackLanguages();
-            } else {
-                $languages = (array) $this->getDefault();
+            if (empty($languages)) {
+                if ($this->config->get('system.languages.translations.fallback', true)) {
+                    $languages = $this->getFallbackLanguages();
+                } else {
+                    $languages = (array) $this->getDefault();
+                }
             }
 
             foreach ($this->getFallbackLanguages() as $lang) {
