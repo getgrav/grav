@@ -1,3 +1,26 @@
+# v0.9.30
+## 07/08/2015
+
+1. [](#new)
+    * BIG NEWS! Extensive Multi-Language support is all new in 0.9.30!
+    * Translation support via Twig filter/function and PHP method
+    * Page specific default route
+    * Page specific route aliases
+    * Canonical URL route support
+    * Added built-in session support
+    * New `Page.rawRoute()` to get a consistent folder-based route to a page
+    * Added option to always redirect to default page on alias URL
+    * Added language safe redirect function for use in core and plugins
+2. [](#improved)
+    * Improved `Page.active()` and `Page.activeChild()` methods to support route aliases
+    * Various spelling corrections in `.php` comments, `.md` and `.yaml` files
+    * `Utils::startsWith()` and `Utils::endsWith()` now support needle arrays
+    * Added a new timer around `pageInitialized` event
+    * Updated jQuery library to v2.1.4
+3. [](#bugfix)
+    * In-page CSS and JS files are now handled properly
+    * Fix for `enable_media_timestamp` not working properly
+
 # v0.9.29
 ## 06/22/2015
 
