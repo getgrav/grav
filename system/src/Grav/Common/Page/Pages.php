@@ -478,11 +478,16 @@ class Pages
                     $active = $language->getActive();
                     $default = $language->getDefault();
 
-                    if ($active) {
-                        $home = $home_aliases[$active];
-                    } else {
+                    try {
+                        if ($active) {
+                            $home = $home_aliases[$active];
+                        } else {
+                            $home = $home_aliases[$default];
+                        }
+                    } catch (ErrorException $e) {
                         $home = $home_aliases[$default];
                     }
+
                 }
             }
 
