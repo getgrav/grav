@@ -1,5 +1,7 @@
 <?php
-namespace Grav\Common;
+namespace Grav\Common\Language;
+
+use Grav\Common\Grav;
 
 /**
  * Language and translation functionality for Grav
