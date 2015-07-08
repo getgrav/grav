@@ -279,7 +279,7 @@ class Pages
                     try {
                         $found = preg_replace($pattern, $replace, $url);
                         if ($found != $url) {
-                            $this->grav->redirect($found);
+                            $this->grav->redirectLangSafe($found);
                         }
                     } catch (ErrorException $e) {
                         $this->grav['log']->error('site.redirects: '. $pattern . '-> ' . $e->getMessage());

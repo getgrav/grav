@@ -268,6 +268,25 @@ class Grav extends Container
     }
 
     /**
+     * Redirect browser to another location taking language into account (preferred)
+     *
+     * @param string $route Internal route.
+     * @param int $code Redirection code (30x)
+     */
+    public function redirectLangSafe($route, $code = 303)
+    {
+        /** @var Language $language */
+        $language = $this['language'];
+        $config = $this['config'];
+
+        if ($language->enabled()) {
+            return $this->redirect($language->getLanguage() . $route, $code);
+        } else {
+            return $this->redirect($route);
+        }
+    }
+
+    /**
      * Returns mime type for the file format.
      *
      * @param string $format
