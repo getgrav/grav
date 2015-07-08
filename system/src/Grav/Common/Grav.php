@@ -116,6 +116,12 @@ class Grav extends Container
 
             $page = $pages->dispatch($path);
 
+            // handle redirect if not 'default route' configuration
+            if ($page && $c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
+                $c->redirectLangSafe($page->route());
+            }
+
+            // if page is not found, try some fallback stuff
             if (!$page || !$page->routable()) {
 
                 // Try fallback URL stuff...
