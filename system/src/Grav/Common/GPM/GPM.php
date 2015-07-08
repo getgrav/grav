@@ -361,7 +361,7 @@ class GPM extends Iterator
             }
 
             if ($found = $this->findPackage($search)) {
-                // set override respository if provided
+                // set override repository if provided
                 if ($repository) {
                     $found->override_repository = $repository;
                 }

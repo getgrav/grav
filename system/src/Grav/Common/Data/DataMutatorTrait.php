@@ -32,7 +32,7 @@ trait DataMutatorTrait
     }
 
     /**
-     * Sey value by using dot notation for nested arrays/objects.
+     * Set value by using dot notation for nested arrays/objects.
      *
      * @example $value = $data->set('this.is.my.nested.variable', true);
      *

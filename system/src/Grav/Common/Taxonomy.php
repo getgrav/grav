@@ -52,13 +52,13 @@ class Taxonomy
             $page_taxonomy = $page->taxonomy();
         }
 
-        if (!$page->published()) {
+        if (!$page->published() || empty($page_taxonomy)) {
             return;
         }
 
         /** @var Config $config */
         $config = $this->grav['config'];
-        if ($config->get('site.taxonomies') && count($page_taxonomy) > 0) {
+        if ($config->get('site.taxonomies')) {
             foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {
                     foreach ((array) $page_taxonomy[$taxonomy] as $item) {
@@ -76,7 +76,7 @@ class Taxonomy
      *
      * @param  array $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
      * @param  string $operator can be 'or' or 'and' (defaults to 'or')
-     * @return Colleciton       Collection object set to contain matches found in the taxonomy map
+     * @return Collection       Collection object set to contain matches found in the taxonomy map
      */
     public function findTaxonomy($taxonomies, $operator = 'and')
     {

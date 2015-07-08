@@ -19,6 +19,16 @@ abstract class Utils
      */
     public static function startsWith($haystack, $needle)
     {
+        if (is_array($needle)) {
+            $status = false;
+            foreach ($needle as $each_needle) {
+                $status = $status || ($each_needle === '' || strpos($haystack, $each_needle) === 0);
+                if ($status) {
+                    return $status;
+                }
+            }
+            return $status;
+        }
         return $needle === '' || strpos($haystack, $needle) === 0;
     }
 
@@ -29,6 +39,16 @@ abstract class Utils
      */
     public static function endsWith($haystack, $needle)
     {
+        if (is_array($needle)) {
+            $status = false;
+            foreach ($needle as $each_needle) {
+                $status = $status || ($each_needle === '' || substr($haystack, -strlen($each_needle)) === $each_needle);
+                if ($status) {
+                    return $status;
+                }
+            }
+            return $status;
+        }
         return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
     }
 
@@ -72,7 +92,7 @@ abstract class Utils
             if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
                 return $text;
             }
-            // splits all html-tags to scanable lines
+            // splits all html-tags to scannable lines
             preg_match_all('/(<.+?>)?([^<>]*)/s', $text, $lines, PREG_SET_ORDER);
             $total_length = strlen($ending);
             $truncate = '';
@@ -137,7 +157,7 @@ abstract class Utils
         }
         // if the words shouldn't be cut in the middle...
         if (!$exact) {
-            // ...search the last occurance of a space...
+            // ...search the last occurrence of a space...
             $spacepos = strrpos($truncate, ' ');
             if (isset($spacepos)) {
                 // ...and cut the text in this position

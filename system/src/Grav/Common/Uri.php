@@ -1,6 +1,9 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
+
 /**
  * The URI object provides information about the current URL
  *
@@ -72,7 +75,10 @@ class Uri
      */
     public function init()
     {
-        $config = Grav::instance()['config'];
+        $grav = Grav::instance();
+
+        $config = $grav['config'];
+        $language = $grav['language'];
 
         // resets
         $this->paths = [];
@@ -85,6 +91,19 @@ class Uri
 
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
+
+        // set active language
+        $uri = $language->setActiveFromUri($uri);
+
+        // redirect to language specific homepage if configured to do so
+        if ($uri == '/' && $language->enabled()  && !$language->getActive()) {
+            if ($config->get('system.languages.home_redirect.include_route', true)) {
+                $prefix = $config->get('system.languages.home_redirect.include_lang', true) ? $language->getDefault() . '/' : '';
+                $grav->redirect($prefix . Pages::getHomeRoute());
+            } elseif ($config->get('system.languages.home_redirect.include_lang', true)) {
+                $grav->redirect($language->getDefault() . '/');
+            }
+        }
 
         // split the URL and params
         $bits = parse_url($uri);
@@ -384,7 +403,7 @@ class Uri
     }
 
     /**
-     * Retrun the IP address of the current user
+     * Return the IP address of the current user
      *
      * @return string ip address
      */
@@ -407,6 +426,7 @@ class Uri
         return $ipaddress;
 
     }
+
     /**
      * Is this an external URL? if it starts with `http` then yes, else false
      *
@@ -450,7 +470,7 @@ class Uri
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl($page, $markdown_url)
+    public static function convertUrl(Page $page, $markdown_url)
     {
         $grav = Grav::instance();
 

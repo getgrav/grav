@@ -221,7 +221,13 @@ class Themes extends Iterator
     protected function loadConfiguration($name, Config $config)
     {
         $themeConfig = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
-
         $config->joinDefaults("themes.{$name}", $themeConfig);
+
+        if ($this->grav['language']->enabled()) {
+            $languages = CompiledYamlFile::instance("themes://{$name}/languages". YAML_EXT)->content();
+            if ($languages) {
+                $config->getLanguages()->mergeRecursive($languages);
+            }
+        }
     }
 }

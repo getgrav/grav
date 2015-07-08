@@ -142,8 +142,6 @@ class UninstallCommand extends Command
      */
     private function uninstallPackage($slug, $package)
     {
-        $locator = self::getGrav()['locator'];
-
         $path = self::getGrav()['locator']->findResource($package->package_type . '://' .$slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
