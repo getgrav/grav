@@ -1603,10 +1603,14 @@ class Page
      */
     public function active()
     {
-        /** @var Uri $uri */
-        $uri = self::getGrav()['uri'];
-        if ($this->url() == $uri->url()) {
-            return true;
+        $uri_path = self::getGrav()['uri']->path();
+        $routes = self::getGrav()['pages']->routes();
+
+        if (isset($routes[$uri_path])) {
+            if ($routes[$uri_path] == $this->path()) {
+                return true;
+            }
+
         }
         return false;
     }
@@ -1619,19 +1623,18 @@ class Page
      */
     public function activeChild()
     {
-        /** @var Uri $uri */
         $uri = self::getGrav()['uri'];
+        $pages = self::getGrav()['pages'];
+        $uri_path = $uri->path();
+        $routes = self::getGrav()['pages']->routes();
 
-        // Special check when item is home
-        if ($this->home()) {
-            $paths = $uri->paths();
-            $home = Pages::getHomeRoute();
-            if (isset($paths[0]) && $paths[0] == $home) {
-                return true;
-            }
-        } else {
-            if (strpos($uri->url(), $this->url()) === 0) {
-                return true;
+        if (isset($routes[$uri_path])) {
+            $child_page = $pages->dispatch($uri->route())->parent();
+            while (!$child_page->root()) {
+                if ($this->path() == $child_page->path()) {
+                    return true;
+                }
+                $child_page = $child_page->parent();
             }
         }
 
