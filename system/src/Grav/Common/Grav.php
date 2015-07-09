@@ -437,11 +437,11 @@ class Grav extends Container
                 Utils::download($medium->path(), false);
             }
 
-            // has an extension, try to download it...
-            if (isset($path_parts['extension'])) {
+            // unsupported media type, try to download it...
+            $extension = $uri->extension() ?: $path_parts['extension'];
+            if ($extension) {
                 $download = true;
-                // little work-around to ensure .css and .js files are always sent inline not downloaded
-                if (in_array($path_parts['extension'], ['.css', '.js'])) {
+                if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types'))) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
