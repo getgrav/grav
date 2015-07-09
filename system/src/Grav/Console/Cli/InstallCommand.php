@@ -65,6 +65,7 @@ class InstallCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setupConsole($input, $output);
 
         $dependencies_file = '.dependencies';
         $local_config_file = exec('eval echo ~/.grav/config');
@@ -73,12 +74,6 @@ class InstallCommand extends Command
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
         $this->user_path = $this->destination . USER_PATH;
-
-        // Create a red output option
-        $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
-        $output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan'));
-        $output->getFormatter()->setStyle('green', new OutputFormatterStyle('green'));
-        $output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
 
         if (file_exists($local_config_file)) {
             $this->local_config = Yaml::parse($local_config_file);
@@ -101,9 +96,9 @@ class InstallCommand extends Command
                 $output->writeln("\nInstalling vendor dependencies");
                 $output->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
 
-                $this->gitclone($output);
+                $this->gitclone();
             } else {
-                $this->symlink($output);
+                $this->symlink();
             }
         } else {
             $output->writeln('<red>ERROR</red> invalid YAML in ' . $dependencies_file);
@@ -112,45 +107,43 @@ class InstallCommand extends Command
 
     }
 
-    // loops over the array of paths and deletes the files/folders
     /**
-     * @param OutputInterface $output
+     * Clones from Git
      */
-    private function gitclone(OutputInterface $output)
+    private function gitclone()
     {
-        $output->writeln('');
-        $output->writeln('<green>Cloning Bits</green>');
-        $output->writeln('============');
-        $output->writeln('');
+        $this->output->writeln('');
+        $this->output->writeln('<green>Cloning Bits</green>');
+        $this->output->writeln('============');
+        $this->output->writeln('');
 
         foreach ($this->config['git'] as $repo => $data) {
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
                 exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
-                $output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
-                $output->writeln('');
+                $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
+                $this->output->writeln('');
             } else {
-                $output->writeln('<red>' . $path . ' already exists, skipping...</red>');
-                $output->writeln('');
+                $this->output->writeln('<red>' . $path . ' already exists, skipping...</red>');
+                $this->output->writeln('');
             }
 
         }
     }
 
-    // loops over the array of paths and deletes the files/folders
     /**
-     * @param OutputInterface $output
+     * Symlinks
      */
-    private function symlink(OutputInterface $output)
+    private function symlink()
     {
-        $output->writeln('');
-        $output->writeln('<green>Symlinking Bits</green>');
-        $output->writeln('===============');
-        $output->writeln('');
+        $this->output->writeln('');
+        $this->output->writeln('<green>Symlinking Bits</green>');
+        $this->output->writeln('===============');
+        $this->output->writeln('');
 
         if (!$this->local_config) {
-            $output->writeln('<red>No local configuration available, aborting...</red>');
-            $output->writeln('');
+            $this->output->writeln('<red>No local configuration available, aborting...</red>');
+            $this->output->writeln('');
             return;
         }
 
@@ -162,15 +155,15 @@ class InstallCommand extends Command
             if (file_exists($from)) {
                 if (!file_exists($to)) {
                     symlink($from, $to);
-                    $output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
-                    $output->writeln('');
+                    $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
+                    $this->output->writeln('');
                 } else {
-                    $output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
-                    $output->writeln('');
+                    $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
+                    $this->output->writeln('');
                 }
             } else {
-                $output->writeln('<red>source: ' . $from . ' does not exists, skipping...</red>');
-                $output->writeln('');
+                $this->output->writeln('<red>source: ' . $from . ' does not exists, skipping...</red>');
+                $this->output->writeln('');
             }
 
         }

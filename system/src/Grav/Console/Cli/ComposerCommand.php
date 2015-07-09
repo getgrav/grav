@@ -66,6 +66,8 @@ class ComposerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setupConsole($input, $output);
+
         $action = 'update';
 
         if ($input->getOption('install')) {
