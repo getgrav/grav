@@ -30,7 +30,7 @@ pages:
     special_chars:                     # List of special characters to automatically convert to entities
       '>': 'gt'
       '<': 'lt'
-  types: 'txt|xml|html|json|rss|atom'  # Pipe separated list of valid page types
+  types: [txt,xml,html,json,rss,atom]  # list of valid page types
   expires: 604800                      # Page expires time in seconds (604800 seconds = 7 days)
   last_modified: false                 # Set the last modified date header based on file modifcation timestamp
   etag: false                          # Set the etag header tag
@@ -82,11 +82,12 @@ images:
 media:
   enable_media_timestamp: false        # Enable media timetsamps
   upload_limit: 0                      # Set maximum upload size in bytes (0 is unlimited)
+  unsupported_inline_types: []         # Array of unsupported media file types to try to display inline
 
 session:
-    enabled: true                      # Enable Session support
-    timeout: 1800                      # Timeout in seconds
-    name: grav-site                    # Name prefix of the session cookie
+  enabled: true                        # Enable Session support
+  timeout: 1800                        # Timeout in seconds
+  name: grav-site                      # Name prefix of the session cookie
 
 security:
   default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK

@@ -339,7 +339,7 @@ class TwigExtension extends \Twig_Extension
     public function markdownFilter($string)
     {
         $page = $this->grav['page'];
-        $defaults = $this->$config->get('system.pages.markdown');
+        $defaults = $this->config->get('system.pages.markdown');
 
         // Initialize the preferred variant of Parsedown
         if ($defaults['extra']) {

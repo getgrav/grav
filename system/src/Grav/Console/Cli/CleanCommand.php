@@ -2,6 +2,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CleanCommand extends Command
 {
+    use ConsoleTrait;
 
     /**
      * @var array
@@ -177,27 +179,14 @@ class CleanCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
-
-        // Create a red output option
-        $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
-        $output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan'));
-        $output->getFormatter()->setStyle('green', new OutputFormatterStyle('green'));
-        $output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
-
-        $this->cleanPaths($output);
-
-
+        $this->setupConsole($input, $output);
+        $this->cleanPaths();
     }
 
-    // loops over the array of paths and deletes the files/folders
-    /**
-     * @param OutputInterface $output
-     */
-    private function cleanPaths(OutputInterface $output)
+    private function cleanPaths()
     {
-        $output->writeln('');
-        $output->writeln('<red>DELETING</red>');
+        $this->output->writeln('');
+        $this->output->writeln('<red>DELETING</red>');
 
         $anything = false;
 
@@ -206,16 +195,16 @@ class CleanCommand extends Command
 
             if (is_dir($path) && @Folder::delete($path)) {
                 $anything = true;
-                $output->writeln('<red>dir:  </red>' . $path);
+                $this->output->writeln('<red>dir:  </red>' . $path);
             } elseif (is_file($path) && @unlink($path)) {
                 $anything = true;
-                $output->writeln('<red>file: </red>' . $path);
+                $this->output->writeln('<red>file: </red>' . $path);
             }
         }
 
         if (!$anything) {
-            $output->writeln('');
-            $output->writeln('<green>Nothing to clean...</green>');
+            $this->output->writeln('');
+            $this->output->writeln('<green>Nothing to clean...</green>');
         }
 
     }

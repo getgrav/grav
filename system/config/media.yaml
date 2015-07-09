@@ -75,6 +75,10 @@ txt:
   type: file
   thumb: media/thumb-txt.png
   mime: text/plain
+xml:
+  type: file
+  thumb: media/thumb-xml.png
+  mime: application/xml
 doc:
   type: file
   thumb: media/thumb-doc.png
@@ -95,3 +99,16 @@ gz:
   type: file
   thumb: media/thumb-gz.png
   mime: application/gzip
+css:
+  type: file
+  thumb: media/thumb-css.png
+  mime: text/css
+js:
+  type: file
+  thumb: media/thumb-js.png
+  mime: application/javascript
+json:
+  type: file
+  thumb: media/thumb-json.png
+  mime: application/json
+

@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class NewProjectCommand extends Command
 {
+    use ConsoleTrait;
 
     /**
      *
@@ -45,6 +47,7 @@ class NewProjectCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setupConsole($input, $output);
 
         $sandboxCommand = $this->getApplication()->find('sandbox');
         $installCommand = $this->getApplication()->find('install');

@@ -2,6 +2,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Console\ConsoleTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SandboxCommand extends Command
 {
+    use ConsoleTrait;
+
     /**
      * @var array
      */
@@ -66,22 +69,8 @@ class SandboxCommand extends Command
 
     protected $default_file = "---\ntitle: HomePage\n---\n# HomePage\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitor eu felis sed ornare. Sed a mauris venenatis, pulvinar velit vel, dictum enim. Phasellus ac rutrum velit. Nunc lorem purus, hendrerit sit amet augue aliquet, iaculis ultricies nisl. Suspendisse tincidunt euismod risus, quis feugiat arcu tincidunt eget. Nulla eros mi, commodo vel ipsum vel, aliquet congue odio. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque velit orci, laoreet at adipiscing eu, interdum quis nibh. Nunc a accumsan purus.";
 
-    /**
-     * @var
-     */
     protected $source;
-    /**
-     * @var
-     */
     protected $destination;
-    /**
-     * @var InputInterface $input
-     */
-    protected $input;
-    /**
-     * @var OutputInterface $output
-     */
-    protected $output;
 
     /**
      *
@@ -114,14 +103,8 @@ class SandboxCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setupConsole($input, $output);
         $this->destination = $input->getArgument('destination');
-        $this->input = $input;
-        $this->output = $output;
-
-        // Create a red output option
-        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
-        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan'));
-        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
 
         // Symlink the Core Stuff
         if ($input->getOption('symlink')) {
