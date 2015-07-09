@@ -1,3 +1,16 @@
+# v0.9.31
+## 07/09/2015
+
+1. [](#new)
+    * Added xml, json, css and js to valid media file types
+2. [](#improved)
+    * Better handling of unsupported media type downloads
+    * Improved `bin/grav backup` command to mimic admin plugin location/name
+3. [](#bugfix)
+    * Critical fix for broken language translations
+    * Fix for Twig markdown filter error
+    * Safety check for download extension
+
 # v0.9.30
 ## 07/08/2015
 
