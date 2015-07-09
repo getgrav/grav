@@ -138,7 +138,6 @@ class Page
             }
         }
         $this->published();
-        $this->extension();
     }
 
     /**
