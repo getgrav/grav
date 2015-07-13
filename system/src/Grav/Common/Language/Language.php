@@ -165,13 +165,13 @@ class Language
 
                 // store in session if different
                 if ($this->config->get('system.session.enabled', false)
-                    && $this->config->get('system.language.session_store_active', true)
+                    && $this->config->get('system.languages.session_store_active', true)
                     && $this->grav['session']->active_language != $this->active) {
                         $this->grav['session']->active_language = $this->active;
                 }
             } else {
                 // try getting from session, else no active
-                if ($this->config->get('system.session.enabled', false) && $this->config->get('system.language.session_store_active', true)) {
+                if ($this->config->get('system.session.enabled', false) && $this->config->get('system.languages.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
                 } else {
                     $this->active = null;
@@ -256,16 +256,17 @@ class Language
     /**
      * Translate a key and possibly arguments into a string using current lang and fallbacks
      *
-     * @param Array $args     first argument is the lookup key value
-     *                  other arguments can be passed and replaced in the translation with sprintf syntax
+     * @param Array $args first argument is the lookup key value
+     *                    other arguments can be passed and replaced in the translation with sprintf syntax
+     * @param null  $languages
+     *
      * @return string
      */
-    public function translate(Array $args, $languages = null)
+    public function translate(Array $args, Array $languages = null)
     {
         $lookup = array_shift($args);
 
         if ($this->enabled() && $lookup) {
-
             if (empty($languages)) {
                 if ($this->config->get('system.languages.translations.fallback', true)) {
                     $languages = $this->getFallbackLanguages();
@@ -274,7 +275,7 @@ class Language
                 }
             }
 
-            foreach ($this->getFallbackLanguages() as $lang) {
+            foreach ((array) $languages as $lang) {
                 $translation = $this->getTranslation($lang, $lookup);
 
                 if ($translation) {
@@ -297,10 +298,9 @@ class Language
      *
      * @return string
      */
-    public function getTranslation($lang, $key) {
-        $languages = $this->config->getLanguages();
-
-        $translation = $languages->get($lang.'.'.$key, null);
+    public function getTranslation($lang, $key)
+    {
+        $translation = $this->config->getLanguages()->get($lang.'.'.$key, null);
         if (is_array($translation)) {
             return (string) array_shift($translation);
         }
