@@ -1018,7 +1018,7 @@ class Page
             $page_header = $this->header;
 
             // Set the Generator tag
-            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'Grav ' . GRAV_VERSION);
+            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
 
             // Safety check to ensure we have a header
             if ($page_header) {
