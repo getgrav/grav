@@ -14,8 +14,9 @@ class Language
     protected $page_extensions = [];
     protected $fallback_languages = [];
     protected $default;
-    protected $active;
+    protected $active = null;
     protected $config;
+    protected $http_accept_langauge;
 
     /**
      * Constructor
@@ -114,8 +115,10 @@ class Language
     {
         if ($this->validate($lang)) {
             $this->default = $lang;
+
             return $lang;
         }
+
         return false;
     }
 
@@ -140,8 +143,10 @@ class Language
     {
         if ($this->validate($lang)) {
             $this->active = $lang;
+
             return $lang;
         }
+
         return false;
     }
 
@@ -154,7 +159,7 @@ class Language
      */
     public function setActiveFromUri($uri)
     {
-        $regex = '/(\/('.$this->getAvailable().')).*/';
+        $regex = '/(\/(' . $this->getAvailable() . ')).*/';
 
         // if languages set
         if ($this->enabled()) {
@@ -166,18 +171,30 @@ class Language
                 // store in session if different
                 if ($this->config->get('system.session.enabled', false)
                     && $this->config->get('system.languages.session_store_active', true)
-                    && $this->grav['session']->active_language != $this->active) {
-                        $this->grav['session']->active_language = $this->active;
+                    && $this->grav['session']->active_language != $this->active
+                ) {
+                    $this->grav['session']->active_language = $this->active;
                 }
             } else {
                 // try getting from session, else no active
-                if ($this->config->get('system.session.enabled', false) && $this->config->get('system.languages.session_store_active', true)) {
+                if ($this->config->get('system.session.enabled', false) &&
+                    $this->config->get('system.languages.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
-                } else {
-                    $this->active = null;
+                }
+                // if still null, try from http_accpept_language header
+                if ($this->active === null && $this->config->get('system.languages.http_accept_language')) {
+                    $preferred = $this->getBrowserLanguages();
+                    foreach ($preferred as $lang) {
+                        if ($this->validate($lang)) {
+                            $this->active = $lang;
+                            break;
+                        }
+                    }
+
                 }
             }
         }
+
         return $uri;
     }
 
@@ -197,21 +214,22 @@ class Language
             if ($this->enabled()) {
                 $valid_lang_extensions = [];
                 foreach ($this->languages as $lang) {
-                    $valid_lang_extensions[] = '.'.$lang.$file_ext;
+                    $valid_lang_extensions[] = '.' . $lang . $file_ext;
                 }
 
                 if ($this->active) {
-                    $active_extension = '.'.$this->active.$file_ext;
+                    $active_extension = '.' . $this->active . $file_ext;
                     $key = array_search($active_extension, $valid_lang_extensions);
                     unset($valid_lang_extensions[$key]);
                     array_unshift($valid_lang_extensions, $active_extension);
                 }
 
-                $this->page_extensions = array_merge($valid_lang_extensions, (array) $file_ext);
+                $this->page_extensions = array_merge($valid_lang_extensions, (array)$file_ext);
             } else {
-                $this->page_extensions = (array) $file_ext;
+                $this->page_extensions = (array)$file_ext;
             }
         }
+
         return $this->page_extensions;
     }
 
@@ -235,6 +253,7 @@ class Language
                 $this->fallback_languages = $fallback_languages;
             }
         }
+
         return $this->fallback_languages;
     }
 
@@ -250,6 +269,7 @@ class Language
         if (in_array($lang, $this->languages)) {
             return true;
         }
+
         return false;
     }
 
@@ -271,11 +291,11 @@ class Language
                 if ($this->config->get('system.languages.translations.fallback', true)) {
                     $languages = $this->getFallbackLanguages();
                 } else {
-                    $languages = (array) $this->getDefault();
+                    $languages = (array)$this->getDefault();
                 }
             }
 
-            foreach ((array) $languages as $lang) {
+            foreach ((array)$languages as $lang) {
                 $translation = $this->getTranslation($lang, $lookup);
 
                 if ($translation) {
@@ -287,7 +307,8 @@ class Language
                 }
             }
         }
-        return '<span class="untranslated">'.$lookup.'</span>';
+
+        return '<span class="untranslated">' . $lookup . '</span>';
     }
 
     public function translateArray($key, $index, $languages = null)
@@ -297,18 +318,19 @@ class Language
                 if ($this->config->get('system.languages.translations.fallback', true)) {
                     $languages = $this->getFallbackLanguages();
                 } else {
-                    $languages = (array) $this->getDefault();
+                    $languages = (array)$this->getDefault();
                 }
             }
 
-            foreach ((array) $languages as $lang) {
-                $translation_array = (array) $this->config->getLanguages()->get($lang.'.'.$key, null);
+            foreach ((array)$languages as $lang) {
+                $translation_array = (array)$this->config->getLanguages()->get($lang . '.' . $key, null);
                 if ($translation_array && array_key_exists($index, $translation_array)) {
                     return $translation_array[$index];
                 }
             }
         }
-        return '<span class="untranslated">'.$key.'['.$index.']</span>';
+
+        return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
     }
 
     /**
@@ -321,11 +343,38 @@ class Language
      */
     public function getTranslation($lang, $key)
     {
-        $translation = $this->config->getLanguages()->get($lang.'.'.$key, null);
+        $translation = $this->config->getLanguages()->get($lang . '.' . $key, null);
         if (is_array($translation)) {
-            return (string) array_shift($translation);
+            return (string)array_shift($translation);
         }
 
         return $translation;
     }
+
+    function getBrowserLanguages($accept_langs = [])
+    {
+        if (empty($this->http_accept_langauge)) {
+            if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+                $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            } else {
+                return $accept_langs;
+            }
+
+            foreach (explode(',', $accept_langs) as $k => $pref) {
+                // split $pref again by ';q='
+                // and decorate the language entries by inverted position
+                if (false !== ($i = strpos($pref, ';q='))) {
+                    $langs[substr($pref, 0, $i)] = array((float)substr($pref, $i + 3), -$k);
+                } else {
+                    $langs[$pref] = array(1, -$k);
+                }
+            }
+            arsort($langs);
+
+            // no need to undecorate, because we're only interested in the keys
+            $this->http_accept_langauge = array_keys($langs);
+        }
+        return $this->http_accept_langauge;
+    }
+
 }
