@@ -290,6 +290,27 @@ class Language
         return '<span class="untranslated">'.$lookup.'</span>';
     }
 
+    public function translateArray($key, $index, $languages = null)
+    {
+        if ($this->enabled() && $key) {
+            if (empty($languages)) {
+                if ($this->config->get('system.languages.translations.fallback', true)) {
+                    $languages = $this->getFallbackLanguages();
+                } else {
+                    $languages = (array) $this->getDefault();
+                }
+            }
+
+            foreach ((array) $languages as $lang) {
+                $translation_array = (array) $this->config->getLanguages()->get($lang.'.'.$key, null);
+                if ($translation_array && array_key_exists($index, $translation_array)) {
+                    return $translation_array[$index];
+                }
+            }
+        }
+        return '<span class="untranslated">'.$key.'['.$index.']</span>';
+    }
+
     /**
      * Lookup the translation text for a given lang and key
      *

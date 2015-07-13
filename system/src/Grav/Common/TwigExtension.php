@@ -57,7 +57,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter']),
             new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
-            new \Twig_SimpleFilter('t', [$this, 'translateFilter'])
+            new \Twig_SimpleFilter('t', [$this, 'translate']),
+            new \Twig_SimpleFilter('ta', [$this, 'translateArray'])
         ];
     }
 
@@ -75,7 +76,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
-            new \Twig_simpleFunction('t', [$this, 'translateFunc'])
+            new \Twig_simpleFunction('t', [$this, 'translate']),
+            new \Twig_simpleFunction('ta', [$this, 'translateArray'])
         ];
     }
 
@@ -363,10 +365,16 @@ class TwigExtension extends \Twig_Extension
         return Utils::endsWith($haystack, $needle);
     }
 
-    public function translateFilter()
+    public function translate()
     {
          return $this->grav['language']->translate(func_get_args());
     }
+
+    public function translateArray($key, $index, $lang = null)
+    {
+        return $this->grav['language']->translateArray($key, $index, $lang);
+    }
+
 
     /**
      * Repeat given string x times.
