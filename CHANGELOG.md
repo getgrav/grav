@@ -1,3 +1,17 @@
+# v0.9.32
+## 07/14/2015
+
+1. [](#new)
+    * Detect users preferred language via `http_accept_language` setting
+    * Added new `translateArray()` language method
+2. [](#improved)
+    * Support `en` translations by default for plugins & themes
+    * Improved default generator tag
+    * Minor language tweaks and fixes
+3. [](#bugfix)
+    * Fix for session active language and homepage redirects
+    * Ignore root-level page rather than throwing error
+
 # v0.9.31
 ## 07/09/2015
 

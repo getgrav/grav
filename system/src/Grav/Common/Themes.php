@@ -223,7 +223,7 @@ class Themes extends Iterator
         $themeConfig = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
         $config->joinDefaults("themes.{$name}", $themeConfig);
 
-        if ($this->grav['language']->enabled()) {
+        if ($this->config->get('system.languages.translations', true)) {
             $languages = CompiledYamlFile::instance("themes://{$name}/languages". YAML_EXT)->content();
             if ($languages) {
                 $config->getLanguages()->mergeRecursive($languages);
