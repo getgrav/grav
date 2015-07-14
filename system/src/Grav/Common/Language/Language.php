@@ -16,7 +16,7 @@ class Language
     protected $default;
     protected $active = null;
     protected $config;
-    protected $http_accept_langauge;
+    protected $http_accept_language;
 
     /**
      * Constructor
@@ -181,7 +181,7 @@ class Language
                     $this->config->get('system.languages.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
                 }
-                // if still null, try from http_accpept_language header
+                // if still null, try from http_accept_language header
                 if ($this->active === null && $this->config->get('system.languages.http_accept_language')) {
                     $preferred = $this->getBrowserLanguages();
                     foreach ($preferred as $lang) {
@@ -361,7 +361,7 @@ class Language
 
     function getBrowserLanguages($accept_langs = [])
     {
-        if (empty($this->http_accept_langauge)) {
+        if (empty($this->http_accept_language)) {
             if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
                 $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             } else {
@@ -380,9 +380,9 @@ class Language
             arsort($langs);
 
             // no need to undecorate, because we're only interested in the keys
-            $this->http_accept_langauge = array_keys($langs);
+            $this->http_accept_language = array_keys($langs);
         }
-        return $this->http_accept_langauge;
+        return $this->http_accept_language;
     }
 
 }
