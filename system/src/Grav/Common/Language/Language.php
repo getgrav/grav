@@ -278,7 +278,7 @@ class Language
      *
      * @param Array $args first argument is the lookup key value
      *                    other arguments can be passed and replaced in the translation with sprintf syntax
-     * @param null  $languages
+     * @param Array $languages
      *
      * @return string
      */
@@ -286,13 +286,17 @@ class Language
     {
         $lookup = array_shift($args);
 
-        if ($this->enabled() && $lookup) {
-            if (empty($languages)) {
-                if ($this->config->get('system.languages.translations.fallback', true)) {
-                    $languages = $this->getFallbackLanguages();
-                } else {
-                    $languages = (array)$this->getDefault();
+        if ($this->config->get('system.languages.translations', true)) {
+            if ($this->enabled() && $lookup) {
+                if (empty($languages)) {
+                    if ($this->config->get('system.languages.translations.fallback', true)) {
+                        $languages = $this->getFallbackLanguages();
+                    } else {
+                        $languages = (array)$this->getDefault();
+                    }
                 }
+            } else {
+                $languages = ['en'];
             }
 
             foreach ((array)$languages as $lang) {
@@ -313,13 +317,17 @@ class Language
 
     public function translateArray($key, $index, $languages = null)
     {
-        if ($this->enabled() && $key) {
-            if (empty($languages)) {
-                if ($this->config->get('system.languages.translations.fallback', true)) {
-                    $languages = $this->getFallbackLanguages();
-                } else {
-                    $languages = (array)$this->getDefault();
+        if ($this->config->get('system.languages.translations', true)) {
+            if ($this->enabled() && $key) {
+                if (empty($languages)) {
+                    if ($this->config->get('system.languages.translations.fallback', true)) {
+                        $languages = $this->getFallbackLanguages();
+                    } else {
+                        $languages = (array)$this->getDefault();
+                    }
                 }
+            } else {
+                $languages = ['en'];
             }
 
             foreach ((array)$languages as $lang) {

@@ -179,7 +179,7 @@ class Config extends Data
         $this->loadCompiledConfig($this->configLookup, $this->pluginLookup, 'master');
 
         // process languages if supported
-        if ($this->get('system.languages', false)) {
+        if ($this->get('system.languages.translations', true)) {
             $this->languagesLookup = $locator->findResources('languages://');
             $this->loadCompiledLanguages($this->languagesLookup, $this->pluginLookup, 'master');
         }
