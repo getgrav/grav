@@ -445,7 +445,7 @@ class Page
 
             // Handle summary divider
             $delimiter = self::getGrav()['config']->get('site.summary.delimiter', '===');
-            $divider_pos = strpos($this->content, "<p>{$delimiter}</p>");
+            $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
                 $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
