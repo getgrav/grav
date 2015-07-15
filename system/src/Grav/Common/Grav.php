@@ -8,6 +8,7 @@ use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\ErrorServiceProvider;
 use Grav\Common\Service\LoggerServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
+use Grav\Common\Twig\Twig;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;

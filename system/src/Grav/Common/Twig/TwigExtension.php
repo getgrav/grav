@@ -1,10 +1,12 @@
 <?php
-namespace Grav\Common;
+namespace Grav\Common\Twig;
 
+use Grav\Common\Grav;
+use Grav\Common\Inflector;
+use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-
 
 /**
  * The Twig extension adds some filters and functions that are useful for Grav
