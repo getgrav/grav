@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
+use RocketTheme\Toolbox\Event\Event;
 use Grav\Common\Data\Blueprint;
 use Gregwar\Image\Image as ImageFile;
 
@@ -35,6 +36,11 @@ class ImageMedium extends Medium
      * @var boolean
      */
     protected $debug_watermarked = false;
+
+    /**
+     * @var string
+     */
+    public $result;
 
     /**
      * @var array
@@ -375,9 +381,11 @@ class ImageMedium extends Medium
             $this->image->merge(ImageFile::open($overlay));
         }
 
-        $result = $this->image->cacheFile($this->format, $this->quality);
+        $this->result = $this->image->cacheFile($this->format, $this->quality);
 
-        return $result;
+        self::getGrav()->fireEvent('onImageMediumSaved', new Event(['image' => $this]));
+
+        return $this->result;
     }
 
     /**
