@@ -119,24 +119,7 @@ class Page
         $this->url();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
-
-         // Handle publishing dates if no explict published option set
-        if (self::getGrav()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
-            // unpublish if required, if not clear cache right before page should be unpublished
-            if ($this->unpublishDate()) {
-                if ($this->unpublishDate() < time()) {
-                    $this->published(false);
-                } else {
-                    $this->published();
-                    self::getGrav()['cache']->setLifeTime($this->unpublishDate());
-                }
-            }
-            // publish if required, if not clear cache right before page is published
-            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
-                $this->published(false);
-                self::getGrav()['cache']->setLifeTime($this->publishDate());
-            }
-        }
+        $this->setPublishState();
         $this->published();
     }
 
@@ -970,7 +953,8 @@ class Page
 
     /**
      * Gets and Sets whether or not this Page is routable, ie you can reach it
-     * via a URL
+     * via a URL.
+     * The page must be *routable* and *published*
      *
      * @param  bool $var true if the page is routable
      * @return bool      true if the page is routable
@@ -980,7 +964,7 @@ class Page
         if ($var !== null) {
             $this->routable = (bool) $var;
         }
-        return $this->routable;
+        return $this->routable && $this->published();
     }
 
     /**
@@ -1961,5 +1945,24 @@ class Page
         $this->_original = null;
     }
 
-
+    protected function setPublishState()
+    {
+        // Handle publishing dates if no explict published option set
+        if (self::getGrav()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
+            // unpublish if required, if not clear cache right before page should be unpublished
+            if ($this->unpublishDate()) {
+                if ($this->unpublishDate() < time()) {
+                    $this->published(false);
+                } else {
+                    $this->published();
+                    self::getGrav()['cache']->setLifeTime($this->unpublishDate());
+                }
+            }
+            // publish if required, if not clear cache right before page is published
+            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
+                $this->published(false);
+                self::getGrav()['cache']->setLifeTime($this->publishDate());
+            }
+        }
+    }
 }
