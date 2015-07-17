@@ -22,7 +22,8 @@ class ZipBackup
     ];
 
     protected static $ignoreFolders = [
-        '.git'
+        '.git',
+        '.idea'
     ];
 
     public static function backup($destination = null, callable $messager = null)
@@ -97,7 +98,10 @@ class ZipBackup
                 // Remove prefix from file path before add to zip.
                 $localPath = substr($filePath, $exclusiveLength);
 
-                if (in_array($f, static::$ignoreFolders) || in_array($localPath, static::$ignorePaths)) {
+                if (in_array($f, static::$ignoreFolders)) {
+                    continue;
+                } elseif (in_array($localPath, static::$ignorePaths)) {
+                    $zipFile->addEmptyDir($f);
                     continue;
                 }
 
