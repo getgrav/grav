@@ -220,10 +220,7 @@ class Grav extends Container
         $this['pages']->init();
         $this->fireEvent('onPagesInitialized');
         $debugger->stopTimer('pages');
-
-        $debugger->startTimer('pageinit', 'Page Initialized');
         $this->fireEvent('onPageInitialized');
-        $debugger->stopTimer('pageinit');
 
         $debugger->addAssets();
 
