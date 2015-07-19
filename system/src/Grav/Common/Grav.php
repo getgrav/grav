@@ -348,6 +348,11 @@ class Grav extends Container
         if (isset($this['page']->header()->http_response_code)) {
             http_response_code($this['page']->header()->http_response_code);
         }
+
+        // Vary: Accept-Encoding
+        if ($this['config']->get('system.pages.vary_accept_encoding', false)) {
+            header('Vary: Accept-Encoding');
+        }
     }
 
     /**
