@@ -3,3 +3,4 @@
 * force a rebuild, try again
 * another try
 * triggering .30 release again
+* triggering a rebuild with latest plugins and such
