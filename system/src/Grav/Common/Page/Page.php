@@ -106,9 +106,9 @@ class Page
      * Initializes the page instance variables based on a file
      *
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
-     * @return void
+     * @param  string       $extension
      */
-    public function init(\SplFileInfo $file)
+    public function init(\SplFileInfo $file, $extension = null)
     {
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
@@ -121,6 +121,12 @@ class Page
         $this->modularTwig($this->slug[0] == '_');
         $this->setPublishState();
         $this->published();
+
+        if (empty($extension)) {
+            $this->extension($file->getExtension());
+        } else {
+            $this->extension($extension);
+        }
     }
 
     /**
