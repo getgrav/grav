@@ -441,7 +441,17 @@ class Grav extends Container
             }
 
             // unsupported media type, try to download it...
-            $extension = $uri->extension() ?: isset($path_parts['extension']) ? $path_parts['extension'] : null;
+            $uri_extension = $uri->extension();
+            if ($uri_extension) {
+                $extension = $uri_extension;
+            } else {
+                if (isset($path_parts['extension'])) {
+                    $extension = $path_parts['extension'];
+                } else {
+                    $extension = null;
+                }
+            }
+
             if ($extension) {
                 $download = true;
                 if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types'))) {
