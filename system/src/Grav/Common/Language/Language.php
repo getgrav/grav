@@ -321,6 +321,15 @@ class Language
         return '<span class="untranslated">' . $lookup . '</span>';
     }
 
+    /**
+     * Translate Array
+     *
+     * @param      $key
+     * @param      $index
+     * @param null $languages
+     *
+     * @return string
+     */
     public function translateArray($key, $index, $languages = null)
     {
         if ($this->config->get('system.languages.translations', true)) {
@@ -365,7 +374,7 @@ class Language
         return $translation;
     }
 
-    function getBrowserLanguages($accept_langs = [])
+    public function getBrowserLanguages($accept_langs = [])
     {
         if (empty($this->http_accept_language)) {
             if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
