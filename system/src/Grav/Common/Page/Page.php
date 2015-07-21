@@ -123,7 +123,7 @@ class Page
         $this->published();
 
         if (empty($extension)) {
-            $this->extension($file->getExtension());
+            $this->extension('.'.$file->getExtension());
         } else {
             $this->extension($extension);
         }
