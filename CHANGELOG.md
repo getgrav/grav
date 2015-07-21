@@ -1,3 +1,19 @@
+# v0.9.33
+## 07/21/2015
+
+1. [](#new)
+    * Added new `onImageMediumSaved()` event (useful for post-image processing)
+    * Added `Vary: Accept-Encoding` option
+2. [](#improved)
+    * Multilang-safe delimeter position
+    * Refactored Twig classes and added optional umask setting
+    * Removed `pageinit()` timing
+    * `Page->routable()` now takes `published()` state into account
+    * Improved how page extension is set
+    * Support `Language->translate()` method taking string and array
+3. [](#bugfix)
+    * Fixed `backup` command to include empty folders
+
 # v0.9.32
 ## 07/14/2015
 

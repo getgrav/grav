@@ -276,15 +276,21 @@ class Language
     /**
      * Translate a key and possibly arguments into a string using current lang and fallbacks
      *
-     * @param Array $args first argument is the lookup key value
+     * @param $args first argument is the lookup key value
      *                    other arguments can be passed and replaced in the translation with sprintf syntax
      * @param Array $languages
      *
      * @return string
      */
-    public function translate(Array $args, Array $languages = null)
+    public function translate($args, Array $languages = null)
     {
-        $lookup = array_shift($args);
+        if (is_array($args)) {
+            $lookup = array_shift($args);
+        } else {
+            $lookup = $args;
+            $args = [];
+        }
+
 
         if ($this->config->get('system.languages.translations', true)) {
             if ($this->enabled() && $lookup) {
@@ -315,6 +321,15 @@ class Language
         return '<span class="untranslated">' . $lookup . '</span>';
     }
 
+    /**
+     * Translate Array
+     *
+     * @param      $key
+     * @param      $index
+     * @param null $languages
+     *
+     * @return string
+     */
     public function translateArray($key, $index, $languages = null)
     {
         if ($this->config->get('system.languages.translations', true)) {
@@ -359,7 +374,7 @@ class Language
         return $translation;
     }
 
-    function getBrowserLanguages($accept_langs = [])
+    public function getBrowserLanguages($accept_langs = [])
     {
         if (empty($this->http_accept_language)) {
             if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {

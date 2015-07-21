@@ -106,9 +106,9 @@ class Page
      * Initializes the page instance variables based on a file
      *
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
-     * @return void
+     * @param  string       $extension
      */
-    public function init(\SplFileInfo $file)
+    public function init(\SplFileInfo $file, $extension = null)
     {
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
@@ -119,25 +119,14 @@ class Page
         $this->url();
         $this->visible();
         $this->modularTwig($this->slug[0] == '_');
-
-         // Handle publishing dates if no explict published option set
-        if (self::getGrav()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
-            // unpublish if required, if not clear cache right before page should be unpublished
-            if ($this->unpublishDate()) {
-                if ($this->unpublishDate() < time()) {
-                    $this->published(false);
-                } else {
-                    $this->published();
-                    self::getGrav()['cache']->setLifeTime($this->unpublishDate());
-                }
-            }
-            // publish if required, if not clear cache right before page is published
-            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
-                $this->published(false);
-                self::getGrav()['cache']->setLifeTime($this->publishDate());
-            }
-        }
+        $this->setPublishState();
         $this->published();
+
+        if (empty($extension)) {
+            $this->extension('.'.$file->getExtension());
+        } else {
+            $this->extension($extension);
+        }
     }
 
     /**
@@ -445,7 +434,7 @@ class Page
 
             // Handle summary divider
             $delimiter = self::getGrav()['config']->get('site.summary.delimiter', '===');
-            $divider_pos = strpos($this->content, "<p>{$delimiter}</p>");
+            $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
                 $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
@@ -970,7 +959,8 @@ class Page
 
     /**
      * Gets and Sets whether or not this Page is routable, ie you can reach it
-     * via a URL
+     * via a URL.
+     * The page must be *routable* and *published*
      *
      * @param  bool $var true if the page is routable
      * @return bool      true if the page is routable
@@ -980,7 +970,7 @@ class Page
         if ($var !== null) {
             $this->routable = (bool) $var;
         }
-        return $this->routable;
+        return $this->routable && $this->published();
     }
 
     /**
@@ -1961,5 +1951,24 @@ class Page
         $this->_original = null;
     }
 
-
+    protected function setPublishState()
+    {
+        // Handle publishing dates if no explict published option set
+        if (self::getGrav()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
+            // unpublish if required, if not clear cache right before page should be unpublished
+            if ($this->unpublishDate()) {
+                if ($this->unpublishDate() < time()) {
+                    $this->published(false);
+                } else {
+                    $this->published();
+                    self::getGrav()['cache']->setLifeTime($this->unpublishDate());
+                }
+            }
+            // publish if required, if not clear cache right before page is published
+            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
+                $this->published(false);
+                self::getGrav()['cache']->setLifeTime($this->publishDate());
+            }
+        }
+    }
 }

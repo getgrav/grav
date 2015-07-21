@@ -1,6 +1,7 @@
 <?php
-namespace Grav\Common;
+namespace Grav\Common\Twig;
 
+use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -101,9 +102,9 @@ class Twig
                 $params['cache'] = $locator->findResource('cache://twig', true, true);
             }
 
-            $this->twig = new \Twig_Environment($loader_chain, $params);
+            $this->twig = new TwigEnvironment($loader_chain, $params);
             if ($debugger->enabled() && $config->get('system.debugger.twig')) {
-                $this->twig = new \DebugBar\Bridge\Twig\TraceableTwigEnvironment($this->twig);
+                $this->twig = new TraceableTwigEnvironment($this->twig);
                 $collector = new \DebugBar\Bridge\Twig\TwigCollector($this->twig);
                 $debugger->addCollector($collector);
             }

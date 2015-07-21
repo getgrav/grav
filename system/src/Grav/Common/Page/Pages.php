@@ -624,8 +624,7 @@ class Pages
 
         if ($parent && !empty($page_found)) {
             $file = new \SplFileInfo($page_found);
-            $page->init($file);
-            $page->extension($page_extension);
+            $page->init($file, $page_extension);
 
             $content_exists = true;
 
