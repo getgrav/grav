@@ -276,15 +276,21 @@ class Language
     /**
      * Translate a key and possibly arguments into a string using current lang and fallbacks
      *
-     * @param Array $args first argument is the lookup key value
+     * @param $args first argument is the lookup key value
      *                    other arguments can be passed and replaced in the translation with sprintf syntax
      * @param Array $languages
      *
      * @return string
      */
-    public function translate(Array $args, Array $languages = null)
+    public function translate($args, Array $languages = null)
     {
-        $lookup = array_shift($args);
+        if (is_array($args)) {
+            $lookup = array_shift($args);
+        } else {
+            $lookup = $args;
+            $args = [];
+        }
+
 
         if ($this->config->get('system.languages.translations', true)) {
             if ($this->enabled() && $lookup) {
