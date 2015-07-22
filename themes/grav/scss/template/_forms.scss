@@ -83,6 +83,10 @@ form {
         padding: 5px 0;
         font-weight: 400;
         margin:0;
+
+        &.toggleable {
+            display: inline;
+        }
     }
 
     input, select, textarea, button, .selectize-input {
@@ -266,7 +270,7 @@ form {
         }
     }
 
-    .dynfields {
+    .dynfields, [data-grav-field="array"] {
 
         input[type=text] {
             width: 40%;
@@ -332,6 +336,10 @@ form {
             font-size: 1.2rem;
             line-height: 1.5rem;
             text-align: center;
+        }
+
+        &.toggleable label{
+            margin-right: 0;
         }
     }
 }

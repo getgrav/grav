@@ -1,10 +1,5 @@
 {% extends 'partials/base.html.twig' %}
 
-{% block javascripts %}
-    {% do assets.addJs(theme_url~'/js/dynfields/dynfields.js') %}
-    {{ parent() }}
-{% endblock %}
-
 {% block titlebar %}
     <div class="button-bar">
         <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>

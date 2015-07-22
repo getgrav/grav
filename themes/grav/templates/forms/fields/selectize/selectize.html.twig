@@ -1,0 +1,11 @@
+{% extends "forms/field.html.twig" %}
+
+{% block global_attributes %}
+    data-grav-selectize="{{ (field.selectize is defined ? field.selectize|merge({'create': true}) : {'create': true})|json_encode()|e('html_attr') }}"
+    {{ parent() }}
+{% endblock %}
+
+{% block input_attributes %}
+    type="text"
+    {{ parent() }}
+{% endblock %}
