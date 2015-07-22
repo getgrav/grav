@@ -120,10 +120,12 @@ class AdminController
      */
     protected function taskLogin()
     {
+        $l = $this->grav['language'];
+
         if ($this->admin->authenticate($this->post)) {
-            $this->admin->setMessage('You have been logged in.');
+            $this->admin->setMessage($l->translate('LOGIN_LOGGED_IN'));
         } else {
-            $this->admin->setMessage('Login failed.');
+            $this->admin->setMessage($l->translate('LOGIN_FAILED'));
         }
 
         return true;
@@ -136,8 +138,10 @@ class AdminController
      */
     protected function taskLogout()
     {
+        $l = $this->grav['language'];
+
         $this->admin->session()->invalidate()->start();
-        $this->admin->setMessage('You have been logged out.');
+        $this->admin->setMessage($l->translate('LOGGED_OUT'));
         $this->setRedirect('/');
 
         return true;
@@ -145,25 +149,27 @@ class AdminController
 
     protected function taskForgot()
     {
+        $l = $this->grav['language'];
+
         $data = $this->post;
 
         $username = isset($data['username']) ? $data['username'] : '';
         $user = !empty($username) ? User::load($username) : null;
 
         if (!isset($this->grav['Email'])) {
-            $this->admin->setMessage('Cannot reset password. This site is not configured to send emails.');
+            $this->admin->setMessage($l->translate('FORGOT_EMAIL_NOT_CONFIGURED'));
             $this->setRedirect('/');
             return true;
         }
 
         if (!$user || !$user->exists()) {
-            $this->admin->setMessage('User with username \'' . $username . '\' does not exist.');
+            $this->admin->setMessage($l->translate(['FORGOT_USERNAME_DOES_NOT_EXIST', $username]));
             $this->setRedirect('/forgot');
             return true;
         }
 
         if (empty($user->email)) {
-            $this->admin->setMessage('Cannot reset password for \'' . $username . '\', no email address is set.');
+            $this->admin->setMessage($l->translate(['FORGOT_CANNOT_RESET_EMAIL_NO_EMAIL', $username]));
             $this->setRedirect('/forgot');
             return true;
         }
@@ -178,14 +184,14 @@ class AdminController
         $fullname = $user->fullname ?: $username;
         $reset_link = rtrim($this->grav['uri']->rootUrl(true), '/') . '/' . trim($this->admin->base, '/') . '/reset/task:reset/user:' . $username . '/token:' . $token;
 
-        $from = $this->grav['config']->get('site.author.email', 'noreply@getgrav.org');
+        $sitename = $this->grav['config']->get('site.title', 'Website');
+        $from = $this->grav['config']->get('plugins.email.from', 'noreply@getgrav.org');
         $to = $user->email;
-        $subject = $this->grav['config']->get('site.title', 'Website') . ' password reset';
-        $body = $this->grav['twig']->processString('{% include "email/reset.html.twig" %}', [
-            'name' => $fullname,
-            'author' => $author,
-            'reset_link' =>$reset_link
-        ]);
+
+        $subject = $l->translate(['FORGOT_EMAIL_SUBJECT', $sitename]);
+        $content = $l->translate(['FORGOT_EMAIL_BODY', $fullname, $reset_link, $author, $sitename]);
+
+        $body = $this->grav['twig']->processTemplate('email/base.html.twig', ['content' => $content]);
 
         $message = $this->grav['Email']->message($subject, $body, 'text/html')
             ->setFrom($from)
@@ -194,9 +200,9 @@ class AdminController
         $sent = $this->grav['Email']->send($message);
 
         if ($sent < 1) {
-            $this->admin->setMessage('Failed to email instructions, please try again later.');
+            $this->admin->setMessage($l->translate('FORGOT_FAILED_TO_EMAIL'));
         } else {
-            $this->admin->setMessage('Instructions to reset your password have been sent by email.');
+            $this->admin->setMessage($l->translate(['FORGOT_INSTRUCTIONS_SENT_VIA_EMAIL', $to]));
         }
 
         $this->setRedirect('/');
@@ -205,10 +211,11 @@ class AdminController
 
     public function taskReset()
     {
+        $l = $this->grav['language'];
+
         $data = $this->post;
 
         if (isset($data['password'])) {
-
             $username = isset($data['username']) ? $data['username'] : null;
             $user = !empty($username) ? User::load($username) : null;
             $password = isset($data['password']) ? $data['password'] : null;
@@ -218,9 +225,8 @@ class AdminController
                 list($good_token, $expire) = explode('::', $user->reset);
 
                 if ($good_token === $token) {
-
                     if (time() > $expire) {
-                        $this->admin->setMessage('Reset link has expired, please try again.');
+                        $this->admin->setMessage($l->translate('RESET_LINK_EXPIRED'));
                         $this->setRedirect('/forgot');
                         return true;
                     }
@@ -231,13 +237,13 @@ class AdminController
                     $user->password = $password;
                     $user->save();
 
-                    $this->admin->setMessage('Password has been reset.');
+                    $this->admin->setMessage($l->translate('RESET_PASSWORD_RESET'));
                     $this->setRedirect('/');
                     return true;
                 }
             }
 
-            $this->admin->setMessage('Invalid reset link used, please try again.');
+            $this->admin->setMessage($l->translate('RESET_INVALID_LINK'));
             $this->setRedirect('/forgot');
             return true;
 
@@ -246,7 +252,7 @@ class AdminController
             $token = $this->grav['uri']->param('token');
 
             if (empty($user) || empty($token)) {
-                $this->admin->setMessage('Invalid reset link used, please try again.');
+                $this->admin->setMessage($l->translate('RESET_INVALID_LINK'));
                 $this->setRedirect('/forgot');
                 return true;
             }

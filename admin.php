@@ -176,8 +176,6 @@ class AdminPlugin extends Plugin
             $page = new Page;
             $page->init(new \SplFileInfo(__DIR__ . "/pages/admin/{$self->template}.md"));
             $page->slug(basename($self->template));
-            $page->extension('.md');
-
             return $page;
         };
     }
