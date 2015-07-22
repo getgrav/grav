@@ -66,17 +66,21 @@ b, strong {
   .tertiary-accent .button {
     background: #3aafd6; }
 
-.info {
-  background: #9055AF;
-  color: #fff;
+.alert {
   font-size: 1.1rem;
   padding: 1rem 3rem; }
 
+.info {
+  background: #9055AF;
+  color: #fff; }
+
 .notice {
+  background: #2693B7;
+  color: #fff; }
+
+.error {
   background: #DA4B46;
-  color: #fff;
-  font-size: 1.1rem;
-  padding: 1rem 3rem; }
+  color: #fff; }
 
 .badge {
   font-size: 0.9rem;
@@ -783,7 +787,7 @@ tr {
       padding: 1.5rem 3rem; }
       #admin-login form .form-actions button:first-child {
         margin-right: 1rem; }
-  #admin-login .info {
+  #admin-login .alert {
     text-align: center;
     padding: 1rem 3rem; }
 

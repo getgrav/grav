@@ -86,7 +86,7 @@ class AdminController
                 $success = call_user_func(array($this, $method));
             } catch (\RuntimeException $e) {
                 $success = true;
-                $this->admin->setMessage($e->getMessage());
+                $this->admin->setMessage($e->getMessage(), 'error');
             }
 
             // Grab redirect parameter.
@@ -123,9 +123,9 @@ class AdminController
         $l = $this->grav['language'];
 
         if ($this->admin->authenticate($this->post)) {
-            $this->admin->setMessage($l->translate('LOGIN_LOGGED_IN'));
+            $this->admin->setMessage($l->translate('LOGIN_LOGGED_IN'), 'info');
         } else {
-            $this->admin->setMessage($l->translate('LOGIN_FAILED'));
+            $this->admin->setMessage($l->translate('LOGIN_FAILED'), 'error');
         }
 
         return true;
@@ -141,7 +141,7 @@ class AdminController
         $l = $this->grav['language'];
 
         $this->admin->session()->invalidate()->start();
-        $this->admin->setMessage($l->translate('LOGGED_OUT'));
+        $this->admin->setMessage($l->translate('LOGGED_OUT'), 'info');
         $this->setRedirect('/');
 
         return true;
@@ -157,19 +157,19 @@ class AdminController
         $user = !empty($username) ? User::load($username) : null;
 
         if (!isset($this->grav['Email'])) {
-            $this->admin->setMessage($l->translate('FORGOT_EMAIL_NOT_CONFIGURED'));
+            $this->admin->setMessage($l->translate('FORGOT_EMAIL_NOT_CONFIGURED'), 'error');
             $this->setRedirect('/');
             return true;
         }
 
         if (!$user || !$user->exists()) {
-            $this->admin->setMessage($l->translate(['FORGOT_USERNAME_DOES_NOT_EXIST', $username]));
+            $this->admin->setMessage($l->translate(['FORGOT_USERNAME_DOES_NOT_EXIST', $username]), 'error');
             $this->setRedirect('/forgot');
             return true;
         }
 
         if (empty($user->email)) {
-            $this->admin->setMessage($l->translate(['FORGOT_CANNOT_RESET_EMAIL_NO_EMAIL', $username]));
+            $this->admin->setMessage($l->translate(['FORGOT_CANNOT_RESET_EMAIL_NO_EMAIL', $username]), 'error');
             $this->setRedirect('/forgot');
             return true;
         }
@@ -200,9 +200,9 @@ class AdminController
         $sent = $this->grav['Email']->send($message);
 
         if ($sent < 1) {
-            $this->admin->setMessage($l->translate('FORGOT_FAILED_TO_EMAIL'));
+            $this->admin->setMessage($l->translate('FORGOT_FAILED_TO_EMAIL'), 'error');
         } else {
-            $this->admin->setMessage($l->translate(['FORGOT_INSTRUCTIONS_SENT_VIA_EMAIL', $to]));
+            $this->admin->setMessage($l->translate(['FORGOT_INSTRUCTIONS_SENT_VIA_EMAIL', $to]), 'info');
         }
 
         $this->setRedirect('/');
@@ -226,7 +226,7 @@ class AdminController
 
                 if ($good_token === $token) {
                     if (time() > $expire) {
-                        $this->admin->setMessage($l->translate('RESET_LINK_EXPIRED'));
+                        $this->admin->setMessage($l->translate('RESET_LINK_EXPIRED'), 'error');
                         $this->setRedirect('/forgot');
                         return true;
                     }
@@ -237,13 +237,13 @@ class AdminController
                     $user->password = $password;
                     $user->save();
 
-                    $this->admin->setMessage($l->translate('RESET_PASSWORD_RESET'));
+                    $this->admin->setMessage($l->translate('RESET_PASSWORD_RESET'), 'info');
                     $this->setRedirect('/');
                     return true;
                 }
             }
 
-            $this->admin->setMessage($l->translate('RESET_INVALID_LINK'));
+            $this->admin->setMessage($l->translate('RESET_INVALID_LINK'), 'error');
             $this->setRedirect('/forgot');
             return true;
 
@@ -252,7 +252,7 @@ class AdminController
             $token = $this->grav['uri']->param('token');
 
             if (empty($user) || empty($token)) {
-                $this->admin->setMessage($l->translate('RESET_INVALID_LINK'));
+                $this->admin->setMessage($l->translate('RESET_INVALID_LINK'), 'error');
                 $this->setRedirect('/forgot');
                 return true;
             }
@@ -510,7 +510,7 @@ class AdminController
         $this->post = array('enabled' => 1, '_redirect' => 'plugins');
         $obj = $this->prepareData();
         $obj->save();
-        $this->admin->setMessage('Successfully enabled plugin');
+        $this->admin->setMessage('Successfully enabled plugin', 'info');
 
         return true;
     }
@@ -534,7 +534,7 @@ class AdminController
         $this->post = array('enabled' => 0, '_redirect' => 'plugins');
         $obj = $this->prepareData();
         $obj->save();
-        $this->admin->setMessage('Successfully disabled plugin');
+        $this->admin->setMessage('Successfully disabled plugin', 'info');
 
         return true;
     }
@@ -573,7 +573,7 @@ class AdminController
         // TODO: find out why reload and save doesn't always update the object itself (and remove this workaround).
         $config->set('system.pages.theme', $name);
 
-        $this->admin->setMessage('Successfully changed default theme.');
+        $this->admin->setMessage('Successfully changed default theme.', 'info');
 
         return true;
     }
@@ -597,9 +597,9 @@ class AdminController
         $result = \Grav\Plugin\Admin\Gpm::install($package, []);
 
         if ($result) {
-            $this->admin->setMessage("Installation successful.");
+            $this->admin->setMessage("Installation successful.", 'info');
         } else {
-            $this->admin->setMessage("Installation failed.");
+            $this->admin->setMessage("Installation failed.", 'error');
         }
 
         $this->post = array('_redirect' => $this->view . '/' . $this->route);
@@ -652,9 +652,9 @@ class AdminController
 
         } else {
             if ($result) {
-                $this->admin->setMessage("Installation successful.");
+                $this->admin->setMessage("Installation successful.", 'info');
             } else {
-                $this->admin->setMessage("Installation failed.");
+                $this->admin->setMessage("Installation failed.", 'error');
             }
 
             $this->post = array('_redirect' => $this->view . '/' . $this->route);
@@ -682,9 +682,9 @@ class AdminController
         $result = \Grav\Plugin\Admin\Gpm::uninstall($package, []);
 
         if ($result) {
-            $this->admin->setMessage("Uninstall successful.");
+            $this->admin->setMessage("Uninstall successful.", 'info');
         } else {
-            $this->admin->setMessage("Uninstall failed.");
+            $this->admin->setMessage("Uninstall failed.", 'error');
         }
 
         $this->post = array('_redirect' => $this->view);
@@ -732,7 +732,7 @@ class AdminController
             $obj->validate();
             $obj->filter();
             $obj->save();
-            $this->admin->setMessage('Successfully saved');
+            $this->admin->setMessage('Successfully saved', 'info');
         }
 
         if ($this->view != 'pages') {
@@ -836,7 +836,7 @@ class AdminController
             $page->save();
 
             // Enqueue message and redirect to new location.
-            $this->admin->setMessage('Successfully copied');
+            $this->admin->setMessage('Successfully copied', 'info');
             $this->setRedirect($this->view . '/' . $page->route());
 
         } catch (\Exception $e) {
@@ -862,7 +862,7 @@ class AdminController
             return false;
         }
 
-        $this->admin->setMessage('Reordering was successful');
+        $this->admin->setMessage('Reordering was successful', 'info');
         return true;
     }
 
@@ -896,7 +896,7 @@ class AdminController
                 $redirect = 'pages';
             }
 
-            $this->admin->setMessage('Successfully deleted');
+            $this->admin->setMessage('Successfully deleted', 'info');
             $this->setRedirect($redirect);
 
         } catch (\Exception $e) {
@@ -1022,7 +1022,7 @@ class AdminController
             if ($this->grav['uri']->extension() === 'json')
                 $this->admin->json_response = ['status' => 'unauthorized', 'message' => 'You have insufficient permissions for task ' . $task . '.'];
             else
-                $this->admin->setMessage('You have insufficient permissions for task ' . $task . '.');
+                $this->admin->setMessage('You have insufficient permissions for task ' . $task . '.', 'error');
 
             return false;
         }
