@@ -1121,9 +1121,9 @@ tr {
   stroke-width: 20px; }
 .ct-chart .ct-series.ct-series-a .ct-bar {
   stroke: rgba(255, 255, 255, 0.85) !important; }
-.ct-chart .ct-series.ct-series-a .ct-slice.ct-donut {
+.ct-chart .ct-series.ct-series-a .ct-slice-donut {
   stroke: #fff !important; }
-.ct-chart .ct-series.ct-series-b .ct-slice.ct-donut {
+.ct-chart .ct-series.ct-series-b .ct-slice-donut {
   stroke: rgba(255, 255, 255, 0.2) !important; }
 
 #popularity .ct-chart {
