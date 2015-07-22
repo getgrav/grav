@@ -231,10 +231,12 @@ class AdminController
                         return true;
                     }
 
-
                     unset($user->hashed_password);
                     unset($user->reset);
                     $user->password = $password;
+
+                    $user->validate();
+                    $user->filter();
                     $user->save();
 
                     $this->admin->setMessage($l->translate('RESET_PASSWORD_RESET'), 'info');
