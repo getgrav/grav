@@ -28,14 +28,16 @@ class Validation
         // Validate type with fallback type text.
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
+        $name = ucfirst($field['label'] ? $field['label'] : $field['name']);
+        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : 'Invalid input in ' . $name;
+
         if (method_exists(__CLASS__, $method)) {
             $success = self::$method($value, $validate, $field);
         } else {
             $success = self::typeText($value, $validate, $field);
         }
         if (!$success) {
-            $name = $field['label'] ? $field['label'] : $field['name'];
-            throw new \RuntimeException("invalid input in {$name}");
+            throw new \RuntimeException($message);
         }
 
         // Check individual rules
@@ -43,8 +45,9 @@ class Validation
             $method = 'validate'.strtr($rule, '-', '_');
             if (method_exists(__CLASS__, $method)) {
                 $success = self::$method($value, $params);
+
                 if (!$success) {
-                    throw new \RuntimeException('Failed');
+                    throw new \RuntimeException($message);
                 }
             }
         }
