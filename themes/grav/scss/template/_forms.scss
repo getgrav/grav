@@ -210,7 +210,7 @@ form {
         margin: 0;
     }
 
-    input[type=text], input[type=password] {
+    input[type=text], input[type=password], input[type=email] {
         width: 100%;
         border: $form-border-width solid $form-border;
         background: $white;

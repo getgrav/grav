@@ -565,7 +565,7 @@ form select {
   padding: 5px 30px 5px 10px;
   cursor: pointer;
   margin: 0; }
-form input[type=text], form input[type=password] {
+form input[type=text], form input[type=password], form input[type=email] {
   width: 100%;
   border: 1px solid #d4d4d4;
   background: #fff; }
