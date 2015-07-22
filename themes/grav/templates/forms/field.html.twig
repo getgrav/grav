@@ -21,7 +21,7 @@
                 <label class="{{ field.toggleable ? 'toggleable' : '' }}">
                 {% block label %}
                     {% if field.help %}
-                    <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+                    <span class="hint--bottom" data-hint="{{ field.help|e }}">{{ field.label }}</span>
                     {% else %}
                     {{ field.label }}
                     {% endif %}

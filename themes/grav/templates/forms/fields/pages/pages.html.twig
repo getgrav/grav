@@ -1,4 +1,5 @@
-{% set value = (value is null ? field.default : value) %}
+{% extends "forms/field.html.twig" %}
+
 {% set base_depth = 0 %}
 
 {% macro options(field, pages, value, depth) %}
@@ -24,25 +25,21 @@
     {% endfor %}
 {% endmacro %}
 
-<div class="form-field grid pure-g">
-    <div class="form-label block size-1-3 pure-u-1-3">
-        <label>
-            {% if field.help %}
-            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
-            {% else %}
-            {{ field.label }}
-            {% endif %}
-            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
-        </label>
-    </div>
-    <div class="form-data block size-2-3 pure-u-2-3">
-        <div class="form-select-wrapper {{ field.size }}">
-            <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName }}">
+{% block global_attributes %}
+    data-grav-selectize="{{ (field.selectize is defined ? field.selectize : {})|json_encode()|e('html_attr') }}"
+    {{ parent() }}
+{% endblock %}
+
+{% block input %}
+    <div class="form-select-wrapper {{ field.size }}">
+        <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName ~ (field.multiple ? '[]' : '') }}"
                 {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
                 {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
                 {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
-                {{ _self.options(field,pages,value, 0) }}
-            </select>
-        </div>
+                {% if field.multiple in ['on', 'true', 1] %}multiple="multiple"{% endif %}
+                >
+            {{ _self.options(field,pages,value, 0) }}
+        </select>
     </div>
-</div>
+{% endblock %}
+
