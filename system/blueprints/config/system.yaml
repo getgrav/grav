@@ -25,59 +25,53 @@ form:
                     classes: fancy
                     size: medium
                     label: Default Theme
-                    help: "Set the theme (defaults to 'default')"
-
-                pages.markdown.extra:
-                    type: toggle
-                    label: Markdown Extra
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
+                    help: "Set the default theme for Grav to use (default is Antimatter)"
 
                 pages.process:
                     type: checkboxes
                     label: Process
+                    help: "Control how pages are processed. Can be set per-page rather than globally"
                     default: [markdown: true, twig: true]
                     options:
                         markdown: Markdown
                         twig: Twig
                     use: keys
 
+
+
                 pages.dateformat.short:
                     type: select
                     size: medium
                     classes: fancy
                     label: Short Date Format
-                    help: "Set the short date format"
-                    default: 'jS M Y'
+                    help: "Set the short date format that can be used by themes"
+                    default: "jS M Y"
                     options:
-                        'F jS \\a\\t g:ia': "January 1st at 11:59pm"
-                        'l jS of F g:i A': "Monday 1st of January at 11:59 PM"
-                        'D, m M Y G:i:s': "Mon, 01 Jan 2014 23:59:00"
-                        'd-m-y G:i': "01-01-14 23:59"
-                        'jS M Y': "10th Feb 2014"
+                        "F jS \\a\\t g:ia": "January 1st at 11:59pm"
+                        "l jS of F g:i A": "Monday 1st of January at 11:59 PM"
+                        "D, m M Y G:i:s": "Mon, 01 Jan 2014 23:59:00"
+                        "d-m-y G:i": "01-01-14 23:59"
+                        "jS M Y": "10th Feb 2014"
 
                 pages.dateformat.long:
                     type: select
                     size: medium
                     classes: fancy
                     label: Long Date Format
-                    help: "Set the long date format"
+                    help: "Set the long date format that can be used by themes"
                     options:
-                        'F jS \a\t g:ia': "January 1st at 11:59pm"
-                        'l jS of F g:i A': "Monday 1st of January at 11:59 PM"
-                        'D, m M Y G:i:s': "Mon, 01 Jan 2014 23:59:00"
-                        'd-m-y G:i': "01-01-14 23:59"
-                        'jS M Y': "10th Feb 2014"
+                        "F jS \\a\\t g:ia": "January 1st at 11:59pm"
+                        "l jS of F g:i A": "Monday 1st of January at 11:59 PM"
+                        "D, m M Y G:i:s": "Mon, 01 Jan 2014 23:59:00"
+                        "d-m-y G:i": "01-01-14 23:59"
+                        "jS M Y": "10th Feb 2014"
 
                 pages.order.by:
                     type: select
                     size: medium
                     classes: fancy
                     label: Default Ordering
+                    help: "Pages in a list will render using this order unless it is overridden"
                     options:
                         default: Default - based on folder name
                         folder: Folder - based on prefix-less folder name
@@ -89,6 +83,7 @@ form:
                     label: Default Order Direction
                     highlight: asc
                     default: desc
+                    help: "The direction of pages in a list"
                     options:
                         asc: Ascending
                         desc: Descending
@@ -96,15 +91,16 @@ form:
                 pages.list.count:
                     type: text
                     size: x-small
-                    label: Default Item Count
-                    help: "Default max pages count"
+                    label: Default Page Count
+                    help: "Default maximum pages count in a list"
                     validate:
                         type: number
                         min: 1
+
                 pages.publish_dates:
                     type: toggle
                     label: Date-based publishing
-                    help: Automatically (un)publish posts based on their date
+                    help: "Automatically (un)publish posts based on their date"
                     highlight: 1
                     options:
                         1: Yes
@@ -112,28 +108,113 @@ form:
                     validate:
                         type: bool
 
+                pages.events:
+                     type: checkboxes
+                     label: Events
+                     help: "Enable or Disable specific events.  Disabling these can break plugins"
+                     default: [page: true, twig: true]
+                     options:
+                         page: Page Events
+                         twig: Twig Events
+                     use: keys
 
+                pages.redirect_default_route:
+                    type: toggle
+                    label: Redirect Default Route
+                    help: "Automatically redirect to a page's default route"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
 
-        events:
+        http_headers:
             type: section
-            title: Events
+            title: HTTP Headers
             underline: true
 
             fields:
-                pages.events.page:
+                pages.expires:
+                    type: text
+                    size: small
+                    label: Expires
+                    help: "Sets the expires header. The value is in seconds."
+                    validate:
+                        type: number
+                        min: 1
+                pages.last_modified:
                     type: toggle
-                    label: Page events
-                    highlight: 1
+                    label: Last Modified
+                    help: "Sets the last modified header that can help optimize proxy and browser caching"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+                pages.etag:
+                    type: toggle
+                    label: ETag
+                    help: "Sets the etag header to help identify when a page has been modified"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+                pages.vary_accept_encoding:
+                    type: toggle
+                    label: Vary Accept Encoding
+                    help: "Sets the `Vary: Accept Encoding` header to help with proxy and CDN caching"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
                     validate:
                         type: bool
 
-                pages.events.twig:
+        markdown:
+            type: section
+            title: Markdown
+            underline: true
+
+            fields:
+                pages.markdown.extra:
                     type: toggle
-                    label: Twig events
-                    highlight: 1
+                    label: Markdown Extra
+                    help: "Enable default support for Markdown Extra - https://michelf.ca/projects/php-markdown/extra/"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+                pages.markdown.auto_line_breaks:
+                    type: toggle
+                    label: Auto Line Breaks
+                    help: "Enable support for automatic line breaks in markdown"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+                pages.markdown.auto_url_links:
+                    type: toggle
+                    label: Auto URL Links
+                    help: "Enable automatic conversion of URLs into HTML hyperlinks"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+                pages.markdown.escape_markup:
+                    type: toggle
+                    label: Escape Markup
+                    help: "Escape markup tags into HTML entities"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -149,6 +230,7 @@ form:
                 cache.enabled:
                     type: toggle
                     label: Caching
+                    help: "Global ON/OFF switch to enable/disable Grav caching"
                     highlight: 1
                     options:
                         1: Yes
@@ -161,6 +243,7 @@ form:
                     size: small
                     classes: fancy
                     label: Cache Check Method
+                    help: "Select the method that Grav uses to check if page files have been modified."
                     options:
                         file: File
                         folder: Folder
@@ -170,7 +253,8 @@ form:
                     type: select
                     size: small
                     classes: fancy
-                    label: Cache driver
+                    label: Cache Driver
+                    help: "Choose which cache driver Grav should use. 'Auto Detect' attempts to find the best for you"
                     options:
                         auto: Auto detect
                         file: File
@@ -183,37 +267,28 @@ form:
                     type: text
                     size: x-small
                     label: Cache Prefix
+                    help: "An identifier for part of the Grav key.  Don't change unless you know what your doing."
                     placeholder: "Derived from base URL (override by entering random string)"
+
+                cache.lifetime:
+                    type: text
+                    size: small
+                    label: Lifetime
+                    help: "Sets the cache lifetime in seconds. 0 = infinite"
+                    validate:
+                        type: number
 
                 cache.gzip:
                     type: toggle
-                    label: GZIP compression
-                    highlight: 1
+                    label: Gzip Compression
+                    help: "Enable GZip compression of the Grav page for increased performance."
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
                     validate:
                         type: bool
 
-                assets.enable_asset_timestamp:
-                    type: toggle
-                    label: Enable timestamps on assets
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
-
-                media.enable_media_timestamp:
-                    type: toggle
-                    label: Enable timestamps on media
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
 
         twig:
             type: section
@@ -223,7 +298,8 @@ form:
             fields:
                 twig.cache:
                     type: toggle
-                    label: Twig caching
+                    label: Twig Caching
+                    help: "Control the Twig caching mechanism. Leave this enabled for best performance."
                     highlight: 1
                     options:
                         1: Yes
@@ -233,8 +309,9 @@ form:
 
                 twig.debug:
                     type: toggle
-                    label: Twig debug
-                    highlight: 1
+                    label: Twig Debug
+                    help: "Allows the option of not loading the Twig Debugger extension"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -244,6 +321,7 @@ form:
                 twig.auto_reload:
                     type: toggle
                     label: Detect changes
+                    help: "Twig will automatically recompile the Twig cache if it detects any changes in Twig templates"
                     highlight: 1
                     options:
                         1: Yes
@@ -254,7 +332,8 @@ form:
                 twig.autoescape:
                     type: toggle
                     label: Autoescape variables
-                    highlight: 1
+                    help: "Autoescapes all variables.  This will break your site most likely"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -270,7 +349,8 @@ form:
                 assets.css_pipeline:
                     type: toggle
                     label: CSS Pipeline
-                    highlight: 1
+                    help: "The CSS pipeline is the unification of multiple CSS resources into one file"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -280,6 +360,7 @@ form:
                 assets.css_minify:
                     type: toggle
                     label: CSS Minify
+                    help: "Minify the CSS during pipelining"
                     highlight: 1
                     options:
                         1: Yes
@@ -290,7 +371,8 @@ form:
                 assets.css_minify_windows:
                     type: toggle
                     label: CSS Minify Windows Override
-                    highlight: 1
+                    help: "Minify Override for Windows platforms. False by default due to ThreadStackSize"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -300,6 +382,7 @@ form:
                 assets.css_rewrite:
                     type: toggle
                     label: CSS Rewrite
+                    help: "Rewrite any CSS relative URLs during pipelining"
                     highlight: 1
                     options:
                         1: Yes
@@ -310,7 +393,8 @@ form:
                 assets.js_pipeline:
                     type: toggle
                     label: JavaScript Pipeline
-                    highlight: 01
+                    help: "The JS pipeline is the unification of multiple JS resources into one file"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -320,7 +404,19 @@ form:
                 assets.js_minify:
                     type: toggle
                     label: JavaScript Minify
+                    help: "Minify the JS during pipelining"
                     highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                assets.enable_asset_timestamp:
+                    type: toggle
+                    label: Enable timestamps on assets
+                    help: "Enable asset timestamps"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -335,7 +431,8 @@ form:
             fields:
                 errors.display:
                     type: toggle
-                    label: Display errors
+                    label: Display Errors
+                    help: "Display full backtrace-style error page"
                     highlight: 1
                     options:
                         1: Yes
@@ -346,6 +443,7 @@ form:
                 errors.log:
                     type: toggle
                     label: Log errors
+                    help: "Log errors to /logs folder"
                     highlight: 1
                     options:
                         1: Yes
@@ -362,56 +460,18 @@ form:
                 debugger.enabled:
                     type: toggle
                     label: Debugger
-                    highlight: 1
+                    help: "Enable Grav debugger and following settings"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
                     validate:
                         type: bool
 
-                debugger.mode:
-                    type: select
-                    size: small
-                    classes: fancy
-                    label: Mode
-                    options:
-                        detect: Auto-Detect
-                        development: Development
-                        production: Production
-
-                debugger.strict:
+                debugger.twig:
                     type: toggle
-                    label: Strict
-                    highlight: 1
-                    options:
-                        1: Yes
-                        0: No
-                    validate:
-                        type: bool
-
-                debugger.max_depth:
-                    type: select
-                    size: small
-                    classes: fancy
-                    label: Detail Level
-                    placeholder: "How many nested levels to display for objects or arrays"
-                    options:
-                        1: 1 level
-                        2: 2 levels
-                        3: 3 levels
-                        4: 4 levels
-                        5: 5 levels
-                        6: 6 levels
-                        7: 7 levels
-                        8: 8 levels
-                        9: 9 levels
-                        10: 10 levels
-                    validate:
-                        type: number
-
-                debugger.log.enabled:
-                    type: toggle
-                    label: Logging
+                    label: Debug Twig
+                    help: "Enable debugging of Twig templates"
                     highlight: 1
                     options:
                         1: Yes
@@ -422,6 +482,7 @@ form:
                 debugger.shutdown.close_connection:
                     type: toggle
                     label: Shutdown Close Connection
+                    help: "Close the connection before calling onShutdown(). false for debugging"
                     highlight: 1
                     options:
                         1: Yes
@@ -438,6 +499,7 @@ form:
                 images.default_image_quality:
                     type: text
                     label: Default image quality
+                    help: "Default image quality to use when resampling images (85%)"
                     classes: x-small
                     validate:
                         type: number
@@ -447,7 +509,8 @@ form:
                 images.debug:
                     type: toggle
                     label: Image debug watermark
-                    highlight: 1
+                    help: "Show an overlay over images indicating the pixel depth of the image when working with retina for example"
+                    highlight: 0
                     options:
                         1: Yes
                         0: No
@@ -457,9 +520,54 @@ form:
                 media.upload_limit:
                     type: text
                     label: File upload limit
+                    help: "Set maximum upload size in bytes (0 is unlimited)"
                     classes: small
                     validate:
                         type: number
+
+                media.enable_media_timestamp:
+                    type: toggle
+                    label: Enable timestamps on media
+                    help: "Appends a timestamp based on last modified date to each media item"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+        session:
+            type: section
+            title: Session
+            underline: true
+
+            fields:
+                session.enabled:
+                    type: toggle
+                    label: Enabled
+                    help: "Enable session support within Grav"
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                session.timeout:
+                    type: text
+                    size: small
+                    label: Timeout
+                    help: "Sets the session timeout in seconds"
+                    validate:
+                        type: number
+                        min: 1
+
+                session.name:
+                    type: text
+                    size: small
+                    label: Name
+                    help: "An identifier used to form the name of the session cookie"
+
 
         system:
             type: section
@@ -467,10 +575,22 @@ form:
             underline: true
 
             fields:
+                absolute_urls:
+                    type: toggle
+                    label: Absolute URLs
+                    highlight: 0
+                    help: "Absolute or relative URLs for `base_url`"
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
                 timezone:
                     type: select
                     label: Timezone
                     classes: fancy
+                    help: "The default timezone the server is should based time and dates off"
                     @data-options: '\Grav\Common\Utils::timezones'
                     default: ''
                     options:
@@ -480,7 +600,8 @@ form:
                     type: select
                     label: Parameter separator
                     classes: fancy
+                    help: "Separater for passed parameters that can be changed for Apache on Windows"
                     default: ''
                     options:
                         ':': ': (default)'
-                        ';': '; (use this for apache on Windows)'
+                        ';': '; (for Apache running on Windows)'
