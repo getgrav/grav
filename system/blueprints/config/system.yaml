@@ -14,7 +14,7 @@ form:
                     type: pages
                     size: medium
                     classes: fancy
-                    label: Home Page
+                    label: Home page
                     show_all: false
                     show_modular: false
                     show_root: false
@@ -24,7 +24,7 @@ form:
                     type: themeselect
                     classes: fancy
                     size: medium
-                    label: Default Theme
+                    label: Default theme
                     help: "Set the default theme for Grav to use (default is Antimatter)"
 
                 pages.process:
@@ -43,7 +43,7 @@ form:
                     type: select
                     size: medium
                     classes: fancy
-                    label: Short Date Format
+                    label: Short date format
                     help: "Set the short date format that can be used by themes"
                     default: "jS M Y"
                     options:
@@ -57,7 +57,7 @@ form:
                     type: select
                     size: medium
                     classes: fancy
-                    label: Long Date Format
+                    label: Long date format
                     help: "Set the long date format that can be used by themes"
                     options:
                         "F jS \\a\\t g:ia": "January 1st at 11:59pm"
@@ -70,7 +70,7 @@ form:
                     type: select
                     size: medium
                     classes: fancy
-                    label: Default Ordering
+                    label: Default ordering
                     help: "Pages in a list will render using this order unless it is overridden"
                     options:
                         default: Default - based on folder name
@@ -80,7 +80,7 @@ form:
 
                 pages.order.dir:
                     type: toggle
-                    label: Default Order Direction
+                    label: Default order direction
                     highlight: asc
                     default: desc
                     help: "The direction of pages in a list"
@@ -91,7 +91,7 @@ form:
                 pages.list.count:
                     type: text
                     size: x-small
-                    label: Default Page Count
+                    label: Default page count
                     help: "Default maximum pages count in a list"
                     validate:
                         type: number
@@ -120,7 +120,7 @@ form:
 
                 pages.redirect_default_route:
                     type: toggle
-                    label: Redirect Default Route
+                    label: Redirect default route
                     help: "Automatically redirect to a page's default route"
                     highlight: 0
                     options:
@@ -147,8 +147,19 @@ form:
 
                 languages.translations:
                     type: toggle
-                    label: Translations
+                    label: Translations enabled
                     help: "Support translations in Grav, plugins and extensions"
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                languages.translations_fallback:
+                    type: toggle
+                    label: Translations fallback
+                    help: "Fallback through supported translations if active language doesn't exist"
                     highlight: 1
                     options:
                         1: Yes
@@ -158,8 +169,30 @@ form:
 
                 languages.session_store_active:
                     type: toggle
-                    label: Session-
+                    label: Active language in session
                     help: "Support translations in Grav, plugins and extensions"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                languages.home_redirect.include_lang:
+                    type: toggle
+                    label: Home redirect include language
+                    help: "Include language in home redirect (/en)"
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                languages.home_redirect.include_route:
+                    type: toggle
+                    label: Home redirect include route
+                    help: "Include route in home redirect (/blog)"
                     highlight: 0
                     options:
                         1: Yes
@@ -185,7 +218,7 @@ form:
                         min: 1
                 pages.last_modified:
                     type: toggle
-                    label: Last Modified
+                    label: Last modified
                     help: "Sets the last modified header that can help optimize proxy and browser caching"
                     highlight: 0
                     options:
@@ -205,7 +238,7 @@ form:
                         type: bool
                 pages.vary_accept_encoding:
                     type: toggle
-                    label: Vary Accept Encoding
+                    label: Vary accept encoding
                     help: "Sets the `Vary: Accept Encoding` header to help with proxy and CDN caching"
                     highlight: 0
                     options:
@@ -222,7 +255,7 @@ form:
             fields:
                 pages.markdown.extra:
                     type: toggle
-                    label: Markdown Extra
+                    label: Markdown extra
                     help: "Enable default support for Markdown Extra - https://michelf.ca/projects/php-markdown/extra/"
                     highlight: 0
                     options:
@@ -232,7 +265,7 @@ form:
                         type: bool
                 pages.markdown.auto_line_breaks:
                     type: toggle
-                    label: Auto Line Breaks
+                    label: Auto line breaks
                     help: "Enable support for automatic line breaks in markdown"
                     highlight: 0
                     options:
@@ -242,7 +275,7 @@ form:
                         type: bool
                 pages.markdown.auto_url_links:
                     type: toggle
-                    label: Auto URL Links
+                    label: Auto URL links
                     help: "Enable automatic conversion of URLs into HTML hyperlinks"
                     highlight: 0
                     options:
@@ -252,7 +285,7 @@ form:
                         type: bool
                 pages.markdown.escape_markup:
                     type: toggle
-                    label: Escape Markup
+                    label: Escape markup
                     help: "Escape markup tags into HTML entities"
                     highlight: 0
                     options:
@@ -282,7 +315,7 @@ form:
                     type: select
                     size: small
                     classes: fancy
-                    label: Cache Check Method
+                    label: Cache check method
                     help: "Select the method that Grav uses to check if page files have been modified."
                     options:
                         file: File
@@ -293,7 +326,7 @@ form:
                     type: select
                     size: small
                     classes: fancy
-                    label: Cache Driver
+                    label: Cache driver
                     help: "Choose which cache driver Grav should use. 'Auto Detect' attempts to find the best for you"
                     options:
                         auto: Auto detect
@@ -306,7 +339,7 @@ form:
                 cache.prefix:
                     type: text
                     size: x-small
-                    label: Cache Prefix
+                    label: Cache prefix
                     help: "An identifier for part of the Grav key.  Don't change unless you know what your doing."
                     placeholder: "Derived from base URL (override by entering random string)"
 
@@ -320,7 +353,7 @@ form:
 
                 cache.gzip:
                     type: toggle
-                    label: Gzip Compression
+                    label: Gzip compression
                     help: "Enable GZip compression of the Grav page for increased performance."
                     highlight: 0
                     options:
@@ -338,7 +371,7 @@ form:
             fields:
                 twig.cache:
                     type: toggle
-                    label: Twig Caching
+                    label: Twig caching
                     help: "Control the Twig caching mechanism. Leave this enabled for best performance."
                     highlight: 1
                     options:
@@ -349,7 +382,7 @@ form:
 
                 twig.debug:
                     type: toggle
-                    label: Twig Debug
+                    label: Twig debug
                     help: "Allows the option of not loading the Twig Debugger extension"
                     highlight: 0
                     options:
@@ -388,7 +421,7 @@ form:
             fields:
                 assets.css_pipeline:
                     type: toggle
-                    label: CSS Pipeline
+                    label: CSS pipeline
                     help: "The CSS pipeline is the unification of multiple CSS resources into one file"
                     highlight: 0
                     options:
@@ -399,7 +432,7 @@ form:
 
                 assets.css_minify:
                     type: toggle
-                    label: CSS Minify
+                    label: CSS minify
                     help: "Minify the CSS during pipelining"
                     highlight: 1
                     options:
@@ -410,7 +443,7 @@ form:
 
                 assets.css_minify_windows:
                     type: toggle
-                    label: CSS Minify Windows Override
+                    label: CSS minify Windows override
                     help: "Minify Override for Windows platforms. False by default due to ThreadStackSize"
                     highlight: 0
                     options:
@@ -421,7 +454,7 @@ form:
 
                 assets.css_rewrite:
                     type: toggle
-                    label: CSS Rewrite
+                    label: CSS rewrite
                     help: "Rewrite any CSS relative URLs during pipelining"
                     highlight: 1
                     options:
@@ -432,7 +465,7 @@ form:
 
                 assets.js_pipeline:
                     type: toggle
-                    label: JavaScript Pipeline
+                    label: JavaScript pipeline
                     help: "The JS pipeline is the unification of multiple JS resources into one file"
                     highlight: 0
                     options:
@@ -443,7 +476,7 @@ form:
 
                 assets.js_minify:
                     type: toggle
-                    label: JavaScript Minify
+                    label: JavaScript minify
                     help: "Minify the JS during pipelining"
                     highlight: 1
                     options:
@@ -477,7 +510,7 @@ form:
             fields:
                 errors.display:
                     type: toggle
-                    label: Display Errors
+                    label: Display errors
                     help: "Display full backtrace-style error page"
                     highlight: 1
                     options:
@@ -527,7 +560,7 @@ form:
 
                 debugger.shutdown.close_connection:
                     type: toggle
-                    label: Shutdown Close Connection
+                    label: Shutdown close connection
                     help: "Close the connection before calling onShutdown(). false for debugging"
                     highlight: 1
                     options:
