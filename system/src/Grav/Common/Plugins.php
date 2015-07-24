@@ -32,6 +32,8 @@ class Plugins extends Iterator
         $config = self::getGrav()['config'];
         $plugins = (array) $config->get('plugins');
 
+        $inflector = self::getGrav()['inflector'];
+
         /** @var EventDispatcher $events */
         $events = self::getGrav()['events'];
 
@@ -52,7 +54,7 @@ class Plugins extends Iterator
 
             $pluginClassFormat = [
                 'Grav\\Plugin\\'.ucfirst($plugin).'Plugin',
-                'Grav\\Plugin\\'.Inflector::camelize($plugin).'Plugin'
+                'Grav\\Plugin\\'.$inflector->camelize($plugin).'Plugin'
             ];
             $pluginClassName = false;
 

@@ -141,15 +141,16 @@ class Themes extends Iterator
         $locator = $grav['locator'];
         $file = $locator('theme://theme.php') ?: $locator("theme://{$name}.php");
 
+        $inflector = $grav['inflector'];
+
         if ($file) {
             // Local variables available in the file: $grav, $config, $name, $file
             $class = include $file;
 
             if (!is_object($class)) {
-
                 $themeClassFormat = [
                     'Grav\\Theme\\'.ucfirst($name),
-                    'Grav\\Theme\\'.Inflector::camelize($name)
+                    'Grav\\Theme\\'.$inflector->camelize($name)
                 ];
                 $themeClassName = false;
 

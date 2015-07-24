@@ -349,6 +349,8 @@ class GPM extends Iterator
     public function findPackages($searches = [])
     {
         $packages = ['total' => 0, 'not_found' => []];
+        $inflector = $this->grav['inflector'];
+
 
         foreach ($searches as $search) {
             $repository = '';
@@ -380,7 +382,7 @@ class GPM extends Iterator
                 }
 
                 $not_found = new \stdClass();
-                $not_found->name = Inflector::camelize($search);
+                $not_found->name = $inflector->camelize($search);
                 $not_found->slug = $search;
                 $not_found->package_type = $type;
                 $not_found->install_path = str_replace('%name%', $search, $this->install_paths[$type]);
