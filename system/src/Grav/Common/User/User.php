@@ -97,6 +97,10 @@ class User extends Data
      */
     public function authorise($action)
     {
+        if (empty($this->items)) {
+            return false;
+        }
+
         return $this->get("access.{$action}") === true;
     }
 }
