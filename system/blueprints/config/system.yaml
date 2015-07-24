@@ -37,7 +37,15 @@ form:
                         twig: Twig
                     use: keys
 
-
+                timezone:
+                    type: select
+                    label: Timezone
+                    classes: fancy
+                    help: "Override the default timezone the server"
+                    @data-options: '\Grav\Common\Utils::timezones'
+                    default: ''
+                    options:
+                        '': 'Default (Server Timezone)'
 
                 pages.dateformat.short:
                     type: select
@@ -665,15 +673,7 @@ form:
                     validate:
                         type: bool
 
-                timezone:
-                    type: select
-                    label: Timezone
-                    classes: fancy
-                    help: "The default timezone the server is should based time and dates off"
-                    @data-options: '\Grav\Common\Utils::timezones'
-                    default: ''
-                    options:
-                        '': '- None -'
+
 
                 param_sep:
                     type: select
