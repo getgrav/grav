@@ -3,7 +3,8 @@ timezone: ''                           # Valid values: http://php.net/manual/en/
 param_sep: ':'                         # Parameter separator, use ';' for Apache on windows
 
 languages:
-    translations: true                 # Enable translations by default
+  translations: true                   # Enable translations by default
+  supported: []                        # List of languages supported. eg: [en, fr, de]
 
 home:
   alias: '/home'                       # Default path for home, ie /
