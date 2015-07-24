@@ -295,7 +295,7 @@ class Language
         if ($this->config->get('system.languages.translations', true)) {
             if ($this->enabled() && $lookup) {
                 if (empty($languages)) {
-                    if ($this->config->get('system.languages.translations.fallback', true)) {
+                    if ($this->config->get('system.languages.translations_fallback', true)) {
                         $languages = $this->getFallbackLanguages();
                     } else {
                         $languages = (array)$this->getDefault();
@@ -335,7 +335,7 @@ class Language
         if ($this->config->get('system.languages.translations', true)) {
             if ($this->enabled() && $key) {
                 if (empty($languages)) {
-                    if ($this->config->get('system.languages.translations.fallback', true)) {
+                    if ($this->config->get('system.languages.translations_fallback', true)) {
                         $languages = $this->getFallbackLanguages();
                     } else {
                         $languages = (array)$this->getDefault();
