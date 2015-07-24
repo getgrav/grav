@@ -5,7 +5,7 @@ param_sep: ':'                         # Parameter separator, use ';' for Apache
 languages:
   supported: []                        # List of languages supported. eg: [en, fr, de]
   translations: true                   # Enable translations by default
-  translation_fallback: true           # Fallback through supported translations if active lang doesn't exist
+  translations_fallback: true          # Fallback through supported translations if active lang doesn't exist
   session_store_active: false          # Store active language in session
   home_redirect:
     include_lang: true                 # Include language in home redirect (/en)
