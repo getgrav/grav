@@ -87,6 +87,8 @@ class Inflector
     */
     public function singularize($word, $count = 1)
     {
+        $this->init();
+
         if ($count != 1) {
             return $word;
         }
@@ -267,6 +269,8 @@ class Inflector
     */
     public function ordinalize($number)
     {
+        $this->init();
+        
         if (in_array(($number % 100), range(11, 13))) {
             return $number.$this->ordinals['default'];
         } else {
