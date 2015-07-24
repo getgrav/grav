@@ -1,6 +1,8 @@
 enabled: true
 route: '/admin'
 theme: grav
+dashboard:
+  days_of_stats: 7
 login:
   enabled: true
   route: null
@@ -11,6 +13,6 @@ popularity:
   enabled: true
   ignore: ['/test*','/modular']
   history:
-    daily: 7
+    daily: 30
     monthly: 12
     visitors: 20

@@ -23,7 +23,7 @@
     };
 
     SelectizeField.getTypes = function () {
-        return [ 'selectize', 'select' ];
+        return [ 'selectize', 'select'];
     };
 
     SelectizeField.prototype.valid = function() {

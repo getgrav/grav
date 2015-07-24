@@ -1,7 +1,5 @@
 {% extends "forms/field.html.twig" %}
 
-{% set base_depth = 0 %}
-
 {% macro options(field, pages, value, depth) %}
 
     {% if field.show_root and depth == 0 %}
@@ -27,7 +25,9 @@
 
 {% block global_attributes %}
     data-grav-selectize="{{ (field.selectize is defined ? field.selectize : {})|json_encode()|e('html_attr') }}"
-    {{ parent() }}
+    data-grav-field="select"
+    data-grav-disabled="{{ originalValue is null ? 'true' : 'false' }}"
+    data-grav-default="{{ field.default|json_encode()|e('html_attr') }}"
 {% endblock %}
 
 {% block input %}

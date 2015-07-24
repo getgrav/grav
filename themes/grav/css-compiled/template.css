@@ -1127,7 +1127,9 @@ tr {
   stroke: rgba(255, 255, 255, 0.2) !important; }
 
 #popularity .ct-chart {
-  margin-top: -10px; }
+  margin: 0 -10px -10px; }
+  #popularity .ct-chart .ct-chart-bar {
+    padding: 10px; }
 
 .pages-list {
   list-style: none;

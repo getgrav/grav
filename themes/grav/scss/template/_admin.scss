@@ -481,6 +481,7 @@ $update-height: 3rem;
 
 // Chart overrides
 .ct-chart {
+
     .ct-series {
         .ct-bar {
             stroke-width: 20px;
@@ -505,7 +506,10 @@ $update-height: 3rem;
 }
 
 #popularity .ct-chart {
-    margin-top: -10px;
+    margin: 0 -10px -10px;
+    .ct-chart-bar {
+        padding: 10px;
+    }
 }
 
 // Remodal Styling

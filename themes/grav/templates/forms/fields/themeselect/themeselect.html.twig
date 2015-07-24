@@ -1,21 +1,18 @@
-{% extends "forms/field.html.twig" %}
+{% set value = config.system.pages.theme %}
+{% set options = {} %}
 
-{% block input %}
-    <div class="form-select-wrapper {{ field.size }}">
-        <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName ~ (field.multiple ? '[]' : '') }}"
-                {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
-                {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
-                {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
-                {% if field.multiple in ['on', 'true', 1] %}multiple="multiple"{% endif %}
-                >
-            {% for slug, package in admin.themes %}
-                {% set theme = package.toArray() %}
-                <option
-                        {% if config.system.pages.theme == slug %}selected="selected"{% endif %}
-                        value="{{ slug }}">
-                    {{ theme.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-{% endblock %}
+{% for slug, package in admin.themes %}
+    {% set option = {(slug): package.toArray().name} %}
+    {% set options = options|merge(option) %}
+{% endfor  %}
+
+{% set field = {
+    type: 'select',
+    classes: 'fancy',
+    label: field.label,
+    name: field.name,
+    options: options
+} %}
+
+{% include ['forms/fields/select/select.html.twig'] %}
+
