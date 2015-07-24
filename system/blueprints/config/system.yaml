@@ -129,6 +129,46 @@ form:
                     validate:
                         type: bool
 
+        languages:
+            type: section
+            title: Languages
+            underline: true
+
+            fields:
+
+                languages.supported:
+                    type: text
+                    size: large
+                    label: Supported
+                    help: "Comma separated list of 2 letter language codes (for example 'en,fr,de')"
+                    classes: fancy
+                    validate:
+                        type: commalist
+
+                languages.translations:
+                    type: toggle
+                    label: Translations
+                    help: "Support translations in Grav, plugins and extensions"
+                    highlight: 1
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+                languages.session_store_active:
+                    type: toggle
+                    label: Session-
+                    help: "Support translations in Grav, plugins and extensions"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
+
+
+
         http_headers:
             type: section
             title: HTTP Headers
@@ -423,6 +463,12 @@ form:
                     validate:
                         type: bool
 
+                assets.collections:
+                    type: array
+                    label: Collections
+                    placeholder_key: collection_name
+                    placeholder_value: collection_path
+
         errors:
             type: section
             title: Error handler
@@ -569,9 +615,9 @@ form:
                     help: "An identifier used to form the name of the session cookie"
 
 
-        system:
+        advanced:
             type: section
-            title: System
+            title: Advanced
             underline: true
 
             fields:
