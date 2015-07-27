@@ -22,7 +22,6 @@ $(function(){
             jqxhr = $.ajax(settings);
 
         jqxhr.done(function (response, status, xhr) {
-
             var responseObject = {
                 response: response,
                 status: status,
@@ -61,12 +60,13 @@ $(function(){
             root.GravAjax.errorHandler(deferred, callbacks, { xhr: xhr, status: status, response: response});
         });
 
+        root.GravAjax.jqxhr = jqxhr;
+
         return deferred;
 
     };
 
     root.GravAjax.successHandler = function (promise, callbacks, response) {
-
         callbacks = callbacks.success;
         for (var i = 0; i < callbacks.length; i++) {
             if (typeof callbacks[i] === 'function') {
@@ -78,7 +78,6 @@ $(function(){
     };
 
     root.GravAjax.errorHandler = function (promise, callbacks, response) {
-
         callbacks = callbacks.error;
         for (var i = 0; i < callbacks.length; i++) {
             if (typeof callbacks[i] === 'function') {
@@ -90,6 +89,8 @@ $(function(){
     };
 
     root.GravAjax.toastErrorHandler = function (xhr, status, error) {
-        toastr.error(error);
+        if (status !== 'abort') {
+            toastr.error(error);
+        }
     };
 });
