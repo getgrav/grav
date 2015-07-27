@@ -1214,6 +1214,12 @@ tr {
       top: 10px;
       content: '\f002';
       font-family: 'FontAwesome'; }
+  #page-filtering .page-shortcuts {
+    clear: both; }
+    #page-filtering .page-shortcuts:after {
+      content: "";
+      display: table;
+      clear: both; }
   #page-filtering .selectize-control.multi .selectize-input {
     padding: 0.425rem 0.425rem; }
     #page-filtering .selectize-control.multi .selectize-input.has-items {

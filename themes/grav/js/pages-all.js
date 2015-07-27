@@ -188,6 +188,12 @@ $(function(){
         sessionStorage.setItem('grav:admin:pages', JSON.stringify(storage));
     });
 
+    $('[data-page-toggleall]').on('click', function() {
+        var state = $(this).data('page-toggleall');
+        if (state == 'collapse') collapseAll(true);
+        else expandAll(true);
+    });
+
     var currentValues = getState(),
         clickedLink;
 

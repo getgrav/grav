@@ -135,6 +135,10 @@
             <div class="page-search">
                 <input type="text" placeholder="Search Pages" name="page-search" />
             </div>
+            <div class="page-shortcuts">
+                <span class="button button-small" data-page-toggleall="expand"><i class="fa fa-fw fa-plus-circle"></i> Expand All</span>
+                <span class="button button-small" data-page-toggleall="collapse"><i class="fa fa-fw fa-minus-circle"></i> Collapse All</span>
+            </div>
         </form>
         <ul class="pages-list depth-0">
             {{ _self.loop(pages, base_url_relative, 0, warn) }}

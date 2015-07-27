@@ -121,6 +121,11 @@
         }
     }
 
+    .page-shortcuts {
+        @include clearfix;
+        clear: both;
+    }
+
     .selectize-control.multi .selectize-input {
 
         padding: ($leading-margin / 4) ($leading-margin / 4);
