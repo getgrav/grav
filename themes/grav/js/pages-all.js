@@ -22,8 +22,62 @@ $(function(){
             {flag: 'Modular'},
             {flag: 'Visible'},
             {flag: 'Routable'}
-        ],
+        ]
     });
+
+
+    var childrenToggles = $('[data-toggle="children"]'),
+        storage = sessionStorage.getItem('grav:admin:pages'),
+        collapseAll = function(store) {
+            childrenToggles.each(function(i, element){
+                var icon = $(element).find('.page-icon'),
+                    open = icon.hasClass('children-open'),
+                    key = $(element).closest('[data-nav-id]').data('nav-id'),
+                    children = $(element).closest('li.page-item').find('ul:first');
+
+                if (open) {
+                    children.hide();
+                    if (store) delete storage[key];
+                    icon.removeClass('children-open').addClass('children-closed');
+                }
+
+                if (store) sessionStorage.setItem('grav:admin:pages', JSON.stringify(storage));
+            });
+        },
+        expandAll = function(store) {
+            childrenToggles.each(function(i, element){
+                var icon = $(element).find('.page-icon'),
+                    open = icon.hasClass('children-open'),
+                    key = $(element).closest('[data-nav-id]').data('nav-id'),
+                    children = $(element).closest('li.page-item').find('ul:first');
+
+                if (!open) {
+                    children.show();
+                    if (store) storage[key] = 1;
+                    icon.removeClass('children-closed').addClass('children-open');
+                }
+
+                if (store) sessionStorage.setItem('grav:admin:pages', JSON.stringify(storage));
+            });
+        },
+        restoreStates = function() {
+            collapseAll();
+            for (var key in storage) {
+                var element = $('[data-nav-id="' + key + '"]'),
+                    icon = element.find('.page-icon').first(),
+                    open = icon.hasClass('children-open'),
+                    children = element.closest('li.page-item').find('ul:first');
+
+                children.show();
+                icon.removeClass('children-closed').addClass('children-open');
+            }
+        };
+
+    if (!storage) {
+        sessionStorage.setItem('grav:admin:pages', (storage = '{}'));
+    }
+
+    storage = JSON.parse(storage);
 
     var startFilterPages = function () {
 
@@ -32,6 +86,7 @@ $(function(){
             query = $('input[name="page-search"]').val();
 
         if (!flags.length && !query.length) {
+            GravAjax.jqxhr.abort();
             return finishFilterPages([], true);
         }
 
@@ -57,12 +112,24 @@ $(function(){
 
         if (reset) {
             items.addClass('search-match');
+            restoreStates();
         } else {
             pages.forEach(function (id) {
-                var match = items.filter('[data-nav-id="' + id + '"]');
+                var match = items.filter('[data-nav-id="' + id + '"]'),
+                    parents = match.parents('[data-nav-id]');
                 match.addClass('search-match');
                 match.find('[data-nav-id]').addClass('search-match');
-                match.parents('[data-nav-id]').addClass('search-match');
+                parents.addClass('search-match');
+                parents.find('[data-toggle="children"]').each(function(index, element){
+                    var icon = $(this).find('.page-icon'),
+                        open = icon.hasClass('children-open'),
+                        children = $(this).closest('li.page-item').find('ul:first');
+
+                    if (!open) {
+                        children.show();
+                        icon.removeClass('children-closed').addClass('children-open');
+                    }
+                });
             });
         }
 
@@ -86,7 +153,8 @@ $(function(){
     $('input[name="folder"]').on('input', function(){
         $(this).data('user-custom-folder', true);
         if (!$(this).val()) $(this).data('user-custom-folder', false);
-    })
+    });
+
     $('input[name="title"]').on('input', function(e){
         if (!$('input[name="folder"]').data('user-custom-folder')) {
             folder = $(this).val().toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9_\-]/g, '');
@@ -99,18 +167,23 @@ $(function(){
         $(this).val(value);
     });
 
-    $('[data-toggle="children"]').on('click', function () {
+    childrenToggles.on('click', function () {
         var icon = $(this).find('.page-icon'),
             open = icon.hasClass('children-open'),
+            key = $(this).closest('[data-nav-id]').data('nav-id'),
             children = $(this).closest('li.page-item').find('ul:first');
 
         if (open) {
             children.hide();
+            delete storage[key];
             icon.removeClass('children-open').addClass('children-closed');
         } else {
             children.show();
+            storage[key] = true;
             icon.removeClass('children-closed').addClass('children-open');
         }
+
+        sessionStorage.setItem('grav:admin:pages', JSON.stringify(storage));
     });
 
     var currentValues = getState(),
