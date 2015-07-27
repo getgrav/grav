@@ -1,0 +1,19 @@
+{% set taxonomies = (taxonomies is null ? admin.data('site').taxonomies : taxonomies) %}
+{% set parentname = field.name %}
+{% for name in taxonomies %}
+
+    {% set value = data.value('header.taxonomy.' ~ name) %}
+    {% set field = {
+        type: 'select',
+        classes: 'fancy create',
+        label: name|capitalize,
+        name: parentname ~ '.' ~ name,
+        multiple: true,
+        options: value,
+        selectize: {
+            create: true
+        }
+    } %}
+
+    {% include ['forms/fields/select/select.html.twig'] %}
+{% endfor %}

@@ -22,6 +22,9 @@
         {% do assets.addCss(theme_url~'/css/chartist.min.css') %}
         {% do assets.addCss(theme_url~'/css/selectize.min.css') %}
         {% do assets.addCss(theme_url~'/css/hint.base.min.css') %}
+        {% do assets.addCss(theme_url~'/css/datepicker/kendo.common.core.min.css') %}
+        {% do assets.addCss(theme_url~'/css/datepicker/kendo.flat.min.css') %}
+        {% do assets.addCss(theme_url~'/css/datepicker/grav.overrides.css') %}
         {% if browser.getBrowser == 'msie' and browser.getVersion >= 8 and browser.getVersion <= 9 %}
             {% do assets.addCss(theme_url~'/css/nucleus-ie9.css') %}
             {% do assets.addCss(theme_url~'/css/pure-0.5.0/grids-min.css') %}
@@ -38,7 +41,16 @@
         {% do assets.addJs(theme_url~'/js/toastr.min.js') %}
         {% do assets.addJs(theme_url~'/js/jquery.remodal.min.js') %}
         {% do assets.addJs(theme_url~'/js/ajax.js') %}
+
         {% do assets.addJs(theme_url~'/js/admin-all.js') %}
+
+        {% do assets.addJs(theme_url~'/js/forms/form.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/input.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/array.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/selectize.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/checkboxes.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/toggle.js') %}
+        {% do assets.addJs(theme_url~'/js/forms.js') %}
         {{ assets.js() }}
     {% endblock %}
 {% endblock %}

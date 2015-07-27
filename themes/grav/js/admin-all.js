@@ -5,21 +5,33 @@ $(function () {
         });
     };
 
-    // selectize
-    $('select.fancy').selectize({
-        createOnBlur: true
-    });
+    // // selectize
+    // $('select.fancy:not(.create)').selectize({
+    //     createOnBlur: true,
+    // });
 
-    $('input.fancy').selectize({
-        delimiter: ',',
-        persist:   false,
-        create:    function (input) {
-            return {
-                value: input,
-                text:  input
-            }
-        }
-    });
+    // // selectize with create
+    // $('select.fancy.create').selectize({
+    //     createOnBlur: true,
+    //     persist:   false,
+    //     create:    function (input) {
+    //         return {
+    //             value: input,
+    //             text:  input
+    //         }
+    //     }
+    // });
+
+    // $('input.fancy').selectize({
+    //     delimiter: ',',
+    //     persist:   false,
+    //     create:    function (input) {
+    //         return {
+    //             value: input,
+    //             text:  input
+    //         }
+    //     }
+    // });
 
     // Set Toastr defaults
     toastr.options = {
@@ -58,14 +70,11 @@ $(function () {
         GravAjax({
             dataType: "json",
             url: url,
+            toastErrors: true,
             success: function(result, status) {
-                if (result.status == 'success') {
-                    toastr.success(result.message);
-                } else {
-                    toastr.error(result.message);
-                }
+                toastr.success(result.message);
             }
-        }).complete(function() {
+        }).always(function() {
             $('[data-clear-cache]').removeAttr('disabled').find('> .fa').removeClass('fa-refresh fa-spin').addClass('fa-trash');
         });
     });
@@ -79,14 +88,11 @@ $(function () {
         GravAjax({
             dataType: "json",
             url: url,
+            toastErrors: true,
             success: function(result, status) {
-                if (result.status == 'success') {
-                    toastr.success(result.message);
-                } else {
-                    toastr.error(result.message);
-                }
+                toastr.success(result.message);
             }
-        }).complete(function() {
+        }).always(function() {
             GPMRefresh();
             $('[data-maintenance-update]').removeAttr('disabled').find('> .fa').removeClass('fa-refresh fa-spin').addClass('fa-cloud-download');
         });
@@ -120,6 +126,7 @@ $(function () {
         GravAjax({
             dataType: "json",
             url: url,
+            toastErrors: true,
             success: function(result, status) {
 
                 var toastrBackup = {};
@@ -131,18 +138,14 @@ $(function () {
                     }
                 }
 
-                if (result.status == 'success') {
-                    toastr.success(result.message || 'Task completed.');
-                } else {
-                    toastr.error(result.message || 'Something went terribly wrong.');
-                }
+                toastr.success(result.message || 'Task completed.');
 
                 for (var setting in toastrBackup) { if (toastrBackup.hasOwnProperty(setting)) {
                         toastr.options[setting] = toastrBackup[setting];
                     }
                 }
             }
-        }).complete(function() {
+        }).always(function() {
             // Restore button
             button.removeAttr('disabled');
             icon.removeClass('fa-refresh fa-spin').addClass(iconClasses.join(' '));
@@ -158,11 +161,8 @@ $(function () {
                 task:   'GPM',
                 action: 'getUpdates'
             },
+            toastErrors: true,
             success: function (response) {
-                if (!response.success) {
-                    throw new Error(response.message);
-                }
-
                 var grav = response.payload.grav,
                     installed = response.payload.installed,
                     resources = response.payload.resources;
@@ -260,4 +260,67 @@ $(function () {
         });
     };
     GPMRefresh();
+
+    function reIndex (collection) {
+        var holder = collection.find('[data-collection-holder]'),
+            addBtn = collection.find('[data-action="add"]'),
+            prefix = holder.data('collection-holder'),
+            index = 0;
+
+        holder.find('[data-collection-item]').each(function () {
+            var item = $(this),
+                currentIndex = item.attr('data-collection-key');
+
+            if (index != currentIndex) {
+                var r = new RegExp('^' + prefix.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") + '[\.\[]' + currentIndex);
+
+                item.attr('data-collection-item', item.attr('data-collection-item').replace(r, prefix + '.' + index));
+                item.attr('data-collection-key', index);
+                item.find('[name]').each(function () {
+                    $(this).attr('name', $(this).attr('name').replace(r, prefix + '[' + index));
+                });
+            }
+
+            index++;
+        });
+
+        addBtn.data('key-index', index);
+    }
+
+    $('[data-type="collection"]').each(function () {
+        var el = $(this),
+            holder = el.find('[data-collection-holder]'),
+            config = el.find('[data-collection-config]'),
+            isArray = config.data('collection-array'),
+            template = el.find('[data-collection-template="new"]').html();
+
+        // make sortable
+        new Sortable(holder[0], { onUpdate: function () {
+            if (isArray)
+                reIndex(el);
+        } });
+
+        // hook up delete
+        el.on('click', '[data-action="delete"]', function (e) {
+            $(this).closest('[data-collection-item]').remove();
+            if (isArray)
+                reIndex(el);
+        });
+
+        // hook up add
+        el.find('[data-action="add"]').on('click', function (e) {
+            var button = $(this),
+                key = button.data('key-index'),
+                newItem = $(template);
+
+            newItem.attr('data-collection-item', newItem.attr('data-collection-item').replace('*', key));
+            newItem.attr('data-collection-key', key);
+            newItem.find('[name]').each(function () {
+                $(this).attr('name', $(this).attr('name').replace('*', key));
+            });
+
+            holder.append(newItem);
+            button.data('key-index', ++key);
+        });
+    });
 });

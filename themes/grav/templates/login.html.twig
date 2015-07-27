@@ -1,15 +1,7 @@
-{% extends 'partials/base.html.twig' %}
+{% embed 'partials/login.html.twig' with {title:'Grav Login'} %}
 
-{% block page %}
-    <section id="admin-login" class="default-glow-shadow">
-        <h1>
-            Grav Login
-        </h1>
-
-        {% include 'partials/messages.html.twig' %}
-
-        <form method="post" action="{{ base_url_relative }}">
-            {% for field in page.header.form.fields %}
+    {% block form %}
+        {% for field in page.header.form.fields %}
                 {% if field.type %}
                     <div>
                         {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
@@ -17,10 +9,10 @@
                 {% endif %}
             {% endfor %}
             <div class="form-actions secondary-accent">
-                <a class="button secondary" href="{{ base_url_relative }}/forgot"><i class="fa fa-exclamation-circle"></i> Forgot</a>
-                <button type="submit" class="button primary" name="task" value="login"><i class="fa fa-sign-in"></i> Login</button>
+                <a class="button secondary" href="{{ base_url_relative }}/forgot"><i class="fa fa-exclamation-circle"></i> {{ 'LOGIN_BTN_FORGOT'|t }}</a>
+                <button type="submit" class="button primary" name="task" value="login"><i class="fa fa-sign-in"></i> {{ 'LOGIN_BTN'|t }}</button>
             </div>
-        </form>
-    </section>
-{% endblock %}
+    {% endblock %}
+
+{% endembed %}
 

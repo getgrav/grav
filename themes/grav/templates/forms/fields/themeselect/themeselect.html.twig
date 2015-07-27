@@ -1,32 +1,18 @@
-{% set value = (value is null ? field.default : value) %}
+{% set value = config.system.pages.theme %}
+{% set options = {} %}
 
-<div class="form-field grid pure-g">
-    <div class="form-label block size-1-3 pure-u-1-3">
-        <label>
-            {% if field.help %}
-            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
-            {% else %}
-            {{ field.label }}
-            {% endif %}
-            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
-        </label>
-    </div>
-    <div class="form-data block size-2-3 pure-u-2-3">
-        <div class="form-select-wrapper {{ field.size }}">
-            <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName }}"
-                    {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
-                    {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
-                    {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
-                    >
-                {% for slug, package in admin.themes %}
-                {% set theme = package.toArray() %}
-                <option
-                    {% if config.system.pages.theme == slug %}selected="selected"{% endif %}
-                    value="{{ slug }}">
-                    {{ theme.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-</div>
+{% for slug, package in admin.themes %}
+    {% set option = {(slug): package.toArray().name} %}
+    {% set options = options|merge(option) %}
+{% endfor  %}
+
+{% set field = {
+    type: 'select',
+    classes: 'fancy',
+    label: field.label,
+    name: field.name,
+    options: options
+} %}
+
+{% include ['forms/fields/select/select.html.twig'] %}
+

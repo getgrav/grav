@@ -1,0 +1,19 @@
+en:
+  EMAIL_FOOTER: <a href="http://getgrav.org">Powered by Grav</a> - The Modern Flat File CMS
+  LOGIN_BTN: Login
+  LOGIN_BTN_FORGOT: Forgot
+  LOGIN_BTN_RESET: Reset Password
+  LOGIN_BTN_SEND_INSTRUCTIONS: Send Reset Instructions
+  LOGIN_LOGGED_IN: You have been logged in
+  LOGIN_FAILED: Login failed
+  LOGGED_OUT: You have been logged out
+  RESET_LINK_EXPIRED: Reset link has expired, please try again
+  RESET_PASSWORD_RESET: Password has been reset
+  RESET_INVALID_LINK: Invalid reset link used, please try again
+  FORGOT_INSTRUCTIONS_SENT_VIA_EMAIL: Instructions to reset your password have been sent via email to %s
+  FORGOT_FAILED_TO_EMAIL: Failed to email instructions, please try again later
+  FORGOT_CANNOT_RESET_EMAIL_NO_EMAIL: Cannot reset password for %s, no email address is set
+  FORGOT_USERNAME_DOES_NOT_EXIST: User with username <b>%s</b> does not exist
+  FORGOT_EMAIL_NOT_CONFIGURED: Cannot reset password. This site is not configured to send emails
+  FORGOT_EMAIL_SUBJECT: %s Password Reset Request
+  FORGOT_EMAIL_BODY: <h1>Password Reset</h1><p>Dear %1$s,</p><p>A request was made on <b>%4$s</b> to reset your password.</p><p><br /><a href="%2$s" class="btn-primary">Click this to reset your password</a><br /><br /></p><p>Alternatively, copy the following URL into your browser's address bar:</p> <p>%2$s</p><p><br />Kind regards,<br /><br />%3$s</p>

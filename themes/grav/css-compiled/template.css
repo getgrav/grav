@@ -66,17 +66,21 @@ b, strong {
   .tertiary-accent .button {
     background: #3aafd6; }
 
-.info {
-  background: #9055AF;
-  color: #fff;
+.alert {
   font-size: 1.1rem;
   padding: 1rem 3rem; }
 
+.info {
+  background: #9055AF;
+  color: #fff; }
+
 .notice {
+  background: #2693B7;
+  color: #fff; }
+
+.error {
   background: #DA4B46;
-  color: #fff;
-  font-size: 1.1rem;
-  padding: 1rem 3rem; }
+  color: #fff; }
 
 .badge {
   font-size: 0.9rem;
@@ -491,6 +495,8 @@ form label {
   padding: 5px 0;
   font-weight: 400;
   margin: 0; }
+  form label.toggleable {
+    display: inline; }
 form input, form select, form textarea, form button, form .selectize-input {
   font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
   font-size: 1rem;
@@ -565,7 +571,7 @@ form select {
   padding: 5px 30px 5px 10px;
   cursor: pointer;
   margin: 0; }
-form input[type=text], form input[type=password] {
+form input[type=text], form input[type=password], form input[type=email] {
   width: 100%;
   border: 1px solid #d4d4d4;
   background: #fff; }
@@ -583,13 +589,13 @@ form .switch-toggle label {
   cursor: pointer; }
 form .switch-toggle a, form .switch-toggle label {
   outline: none !important; }
-form .dynfields input[type=text] {
+form .dynfields input[type=text], form [data-grav-field="array"] input[type=text] {
   width: 40%;
   float: left;
   margin: 0 5px 5px 0; }
-form .dynfields .form-row {
+form .dynfields .form-row, form [data-grav-field="array"] .form-row {
   display: inline-block; }
-  form .dynfields .form-row span {
+  form .dynfields .form-row span, form [data-grav-field="array"] .form-row span {
     padding: 0.5rem;
     display: inline-block;
     line-height: 1.7;
@@ -631,6 +637,8 @@ form .checkboxes {
     font-size: 1.2rem;
     line-height: 1.5rem;
     text-align: center; }
+  form .checkboxes.toggleable label {
+    margin-right: 0; }
 
 .form-frontmatter-wrapper {
   margin-bottom: 3rem; }
@@ -666,6 +674,30 @@ form .checkboxes {
         font-family: FontAwesome;
         position: absolute;
         right: 10px; }
+
+.form-list-wrapper ul[data-collection-holder] {
+  list-style: none;
+  margin: 0;
+  padding: 0; }
+  .form-list-wrapper ul[data-collection-holder] li {
+    cursor: move;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #d4d4d4;
+    background: #f8f8f8;
+    color: #8d959a;
+    margin: 3px 0;
+    position: relative;
+    font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+    .form-list-wrapper ul[data-collection-holder] li .item-actions {
+      position: absolute;
+      right: 10px;
+      top: 4px;
+      color: #5b6266; }
+      .form-list-wrapper ul[data-collection-holder] li .item-actions .fa-trash-o {
+        cursor: pointer; }
+.form-list-wrapper .collection-actions {
+  text-align: right; }
 
 td {
   border: 0;
@@ -755,7 +787,7 @@ tr {
       padding: 1.5rem 3rem; }
       #admin-login form .form-actions button:first-child {
         margin-right: 1rem; }
-  #admin-login .info {
+  #admin-login .alert {
     text-align: center;
     padding: 1rem 3rem; }
 
@@ -1089,13 +1121,15 @@ tr {
   stroke-width: 20px; }
 .ct-chart .ct-series.ct-series-a .ct-bar {
   stroke: rgba(255, 255, 255, 0.85) !important; }
-.ct-chart .ct-series.ct-series-a .ct-slice.ct-donut {
+.ct-chart .ct-series.ct-series-a .ct-slice-donut {
   stroke: #fff !important; }
-.ct-chart .ct-series.ct-series-b .ct-slice.ct-donut {
+.ct-chart .ct-series.ct-series-b .ct-slice-donut {
   stroke: rgba(255, 255, 255, 0.2) !important; }
 
 #popularity .ct-chart {
-  margin-top: -10px; }
+  margin: 0 -10px -10px; }
+  #popularity .ct-chart .ct-chart-bar {
+    padding: 10px; }
 
 .pages-list {
   list-style: none;
@@ -2043,18 +2077,5 @@ button.toast-close-button {
       line-height: 2rem; }
       .gpm .themes .gpm-actions.active-theme a, .gpm .themes .gpm-actions.inactive-theme a {
         color: #737C81; }
-
-.log__line .severity {
-  border-radius: 10px;
-  padding: 10px; }
-  .log__line .severity.debug, .log__line .severity.info {
-    background-color: #737C81;
-    color: #EEEEEE; }
-  .log__line .severity.notice, .log__line .severity.warning {
-    background-color: #0082BA;
-    color: #fff; }
-  .log__line .severity.error, .log__line .severity.critical, .log__line .severity.alert, .log__line .severity.emergency {
-    background-color: #DA4B46;
-    color: #fff; }
 
 /*# sourceMappingURL=template.css.map */

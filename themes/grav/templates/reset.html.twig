@@ -1,29 +1,19 @@
-{% extends 'partials/base.html.twig' %}
+{% embed 'partials/login.html.twig' with {title:'Grav Reset Password'} %}
 
-{% block page %}
-    <section id="admin-login" class="default-glow-shadow">
-        <h1>
-            Reset Grav password
-        </h1>
+    {% block form %}
+        {% for field in page.header.form.fields %}
+            {% set value = attribute(admin.forgot, field.name) is defined ? attribute(admin.forgot, field.name) : null %}
 
-        {% include 'partials/messages.html.twig' %}
+            {% if field.type %}
+                <div>
+                    {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="form-actions secondary-accent">
+            <button type="submit" class="button primary" name="task" value="reset"><i class="fa fa-key"></i> {{ 'LOGIN_BTN_RESET'|t }}</button>
+        </div>
+    {% endblock %}
 
-        <form method="post" action="{{ base_url_relative }}">
-            
-            {% for field in page.header.form.fields %}
-                {% set value = attribute(admin.forgot, field.name) is defined ? attribute(admin.forgot, field.name) : null %}
-
-                {% if field.type %}
-                    <div>
-                        {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
-                    </div>
-                {% endif %}
-            {% endfor %}
-
-            <div class="form-actions secondary-accent">
-                <button type="submit" class="button primary" name="task" value="reset"><i class="fa fa-key"></i> Reset password</button>
-            </div>
-        </form>
-    </section>
-{% endblock %}
+{% endembed %}
 

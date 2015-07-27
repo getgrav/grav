@@ -8,6 +8,7 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Plugin;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Session\Session;
 
 class AdminPlugin extends Plugin
@@ -175,7 +176,6 @@ class AdminPlugin extends Plugin
             $page = new Page;
             $page->init(new \SplFileInfo(__DIR__ . "/pages/admin/{$self->template}.md"));
             $page->slug(basename($self->template));
-
             return $page;
         };
     }
@@ -185,8 +185,13 @@ class AdminPlugin extends Plugin
      */
     public function onTwigTemplatePaths()
     {
+        $twig_paths = [];
+        $this->grav->fireEvent('onAdminTwigTemplatePaths', new Event(['paths' => &$twig_paths]));
 
-        $this->grav['twig']->twig_paths = array(__DIR__ . '/themes/' . $this->theme . '/templates');
+        $twig_paths[] = __DIR__ . '/themes/' . $this->theme . '/templates';
+
+        $this->grav['twig']->twig_paths = $twig_paths;
+
     }
 
     /**
@@ -260,13 +265,13 @@ class AdminPlugin extends Plugin
                     ];
 
                     echo json_encode([
-                        "success" => true,
+                        "status" => "success",
                         "payload" => ["resources" => $resources_updates, "grav" => $grav_updates, "installed" => $gpm->countInstalled()]
                     ]);
                     break;
             }
         } catch (\Exception $e) {
-            echo json_encode(["success" => false, "message" => $e->getMessage()]);
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
 
         exit;

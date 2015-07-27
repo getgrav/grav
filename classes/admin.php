@@ -165,7 +165,14 @@ class Admin
      */
     public function authorise($action = 'admin.login')
     {
-        return $this->user->authorise($action);
+        $action = (array) $action;
+
+        foreach ($action as $a) {
+            if ($this->user->authorise($a))
+                return true;
+        }
+
+        return false;
     }
 
     /**
@@ -231,7 +238,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('system'), $blueprints);
                 $obj->merge($post);
-                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("user://config/{$type}.yaml"));
+                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("config://{$type}.yaml"));
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;
@@ -243,7 +250,7 @@ class Admin
                 $config = $this->grav['config'];
                 $obj = new Data\Data($config->get('site'), $blueprints);
                 $obj->merge($post);
-                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("user://config/{$type}.yaml"));
+                $file = CompiledYamlFile::instance($this->grav['locator']->findResource("config://{$type}.yaml"));
                 $obj->file($file);
                 $data[$type] = $obj;
                 break;

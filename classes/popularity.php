@@ -95,9 +95,12 @@ class Popularity
         }
 
         // keep correct number as set by history
-        $count = intval($this->config->get('plugins.admin.popularity.history.daily', 7));
+        $count = intval($this->config->get('plugins.admin.popularity.history.daily', 30));
         $total = count($this->daily_data);
-        $this->daily_data = array_slice($this->daily_data, $total - $count, $count, true);
+
+        if ($total > $count) {
+            $this->daily_data = array_slice($this->daily_data, -$count, $count, true);
+        }
 
         file_put_contents($this->daily_file, json_encode($this->daily_data));
     }
@@ -108,10 +111,13 @@ class Popularity
             $this->daily_data = $this->getData($this->daily_file);
         }
 
+        $limit = intval($this->config->get('plugins.admin.popularity.dashboard.days_of_stats', 7));
+        $chart_data = array_slice($this->daily_data, -$limit, $limit);
+
         $labels = array();
         $data = array();
 
-        foreach ($this->daily_data as $date => $count) {
+        foreach ($chart_data as $date => $count) {
             $labels[] = date('D', strtotime($date));
             $data[] = $count;
         }
@@ -193,7 +199,7 @@ class Popularity
         $data = array();
 
         foreach ($this->monthly_data as $date => $count) {
-            $labels[] = date('M',strtotime($date));
+            $labels[] = date('M', strtotime($date));
             $data[] = $count;
         }
         return array('labels' => $labels, 'data' => $data);

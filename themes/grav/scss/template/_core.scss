@@ -56,18 +56,24 @@ b, strong {
     }
 }
 
-.info {
-    background: $info-bg;
-    color: $info-fg;
+.alert {
     font-size: 1.1rem;
     padding: 1rem $padding-default;
 }
 
+.info {
+    background: $info-bg;
+    color: $info-fg;
+}
+
 .notice {
+    background: $tertiary-accent-bg;
+    color: $tertiary-accent-fg;
+}
+
+.error {
     background: $notice-bg;
     color: $notice-fg;
-    font-size: 1.1rem;
-    padding: 1rem $padding-default;
 }
 
 .badge {
