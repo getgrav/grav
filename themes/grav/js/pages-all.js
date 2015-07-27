@@ -79,6 +79,8 @@ $(function(){
 
     storage = JSON.parse(storage);
 
+    restoreStates();
+
     var startFilterPages = function () {
 
         $('input[name="page-search"]').focus();
