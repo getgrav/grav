@@ -120,7 +120,6 @@ class Config extends Data
         $setup['streams']['schemes'] += $this->streams;
 
         $setup = $this->autoDetectEnvironmentConfig($setup);
-        $this->messages[] = $setup['streams']['schemes']['config']['prefixes'][''];
 
         $this->setup = $setup;
         parent::__construct($setup);
@@ -202,24 +201,20 @@ class Config extends Data
 
             // Generate checksum according to the configuration settings.
             if (!$checkConfig) {
-                $this->messages[] = 'Check configuration timestamps from system.yaml files.';
                 // Just check changes in system.yaml files and ignore all the other files.
                 $cc = $checkSystem ? $this->finder->locateConfigFile($this->configLookup, 'system') : [];
             } else {
-                $this->messages[] = 'Check configuration timestamps from all configuration files.';
                 // Check changes in all configuration files.
                 $cc = $this->finder->locateConfigFiles($this->configLookup, $this->pluginLookup);
             }
 
             if ($checkBlueprints) {
-                $this->messages[] = 'Check blueprint timestamps from all blueprint files.';
                 $cb = $this->finder->locateBlueprintFiles($this->blueprintLookup, $this->pluginLookup);
             } else {
                 $cb = [];
             }
 
             if ($checkLanguages) {
-                $this->messages[] = 'Check language timestamps from all language files.';
                 $cl = $this->finder->locateLanguageFiles($this->languagesLookup, $this->pluginLookup);
             } else {
                 $cl = [];
