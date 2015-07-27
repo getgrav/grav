@@ -286,6 +286,13 @@ class AdminPlugin extends Plugin
             'onTask.GPM'          => ['onTaskGPM', 0]
         ]);
 
+        // Check for required plugins
+        if (!$this->grav['config']->get('plugins.login.enabled') ||
+            !$this->grav['config']->get('plugins.form.enabled') ||
+            !$this->grav['config']->get('plugins.email.enabled')) {
+            throw new \RuntimeException('One of the required plugins is missing or not enabled');
+        }
+
         // Decide admin template and route.
         $path = trim(substr($this->uri->route(), strlen($this->base)), '/');
         $this->template = 'dashboard';
