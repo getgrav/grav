@@ -414,7 +414,10 @@ class Config extends Data
     {
         foreach ($files as $name => $item) {
             $file = CompiledYamlFile::instance($item['file']);
-            $this->languages->join($name, $file->content(), '/');
+            $content = $file->content();
+            foreach ((array) $content as $key => $value) {
+                $this->languages->join($key, $value, '/');
+            }
         }
     }
 

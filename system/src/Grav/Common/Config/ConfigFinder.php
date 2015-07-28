@@ -143,7 +143,7 @@ class ConfigFinder
                 $filename = "{$path}/{$name}/$find";
 
                 if (file_exists($filename)) {
-                    $list["plugins"] = ['file' => $filename, 'modified' => filemtime($filename)];
+                    $list[$name] = ['file' => $filename, 'modified' => filemtime($filename)];
                 }
             }
         }
