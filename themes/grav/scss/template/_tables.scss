@@ -28,11 +28,14 @@ tr {
             padding-left: $padding-default;
         }
 
+        &:last-child, &.gpm-actions {
+            padding-right: $padding-default;
+        }
+
         &.gpm-actions {
             line-height: 1;
             text-align: right;
             position: relative;
-            padding-right: $padding-default;
             
             .gpm-details-expand {
                 position: absolute;

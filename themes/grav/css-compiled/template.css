@@ -728,11 +728,12 @@ tr {
     flex: 1; }
     tr td:first-child {
       padding-left: 3rem; }
+    tr td:last-child, tr td.gpm-actions {
+      padding-right: 3rem; }
     tr td.gpm-actions {
       line-height: 1;
       text-align: right;
-      position: relative;
-      padding-right: 3rem; }
+      position: relative; }
       tr td.gpm-actions .gpm-details-expand {
         position: absolute;
         top: 12px;
