@@ -743,6 +743,8 @@ tr {
       background-color: #f7f7f7; }
       tr td.gpm-details > .table-wrapper {
         display: none; }
+        tr td.gpm-details > .table-wrapper td {
+          border-bottom: 0; }
       tr td.gpm-details tbody {
         width: 100%; }
   tr:last-child td {

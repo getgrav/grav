@@ -48,6 +48,10 @@ tr {
 
             > .table-wrapper {
                 display: none;
+
+                td {
+                    border-bottom: 0;
+                }
             }
 
             tbody {
