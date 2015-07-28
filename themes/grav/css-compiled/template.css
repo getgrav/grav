@@ -2038,6 +2038,10 @@ button.toast-close-button {
   #toast-container > div {
     padding: 15px 15px 15px 50px;
     width: 25em; } }
+.gpm > table > tbody > tr {
+  border-bottom: 1px solid #e1e1e1; }
+.gpm td {
+  border: 0; }
 .gpm .gpm-name {
   white-space: nowrap;
   color: #b6bbbe; }

@@ -1,5 +1,16 @@
 .gpm {
 
+    > table > tbody {
+        > tr {
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+    }
+
+    td {
+        border: 0;
+    }
+
     .gpm-name {
         white-space: nowrap;
         color: lighten($content-fg, 25%);
