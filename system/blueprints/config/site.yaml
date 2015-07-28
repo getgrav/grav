@@ -30,7 +30,7 @@ form:
                         type: email
 
                 taxonomies:
-                    type: text
+                    type: selectize
                     size: large
                     label: Taxonomy Types
                     classes: fancy

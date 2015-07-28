@@ -145,7 +145,7 @@ form:
             fields:
 
                 languages.supported:
-                    type: text
+                    type: selectize
                     size: large
                     label: Supported
                     help: "Comma separated list of 2 letter language codes (for example 'en,fr,de')"
