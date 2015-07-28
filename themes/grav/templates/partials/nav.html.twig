@@ -3,7 +3,7 @@
         <h3><a href="{{ base_url_relative }}">Grav Admin</a> <a href="{{ base_url_relative_frontend }}"><i class="fa fa-fw fa-angle-double-right"></i></a></h3>
     </div>
 
-    {% if admin.authorise %}
+    {#{% if admin.authorise %}#}
     <div id="admin-user-details">
         <a href="{{ base_url_relative }}/users/{{ admin.user.username }}">
             <img src="http://www.gravatar.com/avatar/{{ admin.user.email|md5 }}?s=32" />
@@ -14,7 +14,7 @@
             </div>
         </a>
     </div>
-    {% endif %}
+    {#{% endif %}#}
 
     <ul id="admin-menu">
         <li class="{{ (location == 'dashboard') ? 'selected' : '' }}">

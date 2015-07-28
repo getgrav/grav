@@ -1020,7 +1020,6 @@ class AdminController
     protected function authoriseTask($task = '', $permissions = [])
     {
         if (!$this->admin->authorise($permissions)) {
-
             if ($this->grav['uri']->extension() === 'json')
                 $this->admin->json_response = ['status' => 'unauthorized', 'message' => 'You have insufficient permissions for task ' . $task . '.'];
             else

@@ -19,6 +19,8 @@ use RocketTheme\Toolbox\Session\Message;
 use RocketTheme\Toolbox\Session\Session;
 use Symfony\Component\Yaml\Yaml;
 
+define('LOGIN_REDIRECT_COOKIE', 'grav-login-redirect');
+
 class Admin
 {
     /**
@@ -70,6 +72,7 @@ class Admin
      * @var Grav\Common\GPM\GPM
      */
     protected $gpm;
+
 
 
     /**
@@ -149,7 +152,9 @@ class Admin
 
                     /** @var Grav $grav */
                     $grav = $this->grav;
-                    $grav->redirect($this->uri->route());
+
+                    $redirect_route =$this->getLoginRedirect() ?: $this->uri->route();
+                    $grav->redirect($redirect_route);
                 }
             }
         }
@@ -517,5 +522,25 @@ class Admin
         } else {
             return false;
         }
+    }
+
+    public function setLoginRedirect()
+    {
+        $uri = $this->grav['uri'];
+        setcookie(LOGIN_REDIRECT_COOKIE, $uri->path(), time() + (86400 * 30), $this->grav['base_url_relative']);
+    }
+
+    public function getLoginRedirect()
+    {
+        if (isset($_COOKIE[LOGIN_REDIRECT_COOKIE])) {
+            $this->removeLoginRedirect();
+            return $_COOKIE[LOGIN_REDIRECT_COOKIE];
+        }
+        return false;
+    }
+
+    public function removeLoginRedirect()
+    {
+        return setcookie(LOGIN_REDIRECT_COOKIE, '', time() - 3600);
     }
 }
