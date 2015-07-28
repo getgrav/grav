@@ -8,7 +8,7 @@
 
         {% include 'partials/messages.html.twig' %}
 
-        <form method="post" action="{{ base_url_relative }}">
+        <form method="post" action="{{ uri.url }}">
             {% block form %}{% endblock %}
         </form>
     </section>
