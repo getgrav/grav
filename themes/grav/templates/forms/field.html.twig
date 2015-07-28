@@ -32,7 +32,7 @@
             <div class="form-data block size-2-3"
                 {% block global_attributes %}
                 data-grav-field="{{ field.type }}"
-                data-grav-disabled="{{ originalValue is null ? 'true' : 'false' }}"
+                {#data-grav-disabled="{{ originalValue is null ? 'true' : 'false' }}"#}
                 data-grav-default="{{ field.default|json_encode()|e('html_attr') }}"
                 {% endblock %}
             >
