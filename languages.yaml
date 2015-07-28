@@ -4,7 +4,7 @@ en:
   LOGIN_BTN_FORGOT: Forgot
   LOGIN_BTN_RESET: Reset Password
   LOGIN_BTN_SEND_INSTRUCTIONS: Send Reset Instructions
-  LOGIN_LOGGED_IN: You have been logged in
+  LOGIN_LOGGED_IN: You have been successfully logged in
   LOGIN_FAILED: Login failed
   LOGGED_OUT: You have been logged out
   RESET_LINK_EXPIRED: Reset link has expired, please try again

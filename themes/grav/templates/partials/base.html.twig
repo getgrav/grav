@@ -80,7 +80,9 @@
 
             <div class="content-padding">
                 <div>
+                    {% block messages %}
                     {% include 'partials/messages.html.twig' %}
+                    {% endblock %}
                     {% block content_top %}{% endblock %}
                     <div class="admin-block default-box-shadow">
                         {% block content %}{% endblock %}

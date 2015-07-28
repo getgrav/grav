@@ -7,6 +7,8 @@
     <h1><i class="fa fa-fw fa-th"></i> Dashboard</h1>
 {% endblock %}
 
+{% block messages %}{% endblock %}
+
 {% block content_top %}
 
     {% set gpm = admin.gpm() %}
@@ -105,10 +107,10 @@
             </div>
         </div>
     </div>
-
 {% endblock %}
 
 {% block content %}
+    {% include 'partials/messages.html.twig' %}
     <div id="latest">
         <div class="button-bar">
             <a class="button" href="{{ uri.route(true) }}/pages"><i class="fa fa-fw fa-file-text-o"></i>Manage Pages</a>

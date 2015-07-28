@@ -123,7 +123,7 @@ class AdminController
         $l = $this->grav['language'];
 
         if ($this->admin->authenticate($this->post)) {
-            $this->admin->setMessage($l->translate('LOGIN_LOGGED_IN'), 'info');
+            // should never reach here, redirects first
         } else {
             $this->admin->setMessage($l->translate('LOGIN_FAILED'), 'error');
         }
