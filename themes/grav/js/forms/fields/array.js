@@ -37,6 +37,10 @@
         return this.el.data('grav-array-name')
     };
 
+    ArrayField.prototype.isValueOnly = function() {
+        return this.el.find('[data-grav-array-mode="value_only"]').length;
+    };
+
     ArrayField.prototype.value = function(val) {
         if (typeof val === 'object') {
             // Remove old
@@ -81,10 +85,16 @@
 
     ArrayField.prototype.add = function() {
         $(this._getNewField()).insertAfter($(event.target).closest('[data-grav-array-type="row"]'));
+        if (this.isValueOnly()) {
+            this.refreshAll();
+        }
     };
 
     ArrayField.prototype.remove = function() {
         $(event.target).closest('[data-grav-array-type="row"]').remove();
+        if (this.isValueOnly()) {
+            this.refreshAll();
+        }
     };
 
     ArrayField.prototype.update = function() {
@@ -94,8 +104,15 @@
         valueField.attr('name', keyField.val());
     };
 
+    ArrayField.prototype.refreshAll = function() {
+        this.el.find('[data-grav-array-type="value"]').each(function(index, element){
+            $(element).attr('name', index);
+        });
+    };
+
     ArrayField.prototype._getNewField = function(key, value) {
         var name = this.name(),
+            value_only = this.isValueOnly(),
             placeholder = {
                 key: this.el.data('grav-array-keyname') || 'Key',
                 val: this.el.data('grav-array-valuename') || 'Value'
@@ -104,12 +121,22 @@
         key = key || '';
         value = value || '';
 
-        return '<div class="form-row" data-grav-array-type="row">' +
-            '<input data-grav-array-type="key" type="text" value="' + key + '"  placeholder="' + placeholder.key + '" />' +
-            '<input data-grav-array-type="value" type="text" name="' + key + '" value="' + value + '" placeholder="' + placeholder.val + '" />' +
-            '<span data-grav-array-action="rem" class="fa fa-minus"></span>' +
-            '<span data-grav-array-action="add" class="fa fa-plus"></span>' +
-        '</div>';
+        var output;
+
+        if (value_only) {
+            output = '<div class="form-row array-field-value_only" data-grav-array-type="row">' + "\n" +
+                '<input data-grav-array-type="value" type="text" value="' + value + '" placeholder="' + placeholder.val + '" />' + "\n";
+        } else {
+            output = '<div class="form-row" data-grav-array-type="row">' + "\n" +
+                '<input data-grav-array-type="key" type="text" value="' + key + '"  placeholder="' + placeholder.key + '" />' + "\n" +
+                '<input data-grav-array-type="value" type="text" name="' + key + '" value="' + value + '" placeholder="' + "\n" + placeholder.val + '" />';
+        }
+
+        output +=  '<span data-grav-array-action="rem" class="fa fa-minus"></span>' + "\n" +
+            '<span data-grav-array-action="add" class="fa fa-plus"></span>' + "\n" +
+            '</div>';
+
+        return output;
     };
 
     root.Array = ArrayField;

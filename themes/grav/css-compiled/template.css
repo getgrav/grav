@@ -603,6 +603,8 @@ form .dynfields .form-row, form [data-grav-field="array"] .form-row {
     display: inline-block;
     line-height: 1.7;
     cursor: pointer; }
+  form .dynfields .form-row.array-field-value_only, form [data-grav-field="array"] .form-row.array-field-value_only {
+    width: 100%; }
 form .button-bar {
   margin-top: 1rem;
   background: #e6e6e6;
