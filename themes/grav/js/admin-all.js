@@ -248,12 +248,18 @@ $(function () {
 
                     if (details){
                         var slug = $('[data-gpm-' + type + ']').data('gpm-' + type),
-                            Type = type.charAt(0).toUpperCase() + type.substring(1);
+                            Type = type.charAt(0).toUpperCase() + type.substring(1),
+                            resource = resources[type + 's'][slug];
 
-                        content = '<strong>v{available}</strong> of this ' + type + ' is now available!';
-                        content = jQuery.substitute(content, {available: resources[type + 's'][slug].available});
-                        button  = jQuery.substitute(button, {Type: Type, location: GravAdmin.config.base_url_relative + '/' + type + 's/' + slug});
-                        $(details).html('<p>' + icon + content + button + '</p>');
+                        if (resource) {
+                            content = '<strong>v{available}</strong> of this ' + type + ' is now available!';
+                            content = jQuery.substitute(content, { available: resource.available });
+                            button = jQuery.substitute(button, {
+                                Type: Type,
+                                location: GravAdmin.config.base_url_relative + '/' + type + 's/' + slug
+                            });
+                            $(details).html('<p>' + icon + content + button + '</p>');
+                        }
                     }
                 }
             }
