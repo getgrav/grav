@@ -509,4 +509,13 @@ class Admin
     {
         return dirname('/' . Grav::instance()['admin']->route);
     }
+
+    public function isTeamGrav($info)
+    {
+        if (isset($info['author']['name']) && $info['author']['name'] == 'Team Grav') {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

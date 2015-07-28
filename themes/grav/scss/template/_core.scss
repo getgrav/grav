@@ -66,6 +66,10 @@ b, strong {
     color: $info-fg;
 }
 
+.info-reverse {
+    color: $info-bg;
+}
+
 .notice {
     background: $tertiary-accent-bg;
     color: $tertiary-accent-fg;

@@ -12,6 +12,9 @@
             <div class="gpm-name">
                 <i class="fa fa-fw fa-{{ theme.icon }}"></i>
                 <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">{{ theme.name }}</a>
+                {% if admin.isTeamGrav(theme) %}
+                    <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+                {% endif %}
                 {% if theme.symlink %}
                     <span class="hint--bottom"  data-hint="This theme is symbolically linked. Updates won't be detected.">
                     <i class="fa fa-fw fa-link"></i>

@@ -9,16 +9,22 @@
         {% set plugin = package.toArray() %}
         {% set data = admin.data('plugins/' ~ slug) %}
 
+        {{ dump(plugin) }}
+
         <tr data-gpm-plugin="{{ slug|url_encode }}">
             <td class="gpm-name">
                 <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
                 <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a>
+                {% if admin.isTeamGrav(plugin) %}
+                    <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+                {% endif %}
                 {% if plugin.symlink %}
                 <span class="hint--bottom"  data-hint="This plugin is symbolically linked. Updates won't be detected.">
                     <i class="fa fa-fw fa-link"></i>
                 </span>
                 {% endif %}
                 <span class="gpm-version">v{{ plugin.version }}</span>
+
             </td>
             <td class="gpm-actions">
                 {% if (not installing and plugin.form.fields.enabled) %}

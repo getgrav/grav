@@ -14,6 +14,9 @@
 
 <h1>
     {{ plugin.name|e }}
+    {% if admin.isTeamGrav(plugin) %}
+        <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+    {% endif %}
     {% if plugin.symlink %}
     <small class="hint--bottom"  data-hint="This plugin is symbolically linked. Updates won't be detected.">
         <i class="fa fa-fw fa-link"></i>

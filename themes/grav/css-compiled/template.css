@@ -74,6 +74,9 @@ b, strong {
   background: #9055AF;
   color: #fff; }
 
+.info-reverse {
+  color: #9055AF; }
+
 .notice {
   background: #2693B7;
   color: #fff; }
