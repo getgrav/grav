@@ -9,8 +9,6 @@
         {% set plugin = package.toArray() %}
         {% set data = admin.data('plugins/' ~ slug) %}
 
-        {{ dump(plugin) }}
-
         <tr data-gpm-plugin="{{ slug|url_encode }}">
             <td class="gpm-name">
                 <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
