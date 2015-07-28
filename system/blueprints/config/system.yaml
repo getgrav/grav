@@ -208,8 +208,6 @@ form:
                     validate:
                         type: bool
 
-
-
         http_headers:
             type: section
             title: HTTP Headers
