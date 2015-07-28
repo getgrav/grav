@@ -79,6 +79,26 @@ $(function () {
         });
     });
 
+    // Plugins list details sliders
+    $('.gpm-name, .gpm-actions').on('click', function(e){
+        var target = $(e.target);
+
+        if (target.prop('tagName') == 'A' || target.parent('a').length) { return true; }
+
+        var wrapper = $(this).siblings('.gpm-details').find('.table-wrapper');
+        wrapper.slideToggle({
+            duration: 350,
+            complete: function(){
+                var isVisible = wrapper.is(':visible');
+                wrapper
+                    .closest('tr')
+                    .find('.gpm-details-expand i')
+                    .removeClass('fa-chevron-' + (isVisible ? 'down' : 'up'))
+                    .addClass('fa-chevron-' + (isVisible ? 'up' : 'down'));
+            }
+        });
+    });
+
     // Update plugins/themes
     $('[data-maintenance-update]').on('click', function(e) {
 

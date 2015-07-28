@@ -704,6 +704,15 @@ form .checkboxes {
 .form-list-wrapper .collection-actions {
   text-align: right; }
 
+table,
+tbody {
+  display: inline-block;
+  width: 100%; }
+
+.gpm-details {
+  width: 100%;
+  flex: auto; }
+
 td {
   border: 0;
   border-bottom: 1px solid #e1e1e1; }
@@ -711,12 +720,31 @@ td {
 tr {
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
-  transition: all 0.2s ease; }
-  tr td:first-child {
-    padding-left: 3rem; }
-  tr td:last-child {
-    text-align: right;
-    padding-right: 3rem; }
+  transition: all 0.2s ease;
+  display: flex;
+  flex-wrap: wrap; }
+  tr td {
+    display: block;
+    flex: 1; }
+    tr td:first-child {
+      padding-left: 3rem; }
+    tr td.gpm-actions {
+      line-height: 1;
+      text-align: right;
+      position: relative;
+      padding-right: 3rem; }
+      tr td.gpm-actions .gpm-details-expand {
+        position: absolute;
+        top: 12px;
+        right: 12px; }
+    tr td.gpm-details {
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7; }
+      tr td.gpm-details > .table-wrapper {
+        display: none; }
+      tr td.gpm-details tbody {
+        width: 100%; }
   tr:last-child td {
     border-bottom: 0; }
   tr:hover {
