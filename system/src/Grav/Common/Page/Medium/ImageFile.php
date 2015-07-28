@@ -2,6 +2,7 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\GravTrait;
+use Gregwar\Image\Exceptions\GenerationError;
 use RocketTheme\Toolbox\Event\Event;
 
 class ImageFile extends \Gregwar\Image\Image
