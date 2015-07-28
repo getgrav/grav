@@ -22,7 +22,6 @@
                 </span>
                 {% endif %}
                 <span class="gpm-version">v{{ plugin.version }}</span>
-
             </td>
             <td class="gpm-actions">
                 {% if (not installing and plugin.form.fields.enabled) %}
@@ -32,6 +31,12 @@
                 {% elseif (installing) %}
                     <a class="button" href="{{ base_url_relative }}/plugins/{{ slug }}/task:install"><i class="fa fa-plus"></i> Install</a>
                 {% endif %}
+                <span class="gpm-details-expand"><i class="fa fa-chevron-down"></i></span>
+            </td>
+            <td class="gpm-details">
+                <div class="table-wrapper">
+                    {% include 'partials/plugin-data.html.twig' with { plugin: plugin } %}
+                </div>
             </td>
         </tr>
     {% endfor %}

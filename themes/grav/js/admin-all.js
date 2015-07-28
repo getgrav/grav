@@ -79,6 +79,26 @@ $(function () {
         });
     });
 
+    // Plugins list details sliders
+    $('.gpm-name, .gpm-actions').on('click', function(e){
+        var target = $(e.target);
+
+        if (target.prop('tagName') == 'A' || target.parent('a').length) { return true; }
+
+        var wrapper = $(this).siblings('.gpm-details').find('.table-wrapper');
+        wrapper.slideToggle({
+            duration: 350,
+            complete: function(){
+                var isVisible = wrapper.is(':visible');
+                wrapper
+                    .closest('tr')
+                    .find('.gpm-details-expand i')
+                    .removeClass('fa-chevron-' + (isVisible ? 'down' : 'up'))
+                    .addClass('fa-chevron-' + (isVisible ? 'up' : 'down'));
+            }
+        });
+    });
+
     // Update plugins/themes
     $('[data-maintenance-update]').on('click', function(e) {
 
@@ -248,12 +268,18 @@ $(function () {
 
                     if (details){
                         var slug = $('[data-gpm-' + type + ']').data('gpm-' + type),
-                            Type = type.charAt(0).toUpperCase() + type.substring(1);
+                            Type = type.charAt(0).toUpperCase() + type.substring(1),
+                            resource = resources[type + 's'][slug];
 
-                        content = '<strong>v{available}</strong> of this ' + type + ' is now available!';
-                        content = jQuery.substitute(content, {available: resources[type + 's'][slug].available});
-                        button  = jQuery.substitute(button, {Type: Type, location: GravAdmin.config.base_url_relative + '/' + type + 's/' + slug});
-                        $(details).html('<p>' + icon + content + button + '</p>');
+                        if (resource) {
+                            content = '<strong>v{available}</strong> of this ' + type + ' is now available!';
+                            content = jQuery.substitute(content, { available: resource.available });
+                            button = jQuery.substitute(button, {
+                                Type: Type,
+                                location: GravAdmin.config.base_url_relative + '/' + type + 's/' + slug
+                            });
+                            $(details).html('<p>' + icon + content + button + '</p>');
+                        }
                     }
                 }
             }

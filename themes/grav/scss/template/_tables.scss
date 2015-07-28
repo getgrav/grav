@@ -1,5 +1,12 @@
-table {
+table,
+tbody {
+    display: inline-block;
+    width: 100%;
+}
 
+.gpm-details {
+    width: 100%;
+    flex: auto;
 }
 
 td {
@@ -10,15 +17,49 @@ td {
 tr {
     @include transition(all 0.2s ease);
 
+    display: flex;
+    flex-wrap: wrap;
+
     td {
+        display: block;
+        flex: 1;
 
         &:first-child {
             padding-left: $padding-default;
         }
 
-        &:last-child {
-            text-align: right;
+        &:last-child, &.gpm-actions {
             padding-right: $padding-default;
+        }
+
+        &.gpm-actions {
+            line-height: 1;
+            text-align: right;
+            position: relative;
+            
+            .gpm-details-expand {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+            }
+        }
+
+        &.gpm-details {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+
+            > .table-wrapper {
+                display: none;
+
+                td {
+                    border-bottom: 0;
+                }
+            }
+
+            tbody {
+                width: 100%;
+            }
         }
     }
 
@@ -31,3 +72,4 @@ tr {
         background: lighten($content-bg,2%);
     }
 }
+
