@@ -2,6 +2,7 @@
 namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\GravTrait;
 
 /**
  * Blueprints class keeps track on blueprint instances.
@@ -11,6 +12,8 @@ use Grav\Common\File\CompiledYamlFile;
  */
 class Blueprints
 {
+    use GravTrait;
+
     protected $search;
     protected $types;
     protected $instances = array();
@@ -55,8 +58,20 @@ class Blueprints
             if (isset($blueprints['@extends'])) {
                 // Extend blueprint by other blueprints.
                 $extends = (array) $blueprints['@extends'];
-                foreach ($extends as $extendType) {
-                    $blueprint->extend($this->get($extendType));
+
+                if (is_string(key($extends))) {
+                    $extends = [ $extends ];
+                }
+
+                foreach ($extends as $extendConfig) {
+                    $extendType = !is_string($extendConfig) ? empty($extendConfig['type']) ? false : $extendConfig['type'] : $extendConfig;
+
+                    if (!$extendType) {
+                        continue;
+                    }
+
+                    $context = is_string($extendConfig) || empty($extendConfig['context']) ? $this : new self(self::getGrav()['locator']->findResource($extendConfig['context']));
+                    $blueprint->extend($context->get($extendType));
                 }
             }
 

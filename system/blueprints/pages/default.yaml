@@ -1,0 +1,186 @@
+title: Default
+
+rules:
+  slug:
+    pattern: "[a-z][a-z0-9_\-]+"
+    min: 2
+    max: 80
+
+form:
+  fields:
+    type:
+      type: hidden
+      label: Page Type
+      default: default
+
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            header.title:
+              type: text
+              label: Title
+              validate:
+                required: true
+
+            header.process:
+              type: checkboxes
+              label: Process
+              toggleable: true
+              @config-default: system.pages.process
+              default:
+                markdown: true
+                twig: false
+              options:
+                markdown: Markdown
+                twig: Twig
+              use: keys
+
+            content:
+                type: markdown
+                label: Content
+                validate:
+                  type: textarea
+
+            uploads:
+              type: uploads
+              label: Page Media
+
+        meta:
+          type: tab
+          title: Meta
+
+          fields:
+            header.description:
+              type: textarea
+              label: Description
+              validate:
+                max: 120
+
+            header.keywords:
+              type: text
+              label: Keywords
+              validate:
+                max: 120
+
+            header.robots:
+              type: checkboxes
+              label: Robots
+              options:
+                noindex: No index
+                nofollow: No follow
+              use: keys
+
+            taxonomies:
+              type: section
+              title: Taxonomies
+              underline: true
+
+              fields:
+                header.taxonomy:
+                  type: taxonomy
+                  label: Taxonomy
+                  validate:
+                    type: array
+
+        advanced:
+          type: tab
+          title: Advanced
+
+          fields:
+            columns:
+              type: columns
+              fields:
+                column1:
+                  type: column
+                  fields:
+                    folder:
+                      type: text
+                      label: Folder Name
+                      validate:
+                        type: slug
+
+                    route:
+                      type: select
+                      label: Parent
+                      classes: fancy
+                      @data-options: '\Grav\Common\Page\Pages::parents'
+                      @data-default: '\Grav\Plugin\admin::route'
+                      options:
+                        '/': '- Root -'
+
+                    type:
+                      type: select
+                      classes: fancy
+                      label: Display Template
+                      default: default
+                      @data-options: '\Grav\Common\Page\Pages::types'
+
+                column2:
+                  type: column
+
+                  fields:
+                    order:
+                      type: order
+                      label: Ordering
+                      sitemap:
+
+            overrides:
+              type: section
+              title: Overrides
+              underline: true
+
+              fields:
+
+                header.menu:
+                  type: text
+                  label: Menu
+
+                header.slug:
+                  type: text
+                  label: Alias
+                  validate:
+                    rule: slug
+
+                header.cache_enable:
+                  type: toggle
+                  label: Caching
+                  highlight: 1
+                  options:
+                    '': Global
+                    1: Enabled
+                    0: Disabled
+                  validate:
+                    type: bool
+
+                header.routable:
+                  type: toggle
+                  label: Access by URL
+                  highlight: 1
+                  default: ''
+                  options:
+                    '': Global
+                    1: Enabled
+                    0: Disabled
+                  validate:
+                    type: bool
+
+                header.child_type:
+                  type: select
+                  label: Default Child Type
+                  default: default
+                  @data-options: '\Grav\Common\Page\Pages::types'
+
+                header.order_by:
+                  type: hidden
+
+                header.order_manual:
+                  type: hidden
+                  validate:
+                    type: commalist

@@ -503,6 +503,30 @@ class Validation
         return $values;
     }
 
+    public static function typeList($value, array $params, array $field)
+    {
+        if (!is_array($value)) {
+            return false;
+        }
+
+        if (isset($field['fields'])) {
+            foreach ($value as $key => $item) {
+                foreach ($field['fields'] as $subKey => $subField) {
+                    $subKey = trim($subKey, '.');
+                    $subValue = isset($item[$subKey]) ? $item[$subKey] : null;
+                    self::validate($subValue, $subField);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected static function filterList($value, array $params, array $field)
+    {
+        return (array) $value;
+    }
+
     /**
      * Custom input: ignore (will not validate)
      *
@@ -514,6 +538,11 @@ class Validation
     public static function typeIgnore($value, array $params, array $field)
     {
         return true;
+    }
+
+    public static function filterIgnore($value, array $params, array $field)
+    {
+        return $value;
     }
 
     // HTML5 attributes (min, max and range are handled inside the types)

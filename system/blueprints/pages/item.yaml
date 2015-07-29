@@ -1,0 +1,83 @@
+title: Item
+@extends:
+    type: default
+    context: blueprints://pages
+
+form:
+  fields:
+    tabs:
+
+      fields:
+        blog:
+          type: tab
+          title: Blog Item
+
+
+          fields:
+            publishing:
+              type: section
+              title: Publishing
+              underline: true
+
+              fields:
+                header.date:
+                  type: datetime
+                  label: Date
+
+                header.publish_date:
+                  type: datetime
+                  label: Publish post on this date
+
+                header.unpublish_date:
+                  type: datetime
+                  label: Unpublish post on this date
+
+                header.published:
+                  type: toggle
+                  label: Published
+                  highlight: 1
+                  default: 1
+                  options:
+                    1: Yes
+                    0: No
+
+            summary:
+              type: section
+              title: Summary
+              underline: true
+
+              fields:
+
+                header.summary.enabled:
+                  type: toggle
+                  label: Summary
+                  highlight: 1
+                  default: 1
+                  options:
+                    1: Enabled
+                    0: Disabled
+
+                header.summary.format:
+                  type: select
+                  label: Format
+                  classes: fancy
+                  default: short
+                  options:
+                    'short': 'Use the first occurence of delimter or size'
+                    'long': 'Summary delimiter will be ignored'
+
+                header.summary.size:
+                  type: text
+                  label: Size
+                  classes: large
+                  default: 300
+                  validate:
+                    type: int
+                    min: 1
+
+                header.summary.delimiter:
+                  type: text
+                  label: Summary delimiter
+                  classes: large
+                  default: ===
+                  placeholder: ===
