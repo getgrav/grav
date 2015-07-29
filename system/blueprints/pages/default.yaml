@@ -29,19 +29,6 @@ form:
               validate:
                 required: true
 
-            header.process:
-              type: checkboxes
-              label: Process
-              toggleable: true
-              @config-default: system.pages.process
-              default:
-                markdown: true
-                twig: false
-              options:
-                markdown: Markdown
-                twig: Twig
-              use: keys
-
             content:
                 type: markdown
                 label: Content
@@ -52,30 +39,113 @@ form:
               type: uploads
               label: Page Media
 
-        meta:
+        options:
           type: tab
-          title: Meta
+          title: Options
 
           fields:
-            header.description:
-              type: textarea
-              label: Description
-              validate:
-                max: 120
 
-            header.keywords:
-              type: text
-              label: Keywords
-              validate:
-                max: 120
+            standard:
+              type: section
+              title: Standard
+              underline: true
 
-            header.robots:
-              type: checkboxes
-              label: Robots
-              options:
-                noindex: No index
-                nofollow: No follow
-              use: keys
+              fields:
+                header.slug:
+                  type: text
+                  label: Slug
+                  toggleable: true
+                  help: "The slug variable allows you to specifically set the page's portion of the URL"
+                  validate:
+                    message: A slug must contain only lowercase alphanumeric characters and dashes
+                    pattern: '^[a-z0-9-]+$'
+
+                header.menu:
+                  type: text
+                  label: Menu
+                  toggleable: true
+                  help: "The string to be used in a menu.  If not set, <b>Title</b> will be used."
+
+                header.visible:
+                  type: toggle
+                  label: Visible
+                  help: "Determines if a page is visible in the navigation."
+                  highlight: 1
+                  default: 1
+                  options:
+                    1: Yes
+                    0: No
+                  validate:
+                    type: bool
+
+                header.date:
+                  type: datetime
+                  label: Date
+                  toggleable: true
+                  help: "The date variable allows you to specifically set a date associated with this page."
+
+                header.published:
+                  type: toggle
+                  label: Published
+                  default: 1
+                  help: "By default, a page is published unless you explicitly set published: false or via a publish_date being in the future, or unpublish_date in the past"
+                  highlight: 1
+                  options:
+                    1: Yes
+                    0: No
+                  validate:
+                    type: bool
+
+                header.published_date:
+                  type: datetime
+                  label: Published Date
+                  toggleable: true
+                  help: "Can provide a date to automatically trigger publication."
+
+                header.unpublished_date:
+                  type: datetime
+                  label: Unublished Date
+                  toggleable: true
+                  help: "can provide a date to automatically trigger un-publication."
+
+                header.process:
+                  type: checkboxes
+                  label: Process
+                  toggleable: true
+                  @config-default: system.pages.process
+                  default:
+                    markdown: true
+                    twig: false
+                  options:
+                    markdown: Markdown
+                    twig: Twig
+                  use: keys
+
+            meta:
+              type: section
+              title: Metadata
+              underline: true
+
+              fields:
+                header.metadata.description:
+                  type: textarea
+                  label: Description
+                  validate:
+                    max: 120
+
+                header.metadata.keywords:
+                  type: text
+                  label: Keywords
+                  validate:
+                    max: 120
+
+                header.metadata.robots:
+                  type: checkboxes
+                  label: Robots
+                  options:
+                    noindex: No index
+                    nofollow: No follow
+                  use: keys
 
             taxonomies:
               type: section
