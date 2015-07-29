@@ -584,12 +584,23 @@ form:
                 images.default_image_quality:
                     type: text
                     label: Default image quality
-                    help: "Default image quality to use when resampling images (85%)"
+                    help: "Default image quality to use when resampling or caching images (85%)"
                     classes: x-small
                     validate:
                         type: number
                         min: 1
                         max: 100
+
+                images.cache_all:
+                    type: toggle
+                    label: Cache all images
+                    help: "Run all images through Grav's cache system even if they have no media manipulations"
+                    highlight: 0
+                    options:
+                        1: Yes
+                        0: No
+                    validate:
+                        type: bool
 
                 images.debug:
                     type: toggle

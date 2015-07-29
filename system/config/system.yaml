@@ -87,6 +87,7 @@ debugger:
 
 images:
   default_image_quality: 85            # Default image quality to use when resampling images (85%)
+  cache_all: false                     # Cache all image by default
   debug: false                         # Show an overlay over images indicating the pixel depth of the image when working with retina for example
 
 media:
