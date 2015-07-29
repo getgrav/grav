@@ -164,6 +164,26 @@ $(function () {
                         toastr.options[setting] = toastrBackup[setting];
                     }
                 }
+
+                if (url.indexOf('task:backup') !== -1) {
+                    //Reset backup days count
+                    $('.backups-chart .numeric').html("0 <em>days</em>");
+
+                    var data = {
+                      series: [0,100]
+                    };
+
+                    var options = {
+                      donut: true,
+                      donutWidth: 10,
+                      startAngle: 0,
+                      total: 100,
+                      showLabel: false,
+                      height: 150
+                    };
+
+                    Chartist.Pie('.backups-chart .ct-chart', data, options);
+                }
             }
         }).always(function() {
             // Restore button
