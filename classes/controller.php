@@ -13,6 +13,8 @@ use Grav\Common\Page\Collection;
 use Grav\Common\User\User;
 use Grav\Common\Utils;
 use Grav\Common\Backup\ZipBackup;
+use Grav\Common\Markdown\Parsedown;
+use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\File\JsonFile;
 
 class AdminController
@@ -491,6 +493,39 @@ class AdminController
             $this->admin->json_response = ['status' => 'error', 'message' => 'No file found'];
         }
         return true;
+    }
+
+    protected function taskProcessMarkdown()
+    {
+//        if (!$this->authoriseTask('process markdown', ['admin.pages', 'admin.super'])) {
+//            return;
+//        }
+
+        $page = $this->admin->page(true);
+
+        if (!$page) {
+            $this->admin->json_response = ['status' => 'error', 'message' => 'No Page found'];
+            return false;
+        }
+
+        $markdown = !empty($this->post['markdown']) ? $this->post['markdown'] : null;
+        if ($markdown) {
+            $defaults = (array) $this->grav['config']->get('system.pages.markdown');
+
+            // Initialize the preferred variant of Parsedown
+            if ($defaults['extra']) {
+                $parsedown = new ParsedownExtra($page, $defaults);
+            } else {
+                $parsedown = new Parsedown($page, $defaults);
+            }
+
+            $html = json_encode($parsedown->text($markdown));
+            $this->admin->json_response = ['status' => 'success', 'message' => $html];
+            return;
+        }
+        $this->admin->json_response = ['status' => 'error', 'message' => 'No markdown text found'];
+
+        return;
     }
 
     /**
