@@ -84,6 +84,14 @@
                 <td>{{ theme.description_html }}</td>
             </tr>
         {% endif %}
+
+        {% if theme.readme or theme.homepage %}
+            {% set readme_link = theme.readme ?: theme.homepage ~ '/blob/develop/README.md' %}
+            <tr>
+                <td>Readme:</td>
+                <td><a href="{{ readme_link }}">{{ readme_link }}</a></td>
+            </tr>
+        {% endif %}
     </table>
 </div>
 
