@@ -1,33 +1,29 @@
+{% extends "forms/field.html.twig" %}
+
 {% set value = (value is null ? field.default : value) %}
 {% set value = (value is null ? value : value|date("d-m-Y H:i")) %}
 
-<div class="form-field grid pure-g">
-    <div class="form-label block size-1-3 pure-u-1-3">
-        <label>
-            {% if field.help %}
-            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
-            {% else %}
-            {{ field.label }}
-            {% endif %}
-            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
-        </label>
-    </div>
-    <div class="form-data block size-2-3 pure-u-2-3">
-        <div class="form-input-wrapper {{ field.size }}">
-            <input
-               type="date"
-               class="{{ field.classes }}"
-               name="{{ (scope ~ field.name)|fieldName }}"
-               value="{{ value }}"
-               {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
-               {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
-               {% if field.autocomplete in ['on', 'off'] %}autocomplete="{{ field.autocomplete }}"{% endif %}
-               {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
-               {% if field.validate.min %}min="{{ (field.validate.min is null ? field.validate.min : field.validate.min|date("d-m-Y H:i")) }}"{% endif %}
-               {% if field.validate.max %}max="{{ (field.validate.max is null ? field.validate.max : field.validate.max|date("d-m-Y H:i")) }}"{% endif %}
+{% block input %}
+    <input
+        type="date"
+        class="{{ field.classes }}"
+        name="{{ (scope ~ field.name)|fieldName }}"
+        value="{{ value }}"
+        {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+        {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+        {% if field.autocomplete in ['on', 'off'] %}autocomplete="{{ field.autocomplete }}"{% endif %}
+        {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+        {% if field.validate.min %}min="{{ (field.validate.min is null ? field.validate.min : field.validate.min|date("d-m-Y H:i")) }}"{% endif %}
+        {% if field.validate.max %}max="{{ (field.validate.max is null ? field.validate.max : field.validate.max|date("d-m-Y H:i")) }}"{% endif %}
         />
-        </div>
-    </div>
-</div>
-<script src="{{ base_url_relative_frontend }}{{ theme_url }}/js/datepicker/kendo.custom.min.js"></script>
-<script src="{{ base_url_relative_frontend }}{{ theme_url }}/js/datepicker/init.js"></script>
+
+        <script src="{{ base_url_relative_frontend }}{{ theme_url }}/js/datepicker/kendo.custom.min.js"></script>
+        <script src="{{ base_url_relative_frontend }}{{ theme_url }}/js/datepicker/init.js"></script>
+
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    HELLOW!!!!
+{% endblock %}
+
