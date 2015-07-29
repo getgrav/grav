@@ -1,5 +1,6 @@
 {% set value = (value is null ? field.default : value) %}
 
+{% if exists %}
 <div class="form-field">
     <div class="form-data form-uploads-wrapper">
         <h3>{{ field.label }}</h3>
@@ -135,3 +136,14 @@
         </script>
     </div>
 </div>
+{% else %}
+<div class="form-tab">
+    <div class="form-field">
+        <div class="form-label">
+            <label>
+                You cannot add media files until you save the page. Just click 'Save' on top
+            </label>
+        </div>
+    </div>
+</div>
+{% endif %}
