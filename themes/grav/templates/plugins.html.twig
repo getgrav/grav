@@ -30,8 +30,14 @@
             <a class="button" href="{{ base_url_relative }}/plugins"><i class="fa fa-arrow-left"></i> Back to Plugins</a>
             <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
         </div>
+        {% else %}
+        <div class="button-bar">
+            <a class="button" href="{{ base_url_relative }}/plugins/install"><i class="fa fa-arrow-left"></i> Back to Plugins</a>
+        </div>
         {% endif %}
+
         <h1><i class="fa fa-fw fa-plug"></i> Plugin: {{ plugin.name|e }}</h1>
+
     {% endif %}
 {% endblock %}
 
