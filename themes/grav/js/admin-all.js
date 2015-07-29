@@ -164,6 +164,11 @@ $(function () {
                         toastr.options[setting] = toastrBackup[setting];
                     }
                 }
+
+                if (url.indexOf('task:backup') !== -1) {
+                    //Reset backup days count
+                    $('.backups-chart .numeric').html("0 <em>days</em>");
+                }
             }
         }).always(function() {
             // Restore button
