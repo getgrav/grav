@@ -51,4 +51,13 @@
             <td>{{ plugin.description_html }}</td>
         </tr>
     {% endif %}
+
+    {% if plugin.readme or plugin.homepage %}
+        {% set readme_link = plugin.readme ?: plugin.homepage ~ '/blob/develop/README.md' %}
+        <tr>
+            <td>Readme:</td>
+            <td><a href="{{ readme_link }}">{{ readme_link }}</a></td>
+        </tr>
+    {% endif %}
+
 </table>
