@@ -114,10 +114,11 @@
             height: 4rem;
             text-align: right;
             padding: 1rem;
+            font-size: 1rem;
+            font-weight: bold;
 
             &.active-theme {
-                font-size: 1rem;
-                font-weight: bold;
+
                 text-align: center;
                 background: $page-bg;
                 color: $content-bg;

@@ -2112,10 +2112,10 @@ button.toast-close-button {
     margin: 1rem -1rem -1rem -1rem;
     height: 4rem;
     text-align: right;
-    padding: 1rem; }
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: bold; }
     .gpm .themes .gpm-actions.active-theme {
-      font-size: 1rem;
-      font-weight: bold;
       text-align: center;
       background: #314D5B;
       color: #EEEEEE; }
