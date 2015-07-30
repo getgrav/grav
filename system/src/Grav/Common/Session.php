@@ -20,16 +20,20 @@ class Session extends \RocketTheme\Toolbox\Session\Session
         $uri = $this->grav['uri'];
         $config = $this->grav['config'];
 
+        $session_timeout = $config->get('system.session.timeout', 1800);
+        $session_path = $config->get('system.session.path', '/' . ltrim($uri->rootUrl(false), '/'));
+
         if ($config->get('system.session.enabled')) {
             // Define session service.
             parent::__construct(
-                $config->get('system.session.timeout', 1800),
-                $config->get('system.session.path', '/' . ltrim($uri->rootUrl(false), '/'))
+                $session_timeout,
+                $session_path
             );
 
             $site_identifier = $config->get('site.title', 'unkown');
             $this->setName($config->get('system.session.name', 'grav_site') . '_' . substr(md5($site_identifier), 0, 7));
             $this->start();
+            setcookie(session_name(), session_id(), time() + $session_timeout, $session_path);
         }
     }
 }
