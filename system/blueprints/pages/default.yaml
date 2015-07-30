@@ -126,6 +126,7 @@ form:
                 header.taxonomy:
                   type: taxonomy
                   label: Taxonomy
+                  multiple: true
                   validate:
                     type: array
 
