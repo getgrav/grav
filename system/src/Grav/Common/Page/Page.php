@@ -693,7 +693,19 @@ class Page
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
 
-        return $pages->blueprints($this->template());
+        return $pages->blueprints($this->blueprintName());
+    }
+
+    /**
+     * Get the blueprint name for this page.  Use the blueprint form field if set
+     *
+     * @return string
+     */
+    public function blueprintName()
+    {
+        $blueprint_name = filter_input(INPUT_POST, 'blueprint', FILTER_SANITIZE_STRING) ?: $this->template();
+
+        return $blueprint_name;
     }
 
     /**
