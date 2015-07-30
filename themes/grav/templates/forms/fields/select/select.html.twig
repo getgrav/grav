@@ -14,7 +14,7 @@
                 {% if field.multiple in ['on', 'true', 1] %}multiple="multiple"{% endif %}
                 >
             {% for key, text in field.options %}
-            <option {% if key == value or text in value %}selected="selected"{% endif %} value="{{ key }}">{{ text }}</option>
+            <option {% if key == value or text in value %}selected="selected"{% endif %} value="{{ field.multiple ? text : key }}">{{ text }}</option>
             {% endfor %}
         </select>
     </div>
