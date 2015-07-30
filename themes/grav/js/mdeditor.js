@@ -95,9 +95,7 @@
                             dataType: 'JSON',
                             url: $this.element.data('grav-urlpreview') + '/task:processmarkdown',
                             method: 'post',
-                            data: {
-                                markdown: $this.editor.getValue()
-                            },
+                            data: $this.element.parents('form').serialize(),
                             toastErrors: true,
                             success: function (response) {
                                 $this.preview.container.html(response.message);
