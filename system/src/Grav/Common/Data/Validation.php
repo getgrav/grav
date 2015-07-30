@@ -492,11 +492,18 @@ class Validation
     {
         $values = (array) $value;
         $options = isset($field['options']) ? array_keys($field['options']) : array();
+        $multi = isset($field['multiple']) ? $field['multiple'] : false;
 
         if ($options) {
             $useKey = isset($field['use']) && $field['use'] == 'keys';
             foreach ($values as $key => $value) {
                 $values[$key] = $useKey ? (bool) $value : $value;
+            }
+        }
+
+        if ($multi) {
+            foreach ($values as $key => $value) {
+                $values[$key] = explode(',', $value[0]);
             }
         }
 
