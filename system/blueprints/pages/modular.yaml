@@ -39,8 +39,8 @@ form:
                 desc: Descending
 
             header.process:
-                type: ignore
+              type: ignore
             content:
-                type: ignore
+              type: ignore
             uploads:
-                type: ignore
+              type: ignore

@@ -52,3 +52,7 @@ form:
       default: 1
       validate:
         type: bool
+
+
+    blueprint:
+      type: blueprint

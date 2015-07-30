@@ -256,3 +256,6 @@ form:
                   type: hidden
                   validate:
                     type: commalist
+
+                blueprint:
+                  type: blueprint
