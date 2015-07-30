@@ -73,8 +73,6 @@ class Admin
      */
     protected $gpm;
 
-
-
     /**
      * Constructor.
      *

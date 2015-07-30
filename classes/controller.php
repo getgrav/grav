@@ -78,6 +78,8 @@ class AdminController
 
     /**
      * Performs a task.
+     *
+     * @return bool True if the action was performed successfully.
      */
     public function execute()
     {
@@ -103,6 +105,9 @@ class AdminController
         return $success;
     }
 
+    /**
+     * Redirect to the route stored in $this->redirect
+     */
     public function redirect()
     {
         if (!$this->redirect) {
@@ -149,6 +154,11 @@ class AdminController
         return true;
     }
 
+    /**
+     * Handle the email password recovery procedure.
+     *
+     * @return bool True if the action was performed.
+     */
     protected function taskForgot()
     {
         $l = $this->grav['language'];
@@ -211,6 +221,11 @@ class AdminController
         return true;
     }
 
+    /**
+     * Handle the reset password action.
+     *
+     * @return bool True if the action was performed.
+     */
     public function taskReset()
     {
         $l = $this->grav['language'];
@@ -267,6 +282,11 @@ class AdminController
         return true;
     }
 
+    /**
+     * Clear the cache.
+     *
+     * @return bool True if the action was performed.
+     */
     protected function taskClearCache()
     {
         if (!$this->authoriseTask('clear cache', ['admin.cache', 'admin.super'])) {
@@ -283,6 +303,11 @@ class AdminController
         return true;
     }
 
+    /**
+     * Handle the backup action
+     *
+     * @return bool True if the action was performed.
+     */
     protected function taskBackup()
     {
         if (!$this->authoriseTask('backup', ['admin.maintenance', 'admin.super'])) {
@@ -329,6 +354,9 @@ class AdminController
         return true;
     }
 
+    /**
+     * Handles filtering the page by modular/visible/routable in the pages list.
+     */
     protected function taskFilterPages()
     {
         if (!$this->authoriseTask('filter pages', ['admin.pages', 'admin.super'])) {
@@ -379,6 +407,11 @@ class AdminController
         $this->admin->collection = $collection;
     }
 
+    /**
+     * Determines the file types allowed to be uploaded
+     *
+     * @return bool True if the action was performed.
+     */
     protected function taskListmedia()
     {
         if (!$this->authoriseTask('list media', ['admin.pages', 'admin.super'])) {
@@ -394,13 +427,16 @@ class AdminController
 
         $media_list = array();
         foreach ($page->media()->all() as $name => $media) {
-            $media_list[$name] = ['url' => $media->cropZoom(150, 100)->url(),'size' => $media->get('size')];
+            $media_list[$name] = ['url' => $media->cropZoom(150, 100)->url(), 'size' => $media->get('size')];
         }
         $this->admin->json_response = ['status' => 'ok', 'results' => $media_list];
 
         return true;
     }
 
+    /**
+     * Handles adding a media file to a page
+     */
     protected function taskAddmedia()
     {
         if (!$this->authoriseTask('add media', ['admin.pages', 'admin.super'])) {
@@ -463,6 +499,11 @@ class AdminController
         return;
     }
 
+    /**
+     * Handles deleting a media file from a page
+     *
+     * @return bool True if the action was performed.
+     */
     protected function taskDelmedia()
     {
         if (!$this->authoriseTask('delete media', ['admin.pages', 'admin.super'])) {
@@ -492,9 +533,13 @@ class AdminController
         } else {
             $this->admin->json_response = ['status' => 'error', 'message' => 'No file found'];
         }
+
         return true;
     }
 
+    /**
+     * Process the page Markdown
+     */
     protected function taskProcessMarkdown()
     {
 //        if (!$this->authoriseTask('process markdown', ['admin.pages', 'admin.super'])) {
@@ -529,7 +574,7 @@ class AdminController
     }
 
     /**
-     * Enable plugin.
+     * Enable a plugin.
      *
      * @return bool True if the action was performed.
      */
@@ -553,7 +598,7 @@ class AdminController
     }
 
     /**
-     * Enable plugin.
+     * Disable a plugin.
      *
      * @return bool True if the action was performed.
      */
@@ -577,7 +622,7 @@ class AdminController
     }
 
     /**
-     * Set default theme.
+     * Set the default theme.
      *
      * @return bool True if the action was performed.
      */
@@ -979,12 +1024,23 @@ class AdminController
         return $data;
     }
 
+    /**
+     * Sets the page redirect.
+     *
+     * @param string $path The path to redirect to
+     * @param int $code The HTTP redirect code
+     */
     protected function setRedirect($path, $code = 303)
     {
         $this->redirect = $path;
         $this->code = $code;
     }
 
+    /**
+     * Gets the configuration data for a given view & post
+     *
+     * @return object
+     */
     protected function prepareData()
     {
         $type = trim("{$this->view}/{$this->admin->route}", '/');
@@ -993,6 +1049,11 @@ class AdminController
         return $data;
     }
 
+    /**
+     * Gets the permissions needed to access a given view
+     *
+     * @return array An array of permissions
+     */
     protected function dataPermissions()
     {
         $type = $this->view;
@@ -1021,6 +1082,11 @@ class AdminController
         return $permissions;
     }
 
+    /**
+     * Prepare a page to be stored: update its folder, name, template, header and content
+     *
+     * @return \Grav\Common\Page\Page $page The page
+     */
     protected function preparePage(\Grav\Common\Page\Page $page)
     {
         $input = $this->post;
@@ -1037,7 +1103,7 @@ class AdminController
             $page->template($type);
         }
 
-        // special case for Expert mode build the raw, unset content
+        // Special case for Expert mode: build the raw, unset content
         if (isset($input['frontmatter']) && isset($input['content'])) {
             $page->raw("---\n" . (string) $input['frontmatter'] . "\n---\n" . (string) $input['content']);
             unset($input['content']);
@@ -1046,12 +1112,19 @@ class AdminController
         if (isset($input['header'])) {
             $page->header((object) $input['header']);
         }
-        // Fill content last because of it also renders the output.
+        // Fill content last because it also renders the output.
         if (isset($input['content'])) {
             $page->rawMarkdown((string) $input['content']);
         }
     }
 
+    /**
+     * Checks if the user is allowed to perform the given task with its associated permissions
+     *
+     * @param string $task The task to execute
+     * @param array $permissions The permissions given
+     * @return bool True if authorized. False if not.
+     */
     protected function authoriseTask($task = '', $permissions = [])
     {
         if (!$this->admin->authorise($permissions)) {
