@@ -564,13 +564,13 @@ class AdminController
                 $parsedown = new Parsedown($page, $defaults);
             }
 
-            $html = json_encode($parsedown->text($markdown));
+            $html = $parsedown->text($markdown);
             $this->admin->json_response = ['status' => 'success', 'message' => $html];
             return;
         }
         $this->admin->json_response = ['status' => 'error', 'message' => 'No markdown text found'];
 
-        return;
+        return true;
     }
 
     /**
