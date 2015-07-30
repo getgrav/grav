@@ -157,6 +157,172 @@
     }
 }
 
+
+
+
+
+
+
+// Grav Editor
+.grav-mdeditor {
+
+}
+
+.grav-mdeditor-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1500;
+
+    .grav-mdeditor-content, .grav-mdeditor-code, .CodeMirror-wrap, .grav-mdeditor-preview {
+        height: 100% !important;
+    }
+
+    .grav-mdeditor-navbar, .grav-mdeditor-navbar ul li:first-child a, .grav-mdeditor-navbar-flip ul li:last-child a {
+        border-radius: 0;
+    }
+}
+
+.grav-mdeditor-navbar {
+    @include clearfix;
+    border: 1px solid $form-border;
+    border-top-right-radius: $form-border-radius;
+    border-top-left-radius: $form-border-radius;
+    background: lighten($content-bg,5%);
+
+    ul {
+        list-style: none;
+
+        margin: 0;
+        padding: 0;
+
+
+
+        li {
+            float: left;
+            &:first-child a {
+                border-top-left-radius: 4px;
+            }
+        }
+        .mdeditor-active a {
+            background: white;
+            cursor: auto;
+            border-left: 1px solid $form-border;
+            border-right: 1px solid $form-border;
+            &:hover {
+                background: $white;
+            }
+        }
+
+        a {
+            display: block;
+            cursor: pointer;
+            line-height: 3rem;
+            height: 3rem;
+            padding: 0 1rem;
+            color: $content-fg;
+
+            &:hover {
+                background: lighten($content-bg,2%);
+                color: darken($content-fg,10%);
+            }
+        }
+    }
+
+
+}
+
+.grav-mdeditor-navbar-nav {
+    float: left;
+}
+
+.grav-mdeditor-navbar-flip {
+    float: right;
+    ul li:last-child a {
+        border-top-right-radius: 4px;
+    }
+}
+
+.grav-mdeditor-content {
+
+    @include clearfix;
+    border: 1px solid $form-border;
+    border-top: 0;
+    border-bottom-right-radius: $form-border-radius;
+    border-bottom-left-radius: $form-border-radius;
+}
+
+.grav-mdeditor-code {
+
+
+
+    .CodeMirror {
+        padding: 10px 20px 20px 20px;
+        border-bottom-left-radius: $form-border-radius;
+
+    }
+}
+
+.grav-mdeditor-preview {
+    padding: 20px;
+    overflow-y: scroll;
+    position: relative;
+    background: #fbfbfb;
+    border-bottom-right-radius: $form-border-radius;
+}
+
+#admin-main {
+    .grav-mdeditor-preview {
+        font-family: $font-family-default;
+
+        h1, h2, h3, h4, h5, h6 {
+            color: darken($content-fg, 10%);
+        }
+        h1 {
+            font-size: 2rem;
+            border: 0;
+        }
+        h2 {
+            font-size: 1.6rem;
+        }
+        h3 {
+            font-size: 1.4rem;
+        }
+        h4 {
+            font-size: 1.2rem;
+        }
+        h5 {
+            font-size: 1.1rem
+        }
+        p, h1 {
+            padding: 0;
+        }
+    }
+}
+
+[data-mode=tab] {
+    &[data-active-tab=code] .grav-mdeditor-preview, &[data-active-tab=preview] .grav-mdeditor-code {
+        display: none;
+    }
+}
+
+[data-mode=split] {
+    .grav-mdeditor-button-code, .grav-mdeditor-button-preview {
+        display: none;
+    }
+
+    .grav-mdeditor-code {
+        border-right: 1px solid $form-border;
+
+        &, .grav-mdeditor-preview {
+            float: left;
+            width: 50%;
+        }
+    }
+}
+
 // CodeMirror Theme
 .cm-s-paper {
 

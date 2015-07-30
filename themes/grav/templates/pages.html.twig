@@ -29,10 +29,8 @@
 {% block javascripts %}
     {% do assets.addJs(theme_url~'/js/pages-all.js') %}
     {% if mode == 'edit' %}
-        {% do assets.addJs(theme_url~'/js/uikit.min.js') %}
         {% do assets.addJs(theme_url~'/js/codemirror-compressed.js') %}
-        {% do assets.addJs(theme_url~'/js/marked.min.js') %}
-        {% do assets.addJs(theme_url~'/js/htmleditor.js') %}
+        {% do assets.addJs(theme_url~'/js/mdeditor.js') %}
         {% do assets.addJs(theme_url~'/js/dropzone.min.js') %}
     {% endif %}
     {{ parent() }}

@@ -1655,6 +1655,111 @@ body.remodal_active .remodal {
     float: left;
     width: 50%; }
 
+.grav-mdeditor-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1500; }
+  .grav-mdeditor-fullscreen .grav-mdeditor-content, .grav-mdeditor-fullscreen .grav-mdeditor-code, .grav-mdeditor-fullscreen .CodeMirror-wrap, .grav-mdeditor-fullscreen .grav-mdeditor-preview {
+    height: 100% !important; }
+  .grav-mdeditor-fullscreen .grav-mdeditor-navbar, .grav-mdeditor-fullscreen .grav-mdeditor-navbar ul li:first-child a, .grav-mdeditor-fullscreen .grav-mdeditor-navbar-flip ul li:last-child a {
+    border-radius: 0; }
+
+.grav-mdeditor-navbar {
+  border: 1px solid #d4d4d4;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+  background: #fbfbfb; }
+  .grav-mdeditor-navbar:after {
+    content: "";
+    display: table;
+    clear: both; }
+  .grav-mdeditor-navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0; }
+    .grav-mdeditor-navbar ul li {
+      float: left; }
+      .grav-mdeditor-navbar ul li:first-child a {
+        border-top-left-radius: 4px; }
+    .grav-mdeditor-navbar ul .mdeditor-active a {
+      background: white;
+      cursor: auto;
+      border-left: 1px solid #d4d4d4;
+      border-right: 1px solid #d4d4d4; }
+      .grav-mdeditor-navbar ul .mdeditor-active a:hover {
+        background: #fff; }
+    .grav-mdeditor-navbar ul a {
+      display: block;
+      cursor: pointer;
+      line-height: 3rem;
+      height: 3rem;
+      padding: 0 1rem;
+      color: #737C81; }
+      .grav-mdeditor-navbar ul a:hover {
+        background: #f3f3f3;
+        color: #5b6266; }
+
+.grav-mdeditor-navbar-nav {
+  float: left; }
+
+.grav-mdeditor-navbar-flip {
+  float: right; }
+  .grav-mdeditor-navbar-flip ul li:last-child a {
+    border-top-right-radius: 4px; }
+
+.grav-mdeditor-content {
+  border: 1px solid #d4d4d4;
+  border-top: 0;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px; }
+  .grav-mdeditor-content:after {
+    content: "";
+    display: table;
+    clear: both; }
+
+.grav-mdeditor-code .CodeMirror {
+  padding: 10px 20px 20px 20px;
+  border-bottom-left-radius: 4px; }
+
+.grav-mdeditor-preview {
+  padding: 20px;
+  overflow-y: scroll;
+  position: relative;
+  background: #fbfbfb;
+  border-bottom-right-radius: 4px; }
+
+#admin-main .grav-mdeditor-preview {
+  font-family: "Lato", "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif; }
+  #admin-main .grav-mdeditor-preview h1, #admin-main .grav-mdeditor-preview h2, #admin-main .grav-mdeditor-preview h3, #admin-main .grav-mdeditor-preview h4, #admin-main .grav-mdeditor-preview h5, #admin-main .grav-mdeditor-preview h6 {
+    color: #5b6266; }
+  #admin-main .grav-mdeditor-preview h1 {
+    font-size: 2rem;
+    border: 0; }
+  #admin-main .grav-mdeditor-preview h2 {
+    font-size: 1.6rem; }
+  #admin-main .grav-mdeditor-preview h3 {
+    font-size: 1.4rem; }
+  #admin-main .grav-mdeditor-preview h4 {
+    font-size: 1.2rem; }
+  #admin-main .grav-mdeditor-preview h5 {
+    font-size: 1.1rem; }
+  #admin-main .grav-mdeditor-preview p, #admin-main .grav-mdeditor-preview h1 {
+    padding: 0; }
+
+[data-mode=tab][data-active-tab=code] .grav-mdeditor-preview, [data-mode=tab][data-active-tab=preview] .grav-mdeditor-code {
+  display: none; }
+
+[data-mode=split] .grav-mdeditor-button-code, [data-mode=split] .grav-mdeditor-button-preview {
+  display: none; }
+[data-mode=split] .grav-mdeditor-code {
+  border-right: 1px solid #d4d4d4; }
+  [data-mode=split] .grav-mdeditor-code, [data-mode=split] .grav-mdeditor-code .grav-mdeditor-preview {
+    float: left;
+    width: 50%; }
+
 .cm-s-paper.CodeMirror {
   color: #676f74;
   font-size: 14px;
