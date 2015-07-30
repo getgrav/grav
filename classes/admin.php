@@ -304,6 +304,11 @@ class Admin
         return $data[$type];
     }
 
+    /**
+     * Get the GPM instance
+     *
+     * @return GPM The GPM instance
+     */
     public function gpm()
     {
         if (!$this->gpm) {
@@ -433,6 +438,11 @@ class Admin
         return $content;
     }
 
+    /**
+     * Search in the logs when was the latest backup made
+     *
+     * @return array Array containing the latest backup information
+     */
     public function lastBackup()
     {
         $file = JsonFile::instance($this->grav['locator']->findResource("log://backup.log"));
