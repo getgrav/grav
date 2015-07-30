@@ -70,9 +70,8 @@ class AdminPlugin extends Plugin
     }
 
     /**
-     * Initialize administration plugin if admin path matches.
-     *
-     * Disables system cache.
+     * If the admin path matches, initialize the Login plugin configuration and set the admin
+     * as active.
      */
     public function login()
     {
@@ -105,9 +104,7 @@ class AdminPlugin extends Plugin
     }
 
     /**
-     * Initialize administration plugin if admin path matches.
-     *
-     * Disables system cache.
+     * If the admin plugin is set as active, initialize the admin
      */
     public function onPluginsInitialized()
     {
@@ -242,6 +239,9 @@ class AdminPlugin extends Plugin
         }
     }
 
+    /**
+     * Handles getting GPM updates
+     */
     public function onTaskGPM()
     {
         $action = $_POST['action']; // getUpdatable | getUpdatablePlugins | getUpdatableThemes | gravUpdates
@@ -277,6 +277,11 @@ class AdminPlugin extends Plugin
         exit;
     }
 
+    /**
+     * Initialize the admin.
+     *
+     * @throws \RuntimeException
+     */
     protected function initializeAdmin()
     {
         $this->enable([

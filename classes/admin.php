@@ -73,8 +73,6 @@ class Admin
      */
     protected $gpm;
 
-
-
     /**
      * Constructor.
      *
@@ -304,6 +302,11 @@ class Admin
         return $data[$type];
     }
 
+    /**
+     * Get the GPM instance
+     *
+     * @return GPM The GPM instance
+     */
     public function gpm()
     {
         if (!$this->gpm) {
@@ -433,6 +436,11 @@ class Admin
         return $content;
     }
 
+    /**
+     * Search in the logs when was the latest backup made
+     *
+     * @return array Array containing the latest backup information
+     */
     public function lastBackup()
     {
         $file = JsonFile::instance($this->grav['locator']->findResource("log://backup.log"));
@@ -520,6 +528,12 @@ class Admin
         return dirname('/' . Grav::instance()['admin']->route);
     }
 
+    /**
+     * Determine if the plugin or theme info passed is from Team Grav
+     *
+     * @param object $info Plugin or Theme info object
+     * @return bool
+     */
     public function isTeamGrav($info)
     {
         if (isset($info['author']['name']) && $info['author']['name'] == 'Team Grav') {
