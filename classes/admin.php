@@ -520,6 +520,12 @@ class Admin
         return dirname('/' . Grav::instance()['admin']->route);
     }
 
+    /**
+     * Determine if the plugin or theme info passed is from Team Grav
+     *
+     * @param object $info Plugin or Theme info object
+     * @return bool
+     */
     public function isTeamGrav($info)
     {
         if (isset($info['author']['name']) && $info['author']['name'] == 'Team Grav') {
