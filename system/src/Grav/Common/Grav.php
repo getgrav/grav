@@ -174,8 +174,8 @@ class Grav extends Container
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
-        $this['session']->init();
         $this['uri']->init();
+        $this['session']->init();
         $this['errors']->resetHandlers();
         $debugger->init();
         $this['config']->debug();
