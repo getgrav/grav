@@ -7,6 +7,8 @@ rules:
     max: 80
 
 form:
+  validation: loose
+
   fields:
     type:
       type: hidden
