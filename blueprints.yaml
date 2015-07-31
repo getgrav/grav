@@ -11,6 +11,11 @@ keywords: admin, plugin, manager, panel
 form:
   validation: strict
   fields:
+    Basics:
+      type: section
+      title: Basics
+      underline: false
+
     enabled:
       type: hidden
       label: Enabled
@@ -29,7 +34,7 @@ form:
 
     dashboard.days_of_stats:
       type: text
-      label: Days of Stats
+      label: Days of stats
       default: 7
       help: Keep stats for the specified number of days, then drop them
       validate:
@@ -37,17 +42,17 @@ form:
 
     login.enabled:
       type: hidden
-      label: Login Enabled
+      label: Login enabled
       default: true
 
     login.route:
       type: hidden
-      label: Login Route
+      label: Login route
       default: null
 
     login.timeout:
       type: hidden
-      label: Login Timeout
+      label: Login timeout
       default: 1800
 
     warnings.delete_page:
@@ -62,9 +67,14 @@ form:
         type: bool
       help: Ask the user confirmation when deleting a page
 
+    Popularity:
+      type: section
+      title: Popularity
+      underline: true
+
     popularity.enabled:
       type: toggle
-      label: Popularity
+      label: Visitor tracking
       highlight: 1
       default: 1
       options:

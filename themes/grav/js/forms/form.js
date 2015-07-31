@@ -56,7 +56,7 @@
     }
 
     function linkToggle (element, toggleable) {
-        element.onChange(function (value) {
+        $(element).on('change', function (value) {
             toggleable.find('input').prop('checked', true);
             toggleable.siblings('label').css('opacity', 1);
             element.disabled(false);
@@ -73,7 +73,7 @@
             }
         });
 
-        var on = toggleable.is(':checked');
+        var on = toggleable.find('input').is(':checked');
         toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
         element.disabled(!on);
         if (!on) {
