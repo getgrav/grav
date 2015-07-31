@@ -11,8 +11,88 @@ keywords: admin, plugin, manager, panel
 form:
   validation: strict
   fields:
+    enabled:
+      type: hidden
+      label: Enabled
+      default: 1
+
     route:
-        type: text
-        label: Administrator path
-        placeholder: "Default route for administrator (relative to base)"
-        help: If you want to change the URL for the administrator, you can provide a path here
+      type: text
+      label: Administrator path
+      placeholder: "Default route for administrator (relative to base)"
+      help: If you want to change the URL for the administrator, you can provide a path here
+
+    theme:
+      type: hidden
+      label: Theme
+      default: grav
+
+    dashboard.days_of_stats:
+      type: text
+      label: Days of Stats
+      default: 7
+      help: Keep stats for the specified number of days, then drop them
+      validate:
+        type: int
+
+    login.enabled:
+      type: hidden
+      label: Login Enabled
+      default: true
+
+    login.route:
+      type: hidden
+      label: Login Route
+      default: null
+
+    login.timeout:
+      type: hidden
+      label: Login Timeout
+      default: 1800
+
+    warnings.delete_page:
+      type: toggle
+      label: Warn on page delete
+      highlight: 1
+      default: 1
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
+      help: Ask the user confirmation when deleting a page
+
+    popularity.enabled:
+      type: toggle
+      label: Popularity
+      highlight: 1
+      default: 1
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
+      help: Enable the visitors stats collecting feature
+
+    popularity.ignore:
+      type: array
+      label: Ignore
+      help: "URLs to ignore"
+      default: ['/test*','/modular']
+      value_only: true
+      placeholder_value: /ignore-this-route
+
+    popularity.history.daily:
+      type: hidden
+      label: Daily history
+      default: 30
+
+    popularity.history.monthly:
+      type: hidden
+      label: Monthly history
+      default: 12
+
+    popularity.history.visitors:
+      type: hidden
+      label: Visitors history
+      default: 20
