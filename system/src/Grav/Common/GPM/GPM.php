@@ -349,8 +349,7 @@ class GPM extends Iterator
     public function findPackages($searches = [])
     {
         $packages = ['total' => 0, 'not_found' => []];
-        $inflector = $this->grav['inflector'];
-
+        $inflector = new Inflector();
 
         foreach ($searches as $search) {
             $repository = '';
