@@ -56,7 +56,7 @@
     }
 
     function linkToggle (element, toggleable) {
-        element.onChange(function (value) {
+        $(element).on('change', function (value) {
             toggleable.find('input').prop('checked', true);
             toggleable.siblings('label').css('opacity', 1);
             element.disabled(false);
