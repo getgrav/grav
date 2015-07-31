@@ -19,18 +19,22 @@
     </div>
 </div>
 <script>
-    var editor = CodeMirror.fromTextArea(document.getElementById("frontmatter"), {
-        mode: 'yaml',
-        theme: "paper"
-      });
-    $('.dragbar').mousedown(function(e){
-        e.preventDefault();
-        var parentOffset = $(this).parent().offset();
-        $(document).mousemove(function(e){
-          $('.form-frontmatter-wrapper .CodeMirror').css("height",e.pageY - parentOffset.top);
-       })
-    });
-    $(document).mouseup(function(e){
-       $(document).unbind('mousemove');
-    });
+    ((function(){
+        var editor = CodeMirror.fromTextArea(jQuery('#frontmatter')[0], {
+            mode: 'yaml',
+            theme: 'paper'
+        });
+        editor.on('change', editor.save);
+
+        $('.dragbar').mousedown(function(e){
+            e.preventDefault();
+            var parentOffset = $(this).parent().offset();
+            $(document).mousemove(function(e){
+              $('.form-frontmatter-wrapper .CodeMirror').css('height',e.pageY - parentOffset.top);
+           })
+        });
+        $(document).mouseup(function(e){
+           $(document).unbind('mousemove');
+        });
+    })());
 </script>
