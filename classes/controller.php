@@ -546,31 +546,24 @@ class AdminController
 //            return;
 //        }
 
-        $page = $this->admin->page(true);
+        try {
+            $page = $this->admin->page(true);
 
-        if (!$page) {
-            $this->admin->json_response = ['status' => 'error', 'message' => 'No Page found'];
-            return false;
-        }
-
-        $markdown = !empty($this->post['markdown']) ? $this->post['markdown'] : null;
-        if ($markdown) {
-            $defaults = (array) $this->grav['config']->get('system.pages.markdown');
-
-            // Initialize the preferred variant of Parsedown
-            if ($defaults['extra']) {
-                $parsedown = new ParsedownExtra($page, $defaults);
-            } else {
-                $parsedown = new Parsedown($page, $defaults);
+            if (!$page) {
+                $this->admin->json_response = ['status' => 'error', 'message' => 'No Page found'];
+                return false;
             }
 
-            $html = $parsedown->text($markdown);
-            $this->admin->json_response = ['status' => 'success', 'message' => $html];
-            return;
-        }
-        $this->admin->json_response = ['status' => 'error', 'message' => 'No markdown text found'];
+            $this->preparePage($page);
+            $page->header();
+            $html = $page->content();
 
-        return true;
+            $this->admin->json_response = ['status' => 'success', 'message' => $html];
+            return true;
+        } catch (\Exception $e) {
+            $this->admin->json_response = ['status' => 'error', 'message' => $e->getMessage()];
+            return false;
+        }
     }
 
     /**
