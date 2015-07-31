@@ -5,7 +5,8 @@
 
 {% block input %}
     <input
-        type="date"
+        type="text"
+        data-grav-field-datetime
         class="{{ field.classes }}"
         name="{{ (scope ~ field.name)|fieldName }}"
         value="{{ value }}"

@@ -12,6 +12,9 @@ var getState = function(){
 
 $(function(){
 
+    var currentValues = getState(),
+        clickedLink;
+
     // selectize
     $('input.page-filter').selectize({
         maxItems: null,
@@ -193,9 +196,6 @@ $(function(){
         if (state == 'collapse') collapseAll(true);
         else expandAll(true);
     });
-
-    var currentValues = getState(),
-        clickedLink;
 
     $('#admin-main button').on('click', function(){
         $(window).off('beforeunload');

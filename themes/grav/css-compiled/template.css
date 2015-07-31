@@ -1004,6 +1004,8 @@ tr {
       padding: 0 3rem 0.5rem;
       margin: 0 0 1rem;
       border-bottom: 3px solid #e1e1e1; }
+      #admin-main .admin-block h1.no_underline {
+        border-bottom: 0; }
     #admin-main .admin-block .button-bar {
       margin-right: 3rem; }
   #admin-main .flush-bottom.button-bar {
