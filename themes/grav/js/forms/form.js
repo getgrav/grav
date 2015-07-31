@@ -199,7 +199,7 @@
             values = {};
 
         // Get form values that are not handled by JS framework
-        Form.findElements(this.form, 'input, textarea', '[data-grav-field]', true).each(function(input) {
+        Form.findElements(this.form, 'input, textarea', '', false).each(function(input) {
             var input = $(this),
                 name = input.attr('name'),
                 value = input.val();
