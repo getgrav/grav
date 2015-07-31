@@ -20,10 +20,10 @@ class Session extends \RocketTheme\Toolbox\Session\Session
         $uri = $this->grav['uri'];
         $config = $this->grav['config'];
 
-        $session_timeout = $config->get('system.session.timeout', 1800);
-        $session_path = $config->get('system.session.path', '/' . ltrim($uri->rootUrl(false), '/'));
-
         if ($config->get('system.session.enabled')) {
+            $session_timeout = $config->get('system.session.timeout', 1800);
+            $session_path = $config->get('system.session.path', '/' . ltrim($uri->rootUrl(false), '/'));
+
             // Define session service.
             parent::__construct(
                 $session_timeout,
