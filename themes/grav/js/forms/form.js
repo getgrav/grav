@@ -73,7 +73,7 @@
             }
         });
 
-        var on = toggleable.is(':checked');
+        var on = toggleable.find('input').is(':checked');
         toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
         element.disabled(!on);
         if (!on) {
