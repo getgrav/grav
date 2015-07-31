@@ -295,7 +295,10 @@ class Language
 
 
         if ($this->config->get('system.languages.translations', true)) {
-            if ($this->enabled() && $lookup) {
+
+            if (isset($this->grav['admin'])) {
+                $languages = ['en'];
+            } elseif ($this->enabled() && $lookup) {
                 if (empty($languages)) {
                     if ($this->config->get('system.languages.translations_fallback', true)) {
                         $languages = $this->getFallbackLanguages();
