@@ -16,14 +16,4 @@
         {% if field.validate.min %}min="{{ (field.validate.min is null ? field.validate.min : field.validate.min|date("d-m-Y H:i")) }}"{% endif %}
         {% if field.validate.max %}max="{{ (field.validate.max is null ? field.validate.max : field.validate.max|date("d-m-Y H:i")) }}"{% endif %}
         />
-
-        <script src="{{ base_url_relative_frontend }}{{ theme_url }}/js/datepicker/kendo.custom.min.js"></script>
-        <script src="{{ base_url_relative_frontend }}{{ theme_url }}/js/datepicker/init.js"></script>
-
 {% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    HELLOW!!!!
-{% endblock %}
-
