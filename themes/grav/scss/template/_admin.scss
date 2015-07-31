@@ -263,6 +263,10 @@ $update-height: 3rem;
             padding: 0 $padding-default 0.5rem;
             margin: 0 0 1rem;
             border-bottom: 3px solid darken($content-bg, 5%);
+
+            &.no_underline {
+                border-bottom: 0;
+            }
         }
 
         .button-bar {
