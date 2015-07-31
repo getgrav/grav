@@ -44,6 +44,9 @@
 
         {% do assets.addJs(theme_url~'/js/admin-all.js') %}
 
+        {% do assets.addJs(theme_url~'/js/datepicker/kendo.custom.min.js') %}
+        {% do assets.addJs(theme_url~'/js/datepicker/init.js') %}
+
         {% do assets.addJs(theme_url~'/js/forms/form.js') %}
         {% do assets.addJs(theme_url~'/js/forms/fields/input.js') %}
         {% do assets.addJs(theme_url~'/js/forms/fields/array.js') %}
@@ -51,6 +54,7 @@
         {% do assets.addJs(theme_url~'/js/forms/fields/checkboxes.js') %}
         {% do assets.addJs(theme_url~'/js/forms/fields/toggle.js') %}
         {% do assets.addJs(theme_url~'/js/forms.js') %}
+
         {{ assets.js() }}
     {% endblock %}
 {% endblock %}
