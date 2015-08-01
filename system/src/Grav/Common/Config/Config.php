@@ -336,6 +336,11 @@ class Config extends Data
         $this->items = $cache['data'];
     }
 
+    /**
+     * @param      $languages
+     * @param      $plugins
+     * @param null $filename
+     */
     protected function loadCompiledLanguages($languages, $plugins, $filename = null)
     {
         $checksum = md5(json_encode($languages));
@@ -361,11 +366,24 @@ class Config extends Data
 
             // Load languages.
             $this->languages = new Languages;
-            foreach ($languageFiles as $files) {
-                $this->loadLanguagesFiles($files);
+
+            if (isset($languageFiles['user/plugins'])) {
+                foreach ((array) $languageFiles['user/plugins'] as $plugin => $item) {
+                    $lang_file = CompiledYamlFile::instance($item['file']);
+                    $content = $lang_file->content();
+                    foreach ((array) $content as $lang => $value) {
+                        $this->languages->join($lang, $value, '/');
+                    }
+                }
             }
 
-            $this->languages->reformat();
+            if (isset($languageFiles['system/languages'])) {
+                foreach ((array) $languageFiles['system/languages'] as $lang => $item) {
+                    $lang_file = CompiledYamlFile::instance($item['file']);
+                    $content = $lang_file->content();
+                    $this->languages->join($lang, $content, '/');
+                }
+            }
 
             $cache = [
                 '@class'   => $class,
@@ -407,17 +425,6 @@ class Config extends Data
         foreach ($files as $name => $item) {
             $file = CompiledYamlFile::instance($item['file']);
             $this->join($name, $file->content(), '/');
-        }
-    }
-
-    public function loadLanguagesFiles(array $files)
-    {
-        foreach ($files as $name => $item) {
-            $file = CompiledYamlFile::instance($item['file']);
-            $content = $file->content();
-            foreach ((array) $content as $key => $value) {
-                $this->languages->join($key, $value, '/');
-            }
         }
     }
 
