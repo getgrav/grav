@@ -16,8 +16,6 @@
                 {% if field.validate.pattern %}pattern="{{ field.validate.pattern }}"{% endif %}
                 {% if field.validate.message %}title="{{ field.validate.message }}"{% endif %}
             {% endblock %}
-            >
-            {{ value }}
-        </textarea>
+            >{{ value|trim }}</textarea>
     </div>
 {% endblock %}
