@@ -23,6 +23,7 @@ form:
                 pages.theme:
                     type: themeselect
                     classes: fancy
+                    selectize: true
                     size: medium
                     label: Default theme
                     help: "Set the default theme for Grav to use (default is Antimatter)"
@@ -40,6 +41,7 @@ form:
                 timezone:
                     type: select
                     label: Timezone
+                    size: medium
                     classes: fancy
                     help: "Override the default timezone the server"
                     @data-options: '\Grav\Common\Utils::timezones'

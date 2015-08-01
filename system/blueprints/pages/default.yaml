@@ -56,11 +56,11 @@ form:
                 header.published:
                   type: toggle
                   label: Published
-                  toggleable: true
-                  default: 1
                   help: "By default, a page is published unless you explicitly set published: false or via a publish_date being in the future, or unpublish_date in the past"
                   highlight: 1
+                  size: medium
                   options:
+                    '': Global
                     1: Yes
                     0: No
                   validate:
@@ -217,6 +217,14 @@ form:
                     twig: Twig
                   use: keys
 
+                header.child_type:
+                  type: select
+                  toggleable: true
+                  label: Default Child Type
+                  default: default
+                  placeholder: Use Global
+                  @data-options: '\Grav\Common\Page\Pages::types'
+
                 header.visible:
                   type: toggle
                   label: Visible
@@ -252,11 +260,7 @@ form:
                   validate:
                     type: bool
 
-                header.child_type:
-                  type: select
-                  label: Default Child Type
-                  default: default
-                  @data-options: '\Grav\Common\Page\Pages::types'
+
 
                 header.order_by:
                   type: hidden
