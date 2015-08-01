@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block input %}
-    <div class="switch-toggle switch-grav switch-{{ field.options|length }}">
+    <div class="switch-toggle switch-grav {{ field.size }} switch-{{ field.options|length }}">
         {% for key, text in field.options %}
             {% set id = "toggle_" ~ field.name ~ key %}
             <input type="radio"

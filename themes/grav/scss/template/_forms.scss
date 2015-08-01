@@ -265,6 +265,11 @@ form {
     .switch-toggle {
         // margin-left: 30%;
 
+        &.medium {
+            width: 100%;
+            width: 20rem;
+        }
+
         label {
             cursor: pointer;
         }

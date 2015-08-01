@@ -596,6 +596,9 @@ form textarea {
 form .form-frontmatter-wrapper {
   border: 1px solid #d4d4d4;
   border-radius: 4px; }
+form .switch-toggle.medium {
+  width: 100%;
+  width: 20rem; }
 form .switch-toggle label {
   cursor: pointer; }
 form .switch-toggle a, form .switch-toggle label {
