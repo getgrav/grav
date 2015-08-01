@@ -64,7 +64,13 @@ b, strong {
   .tertiary-accent .button-bar {
     background: #2693B7; }
   .tertiary-accent .button {
-    background: #3aafd6; }
+    background: #2aa4cc;
+    background: #3aafd6;
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 4px; }
+    .tertiary-accent .button:hover {
+      background: #4fb8da;
+      color: #fff; }
 
 .alert {
   font-size: 1.1rem;
@@ -529,6 +535,8 @@ form .form-select-wrapper, form .selectize-control.single .selectize-input {
     line-height: 0;
     color: #9ba2a6;
     pointer-events: none; }
+form .selectize-control {
+  height: 39px; }
 form .selectize-input {
   box-shadow: none;
   color: #737C81;
@@ -549,7 +557,7 @@ form .selectize-control.multi .selectize-input {
     form .selectize-control.multi .selectize-input > div.active {
       background: #d4d4d4; }
 form .selectize-control.single .selectize-input:after {
-  right: 24px; }
+  right: 27px; }
 form .selectize-control.single .selectize-input.dropdown-active:after {
   content: '\f077'; }
 form .x-small {
@@ -1004,6 +1012,8 @@ tr {
       padding: 0 3rem 0.5rem;
       margin: 0 0 1rem;
       border-bottom: 3px solid #e1e1e1; }
+      #admin-main .admin-block h1.no_underline {
+        border-bottom: 0; }
     #admin-main .admin-block .button-bar {
       margin-right: 3rem; }
   #admin-main .flush-bottom.button-bar {
@@ -2102,6 +2112,14 @@ button.toast-close-button {
 
 .toast-success {
   background-color: #9055AF; }
+  .toast-success .button {
+    background: #9b66b7;
+    background: #a778bf;
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 4px; }
+    .toast-success .button:hover {
+      background: #b289c7;
+      color: #fff; }
 
 .toast-error {
   background-color: #DA4B46; }

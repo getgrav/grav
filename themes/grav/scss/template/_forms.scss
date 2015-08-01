@@ -125,6 +125,10 @@ form {
         }
     }
 
+    .selectize-control {
+        height: 39px;
+    }
+
     .selectize-input {
         box-shadow: none;
         color: $content-fg;
@@ -161,7 +165,7 @@ form {
     .selectize-control.single .selectize-input {
 
         &:after {
-            right: 24px;
+            right: 27px;
         }
         &.dropdown-active {
             &:after {

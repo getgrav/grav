@@ -52,7 +52,8 @@ b, strong {
     }
 
     .button {
-        background: lighten($tertiary-accent-bg, 10%);
+        background: lighten($tertiary-accent-bg, 5%);
+        @include button-color(lighten($tertiary-accent-bg, 10%));
     }
 }
 

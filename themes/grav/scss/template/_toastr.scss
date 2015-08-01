@@ -140,6 +140,12 @@ button.toast-close-button {
 }
 .toast-success {
     background-color: $info-bg;
+
+    .button {
+        background: lighten($info-bg, 5%);
+        @include button-color(lighten($info-bg, 10%));
+    }
+
 }
 .toast-error {
     background-color: $notice-bg;
