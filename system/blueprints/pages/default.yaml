@@ -96,24 +96,29 @@ form:
               fields:
                 header.metadata.description:
                   type: textarea
+                  toggleable: true
                   label: Description
+                  default:
                   validate:
-                    max: 120
+                    max: 155
 
                 header.metadata.keywords:
                   type: text
+                  toggleable: true
                   label: Keywords
                   validate:
                     max: 120
 
                 header.metadata.author:
                   type: text
+                  toggleable: true
                   label: Author
                   validate:
                     max: 120
 
                 header.metadata.robots:
                   type: checkboxes
+                  toggleable: true
                   label: Robots
                   options:
                     noindex: No index
