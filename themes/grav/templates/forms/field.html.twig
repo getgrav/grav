@@ -41,17 +41,25 @@
                     {% block input %}
                         <div class="form-input-wrapper {{ field.size }}">
                             <input
-                                    {# required attribute structures #}
-                                    name="{{ (scope ~ field.name)|fieldName }}"
-                                    value="{{ value|join(', ') }}"
-                                    {# input attribute structures #}
-                                    {% block input_attributes %}
-                                        {% if field.classes is defined %} class="{{ field.classes }}" {% endif %}
-                                        {% if field.id is defined %} id="{{ field.id|e }}" {% endif %}
-                                        {% if field.style is defined %} style="{{ field.style|e }}" {% endif %}
-                                        {% if field.title is defined %} title="{{ field.title|e }}" {% endif %}
-                                    {% endblock %}
-                                    />
+                                {# required attribute structures #}
+                                name="{{ (scope ~ field.name)|fieldName }}"
+                                value="{{ value|join(', ') }}"
+                                {# input attribute structures #}
+                                {% block input_attributes %}
+                                    {% if field.classes is defined %}class="{{ field.classes }}" {% endif %}
+                                    {% if field.id is defined %}id="{{ field.id|e }}" {% endif %}
+                                    {% if field.style is defined %}style="{{ field.style|e }}" {% endif %}
+                                    {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+                                    {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+                                    {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+                                    {% if field.readonly in ['on', 'true', 1] %}readonly="readonly"{% endif %}
+                                    {% if field.autocomplete in ['on', 'off'] %}autocomplete="{{ field.autocomplete }}"{% endif %}
+                                    {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+                                    {% if field.validate.pattern %}pattern="{{ field.validate.pattern }}"{% endif %}
+                                    {% if field.validate.message %}title="{{ field.validate.message }}"
+                                    {% elseif field.title is defined %}title="{{ field.title|e }}" {% endif %}
+                                {% endblock %}
+                                />
                         </div>
                     {% endblock %}
                 {% endblock %}
