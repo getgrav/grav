@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $('input[type="date"]').each(function() {
+    $('input[data-grav-field-datetime]').each(function() {
         var $input = $(this),
             min = $input.attr('min'),
             max = $input.attr('max'),
