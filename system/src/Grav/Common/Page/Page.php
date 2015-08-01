@@ -1017,24 +1017,29 @@ class Page
         if (null === $this->metadata) {
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
             $this->metadata = array();
-            $page_header = $this->header;
 
             // Set the Generator tag
             $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
 
-            // Safety check to ensure we have a header
-            if ($page_header) {
+
+            if (isset($this->header->metadata)) {
+                $page_header = $this->header->metadata;
+
+
+
+
+
                 // Merge any site.metadata settings in with page metadata
                 $defaults = (array) self::getGrav()['config']->get('site.metadata');
 
-                if (isset($page_header->metadata)) {
-                    $page_header->metadata = array_merge($defaults, $page_header->metadata);
+                if (isset($page_header)) {
+                    $page_header = array_merge($defaults, $page_header);
                 } else {
-                    $page_header->metadata = $defaults;
+                    $page_header = $defaults;
                 }
 
                 // Build an array of meta objects..
-                foreach ((array)$page_header->metadata as $key => $value) {
+                foreach ((array)$page_header as $key => $value) {
                     // If this is a property type metadata: "og", "twitter", "facebook" etc
                     if (is_array($value)) {
                         foreach ($value as $property => $prop_value) {
