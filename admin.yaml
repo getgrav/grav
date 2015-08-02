@@ -9,6 +9,7 @@ login:
   timeout: 1800
 warnings:
   delete_page: true
+edit_mode: auto       // auto|normal|expert
 popularity:
   enabled: true
   ignore: ['/test*','/modular']
