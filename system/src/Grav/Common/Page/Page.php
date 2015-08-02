@@ -693,7 +693,21 @@ class Page
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
 
-        return $pages->blueprints($this->blueprintName());
+        $blueprint = $pages->blueprints($this->blueprintName());
+
+        $fields = $blueprint->fields();
+
+        // override if you only want 'normal' mode
+        if (empty($fields) && self::getGrav()['admin'] && self::getGrav()['config']->get('plugins.admin.edit_mode', 'auto') == 'normal') {
+            $blueprint = $pages->blueprints('default');
+        }
+
+        // override if you only want 'expert' mode
+        if (!empty($fields) && self::getGrav()['admin'] && self::getGrav()['config']->get('plugins.admin.edit_mode', 'auto') == 'expert') {
+            $blueprint = $pages->blueprints('');
+        }
+
+        return $blueprint;
     }
 
     /**
