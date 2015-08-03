@@ -821,9 +821,9 @@ class AdminController
             }
         }
 
-        // Always redirect if a page was change, to refresh it
+        // Always redirect if a page route was changed, to refresh it
         if ($obj instanceof Page\Page) {
-            $this->setRedirect($this->view . '/' . $obj->route());
+            $this->setRedirect($this->view . $obj->route());
         }
 
         return true;
