@@ -912,7 +912,7 @@ class AdminController
 
             // Enqueue message and redirect to new location.
             $this->admin->setMessage('Successfully copied', 'info');
-            $this->setRedirect($this->view . '/' . $page->route());
+            $this->setRedirect($this->view . '/' . $parent->route() . '/'. $page->slug());
 
         } catch (\Exception $e) {
             throw new \RuntimeException('Copying page failed on error: ' . $e->getMessage());
