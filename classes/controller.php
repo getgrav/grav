@@ -554,7 +554,7 @@ class AdminController
                 return false;
             }
 
-            $this->preparePage($page);
+            $this->preparePage($page, true);
             $page->header();
             $html = $page->content();
 
@@ -1075,9 +1075,10 @@ class AdminController
     /**
      * Prepare a page to be stored: update its folder, name, template, header and content
      *
-     * @return \Grav\Common\Page\Page $page The page
+     * @param \Grav\Common\Page\Page $page
+     * @param bool                   $clean_header
      */
-    protected function preparePage(\Grav\Common\Page\Page $page)
+    protected function preparePage(\Grav\Common\Page\Page $page, $clean_header = false)
     {
         $input = $this->post;
 
@@ -1085,6 +1086,7 @@ class AdminController
         $ordering = $order ? sprintf('%02d.', $order) : '';
         $slug = empty($input['folder']) ? $page->value('folder') : (string) $input['folder'];
         $page->folder($ordering . $slug);
+
 
         if (isset($input['type'])) {
             $type = (string) $input['type'];
@@ -1100,7 +1102,13 @@ class AdminController
         }
 
         if (isset($input['header'])) {
-            $page->header((object) $input['header']);
+            $header = $input['header'];
+            if ($clean_header) {
+                $header = Utils::arrayFilterRecursive($header, function($k, $v) {
+                    return !empty($v);
+                });
+            }
+            $page->header((object) $header);
         }
         // Fill content last because it also renders the output.
         if (isset($input['content'])) {
