@@ -115,7 +115,7 @@
         this.scanned = true;
 
         //Refresh root.currentValues as toggleables have been initialized
-        (root || window.GravJS).currentValues = getState();
+        root.currentValues = getState();
     };
 
     Form.factories = {};

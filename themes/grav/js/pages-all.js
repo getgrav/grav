@@ -1,15 +1,3 @@
-var getState = function(){
-    var loadValues = [];
-    $('input, select, textarea').each(function(index, element){
-        var name  = $(element).prop('name'),
-            value = $(element).val();
-
-        if (name)  loadValues.push(name + '|' + value);
-    });
-
-    return loadValues.toString();
-};
-
 $(function(){
     var root = window || {};
     root = root.GravJS = root.GravJS || {};
