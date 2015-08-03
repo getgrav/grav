@@ -882,11 +882,11 @@ class AdminController
             $pages = $this->grav['pages'];
             $data = $this->post;
 
-            // Find new parent page in order to build the path.
-            $route = isset($data['route']) ? trim($data['route'], '/') : '';
-            $parent = empty($route) ? $pages->root() : $pages->dispatch($data['route'], true);
             // And then get the current page.
             $page = $this->admin->page(true);
+
+            // Find new parent page in order to build the path.
+            $parent = $page->parent() ?: $pages->root();
 
             // Make a copy of the current page and fill the updated information into it.
             $page = $page->copy($parent);
