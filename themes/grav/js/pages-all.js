@@ -12,8 +12,10 @@ var getState = function(){
 
 $(function(){
 
-    var currentValues = getState(),
-        clickedLink;
+    //defined to make clear it's global, but initialized in ./forms/form.js: we must wait to scan the
+    //toggleables elements, otherwise the DOM changes and `beforeunload` detects unsaved changes
+    var currentValues;
+    var clickedLink;
 
     // selectize
     $('input.page-filter').selectize({

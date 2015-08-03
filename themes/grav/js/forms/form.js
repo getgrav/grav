@@ -113,6 +113,9 @@
         scanToggleable(this);
         scan(this);
         this.scanned = true;
+
+        //We can now initialize window.currentValues as toggleables are initialized
+        window.currentValues = getState();
     };
 
     Form.factories = {};
