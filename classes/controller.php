@@ -883,7 +883,7 @@ class AdminController
             $data = $this->post;
 
             // Find new parent page in order to build the path.
-            $route = trim($data['route'], '/');
+            $route = isset($data['route']) ? trim($data['route'], '/') : '';
             $parent = empty($route) ? $pages->root() : $pages->dispatch($data['route'], true);
             // And then get the current page.
             $page = $this->admin->page(true);
