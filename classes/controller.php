@@ -905,9 +905,6 @@ class AdminController
                 $page->slug('');
             }
 
-            // Validation, type filtering and saving the changes.
-            $page->validate();
-            $page->filter();
             $page->save();
 
             // Enqueue message and redirect to new location.
