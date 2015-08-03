@@ -292,10 +292,20 @@ $(function(){
         }
     });
 
-    // Move dropdown sync
-    $('body').on('change', '[data-page-move] select', function(){
+    // Move dropdown sync (on dropdown change)
+    /*$('body').on('change', '[data-page-move] select', function(){
         var route = jQuery('form#blueprints').first().find('select[name="route"]'),
             value = $(this).val();
+        if (route.length && route.val() !== value) {
+            route.val(value);
+            route.data('selectize').setValue(value);
+        }
+    });*/
+
+    // Move dropdown sync (on continue)
+    $('[data-page-move] button').on('click', function(){
+        var route = jQuery('form#blueprints').first().find('select[name="route"]'),
+            value = $('[data-page-move] select').val();
         if (route.length && route.val() !== value) {
             route.val(value);
             route.data('selectize').setValue(value);
