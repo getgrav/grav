@@ -113,6 +113,9 @@
         scanToggleable(this);
         scan(this);
         this.scanned = true;
+
+        //Refresh root.currentValues as toggleables have been initialized
+        root.currentValues = getState();
     };
 
     Form.factories = {};
