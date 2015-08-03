@@ -1105,7 +1105,7 @@ class AdminController
             $header = $input['header'];
             if ($clean_header) {
                 $header = Utils::arrayFilterRecursive($header, function($k, $v) {
-                    return !empty($v);
+                    return !(is_null($v) || $v === '');
                 });
             }
             $page->header((object) $header);
