@@ -237,6 +237,19 @@ form:
                   validate:
                     type: bool
 
+                header.routable:
+                  type: toggle
+                  label: Routable
+                  help: If this page is reachable by a URL
+                  highlight: 1
+                  default: ''
+                  options:
+                    '': Global
+                    1: Enabled
+                    0: Disabled
+                  validate:
+                    type: bool
+
                 header.cache_enable:
                   type: toggle
                   label: Caching
@@ -248,17 +261,7 @@ form:
                   validate:
                     type: bool
 
-                header.routable:
-                  type: toggle
-                  label: Access by URL
-                  highlight: 1
-                  default: ''
-                  options:
-                    '': Global
-                    1: Enabled
-                    0: Disabled
-                  validate:
-                    type: bool
+
 
 
 
