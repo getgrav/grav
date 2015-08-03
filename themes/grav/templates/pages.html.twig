@@ -155,6 +155,7 @@
         </form>
     </div>
 
+    {% if mode == 'list' %} %}
     <div class="remodal" data-remodal-id="modal" data-remodal-options="hashTracking: false">
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/new'), data: context } %}
     </div>
@@ -162,7 +163,9 @@
     <div class="remodal" data-remodal-id="modular" data-remodal-options="hashTracking: false">
         {% include 'partials/blueprints-new.html.twig' with { blueprints: admin.blueprints('pages/modular_new'), data: context } %}
     </div>
+    {% endif %}
 
+    {% if mode == 'edit' %}
     <div class="remodal" data-remodal-id="delete" data-remodal-options="hashTracking: false">
         <form>
             <h1>Confirmation Required</h1>
@@ -176,6 +179,7 @@
             </div>
         </form>
     </div>
+    {% endif %}
 
     <div class="remodal" data-remodal-id="changes">
         <form>
