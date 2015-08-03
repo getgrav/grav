@@ -78,7 +78,8 @@
         {% elseif mode == 'edit' %}
             <a class="button" href="{{ base_url }}/pages"><i class="fa fa-reply"></i> Back</a>
             {% if exists %}
-                <button class="button" name="task" value="copy" form="blueprints"><i class="fa fa-copy"></i> Copy</button>
+                <a class="button" href="{{ uri.route(true) }}/task:copy" class="page-copy" ><i class="fa fa-copy"></i> Copy</a>
+
                 {% if warn %}
                     <a class="button" href="#delete" data-remodal-target="delete" data-delete-url="{{ uri.route(true) }}/task:delete"><i class="fa fa-close"></i> Delete</a>
                 {% else %}
