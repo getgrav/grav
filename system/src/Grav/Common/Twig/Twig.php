@@ -301,13 +301,14 @@ class Twig
         $this->grav->fireEvent('onTwigSiteVariables');
         $pages = $this->grav['pages'];
         $page = $this->grav['page'];
+        $content = $page->content();
 
         $twig_vars = $this->twig_vars;
 
         $twig_vars['pages'] = $pages->root();
         $twig_vars['page'] = $page;
         $twig_vars['header'] = $page->header();
-        $twig_vars['content'] = $page->content();
+        $twig_vars['content'] = $content;
         $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
 
         // determine if params are set, if so disable twig cache
