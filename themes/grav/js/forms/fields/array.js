@@ -29,9 +29,11 @@
     };
 
     ArrayField.prototype.name = function(name) {
-        if (name) {
+        if (name && !this.isValueOnly()) {
             this.el.data('grav-array-name', name);
             return name;
+        } else {
+            return '';
         }
 
         return this.el.data('grav-array-name')
@@ -76,7 +78,7 @@
             formValues = {};
 
         for (var key in values) { if (values.hasOwnProperty(key)) {
-                formValues[name + '[' + key + ']'] = values[key];
+                formValues[this.isValueOnly() ? key : name + '[' + key + ']'] = values[key];
             }
         }
 
@@ -101,13 +103,18 @@
         var keyField = $(event.target),
             valueField = keyField.closest('[data-grav-array-type="row"]').find('[data-grav-array-type="value"]');
 
-        valueField.attr('name', keyField.val());
+        valueField.attr('name', this.getFieldName() + '[' + keyField.val() + ']');
     };
 
     ArrayField.prototype.refreshAll = function() {
+        var that = this;
         this.el.find('[data-grav-array-type="value"]').each(function(index, element){
-            $(element).attr('name', index);
+            $(element).attr('name', that.getFieldName() + '[' + index + ']');
         });
+    };
+
+    ArrayField.prototype.getFieldName = function(element) {
+        return this.el.data('grav-array-name');
     };
 
     ArrayField.prototype._getNewField = function(key, value) {

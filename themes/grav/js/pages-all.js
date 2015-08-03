@@ -1,15 +1,3 @@
-var getState = function(){
-    var loadValues = [];
-    $('input, select, textarea').each(function(index, element){
-        var name  = $(element).prop('name'),
-            value = $(element).val();
-
-        if (name)  loadValues.push(name + '|' + value);
-    });
-
-    return loadValues.toString();
-};
-
 $(function(){
     var root = window || {};
     root = root.GravJS = root.GravJS || {};
@@ -289,6 +277,26 @@ $(function(){
     $(window).on('beforeunload', function(){
         if (root.currentValues != getState()){
             return "You have made changes on this page that you have not yet confirmed. If you navigate away from this page you will lose your unsaved changes";
+        }
+    });
+
+    // Move dropdown sync (on dropdown change)
+    /*$('body').on('change', '[data-page-move] select', function(){
+        var route = jQuery('form#blueprints').first().find('select[name="route"]'),
+            value = $(this).val();
+        if (route.length && route.val() !== value) {
+            route.val(value);
+            route.data('selectize').setValue(value);
+        }
+    });*/
+
+    // Move dropdown sync (on continue)
+    $('[data-page-move] button').on('click', function(){
+        var route = jQuery('form#blueprints').first().find('select[name="route"]'),
+            value = $('[data-page-move] select').val();
+        if (route.length && route.val() !== value) {
+            route.val(value);
+            route.data('selectize').setValue(value);
         }
     });
 });

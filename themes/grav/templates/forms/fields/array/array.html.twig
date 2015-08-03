@@ -15,7 +15,7 @@
                 {% if field.value_only != true %}
                 <input data-grav-array-type="key" type="text" value="{{ key }}" placeholder="{{ field.placeholder_key }}" />
                 {% endif %}
-                <input data-grav-array-type="value" type="text" name="{{ key }}" value="{{ text|join(', ') }}" placeholder="{{ field.placeholder_value }}" />
+                <input data-grav-array-type="value" type="text" name="{{ (field.name|fieldName) ~ '[' ~ key ~ ']'  }}" value="{{ text|join(', ') }}" placeholder="{{ field.placeholder_value }}" />
                 <span data-grav-array-action="rem" class="fa fa-minus"></span>
                 <span data-grav-array-action="add" class="fa fa-plus"></span>
             </div>

@@ -1,3 +1,15 @@
+var getState = function(){
+    var loadValues = [];
+    $('input, select, textarea').each(function(index, element){
+        var name  = $(element).prop('name'),
+            value = $(element).val();
+
+        if (name)  loadValues.push(name + '|' + value);
+    });
+
+    return loadValues.toString();
+};
+
 $(function () {
     jQuery.substitute = function(str, sub) {
         return str.replace(/\{(.+?)\}/g, function($0, $1) {
