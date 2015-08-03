@@ -658,9 +658,12 @@ class Page
         if ($parent->path()) {
             $clone->path($parent->path() . '/' . $clone->folder());
         }
+
         // TODO: make sure we always have the route.
         if ($parent->route()) {
             $clone->route($parent->route() . '/'. $clone->slug());
+        } else {
+            $clone->route(self::getGrav()['pages']->root()->route() . '/'. $clone->slug());
         }
 
         return $clone;
