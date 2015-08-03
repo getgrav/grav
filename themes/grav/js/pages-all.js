@@ -11,10 +11,11 @@ var getState = function(){
 };
 
 $(function(){
+    var root = window || {};
+    root = root.GravJS = root.GravJS || {};
 
-    //defined to make clear it's global, but initialized in ./forms/form.js: we must wait to scan the
-    //toggleables elements, otherwise the DOM changes and `beforeunload` detects unsaved changes
-    var currentValues;
+    //Make it global because used by ./forms/form.js
+    root.currentValues = getState();
     var clickedLink;
 
     // selectize
@@ -211,7 +212,7 @@ $(function(){
         var value = $(this).val(),
             uri   = $(this).data('leave-url');
 
-        if (currentValues == getState()) {
+        if (root.currentValues == getState()) {
             setTimeout(function(){
                 window.location.href = uri;
             }, 200)
@@ -244,7 +245,7 @@ $(function(){
     });
 
     $('a[href]:not([href^=#])').on('click', function(e){
-        if (currentValues != getState()){
+        if (root.currentValues != getState()){
             e.preventDefault();
 
             clickedLink = $(this).attr('href');
@@ -286,7 +287,7 @@ $(function(){
     });
 
     $(window).on('beforeunload', function(){
-        if (currentValues != getState()){
+        if (root.currentValues != getState()){
             return "You have made changes on this page that you have not yet confirmed. If you navigate away from this page you will lose your unsaved changes";
         }
     });
