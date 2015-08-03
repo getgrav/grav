@@ -821,9 +821,9 @@ class AdminController
             }
         }
 
-        // Always redirect if a page was change, to refresh it
+        // Always redirect if a page route was changed, to refresh it
         if ($obj instanceof Page\Page) {
-            $this->setRedirect($this->view . '/' . $obj->route());
+            $this->setRedirect($this->view . $obj->route());
         }
 
         return true;
@@ -883,7 +883,7 @@ class AdminController
             $data = $this->post;
 
             // Find new parent page in order to build the path.
-            $route = trim($data['route'], '/');
+            $route = isset($data['route']) ? trim($data['route'], '/') : '';
             $parent = empty($route) ? $pages->root() : $pages->dispatch($data['route'], true);
             // And then get the current page.
             $page = $this->admin->page(true);
