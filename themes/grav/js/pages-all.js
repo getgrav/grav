@@ -291,4 +291,14 @@ $(function(){
             return "You have made changes on this page that you have not yet confirmed. If you navigate away from this page you will lose your unsaved changes";
         }
     });
+
+    // Move dropdown sync
+    $('body').on('change', '[data-page-move] select', function(){
+        var route = jQuery('form#blueprints').first().find('select[name="route"]'),
+            value = $(this).val();
+        if (route.length && route.val() !== value) {
+            route.val(value);
+            route.data('selectize').setValue(value);
+        }
+    });
 });
