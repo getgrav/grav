@@ -193,6 +193,11 @@ $update-height: 3rem;
             @extend %vertical-align;
             padding: 0;
         }
+
+        .preview {
+            color: $secondary-accent-fg;
+            font-size: 90%;
+        }
     }
 
     .admin-block .grav-update, .admin-block .alert {

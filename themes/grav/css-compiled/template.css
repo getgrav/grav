@@ -956,6 +956,9 @@ tr {
     padding: 0 3rem; }
     #admin-main .titlebar .button-bar {
       padding: 0; }
+    #admin-main .titlebar .preview {
+      color: #fff;
+      font-size: 90%; }
   #admin-main .admin-block .grav-update, #admin-main .admin-block .alert {
     margin-top: -2rem;
     margin-bottom: 2rem; }

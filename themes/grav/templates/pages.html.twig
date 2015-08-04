@@ -36,6 +36,8 @@
     {{ parent() }}
 {% endblock %}
 
+{% set preview_link = '<a class="preview" href="'~ base_url_relative_frontend ~ (context.home ? '' : context.route) ~'"><i class="fa fa-fw fa-angle-double-right"></i></a>' %}
+
 {% macro loop(page, base_url, depth, warn) %}
     {% for p in page.children() %}
         {% set description = (not p.page ? 'Folder &bull; ' : 'Page &bull; ') ~
@@ -94,7 +96,7 @@
         <h1><i class="fa fa-fw fa-file-text-o"></i> Add Page</h1>
     {% elseif mode == 'edit' %}
         <h1><i class="fa fa-fw fa-file-text-o"></i>
-            {{ context.exists ? "Edit '#{context.menu}'" : "Create '#{context.menu}'" }}
+            {{ context.exists ? "Edit '#{context.menu}'" ~ preview_link : "Create '#{context.menu}'" }}
         </h1>
     {% else %}
         <h1><i class="fa fa-fw fa-file-text-o"></i> Manage Pages</h1>
