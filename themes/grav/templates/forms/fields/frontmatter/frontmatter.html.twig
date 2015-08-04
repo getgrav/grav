@@ -20,7 +20,7 @@
 </div>
 <script>
     ((function(){
-        var editor = CodeMirror.fromTextArea(jQuery('#frontmatter')[0], {
+        var editor = CodeMirror.fromTextArea(document.getElementById('frontmatter'), {
             mode: 'yaml',
             theme: 'paper'
         });
