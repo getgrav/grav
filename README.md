@@ -32,9 +32,9 @@ This **admin plugin** for [Grav](http://github.com/getgrav/grav) is an HTML user
 
 We have tested internally, but we hope to use this public beta phase to identify, isolate, and fix issues related to the plugin to ensure it is as solid and reliable as possible.
 
-For **live chatting**, please use the dedicated [Gitter Chat Room for the admin plugin](https://gitter.im/grav/grav-plugin-admin) for dicussions directly related to the admin plugin.
+For **live chatting**, please use the dedicated [Gitter Chat Room for the admin plugin](https://gitter.im/getgrav/grav-plugin-admin) for dicussions directly related to the admin plugin.
 
-For **bugs, features, improvements**, please ensure you [create issues in the admin plugin GitHub repository](https://github.com/grav/grav-plugin-admin).
+For **bugs, features, improvements**, please ensure you [create issues in the admin plugin GitHub repository](https://github.com/getgrav/grav-plugin-admin).
 
 # Installation
 
@@ -46,7 +46,7 @@ $ bin/gpm install admin
 
 # Usage
 
-Upon completion of the installation the next thing you need to do is create a user account in a file called `users/accounts/admin.yaml`:
+Upon completion of the installation the next thing you need to do is create a user account in a file called `user/accounts/admin.yaml`:
 
 ```
 username: admin
