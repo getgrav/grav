@@ -7,7 +7,6 @@ use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
-use Gregwar\Image\Image as ImageFile;
 
 class VideoMedium extends Medium
 {

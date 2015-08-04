@@ -56,6 +56,7 @@ class Page
     protected $items;
     protected $header;
     protected $frontmatter;
+    protected $language;
     protected $content;
     protected $summary;
     protected $raw_content;
@@ -127,6 +128,10 @@ class Page
         } else {
             $this->extension($extension);
         }
+
+        // Exract page language from page extension
+        $language = trim(basename($this->extension(), 'md'), '.') ?: null;
+        $this->language($language);
     }
 
     /**
@@ -217,6 +222,9 @@ class Page
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
             }
+            if (isset($this->header->language)) {
+                $this->language = trim($this->header->language);
+            }
             if (isset($this->header->template)) {
                 $this->template = trim($this->header->template);
             }
@@ -279,6 +287,22 @@ class Page
         }
 
         return $this->header;
+    }
+
+    /**
+     * Get page language
+     *
+     * @param $var
+     *
+     * @return mixed
+     */
+    public function language($var = null)
+    {
+        if ($var !== null) {
+            $this->language = $var;
+        }
+
+        return $this->language;
     }
 
     /**
@@ -539,7 +563,7 @@ class Page
             return preg_replace($regex, '', $this->folder);
         }
         if ($name == 'type') {
-            return basename($this->name(), '.md');
+            return $this->template();
         }
         if ($name == 'media') {
             return $this->media()->all();
@@ -606,22 +630,6 @@ class Page
     }
 
     /**
-     * Get page extension
-     *
-     * @param $var
-     *
-     * @return mixed
-     */
-    public function extension($var = null)
-    {
-        if ($var !== null) {
-            $this->extension = $var;
-        }
-
-        return $this->extension;
-    }
-
-    /**
      * Save page if there's a file assigned to it.
      * @param bool $reorder Internal use.
      */
@@ -658,9 +666,12 @@ class Page
         if ($parent->path()) {
             $clone->path($parent->path() . '/' . $clone->folder());
         }
+
         // TODO: make sure we always have the route.
         if ($parent->route()) {
             $clone->route($parent->route() . '/'. $clone->slug());
+        } else {
+            $clone->route(self::getGrav()['pages']->root()->route() . '/'. $clone->slug());
         }
 
         return $clone;
@@ -693,7 +704,33 @@ class Page
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
 
-        return $pages->blueprints($this->template());
+        $blueprint = $pages->blueprints($this->blueprintName());
+
+        $fields = $blueprint->fields();
+
+        // override if you only want 'normal' mode
+        if (empty($fields) && self::getGrav()['admin'] && self::getGrav()['config']->get('plugins.admin.edit_mode', 'auto') == 'normal') {
+            $blueprint = $pages->blueprints('default');
+        }
+
+        // override if you only want 'expert' mode
+        if (!empty($fields) && self::getGrav()['admin'] && self::getGrav()['config']->get('plugins.admin.edit_mode', 'auto') == 'expert') {
+            $blueprint = $pages->blueprints('');
+        }
+
+        return $blueprint;
+    }
+
+    /**
+     * Get the blueprint name for this page.  Use the blueprint form field if set
+     *
+     * @return string
+     */
+    public function blueprintName()
+    {
+        $blueprint_name = filter_input(INPUT_POST, 'blueprint', FILTER_SANITIZE_STRING) ?: $this->template();
+
+        return $blueprint_name;
     }
 
     /**
@@ -725,7 +762,7 @@ class Page
     public function extra()
     {
         $blueprints = $this->blueprints();
-        return $blueprints->extra($this->toArray(), 'header.');
+        return $blueprints->extra($this->toArray()['header'], 'header.');
     }
 
     /**
@@ -824,9 +861,26 @@ class Page
             $this->template = $var;
         }
         if (empty($this->template)) {
-            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension, '', $this->name());
+            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name());
         }
         return $this->template;
+    }
+
+    /**
+     * Gets and sets the extension field.
+     *
+     * @param null $var
+     * @return null|string
+     */
+    public function extension($var = null)
+    {
+        if ($var !== null) {
+            $this->extension = $var;
+        }
+        if (empty($this->extension)) {
+            $this->extension = '.' . pathinfo($this->name(), PATHINFO_EXTENSION);
+        }
+        return $this->extension;
     }
 
     /**
@@ -1005,24 +1059,29 @@ class Page
         if (null === $this->metadata) {
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
             $this->metadata = array();
-            $page_header = $this->header;
 
             // Set the Generator tag
             $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
 
-            // Safety check to ensure we have a header
-            if ($page_header) {
+
+            if (isset($this->header->metadata)) {
+                $page_header = $this->header->metadata;
+
+
+
+
+
                 // Merge any site.metadata settings in with page metadata
                 $defaults = (array) self::getGrav()['config']->get('site.metadata');
 
-                if (isset($page_header->metadata)) {
-                    $page_header->metadata = array_merge($defaults, $page_header->metadata);
+                if (isset($page_header)) {
+                    $page_header = array_merge($defaults, $page_header);
                 } else {
-                    $page_header->metadata = $defaults;
+                    $page_header = $defaults;
                 }
 
                 // Build an array of meta objects..
-                foreach ((array)$page_header->metadata as $key => $value) {
+                foreach ((array)$page_header as $key => $value) {
                     // If this is a property type metadata: "og", "twitter", "facebook" etc
                     if (is_array($value)) {
                         foreach ($value as $property => $prop_value) {

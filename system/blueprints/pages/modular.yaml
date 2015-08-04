@@ -1,0 +1,46 @@
+title: Modular
+@extends:
+    type: default
+    context: blueprints://pages
+
+form:
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          fields:
+
+            header.content.items:
+              type: select
+              label: Items
+              default: @self.modular
+              options:
+                @self.modular: Children
+
+            header.content.order.by:
+              type: select
+              label: Order By
+              default: date
+              options:
+                folder: Folder
+                title: Title
+                date: Date
+                default: Default
+
+            header.content.order.dir:
+              type: select
+              label: Order
+              default: desc
+              options:
+                asc: Ascending
+                desc: Descending
+
+            header.process:
+              type: ignore
+            content:
+              type: ignore
+            uploads:
+              type: ignore

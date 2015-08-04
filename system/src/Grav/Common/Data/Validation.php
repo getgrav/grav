@@ -28,14 +28,16 @@ class Validation
         // Validate type with fallback type text.
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
+        $name = ucfirst($field['label'] ? $field['label'] : $field['name']);
+        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : 'Invalid input in ' . $name;
+
         if (method_exists(__CLASS__, $method)) {
             $success = self::$method($value, $validate, $field);
         } else {
             $success = self::typeText($value, $validate, $field);
         }
         if (!$success) {
-            $name = $field['label'] ? $field['label'] : $field['name'];
-            throw new \RuntimeException("invalid input in {$name}");
+            throw new \RuntimeException($message);
         }
 
         // Check individual rules
@@ -43,8 +45,9 @@ class Validation
             $method = 'validate'.strtr($rule, '-', '_');
             if (method_exists(__CLASS__, $method)) {
                 $success = self::$method($value, $params);
+
                 if (!$success) {
-                    throw new \RuntimeException('Failed');
+                    throw new \RuntimeException($message);
                 }
             }
         }
@@ -489,6 +492,7 @@ class Validation
     {
         $values = (array) $value;
         $options = isset($field['options']) ? array_keys($field['options']) : array();
+        $multi = isset($field['multiple']) ? $field['multiple'] : false;
 
         if ($options) {
             $useKey = isset($field['use']) && $field['use'] == 'keys';
@@ -497,7 +501,37 @@ class Validation
             }
         }
 
+        if ($multi) {
+            foreach ($values as $key => $value) {
+                $values[$key] = explode(',', $value[0]);
+            }
+        }
+
         return $values;
+    }
+
+    public static function typeList($value, array $params, array $field)
+    {
+        if (!is_array($value)) {
+            return false;
+        }
+
+        if (isset($field['fields'])) {
+            foreach ($value as $key => $item) {
+                foreach ($field['fields'] as $subKey => $subField) {
+                    $subKey = trim($subKey, '.');
+                    $subValue = isset($item[$subKey]) ? $item[$subKey] : null;
+                    self::validate($subValue, $subField);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected static function filterList($value, array $params, array $field)
+    {
+        return (array) $value;
     }
 
     /**
@@ -511,6 +545,11 @@ class Validation
     public static function typeIgnore($value, array $params, array $field)
     {
         return true;
+    }
+
+    public static function filterIgnore($value, array $params, array $field)
+    {
+        return $value;
     }
 
     // HTML5 attributes (min, max and range are handled inside the types)

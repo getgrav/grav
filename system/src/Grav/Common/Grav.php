@@ -159,6 +159,8 @@ class Grav extends Container
         $container->register(new StreamsServiceProvider);
         $container->register(new ConfigServiceProvider);
 
+        $container['inflector'] = new Inflector();
+
         $container['debugger']->stopTimer('_init');
 
         return $container;
@@ -172,8 +174,8 @@ class Grav extends Container
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
-        $this['session']->init();
         $this['uri']->init();
+        $this['session']->init();
         $this['errors']->resetHandlers();
         $debugger->init();
         $this['config']->debug();

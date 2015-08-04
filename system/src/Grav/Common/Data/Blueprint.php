@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
+use Grav\Common\GravTrait;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 
 /**
@@ -11,7 +12,7 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
  */
 class Blueprint
 {
-    use Export, DataMutatorTrait;
+    use Export, DataMutatorTrait, GravTrait;
 
     public $name;
 
@@ -75,7 +76,7 @@ class Blueprint
         try {
             $this->validateArray($data, $this->nested);
         } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Page validation failed: %s', $e->getMessage()));
+            throw new \RuntimeException(sprintf('<b>Validation failed:</b> %s', $e->getMessage()));
         }
     }
 
@@ -117,7 +118,17 @@ class Blueprint
     {
         // Initialize data
         $this->fields();
-        return $this->extraArray($data, $this->nested, $prefix);
+        $rules = $this->nested;
+
+        // Drill down to prefix level
+        if (!empty($prefix)) {
+            $parts = explode('.', trim($prefix, '.'));
+            foreach ($parts as $part) {
+                $rules = isset($rules[$part]) ? $rules[$part] : [];
+            }
+        }
+
+        return $this->extraArray($data, $rules, $prefix);
     }
 
     /**
@@ -286,7 +297,7 @@ class Blueprint
                 // Item has been defined in blueprints.
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
-                $array += $this->ExtraArray($field, $val, $prefix);
+                $array += $this->ExtraArray($field, $val, $prefix . $key . '.');
             } else {
                 // Undefined/extra item.
                 $array[$prefix.$key] = $field;
@@ -313,11 +324,11 @@ class Blueprint
             $field['name'] = $prefix . $key;
             $field += $params;
 
-            if (isset($field['fields'])) {
+            if (isset($field['fields']) && $field['type'] !== 'list') {
                 // Recursively get all the nested fields.
                 $newParams = array_intersect_key($this->filter, $field);
                 $this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
-            } else {
+            } else if ($field['type'] !== 'ignore') {
                 // Add rule.
                 $this->rules[$prefix . $key] = &$field;
                 $this->addProperty($prefix . $key);
@@ -362,10 +373,20 @@ class Blueprint
                             }
                         }
                     }
+
+                    elseif (substr($name, 0, 8) == '@config-') {
+                        $property = substr($name, 8);
+                        $default = isset($field[$property]) ? $field[$property] : null;
+                        $config = self::getGrav()['config']->get($value, $default);
+
+                        if (!is_null($config)) {
+                            $field[$property] = $config;
+                        }
+                    }
                 }
 
                 // Initialize predefined validation rule.
-                if (isset($field['validate']['rule'])) {
+                if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
                     $field['validate'] += $this->getRule($field['validate']['rule']);
                 }
             }

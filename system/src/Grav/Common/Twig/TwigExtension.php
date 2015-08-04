@@ -78,6 +78,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
+            new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray'])
         ];
@@ -194,16 +195,18 @@ class TwigExtension extends \Twig_Extension
         // TODO: check this and fix the docblock if needed.
         $action = $action.'ize';
 
+        $inflector = $this->grav['inflector'];
+
         if (in_array(
             $action,
             ['titleize','camelize','underscorize','hyphenize', 'humanize','ordinalize','monthize']
         )) {
-            return Inflector::$action($data);
+            return $inflector->$action($data);
         } elseif (in_array($action, ['pluralize','singularize'])) {
             if ($count) {
-                return Inflector::$action($data, $count);
+                return $inflector->$action($data, $count);
             } else {
-                return Inflector::$action($data);
+                return $inflector->$action($data);
             }
         } else {
             return $data;
@@ -477,6 +480,11 @@ class TwigExtension extends \Twig_Extension
     public function randomStringFunc($count = 5)
     {
         return Utils::generateRandomString($count);
+    }
+
+    public function arrayFunc($value)
+    {
+        return (array) $value;
     }
 
     public function translateFunc()

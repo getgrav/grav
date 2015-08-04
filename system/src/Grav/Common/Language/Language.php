@@ -276,13 +276,15 @@ class Language
     /**
      * Translate a key and possibly arguments into a string using current lang and fallbacks
      *
-     * @param $args first argument is the lookup key value
-     *                    other arguments can be passed and replaced in the translation with sprintf syntax
+     * @param       $args       first argument is the lookup key value
+     *                          other arguments can be passed and replaced in the translation with sprintf syntax
      * @param Array $languages
+     * @param bool  $array_support
+     * @param bool  $html_out
      *
      * @return string
      */
-    public function translate($args, Array $languages = null)
+    public function translate($args, Array $languages = null, $array_support = false, $html_out = false)
     {
         if (is_array($args)) {
             $lookup = array_shift($args);
@@ -293,9 +295,12 @@ class Language
 
 
         if ($this->config->get('system.languages.translations', true)) {
-            if ($this->enabled() && $lookup) {
+
+            if (isset($this->grav['admin'])) {
+                $languages = ['en'];
+            } elseif ($this->enabled() && $lookup) {
                 if (empty($languages)) {
-                    if ($this->config->get('system.languages.translations.fallback', true)) {
+                    if ($this->config->get('system.languages.translations_fallback', true)) {
                         $languages = $this->getFallbackLanguages();
                     } else {
                         $languages = (array)$this->getDefault();
@@ -306,7 +311,7 @@ class Language
             }
 
             foreach ((array)$languages as $lang) {
-                $translation = $this->getTranslation($lang, $lookup);
+                $translation = $this->getTranslation($lang, $lookup, $array_support);
 
                 if ($translation) {
                     if (count($args) >= 1) {
@@ -318,7 +323,11 @@ class Language
             }
         }
 
-        return '<span class="untranslated">' . $lookup . '</span>';
+        if ($html_out) {
+            return '<span class="untranslated">' . $lookup . '</span>';
+        } else {
+            return $lookup;
+        }
     }
 
     /**
@@ -327,15 +336,16 @@ class Language
      * @param      $key
      * @param      $index
      * @param null $languages
+     * @param bool $html_out
      *
      * @return string
      */
-    public function translateArray($key, $index, $languages = null)
+    public function translateArray($key, $index, $languages = null, $html_out = false)
     {
         if ($this->config->get('system.languages.translations', true)) {
             if ($this->enabled() && $key) {
                 if (empty($languages)) {
-                    if ($this->config->get('system.languages.translations.fallback', true)) {
+                    if ($this->config->get('system.languages.translations_fallback', true)) {
                         $languages = $this->getFallbackLanguages();
                     } else {
                         $languages = (array)$this->getDefault();
@@ -353,21 +363,26 @@ class Language
             }
         }
 
-        return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
+        if ($html_out) {
+            return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
+        } else {
+            return $key . '[' . $index . ']';
+        }
     }
 
     /**
      * Lookup the translation text for a given lang and key
      *
-     * @param $lang lang code
-     * @param $key  key to lookup with
+     * @param      $lang lang code
+     * @param      $key  key to lookup with
+     * @param bool $array_support
      *
      * @return string
      */
-    public function getTranslation($lang, $key)
+    public function getTranslation($lang, $key, $array_support = false)
     {
         $translation = $this->config->getLanguages()->get($lang . '.' . $key, null);
-        if (is_array($translation)) {
+        if (!$array_support && is_array($translation)) {
             return (string)array_shift($translation);
         }
 
