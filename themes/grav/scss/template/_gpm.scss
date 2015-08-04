@@ -112,30 +112,28 @@
             background: darken($content-bg, 2%);
             margin: 1rem -1rem -1rem -1rem;
             height: 4rem;
-            text-align: right;
+            text-align: center;
             padding: 1rem;
             font-size: 1rem;
             font-weight: bold;
+        }
 
-            &.active-theme {
-
-                text-align: center;
-                background: $page-bg;
-                color: $content-bg;
-            }
-            &.active-theme, &.inactive-theme {
-                line-height: 2rem;
-
-                a {
-                    color: $content-fg;
-                }
-            }
-
-
+        .active-theme .gpm-actions, &.inactive-theme .gpm-actions {
+            line-height: 2rem;
         }
 
         .active-theme {
+            border: 1px solid $secondary-accent-bg;
+            .gpm-actions {
+                background: $secondary-accent-bg;
+                color: $content-bg;
+            }
+        }
 
+        .inactive-theme .gpm-actions {
+            display: block;
+            color: darken($content-bg, 30%);
+            font-weight: normal;
         }
     }
 }
