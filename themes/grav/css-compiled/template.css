@@ -82,6 +82,10 @@ b, strong {
 .info {
   background: #9055AF;
   color: #fff; }
+  .info a {
+    color: #e6e6e6; }
+    .info a:hover {
+      color: #fff; }
 
 .info-reverse {
   color: #9055AF; }
@@ -89,10 +93,18 @@ b, strong {
 .notice {
   background: #2693B7;
   color: #fff; }
+  .notice a {
+    color: #e6e6e6; }
+    .notice a:hover {
+      color: #fff; }
 
 .error {
   background: #DA4B46;
   color: #fff; }
+  .error a {
+    color: #e6e6e6; }
+    .error a:hover {
+      color: #fff; }
 
 .badge {
   font-size: 0.9rem;
@@ -525,6 +537,10 @@ form .form-column > .form-field.grid {
     -moz-flex: 0;
     -ms-flex: 0;
     flex: 0; }
+form .grid.vertical {
+  -webkit-flex-flow: column;
+  -moz-flex-flow: column;
+  flex-flow: column; }
 form .form-select-wrapper, form .selectize-control.single .selectize-input {
   position: relative; }
   form .form-select-wrapper:after, form .selectize-control.single .selectize-input:after {

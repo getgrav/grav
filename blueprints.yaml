@@ -50,6 +50,18 @@ form:
         expert: Expert
       help: Auto will use blueprint if available, if none found, it will use "Expert" mode.
 
+    show_beta_msg:
+      type: toggle
+      label: Show Beta Message
+      highlight: 1
+      default: 1
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
+      help: Show the beta warning message on the dashboard
+
     login.enabled:
       type: hidden
       label: Login enabled

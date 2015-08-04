@@ -10,6 +10,7 @@ login:
 warnings:
   delete_page: true
 edit_mode: auto       // auto|normal|expert
+show_beta_msg: true
 popularity:
   enabled: true
   ignore: ['/test*','/modular']

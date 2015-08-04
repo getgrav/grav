@@ -110,7 +110,11 @@
 {% endblock %}
 
 {% block content %}
+
     {% include 'partials/messages.html.twig' %}
+    {% if config.plugins.admin.show_beta_msg %}
+    <div class="error alert"><i class="fa fa-exclamation-circle"></i> {{ 'ADMIN_BETA_MSG'|t }}</div>
+    {% endif %}
     <div id="latest">
         <div class="button-bar">
             <a class="button" href="{{ uri.route(true) }}/pages"><i class="fa fa-fw fa-file-text-o"></i>Manage Pages</a>

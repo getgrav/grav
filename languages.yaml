@@ -1,4 +1,6 @@
 en:
+  ADMIN_BETA_MSG: This is a Beta release! Use this in production at your own risk...
+  ADMIN_REPORT_ISSUE: Found an issue? Please report it on GitHub.
   EMAIL_FOOTER: <a href="http://getgrav.org">Powered by Grav</a> - The Modern Flat File CMS
   LOGIN_BTN: Login
   LOGIN_BTN_FORGOT: Forgot
@@ -19,6 +21,8 @@ en:
   FORGOT_EMAIL_BODY: <h1>Password Reset</h1><p>Dear %1$s,</p><p>A request was made on <b>%4$s</b> to reset your password.</p><p><br /><a href="%2$s" class="btn-primary">Click this to reset your password</a><br /><br /></p><p>Alternatively, copy the following URL into your browser's address bar:</p> <p>%2$s</p><p><br />Kind regards,<br /><br />%3$s</p>
 
 it:
+  ADMIN_BETA_MSG: This is a Beta release! Use this in production at your own risk...
+  ADMIN_REPORT_ISSUE: Found an issue? Please report it on GitHub.
   EMAIL_FOOTER: <a href="http://getgrav.org">Powered by Grav</a> - The Modern Flat File CMS
   LOGIN_BTN: Login
   LOGIN_BTN_FORGOT: Reset password

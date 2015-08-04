@@ -91,6 +91,9 @@
                     <div class="admin-block default-box-shadow">
                         {% block content %}{% endblock %}
                     </div>
+                    {% if config.plugins.admin.show_beta_msg %}
+                    <div class="notice alert"><i class="fa fa-github"></i> <a href="https://github.com/getgrav/grav/grav-plugin-admin/issues">{{ 'ADMIN_REPORT_ISSUE'|t }}</a></div>
+                    {% endif %}
                     {% block content_bottom %}{% endblock %}
                 </div>
                  <footer id="footer">

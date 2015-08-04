@@ -65,6 +65,12 @@ b, strong {
 .info {
     background: $info-bg;
     color: $info-fg;
+    a {
+        color: darken($info-fg, 10%);
+        &:hover {
+            color: $info-fg;
+        }
+    }
 }
 
 .info-reverse {
@@ -74,11 +80,23 @@ b, strong {
 .notice {
     background: $tertiary-accent-bg;
     color: $tertiary-accent-fg;
+    a {
+        color: darken($tertiary-accent-fg, 10%);
+        &:hover {
+            color: $tertiary-accent-fg;
+        }
+    }
 }
 
 .error {
     background: $notice-bg;
     color: $notice-fg;
+    a {
+        color: darken($notice-fg, 10%);
+        &:hover {
+            color: $notice-fg;
+        }
+    }
 }
 
 .badge {
