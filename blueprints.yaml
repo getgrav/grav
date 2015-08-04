@@ -11,6 +11,11 @@ keywords: admin, plugin, manager, panel
 bugs: https://github.com/getgrav/grav-plugin-admin/issues
 license: MIT
 
+dependencies:
+  - form
+  - email
+  - login
+
 form:
   validation: loose
   fields:
