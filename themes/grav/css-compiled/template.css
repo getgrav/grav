@@ -24,6 +24,9 @@
   .button-small.button {
     padding: 2px 10px;
     font-size: 1rem; }
+  .button-x-small.button {
+    padding: 2px 8px 2px 5px;
+    font-size: 0.9rem; }
 
 html, body {
   height: 100%; }
@@ -1267,11 +1270,19 @@ tr {
       content: '\f002';
       font-family: 'FontAwesome'; }
   #page-filtering .page-shortcuts {
-    clear: both; }
+    clear: both;
+    padding-top: 5px; }
     #page-filtering .page-shortcuts:after {
       content: "";
       display: table;
       clear: both; }
+    #page-filtering .page-shortcuts .button {
+      background: #aaa;
+      color: rgba(255, 255, 255, 0.85);
+      border-radius: 4px; }
+      #page-filtering .page-shortcuts .button:hover {
+        background: #b7b7b7;
+        color: #fff; }
   #page-filtering .selectize-control.multi .selectize-input {
     padding: 0.425rem 0.425rem; }
     #page-filtering .selectize-control.multi .selectize-input.has-items {

@@ -21,6 +21,11 @@
         font-size: 1rem;
     }
 
+    &.button-x-small {
+        padding: 2px 8px 2px 5px;
+        font-size: 0.9rem;
+    }
+
 }
 
 @mixin button-color($color) {

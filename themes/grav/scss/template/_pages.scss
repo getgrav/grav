@@ -124,6 +124,11 @@
     .page-shortcuts {
         @include clearfix;
         clear: both;
+        padding-top:5px;
+
+        .button {
+            @include button-color(#aaa);
+        }
     }
 
     .selectize-control.multi .selectize-input {
