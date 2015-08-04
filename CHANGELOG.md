@@ -1,3 +1,23 @@
+# v0.9.34
+## 08/04/2015
+
+1. [](#new)
+    * Added new `cache_all` system setting + media `cache()` method
+    * Added base languages configuration
+    * Added property language to page to help plugins identify page language
+    * New `Utils::arrayFilterRecursive()` method
+2. [](#improved)
+    * Improved Session handling to support site and admin independently
+    * Allow Twig variables to be modified in other events
+    * Blueprint updates in preparation for Admin plugin
+    * Changed `Inflector` from static to object and added multi-language support
+    * Support for admin override of a page's blueprints
+3. [](#bugfix)
+    * Removed unused `use` in `VideoMedium` that was causing error
+    * Array fix in `User.authorise()` method
+    * Fix for typo in `translations_fallback`
+    * Fixed moving page to the root
+
 # v0.9.33
 ## 07/21/2015
 
