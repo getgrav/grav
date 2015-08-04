@@ -56,6 +56,7 @@ class Page
     protected $items;
     protected $header;
     protected $frontmatter;
+    protected $language;
     protected $content;
     protected $summary;
     protected $raw_content;
@@ -127,6 +128,10 @@ class Page
         } else {
             $this->extension($extension);
         }
+
+        // Exract page language from page extension
+        $language = trim(basename($this->extension(), 'md'), '.') ?: null;
+        $this->language($language);
     }
 
     /**
@@ -217,6 +222,9 @@ class Page
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
             }
+            if (isset($this->header->language)) {
+                $this->language = trim($this->header->language);
+            }
             if (isset($this->header->template)) {
                 $this->template = trim($this->header->template);
             }
@@ -279,6 +287,22 @@ class Page
         }
 
         return $this->header;
+    }
+
+    /**
+     * Get page language
+     *
+     * @param $var
+     *
+     * @return mixed
+     */
+    public function language($var = null)
+    {
+        if ($var !== null) {
+            $this->language = $var;
+        }
+
+        return $this->language;
     }
 
     /**
