@@ -1,12 +1,11 @@
 {% set originalValue = originalValue is defined ? originalValue : value %}
 {% set value = (value is null ? field.default : value) %}
+{% set vertical = field.style == 'vertical' %}
 
 {% block field %}
-    <div class="form-field grid">
-
-
+    <div class="form-field grid{% if vertical %} vertical{% endif %}">
         {% block contents %}
-            <div class="form-label block size-1-3">
+            <div class="form-label{% if not vertical %} block size-1-3{% endif %}">
                 {% if field.toggleable %}
                     <span class="checkboxes toggleable" data-grav-field="toggleable" data-grav-field-name="{{ field.name|fieldName }}">
                         <input type="checkbox"
@@ -29,7 +28,7 @@
                 {% endblock %}
                 </label>
             </div>
-            <div class="form-data block size-2-3"
+            <div class="form-data{% if not vertical %} block size-2-3{% endif %}"
                 {% block global_attributes %}
                 data-grav-field="{{ field.type }}"
                 data-grav-disabled="{{ originalValue is null ? 'true' : 'false' }}"
