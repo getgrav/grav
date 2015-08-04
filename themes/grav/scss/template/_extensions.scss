@@ -1,0 +1,34 @@
+.default-animation {
+	@include transition(all 0.5s ease);
+}
+
+.default-border-radius {
+    border-radius: 4px;
+}
+
+.default-glow-shadow {
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+.default-box-shadow {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.padding-horiz {
+	padding-left: $padding-horiz;
+	padding-right: $padding-horiz;
+	@include breakpoint(desktop-only) {
+		padding-left: $padding-horiz - 3rem;
+		padding-right: $padding-horiz - 3rem;
+	}
+
+	@include breakpoint(mobile-only) {
+		padding-left: $padding-horiz - 6rem;
+		padding-right: $padding-horiz - 6rem;
+	}
+}
+
+.padding-vert {
+	padding-top: $padding-vert;
+	padding-bottom: $padding-vert;
+}

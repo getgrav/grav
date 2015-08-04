@@ -1,0 +1,40 @@
+{% set value = (value is null ? field.default : value) %}
+
+<div class="form-field">
+    <div class="form-label">
+        <label>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+            {% else %}
+            {{ field.label }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </label>
+    </div>
+    <div class="form-data">
+        <div class="form-frontmatter-wrapper {{ field.size }}">
+            <textarea name="{{ (scope ~ field.name)|fieldName }}" id="frontmatter">{{ value|join("\n") }}</textarea>
+            <div class="dragbar"></div>
+        </div>
+    </div>
+</div>
+<script>
+    ((function(){
+        var editor = CodeMirror.fromTextArea(document.getElementById('frontmatter'), {
+            mode: 'yaml',
+            theme: 'paper'
+        });
+        editor.on('change', editor.save);
+
+        $('.dragbar').mousedown(function(e){
+            e.preventDefault();
+            var parentOffset = $(this).parent().offset();
+            $(document).mousemove(function(e){
+              $('.form-frontmatter-wrapper .CodeMirror').css('height',e.pageY - parentOffset.top);
+           })
+        });
+        $(document).mouseup(function(e){
+           $(document).unbind('mousemove');
+        });
+    })());
+</script>

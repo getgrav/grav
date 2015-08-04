@@ -1,0 +1,45 @@
+{% set form_id = form_id ? form_id : 'blueprints' %}
+
+<form id="{{ form_id }}" method="post">
+    {% for field in blueprints.fields %}
+        {% if field.type %}
+            {% set value = data.value(field.name) %}
+
+            <div class="block block-{{ field.type }}">
+                {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+
+
+    {#
+    <div class="button-bar">
+        <button class="button" name="task" value="save">Save</button>
+        {% if context.exists %}
+        <button class="button" name="task" value="copy">Copy</button>
+        {% endif %}
+        {% if context.exists or context.isDir %}
+        <button class="button confirm-delete" name="task" value="delete" formnovalidate="formnovalidate">Delete</button>
+        {% endif %}
+    </div>
+    <script type="text/javascript">
+        $('.confirm-delete').click(function(){
+            var that = this;
+            vex.dialog.confirm({
+                message: 'Are you sure you want to delete the page and all content under it?',
+                callback: function(success) {
+                    if (success) {
+                        var form = $(that).closest('form');
+
+                        $('<input />').attr('type', 'hidden').attr('name', 'task').attr('value', $(that).val()).appendTo(form);
+
+                        form.submit();
+                    }
+                }
+            });
+            return false;
+        });
+    </script>
+    #}
+</form>

@@ -1,0 +1,19 @@
+{% embed 'partials/login.html.twig' with {title:'Grav Reset Password'} %}
+
+    {% block form %}
+        {% for field in page.header.form.fields %}
+            {% set value = attribute(admin.forgot, field.name) is defined ? attribute(admin.forgot, field.name) : null %}
+
+            {% if field.type %}
+                <div>
+                    {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="form-actions secondary-accent">
+            <button type="submit" class="button primary" name="task" value="reset"><i class="fa fa-key"></i> {{ 'LOGIN_BTN_RESET'|t }}</button>
+        </div>
+    {% endblock %}
+
+{% endembed %}
+

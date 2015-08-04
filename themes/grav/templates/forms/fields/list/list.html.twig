@@ -1,0 +1,111 @@
+{% set value = (value is null ? field.default : value) %}
+{% set name = scope ~ field.name %}
+{% set array = field.array is defined ? field.array : true %}
+{% set lastKey = null %}
+
+<div class="form-field grid pure-g">
+    <div class="form-label block size-1-4 pure-u-1-4">
+        <label>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+            {% else %}
+            {{ field.label }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </label>
+    </div>
+    <div class="form-data block size-3-4 pure-u-3-4">
+        <div class="form-list-wrapper {{ field.size }}" data-type="collection">
+            <ul data-collection-holder="{{ name }}">
+                {% if field.fields %}
+                {% for key, val in value %}
+                    {% if array and (key matches '/^\\d+$/') == 0 %}
+                        {% set array = false %}
+                        {% set lastKey = -1 %}
+                    {% elseif array %}
+                        {% set lastKey = key %}
+                    {% endif %}
+                    {% set itemName = name ~ '.' ~ key %}
+                    <li data-collection-item="{{ itemName }}" data-collection-key="{{ key }}">
+                        {% for childName, child in field.fields %}
+                            {% if childName starts with '.' %}
+                                {% set childKey = childName|trim('.') %}
+                                {% set childValue = val[childName[1:]] %}
+                                {% set childName = itemName ~ childName %}
+                            {% else %}
+                                {% set childKey = childName %}
+                                {% set childValue = data.value(scope ~ childName) %}
+                                {% set childName = childName|replace({'*': key}) %}
+                            {% endif %}
+                            {% set child = child|merge({ name: childName }) %}
+
+                            {% if child.type == 'key' %}
+                                {%
+                                    include 'forms/fields/text/text.html.twig'
+                                    with { field: child, value: key }
+                                %}
+                            {% elseif child.type %}
+                                {%
+                                    include [
+                                        "forms/fields/#{child.type}/#{child.type}.html.twig",
+                                        'forms/fields/text/text.html.twig'
+                                    ] with { field: child, value: childValue }
+                                %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="item-actions">
+                            <i class="fa fa-bars"></i>
+                            <br />
+                            <i class="fa fa-trash-o" data-action="delete"></i>
+                        </div>
+                    </li>
+                {% endfor %}
+                {% endif %}
+            </ul>
+            <div class="collection-actions">
+                {% set lastKey = lastKey + 1 %}
+                <button class="button" type="button" data-action="add" data-key-index="{{ lastKey }}"><i class="fa fa-plus"></i> Add item</button>
+            </div>
+
+            <script type="text/html" data-collection-template="new">
+                <li data-collection-item="{{ name ~ '.*' }}">
+                    {% if field.fields %}
+                    {% set itemName = name ~ '.*' %}
+                    {% for childName, child in field.fields %}
+                        {% if childName starts with '.' %}
+                            {% set childKey = childName|trim('.') %}
+                            {% set childName = itemName ~ childName %}
+                        {% else %}
+                            {% set childKey = childName %}
+                            {% set childName = childName|replace({'*': key}) %}
+                        {% endif %}
+                        {% set child = child|merge({ name: childName }) %}
+
+                        {% if child.type == 'key' %}
+                            {%
+                                include 'forms/fields/text/text.html.twig'
+                                with { field: child, value: null }
+                            %}
+                        {% elseif child.type %}
+                            {%
+                                include [
+                                    "forms/fields/#{child.type}/#{child.type}.html.twig",
+                                    'forms/fields/text/text.html.twig'
+                                ] with { field: child, value: null }
+                            %}
+                        {% endif %}
+                    {% endfor %}
+                    <div class="item-actions">
+                        <i class="fa fa-bars"></i>
+                        <br />
+                        <i class="fa fa-trash-o" data-action="delete"></i>
+                    </div>
+                    {% endif %}
+                </li>
+            </script>
+
+            <div style="display: none;" data-collection-config="{{ name }}" data-collection-array="{{ array ? 'true' : 'false' }}"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{ base_url_relative_frontend }}{{ theme_url }}/js/sortable.min.js"></script>
+</div>

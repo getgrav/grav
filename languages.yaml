@@ -1,0 +1,43 @@
+en:
+  ADMIN_BETA_MSG: This is a Beta release! Use this in production at your own risk...
+  ADMIN_REPORT_ISSUE: Found an issue? Please report it on GitHub.
+  EMAIL_FOOTER: <a href="http://getgrav.org">Powered by Grav</a> - The Modern Flat File CMS
+  LOGIN_BTN: Login
+  LOGIN_BTN_FORGOT: Forgot
+  LOGIN_BTN_RESET: Reset Password
+  LOGIN_BTN_SEND_INSTRUCTIONS: Send Reset Instructions
+  LOGIN_LOGGED_IN: You have been successfully logged in
+  LOGIN_FAILED: Login failed
+  LOGGED_OUT: You have been logged out
+  RESET_LINK_EXPIRED: Reset link has expired, please try again
+  RESET_PASSWORD_RESET: Password has been reset
+  RESET_INVALID_LINK: Invalid reset link used, please try again
+  FORGOT_INSTRUCTIONS_SENT_VIA_EMAIL: Instructions to reset your password have been sent via email to %s
+  FORGOT_FAILED_TO_EMAIL: Failed to email instructions, please try again later
+  FORGOT_CANNOT_RESET_EMAIL_NO_EMAIL: Cannot reset password for %s, no email address is set
+  FORGOT_USERNAME_DOES_NOT_EXIST: User with username <b>%s</b> does not exist
+  FORGOT_EMAIL_NOT_CONFIGURED: Cannot reset password. This site is not configured to send emails
+  FORGOT_EMAIL_SUBJECT: %s Password Reset Request
+  FORGOT_EMAIL_BODY: <h1>Password Reset</h1><p>Dear %1$s,</p><p>A request was made on <b>%4$s</b> to reset your password.</p><p><br /><a href="%2$s" class="btn-primary">Click this to reset your password</a><br /><br /></p><p>Alternatively, copy the following URL into your browser's address bar:</p> <p>%2$s</p><p><br />Kind regards,<br /><br />%3$s</p>
+
+it:
+  ADMIN_BETA_MSG: Questa è una versione beta! Usare in produzione a proprio rischio e pericolo…
+  ADMIN_REPORT_ISSUE: Trovato un problema? Per favore, apri un ticket su GitHub
+  EMAIL_FOOTER: <a href="http://getgrav.org">Powered by Grav</a> - The Modern Flat File CMS
+  LOGIN_BTN: Login
+  LOGIN_BTN_FORGOT: Reset password
+  LOGIN_BTN_RESET: Resetta la password
+  LOGIN_BTN_SEND_INSTRUCTIONS: Invia istruzioni di reset
+  LOGIN_LOGGED_IN: Login effettuato con successo
+  LOGIN_FAILED: Login fallito
+  LOGGED_OUT: Sei stato disconnesso
+  RESET_LINK_EXPIRED: Il link di reset è scaduto, ritenta per favore
+  RESET_PASSWORD_RESET: La password è stata resettata
+  RESET_INVALID_LINK: Il link di reset non è valido, ritenta per favore
+  FORGOT_INSTRUCTIONS_SENT_VIA_EMAIL: Le istruzioni per resettare la password sono state inviate via email a %s
+  FORGOT_FAILED_TO_EMAIL: Invio della email fallito, per favore ritenta più tardi
+  FORGOT_CANNOT_RESET_EMAIL_NO_EMAIL: Impossibile resettare la password per %s, nessun indirizzo email impostato
+  FORGOT_USERNAME_DOES_NOT_EXIST: L'utente con username <b>%s</b> non esiste
+  FORGOT_EMAIL_NOT_CONFIGURED: Impossibile resettare la password. Il sito non è configurato per inviare email
+  FORGOT_EMAIL_SUBJECT: %s Richiesta di reset password
+  FORGOT_EMAIL_BODY: <h1>Reset password</h1><p>Caro %1$s,</p><p>Una richiesta di reset password è stata effettuata su <b>%4$s</b>.</p><p><br /><a href="%2$s" class="btn-primary">Clicca qui per resettare la tua password</a><br /><br /></p><p>In alternativa, copia il seguente URL nella barra indirizzi del tuo browser:</p> <p>%2$s</p><p><br />Cordiali saluti,<br /><br />%3$s</p>

@@ -1,0 +1,156 @@
+/*
+ *  Remodal - v0.2.0
+ *  Flat, responsive, lightweight, easy customizable modal window plugin with declarative state notation and hash tracking.
+ *  http://vodkabears.github.io/remodal/
+ *
+ *  Made by Ilya Makarov
+ *  Under MIT License
+ */
+
+/* ==========================================================================
+   Remodal necessary styles
+   ========================================================================== */
+
+/* Hide scroll bar */
+
+html.remodal_lock, body.remodal_lock {
+    overflow: hidden;
+}
+
+/* Anti FOUC */
+
+.remodal, [data-remodal-id] {
+    visibility: hidden;
+}
+
+/* Overlay necessary styles */
+
+.remodal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+
+    display: none;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    text-align: center;
+
+    &:after {
+       display: inline-block;
+        height: 100%;
+        margin-left: -0.05em;
+        content: '';
+    }
+
+    /* Fix iPad, iPhone glitches */
+    > * {
+        -webkit-transform: translateZ(0px);
+    }
+}
+
+
+/* Modal dialog necessary styles */
+.remodal {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+}
+
+/* Background for effects */
+
+.remodal-bg {
+    @include transition-property (filter);
+    @include transition-duration(0.2s);
+    @include transition-timing-function(linear);
+}
+
+// body.remodal_active .remodal-bg {
+//     @include filter(blur(5px));
+// }
+
+/* Overlay default theme styles */
+
+.remodal-overlay {
+    opacity: 0;
+    background: rgba(33, 36, 46, 0.8);
+    @include transition(opacity 0.2s linear);
+}
+
+body.remodal_active .remodal-overlay {
+    opacity: 1;
+}
+
+/* Modal dialog default theme styles */
+
+.remodal {
+    width: 100%;
+    min-height: 100%;
+    padding-top: 2rem;
+    @include box-sizing(border-box);
+    font-size: 16px;
+    background: $content-bg;
+    background-clip: padding-box;
+    color: $content-fg;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    @include transform(scale(0.95));
+    @include transition-property (transform);
+    @include transition-duration(0.2s);
+    @include transition-timing-function(linear);
+
+}
+
+body.remodal_active .remodal {
+    @include transform(scale(1));
+}
+
+/* Modal dialog vertical align  */
+.remodal, .remodal-overlay:after {
+    vertical-align: middle;
+}
+
+/* Close button */
+
+.remodal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: $content-fg;
+
+    text-decoration: none;
+    text-align: center;
+
+    @include transition(background 0.2s linear);
+}
+
+.remodal-close:after {
+    display: block;
+    font-family: FontAwesome;
+    content: "\f00d";
+
+    font-size: 28px;
+    line-height: 28px;
+    cursor: pointer;
+    text-decoration: none;
+
+}
+
+.remodal-close:hover, .remodal-close:active {
+    color: darken($content-fg, 20%);
+}
+
+
+
+/* Media queries
+   ========================================================================== */
+
+@media only screen and (min-width: 40.063em) /* min-width 641px */ {
+    .remodal {
+        max-width: 700px;
+        margin: 20px auto;
+        min-height: 0;
+        border-radius: 6px;
+    }
+}

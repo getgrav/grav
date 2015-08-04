@@ -2,12 +2,14 @@
 title: Dashboard Login
 
 form:
-    - name: username
-      type: text
-      label: Username
+    fields:
+        - name: username
+          type: text
+          placeholder: Username
+          autofocus: true
 
-    - name: password
-      type: password
-      label: Password
+        - name: password
+          type: password
+          placeholder: Password
 ---
 

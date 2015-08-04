@@ -1,0 +1,44 @@
+{% set gpm = admin.gpm() %}
+{% set installed = gpm.isPluginInstalled(admin.route) %}
+
+<div class="grav-update plugin" data-gpm-plugin="{{ admin.route }}">
+{% if installed and gpm.isPluginUpdatable(admin.route) %}
+    {% set remote = gpm.getRepositoryPlugin(admin.route) %}
+        <p>
+            <i class="fa fa-bullhorn"></i>
+            <strong>v{{ remote.available }}</strong> of this plugin is now available!
+            <button class="button button-small secondary" data-download="{{ remote.zipball_url }}">Update Plugin</button>
+        </p>
+{% endif %}
+</div>
+
+<h1>
+    {{ plugin.name|e }}
+    {% if admin.isTeamGrav(plugin) %}
+        <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+    {% endif %}
+    {% if plugin.symlink %}
+    <small class="hint--bottom"  data-hint="This plugin is symbolically linked. Updates won't be detected.">
+        <i class="fa fa-fw fa-link"></i>
+    </small>
+    {% endif %}
+    <small>{{ plugin.version ? 'v' ~ plugin.version|e }}</small>
+</h1>
+<div class="gpm-item-info">
+    <i class="gpm-item-icon fa fa-fw fa-{{  plugin.icon }}"></i>
+    {% include 'partials/plugin-data.html.twig' with { plugin: plugin } %}
+</div>
+
+{% if (installed) %}
+    {% set data = admin.data('plugins/' ~ admin.route) %}
+    {% include 'partials/blueprints.html.twig' with { data: data, blueprints: data.blueprints } %}
+
+    <div class="button-bar danger">
+        <span class="danger-zone"></span>
+        <a class="button" href="{{ base_url_relative }}/plugins/{{ plugin.slug }}/task:uninstall"><i class="fa fa-fw fa-warning"></i>Remove Plugin</a>
+    </div>
+{% else %}
+    <div class="button-bar success">
+        <a class="button" href="{{ base_url_relative }}/plugins/{{ plugin.slug }}/task:install"><i class="fa fa-fw fa-plus"></i>Install Plugin</a>
+    </div>
+{% endif %}

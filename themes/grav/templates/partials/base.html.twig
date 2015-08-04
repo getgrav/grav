@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block head %}
+    <meta charset="utf-8" />
+    <title>{% if header.title %}{{ header.title }} | {% endif %}{{ site.title }}</title>
+    {% if header.description %}
+        <meta name="description" content="{{ header.description }}">
+    {% else %}
+        <meta name="description" content="{{ site.description }}">
+    {% endif %}
+    {% if header.robots %}
+        <meta name="robots" content="{{ header.robots }}">
+    {% endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ base_url_relative_frontend }}{{ theme_url }}/images/favicon.png">
+
+    {% block stylesheets %}
+        {% do assets.addCss(theme_url~'/css-compiled/nucleus.css') %}
+        {% do assets.addCss(theme_url~'/css-compiled/template.css') %}
+        {% do assets.addCss(theme_url~'/css/font-awesome.min.css') %}
+        {% do assets.addCss(theme_url~'/css/chartist.min.css') %}
+        {% do assets.addCss(theme_url~'/css/selectize.min.css') %}
+        {% do assets.addCss(theme_url~'/css/hint.base.min.css') %}
+        {% do assets.addCss(theme_url~'/css/datepicker/kendo.common.core.min.css') %}
+        {% do assets.addCss(theme_url~'/css/datepicker/kendo.flat.min.css') %}
+        {% do assets.addCss(theme_url~'/css/datepicker/grav.overrides.css') %}
+        {% if browser.getBrowser == 'msie' and browser.getVersion >= 8 and browser.getVersion <= 9 %}
+            {% do assets.addCss(theme_url~'/css/nucleus-ie9.css') %}
+            {% do assets.addCss(theme_url~'/css/pure-0.5.0/grids-min.css') %}
+        {% endif %}
+        {{ assets.css() }}
+    {% endblock %}
+
+    {% include 'partials/javascript-config.html.twig' %}
+    {% block javascripts %}
+        {% do assets.add('jquery',101) %}
+        {% do assets.addJs(theme_url~'/js/modernizr.custom.71422.js') %}
+        {% do assets.addJs(theme_url~'/js/chartist.min.js') %}
+        {% do assets.addJs(theme_url~'/js/selectize.min.js') %}
+        {% do assets.addJs(theme_url~'/js/toastr.min.js') %}
+        {% do assets.addJs(theme_url~'/js/jquery.remodal.min.js') %}
+        {% do assets.addJs(theme_url~'/js/ajax.js') %}
+
+        {% do assets.addJs(theme_url~'/js/admin-all.js') %}
+
+        {% do assets.addJs(theme_url~'/js/datepicker/kendo.custom.min.js') %}
+        {% do assets.addJs(theme_url~'/js/datepicker/init.js') %}
+
+        {% do assets.addJs(theme_url~'/js/forms/form.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/input.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/array.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/selectize.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/checkboxes.js') %}
+        {% do assets.addJs(theme_url~'/js/forms/fields/toggle.js') %}
+        {% do assets.addJs(theme_url~'/js/forms.js') %}
+
+        {{ assets.js() }}
+    {% endblock %}
+{% endblock %}
+</head>
+<body>
+    {% block page %}
+    <div class="remodal-bg">
+
+        {% block navigation %}
+            {% include 'partials/nav.html.twig' %}
+        {% endblock %}
+
+        <section id="admin-main" >
+            <div class="titlebar secondary-accent">
+                {% block titlebar %}{% endblock %}
+            </div>
+
+            <div class="grav-update" data-gpm-grav>
+            {% if admin.gpm.grav.isUpdatable() %}
+                <p>
+                <i class="fa fa-bullhorn"></i>
+                Grav <b>v{{ admin.gpm.grav.getVersion() }}</b> is now available! <span class="less">(Current: v{{ constant('GRAV_VERSION') }})</span>
+                <button class="button button-small secondary">Update Grav Now</button>
+                </p>
+            {% endif %}
+            </div>
+
+            <div class="content-padding">
+                <div>
+                    {% block messages %}
+                    {% include 'partials/messages.html.twig' %}
+                    {% endblock %}
+                    {% block content_top %}{% endblock %}
+                    <div class="admin-block default-box-shadow">
+                        {% block content %}{% endblock %}
+                    </div>
+                    {% if config.plugins.admin.show_beta_msg %}
+                    <div class="notice alert"><i class="fa fa-github"></i> <a href="https://github.com/getgrav/grav/grav-plugin-admin/issues">{{ 'ADMIN_REPORT_ISSUE'|t }}</a></div>
+                    {% endif %}
+                    {% block content_bottom %}{% endblock %}
+                </div>
+                 <footer id="footer">
+                    <a href="http://getgrav.org">Grav</a> version {{ constant('GRAV_VERSION') }} was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
+                </footer>
+            </div>
+
+        </section>
+    </div>
+    {% endblock page %}
+</body>
+</html>

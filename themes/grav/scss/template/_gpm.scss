@@ -1,0 +1,139 @@
+.gpm {
+
+    > table > tbody {
+        > tr {
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+    }
+
+    td {
+        border: 0;
+    }
+
+    .gpm-name {
+        white-space: nowrap;
+        color: lighten($content-fg, 25%);
+    }
+
+    .gpm-version {
+        padding-left:0.5rem;
+        color: lighten($content-fg,10%);
+        font-size: 0.9rem;
+    }
+
+    .gpm-update {
+        .gpm-name {
+            color: $secondary-accent-bg;
+        }
+    }
+
+    .gpm-actions {
+
+        .enabled, .disabled {
+            font-size: 1.6rem;
+        }
+
+        .disabled {
+            color: lighten($content-fg,10%);
+        }
+    }
+
+    .gpm-item-info {
+        position: relative;
+        border-bottom: 3px solid darken($content-bg, 5%);
+        padding-bottom: 1rem;
+        margin-bottom: 3rem;
+        overflow: hidden;
+
+        .gpm-item-icon {
+            color: darken($content-bg, 3%);
+            position: absolute;
+            right: $padding-default;
+            font-size: 20rem;
+        }
+        table {
+            position: relative;
+        }
+        td {
+            border: 0;
+            text-align: left !important;
+
+            &:first-child {
+                color: lighten($content-fg,15%);
+                white-space: nowrap;
+                width: 25%;
+            }
+        }
+        tr:hover {
+            background: inherit;
+        }
+    }
+
+    .badge.update {
+        display: inline-block;
+        background: $info-bg;
+        border-radius: 4px;
+        padding: 2px 10px;
+        color: $info-fg;
+        margin-left: 1rem;
+    }
+
+    .gpm-ribbon {
+        background-color: $info-bg;
+        overflow: hidden;
+        white-space: nowrap;
+
+        position: absolute;
+        top: 1rem;
+        right: -2rem;
+        @include transform(rotate(45deg));
+
+
+        a {
+            color: $info-fg;
+            display: block;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 5px 40px;
+            text-align: center;
+        }
+    }
+
+    .themes {
+        padding: $padding-default;
+
+        .gpm-name {
+            margin-bottom: 0.5rem;
+        }
+
+        .gpm-actions {
+
+            background: darken($content-bg, 2%);
+            margin: 1rem -1rem -1rem -1rem;
+            height: 4rem;
+            text-align: center;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .active-theme .gpm-actions, &.inactive-theme .gpm-actions {
+            line-height: 2rem;
+        }
+
+        .active-theme {
+            border: 1px solid $secondary-accent-bg;
+            .gpm-actions {
+                background: $secondary-accent-bg;
+                color: $content-bg;
+            }
+        }
+
+        .inactive-theme .gpm-actions {
+            display: block;
+            color: darken($content-bg, 30%);
+            font-weight: normal;
+        }
+    }
+}

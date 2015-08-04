@@ -1,0 +1,67 @@
+{% set originalValue = originalValue is defined ? originalValue : value %}
+{% set value = (value is null ? field.default : value) %}
+{% set vertical = field.style == 'vertical' %}
+
+{% block field %}
+    <div class="form-field grid{% if vertical %} vertical{% endif %}">
+        {% block contents %}
+            <div class="form-label{% if not vertical %} block size-1-3{% endif %}">
+                {% if field.toggleable %}
+                    <span class="checkboxes toggleable" data-grav-field="toggleable" data-grav-field-name="{{ field.name|fieldName }}">
+                        <input type="checkbox"
+                               id="toggleable_{{ field.name }}"
+                               value="1"
+                               name="toggleable_{{ (scope ~ field.name)|fieldName }}"
+                               {% if originalValue is not null %}checked="checked"{% endif %}
+                        >
+                        <label for="toggleable_{{ field.name }}"></label>
+                    </span>
+                {% endif %}
+                <label class="{{ field.toggleable ? 'toggleable' : '' }}">
+                {% block label %}
+                    {% if field.help %}
+                    <span class="hint--bottom" data-hint="{{ field.help|e }}">{{ field.label }}</span>
+                    {% else %}
+                    {{ field.label }}
+                    {% endif %}
+                    {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+                {% endblock %}
+                </label>
+            </div>
+            <div class="form-data{% if not vertical %} block size-2-3{% endif %}"
+                {% block global_attributes %}
+                data-grav-field="{{ field.type }}"
+                data-grav-disabled="{{ originalValue is null ? 'true' : 'false' }}"
+                data-grav-default="{{ field.default|json_encode()|e('html_attr') }}"
+                {% endblock %}
+            >
+                {% block group %}
+                    {% block input %}
+                        <div class="form-input-wrapper {{ field.size }}">
+                            <input
+                                {# required attribute structures #}
+                                name="{{ (scope ~ field.name)|fieldName }}"
+                                value="{{ value|join(', ') }}"
+                                {# input attribute structures #}
+                                {% block input_attributes %}
+                                    {% if field.classes is defined %}class="{{ field.classes }}" {% endif %}
+                                    {% if field.id is defined %}id="{{ field.id|e }}" {% endif %}
+                                    {% if field.style is defined %}style="{{ field.style|e }}" {% endif %}
+                                    {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+                                    {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+                                    {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+                                    {% if field.readonly in ['on', 'true', 1] %}readonly="readonly"{% endif %}
+                                    {% if field.autocomplete in ['on', 'off'] %}autocomplete="{{ field.autocomplete }}"{% endif %}
+                                    {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+                                    {% if field.validate.pattern %}pattern="{{ field.validate.pattern }}"{% endif %}
+                                    {% if field.validate.message %}title="{{ field.validate.message }}"
+                                    {% elseif field.title is defined %}title="{{ field.title|e }}" {% endif %}
+                                {% endblock %}
+                                />
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

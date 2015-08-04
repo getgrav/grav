@@ -1,0 +1,21 @@
+{% extends "forms/field.html.twig" %}
+
+{% block input %}
+    <div class="form-textarea-wrapper {{ field.size }}">
+        <textarea class="input" name="{{ (scope ~ field.name)|fieldName }}"
+            {# required attribute structures #}
+            name="{{ (scope ~ field.name)|fieldName }}"
+            {# input attribute structures #}
+            {% block input_attributes %}
+                {% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+                {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+                {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+                {% if field.readonly in ['on', 'true', 1] %}readonly="readonly"{% endif %}
+                {% if field.autocomplete in ['on', 'off'] %}autocomplete="{{ field.autocomplete }}"{% endif %}
+                {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+                {% if field.validate.pattern %}pattern="{{ field.validate.pattern }}"{% endif %}
+                {% if field.validate.message %}title="{{ field.validate.message }}"{% endif %}
+            {% endblock %}
+            >{{ value|trim }}</textarea>
+    </div>
+{% endblock %}

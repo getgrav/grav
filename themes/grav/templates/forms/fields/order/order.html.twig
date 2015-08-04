@@ -1,0 +1,46 @@
+{% set value = (value is null ? field.default : value) %}
+{% set siblings = data.parent.children.visible %}
+
+
+<div class="form-field grid pure-g">
+    <div class="form-label block size-1-3 pure-u-1-3">
+        <label>
+            {% if field.help %}
+            <span class="tooltip" data-asTooltip-position="w" title="{{ field.help|e }}">{{ field.label }}</span>
+            {% else %}
+            {{ field.label }}
+            {% endif %}
+            {{ field.validate.required in ['on', 'true', 1] ? '<span class="required">*</span>' }}
+        </label>
+    </div>
+    <div class="form-data block size-2-3 pure-u-2-3">
+        <div class="form-order-wrapper {{ field.size }}">
+            <input type="hidden" data-order name="{{ (scope ~ field.name)|fieldName }}" value="{{ value }}" />
+            {% if data.parent.header.content.items %}
+                <span class="note">Parent setting order, ordering disabled</span>
+            {% elseif not data.visible %}
+                <span class="note">Page is not visible, ordering disabled</span>
+            {% endif %}
+
+            <ul id="ordering" class="{{ field.classes }}">
+                {% for page in siblings %}
+                <li class="{% if page.order  == value %}drag-handle{% else %}ignore{% endif %}" data-id="{{ page.slug }}">{{ page.title() }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{ base_url_relative_frontend }}{{ theme_url }}/js/sortable.min.js"></script>
+    <script>
+        jQuery(function(){
+            var el = jQuery('#ordering');
+            new Sortable(el[0], {
+                filter: ".ignore",
+                onUpdate: function(evt){
+                    var index = el.children().index(jQuery(evt.item)) + 1;
+                    jQuery('[data-order]').val(index);
+                }
+                // draggable: ".drag-handle"
+            });
+        });
+    </script>
+</div>

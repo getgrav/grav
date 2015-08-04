@@ -1,0 +1,20 @@
+{% extends "forms/field.html.twig" %}
+
+{% set value = (value is null ? field.default : value) %}
+{% set value = (value is null ? value : value|date("d-m-Y H:i")) %}
+
+{% block input %}
+    <input
+        type="text"
+        data-grav-field-datetime
+        class="{{ field.classes }}"
+        name="{{ (scope ~ field.name)|fieldName }}"
+        value="{{ value }}"
+        {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+        {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+        {% if field.autocomplete in ['on', 'off'] %}autocomplete="{{ field.autocomplete }}"{% endif %}
+        {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+        {% if field.validate.min %}min="{{ (field.validate.min is null ? field.validate.min : field.validate.min|date("d-m-Y H:i")) }}"{% endif %}
+        {% if field.validate.max %}max="{{ (field.validate.max is null ? field.validate.max : field.validate.max|date("d-m-Y H:i")) }}"{% endif %}
+        />
+{% endblock %}

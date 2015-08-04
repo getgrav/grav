@@ -1,0 +1,60 @@
+#admin-login {
+    @extend %vertical-align;
+    background: $accent-bg;
+    max-width: 24rem;
+    margin: 0 auto;
+
+    .form-field {
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: none;
+    }
+
+    .form-data {
+        padding-right: 0;
+    }
+
+    h1 {
+        background: $darker-accent-bg url(../images/logo.png) 50% 50% no-repeat;
+        font-size: 0;
+        color: transparent;
+        height: 216px;
+        margin: 0;
+    }
+
+    form {
+        padding: 2rem 3rem;
+        input {
+            margin-bottom: 2rem;
+            background: $page-bg;
+            color: $core-text;
+            font-size: 1.4rem;
+            line-height: 1.5;
+            text-align: center;
+            font-weight: 300;
+            -webkit-font-smoothing: auto;
+            border: 1px solid shade($accent-bg, 20%);
+            @include placeholder {
+                color: tint($page-bg,40%);
+            }
+        }
+
+        .form-actions {
+            text-align: center;
+            margin: 0 -3rem -3rem -3rem;
+            padding: 1.5rem 3rem;
+
+            button:first-child {
+                margin-right: 1rem;
+            }
+        }
+    }
+
+    .alert {
+        text-align: center;
+        padding: 1rem 3rem;
+    }
+}

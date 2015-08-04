@@ -1,0 +1,50 @@
+<div class="grav-update themes"></div>
+
+<h1>
+    {{ installing ? 'Available' : 'Installed' }} Themes
+</h1>
+
+<div class="themes card-row grid fixed-blocks pure-g">
+    {% for slug, package in admin.themes(not installing) %}
+        {% set theme = package.toArray() %}
+        {% set state = 'inactive' %}
+        {% if (installing) %}{% set state = 'installing' %}{% endif %}
+        {% if (config.get('system.pages.theme') == slug) %}{% set state = 'active' %}{% endif %}
+
+        <div class="theme card-item pure-u-1-3 {{ state }}-theme" data-gpm-theme="{{ slug|url_encode }}">
+            <div class="gpm-name">
+                <i class="fa fa-fw fa-{{ theme.icon }}"></i>
+                <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">{{ theme.name }}</a>
+                {% if admin.isTeamGrav(theme) %}
+                    <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+                {% endif %}
+                {% if theme.symlink %}
+                    <span class="hint--bottom"  data-hint="This theme is symbolically linked. Updates won't be detected.">
+                    <i class="fa fa-fw fa-link"></i>
+                </span>
+                {% endif %}
+                <span class="gpm-version">v{{ theme.version }}</span>
+            </div>
+            <div class="gpm-screenshot">
+                {% set thumb = installing ? 'http://getgrav.org/images/' ~ theme.screenshot : theme.thumbnail %}
+                <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}"><img src="{{ thumb }}" /></a>
+            </div>
+            {% if (state == 'installing') %}
+                <div class="gpm-actions">
+                    <a class="button" href="{{ base_url_relative }}/themes/{{ slug }}/task:install"><i class="fa fa-plus"></i> Install</a>
+                </div>
+            {% elseif state == 'active' %}
+                <div class="gpm-actions">
+                    <i class="fa fa-star"></i> Active Theme
+                </div>
+            {% else %}
+                <a href="{{ base_url_relative }}/themes/{{ slug }}/task:activate" class="gpm-actions">
+                    {# <a class="disabled" href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a> #}
+                    Activate
+                </a>
+            {% endif %}
+
+
+        </div>
+    {% endfor %}
+</div>

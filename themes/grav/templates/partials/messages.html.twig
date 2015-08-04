@@ -1,0 +1,3 @@
+{% for message in admin.messages %}
+<div class="{{ message.scope|e }} alert">{{ message.message }}</div>
+{% endfor %}

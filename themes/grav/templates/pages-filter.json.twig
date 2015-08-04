@@ -1,0 +1,5 @@
+{% if admin.json_response %}
+{{ admin.json_response|json_encode }}
+{% else %}
+{}
+{% endif %}

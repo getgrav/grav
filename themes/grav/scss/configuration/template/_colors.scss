@@ -1,0 +1,78 @@
+// Core
+$core-text:						#fff;
+$core-accent:					#0082BA;
+$secondary-link:				#DA4B46;
+$white:							#fff;
+$black:							#000;
+$light-gray:					#ddd;
+$border-color: 					#EEEEEE;
+
+// Admin colors
+$page-bg:                       #314D5B;
+$accent-bg:                     #253A47;
+$accent-fg:                     #fff;
+$darker-accent-bg:              shade($accent-bg,12%);
+$darker-accent-fg:              shade($accent-fg,10%);
+$secondary-accent-bg:           #349886;
+$secondary-accent-fg:           #fff;
+$tertiary-accent-bg:            #2693B7;
+$tertiary-accent-fg:            #fff;
+$info-bg:                       #9055AF;
+$info-fg:                       #fff;
+$notice-bg:                     #DA4B46;
+$notice-fg:                     #fff;
+$content-bg:                    #EEEEEE;
+$content-fg:                    #737C81;
+
+
+// Borders
+$core-border-color:				$light-gray;
+$core-border-color-hover: 		darken($core-border-color, 10);
+$core-border-color-focus: 		$core-accent;
+
+// Shadows
+$core-box-shadow: 				inset 0 1px 3px hsla(0, 0%, 0%, 0.06);
+$core-box-shadow-focus: 		$core-box-shadow, 0 0 5px rgba(darken($core-border-color-focus, 5), 0.7);
+
+
+// Header
+$header-text: 					#FFFFFF;
+
+// Nav
+$navbar-text: 					#75879A;
+$navbar-bg: 					#FFFFFF;
+
+// Showcase
+$showcase-bg:					lighten($core-accent, 6%);
+$showcase-text:					#fff;
+
+// Feature
+$feature-bg:					#fff;
+
+// Main Body
+$main-bg:						#f7f7f7;
+$body-border:					darken($main-bg, 5%);
+
+// Sidebar
+$sidebar-text:					#aaa;
+
+// Bottom
+$bottom-bg:						#f7f7f7;
+$bottom-text:					$core-text;
+
+// Footer
+$footer-bg:						#404040;
+$footer-text:					#ccc;
+
+$rule-color: 					#F0F2F4;
+$code-text:						#c7254e;
+$code-bg:						#f9f2f4;
+$pre-text:						#237794;
+$pre-bg:						#f6f6f6;
+
+// Dark Contrast variation
+$dark-navbar-text:				#999;
+$dark-sidebar:					#222;
+$dark-sidebar-text:				#999;
+$dark-main-bg:					#333;
+$dark-body-border:				#666;

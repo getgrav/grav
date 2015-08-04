@@ -1,0 +1,131 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block titlebar %}
+    <div class="button-bar">
+        <button data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache" class="button"><i class="fa fa-fw fa-trash"></i> Clear Cache</button>
+    </div>
+    <h1><i class="fa fa-fw fa-th"></i> Dashboard</h1>
+{% endblock %}
+
+{% block messages %}{% endblock %}
+
+{% block content_top %}
+
+    {% set gpm = admin.gpm() %}
+    {% set updatable = gpm.getUpdatablePlugins() %}
+    {% set backup = admin.lastBackup() %}
+
+    <div id="admin-dashboard">
+        <div id="updates" class="dashboard-item dashboard-left">
+            <div class="tertiary-accent default-box-shadow">
+                <h1>Maintenance</h1>
+                <div class="admin-update-charts">
+                    <div class="updates-chart">
+                        <div class="chart-wrapper">
+                            <div class="ct-chart"></div>
+                            <span class="numeric"><span>-</span><em>updated</em></span>
+                        </div>
+                        <p>Updates Available</p>
+                    </div>
+                    <div class="backups-chart">
+                        <div class="chart-wrapper">
+                            <div class="ct-chart"></div>
+                            <script>
+                                var data = {
+                                  series: [{{ backup.chart_fill }}, {{ backup.chart_empty }}]
+                                };
+                                var options = {
+                                  donut: true,
+                                  donutWidth: 10,
+                                  startAngle: 0,
+                                  total: 100,
+                                  showLabel: false,
+                                  height: 150
+                                };
+                                Chartist.Pie('.backups-chart .ct-chart', data, options);
+                            </script>
+                            <span class="numeric">{{ backup.days }}<em>days</em></span>
+                        </div>
+                        <p>Last Backup</p>
+                    </div>
+                </div>
+                <div class="flush-bottom button-bar">
+                    <button data-maintenance-update="{{ base_url_relative }}/update.json/task:update" class="button"><i class="fa fa-cloud-download"></i> Update</button>
+                    <button data-ajax="{{ base_url_relative }}/backup.json/task:backup" class="button"><i class="fa fa-database"></i> Backup</button>
+                </div>
+            </div>
+        </div>
+        <div id="popularity" class="dashboard-item dashboard-right">
+            <div class="secondary-accent default-box-shadow">
+                <h1>Statistics</h1>
+                <div class="ct-chart"></div>
+                <script>
+                    var data = {
+                        labels: {{ popularity.getDailyChartData['labels'] }},
+                        series: [
+                            {{ popularity.getDailyChartData['data'] }}
+                        ]
+                    };
+                    var options = {
+                        height: 164,
+                        chartPadding:5,
+
+                        axisX: {
+                            showGrid: false,
+                            labelOffset: {
+                                x: 0,
+                                y: 5
+                            }
+                        },
+                        axisY: {
+                            offset: 15,
+                            showLabel: true,
+                            showGrid: true,
+                            labelOffset: {
+                                x: 5,
+                                y: 5
+                            },
+                            scaleMinSpace: 20
+                        }
+                    };
+                    Chartist.Bar('#popularity .ct-chart', data, options);
+                </script>
+                <div class="flush-bottom button-bar stats-bar">
+                    <span class="stat">
+                        <b>{{ popularity.getDailyTotal }}</b>
+                        <i>Today</i>
+                    </span>
+                    <span class="stat">
+                        <b>{{ popularity.getWeeklyTotal }}</b>
+                        <i>Week</i>
+                    </span>
+                    <span class="stat">
+                        <b>{{ popularity.getMonthlyTotal }}</b>
+                        <i>Month</i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    {% include 'partials/messages.html.twig' %}
+    {% if config.plugins.admin.show_beta_msg %}
+    <div class="error alert"><i class="fa fa-exclamation-circle"></i> {{ 'ADMIN_BETA_MSG'|t }}</div>
+    {% endif %}
+    <div id="latest">
+        <div class="button-bar">
+            <a class="button" href="{{ uri.route(true) }}/pages"><i class="fa fa-fw fa-file-text-o"></i>Manage Pages</a>
+        </div>
+        <h1>Latest Page Updates</h1>
+        <table>
+        {% for latest in admin.latestPages %}
+            <tr><td><a href="{{ base_url }}/pages/{{ latest.route|trim('/') }}"><i class="fa fa-fw fa-file-o"></i> {{ latest.title }}</a></td><td>{{ latest.route }}</td><td><b>{{ latest.modified|nicetime }}</b></td></tr>
+        {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}
+

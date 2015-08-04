@@ -1,0 +1,23 @@
+{% set form_id = form_id ? form_id : 'blueprints' %}
+
+<form id="{{ form_id }}" method="post" data-grav-form="{{ form_id }}">
+    {% for field in blueprints.fields %}
+        {% if field.type %}
+            {% set value = data.value(field.name) %}
+
+            <div class="block block-{{ field.type }}">
+                {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+
+
+    {% if data.extra %}
+    {% for name, value in data.extra %}
+        {% set field = {name: '_json.' ~ name} %}
+        {% set value = value|json_encode|e %}
+        {% include 'forms/fields/hidden/hidden.html.twig' %}
+    {% endfor %}
+    {% endif %}
+</form>

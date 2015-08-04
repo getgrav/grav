@@ -1,0 +1,57 @@
+{% extends 'partials/base.html.twig' %}
+
+{% if admin.route %}
+    {% set installing = admin.route starts with 'install' %}
+    {% set installed = true %}
+
+    {# Try installed packages first, then remote #}
+    {% set package = admin.plugins(true)[admin.route] %}
+    {% if (not package) %}
+        {% set package = admin.plugins(false)[admin.route] %}
+        {% set installed = false %}
+    {% endif %}
+
+    {% set plugin = package.toArray() %}
+{% endif %}
+
+{% block titlebar %}
+    {% if not admin.route or installing %}
+        <div class="button-bar">
+        {% if (installing) %}
+            <a class="button" href="{{ base_url_relative }}/plugins"><i class="fa fa-reply"></i> Back to installed</a>
+        {% else %}
+            <a class="button" href="{{ base_url_relative }}/plugins/install"><i class="fa fa-plus"></i> Add</a>
+        {% endif %}
+        </div>
+        <h1><i class="fa fa-fw fa-plug"></i> Plugins</h1>
+    {% else %}
+        {% if (installed) %}
+        <div class="button-bar">
+            <a class="button" href="{{ base_url_relative }}/plugins"><i class="fa fa-arrow-left"></i> Back to Plugins</a>
+            <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+        </div>
+        {% else %}
+        <div class="button-bar">
+            <a class="button" href="{{ base_url_relative }}/plugins/install"><i class="fa fa-arrow-left"></i> Back to Plugins</a>
+        </div>
+        {% endif %}
+
+        <h1><i class="fa fa-fw fa-plug"></i> Plugin: {{ plugin.name|e }}</h1>
+
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="gpm gpm-plugins">
+
+        {% include 'partials/messages.html.twig' %}
+
+        {% if not admin.route or installing %}
+            {%  include 'partials/plugins-list.html.twig' %}
+        {% else %}
+            {% include 'partials/plugins-details.html.twig' %}
+        {% endif %}
+    </div>
+{% endblock %}
+

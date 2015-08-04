@@ -1,0 +1,171 @@
+// Body Base
+body {
+	font-family: $font-family-default;
+	font-weight: 400;
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6 {
+	font-family: $font-family-header;
+	font-weight: 400;
+	text-rendering: optimizeLegibility;
+	letter-spacing: -0px;
+}
+
+h1 {
+	font-size: $h1-font-size;
+    @include breakpoint(mobile-only) {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-bottom: 2.5rem;
+    }
+}
+
+h2 {
+	@include breakpoint(tablet-range) {
+		font-size: $h2-font-size - .40;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: $h2-font-size - .50;
+	}
+}
+
+h3 {
+	@include breakpoint(tablet-range) {
+		font-size: $h3-font-size - .40;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: $h3-font-size - .50;
+	}
+}
+
+h4 {
+	@include breakpoint(tablet-range) {
+		font-size: $h4-font-size - .40;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: $h4-font-size - .50;
+	}
+}
+
+h1 {
+	letter-spacing: -3px;
+}
+
+h2 {
+	letter-spacing: -2px;
+}
+
+h3 {
+	letter-spacing: -1px;
+}
+
+
+// Blockquote
+blockquote {
+	border-left: 10px solid $rule-color;
+	p {
+		font-size: 1.1rem;
+		color: #999;
+	}
+	cite {
+		display: block;
+		text-align: right;
+		color: #666;
+		font-size: 1.2rem;
+	}
+}
+
+// NOTES!!!!
+blockquote > blockquote > blockquote {
+
+	margin: 0;
+
+	p {
+
+		padding: 15px;
+		display: block;
+		font-size: 1rem;
+		margin-top: 0rem;
+		margin-bottom: 0rem;
+	}
+
+	> p {
+		// Yellow
+		margin-left: -71px;
+		border-left: 10px solid #F0AD4E;
+		background: #FCF8F2;
+		color: darken(#F0AD4E,15%);
+	}
+
+	> blockquote > p {
+		// Red
+		margin-left: -94px;
+		border-left: 10px solid #D9534F;
+		background: #FDF7F7;
+		color: darken(#D9534F,15%);
+	}
+
+	> blockquote > blockquote > p {
+		// Blue
+		margin-left: -118px;
+		border-left: 10px solid #5BC0DE;
+		background: #F4F8FA;
+		color: darken(#5BC0DE,15%);
+	}
+
+	> blockquote > blockquote > blockquote > p {
+		// Green
+		margin-left: -142px;
+		border-left: 10px solid #5CB85C;
+		background: #F1F9F1;
+		color: darken(#5CB85C,15%);
+	}
+
+}
+
+// Inline and Code
+code,
+kbd,
+pre,
+samp {
+	font-family: $font-family-mono;
+}
+
+code {
+	background: $code-bg;
+	color: darken($code-text,10%);
+}
+
+pre {
+	padding: 2rem;
+	background: $pre-bg;
+	border: 1px solid $core-border-color;
+	border-radius: 3px;
+	code {
+		color: $pre-text;
+		background: inherit;
+	}
+}
+
+// Extras
+hr {
+	border-bottom: 4px solid $rule-color;
+}
+
+// Label
+.label {
+    vertical-align: middle;
+    background: $core-accent;
+    border-radius: 100%;
+    color: $white;
+    height: 1rem;
+    min-width: 1rem;
+    line-height: 1rem;
+    display: inline-block;
+    text-align: center;
+    font-size: $core-font-size - 0.3rem;
+    font-family: $font-family-header;
+    margin-right: 0.75rem;
+}
+

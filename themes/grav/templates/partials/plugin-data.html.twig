@@ -1,0 +1,63 @@
+<table>
+    {% if plugin.author %}
+    <tr>
+        <td>Author:</td>
+        <td>
+            {% if plugin.author.url %}
+                <a href="{{ plugin.author.url }}">{{ plugin.author.name }}</a>
+            {% else %}
+                {{ plugin.author.name }}
+            {% endif %}
+            {% if plugin.author.email %}
+                - <a href="mailto:{{ plugin.author.email }}">{{ plugin.author.email }}</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endif %}
+    {% if plugin.homepage %}
+        <tr>
+            <td>Homepage:</td>
+            <td><a href="{{ plugin.homepage }}">{{ plugin.homepage }}</a></td>
+        </tr>
+    {% endif %}
+    {% if plugin.demo %}
+        <tr>
+            <td>Demo:</td>
+            <td><a href="{{ plugin.demo }}">{{ plugin.demo }}</a></td>
+        </tr>
+    {% endif %}
+    {% if plugin.bugs %}
+        <tr>
+            <td>Bug Tracker:</td>
+            <td><a href="{{ plugin.bugs }}">{{ plugin.bugs }}</a></td>
+        </tr>
+    {% endif %}
+    {% if plugin.keywords %}
+        <tr>
+            <td>Keywords:</td>
+            <td>{{ plugin.keywords|join(', ') }}</td>
+        </tr>
+    {% endif %}
+    {% if plugin.license %}
+        <tr>
+            <td>License:</td>
+            <td>{{ plugin.license }}</td>
+        </tr>
+    {% endif %}
+
+    {% if plugin.description %}
+        <tr>
+            <td>Description:</td>
+            <td>{{ plugin.description_html }}</td>
+        </tr>
+    {% endif %}
+
+    {% if plugin.readme or plugin.homepage %}
+        {% set readme_link = plugin.readme ?: plugin.homepage ~ '/blob/develop/README.md' %}
+        <tr>
+            <td>Readme:</td>
+            <td><a href="{{ readme_link }}">{{ readme_link }}</a></td>
+        </tr>
+    {% endif %}
+
+</table>

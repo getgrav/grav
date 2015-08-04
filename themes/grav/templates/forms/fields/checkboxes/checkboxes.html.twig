@@ -1,0 +1,34 @@
+{% extends "forms/field.html.twig" %}
+
+{% set originalValue = value %}
+{% set value = (value is null ? field.default : value) %}
+{% if field.use == 'keys' and field.default %}
+    {% set value = field.default|merge(value) %}
+{% endif %}
+
+{% block global_attributes %}
+    {{ parent() }}
+    data-grav-keys="{{ field.use == 'keys' ? 'true' : 'false' }}"
+    data-grav-field-name="{{ field.name|fieldName }}"
+{% endblock %}
+
+{% block input %}
+    {% for key, text in field.options %}
+
+        {% set id = field.name ~ '-' ~ key %}
+        {% set name = field.use == 'keys' ? key : id %}
+        {% set val = field.use == 'keys' ? '1' : key %}
+        {% set checked = (field.use == 'keys' ? value[key] : key in value) %}
+
+        <span class="checkboxes">
+            <input type="checkbox"
+                   id="{{ id|e }}"
+                   value="{{ val|e }}"
+                   name="{{ name|fieldName }}"
+                   {% if checked %}checked="checked"{% endif %}
+                   {% if field.validate.required %}required="required"{% endif %}
+            >
+            <label for="{{ id|e }}">{{ text|e }}</label>
+        </span>
+    {% endfor %}
+{% endblock %}

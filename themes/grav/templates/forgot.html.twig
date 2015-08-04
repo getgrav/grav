@@ -1,0 +1,17 @@
+{% embed 'partials/login.html.twig' with {title:'Grav Forgot Password'} %}
+
+    {% block form %}
+        {% for field in page.header.form.fields %}
+            {% if field.type %}
+                <div>
+                    {% include ["forms/fields/#{field.type}/#{field.type}.html.twig", 'forms/fields/text/text.html.twig'] %}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="form-actions secondary-accent">
+            <button type="submit" class="button primary" name="task" value="forgot"><i class="fa fa-paper-plane"></i> {{ "LOGIN_BTN_SEND_INSTRUCTIONS"|t }}</button>
+        </div>
+    {% endblock %}
+
+{% endembed %}
+

@@ -1,0 +1,23 @@
+{% set taxonomies = (taxonomies is null ? admin.data('site').taxonomies : taxonomies) %}
+{% set parentname = field.name %}
+
+{% for name in taxonomies %}
+
+    {% set value = array(data.value('header.taxonomy.' ~ name)|default([])) %}
+    {% set sub_taxonomies = attribute(grav.taxonomy.taxonomy, name)|default([])|keys %}
+    {% set list = []|merge(sub_taxonomies)|merge(value) %}
+
+    {% set field = {
+        type: 'select',
+        classes: 'fancy create',
+        label: name|capitalize,
+        name: parentname ~ '.' ~ name,
+        multiple: true,
+        options: list,
+        selectize: {
+            create: true
+        }
+    } %}
+
+    {% include ['forms/fields/select/select.html.twig'] %}
+{% endfor %}

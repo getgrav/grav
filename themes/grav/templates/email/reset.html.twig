@@ -1,0 +1,12 @@
+{% extends 'email/base.html.twig' %}
+
+{% block content %}
+    <p>Dear {{ name }},</p>
+
+    <p>To reset your password, follow <a href="{{ reset_link }}">this link</a> or copy the following URL into your browser's address bar: {{ reset_link }}.</p>
+
+    <p>
+        Kind regards<br />
+        {{ author }}
+    </p>
+{% endblock %}

@@ -1,2 +1,20 @@
 enabled: true
 route: '/admin'
+theme: grav
+dashboard:
+  days_of_stats: 7
+login:
+  enabled: true
+  route: null
+  timeout: 1800
+warnings:
+  delete_page: true
+edit_mode: auto       // auto|normal|expert
+show_beta_msg: true
+popularity:
+  enabled: true
+  ignore: ['/test*','/modular']
+  history:
+    daily: 30
+    monthly: 12
+    visitors: 20
