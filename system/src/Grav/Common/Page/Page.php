@@ -606,22 +606,6 @@ class Page
     }
 
     /**
-     * Get page extension
-     *
-     * @param $var
-     *
-     * @return mixed
-     */
-    public function extension($var = null)
-    {
-        if ($var !== null) {
-            $this->extension = $var;
-        }
-
-        return $this->extension;
-    }
-
-    /**
      * Save page if there's a file assigned to it.
      * @param bool $reorder Internal use.
      */
@@ -853,9 +837,26 @@ class Page
             $this->template = $var;
         }
         if (empty($this->template)) {
-            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension, '', $this->name());
+            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name());
         }
         return $this->template;
+    }
+
+    /**
+     * Gets and sets the extension field.
+     *
+     * @param null $var
+     * @return null|string
+     */
+    public function extension($var = null)
+    {
+        if ($var !== null) {
+            $this->extension = $var;
+        }
+        if (empty($this->extension)) {
+            $this->extension = '.' . pathinfo($this->name(), PATHINFO_EXTENSION);
+        }
+        return $this->extension;
     }
 
     /**
