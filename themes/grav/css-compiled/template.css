@@ -1370,6 +1370,16 @@ tr {
 .switch-toggle input[type="radio"] {
   display: none !important; }
 
+/* Fix for toggleables elements when disabled */
+input[type=radio].highlight + label {
+  background-color: #41bea8;
+  color: white; }
+
+/* Fix for toggleables elements when disabled */
+div.checked input[type=radio][value="1"]:not(:checked) + label {
+  background-color: white;
+  color: gray; }
+
 /*
  *  Remodal - v0.2.0
  *  Flat, responsive, lightweight, easy customizable modal window plugin with declarative state notation and hash tracking.

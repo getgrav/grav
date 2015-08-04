@@ -46,9 +46,17 @@
                         $(element).find('input').attr('checked', true).prop('value', 1);
                     }
 
-                    $(element).parent().siblings('.form-data').css('opacity', on ? 1 : 0.6);
-                    $(element).parent().siblings('.form-data').find('textarea').css('opacity', on ? 1 : 0.6);
-                    $(element).parent().siblings('.form-data').find('input').css('opacity', on ? 1 : 0.6);
+                    var form_data = $(element).parent().siblings('.form-data');
+
+                    if (on) {
+                        form_data.addClass('checked');
+                    } else {
+                        form_data.removeClass('checked');
+                    }
+
+                    form_data.css('opacity', on ? 1 : 0.6);
+                    form_data.find('textarea').css('opacity', on ? 1 : 0.6);
+                    form_data.find('input').css('opacity', on ? 1 : 0.6);
                 };
 
                 var processToggleables = function processToggleables(element) {
@@ -66,9 +74,11 @@
                             $(element).attr('checked', true).prop('value', 1);
                         }
 
-                        $(element).parent().parent().siblings('.form-data').css('opacity', on ? 1 : 0.6);
-                        $(element).parent().parent().siblings('.form-data').find('textarea').css('opacity', on ? 1 : 0.6);
-                        $(element).parent().parent().siblings('.form-data').find('input').css('opacity', on ? 1 : 0.6);
+                        var form_data = $(element).parent().parent().siblings('.form-data')
+
+                        form_data.css('opacity', on ? 1 : 0.6);
+                        form_data.find('textarea').css('opacity', on ? 1 : 0.6);
+                        form_data.find('input').css('opacity', on ? 1 : 0.6);
                     }
 
                     if (elType == 'span') {

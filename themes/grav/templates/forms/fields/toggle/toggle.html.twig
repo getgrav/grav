@@ -32,6 +32,7 @@
                    class="{{ field.highlight == '' ~ key ? 'highlight' : '' }}{{ hidden }}"
                    {% endif %}
                    {% if '' ~ key == '' ~ value %}checked="checked" {% endif %}
+                   {% if value is defined and (key == 1 or key == '1') %}checked="checked" {% endif %}
                    {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
             />
             <label for="{{ id }}" class="{{ hidden }}">{{ text }}</label>

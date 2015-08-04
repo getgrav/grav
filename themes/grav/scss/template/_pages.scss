@@ -211,3 +211,15 @@
 .switch-toggle input[type="radio"] {
     display: none!important;
 }
+
+/* Fix for toggleables elements when disabled */
+input[type=radio].highlight + label {
+    background-color: rgb(65, 190, 168);
+    color: white;
+}
+
+/* Fix for toggleables elements when disabled */
+div.checked input[type=radio][value="1"]:not(:checked) + label {
+   background-color: white;
+   color: gray;
+}
