@@ -445,7 +445,7 @@ hr {
    */
   .switch-grav {
     background-color: #fff;
-    border: 1px solid #d4d4d4;
+    border: 1px solid #d5d5d5;
     border-radius: 4px;
     /* Selected ON switch-light
      */ }
@@ -574,7 +574,7 @@ form .selectize-control.multi .selectize-input {
     border-radius: 2px;
     line-height: 1.5; }
     form .selectize-control.multi .selectize-input > div.active {
-      background: #d4d4d4; }
+      background: #d5d5d5; }
 form .selectize-control.single .selectize-input:after {
   right: 27px; }
 form .selectize-control.single .selectize-input.dropdown-active:after {
@@ -593,7 +593,7 @@ form .large {
     height: 10rem; }
 form select {
   width: 100%;
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   background: #fff;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -603,17 +603,17 @@ form select {
   margin: 0; }
 form input[type=text], form input[type=password], form input[type=email] {
   width: 100%;
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   background: #fff; }
 form input[readonly=readonly] {
   background: #f2f2f2;
   font-weight: bold; }
 form textarea {
   width: 100%;
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   background: #fff; }
 form .form-frontmatter-wrapper {
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   border-radius: 4px; }
 form .switch-toggle.medium {
   width: 100%;
@@ -662,7 +662,7 @@ form .checkboxes {
     margin-right: 10px;
     position: absolute;
     background: #fff;
-    border: 1px solid #d4d4d4;
+    border: 1px solid #d5d5d5;
     border-radius: 4px; }
   form .checkboxes input[type=checkbox] {
     display: none; }
@@ -679,7 +679,7 @@ form .checkboxes {
   margin-bottom: 3rem; }
   .form-frontmatter-wrapper .dragbar {
     height: 4px;
-    background: #d4d4d4;
+    background: #d5d5d5;
     cursor: row-resize; }
 
 #frontmatter + .CodeMirror {
@@ -694,7 +694,7 @@ form .checkboxes {
   .form-order-wrapper ul#ordering li {
     padding: 0.2rem 1rem;
     border-radius: 4px;
-    border: 1px solid #d4d4d4;
+    border: 1px solid #d5d5d5;
     background: #f8f8f8;
     color: #8d959a;
     margin: 3px 0;
@@ -718,7 +718,7 @@ form .checkboxes {
     cursor: move;
     padding: 1rem;
     border-radius: 4px;
-    border: 1px solid #d4d4d4;
+    border: 1px solid #d5d5d5;
     background: #f8f8f8;
     color: #8d959a;
     margin: 3px 0;
@@ -791,11 +791,11 @@ tr {
     background: #54c5b0;
     color: #fff; }
   .button.secondary {
-    background: #29796b;
+    background: #2a7a6b;
     color: rgba(255, 255, 255, 0.85);
     border-radius: 4px; }
     .button.secondary:hover {
-      background: #2f8c7c;
+      background: #318d7c;
       color: #fff; }
 
 #error {
@@ -822,7 +822,7 @@ tr {
   #admin-login .form-data {
     padding-right: 0; }
   #admin-login h1 {
-    background: #20333e url(../images/logo.png) 50% 50% no-repeat;
+    background: #21333e url(../images/logo.png) 50% 50% no-repeat;
     font-size: 0;
     color: transparent;
     height: 216px;
@@ -838,15 +838,15 @@ tr {
       text-align: center;
       font-weight: 300;
       -webkit-font-smoothing: auto;
-      border: 1px solid #1d2e38; }
+      border: 1px solid #1e2e39; }
       #admin-login form input::-webkit-input-placeholder {
-        color: #83949c; }
+        color: #83949d; }
       #admin-login form input::-moz-placeholder {
-        color: #83949c; }
+        color: #83949d; }
       #admin-login form input:-moz-placeholder {
-        color: #83949c; }
+        color: #83949d; }
       #admin-login form input:-ms-input-placeholder {
-        color: #83949c; }
+        color: #83949d; }
     #admin-login form .form-actions {
       text-align: center;
       margin: 0 -3rem -3rem -3rem;
@@ -870,7 +870,7 @@ tr {
       color: #fff; }
 
 #admin-logo {
-  background: #20333e;
+  background: #21333e;
   height: 4.2rem; }
   #admin-logo h3 {
     text-transform: uppercase;
@@ -884,7 +884,7 @@ tr {
 
 #admin-user-details {
   padding: 2rem;
-  border-bottom: 1px solid #20333e;
+  border-bottom: 1px solid #21333e;
   overflow: hidden; }
   #admin-user-details img {
     -webkit-transition: all 0.5s ease;
@@ -919,7 +919,7 @@ tr {
       #admin-menu li .badges .badge {
         display: inline-block;
         margin-right: -5px;
-        color: #e5e5e5; }
+        color: #e6e6e6; }
       #admin-menu li .badges .count {
         background-color: #365569; }
       #admin-menu li .badges .updates {
@@ -948,7 +948,7 @@ tr {
         color: #afc7d5;
         margin-right: 8px; }
       #admin-menu li a:hover {
-        background: #20333e;
+        background: #21333e;
         color: #fff; }
         #admin-menu li a:hover i {
           font-size: 1.2rem; }
@@ -1364,6 +1364,12 @@ tr {
 .depth-9 .row {
   padding-left: 30rem; }
 
+.hidden {
+  display: none !important; }
+
+.switch-toggle input[type="radio"] {
+  display: none !important; }
+
 /*
  *  Remodal - v0.2.0
  *  Flat, responsive, lightweight, easy customizable modal window plugin with declarative state notation and hash tracking.
@@ -1606,7 +1612,7 @@ body.remodal_active .remodal {
     border-radius: 0; }
 
 .uk-htmleditor-navbar {
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   border-top-right-radius: 4px;
   border-top-left-radius: 4px;
   background: #fbfbfb; }
@@ -1625,8 +1631,8 @@ body.remodal_active .remodal {
     .uk-htmleditor-navbar ul .uk-active a {
       background: white;
       cursor: auto;
-      border-left: 1px solid #d4d4d4;
-      border-right: 1px solid #d4d4d4; }
+      border-left: 1px solid #d5d5d5;
+      border-right: 1px solid #d5d5d5; }
       .uk-htmleditor-navbar ul .uk-active a:hover {
         background: #fff; }
     .uk-htmleditor-navbar ul a {
@@ -1649,7 +1655,7 @@ body.remodal_active .remodal {
     border-top-right-radius: 4px; }
 
 .uk-htmleditor-content {
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   border-top: 0;
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px; }
@@ -1693,7 +1699,7 @@ body.remodal_active .remodal {
 [data-mode=split] .uk-htmleditor-button-code, [data-mode=split] .uk-htmleditor-button-preview {
   display: none; }
 [data-mode=split] .uk-htmleditor-code {
-  border-right: 1px solid #d4d4d4; }
+  border-right: 1px solid #d5d5d5; }
   [data-mode=split] .uk-htmleditor-code, [data-mode=split] .uk-htmleditor-code .uk-htmleditor-preview {
     float: left;
     width: 50%; }
@@ -1711,7 +1717,7 @@ body.remodal_active .remodal {
     border-radius: 0; }
 
 .grav-mdeditor-navbar {
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   border-top-right-radius: 4px;
   border-top-left-radius: 4px;
   background: #fbfbfb; }
@@ -1730,8 +1736,8 @@ body.remodal_active .remodal {
     .grav-mdeditor-navbar ul .mdeditor-active a {
       background: white;
       cursor: auto;
-      border-left: 1px solid #d4d4d4;
-      border-right: 1px solid #d4d4d4; }
+      border-left: 1px solid #d5d5d5;
+      border-right: 1px solid #d5d5d5; }
       .grav-mdeditor-navbar ul .mdeditor-active a:hover {
         background: #fff; }
     .grav-mdeditor-navbar ul a {
@@ -1754,7 +1760,7 @@ body.remodal_active .remodal {
     border-top-right-radius: 4px; }
 
 .grav-mdeditor-content {
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d5d5d5;
   border-top: 0;
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px; }
@@ -1798,7 +1804,7 @@ body.remodal_active .remodal {
 [data-mode=split] .grav-mdeditor-button-code, [data-mode=split] .grav-mdeditor-button-preview {
   display: none; }
 [data-mode=split] .grav-mdeditor-code {
-  border-right: 1px solid #d4d4d4; }
+  border-right: 1px solid #d5d5d5; }
   [data-mode=split] .grav-mdeditor-code, [data-mode=split] .grav-mdeditor-code .grav-mdeditor-preview {
     float: left;
     width: 50%; }
@@ -1894,7 +1900,7 @@ body.remodal_active .remodal {
 
 .dropzone {
   position: relative;
-  border: 1px #d4d4d4 solid;
+  border: 1px #d5d5d5 solid;
   border-radius: 4px;
   min-height: 4rem;
   background: #fff; }

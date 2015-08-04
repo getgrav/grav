@@ -16,6 +16,7 @@ use Grav\Common\Backup\ZipBackup;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\File\JsonFile;
+use Symfony\Component\Yaml\Yaml;
 
 class AdminController
 {
@@ -1103,12 +1104,27 @@ class AdminController
 
         if (isset($input['header'])) {
             $header = $input['header'];
+
+            foreach($header as $key => $value) {
+                if ($key == 'metadata') {
+                    foreach($header['metadata'] as $key2 => $value2) {
+                        if (isset($input['toggleable_header']['metadata'][$key2]) && !$input['toggleable_header']['metadata'][$key2]) {
+                            $header['metadata'][$key2] = '';
+                        }
+                    }
+                } else {
+                    if (isset($input['toggleable_header'][$key]) && !$input['toggleable_header'][$key]) {
+                        $header[$key] = '';
+                    }
+                }
+            }
             if ($clean_header) {
                 $header = Utils::arrayFilterRecursive($header, function($k, $v) {
                     return !(is_null($v) || $v === '');
                 });
             }
             $page->header((object) $header);
+            $page->frontmatter(Yaml::dump((array) $page->header()));
         }
         // Fill content last because it also renders the output.
         if (isset($input['content'])) {

@@ -381,4 +381,29 @@ $(function () {
             button.data('key-index', ++key);
         });
     });
+
+    // enable the toggleable checkbox when typing in the corresponding textarea/input element
+    jQuery(document).on('input propertychange click', '.size-2-3 textarea, .size-2-3 input, .size-2-3 label', function() {
+        var item = this;
+
+        var checkbox = $(item).parents('.form-field').find('.toggleable input[type="checkbox"]');
+
+        if (checkbox.length > 0) {
+            checkbox.prop('checked', true);
+        }
+
+        checkbox.parent().siblings('label').css('opacity', 1);
+    });
+
+    // when clicking the label, click the corresponding checkbox automatically
+
+    jQuery(document).on('click', 'label.toggleable', function() {
+        var input = $(this).siblings('.checkboxes.toggleable').find('input');
+        var on = !input.is(':checked');
+
+        input.prop('checked', on);
+        input.prop('value', on ? 1 : 0);
+        $(this).css('opacity', on ? 1 : 0.7);
+    });
+
 });

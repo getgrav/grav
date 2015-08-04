@@ -203,3 +203,11 @@
         padding-left: 3rem * ($i + 1);
     }
 }
+
+.hidden {
+    display: none!important;
+}
+
+.switch-toggle input[type="radio"] {
+    display: none!important;
+}
