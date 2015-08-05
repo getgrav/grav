@@ -229,7 +229,6 @@ class AdminPlugin extends Plugin
     public function onShutdown()
     {
         // Just so we know that we're in this debug mode
-        echo '<span style="color:red">system.debugger.shutdown.close_connection = false</span>';
         if ($this->config->get('plugins.admin.popularity.enabled')) {
 
             // Only track non-admin

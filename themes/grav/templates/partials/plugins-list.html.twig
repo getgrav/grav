@@ -24,7 +24,7 @@
                 <span class="gpm-version">v{{ plugin.version }}</span>
             </td>
             <td class="gpm-actions">
-                {% if (not installing and plugin.form.fields.enabled) %}
+                {% if (not installing and plugin.form.fields.enabled and (plugin.form.fields.enabled.type != 'hidden')) %}
                     <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
                         <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
                     </a>

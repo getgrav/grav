@@ -1,5 +1,7 @@
 # Grav Standard Administration Panel Plugin
 
+[![Join the chat at https://gitter.im/getgrav/grav-plugin-admin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/getgrav/grav-plugin-admin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This **admin plugin** for [Grav](http://github.com/getgrav/grav) is an HTML user interface that provides a convenient way to configure Grav and easily create and modify pages.  This will remain a totally optional plugin, and is not in any way required or needed to use Grav effectively.  In fact, the admin provides an intentionally limited view to ensure it remains easy to use and not overwhelming.  I'm sure power users will still prefer to work with the configuration files directly.
 
 | IMPORTANT!!! This plugin is currently in development as is to be considered a **beta release**.  As such, use this in a production environment **at your own risk!**.
@@ -32,9 +34,9 @@ This **admin plugin** for [Grav](http://github.com/getgrav/grav) is an HTML user
 
 We have tested internally, but we hope to use this public beta phase to identify, isolate, and fix issues related to the plugin to ensure it is as solid and reliable as possible.
 
-For **live chatting**, please use the dedicated [Gitter Chat Room for the admin plugin](https://gitter.im/grav/grav-plugin-admin) for dicussions directly related to the admin plugin.
+For **live chatting**, please use the dedicated [Gitter Chat Room for the admin plugin](https://gitter.im/getgrav/grav-plugin-admin) for dicussions directly related to the admin plugin.
 
-For **bugs, features, improvements**, please ensure you [create issues in the admin plugin GitHub repository](https://github.com/grav/grav-plugin-admin).
+For **bugs, features, improvements**, please ensure you [create issues in the admin plugin GitHub repository](https://github.com/getgrav/grav-plugin-admin).
 
 # Installation
 
@@ -52,7 +54,7 @@ $ bin/gpm install admin
 
 # Usage
 
-Upon completion of the installation the next thing you need to do is create a user account in a file called `users/accounts/admin.yaml`:
+Upon completion of the installation the next thing you need to do is create a user account in a file called `user/accounts/admin.yaml`:
 
 ```
 username: admin
