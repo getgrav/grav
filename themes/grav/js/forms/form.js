@@ -143,7 +143,6 @@
             toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
             element.disabled(!on);
             if (!on) {
-                element.reset();
                 element.el.attr('checked', false).prop('value', 0);
             } else {
                 element.el.attr('checked', true).prop('value', 1);
@@ -153,9 +152,6 @@
         var on = toggleable.find('input').is(':checked');
         toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
         element.disabled(!on);
-        if (!on) {
-            element.reset();
-        }
 
         if (!on) {
             element.el.attr('checked', false).prop('value', 0);
