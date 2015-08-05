@@ -10,9 +10,9 @@
                     <span class="checkboxes toggleable" data-grav-field="toggleable" data-grav-field-name="{{ field.name|fieldName }}">
                         <input type="checkbox"
                                id="toggleable_{{ field.name }}"
-                               {% if originalValue is not null %}value="1"{% endif %}
+                               {% if originalValue is not null and originalValue is not empty %}value="1"{% endif %}
                                name="toggleable_{{ (scope ~ field.name)|fieldName }}"
-                               {% if originalValue is not null %}checked="checked"{% endif %}
+                               {% if originalValue is not null and originalValue is not empty %}checked="checked"{% endif %}
                         >
                         <label for="toggleable_{{ field.name }}"></label>
                     </span>
