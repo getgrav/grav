@@ -778,6 +778,7 @@ class AdminController
             return;
         }
 
+        $reorder = false;
         $data = $this->post;
 
         // Special handler for pages data.
@@ -796,6 +797,20 @@ class AdminController
             $obj = $obj->move($parent);
             $this->preparePage($obj);
 
+            // rename folder based on visible
+            if (isset($data['header']['visible'])) {
+                if ($data['header']['visible'] && !$obj->order()) {
+                    // needs to have order set
+                    $obj->order(1000);
+                    $obj->header['visible'] = null;
+                    $reorder = true;
+                } elseif (!$data['header']['visible'] && $obj->order()) {
+                    // needs to have order removed
+                    $obj->folder($obj->slug());
+                    $reorder = true;
+                }
+            }
+
             // Reset slug and route. For now we do not support slug twig variable on save.
             $obj->slug($original_slug);
 
@@ -806,7 +821,7 @@ class AdminController
         if ($obj) {
             $obj->validate();
             $obj->filter();
-            $obj->save();
+            $obj->save($reorder);
             $this->admin->setMessage('Successfully saved', 'info');
         }
 

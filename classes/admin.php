@@ -504,7 +504,7 @@ class Admin
                 // Found the type and header from the session.
                 $data = $this->session->{$page->route()};
                 $page->name($data['type'] . '.md');
-                $page->header(['title' => $data['title']]);
+                $page->header(['title' => $data['title'], 'visible' => $data['visible']]);
                 $page->frontmatter(Yaml::dump((array) $page->header()));
             } else {
                 // Find out the type by looking at the parent.

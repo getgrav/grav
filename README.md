@@ -38,6 +38,12 @@ For **bugs, features, improvements**, please ensure you [create issues in the ad
 
 # Installation
 
+First ensure you are running the latest **Grav 0.9.34 or later**.  This is required for the admin plugin to run properly (`-f` forces a refresh of the GPM index).
+
+```
+$ bin/gpm selfupgrade -f
+```
+
 The admin plugin actually requires the help of 3 other plugins, so to get the admin plugin to work you first need to install **admin**, **login**, **forms**, and **email** plugins.  These are available via GPM, and because the plugin has dependencies you just need to proceed and install the admin plugin, and agree when prompted to install the others:
 
 ```
