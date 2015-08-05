@@ -34,6 +34,8 @@ $(document).ready(function(){
 
         // Reset when user manually types in invalid date
         $input.on('change', function () {
+            $input.css('opacity', 1);
+            $input.parents('.form-data').css('opacity', 1);
             var kWidget = $input.data('kendoDateTimePicker');
             if (kWidget && kWidget.value() === null && $input.val()) {
                 kWidget.value($input.data('kendo-previous') || "");

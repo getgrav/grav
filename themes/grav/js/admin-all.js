@@ -383,7 +383,7 @@ $(function () {
     });
 
     // enable the toggleable checkbox when typing in the corresponding textarea/input element
-    jQuery(document).on('input propertychange click', '.size-2-3 textarea, .size-2-3 input, .size-2-3 label', function() {
+    jQuery(document).on('input propertychange click', '.form-data textarea, .form-data input, .form-data label', function() {
         var item = this;
 
         var checkbox = $(item).parents('.form-field').find('.toggleable input[type="checkbox"]');
@@ -392,11 +392,16 @@ $(function () {
             checkbox.prop('checked', true);
         }
 
+        $(this).css('opacity', 1);
+        $(this).parents('.form-data').css('opacity', 1);
+        checkbox.css('opacity', 1);
+        checkbox.prop('checked', true);
+        checkbox.prop('value', 1);
+        checkbox.siblings('label').css('opacity', 1);
         checkbox.parent().siblings('label').css('opacity', 1);
     });
 
     // when clicking the label, click the corresponding checkbox automatically
-
     jQuery(document).on('click', 'label.toggleable', function() {
         var input = $(this).siblings('.checkboxes.toggleable').find('input');
         var on = !input.is(':checked');
