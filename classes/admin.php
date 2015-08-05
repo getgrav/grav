@@ -503,8 +503,9 @@ class Admin
             if (isset($this->session->{$page->route()})) {
                 // Found the type and header from the session.
                 $data = $this->session->{$page->route()};
+                $visible = isset($data['visible']) && $data['visible'] != '' ? (bool) $data['visible'] : $this->guessVisibility($page);
                 $page->name($data['type'] . '.md');
-                $page->header(['title' => $data['title'], 'visible' => $data['visible']]);
+                $page->header(['title' => $data['title'], 'visible' => $visible]);
                 $page->frontmatter(Yaml::dump((array) $page->header()));
             } else {
                 // Find out the type by looking at the parent.
@@ -516,6 +517,24 @@ class Admin
         }
 
         return $page;
+    }
+
+    /**
+     * Guess the intended visibility status based on other sibling folders
+     *
+     * @param \Grav\Common\Page\Page $page
+     *
+     * @return bool
+     */
+    public function guessVisibility(Page $page)
+    {
+        $children = $page->parent()->children();
+        foreach ($children as $child) {
+            if ($child->order()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

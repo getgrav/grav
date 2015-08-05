@@ -797,18 +797,7 @@ class AdminController
             $obj = $obj->move($parent);
             $this->preparePage($obj);
 
-            // rename folder based on visible
-            if (isset($data['header']['visible'])) {
-                if ($data['header']['visible'] && !$obj->order()) {
-                    // needs to have order set
-                    $obj->order(1000);
-                    $reorder = true;
-                } elseif (!$data['header']['visible'] && $obj->order()) {
-                    // needs to have order removed
-                    $obj->folder($obj->slug());
-                    $reorder = true;
-                }
-            }
+
 
             // Reset slug and route. For now we do not support slug twig variable on save.
             $obj->slug($original_slug);
@@ -818,8 +807,24 @@ class AdminController
             $obj = $this->prepareData();
         }
         if ($obj) {
+            $visible_before = $obj->visible();
             $obj->validate();
             $obj->filter();
+            $visible_after = $obj->visible();
+
+            // rename folder based on visible
+            if ($visible_after && !$obj->order()) {
+                // needs to have order set
+                $obj->order(1000);
+                $reorder = true;
+            } elseif (!$visible_after && $obj->order()) {
+                // needs to have order removed
+                $obj->folder($obj->slug());
+                $reorder = true;
+            }
+
+
+
             $obj->save($reorder);
             $this->admin->setMessage('Successfully saved', 'info');
         }
