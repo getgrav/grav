@@ -802,7 +802,6 @@ class AdminController
                 if ($data['header']['visible'] && !$obj->order()) {
                     // needs to have order set
                     $obj->order(1000);
-                    $obj->header['visible'] = null;
                     $reorder = true;
                 } elseif (!$data['header']['visible'] && $obj->order()) {
                     // needs to have order removed
