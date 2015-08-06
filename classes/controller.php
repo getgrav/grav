@@ -703,18 +703,10 @@ class AdminController
         $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
 
         if ($result) {
-            $this->admin->json_response = ['status' => 'success', 'message' => 'Everything updated'];
+            $this->admin->json_response = ['status' => 'success', 'message' => 'Grav was successfully updated to '];
         } else {
-            $this->admin->json_response = ['status' => 'error', 'message' => 'Updates failed'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Grav update failed'];
         }
-
-        if ($result) {
-            $this->admin->setMessage("Installation successful.", 'info');
-        } else {
-            $this->admin->setMessage("Installation failed.", 'error');
-        }
-
-        //$this->post = array('_redirect' => $this->view . '/' . $this->route);
 
         return true;
     }

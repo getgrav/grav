@@ -122,10 +122,16 @@ $(function () {
             url: url,
             toastErrors: true,
             success: function(result, status) {
-                toastr.success(result.message);
-
                 if (url.indexOf('task:updategrav') !== -1) {
-                    $('[data-gpm-grav]').remove();
+                    if (result.status == 'success') {
+                        $('[data-gpm-grav]').remove();
+                        toastr.success(result.message + window.grav_available_version);
+                        $('#footer .grav-version').html(window.grav_available_version);
+                    } else {
+                        toastr.success(result.message);
+                    }
+                } else {
+                    toastr.success(result.message);
                 }
             }
         }).always(function() {
@@ -231,6 +237,7 @@ $(function () {
 
                     content = jQuery.substitute(content, {available: grav.available, version: grav.version});
                     $('[data-gpm-grav]').addClass('grav').html('<p>' + icon + content + button + '</p>');
+                    window.grav_available_version = grav.available;
                 }
 
                 $('#grav-update-button').on('click', function() {
