@@ -73,13 +73,6 @@
             </div>
 
             <div class="grav-update" data-gpm-grav>
-            {% if admin.gpm.grav.isUpdatable() %}
-                <p>
-                <i class="fa fa-bullhorn"></i>
-                Grav <b>v{{ admin.gpm.grav.getVersion() }}</b> is now available! <span class="less">(Current: v{{ constant('GRAV_VERSION') }})</span>
-                <button data-maintenance-update="{{ base_url_relative }}/update.json/task:update" class="button button-small secondary">Update Grav Now</button>
-                </p>
-            {% endif %}
             </div>
 
             <div class="content-padding">
