@@ -44,3 +44,7 @@ form:
               type: ignore
             uploads:
               type: ignore
+
+            header.body_classes:
+                type: hidden
+                default: 'modular'
