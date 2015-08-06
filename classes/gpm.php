@@ -173,7 +173,7 @@ class Gpm
         $file = self::_downloadSelfupgrade($update, $tmp);
 
         Installer::install($file, GRAV_ROOT,
-            ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => false]);
+            ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true]);
 
         $errorCode = Installer::lastErrorCode();
 

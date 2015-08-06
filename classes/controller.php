@@ -695,6 +695,11 @@ class AdminController
             return;
         }
 
+        if (is_link(ROOT_DIR . 'index.php')) {
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Cannot upgrade: Grav is symlinked. Please upgrade manually'];
+            return false;
+        }
+
         $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
 
         if ($result) {
