@@ -289,18 +289,17 @@ class AdminController
      */
     protected function taskClearCache()
     {
-        $valid_clear_types = ['standard', 'all', 'assets-only', 'images-only', 'cache-only'];
-
         if (!$this->authoriseTask('clear cache', ['admin.cache', 'admin.super'])) {
             return;
         }
 
+        // get optional cleartype param
         $clear_type = $this->grav['uri']->param('cleartype');
 
-        if ($clear_type && in_array($clear_type, $valid_clear_types)) {
+        if ($clear_type) {
             $clear = $clear_type;
         } else {
-            $clear = $valid_clear_types[0];
+            $clear = 'standard';
         }
 
         $results = Cache::clearCache($clear);
