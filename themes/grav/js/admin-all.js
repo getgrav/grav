@@ -112,7 +112,7 @@ $(function () {
     });
 
     // Update plugins/themes
-    $('[data-maintenance-update]').on('click', function(e) {
+    $(document).on('click', '[data-maintenance-update]', function(e) {
 
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-cloud-download').addClass('fa-refresh fa-spin');
         var url = $(this).data('maintenanceUpdate');
@@ -223,7 +223,7 @@ $(function () {
                 if (grav.isUpdatable) {
                     var icon    = '<i class="fa fa-bullhorn"></i> ';
                         content = 'Grav <b>v{available}</b> is now available! <span class="less">(Current: v{version})</span> ',
-                        button  = '<button class="button button-small secondary" data-gpm-update="grav">Update Grav Now</button>';
+                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/task:updategrav" class="button button-small secondary">Update Grav Now</button>';
 
                     content = jQuery.substitute(content, {available: grav.available, version: grav.version});
                     $('[data-gpm-grav]').addClass('grav').html('<p>' + icon + content + button + '</p>');

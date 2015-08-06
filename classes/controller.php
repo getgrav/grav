@@ -683,6 +683,36 @@ class AdminController
     }
 
     /**
+     * Handles updating Grav
+     *
+     * @return bool True is the action was performed
+     */
+    public function taskUpdategrav()
+    {
+        require_once __DIR__ . '/gpm.php';
+
+        //TODO: manage permissions
+
+        $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
+
+        if ($result) {
+            $this->admin->json_response = ['status' => 'success', 'message' => 'Everything updated'];
+        } else {
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Updates failed'];
+        }
+
+        if ($result) {
+            $this->admin->setMessage("Installation successful.", 'info');
+        } else {
+            $this->admin->setMessage("Installation failed.", 'error');
+        }
+
+        //$this->post = array('_redirect' => $this->view . '/' . $this->route);
+
+        return true;
+    }
+
+    /**
      * Handles updating plugins and themes
      *
      * @return bool True is the action was performed
