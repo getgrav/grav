@@ -4,7 +4,7 @@
 
 This **admin plugin** for [Grav](http://github.com/getgrav/grav) is an HTML user interface that provides a convenient way to configure Grav and easily create and modify pages.  This will remain a totally optional plugin, and is not in any way required or needed to use Grav effectively.  In fact, the admin provides an intentionally limited view to ensure it remains easy to use and not overwhelming.  I'm sure power users will still prefer to work with the configuration files directly.
 
-| IMPORTANT!!! This plugin is currently in development as is to be considered a **beta release**.  As such, use this in a production environment **at your own risk!**.
+> IMPORTANT!!! This plugin is currently in development as is to be considered a **beta release**.  As such, use this in a production environment **at your own risk!**.
 
 # Features
 
@@ -54,14 +54,13 @@ $ bin/gpm install admin
 
 # Usage
 
-Upon completion of the installation the next thing you need to do is create a user account in a file called `user/accounts/admin.yaml`:
+Upon completion of the installation the next thing you need to do is create a user account in a file called `user/accounts/admin.yaml`. This **filename** is actually the **username** that you will use to login.  The contents will contain the other information for the user.
 
 ```
-username: admin
-password: password
-email: youremail@mail.com
-fullname: Johnny Appleseed
-title: Site Administrator
+password: 'password'
+email: 'youremail@mail.com'
+fullname: 'Johnny Appleseed'
+title: 'Site Administrator'
 access:
   admin:
     login: true
@@ -70,9 +69,11 @@ access:
 
 Of course you should edit your `email`, `password`, `fullname`, and `title` to suit your needs.
 
+> You can use any password when you manually put it in this `.yaml` file.  However, when you change your password in the admin, it must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters.
+
 By default you can access the admin by pointing your browser to `http://yoursite.com/admin`.  Here you simply log in with the `username` and `password` you entered above.
 
-| After logging in, your **plaintext password** will be removed and replaced by an **encrypted** one.
+> After logging in, your **plaintext password** will be removed and replaced by an **encrypted** one.
 
 # Standard Free & Paid Pro Versions
 
