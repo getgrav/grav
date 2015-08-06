@@ -17,12 +17,16 @@ td {
 tr {
     @include transition(all 0.2s ease);
 
-    display: flex;
-    flex-wrap: wrap;
+    @include display(flex);
+    @include flex-wrap(wrap);
 
     td {
         display: block;
-        flex: 1;
+        @include flex(1);
+
+        &.double {
+            @include flex(2);
+        }
 
         &:first-child {
             padding-left: $padding-default;

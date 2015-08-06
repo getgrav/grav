@@ -122,7 +122,7 @@
         <h1>Latest Page Updates</h1>
         <table>
         {% for latest in admin.latestPages %}
-            <tr><td><a href="{{ base_url }}/pages/{{ latest.route|trim('/') }}"><i class="fa fa-fw fa-file-o"></i> {{ latest.title }}</a></td><td>{{ latest.route }}</td><td><b>{{ latest.modified|nicetime }}</b></td></tr>
+            <tr><td class="double"><a href="{{ base_url }}/pages/{{ latest.route|trim('/') }}"><i class="fa fa-fw fa-file-o"></i> {{ latest.title }}</a></td><td class="double">{{ latest.route }}</td><td><b>{{ latest.modified|nicetime }}</b></td></tr>
         {% endfor %}
         </table>
     </div>
