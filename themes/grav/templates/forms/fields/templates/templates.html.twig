@@ -1,0 +1,26 @@
+{% extends "forms/field.html.twig" %}
+
+{% block global_attributes %}
+    data-grav-selectize="{{ (field.selectize is defined ? field.selectize : {})|json_encode()|e('html_attr') }}"
+    data-grav-field="select"
+    data-grav-disabled="{{ originalValue is null ? 'true' : 'false' }}"
+    data-grav-default="{{ field.default|json_encode()|e('html_attr') }}"
+{% endblock %}
+
+{% block input %}
+    <div class="form-select-wrapper {{ field.size }}">
+        <select class="{{ field.classes }}" name="{{ (scope ~ field.name)|fieldName ~ (field.multiple ? '[]' : '') }}"
+                {% if field.autofocus in ['on', 'true', 1] %}autofocus="autofocus"{% endif %}
+                {% if field.novalidate in ['on', 'true', 1] %}novalidate="novalidate"{% endif %}
+                {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
+                {% if field.multiple in ['on', 'true', 1] %}multiple="multiple"{% endif %}
+                >
+            {% if value not in field.options|keys %}
+                <option selected="selected" value="{{ value }}">{{ value|title }}</option>
+            {% endif %}
+            {% for key, text in field.options %}
+                <option {% if key == value %}selected="selected"{% endif %} value="{{ field.multiple ? text : key }}">{{ text }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endblock %}
