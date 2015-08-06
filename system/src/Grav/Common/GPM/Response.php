@@ -160,6 +160,8 @@ class Response
     private static function getCurl()
     {
         $args     = func_get_args();
+        $args     = count($args) > 1 ? $args : array_shift($args);
+
         $uri      = $args[0];
         $options  = $args[1];
         $callback = $args[2];
