@@ -6,6 +6,8 @@ This **admin plugin** for [Grav](http://github.com/getgrav/grav) is an HTML user
 
 > IMPORTANT!!! This plugin is currently in development as is to be considered a **beta release**.  As such, use this in a production environment **at your own risk!**.
 
+![](assets/admin-dashboard.png)
+
 # Features
 
 * User login with automatic password encryption
