@@ -289,11 +289,21 @@ class AdminController
      */
     protected function taskClearCache()
     {
+        $valid_clear_types = ['standard', 'all', 'assets-only', 'images-only', 'cache-only'];
+
         if (!$this->authoriseTask('clear cache', ['admin.cache', 'admin.super'])) {
             return;
         }
 
-        $results = Cache::clearCache('standard');
+        $clear_type = $this->grav['uri']->param('cleartype');
+
+        if ($clear_type && in_array($clear_type, $valid_clear_types)) {
+            $clear = $clear_type;
+        } else {
+            $clear = $valid_clear_types[0];
+        }
+
+        $results = Cache::clearCache($clear);
         if (count($results) > 0) {
             $this->admin->json_response = ['status' => 'success', 'message' => 'Cache cleared'];
         } else {
