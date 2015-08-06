@@ -1107,8 +1107,8 @@ class AdminController
         $page->folder($ordering . $slug);
 
 
-        if (isset($input['type'])) {
-            $type = (string) $input['type'];
+        if (isset($input['type']) && !empty($input['type'])) {
+            $type = (string) strtolower($input['type']);
             $name = preg_replace('|.*/|', '', $type) . '.md';
             $page->name($name);
             $page->template($type);
