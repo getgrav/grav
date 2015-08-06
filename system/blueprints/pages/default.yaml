@@ -29,8 +29,6 @@ form:
               type: text
               style: vertical
               label: Title
-              validate:
-                required: true
 
             content:
                 type: markdown
