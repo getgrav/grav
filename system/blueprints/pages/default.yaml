@@ -171,11 +171,12 @@ form:
                         '/': '- Root -'
 
                     type:
-                      type: select
+                      type: templates
                       classes: fancy
                       label: Display Template
                       default: default
                       @data-options: '\Grav\Common\Page\Pages::types'
+
 
                 column2:
                   type: column
