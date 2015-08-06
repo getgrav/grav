@@ -123,6 +123,10 @@ $(function () {
             toastErrors: true,
             success: function(result, status) {
                 toastr.success(result.message);
+
+                if (url.indexOf('task:updategrav') !== -1) {
+                    $('[data-gpm-grav]').remove();
+                }
             }
         }).always(function() {
             GPMRefresh();
@@ -223,11 +227,15 @@ $(function () {
                 if (grav.isUpdatable) {
                     var icon    = '<i class="fa fa-bullhorn"></i> ';
                         content = 'Grav <b>v{available}</b> is now available! <span class="less">(Current: v{version})</span> ',
-                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/task:updategrav" class="button button-small secondary">Update Grav Now</button>';
+                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/task:updategrav" class="button button-small secondary" id="grav-update-button">Update Grav Now</button>';
 
                     content = jQuery.substitute(content, {available: grav.available, version: grav.version});
                     $('[data-gpm-grav]').addClass('grav').html('<p>' + icon + content + button + '</p>');
                 }
+
+                $('#grav-update-button').on('click', function() {
+                    $(this).html('Updating... please wait, downloading 2MB+..');
+                });
 
                 // dashboard
                 if ($('.updates-chart').length) {
