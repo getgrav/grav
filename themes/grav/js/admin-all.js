@@ -112,7 +112,7 @@ $(function () {
     });
 
     // Update plugins/themes
-    $('[data-maintenance-update]').on('click', function(e) {
+    $(document).on('click', '[data-maintenance-update]', function(e) {
 
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-cloud-download').addClass('fa-refresh fa-spin');
         var url = $(this).data('maintenanceUpdate');
@@ -122,7 +122,17 @@ $(function () {
             url: url,
             toastErrors: true,
             success: function(result, status) {
-                toastr.success(result.message);
+                if (url.indexOf('task:updategrav') !== -1) {
+                    if (result.status == 'success') {
+                        $('[data-gpm-grav]').remove();
+                        toastr.success(result.message + window.grav_available_version);
+                        $('#footer .grav-version').html(window.grav_available_version);
+                    } else {
+                        toastr.success(result.message);
+                    }
+                } else {
+                    toastr.success(result.message);
+                }
             }
         }).always(function() {
             GPMRefresh();
@@ -223,11 +233,16 @@ $(function () {
                 if (grav.isUpdatable) {
                     var icon    = '<i class="fa fa-bullhorn"></i> ';
                         content = 'Grav <b>v{available}</b> is now available! <span class="less">(Current: v{version})</span> ',
-                        button  = '<button class="button button-small secondary" data-gpm-update="grav">Update Grav Now</button>';
+                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/task:updategrav" class="button button-small secondary" id="grav-update-button">Update Grav Now</button>';
 
                     content = jQuery.substitute(content, {available: grav.available, version: grav.version});
                     $('[data-gpm-grav]').addClass('grav').html('<p>' + icon + content + button + '</p>');
+                    window.grav_available_version = grav.available;
                 }
+
+                $('#grav-update-button').on('click', function() {
+                    $(this).html('Updating... please wait, downloading 2MB+..');
+                });
 
                 // dashboard
                 if ($('.updates-chart').length) {

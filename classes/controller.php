@@ -683,6 +683,35 @@ class AdminController
     }
 
     /**
+     * Handles updating Grav
+     *
+     * @return bool True is the action was performed
+     */
+    public function taskUpdategrav()
+    {
+        require_once __DIR__ . '/gpm.php';
+
+        if (!$this->authoriseTask('install grav', ['admin.super'])) {
+            return;
+        }
+
+        if (is_link(ROOT_DIR . 'index.php')) {
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Cannot upgrade: Grav is symlinked. Please upgrade manually'];
+            return false;
+        }
+
+        $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
+
+        if ($result) {
+            $this->admin->json_response = ['status' => 'success', 'message' => 'Grav was successfully updated to '];
+        } else {
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Grav update failed'];
+        }
+
+        return true;
+    }
+
+    /**
      * Handles updating plugins and themes
      *
      * @return bool True is the action was performed
