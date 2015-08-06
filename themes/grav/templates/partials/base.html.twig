@@ -73,13 +73,6 @@
             </div>
 
             <div class="grav-update" data-gpm-grav>
-            {% if admin.gpm.grav.isUpdatable() %}
-                <p>
-                <i class="fa fa-bullhorn"></i>
-                Grav <b>v{{ admin.gpm.grav.getVersion() }}</b> is now available! <span class="less">(Current: v{{ constant('GRAV_VERSION') }})</span>
-                <button class="button button-small secondary">Update Grav Now</button>
-                </p>
-            {% endif %}
             </div>
 
             <div class="content-padding">
@@ -97,7 +90,7 @@
                     {% block content_bottom %}{% endblock %}
                 </div>
                  <footer id="footer">
-                    <a href="http://getgrav.org">Grav</a> version {{ constant('GRAV_VERSION') }} was made with <i class="fa fa-heart"></i> by <a href="http:/www.rockettheme.com">RocketTheme</a>.
+                    <a href="http://getgrav.org">Grav</a> version <span class="grav-version">{{ constant('GRAV_VERSION') }}</span> was made with <i class="fa fa-heart"></i> by <a href="http://www.rockettheme.com">RocketTheme</a>.
                 </footer>
             </div>
 

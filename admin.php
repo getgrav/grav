@@ -211,9 +211,6 @@ class AdminPlugin extends Plugin
         $twig->twig_vars['base_url'] = $twig->twig_vars['base_url_relative'];
         $twig->twig_vars['admin'] = $this->admin;
 
-        // fake grav update
-        $twig->twig_vars['grav_update'] = array('current' => '0.9.1', 'available' => '0.9.1');
-
         switch ($this->template) {
             case 'dashboard':
                 $twig->twig_vars['popularity'] = $this->popularity;

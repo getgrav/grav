@@ -5,6 +5,7 @@ use Grav\Common\GravTrait;
 use Grav\Common\GPM\GPM as GravGPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
+use Grav\Common\GPM\Upgrader;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Common\Package;
 
@@ -155,5 +156,33 @@ class Gpm
         file_put_contents($cache_dir . DS . $filename, $contents);
 
         return $cache_dir . DS . $filename;
+    }
+
+    private static function _downloadSelfupgrade($package, $tmp)
+    {
+        $output = Response::get($package['download'], []);
+        Folder::mkdir($tmp);
+        file_put_contents($tmp . DS . $package['name'], $output);
+        return $tmp . DS . $package['name'];
+    }
+
+    public static function selfupgrade() {
+        $upgrader = new Upgrader();
+        $update = $upgrader->getAssets()['grav-update'];
+        $tmp = CACHE_DIR . 'tmp/Grav-' . uniqid();
+        $file = self::_downloadSelfupgrade($update, $tmp);
+
+        Installer::install($file, GRAV_ROOT,
+            ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true]);
+
+        $errorCode = Installer::lastErrorCode();
+
+        Folder::delete($tmp);
+
+        if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+            return false;
+        }
+
+        return true;
     }
 }
