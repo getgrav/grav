@@ -789,42 +789,41 @@ class AdminController
             // Find new parent page in order to build the path.
             $route = !isset($data['route']) ? dirname($this->admin->route) : $data['route'];
             $parent = $route && $route != '/' ? $pages->dispatch($route, true) : $pages->root();
-            $obj = $this->admin->page(true);
 
+            $obj = $this->admin->page(true);
             $original_slug = $obj->slug();
 
             // Change parent if needed and initialize move (might be needed also on ordering/folder change).
             $obj = $obj->move($parent);
             $this->preparePage($obj);
 
-
-
             // Reset slug and route. For now we do not support slug twig variable on save.
             $obj->slug($original_slug);
 
-        } else {
-            // Handle standard data types.
-            $obj = $this->prepareData();
-        }
-        if ($obj) {
-            $visible_before = $obj->visible();
             $obj->validate();
             $obj->filter();
             $visible_after = $obj->visible();
+
+            // force reordering
+            $reorder = true;
 
             // rename folder based on visible
             if ($visible_after && !$obj->order()) {
                 // needs to have order set
                 $obj->order(1000);
-                $reorder = true;
             } elseif (!$visible_after && $obj->order()) {
                 // needs to have order removed
                 $obj->folder($obj->slug());
-                $reorder = true;
             }
 
+        } else {
+            // Handle standard data types.
+            $obj = $this->prepareData();
+            $obj->validate();
+            $obj->filter();
+        }
 
-
+        if ($obj) {
             $obj->save($reorder);
             $this->admin->setMessage('Successfully saved', 'info');
         }
