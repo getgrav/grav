@@ -112,13 +112,11 @@ form:
                     max: 120
 
                 header.metadata.robots:
-                  type: checkboxes
+                  type: text
                   toggleable: true
                   label: Robots
-                  options:
-                    noindex: No index
-                    nofollow: No follow
-                  use: keys
+                  validate:
+                    max: 120
 
             taxonomies:
               type: section
