@@ -980,6 +980,8 @@ class AdminController
             $page = $this->admin->page();
             Folder::delete($page->path());
 
+            $results = Cache::clearCache('standard');
+
             // Set redirect to either referrer or pages list.
             $redirect = $uri->referrer();
             if ($redirect == $uri->route()) {
