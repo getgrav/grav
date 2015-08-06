@@ -360,6 +360,7 @@ $(function () {
         addBtn.data('key-index', index);
     }
 
+    // Collections
     $('[data-type="collection"]').each(function () {
         var el = $(this),
             holder = el.find('[data-collection-holder]'),
@@ -395,5 +396,14 @@ $(function () {
             holder.append(newItem);
             button.data('key-index', ++key);
         });
+    });
+
+    // Thems Switcher Warning
+    $(document).on('mousedown', '[data-remodal-target="theme-switch-warn"]', function(e){
+        var name = $(e.target).closest('[data-gpm-theme]').find('.gpm-name a').text(),
+            remodal = $('.remodal.theme-switcher');
+
+        remodal.find('strong').text(name);
+        remodal.find('.button.continue').attr('href', $(e.target).attr('href'));
     });
 });
