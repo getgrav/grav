@@ -2,8 +2,116 @@
 	@extend %button;
     @include button-color(lighten($secondary-accent-bg, 10%));
 
+    &.dropdown-toggle {
+        border-left: 1px solid lighten($secondary-accent-bg, 5%);
+    }
+
     &.secondary {
         @include button-color(shade($secondary-accent-bg, 20%));
+
+        &.dropdown-toggle {
+            border-left: 1px solid lighten(shade($secondary-accent-bg, 20%), 5%);
+        }
     }
 }
 
+.button-group {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+
+    // real button
+    > .button:first-child:not(:last-child):not(.dropdown-toggle) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    > .button:first-child {
+        margin-left: 0;
+    }
+
+    > .button {
+        position: relative;
+        float: left;
+    }
+
+    // toggle caret
+    > .button + .dropdown-toggle {
+        text-align: center;
+        padding-right: 8px;
+        padding-left: 8px;
+
+        i {
+            margin: 0;
+        }
+    }
+
+    > .button:last-child:not(:first-child), > .dropdown-toggle:not(:first-child) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .button + .button, .button + .button-group, .button-group + .button, .button-group + .button-group {
+        margin-left: -1px;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        display: none;
+        float: left;
+        min-width: 160px;
+        padding: 5px 0;
+        margin: 2px 0 0;
+        font-size: 14px;
+        text-align: left;
+        list-style: none;
+        background-color: lighten($secondary-accent-bg, 10%);
+        -webkit-background-clip: padding-box;
+        background-clip: padding-box;
+        border: 1px solid lighten($secondary-accent-bg, 5%);
+        border: 1px solid rgba(0, 0, 0, .15);
+        border-radius: 4px;
+        -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+
+        .divider {
+            height: 1px;
+            margin: 9px 0;
+            overflow: hidden;
+            background-color: $secondary-accent-bg;
+        }
+
+        li > a {
+            display: block;
+            padding: 3px 20px;
+            clear: both;
+            font-weight: 400;
+            line-height: 1.42857143;
+            color: $white;
+            white-space: nowrap;
+
+            &:focus, &:hover {
+                color: $white;
+                text-decoration: none;
+                background-color: $secondary-accent-bg;
+            }
+        }
+    }
+}
+
+.open > .dropdown-menu {
+    display: block;
+}
+
+.dropdown-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 990;
+}

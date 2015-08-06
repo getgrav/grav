@@ -304,7 +304,7 @@ class AdminController
 
         $results = Cache::clearCache($clear);
         if (count($results) > 0) {
-            $this->admin->json_response = ['status' => 'success', 'message' => 'Cache cleared'];
+            $this->admin->json_response = ['status' => 'success', 'message' => 'Cache cleared <br />Method: ' . $clear . ''];
         } else {
             $this->admin->json_response = ['status' => 'error', 'message' => 'Error clearing cache'];
         }
