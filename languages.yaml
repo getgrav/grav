@@ -20,6 +20,28 @@ en:
   FORGOT_EMAIL_SUBJECT: %s Password Reset Request
   FORGOT_EMAIL_BODY: <h1>Password Reset</h1><p>Dear %1$s,</p><p>A request was made on <b>%4$s</b> to reset your password.</p><p><br /><a href="%2$s" class="btn-primary">Click this to reset your password</a><br /><br /></p><p>Alternatively, copy the following URL into your browser's address bar:</p> <p>%2$s</p><p><br />Kind regards,<br /><br />%3$s</p>
 
+es:
+  ADMIN_BETA_MSG: ¡Está es una versión Beta! Utilízala bajo tu propio riesgo...
+  ADMIN_REPORT_ISSUE: ¿Encontraste algún problema de funcionamiento? Por favor, repórtalo en GitHub.
+  EMAIL_FOOTER: <a href="http://getgrav.org">Funcionando con Grav</a> - El CMS de archivos planos moderno 
+  LOGIN_BTN: Login
+  LOGIN_BTN_FORGOT: Me olvidé
+  LOGIN_BTN_RESET: Restablecer contraseña
+  LOGIN_BTN_SEND_INSTRUCTIONS: Enviar instrucciones de restablecimiento
+  LOGIN_LOGGED_IN: Has conseguido iniciar sesión con éxito
+  LOGIN_FAILED: El inicio de sesión falló
+  LOGGED_OUT: Te has desconectado
+  RESET_LINK_EXPIRED: El enlace de restablecimiento ha caducado, por favor, inténtalo de nuevo
+  RESET_PASSWORD_RESET: La contraseña ha sido restablecida
+  RESET_INVALID_LINK: El enlace de restablecimiento no es válido, por favor, inténtalo otra vez
+  FORGOT_INSTRUCTIONS_SENT_VIA_EMAIL: Las instrucciones para restablecer tu contraseña han sido enviadas por email a %s
+  FORGOT_FAILED_TO_EMAIL: Fallo al enviar las instrucciones por email, por favor inténtalo de nuevo más tarde
+  FORGOT_CANNOT_RESET_EMAIL_NO_EMAIL: No se puede restablecer la contraseña para %s, no se ha establecido una dirección de email
+  FORGOT_USERNAME_DOES_NOT_EXIST: El usuario <b>%s</b> no existe
+  FORGOT_EMAIL_NOT_CONFIGURED: No se puede restablecer contraseña. Este sitio no está configurado para enviar emails
+  FORGOT_EMAIL_SUBJECT: %s Petición de restablecimiento de contraseña
+  FORGOT_EMAIL_BODY: <h1>Restablecimiento de contraseña</h1><p>Estimado %1$s,</p><p>Se ha realizado una petición el <b>%4$s</b> para restablecer tu contraseña.</p><p><br /><a href="%2$s" class="btn-primary">Pincha aquí para restablecer tu contraseña</a><br /><br /></p><p>Alternativamente, copia la siguiente URL en la barra de direcciones de tu navegador:</p> <p>%2$s</p><p><br />Atentamente,<br /><br />%3$s</p>
+
 it:
   ADMIN_BETA_MSG: Questa è una versione beta! Usare in produzione a proprio rischio e pericolo…
   ADMIN_REPORT_ISSUE: Trovato un problema? Per favore, apri un ticket su GitHub
