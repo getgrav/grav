@@ -507,9 +507,16 @@ class Admin
                 // Found the type and header from the session.
                 $data = $this->session->{$page->route()};
                 $visible = isset($data['visible']) && $data['visible'] != '' ? (bool) $data['visible'] : $this->guessVisibility($page);
+
+                $header = ['title' => $data['title'], 'visible' => $visible];
+
+                if ($data['type'] == 'modular') {
+                    $header['body_classes'] = 'modular';
+                }
+
                 $name = $page->modular() ? str_replace('modular/', '', $data['type']) : $data['type'];
                 $page->name($name . '.md');
-                $page->header(['title' => $data['title'], 'visible' => $visible]);
+                $page->header($header);
                 $page->frontmatter(Yaml::dump((array) $page->header()));
             } else {
                 // Find out the type by looking at the parent.
