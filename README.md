@@ -54,6 +54,17 @@ The admin plugin actually requires the help of 3 other plugins, so to get the ad
 $ bin/gpm install admin
 ```
 
+### Manual Installation
+
+Although not advised, it is still possible to install the admin plugin manually. Basically you need to download each of the following plugins individually:
+
+* [admin](https://github.com/getgrav/grav-plugin-admin/archive/develop.zip)
+* [login](https://github.com/getgrav/grav-plugin-login/archive/develop.zip)
+* [form](https://github.com/getgrav/grav-plugin-form/archive/develop.zip)
+* [email](https://github.com/getgrav/grav-plugin-email/archive/develop.zip)
+
+Extract each archive file into your `user/plugins` folder, then ensure the folders are renamed to just `admin/`, `login/`, `form/`, and `email/`.  Then proceed with the **Usage instructions below**.
+
 # Usage
 
 Upon completion of the installation the next thing you need to do is create a user account in a file called `user/accounts/admin.yaml`. This **filename** is actually the **username** that you will use to login.  The contents will contain the other information for the user.
