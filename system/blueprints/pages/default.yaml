@@ -144,6 +144,17 @@ form:
                 column1:
                   type: column
                   fields:
+
+                    settings:
+                      type: section
+                      title: Settings
+                      underline: true
+
+                    header.body_classes:
+                      type: text
+                      label: Body Classes
+
+
                     folder:
                       type: text
                       label: Folder Name
