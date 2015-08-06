@@ -691,7 +691,9 @@ class AdminController
     {
         require_once __DIR__ . '/gpm.php';
 
-        //TODO: manage permissions
+        if (!$this->authoriseTask('install grav', ['admin.super'])) {
+            return;
+        }
 
         $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
 
