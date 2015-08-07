@@ -332,7 +332,7 @@ class Page
 
         // Return summary based on settings in site config file
         if (!$config['enabled']) {
-            return $content;
+            return $this->content();
         }
 
         // Set up variables to process summary from page or from custom summary

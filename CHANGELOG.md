@@ -1,3 +1,9 @@
+# v0.9.35
+## XX/XX/2015
+
+1. [](#bugfix)
+    * Fixed GPM issue when using cURL, throwing an `Undefined offset: 1` exception
+
 # v0.9.34
 ## 08/04/2015
 
