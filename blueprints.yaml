@@ -51,9 +51,8 @@ form:
       type: select
       label: Edit mode
       size: small
-      default: auto
+      default: normal
       options:
-        auto: Auto
         normal: Normal
         expert: Expert
       help: Auto will use blueprint if available, if none found, it will use "Expert" mode.
