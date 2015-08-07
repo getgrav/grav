@@ -50,31 +50,32 @@ form:
                         '': 'Default (Server Timezone)'
 
                 pages.dateformat.short:
-                    type: select
+                    type: dateformat
                     size: medium
                     classes: fancy
                     label: Short date format
                     help: "Set the short date format that can be used by themes"
                     default: "jS M Y"
                     options:
-                        "F jS \\a\\t g:ia": "February 10th at 11:59pm"
-                        "l jS of F g:i A": "Monday 10th of February at 11:59 PM"
-                        "D, m M Y G:i:s": "Mon, 10 Feb 2014 23:59:00"
-                        "d-m-y G:i": "10-02-14 23:59"
-                        "jS M Y": "10th Feb 2014"
+                        "F jS \\a\\t g:ia": Date1
+                        "l jS of F g:i A": Date2
+                        "D, m M Y G:i:s": Date3
+                        "d-m-y G:i": Date4
+                        "jS M Y": Date5
 
                 pages.dateformat.long:
-                    type: select
+                    type: dateformat
                     size: medium
                     classes: fancy
                     label: Long date format
                     help: "Set the long date format that can be used by themes"
                     options:
-                        "F jS \\a\\t g:ia": "February 10th at 11:59pm"
-                        "l jS of F g:i A": "Monday 10th of February at 11:59 PM"
-                        "D, m M Y G:i:s": "Mon, 10 Feb 2014 23:59:00"
-                        "d-m-y G:i": "10-02-14 23:59"
-                        "jS M Y": "10th Feb 2014"
+                        "F jS \\a\\t g:ia": Date1
+                        "l jS of F g:i A": Date2
+                        "D, m M Y G:i:s": Date3
+                        "d-m-y G:i": Date4
+                        "jS M Y": Date5
+
                 pages.order.by:
                     type: select
                     size: medium
