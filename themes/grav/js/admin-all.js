@@ -127,6 +127,10 @@ $(function () {
                         $('[data-gpm-grav]').remove();
                         toastr.success(result.message + window.grav_available_version);
                         $('#footer .grav-version').html(window.grav_available_version);
+
+                        /*// hide the update button after successfull update and update the badges
+                        $('[data-maintenance-update]').fadeOut();
+                        $('.badges.with-updates').removeClass('with-updates').find('.badge.updates').remove();*/
                     } else {
                         toastr.success(result.message);
                     }
@@ -251,7 +255,10 @@ $(function () {
                     UpdatesChart.update({series: [updated, missing]});
                 }
 
-                if (resources.total > 0) {
+                if (!resources.total) {
+                    $('#updates [data-maintenance-update]').fadeOut();
+                    $('.badges.with-updates').removeClass('with-updates').find('.badge.updates').remove();
+                } else {
                     var length,
                         icon = '<i class="fa fa-bullhorn"></i>',
                         content = '{updates} of your {type} have an <strong>update available</strong>',
