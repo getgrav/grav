@@ -486,6 +486,11 @@ class Admin
 
         if (!$page) {
             $slug = basename($path);
+
+            if ($slug == '') {
+              return null;
+            }
+
             $ppath = dirname($path);
 
             // Find or create parent(s).
