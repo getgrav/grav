@@ -49,6 +49,9 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             $this->systemBlueprints = $this->findBlueprints('blueprints://pages');
         }
 
+        // register default by default
+        $this->register('default');
+
         foreach (Folder::all($path, $options) as $type) {
             $this->register($type);
         }
