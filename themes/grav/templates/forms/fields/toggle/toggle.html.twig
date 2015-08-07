@@ -3,15 +3,24 @@
 {% set value = (value is null ? field.default : value) %}
 {% set value = (value is same as(false) ? 0 : value) %}
 
+{% set has_hidden = false %}
+{% for key, text in field.options %}
+    {% if key is empty %}
+      {% set has_hidden = true %}
+    {% endif %}
+{% endfor %}
+
 {% block global_attributes %}
     {{ parent() }}
     data-grav-field-name="{{ field.name|fieldName }}"
 {% endblock %}
 
 {% block input %}
+
     <div class="switch-toggle switch-grav {{ field.size }} switch-{{ field.options|length }}">
         {% for key, text in field.options %}
             {% set id = "toggle_" ~ field.name ~ key %}
+
             <input type="radio"
                    value="{{ key }}"
                    id="{{ id }}"
@@ -20,6 +29,7 @@
                    class="{{ field.highlight == '' ~ key ? 'highlight' : '' }}"
                    {% endif %}
                    {% if '' ~ key == '' ~ value %}checked="checked" {% endif %}
+                   {% if value is defined and (key == 1 or key == '1') %}checked="checked" {% endif %}
                    {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
             />
             <label for="{{ id }}">{{ text }}</label>

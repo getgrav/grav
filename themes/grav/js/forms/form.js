@@ -30,6 +30,80 @@
             var el = $(this),
                 type = el.data(form.dataIndicator);
 
+            if (type == 'textarea' || type == 'toggleable' || type == 'datetime') {
+                var processSpan = function processSpan(element, toggleable) {
+                    var on = true;
+                    if (!toggleable) {
+                        on = $(element).find('input').is(':checked');
+                    }
+
+                    $(element).find('label').css('opacity', on ? 1 : 0.7);
+                    $(element).siblings('label').css('opacity', on ? 1 : 0.7);
+
+                    if (!on) {
+                        $(element).find('input').attr('checked', false).prop('value', 0);
+                    } else {
+                        $(element).find('input').attr('checked', true).prop('value', 1);
+                    }
+
+                    var form_data = $(element).parent().siblings('.form-data');
+
+                    if (on) {
+                        form_data.addClass('checked');
+                    } else {
+                        form_data.removeClass('checked');
+                    }
+
+                    form_data.css('opacity', on ? 1 : 0.6);
+                    form_data.find('textarea').css('opacity', on ? 1 : 0.6);
+                    form_data.find('input').css('opacity', on ? 1 : 0.6);
+                };
+
+                var processToggleables = function processToggleables(element) {
+                    var elType = $(element)[0].tagName.toLowerCase();
+
+                    if (elType == 'checkbox') {
+                        var on = $(element).is(':checked');
+
+                        $(element).siblings('label').css('opacity', on ? 1 : 0.7);
+                        $(element).parent().siblings('label').css('opacity', on ? 1 : 0.7);
+
+                        if (!on) {
+                            $(element).attr('checked', false).prop('value', 0);
+                        } else {
+                            $(element).attr('checked', true).prop('value', 1);
+                        }
+
+                        var form_data = $(element).parent().parent().siblings('.form-data')
+
+                        form_data.css('opacity', on ? 1 : 0.6);
+                        form_data.find('textarea').css('opacity', on ? 1 : 0.6);
+                        form_data.find('input').css('opacity', on ? 1 : 0.6);
+                    }
+
+                    if (elType == 'span') {
+                        processSpan(element);
+                    }
+                };
+
+                el.on('change input propertychange', function() {
+                    processToggleables(this);
+                });
+
+                el.find('input').on('change', function() {
+                    processToggleables(this);
+                });
+
+                if ($(el)[0].className == 'checkboxes toggleable') {
+                    var toggles = $(el).parent().siblings('.form-data').find('label');
+                    toggles.on('click', function() {
+                        processSpan(el, true);
+                    });
+                }
+
+                processToggleables(this);
+            }
+
             if (form.types[type]) {
                 var factory = form.factories[form.types[type]],
                     element = new factory(el, form),
@@ -69,15 +143,20 @@
             toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
             element.disabled(!on);
             if (!on) {
-                element.reset();
+                element.el.attr('checked', false).prop('value', 0);
+            } else {
+                element.el.attr('checked', true).prop('value', 1);
             }
         });
 
         var on = toggleable.find('input').is(':checked');
         toggleable.siblings('label').css('opacity', on ? 1 : 0.7);
         element.disabled(!on);
+
         if (!on) {
-            element.reset();
+            element.el.attr('checked', false).prop('value', 0);
+        } else {
+            element.el.attr('checked', true).prop('value', 1);
         }
     }
 

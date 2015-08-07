@@ -398,6 +398,35 @@ $(function () {
         });
     });
 
+    // enable the toggleable checkbox when typing in the corresponding textarea/input element
+    jQuery(document).on('input propertychange click', '.form-data textarea, .form-data input, .form-data label, .form-data .selectize-input', function() {
+        var item = this;
+
+        var checkbox = $(item).parents('.form-field').find('.toggleable input[type="checkbox"]');
+
+        if (checkbox.length > 0) {
+            checkbox.prop('checked', true);
+        }
+
+        $(this).css('opacity', 1);
+        $(this).parents('.form-data').css('opacity', 1);
+        checkbox.css('opacity', 1);
+        checkbox.prop('checked', true);
+        checkbox.prop('value', 1);
+        checkbox.siblings('label').css('opacity', 1);
+        checkbox.parent().siblings('label').css('opacity', 1);
+    });
+
+    // when clicking the label, click the corresponding checkbox automatically
+    jQuery(document).on('click', 'label.toggleable', function() {
+        var input = $(this).siblings('.checkboxes.toggleable').find('input');
+        var on = !input.is(':checked');
+
+        input.prop('checked', on);
+        input.prop('value', on ? 1 : 0);
+        $(this).css('opacity', on ? 1 : 0.7);
+    });
+
     // Thems Switcher Warning
     $(document).on('mousedown', '[data-remodal-target="theme-switch-warn"]', function(e){
         var name = $(e.target).closest('[data-gpm-theme]').find('.gpm-name a').text(),
