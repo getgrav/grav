@@ -84,7 +84,7 @@
             formValues = {};
 
         for (var key in values) { if (values.hasOwnProperty(key)) {
-                formValues[name + '[' + key + ']'] = values[key] ? '1' : '0';
+                formValues[key] = values[key] ? '1' : '0';
             }
         }
 
@@ -94,6 +94,10 @@
     CheckboxesField.prototype.onChange = function(eh) {
         var self = this;
         this.el.find('input').on('change', function () { eh.call(self, self.value()); });
+    };
+
+    CheckboxesField.prototype.getFieldName = function() {
+        return this.el.data('grav-array-name');
     };
 
     root.Checkboxes = CheckboxesField;
