@@ -1224,6 +1224,15 @@ class Page
         return $this->route;
     }
 
+    /**
+     * Helper method to clear the route out so it regenerates next time you use it
+     */
+    public function unsetRoute()
+    {
+        unset($this->route);
+
+    }
+
     public function rawRoute($var = null)
     {
         if ($var !== null) {
