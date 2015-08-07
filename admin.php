@@ -254,13 +254,14 @@ class AdminPlugin extends Plugin
     public function onTaskGPM()
     {
         $action = $_POST['action']; // getUpdatable | getUpdatablePlugins | getUpdatableThemes | gravUpdates
+        $flush  = isset($_POST['flush']) && $_POST['flush'] == true ? true : false;
 
         if (isset($this->grav['session'])) {
             $this->grav['session']->close();
         }
 
         try {
-            $gpm = new GPM();
+            $gpm = new GPM($flush);
 
             switch ($action) {
                 case 'getUpdates':
@@ -276,7 +277,7 @@ class AdminPlugin extends Plugin
 
                     echo json_encode([
                         "status" => "success",
-                        "payload" => ["resources" => $resources_updates, "grav" => $grav_updates, "installed" => $gpm->countInstalled()]
+                        "payload" => ["resources" => $resources_updates, "grav" => $grav_updates, "installed" => $gpm->countInstalled(), 'flushed' => $flush]
                     ]);
                     break;
             }

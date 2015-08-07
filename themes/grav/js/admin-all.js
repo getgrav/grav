@@ -225,15 +225,32 @@ $(function () {
         });
     });
 
-    var GPMRefresh = function () {
+    $('[data-gpm-checkupdates]').on('click', function(){
+        var element = $(this);
+        element.find('i').addClass('fa-spin');
+        GPMRefresh({
+            flush: true,
+            callback: function() {
+                element.find('i').removeClass('fa-spin');
+            }
+        });
+    });
+
+    var GPMRefresh = function (options) {
+        options = options || {};
+
+        var data = {
+            task:   'GPM',
+            action: 'getUpdates'
+        };
+
+        if (options.flush) { data.flush = true; }
+
         GravAjax({
             dataType: "JSON",
             url: window.location.href,
             method: "POST",
-            data: {
-                task:   'GPM',
-                action: 'getUpdates'
-            },
+            data: data,
             toastErrors: true,
             success: function (response) {
                 var grav = response.payload.grav,
@@ -264,6 +281,9 @@ $(function () {
                     var missing = (resources.total + (grav.isUpdatable ? 1 : 0)) * 100 / (installed + (grav.isUpdatable ? 1 : 0)),
                         updated = 100 - missing;
                     UpdatesChart.update({series: [updated, missing]});
+                    if (resources.total) {
+                        $('#updates [data-maintenance-update]').fadeIn();
+                    }
                 }
 
                 if (!resources.total) {
@@ -304,7 +324,9 @@ $(function () {
                         $.each(resources.plugins, function (key, value) {
                             plugin = $('[data-gpm-plugin="' + key + '"] .gpm-name');
                             url = plugin.find('a');
-                            plugin.append('<a href="' + url.attr('href') + '"><span class="badge update">Update available!</span></a>');
+                            if (!plugin.find('.badge.update').length) {
+                                plugin.append('<a href="' + url.attr('href') + '"><span class="badge update">Update available!</span></a>');
+                            }
 
                         });
                     }
@@ -347,9 +369,12 @@ $(function () {
                         }
                     }
                 }
+
+                if (options.callback && typeof options.callback == 'function') options.callback();
             }
         });
     };
+
     GPMRefresh();
 
     function reIndex (collection) {
