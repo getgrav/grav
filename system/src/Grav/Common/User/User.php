@@ -92,6 +92,20 @@ class User extends Data
     }
 
     /**
+     * Save user without the username
+     */
+    public function save()
+    {
+        $file = $this->file();
+        if ($file) {
+            $username = $this->get('username');
+            unset($this->username);
+            $file->save($this->items);
+            $this->set('username', $username);
+        }
+    }
+
+    /**
      * Checks user authorization to the action.
      *
      * @param  string  $action

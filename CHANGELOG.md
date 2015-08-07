@@ -1,3 +1,24 @@
+# v0.9.35
+## 08/06/2015
+
+1. [](#new)
+    * Added `body_classes` field
+    * Added `visiblity` toggle and help tooltips on new page form
+    * Added new `Page.unsetRoute()` method to allow admin to regenerate the route
+1. [](#improved)
+    * User save no longer stores username each time
+    * Page list form field now shows all pages except root
+    * Removed required option from page title
+    * Added configuration settings for running Nginx in sub directory
+1. [](#bugfix)
+    * Fixed issue with GPM and cURL throwing `Undefined offset: 1` error
+    * Fixed deep translation merging
+    * Fixed broken **metadata** merging with site defaults
+    * Fixed broken **summary** field
+    * Fixed broken robots field
+    * Fixed GPM issue when using cURL, throwing an `Undefined offset: 1` exception
+    * Removed duplicate hidden page `type` field
+
 # v0.9.34
 ## 08/04/2015
 

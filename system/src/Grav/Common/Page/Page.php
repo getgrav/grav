@@ -332,7 +332,7 @@ class Page
 
         // Return summary based on settings in site config file
         if (!$config['enabled']) {
-            return $content;
+            return $this->content();
         }
 
         // Set up variables to process summary from page or from custom summary
@@ -1058,43 +1058,34 @@ class Page
         // if not metadata yet, process it.
         if (null === $this->metadata) {
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
-            $this->metadata = array();
+
+            $this->metadata = [];
 
             // Set the Generator tag
             $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
 
+            // Get initial metadata for the page
+            $metadata  = self::getGrav()['config']->get('site.metadata');
 
             if (isset($this->header->metadata)) {
-                $page_header = $this->header->metadata;
-
-
-
-
-
                 // Merge any site.metadata settings in with page metadata
-                $defaults = (array) self::getGrav()['config']->get('site.metadata');
+                $metadata = array_merge($metadata, $this->header->metadata);
+            }
 
-                if (isset($page_header)) {
-                    $page_header = array_merge($defaults, $page_header);
+            // Build an array of meta objects..
+            foreach ((array)$metadata as $key => $value) {
+                // If this is a property type metadata: "og", "twitter", "facebook" etc
+                if (is_array($value)) {
+                    foreach ($value as $property => $prop_value) {
+                        $prop_key =  $key.":".$property;
+                        $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
+                    }
+                // If it this is a standard meta data type
                 } else {
-                    $page_header = $defaults;
-                }
-
-                // Build an array of meta objects..
-                foreach ((array)$page_header as $key => $value) {
-                    // If this is a property type metadata: "og", "twitter", "facebook" etc
-                    if (is_array($value)) {
-                        foreach ($value as $property => $prop_value) {
-                            $prop_key =  $key.":".$property;
-                            $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
-                        }
-                    // If it this is a standard meta data type
+                    if (in_array($key, $header_tag_http_equivs)) {
+                        $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                     } else {
-                        if (in_array($key, $header_tag_http_equivs)) {
-                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
-                        } else {
-                            $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
-                        }
+                        $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
                     }
                 }
             }
@@ -1231,6 +1222,15 @@ class Page
         }
 
         return $this->route;
+    }
+
+    /**
+     * Helper method to clear the route out so it regenerates next time you use it
+     */
+    public function unsetRoute()
+    {
+        unset($this->route);
+
     }
 
     public function rawRoute($var = null)
@@ -1943,7 +1943,7 @@ class Page
      */
     protected function doRelocation($reorder)
     {
-        if (empty($this->_original)) {
+        if (empty($this->_original) ) {
             return;
         }
 

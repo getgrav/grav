@@ -384,7 +384,8 @@ class Pages
         }
 
         $list = array();
-        if ($current->routable()) {
+
+        if (!$current->root()) {
             $list[$current->route()] = str_repeat('&nbsp; ', ($level-1)*2) . $current->title();
         }
 

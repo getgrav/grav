@@ -10,10 +10,6 @@ form:
   validation: loose
 
   fields:
-    type:
-      type: hidden
-      label: Page Type
-      default: default
 
     tabs:
       type: tabs
@@ -29,8 +25,6 @@ form:
               type: text
               style: vertical
               label: Title
-              validate:
-                required: true
 
             content:
                 type: markdown
@@ -118,13 +112,11 @@ form:
                     max: 120
 
                 header.metadata.robots:
-                  type: checkboxes
+                  type: text
                   toggleable: true
                   label: Robots
-                  options:
-                    noindex: No index
-                    nofollow: No follow
-                  use: keys
+                  validate:
+                    max: 120
 
             taxonomies:
               type: section
@@ -150,6 +142,17 @@ form:
                 column1:
                   type: column
                   fields:
+
+                    settings:
+                      type: section
+                      title: Settings
+                      underline: true
+
+                    header.body_classes:
+                      type: text
+                      label: Body Classes
+
+
                     folder:
                       type: text
                       label: Folder Name
@@ -166,11 +169,12 @@ form:
                         '/': '- Root -'
 
                     type:
-                      type: select
+                      type: templates
                       classes: fancy
                       label: Display Template
                       default: default
                       @data-options: '\Grav\Common\Page\Pages::types'
+
 
                 column2:
                   type: column

@@ -12,6 +12,7 @@ form:
                     type: text
                     size: large
                     label: Username
+                    disabled: true
                     readonly: true
 
                 email:
