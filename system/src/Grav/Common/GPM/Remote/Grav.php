@@ -87,4 +87,9 @@ class Grav extends AbstractPackageCollection
     {
         return version_compare(GRAV_VERSION, $this->getVersion(), '<');
     }
+
+    public function isSymlink()
+    {
+        return is_link(GRAV_ROOT . DS . 'index.php');
+    }
 }
