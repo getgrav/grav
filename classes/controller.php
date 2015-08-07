@@ -879,7 +879,9 @@ class AdminController
 
         // Always redirect if a page route was changed, to refresh it
         if ($obj instanceof Page\Page) {
-            $obj->unsetRoute();
+            if (method_exists($obj, 'unsetRoute')) {
+                $obj->unsetRoute();
+            }
             $this->setRedirect($this->view . $obj->route());
         }
 
