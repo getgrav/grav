@@ -1,0 +1,17 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block head %}
+    {{ parent() }}
+    <meta http-equiv="refresh" content="5; URL={{ base_url_relative }}">
+{% endblock %}
+
+{% block page %}
+<section id="admin-login" class="default-glow-shadow">
+    <h1>
+        {{ title }}
+    </h1>
+
+    <div class="info alert">{{ 'LOGGED_OUT'|t }}</div>
+    {% include 'partials/messages.html.twig' %}
+</section>
+{% endblock %}
