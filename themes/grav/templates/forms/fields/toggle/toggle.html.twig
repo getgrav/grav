@@ -17,25 +17,22 @@
 
 {% block input %}
 
-    <div class="switch-toggle switch-grav {{ field.size }} {% if has_hidden %}switch-{{ (field.options|length)-1 }}{% else %}switch-{{ field.options|length }}{% endif %}">
+    <div class="switch-toggle switch-grav {{ field.size }} switch-{{ field.options|length }}">
         {% for key, text in field.options %}
             {% set id = "toggle_" ~ field.name ~ key %}
-            {% set hidden = '' %}
-            {% if key is empty %}
-              {% set hidden = ' hidden' %}
-            {% endif %}
+
             <input type="radio"
                    value="{{ key }}"
                    id="{{ id }}"
                    name="{{ (scope ~ field.name)|fieldName }}"
                    {% if field.highlight is defined %}
-                   class="{{ field.highlight == '' ~ key ? 'highlight' : '' }}{{ hidden }}"
+                   class="{{ field.highlight == '' ~ key ? 'highlight' : '' }}"
                    {% endif %}
                    {% if '' ~ key == '' ~ value %}checked="checked" {% endif %}
                    {% if value is defined and (key == 1 or key == '1') %}checked="checked" {% endif %}
                    {% if field.validate.required in ['on', 'true', 1] %}required="required"{% endif %}
             />
-            <label for="{{ id }}" class="{{ hidden }}">{{ text }}</label>
+            <label for="{{ id }}">{{ text }}</label>
         {% endfor %}
         <a></a>
     </div>
