@@ -50,12 +50,12 @@ form:
               fields:
                 header.published:
                   type: toggle
+                  toggleable: true
                   label: Published
                   help: "By default, a page is published unless you explicitly set published: false or via a publish_date being in the future, or unpublish_date in the past"
                   highlight: 1
                   size: medium
                   options:
-                    '': Global
                     1: Yes
                     0: No
                   validate:
@@ -232,11 +232,11 @@ form:
 
                 header.visible:
                   type: toggle
+                  toggleable: true
                   label: Visible
                   help: "Determines if a page is visible in the navigation."
                   highlight: 1
                   options:
-                    '': Global
                     1: Enabled
                     0: Disabled
                   validate:
@@ -244,12 +244,11 @@ form:
 
                 header.routable:
                   type: toggle
+                  toggleable: true
                   label: Routable
                   help: If this page is reachable by a URL
                   highlight: 1
-                  default: ''
                   options:
-                    '': Global
                     1: Enabled
                     0: Disabled
                   validate:
@@ -257,10 +256,10 @@ form:
 
                 header.cache_enable:
                   type: toggle
+                  toggleable: true
                   label: Caching
                   highlight: 1
                   options:
-                    '': Global
                     1: Enabled
                     0: Disabled
                   validate:
