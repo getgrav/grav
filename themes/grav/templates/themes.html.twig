@@ -18,8 +18,9 @@
     {% if not admin.route or installing %}
         <div class="button-bar">
         {% if (installing) %}
-            <a class="button" href="{{ base_url_relative }}/themes"><i class="fa fa-reply"></i> Back to installed</a>
+            <a class="button" href="{{ base_url_relative }}/themes"><i class="fa fa-reply"></i> Back</a>
         {% else %}
+            <a class="button" href="{{ base_url }}/"><i class="fa fa-reply"></i> Back</a>
             <a class="button" href="{{ base_url_relative }}/themes/install"><i class="fa fa-plus"></i> Add</a>
         {% endif %}
         </div>

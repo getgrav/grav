@@ -75,6 +75,7 @@
 {% block titlebar %}
     <div class="button-bar">
         {% if mode == 'list' %}
+            <a class="button" href="{{ base_url }}"><i class="fa fa-reply"></i> Back</a>
             <a class="button" href="#modal" data-remodal-target="modal"><i class="fa fa-plus"></i> Add Page</a>
             <a class="button" href="#modular" data-remodal-target="modular"><i class="fa fa-plus"></i> Add Modular</a>
         {% elseif mode == 'edit' %}
