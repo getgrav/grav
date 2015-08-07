@@ -152,7 +152,12 @@ class AdminPlugin extends Plugin
             unset($this->grav['admin']->routes['/']);
         }
 
-        $pages->dispatch('/', true)->route($home);
+        $page = $pages->dispatch('/', true);
+
+        // If page is null, the default page does not exist, and we cannot route to it
+        if ($page) {
+            $page->route($home);
+        }
 
         // Make local copy of POST.
         $post = !empty($_POST) ? $_POST : array();
@@ -220,9 +225,13 @@ class AdminPlugin extends Plugin
                 $twig->twig_vars['popularity'] = $this->popularity;
                 break;
             case 'pages':
-                $twig->twig_vars['file'] = File::instance($this->admin->page(true)->filePath());
-                $twig->twig_vars['media_types'] = str_replace('defaults,', '',
-                    implode(',.', array_keys($this->config->get('media'))));
+                $page = $this->admin->page(true);
+                if ($page != null) {
+                    $twig->twig_vars['file'] = File::instance($page->filePath());
+                    $twig->twig_vars['media_types'] = str_replace('defaults,', '',
+                        implode(',.', array_keys($this->config->get('media'))));
+
+                }
                 break;
         }
     }
