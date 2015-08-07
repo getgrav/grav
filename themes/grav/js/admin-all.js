@@ -399,7 +399,7 @@ $(function () {
     });
 
     // enable the toggleable checkbox when typing in the corresponding textarea/input element
-    jQuery(document).on('input propertychange click', '.form-data textarea, .form-data input, .form-data label', function() {
+    jQuery(document).on('input propertychange click', '.form-data textarea, .form-data input, .form-data label, .form-data .selectize-input', function() {
         var item = this;
 
         var checkbox = $(item).parents('.form-field').find('.toggleable input[type="checkbox"]');
