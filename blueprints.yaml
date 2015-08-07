@@ -69,20 +69,14 @@ form:
         type: bool
       help: Show the beta warning message on the dashboard
 
-    login.enabled:
-      type: hidden
-      label: Login enabled
-      default: true
-
-    login.route:
-      type: hidden
-      label: Login route
-      default: null
-
-    login.timeout:
-      type: hidden
-      label: Login timeout
-      default: 1800
+    session.timeout:
+      type: text
+      size: small
+      label: Session Timeout
+      help: "Sets the session timeout in seconds"
+      validate:
+          type: number
+          min: 1
 
     warnings.delete_page:
       type: toggle

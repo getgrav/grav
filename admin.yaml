@@ -3,9 +3,7 @@ route: '/admin'
 theme: grav
 dashboard:
   days_of_stats: 7
-login:
-  enabled: true
-  route: null
+session:
   timeout: 1800
 warnings:
   delete_page: true
