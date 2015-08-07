@@ -1475,7 +1475,7 @@ tr {
   display: none !important; }
 
 /* Fix for toggleables elements when disabled */
-#blueprints input[type=radio].highlight + label {
+#blueprints input[type=radio].highlight:checked + label {
   background-color: #41bea8;
   color: white; }
 
