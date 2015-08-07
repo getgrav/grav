@@ -121,7 +121,7 @@
                 var dropzone = new Dropzone("#gravDropzone", { url: URI + '/task:addmedia', createImageThumbnails: { thumbnailWidth: 150} });
 
                 $("#gravDropzone").delegate('.dz-preview', 'dragstart', function(e){
-                    var uri = $(this).find('.dz-filename').text(), shortcode = '![](' + uri + ')';
+                    var uri = $(this).find('.dz-filename').text(), shortcode = '![](' + encodeURI(uri) + ')';
                     dropzone.disable();
                     $(this).addClass('hide-backface');
                     e.originalEvent.dataTransfer.effectAllowed = 'copy';

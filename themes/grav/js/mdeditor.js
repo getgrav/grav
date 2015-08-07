@@ -80,7 +80,7 @@
         $("#gravDropzone").delegate('[data-dz-insert]', 'click', function(e) {
             var target = $(e.currentTarget).parent('.dz-preview').find('.dz-filename');
             editor.focus();
-            editor.doc.replaceSelection('![](' + target.text() + ')');
+            editor.doc.replaceSelection('![](' + encodeURI(target.text()) + ')');
         });
 
         this.preview.container = this.preview;
