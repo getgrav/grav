@@ -172,6 +172,7 @@
 
         {% include 'partials/page-move.html.twig' with { blueprints: admin.blueprints('pages/move'), data: context } %}
     </div>
+    {% endif %}
 
     <div class="remodal" data-remodal-id="delete" data-remodal-options="hashTracking: false">
         <form>
@@ -186,7 +187,7 @@
             </div>
         </form>
     </div>
-    {% endif %}
+
 
     <div class="remodal" data-remodal-id="changes">
         <form>

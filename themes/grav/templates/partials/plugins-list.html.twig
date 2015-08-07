@@ -14,7 +14,7 @@
                 <i class="fa fa-fw fa-{{ plugin.icon }}"></i>
                 <a href="{{ base_url_relative }}/plugins/{{ slug|url_encode }}">{{ plugin.name }}</a>
                 {% if admin.isTeamGrav(plugin) %}
-                    <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+                    <small><span class="info-reverse"><i class="fa fa-check-circle" title="Grav Official Plugin"></i></span></small>
                 {% endif %}
                 {% if plugin.symlink %}
                 <span class="hint--bottom"  data-hint="This plugin is symbolically linked. Updates won't be detected.">
@@ -24,7 +24,7 @@
                 <span class="gpm-version">v{{ plugin.version }}</span>
             </td>
             <td class="gpm-actions">
-                {% if (not installing and plugin.form.fields.enabled) %}
+                {% if (not installing and plugin.form.fields.enabled and (plugin.form.fields.enabled.type != 'hidden')) %}
                     <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
                         <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
                     </a>

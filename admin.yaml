@@ -9,7 +9,7 @@ login:
   timeout: 1800
 warnings:
   delete_page: true
-edit_mode: auto       // auto|normal|expert
+edit_mode: normal
 show_beta_msg: true
 popularity:
   enabled: true

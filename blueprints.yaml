@@ -1,12 +1,20 @@
-name: Administration Panel - Basic
-version: 1.0.0
+name: Admin Panel
+version: 0.2.0
 description: Adds an advanced administration panel to manage your site
 icon: empire
 author:
   name: Team Grav
   email: devs@getgrav.org
   url: http://getgrav.org
+homepage: https://github.com/getgrav/grav-plugin-admin
 keywords: admin, plugin, manager, panel
+bugs: https://github.com/getgrav/grav-plugin-admin/issues
+license: MIT
+
+dependencies:
+  - form
+  - email
+  - login
 
 form:
   validation: loose
@@ -43,9 +51,8 @@ form:
       type: select
       label: Edit mode
       size: small
-      default: auto
+      default: normal
       options:
-        auto: Auto
         normal: Normal
         expert: Expert
       help: Auto will use blueprint if available, if none found, it will use "Expert" mode.
@@ -88,8 +95,6 @@ form:
       validate:
         type: bool
       help: Ask the user confirmation when deleting a page
-
-
 
     Popularity:
       type: section

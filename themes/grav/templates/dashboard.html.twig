@@ -2,7 +2,18 @@
 
 {% block titlebar %}
     <div class="button-bar">
-        <button data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache" class="button"><i class="fa fa-fw fa-trash"></i> Clear Cache</button>
+        <div class="button-group">
+            <button data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache" class="button"><i class="fa fa-fw fa-trash"></i> Clear Cache</button>
+            <button type="button" class="button dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:all" href="#">All Cache</a></li>
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:assets-only" href="#">Assets Only</a></li>
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:images-only" href="#">Images Only</a></li>
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:cache-only" href="#">Cache Only</a></li>
+            </ul>
+        </div>
     </div>
     <h1><i class="fa fa-fw fa-th"></i> Dashboard</h1>
 {% endblock %}
@@ -122,7 +133,7 @@
         <h1>Latest Page Updates</h1>
         <table>
         {% for latest in admin.latestPages %}
-            <tr><td><a href="{{ base_url }}/pages/{{ latest.route|trim('/') }}"><i class="fa fa-fw fa-file-o"></i> {{ latest.title }}</a></td><td>{{ latest.route }}</td><td><b>{{ latest.modified|nicetime }}</b></td></tr>
+            <tr><td class="double"><a href="{{ base_url }}/pages/{{ latest.route|trim('/') }}"><i class="fa fa-fw fa-file-o"></i> {{ latest.title }}</a></td><td class="double">{{ latest.route }}</td><td><b>{{ latest.modified|nicetime }}</b></td></tr>
         {% endfor %}
         </table>
     </div>

@@ -42,7 +42,7 @@
             markdown     : false,
             autocomplete : true,
             height       : 500,
-            codemirror   : { mode: 'htmlmixed', theme: 'paper', lineWrapping: true, dragDrop: true, autoCloseTags: true, matchTags: true, autoCloseBrackets: true, matchBrackets: true, indentUnit: 4, indentWithTabs: false, tabSize: 4, hintOptions: {completionSingle:false} },
+            codemirror   : { mode: 'htmlmixed', theme: 'paper', lineWrapping: true, dragDrop: true, autoCloseTags: true, matchTags: true, autoCloseBrackets: true, matchBrackets: true, indentUnit: 4, indentWithTabs: false, tabSize: 4, hintOptions: {completionSingle:false}, extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"} },
             toolbar      : [ 'bold', 'italic', 'strike', 'link', 'image', 'blockquote', 'listUl', 'listOl' ],
             lblPreview   : '<i class="fa fa-fw fa-eye"></i>',
             lblCodeview  : '<i class="fa fa-fw fa-code"></i>',

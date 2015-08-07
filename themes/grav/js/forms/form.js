@@ -284,7 +284,10 @@
         Form.findElements(this.form, 'input, textarea', '', false).each(function(input) {
             var input = $(this),
                 name = input.attr('name'),
+                parent = input.parent('[data-grav-disabled]'),
                 value = input.val();
+
+            if (input.is(':disabled') || (parent && parent.data('grav-disabled') == 'true')) { return; }
 
             if (name) {
                 values[name] = value;

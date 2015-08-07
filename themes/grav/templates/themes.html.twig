@@ -11,7 +11,7 @@
         {% set installed = false %}
     {% endif %}
 
-    {% set theme     = package.toArray() %}
+    {% set theme = package.toArray() %}
 {% endif %}
 
 {% block titlebar %}
@@ -29,6 +29,10 @@
         <div class="button-bar">
             <a class="button" href="{{ base_url_relative }}/themes"><i class="fa fa-arrow-left"></i> Back to Themes</a>
             <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
+        </div>
+        {% else %}
+        <div class="button-bar">
+            <a class="button" href="{{ base_url_relative }}/themes/install"><i class="fa fa-arrow-left"></i> Back to Themes</a>
         </div>
         {% endif %}
         <h1><i class="fa fa-fw fa-plug"></i> Theme: {{ theme.name|e }}</h1>

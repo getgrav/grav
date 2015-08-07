@@ -85,21 +85,21 @@
         return formValues;
     };
 
-    ArrayField.prototype.add = function() {
+    ArrayField.prototype.add = function(event) {
         $(this._getNewField()).insertAfter($(event.target).closest('[data-grav-array-type="row"]'));
         if (this.isValueOnly()) {
             this.refreshAll();
         }
     };
 
-    ArrayField.prototype.remove = function() {
+    ArrayField.prototype.remove = function(event) {
         $(event.target).closest('[data-grav-array-type="row"]').remove();
         if (this.isValueOnly()) {
             this.refreshAll();
         }
     };
 
-    ArrayField.prototype.update = function() {
+    ArrayField.prototype.update = function(event) {
         var keyField = $(event.target),
             valueField = keyField.closest('[data-grav-array-type="row"]').find('[data-grav-array-type="value"]');
 
