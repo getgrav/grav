@@ -57,10 +57,10 @@ form:
                     help: "Set the short date format that can be used by themes"
                     default: "jS M Y"
                     options:
-                        "F jS \\a\\t g:ia": "January 1st at 11:59pm"
-                        "l jS of F g:i A": "Monday 1st of January at 11:59 PM"
-                        "D, m M Y G:i:s": "Mon, 01 Jan 2014 23:59:00"
-                        "d-m-y G:i": "01-01-14 23:59"
+                        "F jS \\a\\t g:ia": "February 10th at 11:59pm"
+                        "l jS of F g:i A": "Monday 10th of February at 11:59 PM"
+                        "D, m M Y G:i:s": "Mon, 10 Feb 2014 23:59:00"
+                        "d-m-y G:i": "10-02-14 23:59"
                         "jS M Y": "10th Feb 2014"
 
                 pages.dateformat.long:
@@ -70,12 +70,11 @@ form:
                     label: Long date format
                     help: "Set the long date format that can be used by themes"
                     options:
-                        "F jS \\a\\t g:ia": "January 1st at 11:59pm"
-                        "l jS of F g:i A": "Monday 1st of January at 11:59 PM"
-                        "D, m M Y G:i:s": "Mon, 01 Jan 2014 23:59:00"
-                        "d-m-y G:i": "01-01-14 23:59"
+                        "F jS \\a\\t g:ia": "February 10th at 11:59pm"
+                        "l jS of F g:i A": "Monday 10th of February at 11:59 PM"
+                        "D, m M Y G:i:s": "Mon, 10 Feb 2014 23:59:00"
+                        "d-m-y G:i": "10-02-14 23:59"
                         "jS M Y": "10th Feb 2014"
-
                 pages.order.by:
                     type: select
                     size: medium
