@@ -24,7 +24,7 @@
             <input type="checkbox"
                    id="{{ id|e }}"
                    value="{{ val|e }}"
-                   name="{{ field.name|fieldName ~ '[' ~ name ~ ']' }}"
+                   name="{{ name|fieldName }}"
                    {% if checked %}checked="checked"{% endif %}
                    {% if field.validate.required %}required="required"{% endif %}
             >
