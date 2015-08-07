@@ -16,7 +16,7 @@
                 <i class="fa fa-fw fa-{{ theme.icon }}"></i>
                 <a href="{{ base_url_relative }}/themes/{{ slug|url_encode }}">{{ theme.name }}</a>
                 {% if admin.isTeamGrav(theme) %}
-                    <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+                    <small><span class="info-reverse"><i class="fa fa-check-circle" title="Grav Official Theme"></i></span></small>
                 {% endif %}
                 {% if theme.symlink %}
                     <span class="hint--bottom"  data-hint="This theme is symbolically linked. Updates won't be detected.">
@@ -38,7 +38,7 @@
                     <i class="fa fa-star"></i> Active Theme
                 </div>
             {% else %}
-                <a href="{{ base_url_relative }}/themes/{{ slug }}/task:activate" class="gpm-actions">
+                <a data-remodal-target="theme-switch-warn" href="{{ base_url_relative }}/themes/{{ slug }}/task:activate" class="gpm-actions">
                     {# <a class="disabled" href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a> #}
                     Activate
                 </a>
@@ -47,4 +47,20 @@
 
         </div>
     {% endfor %}
+</div>
+
+<div class="remodal theme-switcher" data-remodal-id="theme-switch-warn" data-remodal-options="hashTracking: false">
+    <form>
+        <h1>Switching to <strong>{theme_name}</strong></h1>
+        <p class="bigger">
+            By switching to a different theme, there is no guarantee that all the layout pages are supported, potentially causing errors when trying to load said pages.
+        </p>
+        <p class="bigger">
+            Do you want to continue and switch to the theme <strong>{theme_name}</strong>?
+        </p>
+        <br>
+        <div class="button-bar">
+            <a class="button secondary remodal-cancel" href="#"><i class="fa fa-fw fa-close"></i> Cancel</a>
+            <a class="button continue" href="#"><i class="fa fa-fw fa-check"></i>Continue</a>
+    </form>
 </div>

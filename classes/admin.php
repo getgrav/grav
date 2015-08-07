@@ -499,12 +499,24 @@ class Admin
             // Add routing information.
             $pages->addPage($page, $path);
 
+            // Set if Modular
+            $page->modularTwig($slug[0] == '_');
+
             // Determine page type.
             if (isset($this->session->{$page->route()})) {
                 // Found the type and header from the session.
                 $data = $this->session->{$page->route()};
-                $page->name($data['type'] . '.md');
-                $page->header(['title' => $data['title']]);
+                $visible = isset($data['visible']) && $data['visible'] != '' ? (bool) $data['visible'] : $this->guessVisibility($page);
+
+                $header = ['title' => $data['title'], 'visible' => $visible];
+
+                if ($data['type'] == 'modular') {
+                    $header['body_classes'] = 'modular';
+                }
+
+                $name = $page->modular() ? str_replace('modular/', '', $data['type']) : $data['type'];
+                $page->name($name . '.md');
+                $page->header($header);
                 $page->frontmatter(Yaml::dump((array) $page->header()));
             } else {
                 // Find out the type by looking at the parent.
@@ -516,6 +528,24 @@ class Admin
         }
 
         return $page;
+    }
+
+    /**
+     * Guess the intended visibility status based on other sibling folders
+     *
+     * @param \Grav\Common\Page\Page $page
+     *
+     * @return bool
+     */
+    public function guessVisibility(Page $page)
+    {
+        $children = $page->parent()->children();
+        foreach ($children as $child) {
+            if ($child->order()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

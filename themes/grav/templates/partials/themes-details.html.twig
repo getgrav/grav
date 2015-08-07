@@ -15,7 +15,7 @@
 <h1>
     {{ theme.name|e }}
     {% if admin.isTeamGrav(theme) %}
-        <small><span class="info-reverse"><i class="fa fa-check-circle"></i></span></small>
+        <small><span class="info-reverse"><i class="fa fa-check-circle" title="Grav Official Theme"></i></span></small>
     {% endif %}
     {% if theme.symlink %}
     <small class="hint--bottom"  data-hint="This theme is symbolically linked. Updates won't be detected.">

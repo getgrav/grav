@@ -293,9 +293,18 @@ class AdminController
             return;
         }
 
-        $results = Cache::clearCache('standard');
+        // get optional cleartype param
+        $clear_type = $this->grav['uri']->param('cleartype');
+
+        if ($clear_type) {
+            $clear = $clear_type;
+        } else {
+            $clear = 'standard';
+        }
+
+        $results = Cache::clearCache($clear);
         if (count($results) > 0) {
-            $this->admin->json_response = ['status' => 'success', 'message' => 'Cache cleared'];
+            $this->admin->json_response = ['status' => 'success', 'message' => 'Cache cleared <br />Method: ' . $clear . ''];
         } else {
             $this->admin->json_response = ['status' => 'error', 'message' => 'Error clearing cache'];
         }
@@ -683,6 +692,35 @@ class AdminController
     }
 
     /**
+     * Handles updating Grav
+     *
+     * @return bool True is the action was performed
+     */
+    public function taskUpdategrav()
+    {
+        require_once __DIR__ . '/gpm.php';
+
+        if (!$this->authoriseTask('install grav', ['admin.super'])) {
+            return;
+        }
+
+        if (is_link(ROOT_DIR . 'index.php')) {
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Cannot upgrade: Grav is symlinked. Please upgrade manually'];
+            return false;
+        }
+
+        $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
+
+        if ($result) {
+            $this->admin->json_response = ['status' => 'success', 'message' => 'Grav was successfully updated to '];
+        } else {
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Grav update failed'];
+        }
+
+        return true;
+    }
+
+    /**
      * Handles updating plugins and themes
      *
      * @return bool True is the action was performed
@@ -778,6 +816,7 @@ class AdminController
             return;
         }
 
+        $reorder = false;
         $data = $this->post;
 
         // Special handler for pages data.
@@ -788,8 +827,8 @@ class AdminController
             // Find new parent page in order to build the path.
             $route = !isset($data['route']) ? dirname($this->admin->route) : $data['route'];
             $parent = $route && $route != '/' ? $pages->dispatch($route, true) : $pages->root();
-            $obj = $this->admin->page(true);
 
+            $obj = $this->admin->page(true);
             $original_slug = $obj->slug();
 
             // Change parent if needed and initialize move (might be needed also on ordering/folder change).
@@ -799,14 +838,31 @@ class AdminController
             // Reset slug and route. For now we do not support slug twig variable on save.
             $obj->slug($original_slug);
 
+            $obj->validate();
+            $obj->filter();
+            $visible_after = $obj->visible();
+
+            // force reordering
+            $reorder = true;
+
+            // rename folder based on visible
+            if ($visible_after && !$obj->order()) {
+                // needs to have order set
+                $obj->order(1000);
+            } elseif (!$visible_after && $obj->order()) {
+                // needs to have order removed
+                $obj->folder($obj->slug());
+            }
+
         } else {
             // Handle standard data types.
             $obj = $this->prepareData();
-        }
-        if ($obj) {
             $obj->validate();
             $obj->filter();
-            $obj->save();
+        }
+
+        if ($obj) {
+            $obj->save($reorder);
             $this->admin->setMessage('Successfully saved', 'info');
         }
 
@@ -823,6 +879,9 @@ class AdminController
 
         // Always redirect if a page route was changed, to refresh it
         if ($obj instanceof Page\Page) {
+            if (method_exists($obj, 'unsetRoute')) {
+                $obj->unsetRoute();
+            }
             $this->setRedirect($this->view . $obj->route());
         }
 
@@ -962,6 +1021,8 @@ class AdminController
             $page = $this->admin->page();
             Folder::delete($page->path());
 
+            $results = Cache::clearCache('standard');
+
             // Set redirect to either referrer or pages list.
             $redirect = $uri->referrer();
             if ($redirect == $uri->route()) {
@@ -1088,8 +1149,8 @@ class AdminController
         $page->folder($ordering . $slug);
 
 
-        if (isset($input['type'])) {
-            $type = (string) $input['type'];
+        if (isset($input['type']) && !empty($input['type'])) {
+            $type = (string) strtolower($input['type']);
             $name = preg_replace('|.*/|', '', $type) . '.md';
             $page->name($name);
             $page->template($type);
