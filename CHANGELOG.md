@@ -1,3 +1,9 @@
+# v0.2.1
+## XX/XX/2015
+
+1. [](#bugfix)
+    * Fixed form submission not working in IE
+    
 # v0.2.0
 ## 08/06/2015
 

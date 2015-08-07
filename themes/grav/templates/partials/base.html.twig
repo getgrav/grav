@@ -56,6 +56,10 @@
         {% do assets.addJs(theme_url~'/js/forms/fields/toggle.js') %}
         {% do assets.addJs(theme_url~'/js/forms.js') %}
 
+        {% if browser.getBrowser == 'msie' %}
+            {% do assets.addJs(theme_url~'/js/form-attr.polyfill.js') %}
+        {% endif %}
+
         {{ assets.js() }}
     {% endblock %}
 {% endblock %}
