@@ -211,15 +211,3 @@
 .switch-toggle input[type="radio"] {
     display: none!important;
 }
-
-/* Fix for toggleables elements when disabled */
-#blueprints input[type=radio].highlight:checked + label {
-    background-color: rgb(65, 190, 168);
-    color: white;
-}
-
-/* Fix for toggleables elements when disabled */
-#blueprints div.checked input[type=radio][value="1"]:not(:checked) + label {
-   background-color: white;
-   color: gray;
-}
