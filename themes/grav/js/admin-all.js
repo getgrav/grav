@@ -10,6 +10,13 @@ var getState = function(){
     return loadValues.toString();
 };
 
+var bytesToSize = function(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return '0 Byte';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+};
+
 $(function () {
     jQuery.substitute = function(str, sub) {
         return str.replace(/\{(.+?)\}/g, function($0, $1) {
@@ -239,13 +246,17 @@ $(function () {
                         content = 'Grav <b>v{available}</b> is now available! <span class="less">(Current: v{version})</span> ',
                         button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/task:updategrav" class="button button-small secondary" id="grav-update-button">Update Grav Now</button>';
 
+                    if (grav.isSymlink) {
+                        button = '<span class="hint--left" style="float: right;" data-hint="Grav is symbolically linked. Upgrade won\'t be available."><i class="fa fa-fw fa-link"></i></span>';
+                    }
+
                     content = jQuery.substitute(content, {available: grav.available, version: grav.version});
                     $('[data-gpm-grav]').addClass('grav').html('<p>' + icon + content + button + '</p>');
                     window.grav_available_version = grav.available;
                 }
 
                 $('#grav-update-button').on('click', function() {
-                    $(this).html('Updating... please wait, downloading 2MB+..');
+                    $(this).html('Updating... please wait, downloading ' + bytesToSize(grav.assets['grav-update'].size) + '..');
                 });
 
                 // dashboard

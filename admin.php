@@ -270,7 +270,8 @@ class AdminPlugin extends Plugin
                         "assets"      => $gpm->grav->getAssets(),
                         "version"     => GRAV_VERSION,
                         "available"   => $gpm->grav->getVersion(),
-                        "date"        => $gpm->grav->getDate()
+                        "date"        => $gpm->grav->getDate(),
+                        "isSymlink"   => $gpm->grav->isSymlink()
                     ];
 
                     echo json_encode([

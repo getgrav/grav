@@ -4,6 +4,7 @@ namespace Grav\Plugin;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Themes;
 use Grav\Common\Uri;
@@ -705,17 +706,12 @@ class AdminController
             return;
         }
 
-        if (is_link(ROOT_DIR . 'index.php')) {
-            $this->admin->json_response = ['status' => 'error', 'message' => 'Cannot upgrade: Grav is symlinked. Please upgrade manually'];
-            return false;
-        }
-
         $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
 
         if ($result) {
             $this->admin->json_response = ['status' => 'success', 'message' => 'Grav was successfully updated to '];
         } else {
-            $this->admin->json_response = ['status' => 'error', 'message' => 'Grav update failed'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Grav update failed <br>' . Installer::lastErrorMsg()];
         }
 
         return true;

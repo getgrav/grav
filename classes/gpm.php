@@ -168,6 +168,16 @@ class Gpm
 
     public static function selfupgrade() {
         $upgrader = new Upgrader();
+
+        if (!Installer::isGravInstance(GRAV_ROOT)) {
+            return false;
+        }
+
+        if (is_link(GRAV_ROOT . DS . 'index.php')) {
+            Installer::setError(Installer::IS_LINK);
+            return false;
+        }
+
         $update = $upgrader->getAssets()['grav-update'];
         $tmp = CACHE_DIR . 'tmp/Grav-' . uniqid();
         $file = self::_downloadSelfupgrade($update, $tmp);
