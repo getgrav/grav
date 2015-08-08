@@ -94,11 +94,6 @@ class AdminPlugin extends Plugin
 
         // Only activate admin if we're inside the admin path.
         if (substr($this->uri->route(), 0, strlen($this->base)) == $this->base) {
-            // Change login behavior.
-            $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
-            $this->config->set('plugins.login.session.path', $this->uri->rootUrl(false) . $this->base);
-            $this->config->set('plugins.login.session.name', 'grav_admin');
-
             $this->active = true;
         }
     }
