@@ -373,10 +373,11 @@ class Config extends Data
                     $content = $lang_file->content();
                     $this->languages->mergeRecursive($content);
                 }
+                unset($languageFiles['user/plugins']);
             }
 
-            if (isset($languageFiles['system/languages'])) {
-                foreach ((array) $languageFiles['system/languages'] as $lang => $item) {
+            foreach ($languageFiles as $location) {
+                foreach ($location as $lang => $item) {
                     $lang_file = CompiledYamlFile::instance($item['file']);
                     $content = $lang_file->content();
                     $this->languages->join($lang, $content, '/');
