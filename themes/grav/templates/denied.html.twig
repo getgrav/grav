@@ -8,7 +8,7 @@
 
         {% include 'partials/messages.html.twig' %}
 
-        <p>{{ admin.user.fullname }}, your account does not have administrator permissions. <a href="{{ base_url_relative }}/task:logout">Logout</a></p>
+        <p>{{ admin.user.fullname }}, your account does not have administrator permissions. <a href="{{ base_url_relative }}/task{{ config.system.param_sep }}logout">Logout</a></p>
     </div>
 {% endblock %}
 

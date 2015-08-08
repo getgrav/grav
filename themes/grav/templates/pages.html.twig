@@ -54,9 +54,9 @@
                 <span class="page-home">{{ p.home ? '<i class="fa fa-home"></i>' }}</span>
                 <span class="page-tools">
                     {% if warn %}
-                    <a href="#delete" data-remodal-target="delete" data-delete-url="{{ base_url }}/pages/{{ p.route|trim('/') }}/task:delete" class="page-delete" ><i class="fa fa-close"></i></a>
+                    <a href="#delete" data-remodal-target="delete" data-delete-url="{{ base_url }}/pages/{{ p.route|trim('/') }}/task{{ config.system.param_sep }}delete" class="page-delete" ><i class="fa fa-close"></i></a>
                     {% else %}
-                    <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}/task:delete" class="page-delete" ><i class="fa fa-close"></i></a>
+                    <a href="{{ base_url }}/pages/{{ p.route|trim('/') }}/task{{ config.system.param_sep }}delete" class="page-delete" ><i class="fa fa-close"></i></a>
                     {% endif %}
                 </span>
                 <p class="page-route">{{ p.route }}</p>
@@ -81,12 +81,12 @@
         {% elseif mode == 'edit' %}
             <a class="button" href="{{ base_url }}/pages"><i class="fa fa-reply"></i> Back</a>
             {% if exists %}
-                <a class="button" href="{{ uri.route(true) }}/task:copy" class="page-copy" ><i class="fa fa-copy"></i> Copy</a>
+                <a class="button" href="{{ uri.route(true) }}/task{{ config.system.param_sep }}copy" class="page-copy" ><i class="fa fa-copy"></i> Copy</a>
                 <a class="button" href="#" data-remodal-target="move"><i class="fa fa-arrows"></i> Move</a>
                 {% if warn %}
-                    <a class="button" href="#delete" data-remodal-target="delete" data-delete-url="{{ uri.route(true) }}/task:delete"><i class="fa fa-close"></i> Delete</a>
+                    <a class="button" href="#delete" data-remodal-target="delete" data-delete-url="{{ uri.route(true) }}/task{{ config.system.param_sep }}delete"><i class="fa fa-close"></i> Delete</a>
                 {% else %}
-                    <a class="button" href="{{ uri.route(true) }}/task:delete" class="page-delete" ><i class="fa fa-close"></i></a>
+                    <a class="button" href="{{ uri.route(true) }}/task{{ config.system.param_sep }}delete" class="page-delete" ><i class="fa fa-close"></i></a>
                 {% endif %}
             {% endif %}
             <button class="button" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>

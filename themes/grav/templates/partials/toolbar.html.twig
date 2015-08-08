@@ -10,6 +10,6 @@
 
 {% if admin.authorise %}
 <span class="user-details">
-<img src="http://www.gravatar.com/avatar/{{ admin.user.email|md5 }}?s=50" /><span class="badge">6</span><span class="hide-small">Hi, {{ admin.user.fullname }}<span> <a href="{{ base_url_relative }}/task:logout">Logout</a>
+<img src="http://www.gravatar.com/avatar/{{ admin.user.email|md5 }}?s=50" /><span class="badge">6</span><span class="hide-small">Hi, {{ admin.user.fullname }}<span> <a href="{{ base_url_relative }}/task{{ config.system.param_sep }}logout">Logout</a>
 </span>
 {% endif %}

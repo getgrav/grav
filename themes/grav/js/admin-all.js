@@ -123,13 +123,14 @@ $(function () {
 
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-cloud-download').addClass('fa-refresh fa-spin');
         var url = $(this).data('maintenanceUpdate');
+        var task = 'task' + GravAdmin.config.param_sep;
 
         GravAjax({
             dataType: "json",
             url: url,
             toastErrors: true,
             success: function(result, status) {
-                if (url.indexOf('task:updategrav') !== -1) {
+                if (url.indexOf(task + 'updategrav') !== -1) {
                     if (result.status == 'success') {
                         $('[data-gpm-grav]').remove();
                         toastr.success(result.message + window.grav_available_version);
@@ -181,6 +182,7 @@ $(function () {
             url: url,
             toastErrors: true,
             success: function(result, status) {
+                var task = 'task' + GravAdmin.config.param_sep;
 
                 var toastrBackup = {};
                 if (result.toastr) {
@@ -198,7 +200,7 @@ $(function () {
                     }
                 }
 
-                if (url.indexOf('task:backup') !== -1) {
+                if (url.indexOf(task + 'backup') !== -1) {
                     //Reset backup days count
                     $('.backups-chart .numeric').html("0 <em>days</em>");
 
@@ -255,13 +257,14 @@ $(function () {
             success: function (response) {
                 var grav = response.payload.grav,
                     installed = response.payload.installed,
-                    resources = response.payload.resources;
+                    resources = response.payload.resources,
+                    task = 'task' + GravAdmin.config.param_sep;
 
                 // grav updatable
                 if (grav.isUpdatable) {
                     var icon    = '<i class="fa fa-bullhorn"></i> ';
                         content = 'Grav <b>v{available}</b> is now available! <span class="less">(Current: v{version})</span> ',
-                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/task:updategrav" class="button button-small secondary" id="grav-update-button">Update Grav Now</button>';
+                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/' + task + 'updategrav" class="button button-small secondary" id="grav-update-button">Update Grav Now</button>';
 
                     if (grav.isSymlink) {
                         button = '<span class="hint--left" style="float: right;" data-hint="Grav is symbolically linked. Upgrade won\'t be available."><i class="fa fa-fw fa-link"></i></span>';
@@ -293,7 +296,7 @@ $(function () {
                     var length,
                         icon = '<i class="fa fa-bullhorn"></i>',
                         content = '{updates} of your {type} have an <strong>update available</strong>',
-                        button = '<a href="{location}/task:update" class="button button-small secondary">Update {Type}</a>',
+                        button = '<a href="{location}/' + task + 'update" class="button button-small secondary">Update {Type}</a>',
                         plugins = $('.grav-update.plugins'),
                         themes = $('.grav-update.themes'),
                         sidebar = {plugins: $('#admin-menu a[href$="/plugins"]'), themes: $('#admin-menu a[href$="/themes"]')};

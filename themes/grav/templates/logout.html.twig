@@ -1,0 +1,17 @@
+{% embed 'partials/login.html.twig' with {title:'Grav Logout'} %}
+  {% block head %}
+    {{ parent() }}
+    <meta http-equiv="refresh" content="3; URL={{ base_url_relative }}">
+  {% endblock %}
+
+  {% block page %}
+    <section id="admin-login" class="default-glow-shadow">
+        <h1>
+            {{ title }}
+        </h1>
+
+        <div class="info alert">{{ 'LOGGED_OUT'|t }}</div>
+        {% include 'partials/messages.html.twig' %}
+    </section>
+    {% endblock %}
+{% endembed %}

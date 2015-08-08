@@ -31,15 +31,15 @@
             </div>
             {% if (state == 'installing') %}
                 <div class="gpm-actions">
-                    <a class="button" href="{{ base_url_relative }}/themes/{{ slug }}/task:install"><i class="fa fa-plus"></i> Install</a>
+                    <a class="button" href="{{ base_url_relative }}/themes/{{ slug }}/task{{ config.system.param_sep }}install"><i class="fa fa-plus"></i> Install</a>
                 </div>
             {% elseif state == 'active' %}
                 <div class="gpm-actions">
                     <i class="fa fa-star"></i> Active Theme
                 </div>
             {% else %}
-                <a data-remodal-target="theme-switch-warn" href="{{ base_url_relative }}/themes/{{ slug }}/task:activate" class="gpm-actions">
-                    {# <a class="disabled" href="{{ base_url_relative }}/themes/{{ slug }}/task:activate"><i class="fa fa-fw fa-toggle-off"></i></a> #}
+                <a data-remodal-target="theme-switch-warn" href="{{ base_url_relative }}/themes/{{ slug }}/task{{ config.system.param_sep }}activate" class="gpm-actions">
+                    {# <a class="disabled" href="{{ base_url_relative }}/themes/{{ slug }}/task{{ config.system.param_sep }}activate"><i class="fa fa-fw fa-toggle-off"></i></a> #}
                     Activate
                 </a>
             {% endif %}

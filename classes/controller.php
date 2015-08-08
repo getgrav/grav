@@ -151,7 +151,7 @@ class AdminController
 
         $this->admin->session()->invalidate()->start();
         $this->admin->setMessage($l->translate('LOGGED_OUT'), 'info');
-        $this->setRedirect('/');
+        $this->setRedirect('/logout');
 
         return true;
     }

@@ -36,7 +36,8 @@
     ].join('');
 
     var MDEditor = function(editor, options){
-        var tpl = template, $this = this;
+        var tpl = template, $this = this,
+            task = 'task' + GravAdmin.config.param_sep;
 
         this.defaults = {
             markdown     : false,
@@ -93,7 +94,7 @@
                     if ($(this).hasClass('grav-mdeditor-button-preview')) {
                         GravAjax({
                             dataType: 'JSON',
-                            url: $this.element.data('grav-urlpreview') + '/task:processmarkdown',
+                            url: $this.element.data('grav-urlpreview') + '/' + task + 'processmarkdown',
                             method: 'post',
                             data: $this.element.parents('form').serialize(),
                             toastErrors: true,

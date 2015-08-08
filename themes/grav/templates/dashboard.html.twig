@@ -3,15 +3,15 @@
 {% block titlebar %}
     <div class="button-bar">
         <div class="button-group">
-            <button data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache" class="button"><i class="fa fa-trash"></i> Clear Cache</button>
+            <button data-clear-cache="{{ base_url_relative }}/cache.json/task{{ config.system.param_sep }}clearCache" class="button"><i class="fa fa-trash"></i> Clear Cache</button>
             <button type="button" class="button dropdown-toggle" data-toggle="dropdown">
                 <i class="fa fa-caret-down"></i>
             </button>
             <ul class="dropdown-menu">
-                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:all" href="#">All Cache</a></li>
-                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:assets-only" href="#">Assets Only</a></li>
-                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:images-only" href="#">Images Only</a></li>
-                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task:clearCache/cleartype:cache-only" href="#">Cache Only</a></li>
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task{{ config.system.param_sep }}clearCache/cleartype:all" href="#">All Cache</a></li>
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task{{ config.system.param_sep }}clearCache/cleartype:assets-only" href="#">Assets Only</a></li>
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task{{ config.system.param_sep }}clearCache/cleartype:images-only" href="#">Images Only</a></li>
+                <li><a data-clear-cache="{{ base_url_relative }}/cache.json/task{{ config.system.param_sep }}clearCache/cleartype:cache-only" href="#">Cache Only</a></li>
             </ul>
         </div>
         <button data-gpm-checkupdates="" class="button"><i class="fa fa-refresh"></i> Check for Updates</button>
@@ -62,8 +62,8 @@
                     </div>
                 </div>
                 <div class="flush-bottom button-bar">
-                    <button data-maintenance-update="{{ base_url_relative }}/update.json/task:update" class="button"><i class="fa fa-cloud-download"></i> Update</button>
-                    <button data-ajax="{{ base_url_relative }}/backup.json/task:backup" class="button"><i class="fa fa-database"></i> Backup</button>
+                    <button data-maintenance-update="{{ base_url_relative }}/update.json/task{{ config.system.param_sep }}update" class="button"><i class="fa fa-cloud-download"></i> Update</button>
+                    <button data-ajax="{{ base_url_relative }}/backup.json/task{{ config.system.param_sep }}backup" class="button"><i class="fa fa-database"></i> Backup</button>
                 </div>
             </div>
         </div>
