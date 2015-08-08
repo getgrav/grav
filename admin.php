@@ -304,6 +304,17 @@ class AdminPlugin extends Plugin
             throw new \RuntimeException('One of the required plugins is missing or not enabled');
         }
 
+        // Double check we have system.yaml and site.yaml
+        $config_files[] = $this->grav['locator']->findResource('user://config') . '/system.yaml';
+        $config_files[] = $this->grav['locator']->findResource('user://config') . '/site.yaml';
+        foreach ($config_files as $config_file) {
+            if (!file_exists($config_file)) {
+                touch($config_file);
+            }
+        }
+
+
+
         // Decide admin template and route.
         $path = trim(substr($this->uri->route(), strlen($this->base)), '/');
         $this->template = 'dashboard';
