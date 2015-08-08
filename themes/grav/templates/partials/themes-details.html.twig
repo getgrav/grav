@@ -102,12 +102,12 @@
     {% if (config.get('system.pages.theme') != admin.route) %}
     <div class="button-bar danger">
         <span class="danger-zone"></span>
-        <a class="button" href="{{ base_url_relative }}/themes/{{ theme.slug }}/task:uninstall"><i class="fa fa-fw fa-warning"></i>Remove Theme</a>
+        <a class="button" href="{{ base_url_relative }}/themes/{{ theme.slug }}/task{{ config.system.param_sep }}uninstall"><i class="fa fa-fw fa-warning"></i>Remove Theme</a>
     </div>
     {% endif %}
 {% else %}
     <div class="button-bar success">
-        <a class="button" href="{{ base_url_relative }}/themes/{{ theme.slug }}/task:install"><i class="fa fa-fw fa-plus"></i>Install Theme</a>
+        <a class="button" href="{{ base_url_relative }}/themes/{{ theme.slug }}/task{{ config.system.param_sep }}install"><i class="fa fa-fw fa-plus"></i>Install Theme</a>
     </div>
 {% endif %}
 

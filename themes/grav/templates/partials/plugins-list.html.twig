@@ -25,11 +25,11 @@
             </td>
             <td class="gpm-actions">
                 {% if (not installing and plugin.form.fields.enabled and (plugin.form.fields.enabled.type != 'hidden')) %}
-                    <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task:{{ data.get('enabled') ? 'disable' : 'enable' }}">
+                    <a class="{{ data.get('enabled') ? 'enabled' : 'disabled' }}" href="{{ base_url_relative }}/plugins/{{ slug }}/task{{ config.system.param_sep }}{{ data.get('enabled') ? 'disable' : 'enable' }}">
                         <i class="fa fa-fw fa-toggle-{{ data.get('enabled') ? 'on' : 'off' }}"></i>
                     </a>
                 {% elseif (installing) %}
-                    <a class="button" href="{{ base_url_relative }}/plugins/{{ slug }}/task:install"><i class="fa fa-plus"></i> Install</a>
+                    <a class="button" href="{{ base_url_relative }}/plugins/{{ slug }}/task{{ config.system.param_sep }}install"><i class="fa fa-plus"></i> Install</a>
                 {% endif %}
                 <span class="gpm-details-expand"><i class="fa fa-chevron-down"></i></span>
             </td>

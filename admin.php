@@ -180,7 +180,7 @@ class AdminPlugin extends Plugin
         // Replace page service with admin.
         $this->grav['page'] = function () use ($self) {
             $page = new Page;
-            $page->init(new \SplFileInfo(str_ireplace('task:', '',__DIR__ . "/pages/admin/{$self->template}.md")));
+            $page->init(new \SplFileInfo(__DIR__ . "/pages/admin/{$self->template}.md"));
             $page->slug(basename($self->template));
             return $page;
         };
