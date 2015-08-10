@@ -38,7 +38,7 @@
                 <td>Author:</td>
                 <td>
                     {% if theme.author.url %}
-                        <a href="{{ theme.author.url }}">{{ theme.author.name }}</a>
+                        <a href="{{ theme.author.url }}" target="_blank">{{ theme.author.name }}</a>
                     {% else %}
                         {{ theme.author.name }}
                     {% endif %}
@@ -51,19 +51,19 @@
         {% if theme.homepage %}
         <tr>
             <td>Homepage:</td>
-            <td><a href="{{ theme.homepage }}">{{ theme.homepage }}</a></td>
+            <td><a href="{{ theme.homepage }}" target="_blank">{{ theme.homepage }}</a></td>
         </tr>
         {% endif %}
         {% if theme.demo %}
         <tr>
             <td>Demo:</td>
-            <td><a href="{{ theme.demo }}">{{ theme.demo }}</a></td>
+            <td><a href="{{ theme.demo }}" target="_blank">{{ theme.demo }}</a></td>
         </tr>
         {% endif %}
         {% if theme.bugs %}
             <tr>
                 <td>Bug Tracker:</td>
-                <td><a href="{{ theme.bugs }}">{{ theme.bugs }}</a></td>
+                <td><a href="{{ theme.bugs }}" target="_blank">{{ theme.bugs }}</a></td>
             </tr>
         {% endif %}
         {% if theme.keywords %}
@@ -89,7 +89,7 @@
             {% set readme_link = theme.readme ?: theme.homepage ~ '/blob/develop/README.md' %}
             <tr>
                 <td>Readme:</td>
-                <td><a href="{{ readme_link }}">{{ readme_link }}</a></td>
+                <td><a href="{{ readme_link }}" target="_blank">{{ readme_link }}</a></td>
             </tr>
         {% endif %}
     </table>
