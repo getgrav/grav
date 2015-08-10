@@ -36,7 +36,7 @@ This **admin plugin** for [Grav](http://github.com/getgrav/grav) is an HTML user
 
 We have tested internally, but we hope to use this public beta phase to identify, isolate, and fix issues related to the plugin to ensure it is as solid and reliable as possible.
 
-For **live chatting**, please use the dedicated [Gitter Chat Room for the admin plugin](https://gitter.im/getgrav/grav-plugin-admin) for dicussions directly related to the admin plugin.
+For **live chatting**, please use the dedicated [Gitter Chat Room for the admin plugin](https://gitter.im/getgrav/grav-plugin-admin) for discussions directly related to the admin plugin.
 
 For **bugs, features, improvements**, please ensure you [create issues in the admin plugin GitHub repository](https://github.com/getgrav/grav-plugin-admin).
 
@@ -56,7 +56,7 @@ $ bin/gpm install admin
 
 ### Manual Installation
 
-Although not advised, it is still possible to install the admin plugin manually. Basically you need to download each of the following plugins individually:
+Manual installation is not the recommended method of installation, however, it is still possible to install the admin plugin manually. Basically, you need to download each of the following plugins individually:
 
 * [admin](https://github.com/getgrav/grav-plugin-admin/archive/develop.zip)
 * [login](https://github.com/getgrav/grav-plugin-login/archive/develop.zip)
@@ -67,7 +67,7 @@ Extract each archive file into your `user/plugins` folder, then ensure the folde
 
 # Usage
 
-Upon completion of the installation the next thing you need to do is create a user account in a file called `user/accounts/admin.yaml`. This **filename** is actually the **username** that you will use to login.  The contents will contain the other information for the user.
+Upon completion of the installation the next thing you need to do is create a user account in a file called `user/accounts/admin.yaml`. This **filename** is actually the **username** that you will use to login. The contents will contain the other information for the user.
 
 ```
 password: 'password'
@@ -84,15 +84,15 @@ Of course you should edit your `email`, `password`, `fullname`, and `title` to s
 
 > You can use any password when you manually put it in this `.yaml` file.  However, when you change your password in the admin, it must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters.
 
-By default you can access the admin by pointing your browser to `http://yoursite.com/admin`.  Here you simply log in with the `username` and `password` you entered above.
+By default, you can access the admin by pointing your browser to `http://yoursite.com/admin`. You can simply log in with the `username` and `password` set in the YAML file you configured earlier.
 
 > After logging in, your **plaintext password** will be removed and replaced by an **encrypted** one.
 
 # Standard Free & Paid Pro Versions
 
-If you have been following the blog, twitter, gitter.im chat etc, you probably already know now that our intention is to provide two versions.
+If you have been following the [blog](http://getgrav.org/blog), [Twitter](https://twitter.com/getgrav), [gitter.im chat](https://gitter.im/getgrav/grav), etc., you probably already know now that our intention is to provide two versions of this plugin.
 
-The **standard free version**, is actually still very powerful, and has more functionality than most commercial flat-file CMS systems.
+The **standard free version**, is very powerful, and has more functionality than most commercial flat-file CMS systems.
 
-We also intend to release in the near future a more feature-rich **pro version** that will have enhanced functionality and some additional nice-to-have capabilities.  This pro version will be a **paid** plugin the price of which is not yet 100% finalized.
+We also intend to release in the near future a more feature-rich **pro version** that will include enhanced functionality, as well as some additional nice-to-have capabilities. This pro version will be a **paid** plugin the price of which is not yet 100% finalized.
 
