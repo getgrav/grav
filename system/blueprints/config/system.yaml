@@ -180,7 +180,7 @@ form:
                 languages.session_store_active:
                     type: toggle
                     label: Active language in session
-                    help: "Support translations in Grav, plugins and extensions"
+                    help: "Store the active language in the session"
                     highlight: 0
                     options:
                         1: Yes
