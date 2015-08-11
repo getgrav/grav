@@ -731,6 +731,9 @@ form .checkboxes {
 .form-list-wrapper .collection-actions {
   text-align: right; }
 
+.form-label.block {
+  z-index: 10000; }
+
 table,
 tbody {
   display: inline-block;

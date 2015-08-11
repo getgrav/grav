@@ -295,7 +295,7 @@ form {
                 line-height: 1.7;
                 cursor: pointer;
             }
-            
+
             &.array-field-value_only {
                 width: 100%;
             }
@@ -449,5 +449,6 @@ form {
     }
 }
 
-
-
+.form-label.block {
+    z-index: 10000;
+}
