@@ -91,9 +91,9 @@ class AdminPlugin extends Plugin
         $this->base = '/' . trim($route, '/');
         $this->uri = $this->grav['uri'];
 
-
         // Only activate admin if we're inside the admin path.
-        if (substr($this->uri->route(), 0, strlen($this->base)) == $this->base) {
+        if ($this->uri->route() == $this->base ||
+            substr($this->uri->route(), 0, strlen($this->base) + 1) == $this->base . '/') {
             $this->active = true;
         }
     }
