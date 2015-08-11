@@ -195,7 +195,7 @@ form {
 
     .medium {
 
-            max-width: 20rem !important;
+            max-width: 20rem;
 
         textarea {
             height: 7rem;
@@ -269,11 +269,6 @@ form {
 
     .switch-toggle {
         // margin-left: 30%;
-
-        &.medium {
-            width: 100%;
-            width: 20rem;
-        }
 
         label {
             cursor: pointer;
