@@ -44,8 +44,8 @@ class Session extends \RocketTheme\Toolbox\Session\Session
                 $session_path
             );
 
-            $site_identifier = $config->get('site.title', 'unknown');
-            $this->setName($config->get('system.session.name', 'grav_site') . '_' . substr(md5($site_identifier), 0, 7) . ($is_admin ? '_admin' : ''));
+            $unique_identifier = GRAV_ROOT;
+            $this->setName($config->get('system.session.name', 'grav_site') . '_' . substr(md5($unique_identifier), 0, 7) . ($is_admin ? '_admin' : ''));
             $this->start();
             setcookie(session_name(), session_id(), time() + $session_timeout, $session_path);
         }
