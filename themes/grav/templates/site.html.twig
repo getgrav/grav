@@ -5,18 +5,19 @@
         <a class="button" href="{{ base_url }}"><i class="fa fa-reply"></i> Back</a>
         <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
     </div>
-    <h1><i class="fa fa-fw fa-th"></i> Configuration - System</h1>
+    <h1><i class="fa fa-fw fa-th"></i> Configuration - Site</h1>
 {% endblock %}
 
 {% block content_top %}
     <ul class="tab-bar">
-        <li class="active"><span>System</span></li>
-        <li><a href="{{ base_url_relative }}/settings/">Site</a></li>
+        <li><a href="{{ base_url_relative }}/system">System</a></li>
+        <li class="active"><span>Site</span></li>
+        <li><a href="{{ base_url_relative }}/info">Info</a></li>
     </ul>
 {% endblock %}
 
 {% block content %}
-    {% set data = admin.data('system') %}
+    {% set data = admin.data('site') %}
     {% include 'partials/blueprints.html.twig' with { blueprints: data.blueprints, data: data } %}
 {% endblock %}
 

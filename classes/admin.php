@@ -1,16 +1,16 @@
 <?php
 namespace Grav\Plugin;
 
+use Grav\Common\Data;
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\User\User;
+use Grav\Common\GPM\GPM;
 use Grav\Common\Grav;
+use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
 use Grav\Common\Themes;
 use Grav\Common\Uri;
-use Grav\Common\Page\Pages;
-use Grav\Common\Page\Page;
-use Grav\Common\Data;
-use Grav\Common\GPM\GPM;
+use Grav\Common\User\User;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\JsonFile;
 use RocketTheme\Toolbox\File\LogFile;
@@ -120,12 +120,14 @@ class Admin
      * Fetch and delete messages from the session queue.
      *
      * @param string $type
+     *
      * @return array
      */
     public function messages($type = null)
     {
         /** @var Message $messages */
         $messages = $this->grav['messages'];
+
         return $messages->fetch($type);
     }
 
@@ -133,6 +135,7 @@ class Admin
      * Authenticate user.
      *
      * @param  array $form Form fields.
+     *
      * @return bool
      */
     public function authenticate($form)
@@ -168,16 +171,18 @@ class Admin
     /**
      * Checks user authorisation to the action.
      *
-     * @param  string  $action
+     * @param  string $action
+     *
      * @return bool
      */
     public function authorise($action = 'admin.login')
     {
-        $action = (array) $action;
+        $action = (array)$action;
 
         foreach ($action as $a) {
-            if ($this->user->authorise($a))
+            if ($this->user->authorise($a)) {
                 return true;
+            }
         }
 
         return false;
@@ -187,6 +192,7 @@ class Admin
      * Returns edited page.
      *
      * @param bool $route
+     *
      * @return Page
      */
     public function page($route = false)
@@ -208,6 +214,7 @@ class Admin
      * Returns blueprints for the given type.
      *
      * @param string $type
+     *
      * @return Data\Blueprint
      */
     public function blueprints($type)
@@ -215,6 +222,7 @@ class Admin
         if ($this->blueprints === null) {
             $this->blueprints = new Data\Blueprints($this->grav['locator']->findResource('blueprints://'));
         }
+
         return $this->blueprints->get($type);
     }
 
@@ -222,7 +230,8 @@ class Admin
      * Gets configuration data.
      *
      * @param string $type
-     * @param array $post
+     * @param array  $post
+     *
      * @return Data\Data|null
      * @throws \RuntimeException
      */
@@ -320,6 +329,7 @@ class Admin
      * Converts dot notation to array notation.
      *
      * @param  string $name
+     *
      * @return string
      */
     public function field($name)
@@ -338,6 +348,7 @@ class Admin
     {
         /** @var Pages $pages */
         $pages = $this->grav['pages'];
+
         return $pages->routes();
     }
 
@@ -349,7 +360,11 @@ class Admin
     public function plugins($local = true)
     {
         $gpm = $this->gpm();
-        return $local ? $gpm->getInstalledPlugins() : $gpm->getRepositoryPlugins()->filter(function ($package, $slug) use ($gpm) {
+
+        return $local ? $gpm->getInstalledPlugins() : $gpm->getRepositoryPlugins()->filter(function (
+            $package,
+            $slug
+        ) use ($gpm) {
             return !$gpm->isPluginInstalled($slug);
         });
     }
@@ -362,7 +377,11 @@ class Admin
     public function themes($local = true)
     {
         $gpm = $this->gpm();
-        return $local ? $gpm->getInstalledThemes() : $gpm->getRepositoryThemes()->filter(function ($package, $slug) use ($gpm) {
+
+        return $local ? $gpm->getInstalledThemes() : $gpm->getRepositoryThemes()->filter(function ($package, $slug) use
+        (
+            $gpm
+        ) {
             return !$gpm->isThemeInstalled($slug);
         });
     }
@@ -381,6 +400,7 @@ class Admin
 
             $this->logs = array_reverse($content);
         }
+
         return $this->logs;
     }
 
@@ -389,6 +409,7 @@ class Admin
      * that have been modified
      *
      * @param  integer $count number of pages to pull back
+     *
      * @return array
      */
     public function latestPages($count = 10)
@@ -401,7 +422,7 @@ class Admin
         foreach ($pages->routes() as $url => $path) {
             $page = $pages->dispatch($url);
             if ($page && $page->routable()) {
-                $latest[$page->route()] = ['modified'=>$page->modified(), 'page'=>$page];
+                $latest[$page->route()] = ['modified' => $page->modified(), 'page' => $page];
             }
         }
 
@@ -410,6 +431,7 @@ class Admin
             if ($a['modified'] == $b['modified']) {
                 return 0;
             }
+
             return ($a['modified'] > $b['modified']) ? -1 : 1;
         });
 
@@ -447,8 +469,8 @@ class Admin
         $content = $file->content();
         if (empty($content)) {
             return [
-                'days' => '&infin;',
-                'chart_fill' => 100,
+                'days'        => '&infin;',
+                'chart_fill'  => 100,
                 'chart_empty' => 0
             ];
         }
@@ -461,8 +483,8 @@ class Admin
         $chart_fill = $days > 30 ? 100 : round($days / 30 * 100);
 
         return [
-            'days' => $days,
-            'chart_fill' => $chart_fill,
+            'days'        => $days,
+            'chart_fill'  => $chart_fill,
             'chart_empty' => 100 - $chart_fill
         ];
     }
@@ -471,6 +493,7 @@ class Admin
      * Returns the page creating it if it does not exist.
      *
      * @param $path
+     *
      * @return Page
      */
     protected function getPage($path)
@@ -488,7 +511,7 @@ class Admin
             $slug = basename($path);
 
             if ($slug == '') {
-              return null;
+                return null;
             }
 
             $ppath = dirname($path);
@@ -499,7 +522,7 @@ class Admin
             // Create page.
             $page = new Page;
             $page->parent($parent);
-            $page->filePath($parent->path().'/'.$slug.'/'.$page->name());
+            $page->filePath($parent->path() . '/' . $slug . '/' . $page->name());
 
             // Add routing information.
             $pages->addPage($page, $path);
@@ -511,7 +534,7 @@ class Admin
             if (isset($this->session->{$page->route()})) {
                 // Found the type and header from the session.
                 $data = $this->session->{$page->route()};
-                $visible = isset($data['visible']) && $data['visible'] != '' ? (bool) $data['visible'] : $this->guessVisibility($page);
+                $visible = isset($data['visible']) && $data['visible'] != '' ? (bool)$data['visible'] : $this->guessVisibility($page);
 
                 $header = ['title' => $data['title'], 'visible' => $visible];
 
@@ -522,11 +545,12 @@ class Admin
                 $name = $page->modular() ? str_replace('modular/', '', $data['type']) : $data['type'];
                 $page->name($name . '.md');
                 $page->header($header);
-                $page->frontmatter(Yaml::dump((array) $page->header()));
+                $page->frontmatter(Yaml::dump((array)$page->header()));
             } else {
                 // Find out the type by looking at the parent.
-                $type = $parent->childType() ? $parent->childType() : $parent->blueprints()->get('child_type', 'default');
-                $page->name($type.CONTENT_EXT);
+                $type = $parent->childType() ? $parent->childType() : $parent->blueprints()->get('child_type',
+                    'default');
+                $page->name($type . CONTENT_EXT);
                 $page->header();
             }
             $page->modularTwig($slug[0] == '_');
@@ -550,6 +574,7 @@ class Admin
                 return true;
             }
         }
+
         return false;
     }
 
@@ -567,6 +592,7 @@ class Admin
      * Determine if the plugin or theme info passed is from Team Grav
      *
      * @param object $info Plugin or Theme info object
+     *
      * @return bool
      */
     public function isTeamGrav($info)
@@ -576,5 +602,15 @@ class Admin
         } else {
             return false;
         }
+    }
+
+    function phpinfo() {
+        ob_start();
+        phpinfo();
+        $pinfo = ob_get_contents();
+        ob_end_clean();
+
+        $pinfo = preg_replace( '%^.*<body>(.*)</body>.*$%ms','$1',$pinfo);
+        return $pinfo;
     }
 }

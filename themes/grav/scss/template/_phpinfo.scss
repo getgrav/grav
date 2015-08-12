@@ -1,0 +1,42 @@
+#phpinfo {
+    img { display: none;}
+
+    table {
+        margin: 1rem 0 0;
+    }
+    
+    tr {
+        &:hover {
+            background: transparent;
+        }
+    }
+
+    th {
+        background: #d9d9d9;
+    }
+
+    td {
+        word-wrap: break-word;
+
+        h1 {
+            margin: 0rem (- $padding-default) 0rem !important;
+        }
+        &:first-child {
+            color: $secondary-accent-bg;
+        }
+        
+    }
+
+    hr {
+        border-bottom: 0;
+    }
+
+    h1 {
+        font-size: 2.3rem;
+    }
+
+    h2 {
+        font-size: 1.7rem;
+        margin: 3rem ($padding-default) 0rem !important;
+    }
+}
