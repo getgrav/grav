@@ -80,4 +80,14 @@ class Upgrader
     {
         return version_compare($this->getLocalVersion(), $this->getRemoteVersion(), "<");
     }
+
+    /**
+     * Checks if Grav is currently symbolically linked
+     * @return boolean True if Grav is symlinked, False otherwise.
+     */
+
+    public function isSymlink()
+    {
+        return $this->remote->isSymlink();
+    }
 }

@@ -1,3 +1,19 @@
+# v0.9.36
+## 08/11/2015
+
+1. [](#new)
+    * Added a new `newuser` CLI command to create user accounts
+    * Added `default` blueprint for all templates
+    * Support `user` and `system` language translation merging
+1. [](#improved)
+    * Added isSymlink method in GPM to determine if Grav is symbolically linked or not
+    * Refactored page recursing
+    * Updated blueprints to use new toggles
+    * Updated blueprints to use current date for date format fields
+    * Updated composer.phar
+    * Use sessions for admin even when disabled for site
+    * Use `GRAV_ROOT` in session identifier
+
 # v0.9.35
 ## 08/06/2015
 
@@ -5,13 +21,12 @@
     * Added `body_classes` field
     * Added `visiblity` toggle and help tooltips on new page form
     * Added new `Page.unsetRoute()` method to allow admin to regenerate the route
-1. [](#improved)
+2. [](#improved)
     * User save no longer stores username each time
     * Page list form field now shows all pages except root
     * Removed required option from page title
     * Added configuration settings for running Nginx in sub directory
-1. [](#bugfix)
-    * Fixed issue with GPM and cURL throwing `Undefined offset: 1` error
+3. [](#bugfix)
     * Fixed deep translation merging
     * Fixed broken **metadata** merging with site defaults
     * Fixed broken **summary** field

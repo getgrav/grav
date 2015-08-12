@@ -514,7 +514,7 @@ class Pages
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
-        $pagesDir = $locator->findResource('page://');
+        $pages_dir = $locator->findResource('page://');
 
         if ($config->get('system.cache.enabled')) {
             /** @var Cache $cache */
@@ -529,10 +529,10 @@ class Pages
                     $last_modified = 0;
                     break;
                 case 'folder':
-                    $last_modified = Folder::lastModifiedFolder($pagesDir);
+                    $last_modified = Folder::lastModifiedFolder($pages_dir);
                     break;
                 default:
-                    $last_modified = Folder::lastModifiedFile($pagesDir);
+                    $last_modified = Folder::lastModifiedFile($pages_dir);
             }
 
             $page_cache_id = md5(USER_DIR.$last_modified.$language->getActive().$config->checksum());
@@ -541,22 +541,43 @@ class Pages
             if (!$this->instances) {
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
 
-                $this->recurse($pagesDir);
-                $this->buildRoutes();
+                // recurse pages and cache result
+                $this->resetPages($pages_dir, $page_cache_id);
 
-                // save pages, routes, taxonomy, and sort to cache
-                $cache->save(
-                    $page_cache_id,
-                    array($this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort)
-                );
             } else {
                 // If pages was found in cache, set the taxonomy
                 $this->grav['debugger']->addMessage('Page cache hit.');
                 $taxonomy->taxonomy($taxonomy_map);
             }
         } else {
-            $this->recurse($pagesDir);
+            $this->recurse($pages_dir);
             $this->buildRoutes();
+        }
+    }
+
+    /**
+     * Accessible method to manually reset the pages cache
+     *
+     * @param $pages_dir
+     * @param $page_cache_id
+     */
+    public function resetPages($pages_dir, $page_cache_id)
+    {
+        $this->recurse($pages_dir);
+        $this->buildRoutes();
+
+        // cache if needed
+        if ($this->grav['config']->get('system.cache.enabled')) {
+                /** @var Cache $cache */
+            $cache = $this->grav['cache'];
+            /** @var Taxonomy $taxonomy */
+            $taxonomy = $this->grav['taxonomy'];
+
+            // save pages, routes, taxonomy, and sort to cache
+            $cache->save(
+                $page_cache_id,
+                array($this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort)
+            );
         }
     }
 

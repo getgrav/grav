@@ -287,4 +287,14 @@ class Installer
     {
         return self::$error;
     }
+
+    /**
+     * Allows to manually set an error
+     * @param $error the Error code
+     */
+
+    public static function setError($error)
+    {
+        self::$error = $error;
+    }
 }
