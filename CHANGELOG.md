@@ -1,8 +1,26 @@
-# v0.2.1
-## XX/XX/2015
+# v0.3.0
+## 08/11/2015
 
+1. [](#new)
+    * Show current date in form date format fields
+    * Added a new **check for updates** button to flush GPM
+    * Added session timeout configuration for admin
+    * Added `isSymlink` logic for Grav
+    * Added new `phpinfo` page
+1. [](#improved)
+    * Improved toggleables
+    * Support `param_separator` for Apache on windows
+    * Logout now goes to interstitial to provide session messages
+    * Updated hints and improved formatting
+    * Encoding URI for images in editor preview
+    * Create user `system.yaml` and `site.yaml` if they are missing
+    * Open external links in new tab by default
+    * Set edit mode to `normal` by default    
+    * Disable CSS/JS pipelining in the admin
 1. [](#bugfix)
     * Fixed form submission not working in IE
+    * Fix fatal error when deleting homepage
+    * Prevent admin plugin activating when the URL of a page contains partial route
     
 # v0.2.0
 ## 08/06/2015
