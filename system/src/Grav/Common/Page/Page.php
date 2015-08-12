@@ -213,74 +213,74 @@ class Page
         }
 
         if ($var) {
-            if (isset($this->header->slug)) {
+            if (!empty($this->header->slug)) {
                 $this->slug = trim($this->header->slug);
             }
-            if (isset($this->header->routes)) {
+            if (!empty($this->header->routes)) {
                 $this->routes = (array)($this->header->routes);
             }
-            if (isset($this->header->title)) {
+            if (!empty($this->header->title)) {
                 $this->title = trim($this->header->title);
             }
-            if (isset($this->header->language)) {
+            if (!empty($this->header->language)) {
                 $this->language = trim($this->header->language);
             }
-            if (isset($this->header->template)) {
+            if (!empty($this->header->template)) {
                 $this->template = trim($this->header->template);
             }
-            if (isset($this->header->menu)) {
+            if (!empty($this->header->menu)) {
                 $this->menu = trim($this->header->menu);
             }
-            if (isset($this->header->routable)) {
+            if (!empty($this->header->routable)) {
                 $this->routable = $this->header->routable;
             }
-            if (isset($this->header->visible)) {
+            if (!empty($this->header->visible)) {
                 $this->visible = $this->header->visible;
             }
-            if (isset($this->header->order_dir)) {
+            if (!empty($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
             }
-            if (isset($this->header->order_by)) {
+            if (!empty($this->header->order_by)) {
                 $this->order_by = trim($this->header->order_by);
             }
-            if (isset($this->header->order_manual)) {
+            if (!empty($this->header->order_manual)) {
                 $this->order_manual = (array)$this->header->order_manual;
             }
-            if (isset($this->header->date)) {
+            if (!empty($this->header->date)) {
                 $this->date = strtotime($this->header->date);
             }
-            if (isset($this->header->markdown_extra)) {
+            if (!empty($this->header->markdown_extra)) {
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
             }
-            if (isset($this->header->taxonomy)) {
+            if (!empty($this->header->taxonomy)) {
                 foreach ($this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
                 }
             }
-            if (isset($this->header->max_count)) {
+            if (!empty($this->header->max_count)) {
                 $this->max_count = intval($this->header->max_count);
             }
-            if (isset($this->header->process)) {
-                foreach ($this->header->process as $process => $status) {
+            if (!empty($this->header->process)) {
+                foreach ((array) $this->header->process as $process => $status) {
                     $this->process[$process] = $status;
                 }
             }
-            if (isset($this->header->published)) {
+            if (!empty($this->header->published)) {
                 $this->published = $this->header->published;
             }
-            if (isset($this->header->publish_date)) {
+            if (!empty($this->header->publish_date)) {
                 $this->publish_date = strtotime($this->header->publish_date);
             }
-            if (isset($this->header->unpublish_date)) {
+            if (!empty($this->header->unpublish_date)) {
                 $this->unpublish_date = strtotime($this->header->unpublish_date);
             }
-            if (isset($this->header->expires)) {
+            if (!empty($this->header->expires)) {
                 $this->expires = intval($this->header->expires);
             }
-            if (isset($this->header->etag)) {
+            if (!empty($this->header->etag)) {
                 $this->etag = (bool)$this->header->etag;
             }
-            if (isset($this->header->last_modified)) {
+            if (!empty($this->header->last_modified)) {
                 $this->last_modified = (bool)$this->header->last_modified;
             }
 
