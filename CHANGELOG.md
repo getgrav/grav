@@ -1,3 +1,10 @@
+# v0.9.37
+## 08/12/2015
+
+3. [](#bugfix)
+    * Fixed issue when saving `header.process` in page forms via the **admin plugin**
+    * Fixed error due to use of `set_time_limit` that might be disabled on some hosts
+
 # v0.9.36
 ## 08/11/2015
 
