@@ -20,6 +20,20 @@ tr {
     @include display(flex);
     @include flex-wrap(wrap);
 
+    th {
+        display: block;
+        @include flex(1);
+        font-weight: bold;
+
+        &:first-child {
+            padding-left: $padding-default;
+        }
+
+        &:last-child {
+            padding-right: $padding-default;
+        }
+    }
+
     td {
         display: block;
         @include flex(1);

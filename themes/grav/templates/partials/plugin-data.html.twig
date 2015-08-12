@@ -4,7 +4,7 @@
         <td>Author:</td>
         <td>
             {% if plugin.author.url %}
-                <a href="{{ plugin.author.url }}">{{ plugin.author.name }}</a>
+                <a href="{{ plugin.author.url }}" target="_blank">{{ plugin.author.name }}</a>
             {% else %}
                 {{ plugin.author.name }}
             {% endif %}
@@ -17,19 +17,19 @@
     {% if plugin.homepage %}
         <tr>
             <td>Homepage:</td>
-            <td><a href="{{ plugin.homepage }}">{{ plugin.homepage }}</a></td>
+            <td><a href="{{ plugin.homepage }}" target="_blank">{{ plugin.homepage }}</a></td>
         </tr>
     {% endif %}
     {% if plugin.demo %}
         <tr>
             <td>Demo:</td>
-            <td><a href="{{ plugin.demo }}">{{ plugin.demo }}</a></td>
+            <td><a href="{{ plugin.demo }}" target="_blank">{{ plugin.demo }}</a></td>
         </tr>
     {% endif %}
     {% if plugin.bugs %}
         <tr>
             <td>Bug Tracker:</td>
-            <td><a href="{{ plugin.bugs }}">{{ plugin.bugs }}</a></td>
+            <td><a href="{{ plugin.bugs }}" target="_blank">{{ plugin.bugs }}</a></td>
         </tr>
     {% endif %}
     {% if plugin.keywords %}
@@ -56,7 +56,7 @@
         {% set readme_link = plugin.readme ?: plugin.homepage ~ '/blob/develop/README.md' %}
         <tr>
             <td>Readme:</td>
-            <td><a href="{{ readme_link }}">{{ readme_link }}</a></td>
+            <td><a href="{{ readme_link }}" target="_blank">{{ readme_link }}</a></td>
         </tr>
     {% endif %}
 

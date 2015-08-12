@@ -10,6 +10,13 @@ var getState = function(){
     return loadValues.toString();
 };
 
+var bytesToSize = function(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return '0 Byte';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+};
+
 $(function () {
     jQuery.substitute = function(str, sub) {
         return str.replace(/\{(.+?)\}/g, function($0, $1) {
@@ -116,17 +123,22 @@ $(function () {
 
         $(this).attr('disabled','disabled').find('> .fa').removeClass('fa-cloud-download').addClass('fa-refresh fa-spin');
         var url = $(this).data('maintenanceUpdate');
+        var task = 'task' + GravAdmin.config.param_sep;
 
         GravAjax({
             dataType: "json",
             url: url,
             toastErrors: true,
             success: function(result, status) {
-                if (url.indexOf('task:updategrav') !== -1) {
+                if (url.indexOf(task + 'updategrav') !== -1) {
                     if (result.status == 'success') {
                         $('[data-gpm-grav]').remove();
                         toastr.success(result.message + window.grav_available_version);
                         $('#footer .grav-version').html(window.grav_available_version);
+
+                        /*// hide the update button after successfull update and update the badges
+                        $('[data-maintenance-update]').fadeOut();
+                        $('.badges.with-updates').removeClass('with-updates').find('.badge.updates').remove();*/
                     } else {
                         toastr.success(result.message);
                     }
@@ -170,6 +182,7 @@ $(function () {
             url: url,
             toastErrors: true,
             success: function(result, status) {
+                var task = 'task' + GravAdmin.config.param_sep;
 
                 var toastrBackup = {};
                 if (result.toastr) {
@@ -187,7 +200,7 @@ $(function () {
                     }
                 }
 
-                if (url.indexOf('task:backup') !== -1) {
+                if (url.indexOf(task + 'backup') !== -1) {
                     //Reset backup days count
                     $('.backups-chart .numeric').html("0 <em>days</em>");
 
@@ -214,26 +227,48 @@ $(function () {
         });
     });
 
-    var GPMRefresh = function () {
+    $('[data-gpm-checkupdates]').on('click', function(){
+        var element = $(this);
+        element.find('i').addClass('fa-spin');
+        GPMRefresh({
+            flush: true,
+            callback: function() {
+                element.find('i').removeClass('fa-spin');
+            }
+        });
+    });
+
+    var GPMRefresh = function (options) {
+        options = options || {};
+
+        var data = {
+            task:   'GPM',
+            action: 'getUpdates'
+        };
+
+        if (options.flush) { data.flush = true; }
+
         GravAjax({
             dataType: "JSON",
             url: window.location.href,
             method: "POST",
-            data: {
-                task:   'GPM',
-                action: 'getUpdates'
-            },
+            data: data,
             toastErrors: true,
             success: function (response) {
                 var grav = response.payload.grav,
                     installed = response.payload.installed,
-                    resources = response.payload.resources;
+                    resources = response.payload.resources,
+                    task = 'task' + GravAdmin.config.param_sep;
 
                 // grav updatable
                 if (grav.isUpdatable) {
                     var icon    = '<i class="fa fa-bullhorn"></i> ';
                         content = 'Grav <b>v{available}</b> is now available! <span class="less">(Current: v{version})</span> ',
-                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/task:updategrav" class="button button-small secondary" id="grav-update-button">Update Grav Now</button>';
+                        button  = '<button data-maintenance-update="' + GravAdmin.config.base_url_relative + '/update.json/' + task + 'updategrav" class="button button-small secondary" id="grav-update-button">Update Grav Now</button>';
+
+                    if (grav.isSymlink) {
+                        button = '<span class="hint--left" style="float: right;" data-hint="Grav is symbolically linked. Upgrade won\'t be available."><i class="fa fa-fw fa-link"></i></span>';
+                    }
 
                     content = jQuery.substitute(content, {available: grav.available, version: grav.version});
                     $('[data-gpm-grav]').addClass('grav').html('<p>' + icon + content + button + '</p>');
@@ -241,7 +276,7 @@ $(function () {
                 }
 
                 $('#grav-update-button').on('click', function() {
-                    $(this).html('Updating... please wait, downloading 2MB+..');
+                    $(this).html('Updating... please wait, downloading ' + bytesToSize(grav.assets['grav-update'].size) + '..');
                 });
 
                 // dashboard
@@ -249,13 +284,19 @@ $(function () {
                     var missing = (resources.total + (grav.isUpdatable ? 1 : 0)) * 100 / (installed + (grav.isUpdatable ? 1 : 0)),
                         updated = 100 - missing;
                     UpdatesChart.update({series: [updated, missing]});
+                    if (resources.total) {
+                        $('#updates [data-maintenance-update]').fadeIn();
+                    }
                 }
 
-                if (resources.total > 0) {
+                if (!resources.total) {
+                    $('#updates [data-maintenance-update]').fadeOut();
+                    $('.badges.with-updates').removeClass('with-updates').find('.badge.updates').remove();
+                } else {
                     var length,
                         icon = '<i class="fa fa-bullhorn"></i>',
                         content = '{updates} of your {type} have an <strong>update available</strong>',
-                        button = '<a href="{location}/task:update" class="button button-small secondary">Update {Type}</a>',
+                        button = '<a href="{location}/' + task + 'update" class="button button-small secondary">Update {Type}</a>',
                         plugins = $('.grav-update.plugins'),
                         themes = $('.grav-update.themes'),
                         sidebar = {plugins: $('#admin-menu a[href$="/plugins"]'), themes: $('#admin-menu a[href$="/themes"]')};
@@ -286,7 +327,9 @@ $(function () {
                         $.each(resources.plugins, function (key, value) {
                             plugin = $('[data-gpm-plugin="' + key + '"] .gpm-name');
                             url = plugin.find('a');
-                            plugin.append('<a href="' + url.attr('href') + '"><span class="badge update">Update available!</span></a>');
+                            if (!plugin.find('.badge.update').length) {
+                                plugin.append('<a href="' + url.attr('href') + '"><span class="badge update">Update available!</span></a>');
+                            }
 
                         });
                     }
@@ -329,9 +372,12 @@ $(function () {
                         }
                     }
                 }
+
+                if (options.callback && typeof options.callback == 'function') options.callback();
             }
         });
     };
+
     GPMRefresh();
 
     function reIndex (collection) {
@@ -396,6 +442,35 @@ $(function () {
             holder.append(newItem);
             button.data('key-index', ++key);
         });
+    });
+
+    // enable the toggleable checkbox when typing in the corresponding textarea/input element
+    jQuery(document).on('input propertychange click', '.form-data textarea, .form-data input, .form-data label, .form-data .selectize-input', function() {
+        var item = this;
+
+        var checkbox = $(item).parents('.form-field').find('.toggleable input[type="checkbox"]');
+
+        if (checkbox.length > 0) {
+            checkbox.prop('checked', true);
+        }
+
+        $(this).css('opacity', 1);
+        $(this).parents('.form-data').css('opacity', 1);
+        checkbox.css('opacity', 1);
+        checkbox.prop('checked', true);
+        checkbox.prop('value', 1);
+        checkbox.siblings('label').css('opacity', 1);
+        checkbox.parent().siblings('label').css('opacity', 1);
+    });
+
+    // when clicking the label, click the corresponding checkbox automatically
+    jQuery(document).on('click', 'label.toggleable', function() {
+        var input = $(this).siblings('.checkboxes.toggleable').find('input');
+        var on = !input.is(':checked');
+
+        input.prop('checked', on);
+        input.prop('value', on ? 1 : 0);
+        $(this).css('opacity', on ? 1 : 0.7);
     });
 
     // Thems Switcher Warning

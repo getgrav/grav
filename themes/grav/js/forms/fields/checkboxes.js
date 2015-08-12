@@ -84,7 +84,7 @@
             formValues = {};
 
         for (var key in values) { if (values.hasOwnProperty(key)) {
-                formValues[name + '[' + key + ']'] = values[key] ? '1' : '0';
+                formValues[key] = values[key] ? '1' : '0';
             }
         }
 

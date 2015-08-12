@@ -60,7 +60,7 @@
                     previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-details\">\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n    <div class=\"dz-size\" data-dz-size></div>\n    <img data-dz-thumbnail />\n  </div>\n  <div class=\"dz-progress\"><span class=\"dz-upload\" data-dz-uploadprogress></span></div>\n  <div class=\"dz-success-mark\"><span>✔</span></div>\n  <div class=\"dz-error-mark\"><span>✘</span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>Delete</a>\n<a class=\"dz-insert\" href=\"javascript:undefined;\" data-dz-insert>Insert</a>\n</div>",
                     init: function() {
                         thisDropzone = this;
-                        $.get(URI + '/task:listmedia', function(data) {
+                        $.get(URI + '/task{{ config.system.param_sep }}listmedia', function(data) {
 
                             $.proxy(modalError, this, {
                                 data: data,
@@ -106,7 +106,7 @@
                         this.on('removedfile', function(file) {
                             if (!file.accepted || file.rejected) return;
                             thisDropzone = this;
-                            $.post(URI + '/task:delmedia', {filename: file.name}, function(data){
+                            $.post(URI + '/task{{ config.system.param_sep }}delmedia', {filename: file.name}, function(data){
                                 $.proxy(modalError, thisDropzone, {
                                     file: file,
                                     data: data,
@@ -118,10 +118,10 @@
                     }
                 };
 
-                var dropzone = new Dropzone("#gravDropzone", { url: URI + '/task:addmedia', createImageThumbnails: { thumbnailWidth: 150} });
+                var dropzone = new Dropzone("#gravDropzone", { url: URI + '/task{{ config.system.param_sep }}addmedia', createImageThumbnails: { thumbnailWidth: 150} });
 
                 $("#gravDropzone").delegate('.dz-preview', 'dragstart', function(e){
-                    var uri = $(this).find('.dz-filename').text(), shortcode = '![](' + uri + ')';
+                    var uri = $(this).find('.dz-filename').text(), shortcode = '![](' + encodeURI(uri) + ')';
                     dropzone.disable();
                     $(this).addClass('hide-backface');
                     e.originalEvent.dataTransfer.effectAllowed = 'copy';

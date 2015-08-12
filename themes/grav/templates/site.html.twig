@@ -2,6 +2,7 @@
 
 {% block titlebar %}
     <div class="button-bar">
+        <a class="button" href="{{ base_url }}"><i class="fa fa-reply"></i> Back</a>
         <button class="button" type="submit" name="task" value="save" form="blueprints"><i class="fa fa-check"></i> Save</button>
     </div>
     <h1><i class="fa fa-fw fa-th"></i> Configuration - Site</h1>
@@ -9,8 +10,9 @@
 
 {% block content_top %}
     <ul class="tab-bar">
-        <li><a href="{{ base_url_relative }}/configuration/">System</a></li>
+        <li><a href="{{ base_url_relative }}/system">System</a></li>
         <li class="active"><span>Site</span></li>
+        <li><a href="{{ base_url_relative }}/info">Info</a></li>
     </ul>
 {% endblock %}
 

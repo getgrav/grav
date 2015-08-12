@@ -76,6 +76,7 @@ $(function(){
     restoreStates();
 
     var startFilterPages = function () {
+        var task = 'task' + GravAdmin.config.param_sep;
 
         $('input[name="page-search"]').focus();
         var flags = $('input[name="page-filter"]').val(),
@@ -89,7 +90,7 @@ $(function(){
         GravAjax({
             dataType: 'json',
             method: 'POST',
-            url: GravAdmin.config.base_url_relative + '/pages-filter.json/task:filterPages',
+            url: GravAdmin.config.base_url_relative + '/pages-filter.json/' + task + 'filterPages',
             data: {
                 flags: flags,
                 query: query

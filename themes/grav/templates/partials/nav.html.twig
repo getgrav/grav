@@ -1,6 +1,6 @@
 <nav id="admin-sidebar">
     <div id="admin-logo">
-        <h3><a href="{{ base_url_relative }}">Grav Admin</a> <a href="{{ base_url_relative_frontend }}"><i class="fa fa-fw fa-angle-double-right"></i></a></h3>
+        <h3><a href="{{ base_url_relative }}">Grav Admin</a> <a target="_blank" href="{{ base_url_relative_frontend }}"><i class="fa fa-fw fa-angle-double-right"></i></a></h3>
     </div>
 
     {#{% if admin.authorise %}#}
@@ -20,8 +20,8 @@
         <li class="{{ (location == 'dashboard') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}"><i class="fa fa-fw fa-th"></i> Dashboard</a>
         </li>
-        <li class="{{ (location == 'configuration' or location == 'settings') ? 'selected' : '' }}">
-            <a href="{{ base_url_relative }}/configuration"><i class="fa fa-fw fa-wrench"></i> Configuration</a>
+        <li class="{{ (location == 'system' or location == 'site') ? 'selected' : '' }}">
+            <a href="{{ base_url_relative }}/system"><i class="fa fa-fw fa-wrench"></i> Configuration</a>
         </li>
         <li class="{{ (location == 'pages') ? 'selected' : '' }}">
             <a href="{{ base_url_relative }}/pages">
@@ -62,7 +62,7 @@
             </a>
         </li> -->
         <li>
-            <a href="{{ base_url_relative }}/task:logout"><i class="fa fa-fw fa-sign-out"></i> Logout</a>
+            <a href="{{ base_url_relative }}/task{{ config.system.param_sep }}logout"><i class="fa fa-fw fa-sign-out"></i> Logout</a>
         </li>
     </ul>
 </nav>

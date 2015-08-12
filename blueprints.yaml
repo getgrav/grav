@@ -1,5 +1,5 @@
 name: Admin Panel
-version: 0.2.0
+version: 0.3.0
 description: Adds an advanced administration panel to manage your site
 icon: empire
 author:
@@ -51,9 +51,8 @@ form:
       type: select
       label: Edit mode
       size: small
-      default: auto
+      default: normal
       options:
-        auto: Auto
         normal: Normal
         expert: Expert
       help: Auto will use blueprint if available, if none found, it will use "Expert" mode.
@@ -70,20 +69,14 @@ form:
         type: bool
       help: Show the beta warning message on the dashboard
 
-    login.enabled:
-      type: hidden
-      label: Login enabled
-      default: true
-
-    login.route:
-      type: hidden
-      label: Login route
-      default: null
-
-    login.timeout:
-      type: hidden
-      label: Login timeout
-      default: 1800
+    session.timeout:
+      type: text
+      size: small
+      label: Session Timeout
+      help: "Sets the session timeout in seconds"
+      validate:
+          type: number
+          min: 1
 
     warnings.delete_page:
       type: toggle

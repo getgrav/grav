@@ -195,7 +195,7 @@ form {
 
     .medium {
 
-            max-width: 20rem !important;
+            max-width: 20rem;
 
         textarea {
             height: 7rem;
@@ -270,11 +270,6 @@ form {
     .switch-toggle {
         // margin-left: 30%;
 
-        &.medium {
-            width: 100%;
-            width: 20rem;
-        }
-
         label {
             cursor: pointer;
         }
@@ -300,7 +295,7 @@ form {
                 line-height: 1.7;
                 cursor: pointer;
             }
-            
+
             &.array-field-value_only {
                 width: 100%;
             }
@@ -352,7 +347,7 @@ form {
             content:"\f00c";
             font-family: "FontAwesome";
             font-size: 1.2rem;
-            line-height: 1.5rem;
+            line-height: 1;
             text-align: center;
         }
 
@@ -454,5 +449,6 @@ form {
     }
 }
 
-
-
+.form-label.block {
+    z-index: 10000;
+}

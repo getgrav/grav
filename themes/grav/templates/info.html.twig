@@ -1,0 +1,23 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block titlebar %}
+    <div class="button-bar">
+        <a class="button" href="{{ base_url }}"><i class="fa fa-reply"></i> Back</a>
+    </div>
+    <h1><i class="fa fa-fw fa-th"></i> Configuration - PHP Info</h1>
+{% endblock %}
+
+{% block content_top %}
+    <ul class="tab-bar">
+        <li><a href="{{ base_url_relative }}/system">System</a></li>
+        <li><a href="{{ base_url_relative }}/site">Site</a></li>
+        <li class="active"><span>Info</span></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div id="phpinfo">
+    {{ admin.phpinfo }}
+    </div>
+{% endblock %}
+

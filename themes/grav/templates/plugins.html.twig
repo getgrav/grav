@@ -18,9 +18,11 @@
     {% if not admin.route or installing %}
         <div class="button-bar">
         {% if (installing) %}
-            <a class="button" href="{{ base_url_relative }}/plugins"><i class="fa fa-reply"></i> Back to installed</a>
+            <a class="button" href="{{ base_url_relative }}/plugins"><i class="fa fa-reply"></i> Back</a>
         {% else %}
+            <a class="button" href="{{ base_url }}"><i class="fa fa-reply"></i> Back</a>
             <a class="button" href="{{ base_url_relative }}/plugins/install"><i class="fa fa-plus"></i> Add</a>
+            <button data-gpm-checkupdates="" class="button"><i class="fa fa-refresh"></i> Check for Updates</button>
         {% endif %}
         </div>
         <h1><i class="fa fa-fw fa-plug"></i> Plugins</h1>

@@ -169,7 +169,10 @@ $update-height: 3rem;
     margin-left: $sidebar-width;
 
     .hint:after, [data-hint]:after {
-        font-size: 1rem;
+        font-size: 0.9rem;
+        width: 400px;
+        line-height: inherit;
+        white-space: normal;
     }
 
     h1 {

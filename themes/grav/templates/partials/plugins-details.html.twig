@@ -35,10 +35,10 @@
 
     <div class="button-bar danger">
         <span class="danger-zone"></span>
-        <a class="button" href="{{ base_url_relative }}/plugins/{{ plugin.slug }}/task:uninstall"><i class="fa fa-fw fa-warning"></i>Remove Plugin</a>
+        <a class="button" href="{{ base_url_relative }}/plugins/{{ plugin.slug }}/task{{ config.system.param_sep }}uninstall"><i class="fa fa-fw fa-warning"></i>Remove Plugin</a>
     </div>
 {% else %}
     <div class="button-bar success">
-        <a class="button" href="{{ base_url_relative }}/plugins/{{ plugin.slug }}/task:install"><i class="fa fa-fw fa-plus"></i>Install Plugin</a>
+        <a class="button" href="{{ base_url_relative }}/plugins/{{ plugin.slug }}/task{{ config.system.param_sep }}install"><i class="fa fa-fw fa-plus"></i>Install Plugin</a>
     </div>
 {% endif %}

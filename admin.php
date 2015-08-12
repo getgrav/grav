@@ -91,14 +91,9 @@ class AdminPlugin extends Plugin
         $this->base = '/' . trim($route, '/');
         $this->uri = $this->grav['uri'];
 
-
         // Only activate admin if we're inside the admin path.
-        if (substr($this->uri->route(), 0, strlen($this->base)) == $this->base) {
-            // Change login behavior.
-            $this->config->set('plugins.login', $this->config->get('plugins.admin.login'));
-            $this->config->set('plugins.login.session.path', $this->uri->rootUrl(false) . $this->base);
-            $this->config->set('plugins.login.session.name', 'grav_admin');
-
+        if ($this->uri->route() == $this->base ||
+            substr($this->uri->route(), 0, strlen($this->base) + 1) == $this->base . '/') {
             $this->active = true;
         }
     }
@@ -128,6 +123,10 @@ class AdminPlugin extends Plugin
         // Set original route for the home page.
         $home = '/' . trim($this->config->get('system.home.alias'), '/');
 
+        // Disable Asset pipelining
+        $this->config->set('system.assets.css_pipeline', false);
+        $this->config->set('system.assets.js_pipeline', false);
+
         // set the default if not set before
         $this->session->expert = $this->session->expert ?: false;
 
@@ -148,7 +147,12 @@ class AdminPlugin extends Plugin
             unset($this->grav['admin']->routes['/']);
         }
 
-        $pages->dispatch('/', true)->route($home);
+        $page = $pages->dispatch('/', true);
+
+        // If page is null, the default page does not exist, and we cannot route to it
+        if ($page) {
+            $page->route($home);
+        }
 
         // Make local copy of POST.
         $post = !empty($_POST) ? $_POST : array();
@@ -216,9 +220,13 @@ class AdminPlugin extends Plugin
                 $twig->twig_vars['popularity'] = $this->popularity;
                 break;
             case 'pages':
-                $twig->twig_vars['file'] = File::instance($this->admin->page(true)->filePath());
-                $twig->twig_vars['media_types'] = str_replace('defaults,', '',
-                    implode(',.', array_keys($this->config->get('media'))));
+                $page = $this->admin->page(true);
+                if ($page != null) {
+                    $twig->twig_vars['file'] = File::instance($page->filePath());
+                    $twig->twig_vars['media_types'] = str_replace('defaults,', '',
+                        implode(',.', array_keys($this->config->get('media'))));
+
+                }
                 break;
         }
     }
@@ -241,13 +249,14 @@ class AdminPlugin extends Plugin
     public function onTaskGPM()
     {
         $action = $_POST['action']; // getUpdatable | getUpdatablePlugins | getUpdatableThemes | gravUpdates
+        $flush  = isset($_POST['flush']) && $_POST['flush'] == true ? true : false;
 
         if (isset($this->grav['session'])) {
             $this->grav['session']->close();
         }
 
         try {
-            $gpm = new GPM();
+            $gpm = new GPM($flush);
 
             switch ($action) {
                 case 'getUpdates':
@@ -257,12 +266,13 @@ class AdminPlugin extends Plugin
                         "assets"      => $gpm->grav->getAssets(),
                         "version"     => GRAV_VERSION,
                         "available"   => $gpm->grav->getVersion(),
-                        "date"        => $gpm->grav->getDate()
+                        "date"        => $gpm->grav->getDate(),
+                        "isSymlink"   => $gpm->grav->isSymlink()
                     ];
 
                     echo json_encode([
                         "status" => "success",
-                        "payload" => ["resources" => $resources_updates, "grav" => $grav_updates, "installed" => $gpm->countInstalled()]
+                        "payload" => ["resources" => $resources_updates, "grav" => $grav_updates, "installed" => $gpm->countInstalled(), 'flushed' => $flush]
                     ]);
                     break;
             }
@@ -293,6 +303,17 @@ class AdminPlugin extends Plugin
             !$this->grav['config']->get('plugins.email.enabled')) {
             throw new \RuntimeException('One of the required plugins is missing or not enabled');
         }
+
+        // Double check we have system.yaml and site.yaml
+        $config_files[] = $this->grav['locator']->findResource('user://config') . '/system.yaml';
+        $config_files[] = $this->grav['locator']->findResource('user://config') . '/site.yaml';
+        foreach ($config_files as $config_file) {
+            if (!file_exists($config_file)) {
+                touch($config_file);
+            }
+        }
+
+
 
         // Decide admin template and route.
         $path = trim(substr($this->uri->route(), strlen($this->base)), '/');

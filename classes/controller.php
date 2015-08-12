@@ -4,6 +4,7 @@ namespace Grav\Plugin;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Themes;
 use Grav\Common\Uri;
@@ -16,6 +17,7 @@ use Grav\Common\Backup\ZipBackup;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\File\JsonFile;
+use Symfony\Component\Yaml\Yaml;
 
 class AdminController
 {
@@ -149,7 +151,7 @@ class AdminController
 
         $this->admin->session()->invalidate()->start();
         $this->admin->setMessage($l->translate('LOGGED_OUT'), 'info');
-        $this->setRedirect('/');
+        $this->setRedirect('/logout');
 
         return true;
     }
@@ -704,17 +706,12 @@ class AdminController
             return;
         }
 
-        if (is_link(ROOT_DIR . 'index.php')) {
-            $this->admin->json_response = ['status' => 'error', 'message' => 'Cannot upgrade: Grav is symlinked. Please upgrade manually'];
-            return false;
-        }
-
         $result = \Grav\Plugin\Admin\Gpm::selfupgrade();
 
         if ($result) {
             $this->admin->json_response = ['status' => 'success', 'message' => 'Grav was successfully updated to '];
         } else {
-            $this->admin->json_response = ['status' => 'error', 'message' => 'Grav update failed'];
+            $this->admin->json_response = ['status' => 'error', 'message' => 'Grav update failed <br>' . Installer::lastErrorMsg()];
         }
 
         return true;
@@ -1164,12 +1161,27 @@ class AdminController
 
         if (isset($input['header'])) {
             $header = $input['header'];
+
+            foreach($header as $key => $value) {
+                if ($key == 'metadata') {
+                    foreach($header['metadata'] as $key2 => $value2) {
+                        if (isset($input['toggleable_header']['metadata'][$key2]) && !$input['toggleable_header']['metadata'][$key2]) {
+                            $header['metadata'][$key2] = '';
+                        }
+                    }
+                } else {
+                    if (isset($input['toggleable_header'][$key]) && !$input['toggleable_header'][$key]) {
+                        $header[$key] = '';
+                    }
+                }
+            }
             if ($clean_header) {
                 $header = Utils::arrayFilterRecursive($header, function($k, $v) {
                     return !(is_null($v) || $v === '');
                 });
             }
             $page->header((object) $header);
+            $page->frontmatter(Yaml::dump((array) $page->header()));
         }
         // Fill content last because it also renders the output.
         if (isset($input['content'])) {
