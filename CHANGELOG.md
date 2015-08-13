@@ -1,8 +1,25 @@
-# v0.9.36
-## XX/XX/2015
+# v0.9.37
+## 08/12/2015
 
+3. [](#bugfix)
+    * Fixed issue when saving `header.process` in page forms via the **admin plugin**
+    * Fixed error due to use of `set_time_limit` that might be disabled on some hosts
+
+# v0.9.36
+## 08/11/2015
+
+1. [](#new)
+    * Added a new `newuser` CLI command to create user accounts
+    * Added `default` blueprint for all templates
+    * Support `user` and `system` language translation merging
 1. [](#improved)
     * Added isSymlink method in GPM to determine if Grav is symbolically linked or not
+    * Refactored page recursing
+    * Updated blueprints to use new toggles
+    * Updated blueprints to use current date for date format fields
+    * Updated composer.phar
+    * Use sessions for admin even when disabled for site
+    * Use `GRAV_ROOT` in session identifier
 
 # v0.9.35
 ## 08/06/2015

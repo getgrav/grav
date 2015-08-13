@@ -67,9 +67,9 @@ class IndexCommand extends Command
                 // index
                     str_pad($index++ + 1, 2, '0', STR_PAD_LEFT) . ". " .
                     // package name
-                    "<cyan>" . str_pad($package->name, 15) . "</cyan> " .
+                    "<cyan>" . str_pad($package->name, 20) . "</cyan> " .
                     // slug
-                    "[" . str_pad($slug, 15, ' ', STR_PAD_BOTH) . "] " .
+                    "[" . str_pad($slug, 20, ' ', STR_PAD_BOTH) . "] " .
                     // version details
                     $this->versionDetails($package)
                 );

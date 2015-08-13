@@ -219,7 +219,11 @@ abstract class Utils
             $file_parts = pathinfo($file);
             $filesize = filesize($file);
 
-            set_time_limit(0);
+            // check if this function is available, if so use it to stop any timeouts
+            if (function_exists('set_time_limit')) {
+                set_time_limit(0);
+            }
+
             ignore_user_abort(false);
 
             if ($force_download) {

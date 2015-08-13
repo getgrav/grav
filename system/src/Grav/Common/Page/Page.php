@@ -232,10 +232,10 @@ class Page
                 $this->menu = trim($this->header->menu);
             }
             if (isset($this->header->routable)) {
-                $this->routable = $this->header->routable;
+                $this->routable = (bool) $this->header->routable;
             }
             if (isset($this->header->visible)) {
-                $this->visible = $this->header->visible;
+                $this->visible = (bool) $this->header->visible;
             }
             if (isset($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
@@ -253,7 +253,7 @@ class Page
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
             }
             if (isset($this->header->taxonomy)) {
-                foreach ($this->header->taxonomy as $taxonomy => $taxitems) {
+                foreach ((array) $this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
                 }
             }
@@ -261,12 +261,12 @@ class Page
                 $this->max_count = intval($this->header->max_count);
             }
             if (isset($this->header->process)) {
-                foreach ($this->header->process as $process => $status) {
-                    $this->process[$process] = $status;
+                foreach ((array) $this->header->process as $process => $status) {
+                    $this->process[$process] = (bool) $status;
                 }
             }
             if (isset($this->header->published)) {
-                $this->published = $this->header->published;
+                $this->published = (bool) $this->header->published;
             }
             if (isset($this->header->publish_date)) {
                 $this->publish_date = strtotime($this->header->publish_date);
@@ -278,10 +278,10 @@ class Page
                 $this->expires = intval($this->header->expires);
             }
             if (isset($this->header->etag)) {
-                $this->etag = (bool)$this->header->etag;
+                $this->etag = (bool) $this->header->etag;
             }
             if (isset($this->header->last_modified)) {
-                $this->last_modified = (bool)$this->header->last_modified;
+                $this->last_modified = (bool) $this->header->last_modified;
             }
 
         }
