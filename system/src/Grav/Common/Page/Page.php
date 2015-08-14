@@ -1230,10 +1230,10 @@ class Page
     /**
      * Helper method to clear the route out so it regenerates next time you use it
      */
-    public function unsetRoute()
+    public function unsetRouteSlug()
     {
         unset($this->route);
-
+        unset($this->slug);
     }
 
     public function rawRoute($var = null)
