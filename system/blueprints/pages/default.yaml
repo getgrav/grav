@@ -148,10 +148,16 @@ form:
                       title: Settings
                       underline: true
 
-                    header.body_classes:
-                      type: text
-                      label: Body Classes
-
+                    ordering:
+                      type: toggle
+                      label: Folder Numeric Prefix
+                      help: Numeric prefix that provides manual ordering and implies visibility
+                      highlight: 1
+                      options:
+                        1: Enabled
+                        0: Disabled
+                      validate:
+                        type: bool
 
                     folder:
                       type: text
@@ -175,14 +181,23 @@ form:
                       default: default
                       @data-options: '\Grav\Common\Page\Pages::types'
 
+                    header.body_classes:
+                      type: text
+                      label: Body Classes
+
 
                 column2:
                   type: column
 
                   fields:
+                    order_title:
+                      type: section
+                      title: Ordering
+                      underline: true
+
                     order:
                       type: order
-                      label: Ordering
+                      label: Page Order
                       sitemap:
 
             overrides:
@@ -230,17 +245,7 @@ form:
                   placeholder: Use Global
                   @data-options: '\Grav\Common\Page\Pages::types'
 
-                header.visible:
-                  type: toggle
-                  toggleable: true
-                  label: Visible
-                  help: "Determines if a page is visible in the navigation."
-                  highlight: 1
-                  options:
-                    1: Enabled
-                    0: Disabled
-                  validate:
-                    type: bool
+
 
                 header.routable:
                   type: toggle
@@ -265,7 +270,17 @@ form:
                   validate:
                     type: bool
 
-
+                header.visible:
+                  type: toggle
+                  toggleable: true
+                  label: Visible
+                  help: "Determines if a page is visible in the navigation."
+                  highlight: 1
+                  options:
+                    1: Enabled
+                    0: Disabled
+                  validate:
+                    type: bool
 
 
 
