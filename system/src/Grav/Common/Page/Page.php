@@ -17,6 +17,8 @@ use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use Symfony\Component\Yaml\Yaml;
 
+define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
+
 /**
  * The Page object, or "Page" object is the main powerhouse of Grav.  It contains all the information
  * related to the nested pages structure that represents the content. Each page has several attributes that
@@ -129,7 +131,7 @@ class Page
             $this->extension($extension);
         }
 
-        // Exract page language from page extension
+        // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
         $this->language($language);
     }
@@ -557,6 +559,9 @@ class Page
         if ($name == 'order') {
             $order = $this->order();
             return $order ? (int) $this->order() : '';
+        }
+        if ($name == 'ordering') {
+            return (bool) $this->order();
         }
         if ($name == 'folder') {
             $regex = '/^[0-9]+\./u';
@@ -1108,8 +1113,7 @@ class Page
         }
 
         if (empty($this->slug)) {
-            $regex = '/^[0-9]+\./u';
-            $this->slug = preg_replace($regex, '', $this->folder);
+            $this->slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
         }
 
         return $this->slug;
@@ -1123,13 +1127,12 @@ class Page
      */
     public function order($var = null)
     {
-        $regex = '/^[0-9]+\./u';
         if ($var !== null) {
-            $order = !empty($var) ? sprintf('%02d.', (int) $var) : '';
-            $slug = preg_replace($regex, '', $this->folder);
-            $this->folder($order.$slug);
+            $order = !empty($var) ? sprintf('%02d.', (int)$var) : '';
+            $this->folder($order . $this->slug());
         }
-        preg_match($regex, $this->folder, $order);
+        preg_match(PAGE_ORDER_PREFIX_REGEX, $this->folder, $order);
+
         return isset($order[0]) ? $order[0] : false;
     }
 
