@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Page;
 
+use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
@@ -15,6 +16,7 @@ use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Data\Blueprint;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
@@ -206,10 +208,16 @@ class Page
         if (!$this->header) {
             $file = $this->file();
             if ($file) {
-                $this->raw_content = $file->markdown();
-                $this->frontmatter = $file->frontmatter();
-                $this->header = (object) $file->header();
-
+                try {
+                    $this->raw_content = $file->markdown();
+                    $this->frontmatter = $file->frontmatter();
+                    $this->header = (object)$file->header();
+                } catch (ParseException $e) {
+                    $file->raw("---\ntitle: ".$this->folder()."\n---\n\n# Error: Invalid Frontmatter\n## ".$file->filename());
+                    $this->raw_content = $file->markdown();
+                    $this->frontmatter = $file->frontmatter();
+                    $this->header = (object)$file->header();
+                }
                 $var = true;
             }
         }
@@ -741,7 +749,7 @@ class Page
     /**
      * Validate page header.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function validate()
     {
