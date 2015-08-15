@@ -213,7 +213,7 @@ class Page
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
                 } catch (ParseException $e) {
-                    $file->raw("---\ntitle: ".$this->folder()."\n---\n\n# Error: Invalid Frontmatter\n## ".$file->filename());
+                    $file->raw("---\ntitle: ".$this->slug()."\n---\n\n# Error: Invalid Frontmatter\n## ".$file->filename());
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
