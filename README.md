@@ -16,6 +16,11 @@ The underlying architecture of Grav is designed to use well-established and _bes
 * [Symfony Console](http://symfony.com/doc/current/components/console/introduction.html): for CLI interface
 * [Gregwar Image Library](https://github.com/Gregwar/Image): for dynamic image manipulation
 
+# Requirements
+
+- PHP 5.4 or higher. Check the [required modules list](http://learn.getgrav.org/basics/requirements#php-requirements)
+- Check the [Apache](http://learn.getgrav.org/basics/requirements#apache-requirements) or [IIS](http://learn.getgrav.org/basics/requirements#iis-requirements) requirements
+
 # QuickStart
 
 You have two options to get Grav:
