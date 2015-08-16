@@ -213,7 +213,7 @@ class Page
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
                 } catch (ParseException $e) {
-                    $file->raw("---\ntitle: ".$this->slug()."\n---\n\n# Error: Invalid Frontmatter\n## ".$file->filename());
+                    $file->raw(self::getGrav()['language']->translate(['FRONTMATTER_ERROR_PAGE', $this->slug(), $file->filename(), $e->getMessage(), $file->raw()]));
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
