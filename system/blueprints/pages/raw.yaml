@@ -47,6 +47,17 @@ form:
 
                   fields:
 
+                    ordering:
+                      type: toggle
+                      label: Folder Numeric Prefix
+                      help: Numeric prefix that provides manual ordering and implies visibility
+                      highlight: 1
+                      options:
+                        1: Enabled
+                        0: Disabled
+                      validate:
+                        type: bool
+
                     folder:
                       type: text
                       label: Folder Name
