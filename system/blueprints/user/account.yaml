@@ -44,3 +44,10 @@ form:
                     type: text
                     size: large
                     label: Title
+
+                language:
+                    type: text
+                    size: large
+                    label: Language
+                    help: "Set the favorite language. E.g. 'it' or 'de'. Defaults to english"
+
