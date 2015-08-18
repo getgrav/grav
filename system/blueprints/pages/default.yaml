@@ -168,7 +168,7 @@ form:
                       @data-options: '\Grav\Common\Page\Pages::parents'
                       @data-default: '\Grav\Plugin\admin::route'
                       options:
-                        '/': PLUGIN_ADMIN.ROOT
+                        '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
 
                     type:
                       type: templates
