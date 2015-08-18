@@ -5,7 +5,7 @@ form:
 
         content:
             type: section
-            title: Account
+            title: PLUGIN_ADMIN.ACCOUNT
 
             fields:
                 username:
@@ -21,7 +21,7 @@ form:
                     label: PLUGIN_ADMIN.EMAIL
                     validate:
                       type: email
-                      message: Must be a valid email address
+                      message: PLUGIN_ADMIN.EMAIL_VALIDATION_MESSAGE
                       required: true
 
                 password:
@@ -30,7 +30,7 @@ form:
                     label: PLUGIN_ADMIN.PASSWORD
                     validate:
                       required: true
-                      message: Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters
+                      message: PLUGIN_ADMIN.PASSWORD_VALIDATION_MESSAGE
                       pattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}'
 
                 fullname:
@@ -52,5 +52,5 @@ form:
                     classes: fancy
                     @data-options: '\Grav\Plugin\admin::adminLanguages'
                     default: 'en'
-                    help: "Set the favorite language. E.g. 'it' or 'de'. Defaults to english"
+                    help: PLUGIN_ADMIN.LANGUAGE_HELP
 
