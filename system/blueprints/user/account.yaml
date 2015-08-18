@@ -46,8 +46,11 @@ form:
                     label: Title
 
                 language:
-                    type: text
-                    size: large
+                    type: select
                     label: Language
+                    size: medium
+                    classes: fancy
+                    @data-options: '\Grav\Plugin\admin::adminLanguages'
+                    default: 'en'
                     help: "Set the favorite language. E.g. 'it' or 'de'. Defaults to english"
 
