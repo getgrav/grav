@@ -139,6 +139,50 @@ class Page
     }
 
     /**
+     * Return an array with the routes of other translated languages
+     * @return array the page translated languages
+     */
+    public function translatedLanguages()
+    {
+        $filename = substr($this->name, 0, -(strlen($this->extension())));
+        $config = self::getGrav()['config'];
+        $languages = $config->get('system.languages.supported', []);
+        $translatedLanguages = [];
+
+        foreach ($languages as $language) {
+            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language .'.md';
+            if (file_exists($path)) {
+                $aPage = new Page();
+                $aPage->init(new \SplFileInfo($path), $language .'.md');
+                $translatedLanguages[$language] = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
+            }
+        }
+
+        return $translatedLanguages;
+    }
+
+    /**
+     * Return an array listing untranslated languages available
+     * @return array the page untranslated languages
+     */
+    public function untranslatedLanguages()
+    {
+        $filename = substr($this->name, 0, -(strlen($this->extension())));
+        $config = self::getGrav()['config'];
+        $languages = $config->get('system.languages.supported', []);
+        $untranslatedLanguages = [];
+
+        foreach ($languages as $language) {
+            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language .'.md';
+            if (!file_exists($path)) {
+                $untranslatedLanguages[] = $language;
+            }
+        }
+
+        return $untranslatedLanguages;
+    }
+
+    /**
      * Gets and Sets the raw data
      *
      * @param  string $var Raw content string
