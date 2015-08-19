@@ -98,6 +98,12 @@ class User extends Data
     {
         $file = $this->file();
         if ($file) {
+            // if plain text password, hash it and remove plain text
+            if ($this->password) {
+                $this->hashed_password = Authentication::create($this->password);
+                unset($this->password);
+            }
+
             $username = $this->get('username');
             unset($this->username);
             $file->save($this->items);
