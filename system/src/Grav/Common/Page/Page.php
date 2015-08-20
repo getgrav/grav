@@ -154,7 +154,11 @@ class Page
             if (file_exists($path)) {
                 $aPage = new Page();
                 $aPage->init(new \SplFileInfo($path), $language .'.md');
-                $translatedLanguages[$language] = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
+
+                $route = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
+                if (!$route) $route = $aPage->slug();
+
+                $translatedLanguages[$language] = $route;
             }
         }
 
