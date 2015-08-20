@@ -45,7 +45,8 @@ class Blueprints
                     $grav = static::getGrav();
                     /** @var UniformResourceLocator $locator */
                     $locator = $grav['locator'];
-                    $filename = $locator($filename);
+                    $parents = $locator->findResources($filename);
+                    $filename = array_shift($parents);
                 }
             } else {
                 $filename = isset($this->search[$type]) ? $this->search[$type] : '';
@@ -72,6 +73,15 @@ class Blueprints
                     $extendType = !is_string($extendConfig) ? empty($extendConfig['type']) ? false : $extendConfig['type'] : $extendConfig;
 
                     if (!$extendType) {
+                        continue;
+                    } elseif ($extendType === '@parent') {
+                        $parentFile = array_shift($parents);
+                        if (!$parentFile || !is_file($parentFile)) {
+                            continue;
+                        }
+                        $blueprints = CompiledYamlFile::instance($parentFile)->content();
+                        $parent = new Blueprint($type.'-parent', $blueprints, $this);
+                        $blueprint->extend($parent);
                         continue;
                     }
 
