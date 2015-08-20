@@ -3,6 +3,7 @@ namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\GravTrait;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * Blueprints class keeps track on blueprint instances.
@@ -23,11 +24,7 @@ class Blueprints
      */
     public function __construct($search)
     {
-        if (!is_string($search)) {
-            $this->search = $search;
-        } else {
-            $this->search = rtrim($search, '\\/') . '/';
-        }
+        $this->search = $search;
     }
 
     /**
@@ -42,6 +39,14 @@ class Blueprints
         if (!isset($this->instances[$type])) {
             if (is_string($this->search)) {
                 $filename = $this->search . $type . YAML_EXT;
+
+                // Check if search is a stream and resolve the path.
+                if (strpos($filename, '://')) {
+                    $grav = static::getGrav();
+                    /** @var UniformResourceLocator $locator */
+                    $locator = $grav['locator'];
+                    $filename = $locator($filename);
+                }
             } else {
                 $filename = isset($this->search[$type]) ? $this->search[$type] : '';
             }
@@ -91,7 +96,18 @@ class Blueprints
         if ($this->types === null) {
             $this->types = array();
 
-            $iterator   = new \DirectoryIterator($this->search);
+            // Check if search is a stream.
+            if (strpos($this->search, '://')) {
+                // Stream: use UniformResourceIterator.
+                $grav = static::getGrav();
+                /** @var UniformResourceLocator $locator */
+                $locator = $grav['locator'];
+                $iterator = $locator->getIterator($this->search, null);
+            } else {
+                // Not a stream: use DirectoryIterator.
+                $iterator = new \DirectoryIterator($this->search);
+            }
+
             /** @var \DirectoryIterator $file */
             foreach ($iterator as $file) {
                 if (!$file->isFile() || '.' . $file->getExtension() != YAML_EXT) {
