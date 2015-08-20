@@ -90,8 +90,8 @@ class Themes extends Iterator
             throw new \RuntimeException('Theme name not provided.');
         }
 
-        $blueprints = new Blueprints("themes://{$name}");
-        $blueprint = $blueprints->get('blueprints');
+        $blueprints = new Blueprints('themes://');
+        $blueprint = $blueprints->get("{$name}/blueprints");
         $blueprint->name = $name;
 
         // Find thumbnail.

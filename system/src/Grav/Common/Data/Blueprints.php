@@ -37,6 +37,7 @@ class Blueprints
     public function get($type)
     {
         if (!isset($this->instances[$type])) {
+            $parents = [];
             if (is_string($this->search)) {
                 $filename = $this->search . $type . YAML_EXT;
 

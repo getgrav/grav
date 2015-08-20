@@ -113,8 +113,8 @@ class Plugins extends Iterator
 
     public static function get($name)
     {
-        $blueprints = new Blueprints("plugins://{$name}");
-        $blueprint = $blueprints->get('blueprints');
+        $blueprints = new Blueprints('plugins://');
+        $blueprint = $blueprints->get("{$name}/blueprints");
         $blueprint->name = $name;
 
         // Load default configuration.
