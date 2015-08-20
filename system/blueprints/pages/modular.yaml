@@ -32,7 +32,7 @@ form:
 
             header.content.order.dir:
               type: select
-              label: PLUGIN_ADMIN.ORDER Order
+              label: PLUGIN_ADMIN.ORDER
               default: desc
               options:
                 asc: PLUGIN_ADMIN.ASCENDING
