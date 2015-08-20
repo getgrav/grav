@@ -610,7 +610,7 @@ class Page
             return $this->raw_content;
         }
         if ($name == 'route') {
-            return dirname($this->route());
+            return $this->parent()->rawRoute();
         }
         if ($name == 'order') {
             $order = $this->order();
