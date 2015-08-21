@@ -216,14 +216,14 @@ class Collection extends Iterator
      * Dates can be passed in as text that strtotime() can process
      * http://php.net/manual/en/function.strtotime.php
      *
-     * @param      $field
      * @param      $startDate
      * @param bool $endDate
+     * @param      $field
      *
      * @return $this
      * @throws \Exception
      */
-    public function dateRange($field = false, $startDate, $endDate = false)
+    public function dateRange($startDate, $endDate = false, $field = false)
     {
         $start = strtotime($startDate);
         $end = $endDate ? strtotime($endDate) : strtotime("now +1000 years");
