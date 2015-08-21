@@ -1843,7 +1843,8 @@ class Page
         if (isset($params['dateRange'])) {
             $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;
             $end = isset($params['dateRange']['end']) ? $params['dateRange']['end'] : false;
-            $collection->dateRange($start, $end);
+            $field = isset($params['dateRange']['field']) ? $params['dateRange']['field'] : false;
+            $collection->dateRange($start, $end, $field);
         }
 
         if (isset($params['order'])) {
