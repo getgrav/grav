@@ -1841,9 +1841,10 @@ class Page
         // TODO: END OF MOVE
 
         if (isset($params['dateRange'])) {
+            $field = isset($params['dateRange']['field']) ? $params['dateRange']['field'] : false;
             $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;
             $end = isset($params['dateRange']['end']) ? $params['dateRange']['end'] : false;
-            $collection->dateRange($start, $end);
+            $collection->dateRange($field, $start, $end);
         }
 
         if (isset($params['order'])) {
