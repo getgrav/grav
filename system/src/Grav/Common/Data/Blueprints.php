@@ -86,7 +86,19 @@ class Blueprints
                         continue;
                     }
 
-                    $context = is_string($extendConfig) || empty($extendConfig['context']) ? $this : new self(self::getGrav()['locator']->findResource($extendConfig['context']));
+                    if (is_string($extendConfig) || empty($extendConfig['context'])) {
+                        $context = $this;
+                    } else {
+                        // Load blueprints from external context.
+                        $array = explode('://', $extendConfig['context'], 2);
+                        $scheme = array_shift($array);
+                        $path = array_shift($array);
+                        if ($path) {
+                            $scheme .= '://';
+                            $extendType = $path ? "{$path}/{$extendType}" : $extendType;
+                        }
+                        $context = new self($scheme);
+                    }
                     $blueprint->extend($context->get($extendType));
                 }
             }
