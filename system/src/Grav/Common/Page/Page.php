@@ -1710,7 +1710,7 @@ class Page
      */
     public function active()
     {
-        $uri_path = self::getGrav()['uri']->path();
+        $uri_path = rtrim(self::getGrav()['uri']->path(), '/');
         $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
@@ -1732,7 +1732,7 @@ class Page
     {
         $uri = self::getGrav()['uri'];
         $pages = self::getGrav()['pages'];
-        $uri_path = $uri->path();
+        $uri_path = rtrim($uri->path(), '/');
         $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
