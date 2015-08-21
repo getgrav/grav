@@ -72,8 +72,6 @@ form:
                       @data-default: '\Grav\Plugin\admin::route'
                       options:
                         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
-                      validate:
-                        required: true
 
                     type:
                       type: select
