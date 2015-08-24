@@ -1,3 +1,26 @@
+# v0.9.38
+## 08/24/2015
+
+1. [](#new)
+    * Added `language` to **user** blueprint
+    * Added translations to blueprints
+    * New extending logic for blueprints
+    * Blueprints are now loaded with Streams to allow for better overrides
+    * Added new Symfony `dump()` method
+1. [](#improved)
+    * Catch YAML header parse exception so site doesn't die
+    * Better `Page.parent()` logic
+    * Improved GPM display layout
+    * Tweaked default page layout
+    * Unset route and slug for improved reliability of route changes
+    * Added requirements to README.md
+    * Updated various libraries
+    * Allow use of custom page date field for dateRange collections
+1. [](#bugfix)
+    * Slug fixes with GPM
+    * Unset plaintext password on save
+    * Fix for trailing `/` not matching active children
+
 # v0.9.37
 ## 08/12/2015
 
