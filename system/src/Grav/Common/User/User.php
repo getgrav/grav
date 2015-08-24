@@ -32,8 +32,8 @@ class User extends Data
         $locator = self::getGrav()['locator'];
 
         // TODO: validate directory name
-        $blueprints = new Blueprints('blueprints://user');
-        $blueprint = $blueprints->get('account');
+        $blueprints = new Blueprints('blueprints://');
+        $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
         $file = CompiledYamlFile::instance($file_path);
         $content = $file->content();
@@ -98,6 +98,12 @@ class User extends Data
     {
         $file = $this->file();
         if ($file) {
+            // if plain text password, hash it and remove plain text
+            if ($this->password) {
+                $this->hashed_password = Authentication::create($this->password);
+                unset($this->password);
+            }
+
             $username = $this->get('username');
             unset($this->username);
             $file->save($this->items);

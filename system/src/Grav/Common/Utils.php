@@ -437,4 +437,18 @@ abstract class Utils
         }
         return $result;
     }
+
+    public static function pathPrefixedByLangCode($string)
+    {
+        $languages_enabled = self::getGrav()['config']->get('system.languages.supported', []);
+
+        if ($string[0] == '/' && $string[3] == '/' && in_array(substr($string, 1, 2), $languages_enabled)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+
 }

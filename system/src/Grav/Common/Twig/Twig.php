@@ -150,6 +150,7 @@ class Twig
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),
                 'base_url' => $this->grav['base_url'] . $language_append,
+                'base_url_simple' => $this->grav['base_url'],
                 'base_url_absolute' => $this->grav['base_url_absolute'] . $language_append,
                 'base_url_relative' => $this->grav['base_url_relative'] . $language_append,
                 'theme_dir' => $locator->findResource('theme://'),

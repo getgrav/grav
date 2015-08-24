@@ -1,3 +1,4 @@
+FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Invalid Frontmatter\n\nPath: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
 INFLECTOR_PLURALS:
     '/(quiz)$/i': '\1zes'
     '/^(ox)$/i': '\1en'

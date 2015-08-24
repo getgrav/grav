@@ -9,9 +9,10 @@
         "php": ">=5.4.0",
         "twig/twig": "~1.16",
         "erusev/parsedown-extra": "~0.7",
-        "symfony/yaml": "2.7.3",
-        "symfony/console": "2.7.3",
-        "symfony/event-dispatcher": "2.7.3",
+        "symfony/yaml": "~2.7",
+        "symfony/console": "~2.7",
+        "symfony/event-dispatcher": "~2.7",
+        "symfony/var-dumper": "~2.7",
         "doctrine/cache": "~1.4",
         "maximebf/debugbar": "dev-master",
         "filp/whoops": "1.2.*@dev",
@@ -21,7 +22,7 @@
         "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
-        "rockettheme/toolbox": "1.0.*"
+        "rockettheme/toolbox": "1.1.*"
     },
     "autoload": {
         "psr-4": {

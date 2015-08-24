@@ -5,42 +5,52 @@ form:
 
         content:
             type: section
-            title: Account
+            title: PLUGIN_ADMIN.ACCOUNT
 
             fields:
                 username:
                     type: text
                     size: large
-                    label: Username
+                    label: PLUGIN_ADMIN.USERNAME
                     disabled: true
                     readonly: true
 
                 email:
                     type: email
                     size: large
-                    label: Email
+                    label: PLUGIN_ADMIN.EMAIL
                     validate:
                       type: email
-                      message: Must be a valid email address
+                      message: PLUGIN_ADMIN.EMAIL_VALIDATION_MESSAGE
                       required: true
 
                 password:
                     type: password
                     size: large
-                    label: Password
+                    label: PLUGIN_ADMIN.PASSWORD
                     validate:
                       required: true
-                      message: Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters
+                      message: PLUGIN_ADMIN.PASSWORD_VALIDATION_MESSAGE
                       pattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}'
 
                 fullname:
                     type: text
                     size: large
-                    label: Full name
+                    label: PLUGIN_ADMIN.FULL_NAME
                     validate:
                       required: true
 
                 title:
                     type: text
                     size: large
-                    label: Title
+                    label: PLUGIN_ADMIN.TITLE
+
+                language:
+                    type: select
+                    label: PLUGIN_ADMIN.LANGUAGE
+                    size: medium
+                    classes: fancy
+                    @data-options: '\Grav\Plugin\admin::adminLanguages'
+                    default: 'en'
+                    help: PLUGIN_ADMIN.LANGUAGE_HELP
+

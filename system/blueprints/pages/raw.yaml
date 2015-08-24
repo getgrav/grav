@@ -15,26 +15,24 @@ form:
       fields:
         content:
           type: tab
-          title: Content
+          title: PLUGIN_ADMIN.CONTENT
 
           fields:
             frontmatter:
               type: frontmatter
-              label: Frontmatter
-
+              label: PLUGIN_ADMIN.FRONTMATTER
 
             content:
               type: markdown
-              label: Content
+              label: PLUGIN_ADMIN.CONTENT
 
             uploads:
               type: uploads
-              label: Page Media
-
+              label: PLUGIN_ADMIN.PAGE_MEDIA
 
         options:
           type: tab
-          title: Options
+          title: PLUGIN_ADMIN.OPTIONS
 
           fields:
 
@@ -47,28 +45,39 @@ form:
 
                   fields:
 
+                    ordering:
+                      type: toggle
+                      label: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX
+                      help: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX_HELP
+                      highlight: 1
+                      options:
+                        1: PLUGIN_ADMIN.ENABLED
+                        0: PLUGIN_ADMIN.DISABLED
+                      validate:
+                        type: bool
+
                     folder:
                       type: text
-                      label: Folder Name
+                      label: PLUGIN_ADMIN.FOLDER_NAME
+                      help: PLUGIN_ADMIN.FOLDER_NAME_HELP
                       validate:
                         type: slug
                         required: true
 
                     route:
                       type: select
-                      label: Parent
+                      label: PLUGIN_ADMIN.PARENT
                       classes: fancy
                       @data-options: '\Grav\Common\Page\Pages::parents'
                       @data-default: '\Grav\Plugin\admin::route'
                       options:
-                        '/': '- Root -'
-                      validate:
-                        required: true
+                        '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
 
                     type:
                       type: select
                       classes: fancy
-                      label: Display Template
+                      label: PLUGIN_ADMIN.DISPLAY_TEMPLATE
+                      help: PLUGIN_ADMIN.DISPLAY_TEMPLATE_HELP
                       default: default
                       @data-options: '\Grav\Common\Page\Pages::types'
                       validate:
@@ -80,7 +89,7 @@ form:
                     fields:
                       order:
                         type: order
-                        label: Ordering
+                        label: PLUGIN_ADMIN.ORDERING
 
             blueprint:
               type: blueprint

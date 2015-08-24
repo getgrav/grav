@@ -9,9 +9,9 @@ form:
   fields:
     route:
       type: select
-      label: Parent
+      label: PLUGIN_ADMIN.PARENT
       classes: fancy
       @data-options: '\Grav\Common\Page\Pages::parents'
       @data-default: '\Grav\Plugin\admin::route'
       options:
-        '/': '- Root -'
+        '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT

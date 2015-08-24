@@ -1,4 +1,4 @@
-title: Modular
+title: PLUGIN_ADMIN.MODULAR
 @extends:
     type: default
     context: blueprints://pages
@@ -15,28 +15,28 @@ form:
 
             header.content.items:
               type: select
-              label: Items
+              label: PLUGIN_ADMIN.ITEMS
               default: @self.modular
               options:
                 @self.modular: Children
 
             header.content.order.by:
               type: select
-              label: Order By
+              label: PLUGIN_ADMIN.ORDER_BY
               default: date
               options:
-                folder: Folder
-                title: Title
-                date: Date
-                default: Default
+                folder: PLUGIN_ADMIN.FOLDER
+                title: PLUGIN_ADMIN.TITLE
+                date: PLUGIN_ADMIN.DATE
+                default: PLUGIN_ADMIN.DEFAULT
 
             header.content.order.dir:
               type: select
-              label: Order
+              label: PLUGIN_ADMIN.ORDER
               default: desc
               options:
-                asc: Ascending
-                desc: Descending
+                asc: PLUGIN_ADMIN.ASCENDING
+                desc: PLUGIN_ADMIN.DESCENDING
 
             header.process:
               type: ignore

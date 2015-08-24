@@ -597,7 +597,7 @@ class LanguageCodes
         ],
         "es" => [
             "name"       => "Spanish",
-            "nativeName" => "español"
+            "nativeName" => "Español"
         ],
         "su" => [
             "name"       => "Sundanese",

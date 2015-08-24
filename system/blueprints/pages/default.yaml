@@ -1,4 +1,4 @@
-title: Default
+title: PLUGIN_ADMIN.DEFAULT
 
 rules:
   slug:
@@ -18,27 +18,27 @@ form:
       fields:
         content:
           type: tab
-          title: Content
+          title: PLUGIN_ADMIN.CONTENT
 
           fields:
             header.title:
               type: text
               style: vertical
-              label: Title
+              label: PLUGIN_ADMIN.TITLE
 
             content:
                 type: markdown
-                label: Content
+                label: PLUGIN_ADMIN.CONTENT
                 validate:
                   type: textarea
 
             uploads:
               type: uploads
-              label: Page Media
+              label: PLUGIN_ADMIN.PAGE_MEDIA
 
         options:
           type: tab
-          title: Options
+          title: PLUGIN_ADMIN.OPTIONS
 
           fields:
 
@@ -51,89 +51,59 @@ form:
                 header.published:
                   type: toggle
                   toggleable: true
-                  label: Published
-                  help: "By default, a page is published unless you explicitly set published: false or via a publish_date being in the future, or unpublish_date in the past"
+                  label: PLUGIN_ADMIN.PUBLISHED
+                  help: PLUGIN_ADMIN.PUBLISHED_HELP
                   highlight: 1
                   size: medium
                   options:
-                    1: Yes
-                    0: No
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
                   validate:
                     type: bool
 
                 header.date:
                   type: datetime
-                  label: Date
+                  label: PLUGIN_ADMIN.DATE
                   toggleable: true
-                  help: "The date variable allows you to specifically set a date associated with this page."
-
-
+                  help: PLUGIN_ADMIN.DATE_HELP
 
                 header.published_date:
                   type: datetime
-                  label: Published Date
+                  label: PLUGIN_ADMIN.PUBLISHED_DATE
                   toggleable: true
-                  help: "Can provide a date to automatically trigger publication."
+                  help: PLUGIN_ADMIN.PUBLISHED_DATE_HELP
 
                 header.unpublished_date:
                   type: datetime
-                  label: Unublished Date
+                  label: PLUGIN_ADMIN.UNPUBLISHED_DATE
                   toggleable: true
-                  help: "can provide a date to automatically trigger un-publication."
+                  help: PLUGIN_ADMIN.UNPUBLISHED_DATE_HELP
 
-
-
-            meta:
-              type: section
-              title: Metadata
-              underline: true
-
-              fields:
-                header.metadata.description:
-                  type: textarea
+                header.metadata:
                   toggleable: true
-                  label: Description
-                  default:
-                  validate:
-                    max: 155
+                  type: array
+                  label: PLUGIN_ADMIN.METADATA
+                  help: PLUGIN_ADMIN.METADATA_HELP
+                  placeholder_key: PLUGIN_ADMIN.METADATA_KEY
+                  placeholder_value: PLUGIN_ADMIN.METADATA_VALUE
 
-                header.metadata.keywords:
-                  type: text
-                  toggleable: true
-                  label: Keywords
-                  validate:
-                    max: 120
-
-                header.metadata.author:
-                  type: text
-                  toggleable: true
-                  label: Author
-                  validate:
-                    max: 120
-
-                header.metadata.robots:
-                  type: text
-                  toggleable: true
-                  label: Robots
-                  validate:
-                    max: 120
 
             taxonomies:
               type: section
-              title: Taxonomies
+              title: PLUGIN_ADMIN.TAXONOMIES
               underline: true
 
               fields:
                 header.taxonomy:
                   type: taxonomy
-                  label: Taxonomy
+                  label: PLUGIN_ADMIN.TAXONOMY
                   multiple: true
                   validate:
                     type: array
 
         advanced:
           type: tab
-          title: Advanced
+          title: PLUGIN_ADMIN.ADVANCED
 
           fields:
             columns:
@@ -145,73 +115,86 @@ form:
 
                     settings:
                       type: section
-                      title: Settings
+                      title: PLUGIN_ADMIN.SETTINGS
                       underline: true
 
-                    header.body_classes:
-                      type: text
-                      label: Body Classes
-
+                    ordering:
+                      type: toggle
+                      label: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX
+                      help: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX_HELP
+                      highlight: 1
+                      options:
+                        1: PLUGIN_ADMIN.ENABLED
+                        0: PLUGIN_ADMIN.DISABLED
+                      validate:
+                        type: bool
 
                     folder:
                       type: text
-                      label: Folder Name
+                      label: PLUGIN_ADMIN.FOLDER_NAME
                       validate:
                         type: slug
 
                     route:
                       type: select
-                      label: Parent
+                      label: PLUGIN_ADMIN.PARENT
                       classes: fancy
                       @data-options: '\Grav\Common\Page\Pages::parents'
                       @data-default: '\Grav\Plugin\admin::route'
                       options:
-                        '/': '- Root -'
+                        '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
 
                     type:
                       type: templates
                       classes: fancy
-                      label: Display Template
+                      label: PLUGIN_ADMIN.DISPLAY_TEMPLATE
                       default: default
                       @data-options: '\Grav\Common\Page\Pages::types'
+
+                    header.body_classes:
+                      type: text
+                      label: PLUGIN_ADMIN.BODY_CLASSES
 
 
                 column2:
                   type: column
 
                   fields:
+                    order_title:
+                      type: section
+                      title: PLUGIN_ADMIN.ORDERING
+                      underline: true
+
                     order:
                       type: order
-                      label: Ordering
+                      label: PLUGIN_ADMIN.PAGE_ORDER
                       sitemap:
 
             overrides:
               type: section
-              title: Overrides
+              title: PLUGIN_ADMIN.OVERRIDES
               underline: true
 
               fields:
 
                 header.menu:
                   type: text
-                  label: Menu
+                  label: PLUGIN_ADMIN.MENU
                   toggleable: true
-                  help: "The string to be used in a menu.  If not set, <b>Title</b> will be used."
+                  help: PLUGIN_ADMIN.MENU_HELP
 
                 header.slug:
                   type: text
-                  label: Slug
+                  label: PLUGIN_ADMIN.SLUG
                   toggleable: true
-                  help: "The slug variable allows you to specifically set the page's portion of the URL"
+                  help: PLUGIN_ADMIN.SLUG_HELP
                   validate:
-                    message: A slug must contain only lowercase alphanumeric characters and dashes
+                    message: PLUGIN_ADMIN.SLUG_VALIDATE_MESSAGE
                     rule: slug
-
-
 
                 header.process:
                   type: checkboxes
-                  label: Process
+                  label: PLUGIN_ADMIN.PROCESS
                   toggleable: true
                   @config-default: system.pages.process
                   default:
@@ -225,49 +208,45 @@ form:
                 header.child_type:
                   type: select
                   toggleable: true
-                  label: Default Child Type
+                  label: PLUGIN_ADMIN.DEFAULT_CHILD_TYPE
                   default: default
-                  placeholder: Use Global
+                  placeholder: PLUGIN_ADMIN.USE_GLOBAL
                   @data-options: '\Grav\Common\Page\Pages::types'
-
-                header.visible:
-                  type: toggle
-                  toggleable: true
-                  label: Visible
-                  help: "Determines if a page is visible in the navigation."
-                  highlight: 1
-                  options:
-                    1: Enabled
-                    0: Disabled
-                  validate:
-                    type: bool
 
                 header.routable:
                   type: toggle
                   toggleable: true
-                  label: Routable
-                  help: If this page is reachable by a URL
+                  label: PLUGIN_ADMIN.ROUTABLE
+                  help: PLUGIN_ADMIN.ROUTABLE_HELP
                   highlight: 1
                   options:
-                    1: Enabled
-                    0: Disabled
+                    1: PLUGIN_ADMIN.ENABLED
+                    0: PLUGIN_ADMIN.DISABLED
                   validate:
                     type: bool
 
                 header.cache_enable:
                   type: toggle
                   toggleable: true
-                  label: Caching
+                  label: PLUGIN_ADMIN.CACHING
                   highlight: 1
                   options:
-                    1: Enabled
-                    0: Disabled
+                    1: PLUGIN_ADMIN.ENABLED
+                    0: PLUGIN_ADMIN.DISABLED
                   validate:
                     type: bool
 
-
-
-
+                header.visible:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.VISIBLE
+                  help: PLUGIN_ADMIN.VISIBLE_HELP
+                  highlight: 1
+                  options:
+                    1: PLUGIN_ADMIN.ENABLED
+                    0: PLUGIN_ADMIN.DISABLED
+                  validate:
+                    type: bool
 
                 header.order_by:
                   type: hidden
