@@ -1779,7 +1779,6 @@ class Page
      * @param bool    $all
      *
      * @return \Grav\Common\Page\Page page you were looking for if it exists
-     * @deprecated
      */
     public function find($url, $all = false)
     {
