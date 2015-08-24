@@ -89,8 +89,8 @@ form:
                    type: array
                    label: PLUGIN_ADMIN.METADATA
                    help: PLUGIN_ADMIN.METADATA_HELP
-                   placeholder_key: PLUGIN_ADMIN.NAME
-                   placeholder_value: PLUGIN_ADMIN.CONTENT
+                   placeholder_key: PLUGIN_ADMIN.METADATA_KEY
+                   placeholder_value: PLUGIN_ADMIN.METADATA_VALUE
 
         routes:
             type: section

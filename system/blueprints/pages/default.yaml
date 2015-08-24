@@ -79,40 +79,14 @@ form:
                   toggleable: true
                   help: PLUGIN_ADMIN.UNPUBLISHED_DATE_HELP
 
-            meta:
-              type: section
-              title: PLUGIN_ADMIN.METADATA
-              underline: true
-
-              fields:
-                header.metadata.description:
-                  type: textarea
+                header.metadata:
                   toggleable: true
-                  label: PLUGIN_ADMIN.DESCRIPTION
-                  default:
-                  validate:
-                    max: 155
+                  type: array
+                  label: PLUGIN_ADMIN.METADATA
+                  help: PLUGIN_ADMIN.METADATA_HELP
+                  placeholder_key: PLUGIN_ADMIN.METADATA_KEY
+                  placeholder_value: PLUGIN_ADMIN.METADATA_VALUE
 
-                header.metadata.keywords:
-                  type: text
-                  toggleable: true
-                  label: PLUGIN_ADMIN.KEYWORDS
-                  validate:
-                    max: 120
-
-                header.metadata.author:
-                  type: text
-                  toggleable: true
-                  label: PLUGIN_ADMIN.AUTHOR
-                  validate:
-                    max: 120
-
-                header.metadata.robots:
-                  type: text
-                  toggleable: true
-                  label: PLUGIN_ADMIN.ROBOTS
-                  validate:
-                    max: 120
 
             taxonomies:
               type: section
