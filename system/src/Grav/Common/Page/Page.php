@@ -1710,7 +1710,7 @@ class Page
      */
     public function active()
     {
-        $uri_path = rtrim(self::getGrav()['uri']->path(), '/');
+        $uri_path = rtrim(self::getGrav()['uri']->path(), '/') ?: '/';
         $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
