@@ -1,3 +1,10 @@
+# v0.9.39
+## 08/25/2015
+
+1. [](#bugfix)
+    * `Page.active()` not triggering on **homepage**
+    * Fix for invalid session name in Opera browser
+
 # v0.9.38
 ## 08/24/2015
 
