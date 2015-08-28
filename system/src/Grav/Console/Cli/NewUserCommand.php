@@ -53,7 +53,7 @@ class NewUserCommand extends Command
         $question->setValidator(function ($value) {
             if (!preg_match('/^[a-z0-9_-]{3,16}$/', $value)) {
                 throw new RuntimeException(
-                    'Username should be between 3 and 16 comprised of lowercase letters, numbers, underscores and hyphens'
+                    'Username should be between 3 and 16 characters, including lowercase letters, numbers, underscores, and hyphens. Uppercase letters, spaces, and special characters are not allowed'
                 );
             }
             if (file_exists(self::getGrav()['locator']->findResource('user://accounts/' . $value . YAML_EXT))) {

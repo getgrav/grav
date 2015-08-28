@@ -58,7 +58,7 @@ form:
                     default: "jS M Y"
                     options:
                         "F jS \\a\\t g:ia": Date1
-                        "l jS of F g:i A": Date2
+                        "l jS \\of F g:i A": Date2
                         "D, m M Y G:i:s": Date3
                         "d-m-y G:i": Date4
                         "jS M Y": Date5
@@ -71,7 +71,7 @@ form:
                     help: PLUGIN_ADMIN.LONG_DATE_FORMAT_HELP
                     options:
                         "F jS \\a\\t g:ia": Date1
-                        "l jS of F g:i A": Date2
+                        "l jS \\of F g:i A": Date2
                         "D, m M Y G:i:s": Date3
                         "d-m-y G:i": Date4
                         "jS M Y": Date5
@@ -324,7 +324,7 @@ form:
                     size: small
                     classes: fancy
                     label: PLUGIN_ADMIN.CACHE_CHECK_METHOD
-                    help: PLUGIN_ADMIN.CACHE_CHECK_METHOD
+                    help: PLUGIN_ADMIN.CACHE_CHECK_METHOD_HELP
                     options:
                         file: File
                         folder: Folder

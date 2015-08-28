@@ -1737,7 +1737,7 @@ class Page
 
         if (isset($routes[$uri_path])) {
             $child_page = $pages->dispatch($uri->route())->parent();
-            while (!$child_page->root()) {
+            if ($child_page) while (!$child_page->root()) {
                 if ($this->path() == $child_page->path()) {
                     return true;
                 }
