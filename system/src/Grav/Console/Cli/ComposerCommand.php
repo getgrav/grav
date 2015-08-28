@@ -68,7 +68,7 @@ class ComposerCommand extends Command
     {
         $this->setupConsole($input, $output);
 
-        $action = 'update';
+        $action = $input->getOption('install') ? 'install' : ($input->getOption('update') ? 'update' : 'install');
 
         if ($input->getOption('install')) {
             $action = 'install';

@@ -1,5 +1,4 @@
 # Composer
-composer.lock
 .composer
 vendor/
 
