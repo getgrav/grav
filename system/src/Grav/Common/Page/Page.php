@@ -1657,7 +1657,10 @@ class Page
     public function isFirst()
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->isFirst($this->path());
+        if ($collection instanceof Collection) {
+            return $collection->isFirst($this->path());
+        }
+        return true;
     }
 
     /**
@@ -1668,7 +1671,10 @@ class Page
     public function isLast()
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->isLast($this->path());
+        if ($collection instanceof Collection) {
+            return $collection->isLast($this->path());
+        }
+        return true;
     }
 
     /**
@@ -1700,7 +1706,10 @@ class Page
     public function adjacentSibling($direction = 1)
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->adjacentSibling($this->path(), $direction);
+        if ($collection instanceof Collection) {
+            return $collection->adjacentSibling($this->path(), $direction);
+        }
+        return false;
     }
 
     /**
