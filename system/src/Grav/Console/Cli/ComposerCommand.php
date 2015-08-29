@@ -54,8 +54,8 @@ class ComposerCommand extends Command
                 InputOption::VALUE_NONE,
                 'update the dependencies'
             )
-            ->setDescription("Updates the composer vendordependencies needed by Grav.")
-            ->setHelp('The <info>composer</info> command updates the composer vendordependencies needed by Grav');
+            ->setDescription("Updates the composer vendor dependencies needed by Grav.")
+            ->setHelp('The <info>composer</info> command updates the composer vendor dependencies needed by Grav');
     }
 
     /**
