@@ -23,6 +23,7 @@ form:
           fields:
             header.title:
               type: text
+              autofocus: true
               style: vertical
               label: PLUGIN_ADMIN.TITLE
 
