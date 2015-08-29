@@ -623,8 +623,12 @@ class Page
             $regex = '/^[0-9]+\./u';
             return preg_replace($regex, '', $this->folder);
         }
-        if ($name == 'type') {
-            return $this->template();
+        if ($name == 'name') {
+            $name_val = str_replace('.md', '', $this->name());
+            if ($this->modular()) {
+                return 'modular/' . $name_val;
+            }
+            return $name_val;
         }
         if ($name == 'media') {
             return $this->media()->all();

@@ -76,7 +76,7 @@ form:
                       validate:
                         required: true
 
-                    type:
+                    name:
                       type: select
                       classes: fancy
                       label: PLUGIN_ADMIN.MODULAR_TEMPLATE

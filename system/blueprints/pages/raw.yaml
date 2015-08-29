@@ -73,7 +73,7 @@ form:
                       options:
                         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
 
-                    type:
+                    name:
                       type: select
                       classes: fancy
                       label: PLUGIN_ADMIN.DISPLAY_TEMPLATE
