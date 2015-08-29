@@ -78,7 +78,7 @@ form:
 
                 pages.order.by:
                     type: select
-                    size: medium
+                    size: long
                     classes: fancy
                     label: PLUGIN_ADMIN.DEFAULT_ORDERING
                     help: PLUGIN_ADMIN.DEFAULT_ORDERING_HELP
