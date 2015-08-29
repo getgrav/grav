@@ -5,4 +5,5 @@
 * triggering .30 release again
 * triggering a rebuild with latest plugins and such
 * force rebuild for antimatter update
-* fore build for update package + plugins/themes with blueprints
+* force build for update package + plugins/themes with blueprints
+* force build for pagination update
