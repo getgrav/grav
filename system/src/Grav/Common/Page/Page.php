@@ -1843,7 +1843,7 @@ class Page
                     }
                     foreach ($items as $item) {
                         if (empty($page->taxonomy[$taxonomy])
-                            || !in_array($item, $page->taxonomy[$taxonomy])) {
+                            || !in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy])) {
                             $collection->remove();
                         }
                     }
