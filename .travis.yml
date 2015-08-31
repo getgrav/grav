@@ -53,7 +53,7 @@ script:
       for file in ${FILES[@]}; do
         NAME=${file##*/};
         REPO="$(echo ${NAME} | rev | cut -f 2- -d "-" | rev)";
-        if [[ $REPO == 'grav' || $REPO == 'grav-update' ]]; then
+        if [[ $REPO == 'grav' || $REPO == 'grav-admin' || $REPO == 'grav-update' ]]; then
           REPO="grav";
         fi;
         API="$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/${GH_USER}/${REPO}/releases/latest)";
