@@ -38,11 +38,11 @@ form:
       validate:
         required: true
 
-    type:
+    name:
       type: select
-      label: PLUGIN_ADMIN.DISPLAY_TEMPLATE
-      help: PLUGIN_ADMIN.DISPLAY_TEMPLATE_HELP
       classes: fancy
+      label: PLUGIN_ADMIN.PAGE_FILE
+      help: PLUGIN_ADMIN.PAGE_FILE_HELP
       default: default
       @data-options: '\Grav\Common\Page\Pages::types'
       validate:

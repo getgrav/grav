@@ -623,8 +623,12 @@ class Page
             $regex = '/^[0-9]+\./u';
             return preg_replace($regex, '', $this->folder);
         }
-        if ($name == 'type') {
-            return $this->template();
+        if ($name == 'name') {
+            $name_val = str_replace('.md', '', $this->name());
+            if ($this->modular()) {
+                return 'modular/' . $name_val;
+            }
+            return $name_val;
         }
         if ($name == 'media') {
             return $this->media()->all();
@@ -1657,7 +1661,10 @@ class Page
     public function isFirst()
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->isFirst($this->path());
+        if ($collection instanceof Collection) {
+            return $collection->isFirst($this->path());
+        }
+        return true;
     }
 
     /**
@@ -1668,7 +1675,10 @@ class Page
     public function isLast()
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->isLast($this->path());
+        if ($collection instanceof Collection) {
+            return $collection->isLast($this->path());
+        }
+        return true;
     }
 
     /**
@@ -1700,7 +1710,10 @@ class Page
     public function adjacentSibling($direction = 1)
     {
         $collection = $this->parent()->collection('content', false);
-        return $collection->adjacentSibling($this->path(), $direction);
+        if ($collection instanceof Collection) {
+            return $collection->adjacentSibling($this->path(), $direction);
+        }
+        return false;
     }
 
     /**
@@ -1737,7 +1750,7 @@ class Page
 
         if (isset($routes[$uri_path])) {
             $child_page = $pages->dispatch($uri->route())->parent();
-            while (!$child_page->root()) {
+            if ($child_page) while (!$child_page->root()) {
                 if ($this->path() == $child_page->path()) {
                     return true;
                 }
@@ -1830,7 +1843,7 @@ class Page
                     }
                     foreach ($items as $item) {
                         if (empty($page->taxonomy[$taxonomy])
-                            || !in_array($item, $page->taxonomy[$taxonomy])) {
+                            || !in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy])) {
                             $collection->remove();
                         }
                     }

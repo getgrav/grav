@@ -54,8 +54,8 @@ class ComposerCommand extends Command
                 InputOption::VALUE_NONE,
                 'update the dependencies'
             )
-            ->setDescription("Updates the composer vendordependencies needed by Grav.")
-            ->setHelp('The <info>composer</info> command updates the composer vendordependencies needed by Grav');
+            ->setDescription("Updates the composer vendor dependencies needed by Grav.")
+            ->setHelp('The <info>composer</info> command updates the composer vendor dependencies needed by Grav');
     }
 
     /**
@@ -68,7 +68,7 @@ class ComposerCommand extends Command
     {
         $this->setupConsole($input, $output);
 
-        $action = 'update';
+        $action = $input->getOption('install') ? 'install' : ($input->getOption('update') ? 'update' : 'install');
 
         if ($input->getOption('install')) {
             $action = 'install';

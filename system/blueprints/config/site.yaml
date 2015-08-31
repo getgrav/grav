@@ -60,9 +60,9 @@ form:
                     label: PLUGIN_ADMIN.SUMMARY_SIZE
                     help: PLUGIN_ADMIN.SUMMARY_SIZE_HELP
                     validate:
-                    type: int
-                    min: 0
-                    max: 65536
+                        type: int
+                        min: 0
+                        max: 65536
 
                 summary.format:
                     type: toggle

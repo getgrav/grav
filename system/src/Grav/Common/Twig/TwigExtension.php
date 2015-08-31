@@ -55,9 +55,12 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
+            new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter']),
             new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
+            new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
+            new \Twig_SimpleFilter('ltrim', [$this, 'ltrimFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
             new \Twig_SimpleFilter('t', [$this, 'translate']),
             new \Twig_SimpleFilter('ta', [$this, 'translateArray'])
@@ -370,6 +373,25 @@ class TwigExtension extends \Twig_Extension
         return Utils::endsWith($haystack, $needle);
     }
 
+    public function definedDefaultFilter($value, $default = null)
+    {
+        if (isset($value)) {
+            return $value;
+        } else {
+            return $default;
+        }
+    }
+
+    public function rtrimFilter($value, $chars = null)
+    {
+        return rtrim($value, $chars);
+    }
+
+    public function ltrimFilter($value, $chars = null)
+    {
+        return ltrim($value, $chars);
+    }
+
     public function translate()
     {
          return $this->grav['language']->translate(func_get_args());
@@ -379,6 +401,8 @@ class TwigExtension extends \Twig_Extension
     {
         return $this->grav['language']->translateArray($key, $index, $lang);
     }
+
+
 
 
     /**
