@@ -120,12 +120,13 @@ class TwigExtension extends \Twig_Extension
      * Truncate content by a limit.
      *
      * @param  string $string
-     * @param  int    $limit    Max number of characters.
-     * @param  string $break    Break point.
-     * @param  string $pad      Appended padding to the end of the string.
+     * @param  int $limit Max number of characters.
+     * @param  bool $up_to_break truncate up to breakpoint after char count
+     * @param  string $break Break point.
+     * @param  string $pad Appended padding to the end of the string.
      * @return string
      */
-    public function truncateFilter($string, $limit = 150, $break = ".", $pad = "&hellip;")
+    public function truncateFilter($string, $limit = 150, $up_to_break = false, $break = ".", $pad = "&hellip;")
     {
         // return with no change if string is shorter than $limit
         if (strlen($string) <= $limit) {
@@ -133,10 +134,12 @@ class TwigExtension extends \Twig_Extension
         }
 
         // is $break present between $limit and the end of the string?
-        if (false !== ($breakpoint = strpos($string, $break, $limit))) {
+        if ($up_to_break && false !== ($breakpoint = strpos($string, $break, $limit))) {
             if ($breakpoint < strlen($string) - 1) {
                 $string = substr($string, 0, $breakpoint) . $pad;
             }
+        } else {
+            $string = substr($string, 0, $limit) . $pad;
         }
 
         return $string;
