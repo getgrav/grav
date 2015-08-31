@@ -373,7 +373,7 @@ class TwigExtension extends \Twig_Extension
         return Utils::endsWith($haystack, $needle);
     }
 
-    public function definedDefaultFilter($value, $default)
+    public function definedDefaultFilter($value, $default = null)
     {
         if (isset($value)) {
             return $value;
