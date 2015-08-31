@@ -136,7 +136,7 @@ class TwigExtension extends \Twig_Extension
         // is $break present between $limit and the end of the string?
         if ($up_to_break && false !== ($breakpoint = strpos($string, $break, $limit))) {
             if ($breakpoint < strlen($string) - 1) {
-                $string = substr($string, 0, $breakpoint) . $pad;
+                $string = substr($string, 0, $breakpoint) . $break;
             }
         } else {
             $string = substr($string, 0, $limit) . $pad;
