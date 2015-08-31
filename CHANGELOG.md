@@ -1,3 +1,19 @@
+# v0.9.40
+## 08/31/2015
+
+1. [](#new)
+    * Added some new Twig filers: `defined`, `rtrim`, `ltrim`
+    * Admin support for customizable page file name + template override
+1. [](#improved)
+    * Better message for incompatible/unsupported Twig template
+    * Improved User blueprints with better help
+    * Switched to composer **install** rather than **update** by default
+    * Admin autofocus on page title
+    * `.htaccess` hardening (`.htaccess` & `htaccess.txt`)
+    * Cache safety checks for missing folders
+1. [](#bugfix)
+    * Fixed issue with unescaped `o` character in date formats
+
 # v0.9.39
 ## 08/25/2015
 
