@@ -239,18 +239,19 @@ class Cache extends Getters
             $anything = false;
             $files = glob(ROOT_DIR . $path . '*');
 
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    if (@unlink($file)) {
-                        $anything = true;
-                    }
-                } elseif (is_dir($file)) {
-                    if (@Folder::delete($file)) {
-                        $anything = true;
+            if (is_array($files)) {
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        if (@unlink($file)) {
+                            $anything = true;
+                        }
+                    } elseif (is_dir($file)) {
+                        if (@Folder::delete($file)) {
+                            $anything = true;
+                        }
                     }
                 }
             }
-
 
             if ($anything) {
                 $output[] = '<red>Cleared:  </red>' . $path . '*';
