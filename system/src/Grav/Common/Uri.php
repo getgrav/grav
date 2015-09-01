@@ -31,7 +31,6 @@ class Uri
      */
     public function __construct()
     {
-
         $base = 'http://';
         $name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
@@ -80,6 +79,11 @@ class Uri
         $config = $grav['config'];
         $language = $grav['language'];
 
+        // If configured to, redirect trailing slash URI's with a 301 redirect
+        if ($config->get('system.pages.redirect_trailing_slash', false) && $this->url != '/' && Utils::endsWith($this->url, '/')) {
+            $grav->redirect(rtrim($this->url, '/'), 301);
+        }
+
         // resets
         $this->paths = [];
         $this->params = [];
@@ -104,6 +108,7 @@ class Uri
                 $grav->redirect($language->getLanguage() . '/');
             }
         }
+
 
         // split the URL and params
         $bits = parse_url($uri);

@@ -46,6 +46,7 @@ pages:
   etag: false                          # Set the etag header tag
   vary_accept_encoding: false          # Add `Vary: Accept-Encoding` header
   redirect_default_route: false        # Automatically redirect to a page's default route
+  redirect_trailing_slash:  true       # Handle automatically or 301 redirect a trailing / URL
 
 cache:
   enabled: true                        # Set to true to enable caching
