@@ -79,11 +79,6 @@ class Uri
         $config = $grav['config'];
         $language = $grav['language'];
 
-        // If configured to, redirect trailing slash URI's with a 301 redirect
-        if ($config->get('system.pages.redirect_trailing_slash', false) && $this->url != '/' && Utils::endsWith($this->url, '/')) {
-            $grav->redirect(rtrim($this->url, '/'), 301);
-        }
-
         // resets
         $this->paths = [];
         $this->params = [];
@@ -92,6 +87,11 @@ class Uri
 
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
+
+        // If configured to, redirect trailing slash URI's with a 301 redirect
+        if ($config->get('system.pages.redirect_trailing_slash', false) && $uri != '/' && Utils::endsWith($uri, '/')) {
+            $grav->redirect(rtrim($uri, '/'), 301);
+        }
 
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
