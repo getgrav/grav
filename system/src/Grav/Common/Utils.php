@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use DateTime;
+use DateTimeZone;
 use RocketTheme\Toolbox\Event\Event;
 
 /**
@@ -449,6 +451,24 @@ abstract class Utils
         return false;
     }
 
+    public static function date2timestamp($date)
+    {
+        $config = self::getGrav()['config'];
+        $default_dateformat = $config->get('system.pages.dateformat.default');
 
+        // try to use DateTime and default format
+        if ($default_dateformat) {
+            $datetime = DateTime::createFromFormat($default_dateformat, $date);
+        } else {
+            $datetime = new DateTime($date);
+        }
+
+        // fallback to strtotime if DateTime approach failed
+        if ($datetime !== false) {
+            return $datetime->getTimestamp();
+        } else {
+            return strtotime($date);
+        }
+    }
 
 }

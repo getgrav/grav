@@ -305,7 +305,7 @@ class Page
                 $this->order_manual = (array)$this->header->order_manual;
             }
             if (isset($this->header->date)) {
-                $this->date = strtotime($this->header->date);
+                $this->date($this->header->date);
             }
             if (isset($this->header->markdown_extra)) {
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
@@ -327,10 +327,10 @@ class Page
                 $this->published = (bool) $this->header->published;
             }
             if (isset($this->header->publish_date)) {
-                $this->publish_date = strtotime($this->header->publish_date);
+                $this->publishDate($this->header->publish_date);
             }
             if (isset($this->header->unpublish_date)) {
-                $this->unpublish_date = strtotime($this->header->unpublish_date);
+                $this->unpublishDate($this->header->unpublish_date);
             }
             if (isset($this->header->expires)) {
                 $this->expires = intval($this->header->expires);
@@ -1051,7 +1051,7 @@ class Page
     public function publishDate($var = null)
     {
         if ($var !== null) {
-            $this->publish_date = strtotime($var);
+            $this->publish_date = Utils::date2timestamp($var);
         }
 
         if ($this->publish_date === null) {
@@ -1070,7 +1070,7 @@ class Page
     public function unpublishDate($var = null)
     {
         if ($var !== null) {
-            $this->unpublish_date = strtotime($var);
+            $this->unpublish_date = Utils::date2timestamp($var);
         }
 
         return $this->unpublish_date;
@@ -1487,7 +1487,7 @@ class Page
     public function date($var = null)
     {
         if ($var !== null) {
-            $this->date = strtotime($var);
+            $this->date = Utils::date2timestamp($var);
         }
 
         if (!$this->date) {

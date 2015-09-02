@@ -49,6 +49,13 @@ form:
                     options:
                         '': 'Default (Server Timezone)'
 
+                pages.dateformat.default:
+                    type: text
+                    size: medium
+                    label: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT
+                    help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
+                    placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
+
                 pages.dateformat.short:
                     type: dateformat
                     size: medium

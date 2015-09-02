@@ -23,6 +23,7 @@ pages:
   list:
     count: 20                          # Default item count per page
   dateformat:
+    default:                           # The default date format Grav expects in the `date: ` field
     short: 'jS M Y'                    # Short date format
     long: 'F jS \a\t g:ia'             # Long date format
   publish_dates: true                  # automatically publish/unpublish based on dates

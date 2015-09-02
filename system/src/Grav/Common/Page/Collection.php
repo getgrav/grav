@@ -3,6 +3,7 @@ namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
+use Grav\Common\Utils;
 
 /**
  * Collection of Pages.
@@ -225,8 +226,8 @@ class Collection extends Iterator
      */
     public function dateRange($startDate, $endDate = false, $field = false)
     {
-        $start = strtotime($startDate);
-        $end = $endDate ? strtotime($endDate) : strtotime("now +1000 years");
+        $start = Utils::date2timestamp($startDate);
+        $end = $endDate ? Utils::date2timestamp($endDate) : strtotime("now +1000 years");
 
         $date_range = [];
 
