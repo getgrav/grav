@@ -1,5 +1,6 @@
 <?php
 namespace Grav\Common\Data;
+use Grav\Common\GravTrait;
 
 /**
  * Data validation.
@@ -9,6 +10,8 @@ namespace Grav\Common\Data;
  */
 class Validation
 {
+    use GravTrait;
+
     /**
      * Validate value against a blueprint field definition.
      *
@@ -287,6 +290,17 @@ class Validation
     {
         return (int) $value;
     }
+
+    protected static function filterDateTime($value, array $params, array $field)
+    {
+        $format = self::getGrav()['config']->get('system.pages.dateformat.default');
+        if ($format) {
+            $converted = new \DateTime($value);
+            return $converted->format($format);
+        }
+        return $value;
+    }
+
 
     /**
      * HTML5 input: range
