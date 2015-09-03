@@ -5,6 +5,7 @@ use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Page;
 use Grav\Common\Inflector;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -327,8 +328,13 @@ class Twig
             $output = $this->twig->render($template, $twig_vars);
         } catch (\Twig_Error_Loader $e) {
             // If loader error, and not .html.twig, try it as fallback
-            $inflector = new Inflector();
-            $error_msg = 'The template file for this page: "' . $page->template().'.html'.TWIG_EXT.'" is not provided by the theme: "'. $inflector->titleize($config->get('system.pages.theme')) .'"';
+            if (Utils::contains($e->getMessage(), $template)) {
+                $inflector = new Inflector();
+                $error_msg = 'The template file for this page: "' . $template.'" is not provided by the theme: "'. $inflector->titleize($config->get('system.pages.theme')) .'"';
+            } else {
+                $error_msg = $e->getMessage();
+            }
+            // Try html version of this template if initial template was NOT html
             if ($ext != '.html'.TWIG_EXT) {
                 try {
                     $output = $this->twig->render($page->template().'.html'.TWIG_EXT, $twig_vars);
