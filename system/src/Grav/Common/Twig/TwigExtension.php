@@ -2,6 +2,7 @@
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
+use Grav\Common\Helpers\Truncator;
 use Grav\Common\Inflector;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
@@ -49,6 +50,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
             new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
             new \Twig_SimpleFilter('truncate', [$this,'truncateFilter']),
+            new \Twig_SimpleFilter('truncate_html', [$this,'truncateHTMLFilter']),
             new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
             new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
             new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
@@ -117,7 +119,7 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
-     * Truncate content by a limit.
+     * Truncate content by a character limit.
      *
      * @param  string $string
      * @param  int $limit Max number of characters.
@@ -129,20 +131,35 @@ class TwigExtension extends \Twig_Extension
     public function truncateFilter($string, $limit = 150, $up_to_break = false, $break = ".", $pad = "&hellip;")
     {
         // return with no change if string is shorter than $limit
-        if (strlen($string) <= $limit) {
+        if (mb_strlen($string) <= $limit) {
             return $string;
         }
 
         // is $break present between $limit and the end of the string?
-        if ($up_to_break && false !== ($breakpoint = strpos($string, $break, $limit))) {
-            if ($breakpoint < strlen($string) - 1) {
-                $string = substr($string, 0, $breakpoint) . $break;
+        if ($up_to_break && false !== ($breakpoint = mb_strpos($string, $break, $limit))) {
+            if ($breakpoint < mb_strlen($string) - 1) {
+                $string = mb_substr($string, 0, $breakpoint) . $break;
             }
         } else {
-            $string = substr($string, 0, $limit) . $pad;
+            $string = mb_substr($string, 0, $limit) . $pad;
         }
 
         return $string;
+    }
+
+    /***
+     * Truncate HTML content by a character limit
+     *
+     * @param $string
+     * @param int $limit
+     * @param bool $chars   limit in characters? else words
+     * @return string
+     * @throws \Grav\Common\Helpers\InvalidHtmlException
+     * @internal param string $pad
+     */
+    public function truncateHtmlFilter($string, $limit = 150, $chars = true)
+    {
+        return Truncator::truncate($string, $limit, ['length_in_chars' => $chars]);
     }
 
 
