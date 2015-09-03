@@ -21,6 +21,7 @@ form:
             frontmatter:
               type: frontmatter
               label: PLUGIN_ADMIN.FRONTMATTER
+              autofocus: true
 
             content:
               type: markdown
