@@ -84,6 +84,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
+            new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray'])
         ];
@@ -414,7 +415,7 @@ class TwigExtension extends \Twig_Extension
 
     public function translate()
     {
-         return $this->grav['language']->translate(func_get_args());
+        return $this->grav['language']->translate(func_get_args());
     }
 
     public function translateArray($key, $index, $lang = null)
@@ -529,6 +530,15 @@ class TwigExtension extends \Twig_Extension
     public function arrayFunc($value)
     {
         return (array) $value;
+    }
+
+    public function stringFunc($value)
+    {
+        if (is_array($value)) { //format the array as a string
+            return json_encode($value);
+        } else {
+            return $value;
+        }
     }
 
     public function translateFunc()
