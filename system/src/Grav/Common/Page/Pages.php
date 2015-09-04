@@ -403,10 +403,11 @@ class Pages
      */
     public static function getTypes()
     {
+        $locator = Grav::instance()['locator'];
         if (!self::$types) {
             self::$types = new Types();
-            file_exists('theme://blueprints/') && self::$types->scanBlueprints('theme://blueprints/');
-            file_exists('theme://templates/') && self::$types->scanTemplates('theme://templates/');
+            file_exists('theme://blueprints/') && self::$types->scanBlueprints($locator->findResources('theme://blueprints/'));
+            file_exists('theme://templates/') && self::$types->scanTemplates($locator->findResources('theme://templates/'));
 
             $event = new Event();
             $event->types = self::$types;
