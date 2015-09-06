@@ -1847,6 +1847,7 @@ class Page
                 $collection->setParams(['taxonomies' => [$taxonomy => $items]]);
 
                 foreach ($collection as $page) {
+                    // Don't filter modular pages
                     if ($page->modular()) {
                         continue;
                     }
@@ -1961,7 +1962,7 @@ class Page
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
                 }
-                $results = $taxonomy_map->findTaxonomy($params);
+                $results = $taxonomy_map->findTaxonomy($params)->nonModular()->published();
                 break;
         }
 
