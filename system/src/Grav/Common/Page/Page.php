@@ -101,7 +101,7 @@ class Page
         /** @var Config $config */
         $config = self::getGrav()['config'];
 
-        $this->routable = true;
+
         $this->taxonomy = array();
         $this->process = $config->get('system.pages.process');
         $this->published = true;
@@ -127,6 +127,14 @@ class Page
         $this->setPublishState();
         $this->published();
 
+        // some routable logic
+        if (empty($this->routable) && $this->modular()) {
+            $this->routable = false;
+        } else {
+            $this->routable = true;
+        }
+
+        // some extension logic
         if (empty($extension)) {
             $this->extension('.'.$file->getExtension());
         } else {
@@ -1089,6 +1097,7 @@ class Page
         if ($var !== null) {
             $this->routable = (bool) $var;
         }
+
         return $this->routable && $this->published();
     }
 
