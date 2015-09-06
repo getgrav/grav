@@ -779,7 +779,7 @@ class Page
 
         $blueprint = $pages->blueprints($this->blueprintName());
         $fields = $blueprint->fields();
-        $edit_mode = self::getGrav()['admin'] ? self::getGrav()['config']->get('plugins.admin.edit_mode') : null;
+        $edit_mode = isset(self::getGrav()['admin']) ? self::getGrav()['config']->get('plugins.admin.edit_mode') : null;
 
         // override if you only want 'normal' mode
         if (empty($fields) && ($edit_mode == 'auto' || $edit_mode == 'normal')) {
