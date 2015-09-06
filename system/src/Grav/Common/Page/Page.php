@@ -1915,7 +1915,11 @@ class Page
             $cmd = (string) key($value);
             $params = (array) current($value);
         } else {
-            return $value;
+            $result = [];
+            foreach($value as $key => $val) {
+                $result = $result + $this->evaluate([$key=>$val])->toArray();
+            }
+            return new Collection($result);
         }
 
         // We only evaluate commands which start with @
