@@ -34,7 +34,7 @@ form:
                   type: textarea
 
             uploads:
-              type: uploads
+              type: pagemedia
               label: PLUGIN_ADMIN.PAGE_MEDIA
 
         options:
