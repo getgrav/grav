@@ -73,6 +73,8 @@ class NewUserCommand extends Command
             }
             return $value;
         });
+		$question->setHidden(true);
+		$question->setHiddenFallback(false);
         $data['password'] = $helper->ask($this->input, $this->output, $question);
 
         // Get email and validate
