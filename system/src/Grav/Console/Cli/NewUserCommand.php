@@ -67,18 +67,17 @@ class NewUserCommand extends Command
         $username = $helper->ask($this->input, $this->output, $question);
 
         // Get password and validate
-        $password = $this->askForPassword($helper, 'Enter a <yellow>password</yellow>: ', function ($value) {
-            if (!preg_match('/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/', $value)) {
+        $password = $this->askForPassword($helper, 'Enter a <yellow>password</yellow>: ', function ($password1) use ($helper) {
+            if (!preg_match('/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/', $password1)) {
                 throw new RuntimeException('Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters');
             }
-            return $value;
-        });
-        // Since input is hidden when prompting for passwords, the user is asked to repeat the password
-        $this->askForPassword($helper, 'Repeat the <yellow>password</yellow>: ', function ($value) use ($password) {
-            if (strcmp($password, $value)) {
-                throw new RuntimeException('Passwords did not match.');
-            }
-            return $value;
+            // Since input is hidden when prompting for passwords, the user is asked to repeat the password
+            $this->askForPassword($helper, 'Repeat the <yellow>password</yellow>: ', function ($password2) use ($password1) {
+                if (strcmp($password2, $password1)) {
+                    throw new RuntimeException('Passwords did not match.');
+                }
+                return $password2;
+            });
         });
         $data['password'] = $password;
 
@@ -155,7 +154,7 @@ class NewUserCommand extends Command
         $question = new Question($question);
         $question->setValidator($validator);
         $question->setHidden(true);
-        $question->setHiddenFallback(false);
+        $question->setHiddenFallback(true);
         return $helper->ask($this->input, $this->output, $question);
     }
 }
