@@ -38,7 +38,7 @@ abstract class Folder
      * Recursively find the last modified time under given path by file.
      *
      * @param  string $path
-     * @param string  $extensions
+     * @param string  $extensions   which files to search for specifically
      *
      * @return int
      */

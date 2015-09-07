@@ -62,6 +62,9 @@ class Pages
      */
     protected $last_modified;
 
+    protected $ignore_files;
+    protected $ignore_folders;
+
     /**
      * @var Types
      */
@@ -101,6 +104,10 @@ class Pages
      */
     public function init()
     {
+        $config = $this->grav['config'];
+        $this->ignore_files = $config->get('system.pages.ignore_files');
+        $this->ignore_folders = $config->get('system.pages.ignore_folders');
+
         $this->buildPages();
     }
 
@@ -665,10 +672,10 @@ class Pages
 
             if ($file->isFile()) {
                 // Update the last modified if it's newer than already found
-                if ($file->getBasename() !== '.DS_Store' && ($modified = $file->getMTime()) > $last_modified) {
+                if (!in_array($file->getBasename(), $this->ignore_files) && ($modified = $file->getMTime()) > $last_modified) {
                     $last_modified = $modified;
                 }
-            } elseif ($file->isDir()) {
+            } elseif ($file->isDir() && !in_array($file->getFilename(), $this->ignore_folders)) {
                 if (!$page->path()) {
                     $page->path($file->getPath());
                 }

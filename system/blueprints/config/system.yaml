@@ -157,6 +157,24 @@ form:
                     validate:
                         type: bool
 
+                pages.ignore_files:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.IGNORE_FILES
+                    help: PLUGIN_ADMIN.IGNORE_FILES_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
+
+                pages.ignore_folders:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.IGNORE_FOLDERS
+                    help: PLUGIN_ADMIN.IGNORE_FOLDERS_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
+
         languages:
             type: section
             title: PLUGIN_ADMIN.LANGUAGES
