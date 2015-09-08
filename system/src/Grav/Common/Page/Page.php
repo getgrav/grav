@@ -1967,7 +1967,7 @@ class Page
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
                 }
-                $results = $taxonomy_map->findTaxonomy($params)->nonModular()->published();
+                $results = $taxonomy_map->findTaxonomy($params)->published();
                 break;
         }
 
