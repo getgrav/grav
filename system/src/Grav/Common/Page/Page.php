@@ -632,7 +632,8 @@ class Page
             return preg_replace($regex, '', $this->folder);
         }
         if ($name == 'name') {
-            $name_val = str_replace('.md', '', $this->name());
+            $language = $this->language() ? '.' . $this->language() : '';
+            $name_val = str_replace($language .'.md', '', $this->name());
             if ($this->modular()) {
                 return 'modular/' . $name_val;
             }
