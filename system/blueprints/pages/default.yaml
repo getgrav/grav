@@ -68,13 +68,13 @@ form:
                   toggleable: true
                   help: PLUGIN_ADMIN.DATE_HELP
 
-                header.published_date:
+                header.publish_date:
                   type: datetime
                   label: PLUGIN_ADMIN.PUBLISHED_DATE
                   toggleable: true
                   help: PLUGIN_ADMIN.PUBLISHED_DATE_HELP
 
-                header.unpublished_date:
+                header.unpublish_date:
                   type: datetime
                   label: PLUGIN_ADMIN.UNPUBLISHED_DATE
                   toggleable: true
