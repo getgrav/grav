@@ -72,7 +72,7 @@ class NewUserCommand extends Command
                 throw new RuntimeException('Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters');
             }
             // Since input is hidden when prompting for passwords, the user is asked to repeat the password
-            $this->askForPassword($helper, 'Repeat the <yellow>password</yellow>: ', function ($password2) use ($password1) {
+            return $this->askForPassword($helper, 'Repeat the <yellow>password</yellow>: ', function ($password2) use ($password1) {
                 if (strcmp($password2, $password1)) {
                     throw new RuntimeException('Passwords did not match.');
                 }
