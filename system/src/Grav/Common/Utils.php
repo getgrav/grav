@@ -84,6 +84,24 @@ abstract class Utils
         return (object)array_merge((array)$obj1, (array)$obj2);
     }
 
+    public static function dateFormats()
+    {
+        $now = new DateTime();
+
+        $date_formats = [
+            'd-m-Y H:i' => 'd-m-Y H:i (e.g. '.$now->format('d-m-Y H:i').')',
+            'Y-m-d H:i' => 'Y-m-d H:i (e.g. '.$now->format('Y-m-d H:i').')',
+            'm/d/Y h:i a' => 'm/d/Y h:i (e.g. '.$now->format('m/d/Y h:i a').')',
+            'H:i d-m-Y' => 'H:i d-m-Y (e.g. '.$now->format('H:i d-m-Y').')',
+            'h:i a m/d/Y' => 'h:i a m/d/Y (e.g. '.$now->format('h:i a m/d/Y').')',
+            ];
+        $default_format = self::getGrav()['config']->get('system.pages.dateformat.default');
+        if ($default_format) {
+            $date_formats = array_merge([$default_format => $default_format.' (e.g. '.$now->format($default_format).')'], $date_formats);
+        }
+        return $date_formats;
+    }
+
     /**
      * Truncate HTML by text length.
      *
