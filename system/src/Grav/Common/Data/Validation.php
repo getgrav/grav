@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common\Data;
 use Grav\Common\GravTrait;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Parser;
 
 /**
  * Data validation.
@@ -70,6 +72,16 @@ class Validation
         // If value isn't required, we will return null if empty value is given.
         if (empty($validate['required']) && ($value === null || $value === '')) {
             return null;
+        }
+
+        // if this is a YAML field, simply parse it and return the value
+        if (isset($field['yaml']) && $field['yaml'] == true) {
+            try {
+                $yaml = new Parser();
+                return $yaml->parse($value);
+            } catch (ParseException $e) {
+                throw new \RuntimeException($e->getMessage());
+            }
         }
 
         // Validate type with fallback type text.
