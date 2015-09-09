@@ -396,4 +396,25 @@ class Collection extends Iterator
         $this->items = $routable;
         return $this;
     }
+
+    /**
+     * Creates new collection with only pages of the specified type
+     *
+     * @return Collection The collection with only routable pages
+     */
+    public function ofType($type)
+    {
+        $routable = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->template() == $type) {
+                $routable[$path] = $slug;
+            }
+        }
+
+        $this->items = $routable;
+        return $this;
+    }
+
 }
