@@ -30,11 +30,14 @@ class Validation
             return;
         }
 
+        // Get language class
+        $language = self::getGrav()['language'];
+
         // Validate type with fallback type text.
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
         $name = ucfirst($field['label'] ? $field['label'] : $field['name']);
-        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : 'Invalid input in ' . $name;
+        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : 'Invalid input in "' . $language->translate($name) . '""';
 
         if (method_exists(__CLASS__, $method)) {
             $success = self::$method($value, $validate, $field);
