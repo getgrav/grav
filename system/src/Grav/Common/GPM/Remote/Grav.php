@@ -27,7 +27,7 @@ class Grav extends AbstractPackageCollection
         $this->version = isset($this->data['version']) ? $this->data['version'] : '-';
         $this->date = isset($this->data['date']) ? $this->data['date'] : '-';
 
-        foreach ($this->data['assets'] as $slug => $data) {
+        if (isset($this->data['assets'])) foreach ($this->data['assets'] as $slug => $data) {
             $this->items[$slug] = new Package($data);
         }
     }
