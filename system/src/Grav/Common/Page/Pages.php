@@ -359,9 +359,11 @@ class Pages
     public function all(Page $current = null)
     {
         $all = new Collection();
+
+        /** @var Page $current */
         $current = $current ?: $this->root();
 
-        if ($current->routable()) {
+        if (!$current->root()) {
             $all[$current->path()] = [ 'slug' => $current->slug() ];
         }
 
