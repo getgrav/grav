@@ -19,6 +19,12 @@ $loader = require_once $autoload;
 // Set timezone to default, falls back to system if php.ini not set
 date_default_timezone_set(@date_default_timezone_get());
 
+// Set internal encoding if mbstring loaded
+if (!extension_loaded('mbstring')) {
+    throw new \RuntimeException("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
+}
+mb_internal_encoding('UTF-8');
+
 // Get the Grav instance
 $grav = Grav::instance(
     array(
