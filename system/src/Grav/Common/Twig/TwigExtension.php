@@ -87,7 +87,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
-            new \Twig_simpleFunction('ta', [$this, 'translateArray'])
+            new \Twig_simpleFunction('ta', [$this, 'translateArray']),
+            new \Twig_simpleFunction('authorize', [$this, 'authorize'])
         ];
     }
 
@@ -483,11 +484,25 @@ class TwigExtension extends \Twig_Extension
         return Utils::generateRandomString($count);
     }
 
+    /**
+     * Cast a value to array
+     *
+     * @param $value
+     *
+     * @return array
+     */
     public function arrayFunc($value)
     {
         return (array) $value;
     }
 
+    /**
+     * Returns a string from a value. If the value is array, return it json encoded
+     *
+     * @param $value
+     *
+     * @return string
+     */
     public function stringFunc($value)
     {
         if (is_array($value)) { //format the array as a string
@@ -497,8 +512,37 @@ class TwigExtension extends \Twig_Extension
         }
     }
 
+    /**
+     * Translate a string
+     *
+     * @return string
+     */
     public function translateFunc()
     {
         return $this->grav['language']->translate(func_get_args());
+    }
+
+    /**
+     * Authorize an action. Returns true if the user is logged in and has the right to execute $action.
+     *
+     * @param string $action
+     *
+     * @return bool
+     */
+    public function authorize($action)
+    {
+        if (!$this->grav['user']->authenticated) {
+            return false;
+        }
+
+        $action = (array)$action;
+
+        foreach ($action as $a) {
+            if ($this->grav['user']->authorise($a)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
