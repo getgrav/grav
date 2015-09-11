@@ -270,11 +270,14 @@ class Pages
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
 
+        // Are we in the admin? this is important!
+        $not_admin = !isset($this->grav['admin']);
+
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && (!$page || !$page->routable() || $page->redirect())) {
+        if (!$all && $not_admin && (!$page || ($page && (!$page->routable() || $page->redirect())))) {
 
             // If the page is a simple redirect, just do it.
-            if ($page->redirect()) {
+            if ($page && $page->redirect()) {
                 $this->grav->redirectLangSafe($page->redirect());
             }
 

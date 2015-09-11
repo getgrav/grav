@@ -194,6 +194,12 @@ form:
                     message: PLUGIN_ADMIN.SLUG_VALIDATE_MESSAGE
                     rule: slug
 
+                header.redirect:
+                  type: text
+                  label: PLUGIN_ADMIN.REDIRECT
+                  toggleable: true
+                  help: PLUGIN_ADMIN.REDIRECT_HELP
+
                 header.process:
                   type: checkboxes
                   label: PLUGIN_ADMIN.PROCESS
