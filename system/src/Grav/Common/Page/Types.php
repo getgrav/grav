@@ -56,9 +56,9 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             foreach (Folder::all($path, $options) as $type) {
                 $this->register($type);
             }
-
-            if (file_exists($path . 'modular/')) {
-                foreach (Folder::all($path . 'modular/', $options) as $type) {
+            $modular_path = rtrim($path, '/') . '/modular';
+            if (file_exists($modular_path)) {
+                foreach (Folder::all($modular_path, $options) as $type) {
                     $this->register('modular/' . $type);
                 }
             }

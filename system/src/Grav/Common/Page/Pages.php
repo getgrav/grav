@@ -10,6 +10,7 @@ use Grav\Common\Language;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
+use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
@@ -457,6 +458,26 @@ class Pages
         $types = self::getTypes();
 
         return $types->modularSelect();
+    }
+
+    /**
+     * Get template types based on page type (standard or modular)
+     *
+     * @return array
+     */
+    public static function pageTypes()
+    {
+        /** @var Admin $admin */
+        $admin = Grav::instance()['admin'];
+
+        /** @var Page $page */
+        $page = $admin->getPage($admin->route);
+
+        if ($page && $page->modular()) {
+            return static::modularTypes();
+        }
+
+        return static::types();
     }
 
     /**
