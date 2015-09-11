@@ -45,28 +45,28 @@ class TwigExtension extends \Twig_Extension
     public function getFilters()
     {
         return [
-            new \Twig_SimpleFilter('fieldName', [$this,'fieldNameFilter']),
-            new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
-            new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
             new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
-            new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
-            new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
-            new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
-            new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
-            new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
-            new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
-            new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter']),
-            new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
-            new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
-            new \Twig_SimpleFilter('ltrim', [$this, 'ltrimFilter']),
+            new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
+            new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
+            new \Twig_SimpleFilter('fieldName', [$this,'fieldNameFilter']),
+            new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
+            new \Twig_SimpleFilter('ltrim', [$this, 'ltrimFilter']),
+            new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter']),
+            new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
+            new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
+            new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
+            new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
+            new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
+            new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils','safeTruncate']),
+            new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils','safeTruncateHTML']),
+            new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
+            new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
             new \Twig_SimpleFilter('t', [$this, 'translate']),
             new \Twig_SimpleFilter('ta', [$this, 'translateArray']),
             new \Twig_SimpleFilter('truncate', ['\Grav\Common\Utils','truncate']),
-            new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils','safeTruncate']),
             new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils','truncateHTML']),
-            new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils','safeTruncateHTML']),
         ];
     }
 
@@ -78,17 +78,17 @@ class TwigExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
-            new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
-            new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
-            new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
-            new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
-            new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
+            new \Twig_simpleFunction('authorize', [$this, 'authorize'])
+            new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
+            new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
+            new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
-            new \Twig_simpleFunction('authorize', [$this, 'authorize'])
+            new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
         ];
     }
 
