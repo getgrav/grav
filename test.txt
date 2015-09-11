@@ -8,3 +8,4 @@
 * force build for update package + plugins/themes with blueprints
 * force build for pagination update
 * build for saturn/boxify
+* Forgot to publish grav release
