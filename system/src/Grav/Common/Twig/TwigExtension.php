@@ -538,7 +538,7 @@ class TwigExtension extends \Twig_Extension
         $action = (array)$action;
 
         foreach ($action as $a) {
-            if ($this->grav['user']->authorise($a)) {
+            if ($this->grav['user']->authorize($a)) {
                 return true;
             }
         }
