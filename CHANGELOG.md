@@ -1,8 +1,43 @@
+# v0.9.41
+## 09/11/2015
+
+1. [](#new)
+    * New and improved multibyte-safe TruncateHTML function and filter
+    * Added support for custom page date format
+    * Added a `string` Twig filter to render as json_encoded string
+    * Added `authorize` Twig filter
+    * Added support for theme inheritance in the admin
+    * Support for multiple content collections on a page
+    * Added configurable files/folders ignores for pages
+    * Added the ability to set the default PHP locale and override via multilang configuration
+    * Added ability to save as YAML via admin
+    * Added check for `mbstring` support
+    * Added new `redirect` header for pages
+1. [](#improved)
+    * Changed dependencies from `develop` to `master`
+    * Updated logging to log everything from `debug` level on (was `warning`)
+    * Added missing `accounts/` folder
+    * Default to performing a 301 redirect for URIs with trailing slashes
+    * Improved Twig error messages
+    * Allow validating of forms from anywhere such as plugins
+    * Added logic so mouldar pages are by default non-routable
+    * Hide password input in `bin/grav newuser` command
+1. [](#bugfix)
+    * Fixed `Pages.all()` not returning modular pages
+    * Fix for modular template types not getting found
+    * Fix for `markdown_extra:` overriding `markdown:extra:` setting
+    * Fix for multisite routing
+    * Fix for multilang page name error
+    * Fixed a redirect loop in `URI` class
+    * Fixed a potential error when `unsupported_inline_types` is empty
+    * Correctly generate 2x retina image
+    * Typo fixes in page publish/unpublish blueprint
+
 # v0.9.40
 ## 08/31/2015
 
 1. [](#new)
-    * Added some new Twig filers: `defined`, `rtrim`, `ltrim`
+    * Added some new Twig filters: `defined`, `rtrim`, `ltrim`
     * Admin support for customizable page file name + template override
 1. [](#improved)
     * Better message for incompatible/unsupported Twig template
