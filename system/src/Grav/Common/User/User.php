@@ -136,6 +136,6 @@ class User extends Data
      */
     public function authorise($action)
     {
-        $this->authorize($action);
+        return $this->authorize($action);
     }
 }

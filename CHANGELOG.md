@@ -1,3 +1,9 @@
+# v0.9.42
+## 09/11/2015
+
+1. [](#bugfix)
+    * Fixed `User.authorise()` to be backwards compabile
+
 # v0.9.41
 ## 09/11/2015
 
