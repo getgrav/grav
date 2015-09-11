@@ -549,7 +549,7 @@ class Page
         }
 
         // pages.markdown_extra is deprecated, but still check it...
-        if (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null) {
+        if (!isset($defaults['extra']) && (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null)) {
             $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }
 
