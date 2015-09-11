@@ -42,6 +42,7 @@ class Page
     protected $path;
     protected $extension;
 
+    protected $id;
     protected $parent;
     protected $template;
     protected $expires;
@@ -56,7 +57,7 @@ class Page
     protected $routes;
     protected $routable;
     protected $modified;
-    protected $id;
+    protected $redirect;
     protected $items;
     protected $header;
     protected $frontmatter;
@@ -302,6 +303,9 @@ class Page
             }
             if (isset($this->header->visible)) {
                 $this->visible = (bool) $this->header->visible;
+            }
+            if (isset($this->header->redirect)) {
+                $this->redirect = trim($this->header->redirect);
             }
             if (isset($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
@@ -1391,6 +1395,20 @@ class Page
             $this->modified = $var;
         }
         return $this->modified;
+    }
+
+    /**
+     * Gets the redirect set in the header.
+     *
+     * @param  string $var redirect url
+     * @return array
+     */
+    public function redirect($var = null)
+    {
+        if ($var !== null) {
+            $this->redirect = $var;
+        }
+        return $this->redirect;
     }
 
     /**

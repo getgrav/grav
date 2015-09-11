@@ -271,7 +271,13 @@ class Pages
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
 
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && (!$page || !$page->routable())) {
+        if (!$all && (!$page || !$page->routable() || $page->redirect())) {
+
+            // If the page is a simple redirect, just do it.
+            if ($page->redirect()) {
+                $this->grav->redirectLangSafe($page->redirect());
+            }
+
             /** @var Config $config */
             $config = $this->grav['config'];
 
@@ -289,7 +295,7 @@ class Pages
                             $this->grav->redirectLangSafe($found);
                         }
                     } catch (ErrorException $e) {
-                        $this->grav['log']->error('site.redirects: '. $pattern . '-> ' . $e->getMessage());
+                        $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                     }
                 }
 
