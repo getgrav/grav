@@ -9,7 +9,7 @@
     * Added support for theme inheritance in the admin
     * Support for multiple content collections on a page
     * Added configurable files/folders ignores for pages
-    * Added the ability to set the default PHP locale and override via multilang configuration
+    * Added the ability to set the default PHP locale and override via multi-lang configuration
     * Added ability to save as YAML via admin
     * Added check for `mbstring` support
     * Added new `redirect` header for pages
@@ -20,14 +20,14 @@
     * Default to performing a 301 redirect for URIs with trailing slashes
     * Improved Twig error messages
     * Allow validating of forms from anywhere such as plugins
-    * Added logic so mouldar pages are by default non-routable
+    * Added logic so modular pages are by default non-routable
     * Hide password input in `bin/grav newuser` command
 1. [](#bugfix)
     * Fixed `Pages.all()` not returning modular pages
     * Fix for modular template types not getting found
     * Fix for `markdown_extra:` overriding `markdown:extra:` setting
-    * Fix for multisite routing
-    * Fix for multilang page name error
+    * Fix for multi-site routing
+    * Fix for multi-lang page name error
     * Fixed a redirect loop in `URI` class
     * Fixed a potential error when `unsupported_inline_types` is empty
     * Correctly generate 2x retina image
