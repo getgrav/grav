@@ -192,6 +192,13 @@ class Grav extends Container
             date_default_timezone_set($this['config']->get('system.timezone'));
         }
 
+        // Initialize Locale if set and configured
+        if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
+            setlocale(LC_ALL, $this['language']->getLanguage());
+        } elseif ($this['config']->get('system.default_locale')) {
+            setlocale(LC_ALL, $this['config']->get('system.default_locale'));
+        }
+
         $debugger->startTimer('streams', 'Streams');
         $this['streams'];
         $debugger->stopTimer('streams');
@@ -455,7 +462,7 @@ class Grav extends Container
 
             if ($extension) {
                 $download = true;
-                if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types'))) {
+                if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types', []))) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);

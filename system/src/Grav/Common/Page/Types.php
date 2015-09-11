@@ -28,12 +28,12 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
     }
 
-    public function scanBlueprints($path)
+    public function scanBlueprints($paths)
     {
-        $this->items = $this->findBlueprints($path) + $this->items;
+        $this->items = $this->findBlueprints($paths) + $this->items;
     }
 
-    public function scanTemplates($path)
+    public function scanTemplates($paths)
     {
         $options = [
             'compare' => 'Filename',
@@ -52,12 +52,15 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         // register default by default
         $this->register('default');
 
-        foreach (Folder::all($path, $options) as $type) {
-            $this->register($type);
-        }
-        if (file_exists($path . 'modular/')) {
-            foreach (Folder::all($path . 'modular/', $options) as $type) {
-                $this->register('modular/' . $type);
+        foreach ((array) $paths as $path) {
+            foreach (Folder::all($path, $options) as $type) {
+                $this->register($type);
+            }
+            $modular_path = rtrim($path, '/') . '/modular';
+            if (file_exists($modular_path)) {
+                foreach (Folder::all($modular_path, $options) as $type) {
+                    $this->register('modular/' . $type);
+                }
             }
         }
     }
@@ -88,7 +91,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         return $list;
     }
 
-    private function findBlueprints($path)
+    private function findBlueprints($paths)
     {
         $options = [
             'compare' => 'Filename',
@@ -100,6 +103,8 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             'value' => 'PathName',
         ];
 
-        return Folder::all($path, $options);
+        foreach ((array) $paths as $path) {
+            return Folder::all($path, $options);
+        }
     }
 }

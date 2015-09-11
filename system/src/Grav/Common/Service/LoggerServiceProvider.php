@@ -13,7 +13,7 @@ class LoggerServiceProvider implements ServiceProviderInterface
         $log = new Logger('grav');
         $log_file = LOG_DIR.'grav.log';
 
-        $log->pushHandler(new StreamHandler($log_file, Logger::WARNING));
+        $log->pushHandler(new StreamHandler($log_file, Logger::DEBUG));
 
         $container['log'] = $log;
     }

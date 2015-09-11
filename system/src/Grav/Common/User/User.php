@@ -117,12 +117,25 @@ class User extends Data
      * @param  string  $action
      * @return bool
      */
-    public function authorise($action)
+    public function authorize($action)
     {
         if (empty($this->items)) {
             return false;
         }
 
         return $this->get("access.{$action}") === true;
+    }
+
+    /**
+     * Checks user authorization to the action.
+     * Ensures backwards compatibility
+     *
+     * @param  string $action
+     * @deprecated use authorize()
+     * @return bool
+     */
+    public function authorise($action)
+    {
+        $this->authorize($action);
     }
 }

@@ -3,6 +3,7 @@ namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
+use Grav\Common\Utils;
 
 /**
  * Collection of Pages.
@@ -225,8 +226,8 @@ class Collection extends Iterator
      */
     public function dateRange($startDate, $endDate = false, $field = false)
     {
-        $start = strtotime($startDate);
-        $end = $endDate ? strtotime($endDate) : strtotime("now +1000 years");
+        $start = Utils::date2timestamp($startDate);
+        $end = $endDate ? Utils::date2timestamp($endDate) : strtotime("now +1000 years");
 
         $date_range = [];
 
@@ -395,4 +396,47 @@ class Collection extends Iterator
         $this->items = $routable;
         return $this;
     }
+
+    /**
+     * Creates new collection with only pages of the specified type
+     *
+     * @return Collection The collection
+     */
+    public function ofType($type)
+    {
+        $items = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page->template() == $type) {
+                $items[$path] = $slug;
+            }
+        }
+
+        $this->items = $items;
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only pages of one of the specified types
+     *
+     * @return Collection The collection
+     */
+    public function ofOneOfTheseTypes($types)
+    {
+        $items = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if (in_array($page->template(), $types)) {
+                $items[$path] = $slug;
+            }
+        }
+
+        $this->items = $items;
+        return $this;
+    }
+
+
+
 }

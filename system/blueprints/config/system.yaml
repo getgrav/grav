@@ -49,6 +49,20 @@ form:
                     options:
                         '': 'Default (Server Timezone)'
 
+                pages.dateformat.default:
+                    type: select
+                    size: medium
+                    selectize:
+                        create: true
+                    label: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT
+                    help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
+                    placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
+                    @data-options: '\Grav\Common\Utils::dateFormats'
+                    options:
+                        "": Auto Guess or Enter Custom
+                    validate:
+                        type: string
+
                 pages.dateformat.short:
                     type: dateformat
                     size: medium
@@ -139,6 +153,35 @@ form:
                     validate:
                         type: bool
 
+                pages.redirect_trailing_slash:
+                    type: toggle
+                    label: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH
+                    help: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                pages.ignore_files:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.IGNORE_FILES
+                    help: PLUGIN_ADMIN.IGNORE_FILES_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
+
+                pages.ignore_folders:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.IGNORE_FOLDERS
+                    help: PLUGIN_ADMIN.IGNORE_FOLDERS_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
+
         languages:
             type: section
             title: PLUGIN_ADMIN.LANGUAGES
@@ -202,7 +245,29 @@ form:
                 languages.home_redirect.include_route:
                     type: toggle
                     label: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_ROUTE
-                    help: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_ROUTE
+                    help: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_ROUTE_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                languages.http_accept_language:
+                    type: toggle
+                    label: PLUGIN_ADMIN.HTTP_ACCEPT_LANGUAGE
+                    help: PLUGIN_ADMIN.HTTP_ACCEPT_LANGUAGE_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                languages.override_locale:
+                    type: toggle
+                    label: PLUGIN_ADMIN.OVERRIDE_LOCALE
+                    help: PLUGIN_ADMIN.OVERRIDE_LOCALE_HELP
                     highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES

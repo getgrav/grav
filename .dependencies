@@ -2,15 +2,15 @@ git:
     problems:
         url: https://github.com/getgrav/grav-plugin-problems
         path: user/plugins/problems
-        branch: develop
+        branch: master
     error:
         url: https://github.com/getgrav/grav-plugin-error
         path: user/plugins/error
-        branch: develop
+        branch: master
     antimatter:
         url: https://github.com/getgrav/grav-theme-antimatter
         path: user/themes/antimatter
-        branch: develop
+        branch: master
 links:
     problems:
         src: grav-plugin-problems

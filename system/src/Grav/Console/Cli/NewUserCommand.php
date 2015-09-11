@@ -8,6 +8,7 @@ use Grav\Common\User\User;
 use Grav\Console\ConsoleTrait;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -66,14 +67,19 @@ class NewUserCommand extends Command
         $username = $helper->ask($this->input, $this->output, $question);
 
         // Get password and validate
-        $question = new Question('Enter a <yellow>password</yellow>: ');
-        $question->setValidator(function ($value) {
-            if (!preg_match('/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/', $value)) {
+        $password = $this->askForPassword($helper, 'Enter a <yellow>password</yellow>: ', function ($password1) use ($helper) {
+            if (!preg_match('/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/', $password1)) {
                 throw new RuntimeException('Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters');
             }
-            return $value;
+            // Since input is hidden when prompting for passwords, the user is asked to repeat the password
+            return $this->askForPassword($helper, 'Repeat the <yellow>password</yellow>: ', function ($password2) use ($password1) {
+                if (strcmp($password2, $password1)) {
+                    throw new RuntimeException('Passwords did not match.');
+                }
+                return $password2;
+            });
         });
-        $data['password'] = $helper->ask($this->input, $this->output, $question);
+        $data['password'] = $password;
 
         // Get email and validate
         $question = new Question('Enter an <yellow>email</yellow>:   ');
@@ -132,5 +138,23 @@ class NewUserCommand extends Command
 
         $this->output->writeln('');
         $this->output->writeln('<green>Success!</green> User <cyan>'. $username .'</cyan> created.');
+    }
+
+    /**
+     * Get password and validate.
+     *
+     * @param Helper    $helper
+     * @param string    $question
+     * @param callable  $validator
+     *
+     * @return string
+     */
+    protected function askForPassword(Helper $helper, $question, callable $validator)
+    {
+        $question = new Question($question);
+        $question->setValidator($validator);
+        $question->setHidden(true);
+        $question->setHiddenFallback(true);
+        return $helper->ask($this->input, $this->output, $question);
     }
 }

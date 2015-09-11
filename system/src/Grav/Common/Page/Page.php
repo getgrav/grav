@@ -42,6 +42,7 @@ class Page
     protected $path;
     protected $extension;
 
+    protected $id;
     protected $parent;
     protected $template;
     protected $expires;
@@ -56,7 +57,7 @@ class Page
     protected $routes;
     protected $routable;
     protected $modified;
-    protected $id;
+    protected $redirect;
     protected $items;
     protected $header;
     protected $frontmatter;
@@ -101,7 +102,7 @@ class Page
         /** @var Config $config */
         $config = self::getGrav()['config'];
 
-        $this->routable = true;
+
         $this->taxonomy = array();
         $this->process = $config->get('system.pages.process');
         $this->published = true;
@@ -127,6 +128,14 @@ class Page
         $this->setPublishState();
         $this->published();
 
+        // some routable logic
+        if (empty($this->routable) && $this->modular()) {
+            $this->routable = false;
+        } else {
+            $this->routable = true;
+        }
+
+        // some extension logic
         if (empty($extension)) {
             $this->extension('.'.$file->getExtension());
         } else {
@@ -295,6 +304,9 @@ class Page
             if (isset($this->header->visible)) {
                 $this->visible = (bool) $this->header->visible;
             }
+            if (isset($this->header->redirect)) {
+                $this->redirect = trim($this->header->redirect);
+            }
             if (isset($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
             }
@@ -305,7 +317,7 @@ class Page
                 $this->order_manual = (array)$this->header->order_manual;
             }
             if (isset($this->header->date)) {
-                $this->date = strtotime($this->header->date);
+                $this->date($this->header->date);
             }
             if (isset($this->header->markdown_extra)) {
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
@@ -327,10 +339,10 @@ class Page
                 $this->published = (bool) $this->header->published;
             }
             if (isset($this->header->publish_date)) {
-                $this->publish_date = strtotime($this->header->publish_date);
+                $this->publishDate($this->header->publish_date);
             }
             if (isset($this->header->unpublish_date)) {
-                $this->unpublish_date = strtotime($this->header->unpublish_date);
+                $this->unpublishDate($this->header->unpublish_date);
             }
             if (isset($this->header->expires)) {
                 $this->expires = intval($this->header->expires);
@@ -541,7 +553,7 @@ class Page
         }
 
         // pages.markdown_extra is deprecated, but still check it...
-        if (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null) {
+        if (!isset($defaults['extra']) && (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null)) {
             $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }
 
@@ -624,7 +636,8 @@ class Page
             return preg_replace($regex, '', $this->folder);
         }
         if ($name == 'name') {
-            $name_val = str_replace('.md', '', $this->name());
+            $language = $this->language() ? '.' . $this->language() : '';
+            $name_val = str_replace($language .'.md', '', $this->name());
             if ($this->modular()) {
                 return 'modular/' . $name_val;
             }
@@ -771,7 +784,7 @@ class Page
 
         $blueprint = $pages->blueprints($this->blueprintName());
         $fields = $blueprint->fields();
-        $edit_mode = self::getGrav()['admin'] ? self::getGrav()['config']->get('plugins.admin.edit_mode') : null;
+        $edit_mode = isset(self::getGrav()['admin']) ? self::getGrav()['config']->get('plugins.admin.edit_mode') : null;
 
         // override if you only want 'normal' mode
         if (empty($fields) && ($edit_mode == 'auto' || $edit_mode == 'normal')) {
@@ -1051,7 +1064,7 @@ class Page
     public function publishDate($var = null)
     {
         if ($var !== null) {
-            $this->publish_date = strtotime($var);
+            $this->publish_date = Utils::date2timestamp($var);
         }
 
         if ($this->publish_date === null) {
@@ -1070,7 +1083,7 @@ class Page
     public function unpublishDate($var = null)
     {
         if ($var !== null) {
-            $this->unpublish_date = strtotime($var);
+            $this->unpublish_date = Utils::date2timestamp($var);
         }
 
         return $this->unpublish_date;
@@ -1089,6 +1102,7 @@ class Page
         if ($var !== null) {
             $this->routable = (bool) $var;
         }
+
         return $this->routable && $this->published();
     }
 
@@ -1384,6 +1398,20 @@ class Page
     }
 
     /**
+     * Gets the redirect set in the header.
+     *
+     * @param  string $var redirect url
+     * @return array
+     */
+    public function redirect($var = null)
+    {
+        if ($var !== null) {
+            $this->redirect = $var;
+        }
+        return $this->redirect;
+    }
+
+    /**
      * Gets and sets the option to show the etag header for the page.
      *
      * @param  boolean $var show etag header
@@ -1487,7 +1515,7 @@ class Page
     public function date($var = null)
     {
         if ($var !== null) {
-            $this->date = strtotime($var);
+            $this->date = Utils::date2timestamp($var);
         }
 
         if (!$this->date) {
@@ -1838,6 +1866,7 @@ class Page
                 $collection->setParams(['taxonomies' => [$taxonomy => $items]]);
 
                 foreach ($collection as $page) {
+                    // Don't filter modular pages
                     if ($page->modular()) {
                         continue;
                     }
@@ -1905,7 +1934,11 @@ class Page
             $cmd = (string) key($value);
             $params = (array) current($value);
         } else {
-            return $value;
+            $result = [];
+            foreach($value as $key => $val) {
+                $result = $result + $this->evaluate([$key=>$val])->toArray();
+            }
+            return new Collection($result);
         }
 
         // We only evaluate commands which start with @
@@ -1952,7 +1985,7 @@ class Page
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
                 }
-                $results = $taxonomy_map->findTaxonomy($params);
+                $results = $taxonomy_map->findTaxonomy($params)->published();
                 break;
         }
 

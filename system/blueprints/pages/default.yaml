@@ -34,7 +34,7 @@ form:
                   type: textarea
 
             uploads:
-              type: uploads
+              type: pagemedia
               label: PLUGIN_ADMIN.PAGE_MEDIA
 
         options:
@@ -68,13 +68,13 @@ form:
                   toggleable: true
                   help: PLUGIN_ADMIN.DATE_HELP
 
-                header.published_date:
+                header.publish_date:
                   type: datetime
                   label: PLUGIN_ADMIN.PUBLISHED_DATE
                   toggleable: true
                   help: PLUGIN_ADMIN.PUBLISHED_DATE_HELP
 
-                header.unpublished_date:
+                header.unpublish_date:
                   type: datetime
                   label: PLUGIN_ADMIN.UNPUBLISHED_DATE
                   toggleable: true
@@ -151,7 +151,7 @@ form:
                       label: PLUGIN_ADMIN.PAGE_FILE
                       help: PLUGIN_ADMIN.PAGE_FILE_HELP
                       default: default
-                      @data-options: '\Grav\Common\Page\Pages::types'
+                      @data-options: '\Grav\Common\Page\Pages::pageTypes'
 
                     header.body_classes:
                       type: text
@@ -193,6 +193,12 @@ form:
                   validate:
                     message: PLUGIN_ADMIN.SLUG_VALIDATE_MESSAGE
                     rule: slug
+
+                header.redirect:
+                  type: text
+                  label: PLUGIN_ADMIN.REDIRECT
+                  toggleable: true
+                  help: PLUGIN_ADMIN.REDIRECT_HELP
 
                 header.process:
                   type: checkboxes

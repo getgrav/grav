@@ -6,6 +6,7 @@ form:
         content:
             type: section
             title: PLUGIN_ADMIN.DEFAULTS
+            underline: true
 
             fields:
                 title:
@@ -41,6 +42,7 @@ form:
         summary:
             type: section
             title: PLUGIN_ADMIN.PAGE_SUMMARY
+            underline: true
 
             fields:
                 summary.enabled:
@@ -83,6 +85,7 @@ form:
         metadata:
             type: section
             title: PLUGIN_ADMIN.METADATA
+            underline: true
 
             fields:
                 metadata:
@@ -95,6 +98,7 @@ form:
         routes:
             type: section
             title: PLUGIN_ADMIN.REDIRECTS_AND_ROUTES
+            underline: true
 
             fields:
                 redirects:
