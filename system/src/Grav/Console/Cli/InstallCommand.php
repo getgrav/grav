@@ -68,16 +68,18 @@ class InstallCommand extends Command
         $this->setupConsole($input, $output);
 
         $dependencies_file = '.dependencies';
-        $local_config_file = exec('eval echo ~/.grav/config');
         $this->destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : ROOT_DIR;
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
         $this->user_path = $this->destination . USER_PATH;
 
-        if (file_exists($local_config_file)) {
-            $this->local_config = Yaml::parse($local_config_file);
-            $output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
+        if (false === $this->isWindows()) {
+            $local_config_file = exec('eval echo ~/.grav/config');
+            if (file_exists($local_config_file)) {
+                $this->local_config = Yaml::parse($local_config_file);
+                $output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
+            }
         }
 
         // Look for dependencies file in ROOT and USER dir
