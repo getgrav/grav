@@ -97,6 +97,9 @@ class MediumFactory
             case 'video':
                 return new VideoMedium($items, $blueprint);
                 break;
+            case 'audio':
+                return new AudioMedium($items, $blueprint);
+                break;
             default:
                 return new Medium($items, $blueprint);
                 break;
