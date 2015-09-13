@@ -102,9 +102,11 @@ class InstallCommand extends Command
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
-        $local_config_file = exec('eval echo ~/.grav/config');
-        if (file_exists($local_config_file)) {
-            $this->local_config = Yaml::parse($local_config_file);
+        if (false === $this->isWindows()) {
+            $local_config_file = exec('eval echo ~/.grav/config');
+            if (file_exists($local_config_file)) {
+                $this->local_config = Yaml::parse($local_config_file);
+            }
         }
 
         if (
