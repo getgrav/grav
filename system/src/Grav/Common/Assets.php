@@ -194,7 +194,7 @@ class Assets
      *
      * @return $this
      */
-    public function add($asset, $priority = 10, $pipeline = true)
+    public function add($asset, $priority = null, $pipeline = null)
     {
         // More than one asset
         if (is_array($asset)) {
@@ -233,7 +233,7 @@ class Assets
      *
      * @return $this
      */
-    public function addCss($asset, $priority = 10, $pipeline = true)
+    public function addCss($asset, $priority = null, $pipeline = null)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
@@ -249,14 +249,25 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
+        $data = [
+            'asset'    => $asset,
+            'priority' => intval($priority ?: 10),
+            'order'    => count($this->css),
+            'pipeline' => $pipeline ?: true
+        ];
+
+        // check for dynamic array and merge with defaults
+        $count_args = func_num_args();
+        if (func_num_args() == 2) {
+            $dynamic_arg = func_get_arg(1);
+            if (is_array($dynamic_arg)) {
+                $data = array_merge($data, $dynamic_arg);
+            }
+        }
+
         $key = md5($asset);
         if ($asset) {
-            $this->css[$key] = [
-                'asset'    => $asset,
-                'priority' => $priority,
-                'order'    => count($this->css),
-                'pipeline' => $pipeline
-            ];
+            $this->css[$key] = $data;
         }
 
         return $this;
@@ -269,21 +280,21 @@ class Assets
      * You may add more than one asset passing an array as argument.
      *
      * @param  mixed $asset
-     * @param  int   $priority the priority, bigger comes first
-     * @param  bool  $pipeline false if this should not be pipelined
-     * @param string $loading how the asset is loaded (async/defer)
-     *
+     * @param  int $priority the priority, bigger comes first
+     * @param  bool $pipeline false if this should not be pipelined
+     * @param  string $loading how the asset is loaded (async/defer)
+     * @param  string $group name of the group
      * @return $this
      */
-    public function addJs($asset, $priority = 10, $pipeline = true, $loading = '')
+    public function addJs($asset, $priority = null, $pipeline = null, $loading = null, $group = null)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
-                $this->addJs($a, $priority, $pipeline);
+                $this->addJs($a, $priority, $pipeline, $loading, $group);
             }
             return $this;
         } elseif (isset($this->collections[$asset])) {
-            $this->add($this->collections[$asset], $priority, $pipeline);
+            $this->add($this->collections[$asset], $priority, $pipeline, $loading, $group);
             return $this;
         }
 
@@ -291,15 +302,27 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
+        $data = [
+            'asset'    => $asset,
+            'priority' => intval($priority ?: 10),
+            'order'    => count($this->js),
+            'pipeline' => $pipeline ?: true,
+            'loading'  => $loading ?: '',
+            'group' => $group ?: 'head'
+        ];
+
+        // check for dynamic array and merge with defaults
+        $count_args = func_num_args();
+        if (func_num_args() == 2) {
+            $dynamic_arg = func_get_arg(1);
+            if (is_array($dynamic_arg)) {
+               $data = array_merge($data, $dynamic_arg);
+            }
+        }
+
         $key = md5($asset);
         if ($asset) {
-            $this->js[$key] = [
-                'asset'    => $asset,
-                'priority' => $priority,
-                'order'    => count($this->js),
-                'pipeline' => $pipeline,
-                'loading'  => $loading
-            ];
+            $this->js[$key] = $data;
         }
 
         return $this;
@@ -311,12 +334,15 @@ class Assets
      * @param      $asset
      * @param int  $priority
      * @param bool $pipeline
+     * @param string $group name of the group
+     *
+     * @deprecated Please use dynamic method with ['loading' => 'async']
      *
      * @return \Grav\Common\Assets
      */
-    public function addAsyncJs($asset, $priority = 10, $pipeline = true)
+    public function addAsyncJs($asset, $priority = null, $pipeline = null, $group = null)
     {
-        return $this->addJs($asset, $priority, $pipeline, 'async');
+        return $this->addJs($asset, $priority, $pipeline, 'async', $group);
     }
 
     /**
@@ -325,12 +351,15 @@ class Assets
      * @param      $asset
      * @param int  $priority
      * @param bool $pipeline
+     * @param string $group name of the group
+     *
+     * @deprecated Please use dynamic method with ['loading' => 'defer']
      *
      * @return \Grav\Common\Assets
      */
-    public function addDeferJs($asset, $priority = 10, $pipeline = true)
+    public function addDeferJs($asset, $priority = null, $pipeline = null, $group = null)
     {
-        return $this->addJs($asset, $priority, $pipeline, 'defer');
+        return $this->addJs($asset, $priority, $pipeline, 'defer', $group);
     }
 
     /**
@@ -344,18 +373,30 @@ class Assets
      *
      * @return $this
      */
-    public function addInlineCss($asset, $priority = 10)
+    public function addInlineCss($asset, $priority = null)
     {
         if (is_a($asset, 'Twig_Markup')) {
             $asset = strip_tags((string)$asset);
         }
+
+        $data = [
+            'priority'  => intval($priority ?: 10),
+            'order'     => count($this->inline_css),
+            'asset'     => $asset
+        ];
+
+        // check for dynamic array and merge with defaults
+        $count_args = func_num_args();
+        if (func_num_args() == 2) {
+            $dynamic_arg = func_get_arg(1);
+            if (is_array($dynamic_arg)) {
+                $data = array_merge($data, $dynamic_arg);
+            }
+        }
+
         $key = md5($asset);
         if (is_string($asset) && !array_key_exists($key, $this->inline_css)) {
-            $this->inline_css[$key] = [
-                'priority'  => $priority,
-                'order'     => count($this->inline_css),
-                'asset'     => $asset
-            ];
+            $this->inline_css[$key] = $data;
         }
 
         return $this;
@@ -369,21 +410,35 @@ class Assets
      *
      * @param  mixed $asset
      * @param  int   $priority the priority, bigger comes first
+     * @param string $group name of the group
      *
      * @return $this
      */
-    public function addInlineJs($asset, $priority = 10)
+    public function addInlineJs($asset, $priority = null, $group = null)
     {
         if (is_a($asset, 'Twig_Markup')) {
             $asset = strip_tags((string)$asset);
         }
+
+        $data = [
+            'asset'    => $asset,
+            'priority' => intval($priority ?: 10),
+            'order'    => count($this->js),
+            'group' => $group ?: 'head'
+        ];
+
+        // check for dynamic array and merge with defaults
+        $count_args = func_num_args();
+        if (func_num_args() == 2) {
+            $dynamic_arg = func_get_arg(1);
+            if (is_array($dynamic_arg)) {
+                $data = array_merge($data, $dynamic_arg);
+            }
+        }
+
         $key = md5($asset);
         if (is_string($asset) && !array_key_exists($key, $this->inline_js)) {
-            $this->inline_js[$key] = [
-                'priority'  => $priority,
-                'order'     => count($this->inline_js),
-                'asset'     => $asset
-            ];
+            $this->inline_js[$key] = $data;
         }
 
         return $this;
@@ -452,11 +507,12 @@ class Assets
     /**
      * Build the JavaScript script tags.
      *
+     * @param  string $group name of the group
      * @param  array $attributes
      *
      * @return string
      */
-    public function js($attributes = [])
+    public function js($group = 'head', $attributes = [])
     {
         if (!$this->js) {
             return null;
@@ -482,25 +538,34 @@ class Assets
 
         $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
 
+
         $output = '';
+        $inline_js = '';
+
         if ($this->js_pipeline) {
             $output .= '<script src="' . $this->pipeline(JS_ASSET) . '"' . $attributes . ' ></script>' . "\n";
             foreach ($this->js_no_pipeline as $file) {
-                $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
+                if ($group && $file['group'] == $group) {
+                    $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
+                }
             }
         } else {
             foreach ($this->js as $file) {
-                $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'].'></script>' . "\n";
+                if ($group && $file['group'] == $group) {
+                    $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
+                }
             }
         }
 
         // Render Inline JS
-        if (count($this->inline_js) > 0) {
-            $output .= "<script>\n";
-            foreach ($this->inline_js as $inline) {
-                $output .= $inline['asset'] . "\n";
+        foreach ($this->inline_js as $inline) {
+            if ($group && $inline['group'] == $group) {
+                $inline_js .= $inline['asset'] . "\n";
             }
-            $output .= "</script>\n";
+        }
+
+        if ($inline_js) {
+            $output .= "\n<script>\n" . $inline_js . "\n</script>\n";
         }
 
         return $output;
