@@ -90,7 +90,7 @@ class Truncator {
         if ($length === 0 && !static::ellipsable($node)) {
             return array('', 1, $opts);
         }
-        list($inner, $remaining, $opts) = static::_inner_truncate($doc, $node, $length, $opts);
+        list($inner, $remaining, $opts) = static::innerTruncate($doc, $node, $length, $opts);
         if (0 === mb_strlen($inner)) {
             return array(in_array(mb_strtolower($node->nodeName), static::$self_closing_tags) ? $doc->saveXML($node) : "", $length - $remaining, $opts);
         }
@@ -102,7 +102,7 @@ class Truncator {
         $node->appendChild($newNode);
         return array($doc->saveXML($node), $length - $remaining, $opts);
     }
-    protected static function _inner_truncate($doc, $node, $length, $opts) {
+    protected static function innerTruncate($doc, $node, $length, $opts) {
         $inner = '';
         $remaining = $length;
         foreach($node->childNodes as $childNode) {
@@ -110,7 +110,7 @@ class Truncator {
                 list($txt, $nb, $opts) = static::_truncate_node($doc, $childNode, $remaining, $opts);
             }
             else if ($childNode->nodeType === XML_TEXT_NODE) {
-                list($txt, $nb, $opts) = static::_truncate_text($doc, $childNode, $remaining, $opts);
+                list($txt, $nb, $opts) = static::truncateText($doc, $childNode, $remaining, $opts);
             } else {
                 $txt = '';
                 $nb  = 0;
@@ -128,7 +128,7 @@ class Truncator {
         }
         return array($inner, $remaining, $opts);
     }
-    protected static function _truncate_text($doc, $node, $length, $opts) {
+    protected static function truncateText($doc, $node, $length, $opts) {
         $string = $node->textContent;
 
         if ($opts['length_in_chars']) {

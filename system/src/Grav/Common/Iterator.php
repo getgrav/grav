@@ -49,7 +49,6 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * Convents iterator to a comma separated list.
      *
      * @return string
-     * @todo Add support to nested sets.
      */
     public function __toString()
     {
