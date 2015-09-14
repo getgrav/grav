@@ -62,7 +62,6 @@ class Taxonomy
             foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {
                     foreach ((array) $page_taxonomy[$taxonomy] as $item) {
-                        // TODO: move to pages class?
                         $this->taxonomy_map[$taxonomy][(string) $item][$page->path()] = array('slug' => $page->slug());
                     }
                 }

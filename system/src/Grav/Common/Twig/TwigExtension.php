@@ -173,7 +173,6 @@ class TwigExtension extends \Twig_Extension
      */
     public function inflectorFilter($action, $data, $count = null)
     {
-        // TODO: check this and fix the docblock if needed.
         $action = $action.'ize';
 
         $inflector = $this->grav['inflector'];

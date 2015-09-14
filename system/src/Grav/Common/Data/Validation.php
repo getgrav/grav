@@ -385,7 +385,6 @@ class Validation
      */
     public static function typeDatetime($value, array $params, array $field)
     {
-        // TODO: add min, max and range.
         if ($value instanceof \DateTime) {
             return true;
         } elseif (!is_string($value)) {

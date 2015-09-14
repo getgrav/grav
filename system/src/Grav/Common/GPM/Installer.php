@@ -111,7 +111,7 @@ class Installer
 
     public static function nonSophisticatedInstall(\ZipArchive $zip, $install_path, $tmp)
     {
-        $container = $zip->getNameIndex(0); // TODO: better way of determining if zip has container folder
+        $container = $zip->getNameIndex(0);
         if (file_exists($install_path)) {
             Folder::delete($install_path);
         }

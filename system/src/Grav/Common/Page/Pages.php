@@ -886,7 +886,6 @@ class Pages
 
         foreach ($list as $key => $sort) {
             $info = $pages[$key];
-            // TODO: order by manual needs a hash from the passed variables if we make this more general.
             $this->sort[$path][$order_by][$key] = $info;
         }
     }

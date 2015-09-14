@@ -188,7 +188,6 @@ class Themes extends Iterator
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        // TODO: move
         $registered = stream_get_wrappers();
         $schemes = $config->get(
             "themes.{$name}.streams.schemes",
