@@ -2,7 +2,6 @@
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
-use Grav\Common\Inflector;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
