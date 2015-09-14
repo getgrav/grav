@@ -117,7 +117,7 @@ class NewUserCommand extends Command
         // Get fullname
         $question = new Question('Enter a <yellow>fullname</yellow>: ');
         $question->setValidator(function ($value) {
-            if ($value === null or trim($value) == '') {
+            if ($value === null || trim($value) == '') {
                 throw new RuntimeException(
                     'Fullname is required'
                 );
