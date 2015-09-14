@@ -81,12 +81,12 @@ class Truncator {
             }
             libxml_use_internal_errors($prev_use_errors);
         }
-        list($text, $_, $opts) = static::_truncate_node($doc, $root_node, $length, $opts);
+        list($text, $_, $opts) = static::truncateNode($doc, $root_node, $length, $opts);
         $text = mb_substr(mb_substr($text, 0, -6), 5);
 
         return $text;
     }
-    protected static function _truncate_node($doc, $node, $length, $opts) {
+    protected static function truncateNode($doc, $node, $length, $opts) {
         if ($length === 0 && !static::ellipsable($node)) {
             return array('', 1, $opts);
         }
@@ -107,7 +107,7 @@ class Truncator {
         $remaining = $length;
         foreach($node->childNodes as $childNode) {
             if ($childNode->nodeType === XML_ELEMENT_NODE) {
-                list($txt, $nb, $opts) = static::_truncate_node($doc, $childNode, $remaining, $opts);
+                list($txt, $nb, $opts) = static::truncateNode($doc, $childNode, $remaining, $opts);
             }
             else if ($childNode->nodeType === XML_TEXT_NODE) {
                 list($txt, $nb, $opts) = static::truncateText($doc, $childNode, $remaining, $opts);
