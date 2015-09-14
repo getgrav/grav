@@ -538,7 +538,10 @@ class Assets
 
         $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
 
+
         $output = '';
+        $inline_js = '';
+
         if ($this->js_pipeline) {
             $output .= '<script src="' . $this->pipeline(JS_ASSET) . '"' . $attributes . ' ></script>' . "\n";
             foreach ($this->js_no_pipeline as $file) {
@@ -555,14 +558,14 @@ class Assets
         }
 
         // Render Inline JS
-        if (count($this->inline_js) > 0) {
-            $output .= "<script>\n";
-            foreach ($this->inline_js as $inline) {
-                if ($group && $inline['group'] == $group) {
-                    $output .= $inline['asset'] . "\n";
-                }
+        foreach ($this->inline_js as $inline) {
+            if ($group && $inline['group'] == $group) {
+                $inline_js .= $inline['asset'] . "\n";
             }
-            $output .= "</script>\n";
+        }
+
+        if ($inline_js) {
+            $output .= "\n<script>\n" . $inline_js . "\n</script>\n";
         }
 
         return $output;
