@@ -244,7 +244,7 @@ abstract class Folder
     public static function delete($target)
     {
         if (!is_dir($target)) {
-            throw new \RuntimeException('Cannot delete non-existing folder.');
+            return;
         }
 
         $success = self::doDelete($target);
