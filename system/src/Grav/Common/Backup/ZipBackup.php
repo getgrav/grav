@@ -44,7 +44,7 @@ class ZipBackup
 
         if (is_dir($destination)) {
             $date = date('YmdHis', time());
-            $filename = $inflector->hyphenize(trim($name)) . '-' . $date . '.zip';
+            $filename = trim($inflector->hyphenize($name), '-') . '-' . $date . '.zip';
             $destination = rtrim($destination, DS) . DS . $filename;
         }
 
