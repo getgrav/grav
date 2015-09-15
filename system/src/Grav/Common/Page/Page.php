@@ -1236,7 +1236,7 @@ class Page
      *
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false)
+    public function url($include_host = false, $canonical = false, $include_lang = true)
     {
 
         /** @var Pages $pages */
@@ -1246,7 +1246,11 @@ class Page
         $language = self::getGrav()['language'];
 
         // get pre-route
-        $pre_route = $language->enabled() && $language->getActive() ? '/'.$language->getActive() : '';
+        if ($include_lang) {
+            $pre_route = $language->enabled() && $language->getActive() ? '/' . $language->getActive() : '';
+        } else {
+            $pre_route = '';
+        }
 
         // get canonical route if requested
         if ($canonical) {

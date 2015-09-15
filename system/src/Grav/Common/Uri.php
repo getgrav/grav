@@ -493,7 +493,6 @@ class Uri
             $language_append = $active_language ? '/'.$active_language : '';
         }
 
-
         $pages_dir = $grav['locator']->findResource('page://');
         $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/') . $language_append;
 
@@ -556,7 +555,7 @@ class Uri
             $instances = $grav['pages']->instances();
             if (isset($instances[$page_path])) {
                 $target = $instances[$page_path];
-                $url_bits['path'] = $base_url . $target->route() . $filename;
+                $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
                 return Uri::buildUrl($url_bits);
             }
 

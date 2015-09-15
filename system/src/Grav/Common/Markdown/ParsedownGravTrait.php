@@ -133,7 +133,7 @@ trait ParsedownGravTrait
                 $path_parts = pathinfo($url['path']);
 
                 // get the local path to page media if possible
-                if ($path_parts['dirname'] == $this->page->url()) {
+                if ($path_parts['dirname'] == $this->page->url(false, false, false)) {
                     $url['path'] = $path_parts['basename'];
                     // get the media objects for this page
                     $media = $this->page->media();
