@@ -486,8 +486,12 @@ class Uri
     {
         $grav = Grav::instance();
 
+        // Link processing should prepend language
+        $active_language = $grav['language']->getActive();
+        $language_append = $active_language ? '/'.$active_language : '';
+
         $pages_dir = $grav['locator']->findResource('page://');
-        $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/');
+        $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/') . $language_append;
 
         // if absolute and starts with a base_url move on
         if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.' && $page->url() == '/') {
