@@ -111,6 +111,7 @@ trait ParsedownGravTrait
             $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
             return $excerpt;
         } else {
+            $excerpt['type'] = 'image';
             $excerpt = parent::inlineImage($excerpt);
         }
 
@@ -186,6 +187,12 @@ trait ParsedownGravTrait
 
     protected function inlineLink($excerpt)
     {
+        if (isset($excerpt['type'])) {
+            $type = $excerpt['type'];
+        } else {
+            $type = 'link';
+        }
+
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
         if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
@@ -204,7 +211,7 @@ trait ParsedownGravTrait
             // if there is no scheme, the file is local
             if (!isset($url['scheme']) && (count($url) > 0)) {
                 // convert the URl is required
-                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url));
+                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type);
             }
         }
 
