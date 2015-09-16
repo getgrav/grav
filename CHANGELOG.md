@@ -6,6 +6,7 @@
     * Added ability for Assets to be added and displayed in separate *groups*
     * New support for responsive image derivative sizes
 1. [](#improved)
+    * GPM theme install now uses a `copy` method so new files are not lost (e.g. `/css/custom.css`)
     * Code analysis improvements and cleanup
     * Removed Twig panel from debugger (no longer supported in Twig 1.20)
     * Updated composer packages

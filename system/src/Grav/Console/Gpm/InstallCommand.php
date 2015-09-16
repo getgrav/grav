@@ -499,7 +499,9 @@ class InstallCommand extends Command
      */
     private function installPackage($package)
     {
-        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path]);
+        $type = $package->package_type;
+
+        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path, 'theme' => (($type == 'themes'))]);
         $errorCode = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
