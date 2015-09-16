@@ -119,6 +119,7 @@ class Page
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
+        $this->routable(true);
         $this->header();
         $this->date();
         $this->metadata();
@@ -127,13 +128,6 @@ class Page
         $this->modularTwig($this->slug[0] == '_');
         $this->setPublishState();
         $this->published();
-
-        // some routable logic
-        if (empty($this->routable) && $this->modular()) {
-            $this->routable = false;
-        } else {
-            $this->routable = true;
-        }
 
         // some extension logic
         if (empty($extension)) {
@@ -1635,6 +1629,10 @@ class Page
             if ($var) {
                 $this->process['twig'] = true;
                 $this->visible(false);
+                // some routable logic
+                if (empty($this->header->routable)) {
+                    $this->routable = false;
+                }
             }
         }
         return $this->modular_twig;
