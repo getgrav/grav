@@ -3,6 +3,7 @@ namespace Grav\Common\Backup;
 
 use Grav\Common\GravTrait;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Inflector;
 
 /**
  * The ZipBackup class lets you create simple zip-backups of a grav site
@@ -39,9 +40,11 @@ class ZipBackup
 
         $name = self::getGrav()['config']->get('site.title', basename(GRAV_ROOT));
 
+        $inflector = new Inflector();
+
         if (is_dir($destination)) {
             $date = date('YmdHis', time());
-            $filename = $name . '-' . $date . '.zip';
+            $filename = trim($inflector->hyphenize($name), '-') . '-' . $date . '.zip';
             $destination = rtrim($destination, DS) . DS . $filename;
         }
 

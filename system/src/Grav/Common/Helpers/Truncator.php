@@ -12,16 +12,15 @@ use DOMDocument;
  * file that was distributed with this source code.
  */
 
-class InvalidHtmlException extends \Exception {
-}
-
 class Truncator {
+
     public static $default_options = array(
         'ellipsis' => '…',
         'break' => ' ',
         'length_in_chars' => false,
         'word_safe' => false,
     );
+
     // These tags are allowed to have an ellipsis inside
     public static $ellipsable_tags = array(
         'p', 'ol', 'ul', 'li',
@@ -29,9 +28,11 @@ class Truncator {
         'section', 'footer', 'aside',
         'dd', 'dt', 'dl',
     );
+
     public static $self_closing_tags = array(
         'br', 'hr', 'img',
     );
+
     /**
      * Truncate given HTML string to specified length.
      * If length_in_chars is false it's trimmed by number
@@ -42,7 +43,8 @@ class Truncator {
      * @param  string|array  $opts
      * @return string
      */
-    public static function truncate($html, $length, $opts=array()) {
+    public static function truncate($html, $length, $opts=array())
+    {
         if (is_string($opts)) $opts = array('ellipsis' => $opts);
         $opts = array_merge(static::$default_options, $opts);
         // wrap the html in case it consists of adjacent nodes like <p>foo</p><p>bar</p>
@@ -77,20 +79,23 @@ class Truncator {
             }
             else {
                 libxml_use_internal_errors($prev_use_errors);
-                throw new InvalidHtmlException;
+                throw new \RuntimeException;
             }
             libxml_use_internal_errors($prev_use_errors);
         }
-        list($text, $_, $opts) = static::_truncate_node($doc, $root_node, $length, $opts);
+        list($text, $_, $opts) = static::truncateNode($doc, $root_node, $length, $opts);
+
         $text = mb_substr(mb_substr($text, 0, -6), 5);
 
         return $text;
     }
-    protected static function _truncate_node($doc, $node, $length, $opts) {
+
+    protected static function truncateNode($doc, $node, $length, $opts)
+    {
         if ($length === 0 && !static::ellipsable($node)) {
             return array('', 1, $opts);
         }
-        list($inner, $remaining, $opts) = static::_inner_truncate($doc, $node, $length, $opts);
+        list($inner, $remaining, $opts) = static::innerTruncate($doc, $node, $length, $opts);
         if (0 === mb_strlen($inner)) {
             return array(in_array(mb_strtolower($node->nodeName), static::$self_closing_tags) ? $doc->saveXML($node) : "", $length - $remaining, $opts);
         }
@@ -98,23 +103,30 @@ class Truncator {
             $node->removeChild($node->firstChild);
         }
         $newNode = $doc->createDocumentFragment();
-        $newNode->appendXml($inner);
+        // handle the ampersand
+        $newNode->appendXml(static::xmlEscape($inner));
         $node->appendChild($newNode);
         return array($doc->saveXML($node), $length - $remaining, $opts);
     }
-    protected static function _inner_truncate($doc, $node, $length, $opts) {
+
+    protected static function innerTruncate($doc, $node, $length, $opts)
+    {
         $inner = '';
         $remaining = $length;
         foreach($node->childNodes as $childNode) {
             if ($childNode->nodeType === XML_ELEMENT_NODE) {
-                list($txt, $nb, $opts) = static::_truncate_node($doc, $childNode, $remaining, $opts);
+                list($txt, $nb, $opts) = static::truncateNode($doc, $childNode, $remaining, $opts);
             }
             else if ($childNode->nodeType === XML_TEXT_NODE) {
-                list($txt, $nb, $opts) = static::_truncate_text($doc, $childNode, $remaining, $opts);
+                list($txt, $nb, $opts) = static::truncateText($doc, $childNode, $remaining, $opts);
             } else {
                 $txt = '';
                 $nb  = 0;
             }
+
+            // unhandle the ampersand
+            $txt = static::xmlUnescape($txt);
+
             $remaining -= $nb;
             $inner .= $txt;
             if ($remaining < 0) {
@@ -128,7 +140,9 @@ class Truncator {
         }
         return array($inner, $remaining, $opts);
     }
-    protected static function _truncate_text($doc, $node, $length, $opts) {
+
+    protected static function truncateText($doc, $node, $length, $opts)
+    {
         $string = $node->textContent;
 
         if ($opts['length_in_chars']) {
@@ -156,9 +170,20 @@ class Truncator {
             return array(implode('', array_slice($words, 0, $length)), $count, $opts);
         }
     }
-    protected static function ellipsable($node) {
+    protected static function ellipsable($node)
+    {
         return ($node instanceof DOMDocument)
         || in_array(mb_strtolower($node->nodeName), static::$ellipsable_tags)
             ;
+    }
+
+    protected static function xmlEscape($string)
+    {
+        return str_replace('&', '&amp;', $string);
+    }
+
+    protected static function xmlUnescape($string)
+    {
+        return str_replace('&amp;', '&', $string);
     }
 }

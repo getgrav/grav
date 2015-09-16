@@ -275,7 +275,7 @@ class Pages
         $not_admin = !isset($this->grav['admin']);
 
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && $not_admin && (!$page || ($page && (!$page->routable() || $page->redirect())))) {
+        if (!$all && $not_admin && (!$page || ($page && !$page->routable()) || ($page && $page->redirect()))) {
 
             // If the page is a simple redirect, just do it.
             if ($page && $page->redirect()) {
@@ -886,7 +886,6 @@ class Pages
 
         foreach ($list as $key => $sort) {
             $info = $pages[$key];
-            // TODO: order by manual needs a hash from the passed variables if we make this more general.
             $this->sort[$path][$order_by][$key] = $info;
         }
     }

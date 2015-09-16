@@ -9,7 +9,7 @@ class Response
      */
     public static $callback = null;
 
-    /**
+     /**
      * Which method to use for HTTP calls, can be 'curl', 'fopen' or 'auto'. Auto is default and fopen is the preferred method
      * @var string
      */

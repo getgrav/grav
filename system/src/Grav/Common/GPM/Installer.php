@@ -2,6 +2,7 @@
 namespace Grav\Common\GPM;
 
 use Grav\Common\Filesystem\Folder;
+use Symfony\Component\Yaml\Yaml;
 
 class Installer
 {
@@ -42,6 +43,7 @@ class Installer
         'overwrite'       => true,
         'ignore_symlinks' => true,
         'sophisticated'   => false,
+        'theme'            => false,
         'install_path'    => '',
         'exclude_checks'  => [self::EXISTS, self::NOT_FOUND, self::IS_LINK]
     ];
@@ -70,6 +72,9 @@ class Installer
             return false;
         }
 
+        // Pre install checks
+        static::flightProcessing('pre_install', $install_path);
+
         $zip = new \ZipArchive();
         $archive = $zip->open($package);
         $tmp = CACHE_DIR . 'tmp/Grav-' . uniqid();
@@ -95,7 +100,11 @@ class Installer
 
 
         if (!$options['sophisticated']) {
-            self::nonSophisticatedInstall($zip, $install_path, $tmp);
+            if ($options['theme']) {
+                self::copyInstall($zip, $install_path, $tmp);
+            } else {
+                self::moveInstall($zip, $install_path, $tmp);
+            }
         } else {
             self::sophisticatedInstall($zip, $install_path, $tmp);
         }
@@ -103,20 +112,55 @@ class Installer
         Folder::delete($tmp);
         $zip->close();
 
+        // Post install checks
+        static::flightProcessing('post_install', $install_path);
+
         self::$error = self::OK;
 
         return true;
 
     }
 
-    public static function nonSophisticatedInstall(\ZipArchive $zip, $install_path, $tmp)
+    protected static function flightProcessing($state, $install_path)
     {
-        $container = $zip->getNameIndex(0); // TODO: better way of determining if zip has container folder
+        $blueprints_path = $install_path . DS . 'blueprints.yaml';
+
+        if (file_exists($blueprints_path)) {
+            $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+            if (isset($package_yaml['install'][$state]['create'])) {
+                foreach ((array) $package_yaml['install']['pre_install']['create'] as $file) {
+                    Folder::mkdir($install_path . '/' . ltrim($file, '/'));
+                }
+            }
+            if (isset($package_yaml['install'][$state]['remove'])) {
+                foreach ((array) $package_yaml['install']['pre_install']['remove'] as $file) {
+                    Folder::delete($install_path . '/' . ltrim($file, '/'));
+                }
+            }
+        }
+    }
+
+    public static function moveInstall(\ZipArchive $zip, $install_path, $tmp)
+    {
+        $container = $zip->getNameIndex(0);
         if (file_exists($install_path)) {
             Folder::delete($install_path);
         }
 
         Folder::move($tmp . DS . $container, $install_path);
+
+        return true;
+    }
+
+    public static function copyInstall(\ZipArchive $zip, $install_path, $tmp)
+    {
+        $firstDir = $zip->getNameIndex(0);
+        if (empty($firstDir)) {
+            throw new \RuntimeException("Directory $firstDir is missing");
+        } else {
+            $tmp = realpath($tmp . DS . $firstDir);
+            Folder::rcopy($tmp, $install_path);
+        }
 
         return true;
     }
@@ -155,7 +199,6 @@ class Installer
 
         return true;
     }
-
 
     /**
      * Uninstalls one or more given package

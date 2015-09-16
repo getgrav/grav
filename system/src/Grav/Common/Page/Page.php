@@ -119,6 +119,7 @@ class Page
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
+        $this->routable(true);
         $this->header();
         $this->date();
         $this->metadata();
@@ -127,13 +128,6 @@ class Page
         $this->modularTwig($this->slug[0] == '_');
         $this->setPublishState();
         $this->published();
-
-        // some routable logic
-        if (empty($this->routable) && $this->modular()) {
-            $this->routable = false;
-        } else {
-            $this->routable = true;
-        }
 
         // some extension logic
         if (empty($extension)) {
@@ -701,7 +695,6 @@ class Page
     public function file()
     {
         if ($this->name) {
-            // TODO: use CompiledMarkdownFile after fixing issues in it.
             return MarkdownFile::instance($this->filePath());
         }
         return null;
@@ -740,12 +733,11 @@ class Page
         $clone->_original = $this;
         $clone->parent($parent);
         $clone->id(time().md5($clone->filePath()));
-        // TODO: make sure that the path is in user context.
+
         if ($parent->path()) {
             $clone->path($parent->path() . '/' . $clone->folder());
         }
 
-        // TODO: make sure we always have the route.
         if ($parent->route()) {
             $clone->route($parent->route() . '/'. $clone->slug());
         } else {
@@ -1238,7 +1230,7 @@ class Page
      *
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false)
+    public function url($include_host = false, $canonical = false, $include_lang = true)
     {
 
         /** @var Pages $pages */
@@ -1248,7 +1240,11 @@ class Page
         $language = self::getGrav()['language'];
 
         // get pre-route
-        $pre_route = $language->enabled() && $language->getActive() ? '/'.$language->getActive() : '';
+        if ($include_lang) {
+            $pre_route = $language->enabled() && $language->getActive() ? '/' . $language->getActive() : '';
+        } else {
+            $pre_route = '';
+        }
 
         // get canonical route if requested
         if ($canonical) {
@@ -1633,6 +1629,10 @@ class Page
             if ($var) {
                 $this->process['twig'] = true;
                 $this->visible(false);
+                // some routable logic
+                if (empty($this->header->routable)) {
+                    $this->routable = false;
+                }
             }
         }
         return $this->modular_twig;
@@ -1854,7 +1854,6 @@ class Page
         }
         $collection->setParams($params);
 
-        // TODO: MOVE THIS INTO SOMEWHERE ELSE?
         /** @var Uri $uri */
         $uri = self::getGrav()['uri'];
         /** @var Config $config */
@@ -1879,7 +1878,6 @@ class Page
                 }
             }
         }
-        // TODO: END OF MOVE
 
         if (isset($params['dateRange'])) {
             $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;

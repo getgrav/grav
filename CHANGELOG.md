@@ -1,3 +1,24 @@
+# v0.9.43
+## 09/16/2015
+
+1. [](#new)
+    * Added new `AudioMedium` for HTML5 audio
+    * Added ability for Assets to be added and displayed in separate *groups*
+    * New support for responsive image derivative sizes
+1. [](#improved)
+    * GPM theme install now uses a `copy` method so new files are not lost (e.g. `/css/custom.css`)
+    * Code analysis improvements and cleanup
+    * Removed Twig panel from debugger (no longer supported in Twig 1.20)
+    * Updated composer packages
+    * Prepend active language to `convertUrl()` when used in markdown links
+    * Added some pre/post flight options for installer via blueprints
+    * Hyphenize the site name in the backup filename
+1. [](#bugfix)
+    * Fix broken routable logic
+    * Check for `phpinfo()` method in case it is restricted by hosting provider
+    * Fixes for windows when running GPM
+    * Fix for ampersand (`&`) causing error in `truncateHtml()` via `Page.summary()`
+
 # v0.9.42
 ## 09/11/2015
 

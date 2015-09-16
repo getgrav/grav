@@ -620,17 +620,6 @@ form:
                     validate:
                         type: bool
 
-                debugger.twig:
-                    type: toggle
-                    label: PLUGIN_ADMIN.DEBUG_TWIG
-                    help: PLUGIN_ADMIN.DEBUG_TWIG_HELP
-                    highlight: 1
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
-
                 debugger.shutdown.close_connection:
                     type: toggle
                     label: PLUGIN_ADMIN.SHUTDOWN_CLOSE_CONNECTION

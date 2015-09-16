@@ -78,7 +78,7 @@ class Validation
         }
 
         // if this is a YAML field, simply parse it and return the value
-        if (isset($field['yaml']) && $field['yaml'] == true) {
+        if (isset($field['yaml']) && $field['yaml'] === true) {
             try {
                 $yaml = new Parser();
                 return $yaml->parse($value);
@@ -385,7 +385,6 @@ class Validation
      */
     public static function typeDatetime($value, array $params, array $field)
     {
-        // TODO: add min, max and range.
         if ($value instanceof \DateTime) {
             return true;
         } elseif (!is_string($value)) {

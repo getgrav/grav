@@ -14,7 +14,6 @@
         "symfony/event-dispatcher": "~2.7",
         "symfony/var-dumper": "~2.7",
         "doctrine/cache": "~1.4",
-        "maximebf/debugbar": "dev-master",
         "filp/whoops": "1.2.*@dev",
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
@@ -22,7 +21,8 @@
         "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
-        "rockettheme/toolbox": "1.1.*"
+        "rockettheme/toolbox": "1.1.*",
+        "maximebf/debugbar": "~1.10"
     },
     "autoload": {
         "psr-4": {

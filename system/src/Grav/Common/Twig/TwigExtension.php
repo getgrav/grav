@@ -2,7 +2,6 @@
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
-use Grav\Common\Inflector;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
@@ -173,7 +172,6 @@ class TwigExtension extends \Twig_Extension
      */
     public function inflectorFilter($action, $data, $count = null)
     {
-        // TODO: check this and fix the docblock if needed.
         $action = $action.'ize';
 
         $inflector = $this->grav['inflector'];

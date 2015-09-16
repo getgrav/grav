@@ -94,10 +94,10 @@ class Debugger
         return $this;
     }
 
-    public function startTimer($name, $desription = null)
+    public function startTimer($name, $description = null)
     {
         if ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled')) {
-            $this->debugbar['time']->startMeasure($name, $desription);
+            $this->debugbar['time']->startMeasure($name, $description);
         }
         return $this;
     }

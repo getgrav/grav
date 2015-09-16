@@ -159,7 +159,7 @@ abstract class Utils
     }
 
     /**
-     * Truncate HTML by number of characters. not "word-safe"!
+     * Truncate HTML by number of characters in a "word-safe" manor.
      *
      * @param  string $text
      * @param  int    $length

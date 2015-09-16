@@ -13,9 +13,7 @@ class StreamsServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $self = $this;
-
-        $container['locator'] = function($c) use ($self) {
+        $container['locator'] = function($c) {
             $locator = new UniformResourceLocator(ROOT_DIR);
 
             /** @var Config $config */
@@ -25,7 +23,7 @@ class StreamsServiceProvider implements ServiceProviderInterface
             return $locator;
         };
 
-        $container['streams'] = function($c) use ($self) {
+        $container['streams'] = function($c) {
             /** @var Config $config */
             $config = $c['config'];
 

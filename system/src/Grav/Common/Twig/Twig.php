@@ -105,11 +105,6 @@ class Twig
             }
 
             $this->twig = new TwigEnvironment($loader_chain, $params);
-            if ($debugger->enabled() && $config->get('system.debugger.twig')) {
-                $this->twig = new TraceableTwigEnvironment($this->twig);
-                $collector = new \DebugBar\Bridge\Twig\TwigCollector($this->twig);
-                $debugger->addCollector($collector);
-            }
 
             if ($config->get('system.twig.undefined_functions')) {
                 $this->twig->registerUndefinedFunctionCallback(function ($name) {
