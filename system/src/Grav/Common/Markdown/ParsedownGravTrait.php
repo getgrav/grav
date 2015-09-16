@@ -166,7 +166,7 @@ trait ParsedownGravTrait
 
                     // loop through actions for the image and call them
                     foreach ($actions as $action) {
-                        $medium = call_user_func_array(array($medium, $action['method']), explode(',', $action['params']));
+                        $medium = call_user_func_array(array($medium, $action['method']), explode(',', urldecode($action['params'])));
                     }
 
                     if (isset($url['fragment'])) {
