@@ -155,6 +155,15 @@ class Cache extends Getters
                 $driver->setMemcache($memcache);
                 break;
 
+            case 'redis':
+                $redis = new \Redis();
+                $redis->connect($this->config->get('system.cache.redis.server','localhost'),
+                                $this->config->get('system.cache.redis.port', 6379));
+
+                $driver = new \Doctrine\Common\Cache\RedisCache();
+                $driver->setRedis($redis);
+                break;
+
             default:
                 $driver = new \Doctrine\Common\Cache\FilesystemCache($this->cache_dir);
                 break;
