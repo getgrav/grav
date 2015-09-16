@@ -537,7 +537,7 @@ class LanguageCodes
         ],
         "ru" => [
             "name"       => "Russian",
-            "nativeName" => "русский язык"
+            "nativeName" => "Русский"
         ],
         "sa" => [
             "name"       => "Sanskrit",
