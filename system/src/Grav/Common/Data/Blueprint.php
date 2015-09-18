@@ -238,6 +238,9 @@ class Blueprint
 
             if ($rule) {
                 // Item has been defined in blueprints.
+                if (is_array($field) && count($field) == 1 && reset($field) == '') {
+                    continue;
+                }
                 $field = Validation::filter($field, $rule);
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
