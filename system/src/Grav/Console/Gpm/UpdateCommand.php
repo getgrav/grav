@@ -104,7 +104,7 @@ class UpdateCommand extends Command
         }
 
         $this->data = $this->gpm->getUpdatable();
-        $onlyPackages = array_map('strtolower', $this->input->getArgument('package'));
+        $only_packages = array_map('strtolower', $this->input->getArgument('package'));
 
         if (!$this->data['total']) {
             $this->output->writeln("Nothing to update.");
@@ -113,12 +113,12 @@ class UpdateCommand extends Command
 
         $this->output->write("Found <green>" . $this->gpm->countInstalled() . "</green> extensions installed of which <magenta>" . $this->data['total'] . "</magenta> need updating");
 
-        $limitTo = $this->userInputPackages($onlyPackages);
+        $limit_to = $this->userInputPackages($only_packages);
 
         $this->output->writeln('');
 
         unset($this->data['total']);
-        unset($limitTo['total']);
+        unset($limit_to['total']);
 
 
         // updates review
@@ -127,7 +127,7 @@ class UpdateCommand extends Command
         $index = 0;
         foreach ($this->data as $packages) {
             foreach ($packages as $slug => $package) {
-                if (count($limitTo) && !array_key_exists($slug, $limitTo)) {
+                if (count($limit_to) && !array_key_exists($slug, $limit_to)) {
                     continue;
                 }
 
@@ -166,35 +166,32 @@ class UpdateCommand extends Command
             '-d'      => $this->destination,
             '-y'      => true
         ));
-        $commandExec = $installCommand->run($args, $this->output);
+        $command_exec = $install_command->run($args, $this->output);
 
-        if ($commandExec != 0) {
+        if ($command_exec != 0) {
             $this->output->writeln("<red>Error:</red> An error occurred while trying to install the extensions");
             exit;
         }
-
-        // clear cache after successful upgrade
-        $this->clearCache();
     }
 
     /**
-     * @param $onlyPackages
+     * @param $only_packages
      *
      * @return array
      */
-    private function userInputPackages($onlyPackages)
+    private function userInputPackages($only_packages)
     {
         $found = ['total' => 0];
         $ignore = [];
 
-        if (!count($onlyPackages)) {
+        if (!count($only_packages)) {
             $this->output->writeln('');
         } else {
-            foreach ($onlyPackages as $onlyPackage) {
-                $find = $this->gpm->findPackage($onlyPackage);
+            foreach ($only_packages as $only_package) {
+                $find = $this->gpm->findPackage($only_package);
 
                 if (!$find || !$this->gpm->isUpdatable($find->slug)) {
-                    $name = isset($find->slug) ? $find->slug : $onlyPackage;
+                    $name = isset($find->slug) ? $find->slug : $only_package;
                     $ignore[$name] = $name;
                 } else {
                     $found[$find->slug] = $find;
