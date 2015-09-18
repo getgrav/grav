@@ -69,6 +69,12 @@ class UpdateCommand extends Command
                 'The grav instance location where the updates should be applied to. By default this would be where the grav cli has been launched from',
                 GRAV_ROOT
             )
+            ->addOption(
+                'all-yes',
+                'y',
+                InputOption::VALUE_NONE,
+                'Assumes yes (or best approach) instead of prompting'
+            )
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
@@ -90,6 +96,7 @@ class UpdateCommand extends Command
 
         $this->gpm = new GPM($this->input->getOption('force'));
         $this->destination = realpath($this->input->getOption('destination'));
+        $skip_prompt = $this->input->getOption('all-yes');
 
         if (!Installer::isGravInstance($this->destination)) {
             $this->output->writeln("<red>ERROR</red>: " . Installer::lastErrorMsg());
@@ -136,19 +143,21 @@ class UpdateCommand extends Command
             }
         }
 
-        // prompt to continue
-        $this->output->writeln("");
-        $questionHelper = $this->getHelper('question');
-        $question = new ConfirmationQuestion("Continue with the update process? [Y|n] ", true);
-        $answer = $questionHelper->ask($this->input, $this->output, $question);
+        if (!$skip_prompt) {
+            // prompt to continue
+            $this->output->writeln("");
+            $questionHelper = $this->getHelper('question');
+            $question = new ConfirmationQuestion("Continue with the update process? [Y|n] ", true);
+            $answer = $questionHelper->ask($this->input, $this->output, $question);
 
-        if (!$answer) {
-            $this->output->writeln("Update aborted. Exiting...");
-            exit;
+            if (!$answer) {
+                $this->output->writeln("Update aborted. Exiting...");
+                exit;
+            }
         }
 
         // finally update
-        $installCommand = $this->getApplication()->find('install');
+        $install_command = $this->getApplication()->find('install');
 
         $args = new ArrayInput(array(
             'command' => 'install',
