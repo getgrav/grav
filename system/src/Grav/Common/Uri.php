@@ -31,19 +31,26 @@ class Uri
      */
     public function __construct()
     {
-        $base = 'http://';
         $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        // Remove port from HTTP_HOST generated $name
+        $name = Utils::substrToString($name, ':');
+
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
         $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
         $root_path = str_replace(' ', '%20', rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/'));
 
+        // set the base
         if (isset($_SERVER['HTTPS'])) {
             $base = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
+        } else {
+            $base = 'http://';
         }
 
+        // add the sever name
         $base .= $name;
 
+        // add the port of needed
         if ($port != '80' && $port != '443') {
             $base .= ":".$port;
         }
@@ -66,7 +73,6 @@ class Uri
         $this->base = $base;
         $this->root = $base . $root_path;
         $this->url = $base . $uri;
-
     }
 
     /**
