@@ -230,20 +230,18 @@ class Assets
      * @param  mixed  $asset
      * @param  int    $priority the priority, bigger comes first
      * @param  bool   $pipeline false if this should not be pipelined
-     * @param  string $media    specifies what media/device the target
-     *                          resource is optimized for
      *
      * @return $this
      */
-    public function addCss($asset, $priority = null, $pipeline = null, $media = null)
+    public function addCss($asset, $priority = null, $pipeline = null)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
-                $this->addCss($a, $priority, $pipeline, $media);
+                $this->addCss($a, $priority, $pipeline);
             }
             return $this;
         } elseif (isset($this->collections[$asset])) {
-            $this->add($this->collections[$asset], $priority, $pipeline, $media);
+            $this->add($this->collections[$asset], $priority, $pipeline);
             return $this;
         }
 
@@ -255,8 +253,7 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
-            'pipeline' => $pipeline ?: true,
-            'media'  => $media ?: '',
+            'pipeline' => $pipeline ?: true
         ];
 
         // check for dynamic array and merge with defaults
