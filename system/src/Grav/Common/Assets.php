@@ -227,21 +227,23 @@ class Assets
      * It checks for duplicates.
      * You may add more than one asset passing an array as argument.
      *
-     * @param  mixed $asset
-     * @param  int   $priority the priority, bigger comes first
-     * @param  bool  $pipeline false if this should not be pipelined
+     * @param  mixed  $asset
+     * @param  int    $priority the priority, bigger comes first
+     * @param  bool   $pipeline false if this should not be pipelined
+     * @param  string $media    specifies what media/device the target
+     *                          resource is optimized for
      *
      * @return $this
      */
-    public function addCss($asset, $priority = null, $pipeline = null)
+    public function addCss($asset, $priority = null, $pipeline = null, $media = null)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
-                $this->addCss($a, $priority, $pipeline);
+                $this->addCss($a, $priority, $pipeline, $media);
             }
             return $this;
         } elseif (isset($this->collections[$asset])) {
-            $this->add($this->collections[$asset], $priority, $pipeline);
+            $this->add($this->collections[$asset], $priority, $pipeline, $media);
             return $this;
         }
 
@@ -253,7 +255,8 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
-            'pipeline' => $pipeline ?: true
+            'pipeline' => $pipeline ?: true,
+            'media'  => $media ?: '',
         ];
 
         // check for dynamic array and merge with defaults
@@ -483,11 +486,13 @@ class Assets
             $output .= '<link href="' . $this->pipeline(CSS_ASSET) . '"' . $attributes . ' />' . "\n";
 
             foreach ($this->css_no_pipeline as $file) {
-                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' />' . "\n";
+                $media = $file['media'] ? sprintf(' media="%s"', $file['media']) : ' ';
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         } else {
             foreach ($this->css as $file) {
-                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' />' . "\n";
+                $media = $file['media'] ? sprintf(' media="%s"', $file['media']) : ' ';
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         }
 
