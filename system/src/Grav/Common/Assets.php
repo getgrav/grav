@@ -481,14 +481,13 @@ class Assets
         $output = '';
         if ($this->css_pipeline) {
             $output .= '<link href="' . $this->pipeline(CSS_ASSET) . '"' . $attributes . ' />' . "\n";
-
             foreach ($this->css_no_pipeline as $file) {
-                $media = $file['media'] ? sprintf(' media="%s"', $file['media']) : ' ';
+                $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
                 $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         } else {
             foreach ($this->css as $file) {
-                $media = $file['media'] ? sprintf(' media="%s"', $file['media']) : ' ';
+                $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
                 $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         }
