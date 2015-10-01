@@ -170,6 +170,7 @@ class Truncator {
             return array(implode('', array_slice($words, 0, $length)), $count, $opts);
         }
     }
+
     protected static function ellipsable($node)
     {
         return ($node instanceof DOMDocument)
@@ -179,11 +180,15 @@ class Truncator {
 
     protected static function xmlEscape($string)
     {
-        return str_replace('&', '&amp;', $string);
+        $string = str_replace('&', '&amp;', $string);
+        $string = str_replace('<?', '&lt;?', $string);
+        return $string;
     }
 
     protected static function xmlUnescape($string)
     {
-        return str_replace('&amp;', '&', $string);
+        $string = str_replace('&amp;', '&', $string);
+        $string = str_replace('&lt;?', '<?', $string);
+        return $string;
     }
 }
