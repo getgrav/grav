@@ -233,11 +233,12 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
+            if ($page !== null) {
+                $date = $field ? strtotime($page->value($field)) : $page->date();
 
-            $date = $field ? strtotime($page->value($field)) : $page->date();
-
-            if ($date > $start && $date < $end) {
-                $date_range[$path] = $slug;
+                if ($date > $start && $date < $end) {
+                    $date_range[$path] = $slug;
+                }
             }
         }
         $this->items = $date_range;
@@ -255,7 +256,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page->visible()) {
+            if ($page !== null && $page->visible()) {
                 $visible[$path] = $slug;
             }
         }
@@ -274,7 +275,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if (!$page->visible()) {
+            if ($page !== null && !$page->visible()) {
                 $visible[$path] = $slug;
             }
         }
@@ -293,7 +294,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page->modular()) {
+            if ($page !== null && $page->modular()) {
                 $modular[$path] = $slug;
             }
         }
@@ -312,7 +313,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if (!$page->modular()) {
+            if ($page !== null && !$page->modular()) {
                 $modular[$path] = $slug;
             }
         }
@@ -331,7 +332,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page->published()) {
+            if ($page !== null && $page->published()) {
                 $published[$path] = $slug;
             }
         }
@@ -350,7 +351,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if (!$page->published()) {
+            if ($page !== null && !$page->published()) {
                 $published[$path] = $slug;
             }
         }
@@ -369,7 +370,8 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page->routable()) {
+
+            if ($page !== null && $page->routable()) {
                 $routable[$path] = $slug;
             }
         }
@@ -389,7 +391,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if (!$page->routable()) {
+            if ($page !== null && !$page->routable()) {
                 $routable[$path] = $slug;
             }
         }
@@ -408,7 +410,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page->template() == $type) {
+            if ($page !== null && $page->template() == $type) {
                 $items[$path] = $slug;
             }
         }
@@ -428,7 +430,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if (in_array($page->template(), $types)) {
+            if ($page !== null && in_array($page->template(), $types)) {
                 $items[$path] = $slug;
             }
         }
