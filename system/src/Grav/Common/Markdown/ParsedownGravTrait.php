@@ -134,7 +134,7 @@ trait ParsedownGravTrait
 
                 // get the local path to page media if possible
                 if ($path_parts['dirname'] == $this->page->url(false, false, false)) {
-                    $url['path'] = $path_parts['basename'];
+                    $url['path'] = urldecode($path_parts['basename']);
                     // get the media objects for this page
                     $media = $this->page->media();
                 } else {
@@ -144,7 +144,7 @@ trait ParsedownGravTrait
                     $ext_page = $this->pages->dispatch($page_route, true);
                     if ($ext_page) {
                         $media = $ext_page->media();
-                        $url['path'] = $path_parts['basename'];
+                        $url['path'] = urldecode($path_parts['basename']);
                     }
                 }
 
