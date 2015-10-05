@@ -56,6 +56,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
             new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
+            new \Twig_SimpleFilter('modulus', [$this,'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
             new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
             new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils','safeTruncate']),
@@ -151,6 +152,32 @@ class TwigExtension extends \Twig_Extension
         }
         return $sorted;
     }
+
+    /**
+     * Returns the modulus of an integer
+     *
+     * @param  int $number
+     * @param  int $divider
+     * @param  array $items array of items to select from to return
+     * @return int
+     */
+     public function modulusFilter($number, $divider, $items = null)
+     {
+         if (is_string($number)) {
+             $number = strlen($number);
+         }
+
+         $remainder = $number % $divider;
+
+         if (is_array($items)) {
+             if (isset($items[$remainder])) {
+                 return $items[$remainder];
+             } else {
+                 return $items[0];
+             }
+         }
+         return $remainder;
+     }
 
     /**
      * Inflector supports following notations:
