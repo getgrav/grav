@@ -60,18 +60,21 @@ class Themes extends Iterator
     {
         $list = array();
         $locator = Grav::instance()['locator'];
-        $iterator = new \DirectoryIterator($locator->findResource('themes://', false));
 
-        /** @var \DirectoryIterator $directory */
-        foreach ($iterator as $directory) {
-            if (!$directory->isDir() || $directory->isDot()) {
-                continue;
+        $themes = (array) $locator->findResources('themes://', false);
+        foreach ($themes as $path) {
+            $iterator = new \DirectoryIterator($path);
+
+            /** @var \DirectoryIterator $directory */
+            foreach ($iterator as $directory) {
+                if (!$directory->isDir() || $directory->isDot()) {
+                    continue;
+                }
+
+                $type = $directory->getBasename();
+                $list[$type] = self::get($type);
             }
-
-            $type = $directory->getBasename();
-            $list[$type] = self::get($type);
         }
-
         ksort($list);
 
         return $list;
@@ -96,9 +99,8 @@ class Themes extends Iterator
 
         // Find thumbnail.
         $thumb = "themes://{$name}/thumbnail.jpg";
-
-        if (file_exists($thumb)) {
-            $blueprint->set('thumbnail', $this->grav['base_url'] . "/user/themes/{$name}/thumbnail.jpg");
+        if ($path = $this->grav['locator']->findResource($thumb, false)) {
+            $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
         // Load default configuration.

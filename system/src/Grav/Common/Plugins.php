@@ -94,18 +94,21 @@ class Plugins extends Iterator
     {
         $list = array();
         $locator = Grav::instance()['locator'];
-        $iterator = new \DirectoryIterator($locator->findResource('plugins://', false));
 
-        /** @var \DirectoryIterator $directory */
-        foreach ($iterator as $directory) {
-            if (!$directory->isDir() || $directory->isDot()) {
-                continue;
+        $plugins = (array) $locator->findResources('plugins://', false);
+        foreach ($plugins as $path) {
+            $iterator = new \DirectoryIterator($path);
+
+            /** @var \DirectoryIterator $directory */
+            foreach ($iterator as $directory) {
+                if (!$directory->isDir() || $directory->isDot()) {
+                    continue;
+                }
+
+                $type = $directory->getBasename();
+                $list[$type] = self::get($type);
             }
-
-            $type = $directory->getBasename();
-            $list[$type] = self::get($type);
         }
-
         ksort($list);
 
         return $list;
