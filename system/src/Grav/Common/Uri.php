@@ -126,7 +126,7 @@ class Uri
 
         // process query string
         if (isset($bits['query'])) {
-            parse_str($bits['query'], $this->query);
+            $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             $uri = $bits['path'];
         }
 
@@ -169,7 +169,8 @@ class Uri
                 if (strpos($bit, $delimiter) !== false) {
                     $param = explode($delimiter, $bit);
                     if (count($param) == 2) {
-                        $this->params[$param[0]] = str_replace(urlencode($delimiter), '/', filter_var($param[1], FILTER_SANITIZE_STRING));
+                        $plain_var = strip_tags(filter_var(urldecode($param[1]), FILTER_SANITIZE_STRING));
+                        $this->params[$param[0]] = $plain_var;
                     }
                 } else {
                     $path[] = $bit;
@@ -216,7 +217,7 @@ class Uri
     public function query($id = null, $raw = false)
     {
         if (isset($id)) {
-            return isset($this->query[$id]) ? filter_var($this->query[$id], FILTER_SANITIZE_STRING) : null;
+            return isset($this->query[$id]) ? $this->query[$id] : null;
         } else {
             if ($raw) {
                 return $this->query;
