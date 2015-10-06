@@ -169,7 +169,7 @@ class Uri
                 if (strpos($bit, $delimiter) !== false) {
                     $param = explode($delimiter, $bit);
                     if (count($param) == 2) {
-                        $plain_var = strip_tags(filter_var(urldecode($param[1]), FILTER_SANITIZE_STRING));
+                        $plain_var = filter_var(urldecode($param[1]), FILTER_SANITIZE_STRING);
                         $this->params[$param[0]] = $plain_var;
                     }
                 } else {
