@@ -66,7 +66,7 @@ class Truncator {
             // We'll only be able to parse HTML5 if it's valid XML
             $doc = new DOMDocument('4.01', 'utf-8');
             $doc->formatOutput = false;
-            $doc->preserveWhitespace = true;
+            $doc->preserveWhiteSpace = true;
             // loadHTML will fail with HTML5 tags (article, nav, etc)
             // so we need to suppress errors and if it fails to parse we
             // retry with the XML parser instead
