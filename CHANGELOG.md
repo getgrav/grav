@@ -1,3 +1,9 @@
+# v0.9.45
+## 10/08/2015
+
+1. [](#bugfix)
+    * Fixed a regression issue resulting in incorrect default language
+
 # v0.9.44
 ## 10/07/2015
 
