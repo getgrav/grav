@@ -227,9 +227,9 @@ class Assets
      * It checks for duplicates.
      * You may add more than one asset passing an array as argument.
      *
-     * @param  mixed $asset
-     * @param  int   $priority the priority, bigger comes first
-     * @param  bool  $pipeline false if this should not be pipelined
+     * @param  mixed  $asset
+     * @param  int    $priority the priority, bigger comes first
+     * @param  bool   $pipeline false if this should not be pipelined
      *
      * @return $this
      */
@@ -481,13 +481,14 @@ class Assets
         $output = '';
         if ($this->css_pipeline) {
             $output .= '<link href="' . $this->pipeline(CSS_ASSET) . '"' . $attributes . ' />' . "\n";
-
             foreach ($this->css_no_pipeline as $file) {
-                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' />' . "\n";
+                $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         } else {
             foreach ($this->css as $file) {
-                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' />' . "\n";
+                $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         }
 

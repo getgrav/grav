@@ -55,5 +55,40 @@ INFLECTOR_ORDINALS:
     'first': 'st'
     'second': 'nd'
     'third': 'rd'
-
-
+NICETIME:
+    NO_DATE_PROVIDED: No date provided
+    BAD_DATE: Bad date
+    AGO: ago
+    FROM_NOW: from now
+    SECOND: second
+    MINUTE: minute
+    HOUR: hour
+    DAY: day
+    WEEK: week
+    MONTH: month
+    YEAR: year
+    DECADE: decade
+    SEC: sec
+    MIN: min
+    HR: hr
+    DAY: day
+    WK: wk
+    MO: mo
+    YR: yr
+    DEC: dec
+    SECOND_PLURAL: seconds
+    MINUTE_PLURAL: minutes
+    HOUR_PLURAL: hours
+    DAY_PLURAL: days
+    WEEK_PLURAL: weeks
+    MONTH_PLURAL: months
+    YEAR_PLURAL: years
+    DECADE_PLURAL: decades
+    SEC_PLURAL: secs
+    MIN_PLURAL: mins
+    HR_PLURAL: hrs
+    DAY_PLURAL: days
+    WK_PLURAL: wks
+    MO_PLURAL: mos
+    YR_PLURAL: yrs
+    DEC_PLURAL: decs

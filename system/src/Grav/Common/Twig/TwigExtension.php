@@ -56,6 +56,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
             new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
+            new \Twig_SimpleFilter('modulus', [$this,'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
             new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
             new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils','safeTruncate']),
@@ -82,8 +83,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
-            new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
+            new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
@@ -151,6 +152,32 @@ class TwigExtension extends \Twig_Extension
         }
         return $sorted;
     }
+
+    /**
+     * Returns the modulus of an integer
+     *
+     * @param  int $number
+     * @param  int $divider
+     * @param  array $items array of items to select from to return
+     * @return int
+     */
+     public function modulusFilter($number, $divider, $items = null)
+     {
+         if (is_string($number)) {
+             $number = strlen($number);
+         }
+
+         $remainder = $number % $divider;
+
+         if (is_array($items)) {
+             if (isset($items[$remainder])) {
+                 return $items[$remainder];
+             } else {
+                 return $items[0];
+             }
+         }
+         return $remainder;
+     }
 
     /**
      * Inflector supports following notations:
@@ -266,13 +293,13 @@ class TwigExtension extends \Twig_Extension
     public function nicetimeFilter($date, $long_strings = true)
     {
         if (empty($date)) {
-            return "No date provided";
+            return $this->grav['language']->translate('NICETIME.NO_DATE_PROVIDED', null, true);
         }
 
         if ($long_strings) {
-            $periods = array("second", "minute", "hour", "day", "week", "month", "year", "decade");
+            $periods = array("NICETIME.SECOND", "NICETIME.MINUTE", "NICETIME.HOUR", "NICETIME.DAY", "NICETIME.WEEK", "NICETIME.MONTH", "NICETIME.YEAR", "NICETIME.DECADE");
         } else {
-            $periods = array("sec", "min", "hr", "day", "wk", "mo", "yr", "dec");
+            $periods = array("NICETIME.SEC", "NICETIME.MIN", "NICETIME.HR", "NICETIME.DAY", "NICETIME.WK", "NICETIME.MO", "NICETIME.YR", "NICETIME.DEC");
         }
 
         $lengths         = array("60","60","24","7","4.35","12","10");
@@ -288,17 +315,17 @@ class TwigExtension extends \Twig_Extension
 
         // check validity of date
         if (empty($unix_date)) {
-            return "Bad date";
+            return $this->grav['language']->translate('NICETIME.BAD_DATE', null, true);
         }
 
         // is it future date or past date
         if ($now > $unix_date) {
             $difference     = $now - $unix_date;
-            $tense         = "ago";
+            $tense         = $this->grav['language']->translate('NICETIME.AGO', null, true);
 
         } else {
             $difference     = $unix_date - $now;
-            $tense         = "from now";
+            $tense         = $this->grav['language']->translate('NICETIME.FROM_NOW', null, true);
         }
 
         for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
@@ -308,8 +335,10 @@ class TwigExtension extends \Twig_Extension
         $difference = round($difference);
 
         if ($difference != 1) {
-            $periods[$j].= "s";
+            $periods[$j] .= '_PLURAL';
         }
+
+        $periods[$j] = $this->grav['language']->translate($periods[$j], null, true);
 
         return "$difference $periods[$j] {$tense}";
     }
@@ -377,9 +406,6 @@ class TwigExtension extends \Twig_Extension
     {
         return $this->grav['language']->translateArray($key, $index, $lang);
     }
-
-
-
 
     /**
      * Repeat given string x times.

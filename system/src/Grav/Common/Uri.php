@@ -31,19 +31,26 @@ class Uri
      */
     public function __construct()
     {
-        $base = 'http://';
-        $name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+        $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        // Remove port from HTTP_HOST generated $name
+        $name = Utils::substrToString($name, ':');
+
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
         $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
         $root_path = str_replace(' ', '%20', rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/'));
 
+        // set the base
         if (isset($_SERVER['HTTPS'])) {
             $base = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
+        } else {
+            $base = 'http://';
         }
 
+        // add the sever name
         $base .= $name;
 
+        // add the port of needed
         if ($port != '80' && $port != '443') {
             $base .= ":".$port;
         }
@@ -66,7 +73,6 @@ class Uri
         $this->base = $base;
         $this->root = $base . $root_path;
         $this->url = $base . $uri;
-
     }
 
     /**
@@ -120,7 +126,7 @@ class Uri
 
         // process query string
         if (isset($bits['query'])) {
-            parse_str($bits['query'], $this->query);
+            $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             $uri = $bits['path'];
         }
 
@@ -163,7 +169,8 @@ class Uri
                 if (strpos($bit, $delimiter) !== false) {
                     $param = explode($delimiter, $bit);
                     if (count($param) == 2) {
-                        $this->params[$param[0]] = str_replace(urlencode($delimiter), '/', filter_var($param[1], FILTER_SANITIZE_STRING));
+                        $plain_var = filter_var(urldecode($param[1]), FILTER_SANITIZE_STRING);
+                        $this->params[$param[0]] = $plain_var;
                     }
                 } else {
                     $path[] = $bit;
@@ -210,7 +217,7 @@ class Uri
     public function query($id = null, $raw = false)
     {
         if (isset($id)) {
-            return isset($this->query[$id]) ? filter_var($this->query[$id], FILTER_SANITIZE_STRING) : null;
+            return isset($this->query[$id]) ? $this->query[$id] : null;
         } else {
             if ($raw) {
                 return $this->query;

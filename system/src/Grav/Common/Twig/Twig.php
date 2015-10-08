@@ -322,13 +322,7 @@ class Twig
         try {
             $output = $this->twig->render($template, $twig_vars);
         } catch (\Twig_Error_Loader $e) {
-            // If loader error, and not .html.twig, try it as fallback
-            if (Utils::contains($e->getMessage(), $template)) {
-                $inflector = new Inflector();
-                $error_msg = 'The template file for this page: "' . $template.'" is not provided by the theme: "'. $inflector->titleize($config->get('system.pages.theme')) .'"';
-            } else {
-                $error_msg = $e->getMessage();
-            }
+            $error_msg = $e->getMessage();
             // Try html version of this template if initial template was NOT html
             if ($ext != '.html'.TWIG_EXT) {
                 try {

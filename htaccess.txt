@@ -51,6 +51,7 @@ RewriteRule ^(system|user|vendor)/(.*)\.(txt|md|html|yaml|php|twig|sh|bat)$ erro
 
 </IfModule>
 
-# Begin - Prevent Browsing
+# Begin - Prevent Browsing and Set Default Resources
 Options -Indexes
-# End - Prevent Browsing
+DirectoryIndex index.php index.html index.htm
+# End - Prevent Browsing and Set Default Resources

@@ -73,6 +73,21 @@ abstract class Utils
     }
 
     /**
+     * Returns the substring of a string up to a specified needle.  if not found, return the whole haytack
+     *
+     * @param $haystack
+     * @param $needle
+     * @return string
+     */
+    public static function substrToString($haystack, $needle)
+    {
+        if (static::contains($haystack, $needle)) {
+            return substr($haystack, 0, strpos($haystack,$needle));
+        }
+        return $haystack;
+    }
+
+    /**
      * Merge two objects into one.
      *
      * @param  object $obj1

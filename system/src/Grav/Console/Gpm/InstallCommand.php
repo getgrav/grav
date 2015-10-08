@@ -102,7 +102,7 @@ class InstallCommand extends Command
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
-        if (false === $this->isWindows()) {
+        if (false === $this->isWindows() && @is_file(getenv("HOME").'/.grav/config')) {
             $local_config_file = exec('eval echo ~/.grav/config');
             if (file_exists($local_config_file)) {
                 $this->local_config = Yaml::parse($local_config_file);
@@ -441,19 +441,19 @@ class InstallCommand extends Command
      */
     private function checkDestination($package)
     {
-        $questionHelper = $this->getHelper('question');
-        $skipPrompt = $this->input->getOption('all-yes');
+        $question_helper = $this->getHelper('question');
+        $skip_prompt = $this->input->getOption('all-yes');
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
 
         if (Installer::lastErrorCode() == Installer::EXISTS) {
-            if (!$skipPrompt) {
+            if (!$skip_prompt) {
                 $this->output->write("\x0D");
                 $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
 
                 $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ",
                     false);
-                $answer = $questionHelper->ask($this->input, $this->output, $question);
+                $answer = $question_helper->ask($this->input, $this->output, $question);
 
                 if (!$answer) {
                     $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
@@ -467,7 +467,7 @@ class InstallCommand extends Command
             $this->output->write("\x0D");
             $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
 
-            if ($skipPrompt) {
+            if ($skip_prompt) {
                 $this->output->writeln("  |     '- <yellow>Skipped automatically.</yellow>");
 
                 return false;
@@ -475,7 +475,7 @@ class InstallCommand extends Command
 
             $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
                 false);
-            $answer = $questionHelper->ask($this->input, $this->output, $question);
+            $answer = $question_helper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
                 $this->output->writeln("  |     '- <red>You decided to not delete the symlink automatically.</red>");
@@ -502,10 +502,10 @@ class InstallCommand extends Command
         $type = $package->package_type;
 
         Installer::install($this->file, $this->destination, ['install_path' => $package->install_path, 'theme' => (($type == 'themes'))]);
-        $errorCode = Installer::lastErrorCode();
+        $error_code = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
-        if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+        if ($error_code & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing package...    <red>error</red>                             ");

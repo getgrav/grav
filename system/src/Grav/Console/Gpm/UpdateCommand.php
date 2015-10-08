@@ -69,6 +69,12 @@ class UpdateCommand extends Command
                 'The grav instance location where the updates should be applied to. By default this would be where the grav cli has been launched from',
                 GRAV_ROOT
             )
+            ->addOption(
+                'all-yes',
+                'y',
+                InputOption::VALUE_NONE,
+                'Assumes yes (or best approach) instead of prompting'
+            )
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
@@ -90,6 +96,7 @@ class UpdateCommand extends Command
 
         $this->gpm = new GPM($this->input->getOption('force'));
         $this->destination = realpath($this->input->getOption('destination'));
+        $skip_prompt = $this->input->getOption('all-yes');
 
         if (!Installer::isGravInstance($this->destination)) {
             $this->output->writeln("<red>ERROR</red>: " . Installer::lastErrorMsg());
@@ -97,7 +104,7 @@ class UpdateCommand extends Command
         }
 
         $this->data = $this->gpm->getUpdatable();
-        $onlyPackages = array_map('strtolower', $this->input->getArgument('package'));
+        $only_packages = array_map('strtolower', $this->input->getArgument('package'));
 
         if (!$this->data['total']) {
             $this->output->writeln("Nothing to update.");
@@ -106,12 +113,12 @@ class UpdateCommand extends Command
 
         $this->output->write("Found <green>" . $this->gpm->countInstalled() . "</green> extensions installed of which <magenta>" . $this->data['total'] . "</magenta> need updating");
 
-        $limitTo = $this->userInputPackages($onlyPackages);
+        $limit_to = $this->userInputPackages($only_packages);
 
         $this->output->writeln('');
 
         unset($this->data['total']);
-        unset($limitTo['total']);
+        unset($limit_to['total']);
 
 
         // updates review
@@ -120,7 +127,7 @@ class UpdateCommand extends Command
         $index = 0;
         foreach ($this->data as $packages) {
             foreach ($packages as $slug => $package) {
-                if (count($limitTo) && !array_key_exists($slug, $limitTo)) {
+                if (count($limit_to) && !array_key_exists($slug, $limit_to)) {
                     continue;
                 }
 
@@ -136,19 +143,21 @@ class UpdateCommand extends Command
             }
         }
 
-        // prompt to continue
-        $this->output->writeln("");
-        $questionHelper = $this->getHelper('question');
-        $question = new ConfirmationQuestion("Continue with the update process? [Y|n] ", true);
-        $answer = $questionHelper->ask($this->input, $this->output, $question);
+        if (!$skip_prompt) {
+            // prompt to continue
+            $this->output->writeln("");
+            $questionHelper = $this->getHelper('question');
+            $question = new ConfirmationQuestion("Continue with the update process? [Y|n] ", true);
+            $answer = $questionHelper->ask($this->input, $this->output, $question);
 
-        if (!$answer) {
-            $this->output->writeln("Update aborted. Exiting...");
-            exit;
+            if (!$answer) {
+                $this->output->writeln("Update aborted. Exiting...");
+                exit;
+            }
         }
 
         // finally update
-        $installCommand = $this->getApplication()->find('install');
+        $install_command = $this->getApplication()->find('install');
 
         $args = new ArrayInput(array(
             'command' => 'install',
@@ -157,35 +166,32 @@ class UpdateCommand extends Command
             '-d'      => $this->destination,
             '-y'      => true
         ));
-        $commandExec = $installCommand->run($args, $this->output);
+        $command_exec = $install_command->run($args, $this->output);
 
-        if ($commandExec != 0) {
+        if ($command_exec != 0) {
             $this->output->writeln("<red>Error:</red> An error occurred while trying to install the extensions");
             exit;
         }
-
-        // clear cache after successful upgrade
-        $this->clearCache();
     }
 
     /**
-     * @param $onlyPackages
+     * @param $only_packages
      *
      * @return array
      */
-    private function userInputPackages($onlyPackages)
+    private function userInputPackages($only_packages)
     {
         $found = ['total' => 0];
         $ignore = [];
 
-        if (!count($onlyPackages)) {
+        if (!count($only_packages)) {
             $this->output->writeln('');
         } else {
-            foreach ($onlyPackages as $onlyPackage) {
-                $find = $this->gpm->findPackage($onlyPackage);
+            foreach ($only_packages as $only_package) {
+                $find = $this->gpm->findPackage($only_package);
 
                 if (!$find || !$this->gpm->isUpdatable($find->slug)) {
-                    $name = isset($find->slug) ? $find->slug : $onlyPackage;
+                    $name = isset($find->slug) ? $find->slug : $only_package;
                     $ignore[$name] = $name;
                 } else {
                     $found[$find->slug] = $find;

@@ -821,7 +821,9 @@ class Page
     {
         $blueprints = $this->blueprints();
         $values = $blueprints->filter($this->toArray());
-        $this->header($values['header']);
+        if ($values && isset($values['header'])) {
+        	$this->header($values['header']);
+        }
     }
 
     /**

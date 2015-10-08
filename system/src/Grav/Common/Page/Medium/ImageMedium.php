@@ -62,6 +62,11 @@ class ImageMedium extends Medium
     protected $derivatives = [];
 
     /**
+     * @var string
+     */
+    protected $sizes = '100vw';
+
+    /**
      * Construct.
      *
      * @param array $items
@@ -238,7 +243,7 @@ class ImageMedium extends Medium
         $srcset = $this->srcset($reset);
         if ($srcset) {
             empty($attributes['srcset']) && $attributes['srcset'] = $srcset;
-            empty($attributes['sizes']) && $attributes['sizes'] = $this->sizes();
+            $attributes['sizes'] = $this->sizes();
         }
 
         return [ 'name' => 'img', 'attributes' => $attributes ];
@@ -347,11 +352,11 @@ class ImageMedium extends Medium
     {
 
         if ($sizes) {
-            $this->attributes['sizes'] = $sizes;
+            $this->sizes = $sizes;
             return $this;
         }
 
-        return empty($this->attributes['sizes']) ? '100vw' : $this->attributes['sizes'];
+        return empty($this->sizes) ? '100vw' : $this->sizes;
     }
 
     /**

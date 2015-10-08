@@ -32,7 +32,7 @@ form:
       label: PLUGIN_ADMIN.PARENT_PAGE
       classes: fancy
       @data-options: '\Grav\Common\Page\Pages::parents'
-      @data-default: '\Grav\Plugin\admin::route'
+      @data-default: '\Grav\Plugin\admin::getLastPageRoute'
       options:
         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
       validate:
@@ -43,8 +43,8 @@ form:
       classes: fancy
       label: PLUGIN_ADMIN.PAGE_FILE
       help: PLUGIN_ADMIN.PAGE_FILE_HELP
-      default: default
       @data-options: '\Grav\Common\Page\Pages::types'
+      @data-default: '\Grav\Plugin\admin::getLastPageName'
       validate:
         required: true
 

@@ -40,8 +40,11 @@ class GPM extends Iterator
     public function __construct($refresh = false, $callback = null)
     {
         $this->installed  = new Local\Packages();
-        $this->repository = new Remote\Packages($refresh, $callback);
-        $this->grav       = new Remote\Grav($refresh, $callback);
+        try {
+            $this->repository = new Remote\Packages($refresh, $callback);
+            $this->grav       = new Remote\Grav($refresh, $callback);
+        } catch (\Exception $e) {
+        }
     }
 
     /**

@@ -66,7 +66,7 @@ class Truncator {
             // We'll only be able to parse HTML5 if it's valid XML
             $doc = new DOMDocument('4.01', 'utf-8');
             $doc->formatOutput = false;
-            $doc->preserveWhitespace = true;
+            $doc->preserveWhiteSpace = true;
             // loadHTML will fail with HTML5 tags (article, nav, etc)
             // so we need to suppress errors and if it fails to parse we
             // retry with the XML parser instead
@@ -170,6 +170,7 @@ class Truncator {
             return array(implode('', array_slice($words, 0, $length)), $count, $opts);
         }
     }
+
     protected static function ellipsable($node)
     {
         return ($node instanceof DOMDocument)
@@ -179,11 +180,15 @@ class Truncator {
 
     protected static function xmlEscape($string)
     {
-        return str_replace('&', '&amp;', $string);
+        $string = str_replace('&', '&amp;', $string);
+        $string = str_replace('<?', '&lt;?', $string);
+        return $string;
     }
 
     protected static function xmlUnescape($string)
     {
-        return str_replace('&amp;', '&', $string);
+        $string = str_replace('&amp;', '&', $string);
+        $string = str_replace('&lt;?', '<?', $string);
+        return $string;
     }
 }

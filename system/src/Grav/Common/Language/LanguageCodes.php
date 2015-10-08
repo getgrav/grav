@@ -537,7 +537,7 @@ class LanguageCodes
         ],
         "ru" => [
             "name"       => "Russian",
-            "nativeName" => "русский язык"
+            "nativeName" => "Русский"
         ],
         "sa" => [
             "name"       => "Sanskrit",
@@ -744,7 +744,11 @@ class LanguageCodes
 
     public static function getNativeName($code)
     {
-        return static::get($code, 'nativeName');
+        if (strlen($code) == 2) {
+            return static::get($code, 'nativeName');
+        } else {
+            return static::get(substr($code, 0, 2), 'nativeName') . ' (' . substr($code, -2) . ')';
+        }
     }
 
     public static function getNames(array $keys)
