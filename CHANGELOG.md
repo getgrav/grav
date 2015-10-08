@@ -1,3 +1,33 @@
+# v0.9.44
+## 10/07/2015
+
+1. [](#new)
+    * Added Redis back as a supported cache mechanism
+    * Allow Twig `nicetime` translations
+    * Added `-y` option for 'Yes to all' in `bin/gpm update`
+    * Added CSS `media` attribute to the Assets manager
+    * New German language support
+    * New Czech language support
+    * New French language support
+    * Added `modulus` twig filter
+1. [](#improved)
+    * URL decode in medium actions to allow complex syntax
+    * Take into account `HTTP_HOST` before `SERVER_NAME` (helpful with Nginx)
+    * More friendly cache naming to ease manual management of cache systems
+    * Added default Apache resource for `DirectoryIndex`
+1. [](#bugfix)
+    * Fix GPM failure when offline
+    * Fix `open_basedir` error in `bin/gpm install`
+    * Fix an HHVM error in Truncator
+    * Fix for XSS vulnerability with params
+    * Fix chaining for responsive size derivatives
+    * Fix for saving pages when removing the page title and all other header elements
+    * Fix when saving array fields
+    * Fix for ports being included in `HTTP_HOST`
+    * Fix for Truncator to handle PHP tags gracefully
+    * Fix for locate style lang codes in `getNativeName()`
+    * Urldecode image basenames in markdown
+
 # v0.9.43
 ## 09/16/2015
 
