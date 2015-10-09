@@ -85,7 +85,7 @@ class Twig
 
             // handle language templates if available
             if ($language->enabled()) {
-                $lang_templates = $locator->findResource('theme://templates/'.$active_language);
+                $lang_templates = $locator->findResource('theme://templates/'.($active_language ? $active_language : $language->getDefault()));
                 if ($lang_templates) {
                     $this->twig_paths[] = $lang_templates;
                 }
