@@ -1242,8 +1242,8 @@ class Page
         $language = self::getGrav()['language'];
 
         // get pre-route
-        if ($include_lang) {
-            $pre_route = $language->enabled() && $language->getActive() ? '/' . $language->getActive() : '';
+        if ($include_lang && $language->enabled()) {
+           $pre_route = $language->getLanguageURLPrefix();
         } else {
             $pre_route = '';
         }

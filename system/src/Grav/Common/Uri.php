@@ -493,11 +493,13 @@ class Uri
     {
         $grav = Grav::instance();
 
+        /** @var Grav\Common\Language\Language $language */
+        $language = $grav['language'];
+
         // Link processing should prepend language
         $language_append = '';
-        if ($type == 'link') {
-            $active_language = $grav['language']->getActive();
-            $language_append = $active_language ? '/'.$active_language : '';
+        if ($type == 'link' && $language->enabled()) {
+            $language_append = $language->getLanguageURLPrefix();
         }
 
         $pages_dir = $grav['locator']->findResource('page://');

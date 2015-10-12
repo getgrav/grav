@@ -198,6 +198,18 @@ form:
                     validate:
                         type: commalist
 
+                languages.include_default_lang:
+                    type: toggle
+                    label: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG
+                    help: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+
                 languages.translations:
                     type: toggle
                     label: PLUGIN_ADMIN.TRANSLATIONS_ENABLED

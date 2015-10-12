@@ -200,6 +200,20 @@ class Language
         return $uri;
     }
 
+    public function getLanguageURLPrefix($lang = null)
+    {
+        // if active lang is not passed in, use current active
+        if (!$lang) {
+            $lang = $this->getLanguage();
+        }
+
+        if ($this->default == $lang && $this->config->get('system.languages.include_default_lang') === false) {
+            return '';
+        } else {
+            return '/' . $lang;
+        }
+    }
+
 
     /**
      * Gets an array of valid extensions with active first, then fallback extensions
