@@ -108,6 +108,8 @@ class Grav extends Container
         $container['page'] = function ($c) {
             /** @var Pages $pages */
             $pages = $c['pages'];
+            /** @var Language $language */
+            $language = $c['language'];
 
             /** @var Uri $uri */
             $uri = $c['uri'];
@@ -117,9 +119,21 @@ class Grav extends Container
 
             $page = $pages->dispatch($path);
 
-            // handle redirect if not 'default route' configuration
-            if ($page && $c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                $c->redirectLangSafe($page->route());
+            // Redirection tests
+            if ($page) {
+                // Language-specific redirection scenarios
+                if ($language->enabled()) {
+                    if ($language->isLanguageInUrl() && !$language->isIncludeDefaultLanguage()) {
+                        $c->redirect($page->route());
+                    }
+                    if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
+                        $c->redirectLangSafe($page->route());
+                    }
+                }
+                // Default route test and redirect
+                if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
+                    $c->redirectLangSafe($page->route());
+                }
             }
 
             // if page is not found, try some fallback stuff
@@ -285,7 +299,7 @@ class Grav extends Container
         /** @var Language $language */
         $language = $this['language'];
 
-        if ($language->enabled()) {
+        if ($language->enabled() && $language->isIncludeDefaultLanguage()) {
             return $this->redirect($language->getLanguage() . $route, $code);
         } else {
             return $this->redirect($route);
