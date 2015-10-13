@@ -110,17 +110,6 @@ class Uri
         // set active language
         $uri = $language->setActiveFromUri($uri);
 
-        // redirect to language specific homepage if configured to do so
-        if ($uri == '/' && $language->enabled()) {
-            if ($config->get('system.languages.home_redirect.include_route', true)) {
-                $prefix = $config->get('system.languages.home_redirect.include_lang', true) ? $language->getLanguage() . '/' : '';
-                $grav->redirect($prefix . Pages::getHomeRoute());
-            } elseif ($config->get('system.languages.home_redirect.include_lang', true)) {
-                $grav->redirect($language->getLanguage() . '/');
-            }
-        }
-
-
         // split the URL and params
         $bits = parse_url($uri);
 

@@ -9,9 +9,6 @@ languages:
   translations: true                   # Enable translations by default
   translations_fallback: true          # Fallback through supported translations if active lang doesn't exist
   session_store_active: false          # Store active language in session
-  home_redirect:
-    include_lang: true                 # Include language in home redirect (/en)
-    include_route: false               # Include route in home redirect (/blog)
   http_accept_language: false          # Attempt to set the language based on http_accept_language header in the browser
   override_locale: false               # Override the default or system locale with language specific one
 
