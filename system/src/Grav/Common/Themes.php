@@ -27,6 +27,9 @@ class Themes extends Iterator
     {
         $this->grav = $grav;
         $this->config = $grav['config'];
+
+        // Register instance as autoloader for theme inheritance
+        spl_autoload_register([$this, 'autoloadTheme']);
     }
 
     public function init()
@@ -226,10 +229,45 @@ class Themes extends Iterator
         $config->joinDefaults("themes.{$name}", $themeConfig);
 
         if ($this->config->get('system.languages.translations', true)) {
-            $languages = CompiledYamlFile::instance("themes://{$name}/languages". YAML_EXT)->content();
+            $languages = [];
+            $schemes = array_reverse($config->get("themes.{$name}.streams.schemes.theme.prefixes.", []));
+            foreach ($schemes as $scheme) {
+                $languages = array_replace_recursive($languages, CompiledYamlFile::instance("$scheme/languages". YAML_EXT)->content());
+            }
             if ($languages) {
                 $config->getLanguages()->mergeRecursive($languages);
             }
         }
+    }
+
+    /**
+     * Autoload theme classes for inheritance
+     *
+     * @param  string $class Class name
+     *
+     * @return mixed  false  FALSE if unable to load $class; Class name if
+     *                       $class is successfully loaded
+     */
+    protected function autoloadTheme($class)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        $prefix = "Grav\\Theme";
+        if (false !== strpos($class, $prefix)) {
+            // Remove prefix from class
+            $class = substr($class, strlen($prefix));
+
+            // Replace namespace tokens to directory separators
+            $path = ltrim(preg_replace('#\\\|_(?!.+\\\)#', '/', $class), '/');
+            $file = $locator->findResource("themes://{$path}/{$path}.php");
+
+            // Load class
+            if (stream_resolve_include_path($file)) {
+              return include_once($file);
+            }
+        }
+
+        return false;
     }
 }
