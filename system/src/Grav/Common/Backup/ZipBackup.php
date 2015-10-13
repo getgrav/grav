@@ -24,6 +24,8 @@ class ZipBackup
 
     protected static $ignoreFolders = [
         '.git',
+        '.svn',
+        '.hg',
         '.idea'
     ];
 
