@@ -15,17 +15,15 @@ class ZipBackup
 {
     use GravTrait;
 
-    public static $ignorePaths = [
+    protected static $ignorePaths = [
         'backup',
         'cache',
         'images',
         'logs'
     ];
 
-    public static $ignoreFolders = [
+    protected static $ignoreFolders = [
         '.git',
-        '.svn',
-        '.hg',
         '.idea'
     ];
 
