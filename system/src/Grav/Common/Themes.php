@@ -221,20 +221,43 @@ class Themes extends Iterator
                 throw new \InvalidArgumentException("Stream '{$type}' could not be initialized.");
             }
         }
+
+        // Load languages after streams has been properly initialized
+        $this->loadLanguages($this->config);
     }
 
+    /**
+     * Load theme configuration.
+     *
+     * @param string  $name    Theme name
+     * @param Config  $config  Configuration class
+     */
     protected function loadConfiguration($name, Config $config)
     {
         $themeConfig = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
         $config->joinDefaults("themes.{$name}", $themeConfig);
+    }
 
-        if ($this->config->get('system.languages.translations', true)) {
+    /**
+     * Load theme languages.
+     *
+     * @param Config  $config  Configuration class
+     */
+    protected function loadLanguages(Config $config)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        if ($config->get('system.languages.translations', true)) {
+            $languageFiles = array_reverse($locator->findResources("theme://languages" . YAML_EXT));
+
             $languages = [];
-            $schemes = array_reverse($config->get("themes.{$name}.streams.schemes.theme.prefixes.", []));
-            foreach ($schemes as $scheme) {
-                $languages = array_replace_recursive($languages, CompiledYamlFile::instance("$scheme/languages". YAML_EXT)->content());
+            foreach ($languageFiles as $language) {
+                $languages[] = CompiledYamlFile::instance($language)->content();
             }
+
             if ($languages) {
+                $languages = call_user_func_array('array_replace_recursive', $languages);
                 $config->getLanguages()->mergeRecursive($languages);
             }
         }
