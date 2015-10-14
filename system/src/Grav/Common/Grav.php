@@ -299,7 +299,7 @@ class Grav extends Container
         /** @var Language $language */
         $language = $this['language'];
 
-        if ($language->enabled() && $language->isIncludeDefaultLanguage()) {
+        if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
             return $this->redirect($language->getLanguage() . $route, $code);
         } else {
             return $this->redirect($route);
