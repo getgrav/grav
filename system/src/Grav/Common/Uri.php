@@ -93,6 +93,9 @@ class Uri
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
+        // remove double slashes
+        $uri = preg_replace('#/{2,}#', '/', $uri);
+
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
         if ($setup_base) {
