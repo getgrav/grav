@@ -117,7 +117,7 @@ class Uri
         $bits = parse_url($uri);
 
         // process query string
-        if (isset($bits['query'])) {
+        if (isset($bits['query']) && isset($bits['path'])) {
             $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             $uri = $bits['path'];
         }
