@@ -259,6 +259,8 @@ class Page
         if (!$this->header) {
             $file = $this->file();
             if ($file) {
+                // Set some options
+                $file->settings(['native' => true, 'compat' => true]);
                 try {
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();

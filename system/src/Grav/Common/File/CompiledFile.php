@@ -22,6 +22,9 @@ trait CompiledFile
      */
     public function content($var = null)
     {
+        // Set some options
+        $this->settings(['native' => true, 'compat' => true]);
+
         // If nothing has been loaded, attempt to get pre-compiled version of the file first.
         if ($var === null && $this->raw === null && $this->content === null) {
             $key = md5($this->filename);
