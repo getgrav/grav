@@ -185,12 +185,15 @@ class Grav extends Container
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
 
+
+
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $this['errors']->resetHandlers();
         $this['uri']->init();
         $this['session']->init();
-        $this['errors']->resetHandlers();
+
         $debugger->init();
         $this['config']->debug();
         $debugger->stopTimer('_config');
