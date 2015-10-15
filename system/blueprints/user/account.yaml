@@ -50,7 +50,7 @@ form:
                     label: PLUGIN_ADMIN.LANGUAGE
                     size: medium
                     classes: fancy
-                    @data-options: '\Grav\Plugin\admin::adminLanguages'
+                    '@data-options': '\Grav\Plugin\admin::adminLanguages'
                     default: 'en'
                     help: PLUGIN_ADMIN.LANGUAGE_HELP
 

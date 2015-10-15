@@ -16,9 +16,9 @@ form:
             header.content.items:
               type: select
               label: PLUGIN_ADMIN.ITEMS
-              default: @self.modular
+              default: '@self.modular'
               options:
-                @self.modular: Children
+                '@self.modular': Children
 
             header.content.order.by:
               type: select
