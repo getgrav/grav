@@ -1,3 +1,25 @@
+# v0.9.46
+## XX/XX/2015
+
+1. [](#new)
+    * Support for inherited theme class
+    * Added new default language prepend system configuration option
+    * New `|evaluate` Twig filter to evaluate a string as twig
+1. [](#improved)
+    * Set `errors: display: false` by default in `system.yaml`
+    * Strip out extra slashes in the URI 
+    * Validate hostname to ensure it is valid
+    * Ignore more SCM folders in Backups
+    * Removed `home_redirect` settings from `system.yaml`
+    * Added Page `media` as root twig object for consistency
+    * Updated to latest vendor libraries
+1. [](#bugfix)
+    * Fix for redirecting external URL with multilanguage
+    * Fix language files with child/parent theme relationships
+    * Fixed a regression issue resulting in incorrect default language
+    * Ensure error handler is initialized before URI is processed
+    * Use default language in Twig if active language is not set
+
 # v0.9.45
 ## 10/08/2015
 
