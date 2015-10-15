@@ -80,7 +80,7 @@ assets:                                # Configuration for Assets Manager (JS, C
     jquery: system://assets/jquery/jquery-2.1.4.min.js
 
 errors:
-  display: true                        # Display full backtrace-style error page
+  display: false                       # Display full backtrace-style error page
   log: true                            # Log errors to /logs folder
 
 debugger:
