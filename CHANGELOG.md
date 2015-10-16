@@ -2,6 +2,7 @@
 ## XX/XX/2015
 
 1. [](#new)
+    * Use native YAML parser if installed for 4X speed boost in parsing YAML files
     * Support for inherited theme class
     * Added new default language prepend system configuration option
     * New `|evaluate` Twig filter to evaluate a string as twig
