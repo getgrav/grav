@@ -349,7 +349,7 @@ class Grav extends Container
 
         if ($expires > 0) {
             $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
-            header('Cache-Control: max-age=' . $expires_date);
+            header('Cache-Control: max-age=' . $expires);
             header('Expires: '. $expires_date);
         }
 
