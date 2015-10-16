@@ -47,7 +47,7 @@ Check out the [install procedures](http://learn.getgrav.org/basics/installation)
 
 # Adding Functionality
 
-You can download manually from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](http://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
+You can download [plugins](http://getgrav.org/downloads/plugins) or [themes](http://getgrav.org/downloads/themes) manually from the appropriate tab on the [Downloads page on http://getgrav.org](http://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](http://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
 
 ```
 $ bin/gpm index
