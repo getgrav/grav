@@ -283,6 +283,9 @@ abstract class Utils
             case "tiff":
                 return "image/" . $extension;
 
+            case "svg":
+                return "image/svg+xml";
+
             case "css":
                 return "text/css";
 
