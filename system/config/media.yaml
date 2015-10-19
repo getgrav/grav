@@ -23,12 +23,6 @@ png:
   type: image
   thumb: media/thumb-png.png
   mime: image/png
-bmp:
-  type: image
-  mime: image/bmp
-tiff:
-  type: image
-  mime: image/tiff
 gif:
   type: animated
   thumb: media/thumb-gif.png
@@ -43,15 +37,6 @@ mp4:
   type: video
   thumb: media/thumb-mp4.png
   mime: video/mp4
-mpeg:
-  type: video
-  mime: video/mpeg
-mpg:
-  type: video
-  mime: video/mpeg
-mpe:
-  type: video
-  mime: video/mpeg
 mov:
   type: video
   thumb: media/thumb-mov.png
@@ -68,12 +53,6 @@ flv:
   type: video
   thumb: media/thumb-flv.png
   mime: video/x-flv
-avi:
-  type: video
-  mime: video/msvideo
-wmv:
-  type: video
-  mime: video/x-ms-wmv
 
 mp3:
   type: audio
@@ -150,9 +129,28 @@ pps:
 rtf:
   type: file
   mime: application/rtf
-txt:
+
+bmp:
   type: file
-  mime: text/plain
+  mime: image/bmp
+tiff:
+  type: file
+  mime: image/tiff
+mpeg:
+  type: file
+  mime: video/mpeg
+mpg:
+  type: file
+  mime: video/mpeg
+mpe:
+  type: file
+  mime: video/mpeg
+avi:
+  type: file
+  mime: video/msvideo
+wmv:
+  type: file
+  mime: video/x-ms-wmv
 
 html:
   type: file
