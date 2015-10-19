@@ -1962,6 +1962,10 @@ class Page
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
+                            if (!empty($params) && $params[0] === false) {
+                                $results = $this->children()->nonModular()->published();
+                                break;
+                            }
                             $results = $this->children()->modular()->published();
                             break;
                         case 'children':
@@ -1973,10 +1977,24 @@ class Page
 
             case '@page':
                 if (!empty($params)) {
-                    $page = $this->find($params[0]);
-                    if ($page) {
-                        $results = $page->children()->nonModular()->published();
+                    /** @var Pages $pages */
+                    $pages = self::getGrav()['pages'];
+
+                    list($what, $recurse) = array_pad($params, 2, null);
+
+                    if ($what == '@root') {
+                        $page = $pages->root();
+                    } else {
+                        $page = $this->find($what);
                     }
+
+                    if ($page) {
+                        if ($recurse) {
+                            $results = $pages->all($page)->nonModular()->published();
+                        } else {
+                            $results = $page->children()->nonModular()->published();
+                        }
+                     }
                 }
                 break;
 
