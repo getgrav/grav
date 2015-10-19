@@ -138,6 +138,13 @@ class User extends Data
             return false;
         }
 
+        //Check group access level
+        $group = $this->get('group');
+        if (self::getGrav()['config']->get("site.groups.{$group}.access.{$action}") === true) {
+            return true;
+        }
+
+        //Fallback to user access level
         return $this->get("access.{$action}") === true;
     }
 
