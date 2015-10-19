@@ -47,6 +47,8 @@ RewriteRule .* index.php [L]
 RewriteRule ^(.git|cache|bin|logs|backup)/(.*) error [L]
 # Block access to specific file types for these folders
 RewriteRule ^(system|user|vendor)/(.*)\.(txt|md|html|yaml|php|twig|sh|bat)$ error [L]
+# Block all direct access to .md files:
+RewriteRule \.md$ error [L]
 ## End - Security
 
 </IfModule>
