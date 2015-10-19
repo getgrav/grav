@@ -216,12 +216,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "cfe9ce209d2705fece1743f0af45f58fec840458"
+                "reference": "9a393ceb80f7497b6513feb574638e87048fed55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/cfe9ce209d2705fece1743f0af45f58fec840458",
-                "reference": "cfe9ce209d2705fece1743f0af45f58fec840458",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/9a393ceb80f7497b6513feb574638e87048fed55",
+                "reference": "9a393ceb80f7497b6513feb574638e87048fed55",
                 "shasum": ""
             },
             "require": {
@@ -266,7 +266,7 @@
                 "whoops",
                 "zf2"
             ],
-            "time": "2015-07-23 15:48:15"
+            "time": "2015-09-27 09:47:06"
         },
         {
             "name": "gregwar/cache",
