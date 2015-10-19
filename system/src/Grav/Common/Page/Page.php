@@ -1938,7 +1938,12 @@ class Page
         } else {
             $result = [];
             foreach($value as $key => $val) {
-                $result = $result + $this->evaluate([$key=>$val])->toArray();
+                if (is_int($key)) {
+                    $result = $result + $this->evaluate($val)->toArray();
+                } else {
+                    $result = $result + $this->evaluate([$key=>$val])->toArray();
+                }
+
             }
             return new Collection($result);
         }
