@@ -11,6 +11,10 @@ jpg:
   type: image
   thumb: media/thumb-jpg.png
   mime: image/jpeg
+jpe:
+  type: image
+  thumb: media/thumb-jpg.png
+  mime: image/jpeg
 jpeg:
   type: image
   thumb: media/thumb-jpeg.png
@@ -19,6 +23,12 @@ png:
   type: image
   thumb: media/thumb-png.png
   mime: image/png
+bmp:
+  type: image
+  mime: image/bmp
+tiff:
+  type: image
+  mime: image/tiff
 gif:
   type: animated
   thumb: media/thumb-gif.png
@@ -33,6 +43,15 @@ mp4:
   type: video
   thumb: media/thumb-mp4.png
   mime: video/mp4
+mpeg:
+  type: video
+  mime: video/mpeg
+mpg:
+  type: video
+  mime: video/mpeg
+mpe:
+  type: video
+  mime: video/mpeg
 mov:
   type: video
   thumb: media/thumb-mov.png
@@ -49,6 +68,12 @@ flv:
   type: video
   thumb: media/thumb-flv.png
   mime: video/x-flv
+avi:
+  type: video
+  mime: video/msvideo
+wmv:
+  type: video
+  mime: video/x-ms-wmv
 
 mp3:
   type: audio
@@ -70,6 +95,12 @@ wav:
   type: audio
   thumb: media/thumb-wav.png
   mime: audio/wav
+aiff:
+  type: audio
+  mime: audio/aiff
+aif:
+  type: audio
+  mime: audio/aif
 
 txt:
   type: file
@@ -83,7 +114,51 @@ doc:
   type: file
   thumb: media/thumb-doc.png
   mime: application/msword
+docx:
+  type: file
+  mime: application/msword
+xls:
+  type: file
+  mime: application/vnd.ms-excel
+xlt:
+  type: file
+  mime: application/vnd.ms-excel
+xlm:
+  type: file
+  mime: application/vnd.ms-excel
+xld:
+  type: file
+  mime: application/vnd.ms-excel
+xla:
+  type: file
+  mime: application/vnd.ms-excel
+xlc:
+  type: file
+  mime: application/vnd.ms-excel
+xlw:
+  type: file
+  mime: application/vnd.ms-excel
+xll:
+  type: file
+  mime: application/vnd.ms-excel
+ppt:
+  type: file
+  mime: application/vnd.ms-powerpoint
+pps:
+  type: file
+  mime: application/vnd.ms-powerpoint
+rtf:
+  type: file
+  mime: application/rtf
+txt:
+  type: file
+  mime: text/plain
+
 html:
+  type: file
+  thumb: media/thumb-html.png
+  mime: text/html
+htm:
   type: file
   thumb: media/thumb-html.png
   mime: text/html
@@ -99,6 +174,9 @@ gz:
   type: file
   thumb: media/thumb-gz.png
   mime: application/gzip
+tar:
+  type: file
+  mime: application/x-tar
 css:
   type: file
   thumb: media/thumb-css.png
