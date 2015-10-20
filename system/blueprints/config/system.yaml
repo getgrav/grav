@@ -127,8 +127,8 @@ form:
                     help: PLUGIN_ADMIN.DATE_BASED_PUBLISHING_HELP
                     highlight: 1
                     options:
-                        1: Yes
-                        0: No
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
 
@@ -181,6 +181,17 @@ form:
                     classes: fancy
                     validate:
                         type: commalist
+
+                pages.url_taxonomy_filters:
+                    type: toggle
+                    label: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS
+                    help: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
 
         languages:
             type: section
