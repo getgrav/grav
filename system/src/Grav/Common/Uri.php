@@ -69,7 +69,12 @@ class Uri
         $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 
         // check for localhost variations
-        if ($name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
+        if ($name == 'localhost' 
+        // || $address == '::1' || $address == '127.0.0.1'
+        // this logic overrides alias names (e.g. grav.de and grav.com) used for environments on localhost with ip 127.0.0.1
+        // I think a check like if ( $name != 'localhost' && ($address == '::1' || $address == '127.0.0.1') )
+        // should resolve the issue?
+        ) {
             $this->host = 'localhost';
         } else {
             $this->host = $name;
