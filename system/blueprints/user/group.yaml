@@ -1,0 +1,8 @@
+title: Group
+form:
+    validation: loose
+    fields:
+
+        content:
+            type: section
+            title: PLUGIN_ADMIN_PRO.GROUP
