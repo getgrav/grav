@@ -1,8 +1,44 @@
 title: Group
 form:
     validation: loose
-    fields:
 
-        content:
-            type: section
-            title: PLUGIN_ADMIN_PRO.GROUP
+    fields:
+        spacer:
+            type: spacer
+            text: '<br>'
+
+        groupname:
+            type: text
+            size: large
+            label: PLUGIN_ADMIN.NAME
+            disabled: true
+            readonly: true
+
+        readableName:
+            type: text
+            size: large
+            label: PLUGIN_ADMIN_PRO.READABLE_NAME
+
+        description:
+            type: text
+            size: large
+            label: PLUGIN_ADMIN.DESCRIPTION
+
+        icon:
+            type: text
+            size: small
+            label: PLUGIN_ADMIN_PRO.ICON
+
+        access.admin:
+            type: array
+            label: PLUGIN_ADMIN_PRO.ADMIN_ACCESS
+            multiple: false
+            validate:
+                type: array
+
+        access.site:
+            type: array
+            label: PLUGIN_ADMIN_PRO.SITE_ACCESS
+            multiple: false
+            validate:
+                type: array
