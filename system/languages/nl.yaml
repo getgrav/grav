@@ -1,43 +1,43 @@
 INFLECTOR_IRREGULAR:
     'person': 'personen'
-    'man': 'menschen'
-    'child': 'kinder'
-    'sex': 'geschlecht'
-    'move': 'züge'
+    'man': 'mensen'
+    'child': 'kinderen'
+    'sex': 'geslacht'
+    'move': 'verplaatsen'
 NICETIME:
-    NO_DATE_PROVIDED: Keine Daten vorhanden
-    BAD_DATE: Falsches Datum
-    AGO: her
-    FROM_NOW: ab jetzt
-    SECOND: sekunde
-    MINUTE: minute
-    HOUR: stunde
-    DAY: tag
-    WEEK: woche
-    MONTH: monat
-    YEAR: jahr
-    DECADE: dekade
-    SEC: sek
+    NO_DATE_PROVIDED: geen datum opgegeven
+    BAD_DATE: Datumformaat onjuist
+    AGO: geleden
+    FROM_NOW: vanaf nu
+    SECOND: seconde
+    MINUTE: minuut
+    HOUR: uur
+    DAY: dag
+    WEEK: week
+    MONTH: maand
+    YEAR: jaar
+    DECADE: decenium
+    SEC: sec
     MIN: min
-    HR: std
-    DAY: tag
-    WK: wo
-    MO: mo
-    YR: yh
+    HR: hr
+    DAY: dag
+    WK: wk
+    MO: ma
+    YR: yr
     DEC: dec
-    SECOND_PLURAL: sekunden
+    SECOND_PLURAL: seconden
     MINUTE_PLURAL: minuten
-    HOUR_PLURAL: stunden
-    DAY_PLURAL: tage
-    WEEK_PLURAL: wochen
-    MONTH_PLURAL: monate
-    YEAR_PLURAL: jahre
-    DECADE_PLURAL: dekaden
-    SEC_PLURAL: sekunden
+    HOUR_PLURAL: uren
+    DAY_PLURAL: dagen
+    WEEK_PLURAL: weken
+    MONTH_PLURAL: maanden
+    YEAR_PLURAL: jaren
+    DECADE_PLURAL: decennia
+    SEC_PLURAL: seconden
     MIN_PLURAL: minuten
-    HR_PLURAL: stunden
-    DAY_PLURAL: tage
-    WK_PLURAL: wochen
-    MO_PLURAL: monate
-    YR_PLURAL: jahre
-    DEC_PLURAL: dekaden
+    HR_PLURAL: uren
+    DAY_PLURAL: dagen
+    WK_PLURAL: weken
+    MO_PLURAL: maanden
+    YR_PLURAL: jaren
+    DEC_PLURAL: decs
