@@ -50,7 +50,7 @@ trait CompiledFile
                 $file->lock(false);
 
                 // Decode RAW file into compiled array.
-                $data = $this->decode($this->raw());
+                $data = (array) $this->decode($this->raw());
                 $cache = [
                     '@class' => $class,
                     'filename' => $this->filename,
