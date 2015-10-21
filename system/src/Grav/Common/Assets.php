@@ -544,7 +544,7 @@ class Assets
         $inline_js = '';
 
         if ($this->js_pipeline) {
-            $output .= '<script src="' . $this->pipeline(JS_ASSET) . '"' . $attributes . ' ></script>' . "\n";
+            $output .= '<script src="' . $this->pipeline(JS_ASSET, $group) . '"' . $attributes . ' ></script>' . "\n";
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
@@ -579,27 +579,41 @@ class Assets
      *
      * @return string
      */
-    protected function pipeline($css = true)
+    protected function pipeline($css = true, $group = 'head')
     {
         /** @var Cache $cache */
         $cache = self::getGrav()['cache'];
         $key = '?' . $cache->getKey();
 
+        // temporary list of assets to pipeline
+        $css = [];
+        $js = [];
+
+        // clear no-pipeline assets lists
+        $this->css_no_pipeline = [];
+        $this->js_no_pipeline = [];
+
         if ($css) {
             $file = md5(json_encode($this->css) . $this->js_minify . $this->css_minify . $this->css_rewrite) . '.css';
             foreach ($this->css as $id => $asset) {
                 if (!$asset['pipeline']) {
-                    $this->css_no_pipeline[] = $asset;
-                    unset($this->css[$id]);
+                    $this->css_no_pipeline[$id] = $asset;
+                } else {
+                    $css[$id] = $asset;
                 }
             }
         } else {
-            $file = md5(json_encode($this->js) . $this->js_minify . $this->css_minify . $this->css_rewrite) . '.js';
+            $file = md5(json_encode($this->js) . $this->js_minify . $this->css_minify . $this->css_rewrite . $group) . '.js';
             foreach ($this->js as $id => $asset) {
-                if (!$asset['pipeline']) {
-                    $this->js_no_pipeline[] = $asset;
-                    unset($this->js[$id]);
+
+                if ($asset['group'] == $group) {
+                    if (!$asset['pipeline']) {
+                        $this->js_no_pipeline[] = $asset;
+                    } else {
+                        $js[$id] = $asset;
+                    }
                 }
+
             }
         }
 
@@ -622,13 +636,13 @@ class Assets
 
         // Concatenate files
         if ($css) {
-            $buffer = $this->gatherLinks($this->css, CSS_ASSET);
+            $buffer = $this->gatherLinks($css, CSS_ASSET);
             if ($css_minify) {
                 $min = new \CSSmin();
                 $buffer = $min->run($buffer);
             }
         } else {
-            $buffer = $this->gatherLinks($this->js, JS_ASSET);
+            $buffer = $this->gatherLinks($js, JS_ASSET);
             if ($this->js_minify) {
                 $buffer = \JSMin::minify($buffer);
             }
