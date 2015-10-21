@@ -27,7 +27,7 @@ class Group extends Data
      */
     private static function groups()
     {
-        $groups = self::getGrav()['config']->get('site.groups');
+        $groups = self::getGrav()['config']->get('groups');
         return $groups;
     }
 
@@ -74,13 +74,13 @@ class Group extends Data
 
         $fields = $blueprint->fields();
 
-        self::getGrav()['config']->set("site.groups.$this->groupname", []);
+        self::getGrav()['config']->set("groups.$this->groupname", []);
 
         foreach($fields as $field) {
             if ($field['type'] == 'text') {
                 $value = $field['name'];
                 if (isset($this->items[$value])) {
-                    self::getGrav()['config']->set("site.groups.$this->groupname.$value", $this->items[$value]);
+                    self::getGrav()['config']->set("groups.$this->groupname.$value", $this->items[$value]);
                 }
             }
             if ($field['type'] == 'array') {
@@ -88,12 +88,12 @@ class Group extends Data
                 $arrayValues = Utils::resolve($this->items, $field['name']);
 
                 if ($arrayValues) foreach($arrayValues as $arrayIndex => $arrayValue) {
-                    self::getGrav()['config']->set("site.groups.$this->groupname.$value.$arrayIndex", $arrayValue);
+                    self::getGrav()['config']->set("groups.$this->groupname.$value.$arrayIndex", $arrayValue);
                 }
             }
         }
 
-        $type = 'site';
+        $type = 'groups';
         $blueprints = $this->blueprints("config/{$type}");
         $obj = new Data(self::getGrav()['config']->get($type), $blueprints);
         $file = CompiledYamlFile::instance(self::getGrav()['locator']->findResource("config://{$type}.yaml"));
@@ -112,11 +112,11 @@ class Group extends Data
         $blueprints = new Blueprints('blueprints://');
         $blueprint = $blueprints->get('user/group');
 
-        $groups = self::getGrav()['config']->get("site.groups");
+        $groups = self::getGrav()['config']->get("groups");
         unset($groups[$groupname]);
-        self::getGrav()['config']->set("site.groups", $groups);
+        self::getGrav()['config']->set("groups", $groups);
 
-        $type = 'site';
+        $type = 'groups';
         $obj = new Data(self::getGrav()['config']->get($type), $blueprint);
         $file = CompiledYamlFile::instance(self::getGrav()['locator']->findResource("config://{$type}.yaml"));
         $obj->file($file);
