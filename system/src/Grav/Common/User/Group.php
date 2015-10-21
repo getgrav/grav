@@ -31,13 +31,27 @@ class Group extends Data
     }
 
     /**
+     * Checks if a group exists
+     *
+     * @return object
+     */
+    public static function group_exists($groupname)
+    {
+        return isset(self::groups()[$groupname]);
+    }
+
+    /**
      * Get a group by name
      *
      * @return object
      */
     public static function load($groupname)
     {
-        $content = self::groups()[$groupname];
+        if (self::group_exists($groupname)) {
+            $content = self::groups()[$groupname];
+        } else {
+            $content = [];
+        }
 
         $blueprints = new Blueprints('blueprints://');
         $blueprint = $blueprints->get('user/group');
@@ -83,7 +97,9 @@ class Group extends Data
         foreach($fields as $field) {
             if ($field['type'] == 'text') {
                 $value = $field['name'];
-                self::getGrav()['config']->set("site.groups.$this->groupname.$value", $this->items[$field['name']]);
+                if (isset($this->items[$value])) {
+                    self::getGrav()['config']->set("site.groups.$this->groupname.$value", $this->items[$value]);
+                }
             }
             if ($field['type'] == 'array') {
                 $value = $field['name'];
