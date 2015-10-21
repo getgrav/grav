@@ -480,7 +480,10 @@ class Assets
 
         $output = '';
         if ($this->css_pipeline) {
-            $output .= '<link href="' . $this->pipeline(CSS_ASSET) . '"' . $attributes . ' />' . "\n";
+            $pipeline_result = $this->pipeline(CSS_ASSET);
+            if ($pipeline_result) {
+                $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+            }
             foreach ($this->css_no_pipeline as $file) {
                 $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
                 $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
@@ -588,8 +591,8 @@ class Assets
         $key = '?' . $cache->getKey();
 
         // temporary list of assets to pipeline
-        $css = [];
-        $js = [];
+        $temp_css = [];
+        $temp_js = [];
 
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
@@ -601,7 +604,7 @@ class Assets
                 if (!$asset['pipeline']) {
                     $this->css_no_pipeline[$id] = $asset;
                 } else {
-                    $css[$id] = $asset;
+                    $temp_css[$id] = $asset;
                 }
             }
         } else {
@@ -612,7 +615,7 @@ class Assets
                     if (!$asset['pipeline']) {
                         $this->js_no_pipeline[] = $asset;
                     } else {
-                        $js[$id] = $asset;
+                        $temp_js[$id] = $asset;
                     }
                 }
 
@@ -638,13 +641,13 @@ class Assets
 
         // Concatenate files
         if ($css) {
-            $buffer = $this->gatherLinks($css, CSS_ASSET);
+            $buffer = $this->gatherLinks($temp_css, CSS_ASSET);
             if ($css_minify) {
                 $min = new \CSSmin();
                 $buffer = $min->run($buffer);
             }
         } else {
-            $buffer = $this->gatherLinks($js, JS_ASSET);
+            $buffer = $this->gatherLinks($temp_js, JS_ASSET);
             if ($this->js_minify) {
                 $buffer = \JSMin::minify($buffer);
             }
