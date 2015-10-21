@@ -131,8 +131,14 @@ class Grav extends Container
                     }
                 }
                 // Default route test and redirect
-                if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                    $c->redirectLangSafe($page->route());
+                $redirect_default_route = $c['config']->get('system.pages.redirect_default_route');
+                if ($redirect_default_route && $page->route() != $path) {
+                    // redirect_default_route can be either just true or set to the http response code value, 301 or 303
+                    if (is_int($redirect_default_route)) {
+                        $c->redirectLangSafe($page->route(), $redirect_default_route);
+                    }
+                    else
+                        $c->redirectLangSafe($page->route());
                 }
             }
 
@@ -305,7 +311,7 @@ class Grav extends Container
         if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
             return $this->redirect($language->getLanguage() . $route, $code);
         } else {
-            return $this->redirect($route);
+            return $this->redirect($route, $code);
         }
     }
 
