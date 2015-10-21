@@ -377,4 +377,23 @@ abstract class Utils
         }
     }
 
+    /**
+     * Get value of an array using dot notation
+     */
+    public static function resolve(array $array, $path, $default = null)
+    {
+        $current = $array;
+        $p = strtok($path, '.');
+
+        while ($p !== false) {
+            if (!isset($current[$p])) {
+                return $default;
+            }
+            $current = $current[$p];
+            $p = strtok('.');
+        }
+
+        return $current;
+    }
+
 }
