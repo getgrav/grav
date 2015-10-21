@@ -5,6 +5,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\GravTrait;
+use Grav\Common\Utils;
 
 /**
  * User object
@@ -138,16 +139,22 @@ class User extends Data
             return false;
         }
 
+        $return = false;
+
         //Check group access level
         $groups = $this->get('groups');
         if ($groups) foreach($groups as $group) {
             if (self::getGrav()['config']->get("site.groups.{$group}.access.{$action}") === true) {
-                return true;
+                $return = true;
             }
         }
 
-        //Fallback to user access level
-        return $this->get("access.{$action}") === true;
+        //Check user access level
+        if (Utils::resolve($this->get("access"), $action) !== null) {
+            $return = $this->get("access.{$action}");
+        }
+
+        return $return;
     }
 
     /**
