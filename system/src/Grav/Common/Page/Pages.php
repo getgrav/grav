@@ -481,6 +481,29 @@ class Pages
     }
 
     /**
+     * Get access levels of the site pages
+     *
+     * @return array
+     */
+    public function accessLevels()
+    {
+        $accessLevels = [];
+        foreach($this->all() as $page) {
+            if (isset($page->header()->access)) {
+                if (is_array($page->header()->access)) {
+                    foreach($page->header()->access as $index => $accessLevel) {
+                        array_push($accessLevels, $index);
+                    }
+                } else {
+                    array_push($accessLevels, $page->header()->access);
+                }
+            }
+        }
+
+        return array_unique($accessLevels);
+    }
+
+    /**
      * Get available parents.
      *
      * @return array
