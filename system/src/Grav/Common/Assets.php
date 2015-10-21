@@ -539,12 +539,14 @@ class Assets
 
         $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
 
-
         $output = '';
         $inline_js = '';
 
         if ($this->js_pipeline) {
-            $output .= '<script src="' . $this->pipeline(JS_ASSET, $group) . '"' . $attributes . ' ></script>' . "\n";
+            $pipeline_result = $this->pipeline(JS_ASSET, $group);
+            if ($pipeline_result) {
+                $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+            }
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
@@ -649,9 +651,12 @@ class Assets
         }
 
         // Write file
-        file_put_contents($absolute_path, $buffer);
-
-        return $relative_path . $key;
+        if (strlen(trim($buffer)) > 0) {
+            file_put_contents($absolute_path, $buffer);
+            return $relative_path . $key;
+        } else {
+            return false;
+        }
     }
 
     /**
