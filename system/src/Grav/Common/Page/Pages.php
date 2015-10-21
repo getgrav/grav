@@ -492,9 +492,16 @@ class Pages
             if (isset($page->header()->access)) {
                 if (is_array($page->header()->access)) {
                     foreach($page->header()->access as $index => $accessLevel) {
-                        array_push($accessLevels, $index);
+                        if (is_array($accessLevel)) {
+                            foreach($accessLevel as $innerIndex => $innerAccessLevel) {
+                                array_push($accessLevels, $innerIndex);
+                            }
+                        } else {
+                            array_push($accessLevels, $index);
+                        }
                     }
                 } else {
+
                     array_push($accessLevels, $page->header()->access);
                 }
             }
