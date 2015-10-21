@@ -31,14 +31,14 @@ form:
 
         access.admin:
             type: array
-            label: PLUGIN_ADMIN_PRO.ADMIN_ACCESS
+            label: PLUGIN_ADMIN.ADMIN_ACCESS
             multiple: false
             validate:
                 type: array
 
         access.site:
             type: array
-            label: PLUGIN_ADMIN_PRO.SITE_ACCESS
+            label: PLUGIN_ADMIN.SITE_ACCESS
             multiple: false
             validate:
                 type: array
