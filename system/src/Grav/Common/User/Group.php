@@ -95,9 +95,33 @@ class Group extends Data
 
         $type = 'site';
         $blueprints = $this->blueprints("config/{$type}");
-        $obj = new Data(self::getGrav()['config']->get('site'), $blueprints);
+        $obj = new Data(self::getGrav()['config']->get($type), $blueprints);
         $file = CompiledYamlFile::instance(self::getGrav()['locator']->findResource("config://{$type}.yaml"));
         $obj->file($file);
         $obj->save();
+    }
+
+    /**
+     * Remove a group
+     *
+     * @param string $username
+     * @return bool True is the action was performed
+     */
+    public static function remove($groupname)
+    {
+        $blueprints = new Blueprints('blueprints://');
+        $blueprint = $blueprints->get('user/group');
+
+        $groups = self::getGrav()['config']->get("site.groups");
+        unset($groups[$groupname]);
+        self::getGrav()['config']->set("site.groups", $groups);
+
+        $type = 'site';
+        $obj = new Data(self::getGrav()['config']->get($type), $blueprint);
+        $file = CompiledYamlFile::instance(self::getGrav()['locator']->findResource("config://{$type}.yaml"));
+        $obj->file($file);
+        $obj->save();
+
+        return true;
     }
 }
