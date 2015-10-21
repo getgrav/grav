@@ -54,6 +54,16 @@ form:
                     default: 'en'
                     help: PLUGIN_ADMIN.LANGUAGE_HELP
 
+                groups:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.GROUPS
+                    '@data-options': '\Grav\User\Groups::groups'
+                    classes: fancy
+                    help: PLUGIN_ADMIN.GROUPS_HELP
+                    validate:
+                        type: commalist
+
                 access.admin:
                     type: array
                     label: PLUGIN_ADMIN.ADMIN_ACCESS
