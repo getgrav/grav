@@ -5,6 +5,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\GravTrait;
+use Grav\Common\Utils;
 
 /**
  * Group object
@@ -64,25 +65,6 @@ class Group extends Data
     }
 
     /**
-     * Get value of an array using dot notation
-     */
-    private function resolve(array $array, $path, $default = null)
-    {
-        $current = $array;
-        $p = strtok($path, '.');
-
-        while ($p !== false) {
-            if (!isset($current[$p])) {
-                return $default;
-            }
-            $current = $current[$p];
-            $p = strtok('.');
-        }
-
-        return $current;
-    }
-
-    /**
      * Save a group
      */
     public function save()
@@ -103,7 +85,7 @@ class Group extends Data
             }
             if ($field['type'] == 'array') {
                 $value = $field['name'];
-                $arrayValues = $this->resolve($this->items, $field['name']);
+                $arrayValues = Utils::resolve($this->items, $field['name']);
 
                 if ($arrayValues) foreach($arrayValues as $arrayIndex => $arrayValue) {
                     self::getGrav()['config']->set("site.groups.$this->groupname.$value.$arrayIndex", $arrayValue);
