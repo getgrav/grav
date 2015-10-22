@@ -613,6 +613,11 @@ class Assets
             }
         }
 
+        //if nothing found get out of here!
+        if (count($temp_css) == 0) {
+            return false;
+        }
+
         $css_minify = $this->css_minify;
 
         // If this is a Windows server, and minify_windows is false (default value) skip the
@@ -674,6 +679,11 @@ class Assets
                     $temp_js[$id] = $asset;
                 }
             }
+        }
+
+        //if nothing found get out of here!
+        if (count($temp_js) == 0) {
+            return false;
         }
 
         // Concatenate files
