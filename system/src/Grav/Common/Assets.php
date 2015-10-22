@@ -480,7 +480,7 @@ class Assets
 
         $output = '';
         if ($this->css_pipeline) {
-            $pipeline_result = $this->pipeline(CSS_ASSET);
+            $pipeline_result = $this->pipelineCss();
             if ($pipeline_result) {
                 $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
             }
@@ -546,7 +546,7 @@ class Assets
         $inline_js = '';
 
         if ($this->js_pipeline) {
-            $pipeline_result = $this->pipeline(JS_ASSET, $group);
+            $pipeline_result = $this->pipelineJs($group);
             if ($pipeline_result) {
                 $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
             }
@@ -577,14 +577,12 @@ class Assets
         return $output;
     }
 
-
-
     /**
-     * Minify and concatenate CSS / JS files.
+     * Minify and concatenate CSS.
      *
      * @return string
      */
-    protected function pipeline($css = true, $group = 'head')
+    protected function pipelineCss()
     {
         /** @var Cache $cache */
         $cache = self::getGrav()['cache'];
@@ -592,35 +590,11 @@ class Assets
 
         // temporary list of assets to pipeline
         $temp_css = [];
-        $temp_js = [];
 
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
-        $this->js_no_pipeline = [];
 
-        if ($css) {
-            $file = md5(json_encode($this->css) . $this->js_minify . $this->css_minify . $this->css_rewrite) . '.css';
-            foreach ($this->css as $id => $asset) {
-                if (!$asset['pipeline']) {
-                    $this->css_no_pipeline[$id] = $asset;
-                } else {
-                    $temp_css[$id] = $asset;
-                }
-            }
-        } else {
-            $file = md5(json_encode($this->js) . $this->js_minify . $this->css_minify . $this->css_rewrite . $group) . '.js';
-            foreach ($this->js as $id => $asset) {
-
-                if ($asset['group'] == $group) {
-                    if (!$asset['pipeline']) {
-                        $this->js_no_pipeline[] = $asset;
-                    } else {
-                        $temp_js[$id] = $asset;
-                    }
-                }
-
-            }
-        }
+        $file = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite) . '.css';
 
         $relative_path = "{$this->base_url}" . basename(ASSETS_DIR) . "/{$file}";
         $absolute_path = ASSETS_DIR . $file;
@@ -628,6 +602,15 @@ class Assets
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
             return $relative_path . $key;
+        }
+
+        // Remove any non-pipeline files
+        foreach ($this->css as $id => $asset) {
+            if (!$asset['pipeline']) {
+                $this->css_no_pipeline[$id] = $asset;
+            } else {
+                $temp_css[$id] = $asset;
+            }
         }
 
         $css_minify = $this->css_minify;
@@ -640,17 +623,63 @@ class Assets
         }
 
         // Concatenate files
-        if ($css) {
-            $buffer = $this->gatherLinks($temp_css, CSS_ASSET);
-            if ($css_minify) {
-                $min = new \CSSmin();
-                $buffer = $min->run($buffer);
-            }
+        $buffer = $this->gatherLinks($temp_css, CSS_ASSET);
+        if ($css_minify) {
+            $min = new \CSSmin();
+            $buffer = $min->run($buffer);
+        }
+
+        // Write file
+        if (strlen(trim($buffer)) > 0) {
+            file_put_contents($absolute_path, $buffer);
+            return $relative_path . $key;
         } else {
-            $buffer = $this->gatherLinks($temp_js, JS_ASSET);
-            if ($this->js_minify) {
-                $buffer = \JSMin::minify($buffer);
+            return false;
+        }
+    }
+
+    /**
+     * Minify and concatenate JS files.
+     *
+     * @return string
+     */
+    protected function pipelineJs($group = 'head')
+    {
+        /** @var Cache $cache */
+        $cache = self::getGrav()['cache'];
+        $key = '?' . $cache->getKey();
+
+        // temporary list of assets to pipeline
+        $temp_js = [];
+
+        // clear no-pipeline assets lists
+        $this->js_no_pipeline = [];
+
+        $file = md5(json_encode($this->js) . $this->js_minify . $group) . '.js';
+
+        $relative_path = "{$this->base_url}" . basename(ASSETS_DIR) . "/{$file}";
+        $absolute_path = ASSETS_DIR . $file;
+
+        // If pipeline exist return it
+        if (file_exists($absolute_path)) {
+            return $relative_path . $key;
+        }
+
+        // Remove any non-pipeline files
+        foreach ($this->js as $id => $asset) {
+            if ($asset['group'] == $group) {
+                if (!$asset['pipeline']) {
+                    $this->js_no_pipeline[] = $asset;
+                } else {
+                    $temp_js[$id] = $asset;
+                }
             }
+        }
+
+        // Concatenate files
+        $buffer = $this->gatherLinks($temp_js, JS_ASSET);
+        if ($this->js_minify) {
+            $buffer = \JSMin::minify($buffer);
         }
 
         // Write file
