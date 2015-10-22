@@ -153,6 +153,17 @@ form:
                     validate:
                         type: bool
 
+                pages.redirect_default_code:
+                    type: select
+                    size: medium
+                    classes: fancy
+                    label: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE
+                    help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
+                    options:
+                        301: 301 - Permanent
+                        303: 303 - Other
+                        307: 307 - Temporary
+
                 pages.redirect_trailing_slash:
                     type: toggle
                     label: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH
