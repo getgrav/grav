@@ -52,8 +52,9 @@ script:
       FILES="$RT_DEVTOOLS/grav-dist/*.zip";
       for file in ${FILES[@]}; do
         NAME=${file##*/};
-        REPO="$(echo ${NAME} | rev | cut -f 3- -d "-" | rev)";
-        if [ -z "$REPO" ]; then
+        if [[ "$NAME" == *"-rc"* ]]; then
+            REPO="$(echo ${NAME} | rev | cut -f 3- -d "-" | rev)";
+        else
             REPO="$(echo ${NAME} | rev | cut -f 2- -d "-" | rev)";
         fi;
         if [[ $REPO == 'grav' || $REPO == 'grav-admin' || $REPO == 'grav-update' ]]; then
@@ -65,7 +66,6 @@ script:
         if [ $REPO == "grav" ] && [ ! -z "$TRAVIS_TAG" ]; then
           TAG="$TRAVIS_TAG";
         fi;
-        echo "Current Tag - ${TAG}";
         if [ ! -z "$ASSETS" ]; then
           for asset in ${ASSETS[@]}; do
             asset_id=$(echo ${asset} | cut -d ':' -f 1);
