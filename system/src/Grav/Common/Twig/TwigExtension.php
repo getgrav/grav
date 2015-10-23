@@ -117,7 +117,7 @@ class TwigExtension extends \Twig_Extension
         $email = '';
         $str_len = strlen($str);
         for ($i = 0; $i < $str_len; $i++) {
-            $email .= "&#" . ord($str[$i]);
+            $email .= "&#" . ord($str[$i]). ";";
         }
         return $email;
     }
