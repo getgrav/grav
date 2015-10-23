@@ -62,6 +62,7 @@ script:
         if [ $REPO == "grav" ]; then
           TAG=$TRAVIS_TAG;
         fi;
+        echo "Current TAG: $TAG";
         if [ ! -z "$ASSETS" ]; then
           for asset in ${ASSETS[@]}; do
             asset_id=$(echo ${asset} | cut -d ':' -f 1);
