@@ -175,6 +175,17 @@ form:
                     validate:
                         type: bool
 
+                pages.ignore_hidden:
+                    type: toggle
+                    label: PLUGIN_ADMIN.IGNORE_HIDDEN
+                    help: PLUGIN_ADMIN.IGNORE_HIDDEN_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 pages.ignore_files:
                     type: selectize
                     size: large
