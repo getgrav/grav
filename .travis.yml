@@ -52,7 +52,10 @@ script:
       FILES="$RT_DEVTOOLS/grav-dist/*.zip";
       for file in ${FILES[@]}; do
         NAME=${file##*/};
-        REPO="$(echo ${NAME} | rev | cut -f 2- -d "-" | rev)";
+        REPO="$(echo ${NAME} | rev | cut -f 3- -d "-" | rev)";
+        if [ -z "$REPO" ]; then
+            REPO="$(echo ${NAME} | rev | cut -f 2- -d "-" | rev)";
+        fi;
         if [[ $REPO == 'grav' || $REPO == 'grav-admin' || $REPO == 'grav-update' ]]; then
           REPO="grav";
         fi;
