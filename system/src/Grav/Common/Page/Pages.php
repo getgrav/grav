@@ -65,6 +65,7 @@ class Pages
 
     protected $ignore_files;
     protected $ignore_folders;
+    protected $ignore_hidden;
 
     /**
      * @var Types
@@ -108,6 +109,7 @@ class Pages
         $config = $this->grav['config'];
         $this->ignore_files = $config->get('system.pages.ignore_files');
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
+        $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
 
         $this->buildPages();
     }
@@ -701,6 +703,13 @@ class Pages
         /** @var \DirectoryIterator $file */
         foreach (new \FilesystemIterator($directory) as $file) {
             $name = $file->getFilename();
+
+            // Ignore all hidden files if set.
+            if ($this->ignore_hidden) {
+                if ($name && $name[0] == '.') {
+                    continue;
+                }
+            }
 
             if ($file->isFile()) {
                 // Update the last modified if it's newer than already found

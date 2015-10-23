@@ -44,7 +44,7 @@ form:
                     size: medium
                     classes: fancy
                     help: PLUGIN_ADMIN.TIMEZONE_HELP
-                    @data-options: '\Grav\Common\Utils::timezones'
+                    '@data-options': '\Grav\Common\Utils::timezones'
                     default: ''
                     options:
                         '': 'Default (Server Timezone)'
@@ -57,7 +57,7 @@ form:
                     label: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT
                     help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
                     placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
-                    @data-options: '\Grav\Common\Utils::dateFormats'
+                    '@data-options': '\Grav\Common\Utils::dateFormats'
                     options:
                         "": Auto Guess or Enter Custom
                     validate:
@@ -127,8 +127,8 @@ form:
                     help: PLUGIN_ADMIN.DATE_BASED_PUBLISHING_HELP
                     highlight: 1
                     options:
-                        1: Yes
-                        0: No
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
 
@@ -153,10 +153,32 @@ form:
                     validate:
                         type: bool
 
+                pages.redirect_default_code:
+                    type: select
+                    size: medium
+                    classes: fancy
+                    label: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE
+                    help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
+                    options:
+                        301: 301 - Permanent
+                        303: 303 - Other
+                        307: 307 - Temporary
+
                 pages.redirect_trailing_slash:
                     type: toggle
                     label: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH
                     help: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                pages.ignore_hidden:
+                    type: toggle
+                    label: PLUGIN_ADMIN.IGNORE_HIDDEN
+                    help: PLUGIN_ADMIN.IGNORE_HIDDEN_HELP
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
@@ -182,6 +204,17 @@ form:
                     validate:
                         type: commalist
 
+                pages.url_taxonomy_filters:
+                    type: toggle
+                    label: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS
+                    help: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
         languages:
             type: section
             title: PLUGIN_ADMIN.LANGUAGES
@@ -197,6 +230,18 @@ form:
                     classes: fancy
                     validate:
                         type: commalist
+
+                languages.include_default_lang:
+                    type: toggle
+                    label: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG
+                    help: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
 
                 languages.translations:
                     type: toggle
@@ -224,28 +269,6 @@ form:
                     type: toggle
                     label: PLUGIN_ADMIN.ACTIVE_LANGUAGE_IN_SESSION
                     help: PLUGIN_ADMIN.ACTIVE_LANGUAGE_IN_SESSION_HELP
-                    highlight: 0
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
-
-                languages.home_redirect.include_lang:
-                    type: toggle
-                    label: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_LANGUAGE
-                    help: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_LANGUAGE_HELP
-                    highlight: 1
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
-
-                languages.home_redirect.include_route:
-                    type: toggle
-                    label: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_ROUTE
-                    help: PLUGIN_ADMIN.HOME_REDIRECT_INCLUDE_ROUTE_HELP
                     highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES
@@ -585,7 +608,7 @@ form:
                     type: toggle
                     label: PLUGIN_ADMIN.DISPLAY_ERRORS
                     help: PLUGIN_ADMIN.DISPLAY_ERRORS_HELP
-                    highlight: 1
+                    highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO

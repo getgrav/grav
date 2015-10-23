@@ -4,7 +4,7 @@
 
 Grav is a **Fast**, **Simple**, and **Flexible**, file-based Web-platform.  There is **Zero** installation required.  Just extract the ZIP archive, and you are already up and running.  It follows similar principles to other flat-file CMS platforms, but has a different design philosophy than most. Grav comes with a powerful **Package Management System** to allow for simple installation and upgrading of plugins and themes, as well as simple updating of Grav itself.
 
-The underlying architecture of Grav is designed to use well-established and _best-in-class_ technologies, to ensure that Grav is simple to use and easy to extend. Some of these key technologies include:
+The underlying architecture of Grav is designed to use well-established and _best-in-class_ technologies to ensure that Grav is simple to use and easy to extend. Some of these key technologies include:
 
 * [Twig Templating](http://twig.sensiolabs.org/): for powerful control of the user interface
 * [Markdown](http://en.wikipedia.org/wiki/Markdown): for easy content creation
@@ -47,7 +47,7 @@ Check out the [install procedures](http://learn.getgrav.org/basics/installation)
 
 # Adding Functionality
 
-You can download manually from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](http://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
+You can download [plugins](http://getgrav.org/downloads/plugins) or [themes](http://getgrav.org/downloads/themes) manually from the appropriate tab on the [Downloads page on http://getgrav.org](http://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](http://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
 
 ```
 $ bin/gpm index

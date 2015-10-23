@@ -1,3 +1,45 @@
+# v1.0.0-rc.1
+## 10/23/2015
+
+1. [](#new)
+    * Use native PECL YAML parser if installed for 4X speed boost in parsing YAML files
+    * Support for inherited theme class
+    * Added new default language prepend system configuration option
+    * New `|evaluate` Twig filter to evaluate a string as twig
+    * New system option to ignore all **hidden** files and folders
+    * New system option for default redirect code
+    * Added ability to append specific `[30x]` codes to redirect URLs
+    * Added `url_taxonomy_filters` for page collections
+    * Added `@root` page and `recurse` flag for page collections
+    * Support for **multiple** page collection types as an array
+    * Added Dutch language file
+    * Added Russian language file
+    * Added `remove` method to User object
+1. [](#improved)
+    * Moved hardcoded mimetypes to `media.yaml` to be treated as Page media files
+    * Set `errors: display: false` by default in `system.yaml`
+    * Strip out extra slashes in the URI 
+    * Validate hostname to ensure it is valid
+    * Ignore more SCM folders in Backups
+    * Removed `home_redirect` settings from `system.yaml`
+    * Added Page `media` as root twig object for consistency
+    * Updated to latest vendor libraries
+    * Optimizations to Asset pipeline logic for minor speed increase
+    * Block direct access to a variety of files in `.htaccess` for increased security
+    * Debugbar vendor library update
+    * Always fallback to english if other translations are not available
+1. [](#bugfix)
+    * Fix for redirecting external URL with multi-language 
+    * Fix for Asset pipeline not respecting asset groups
+    * Fix language files with child/parent theme relationships
+    * Fixed a regression issue resulting in incorrect default language
+    * Ensure error handler is initialized before URI is processed
+    * Use default language in Twig if active language is not set
+    * Fixed issue with `safeEmailFilter()` Twig filter not separating with `;` properly
+    * Fixed empty YAML file causing error with native PECL YAML parser
+    * Fixed `SVG` mimetype
+    * Fixed incorrect `Cache-control: max-age` value format
+
 # v0.9.45
 ## 10/08/2015
 

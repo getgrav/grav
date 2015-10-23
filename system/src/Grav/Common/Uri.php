@@ -12,6 +12,8 @@ use Grav\Common\Page\Pages;
  */
 class Uri
 {
+    const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
+
     public $url;
 
     protected $basename;
@@ -34,6 +36,9 @@ class Uri
         $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
         // Remove port from HTTP_HOST generated $name
         $name = Utils::substrToString($name, ':');
+
+        // Validate the hostname
+        $name = preg_match(Uri::HOSTNAME_REGEX, $name) ? $name : 'unknown';
 
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
         $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
@@ -93,6 +98,9 @@ class Uri
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
+        // remove double slashes
+        $uri = preg_replace('#/{2,}#', '/', $uri);
+
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
         if ($setup_base) {
@@ -110,22 +118,11 @@ class Uri
         // set active language
         $uri = $language->setActiveFromUri($uri);
 
-        // redirect to language specific homepage if configured to do so
-        if ($uri == '/' && $language->enabled()) {
-            if ($config->get('system.languages.home_redirect.include_route', true)) {
-                $prefix = $config->get('system.languages.home_redirect.include_lang', true) ? $language->getLanguage() . '/' : '';
-                $grav->redirect($prefix . Pages::getHomeRoute());
-            } elseif ($config->get('system.languages.home_redirect.include_lang', true)) {
-                $grav->redirect($language->getLanguage() . '/');
-            }
-        }
-
-
         // split the URL and params
         $bits = parse_url($uri);
 
         // process query string
-        if (isset($bits['query'])) {
+        if (isset($bits['query']) && isset($bits['path'])) {
             $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             $uri = $bits['path'];
         }
@@ -493,11 +490,13 @@ class Uri
     {
         $grav = Grav::instance();
 
+        /** @var Grav\Common\Language\Language $language */
+        $language = $grav['language'];
+
         // Link processing should prepend language
         $language_append = '';
-        if ($type == 'link') {
-            $active_language = $grav['language']->getActive();
-            $language_append = $active_language ? '/'.$active_language : '';
+        if ($type == 'link' && $language->enabled()) {
+            $language_append = $language->getLanguageURLPrefix();
         }
 
         $pages_dir = $grav['locator']->findResource('page://');

@@ -5,12 +5,10 @@ param_sep: ':'                         # Parameter separator, use ';' for Apache
 
 languages:
   supported: []                        # List of languages supported. eg: [en, fr, de]
+  include_default_lang: true           # Include the default lang prefix in all URLs
   translations: true                   # Enable translations by default
   translations_fallback: true          # Fallback through supported translations if active lang doesn't exist
   session_store_active: false          # Store active language in session
-  home_redirect:
-    include_lang: true                 # Include language in home redirect (/en)
-    include_route: false               # Include route in home redirect (/blog)
   http_accept_language: false          # Attempt to set the language based on http_accept_language header in the browser
   override_locale: false               # Override the default or system locale with language specific one
 
@@ -49,9 +47,12 @@ pages:
   etag: false                          # Set the etag header tag
   vary_accept_encoding: false          # Add `Vary: Accept-Encoding` header
   redirect_default_route: false        # Automatically redirect to a page's default route
+  redirect_default_code: 301           # Default code to use for redirects
   redirect_trailing_slash:  true       # Handle automatically or 301 redirect a trailing / URL
   ignore_files: [.DS_Store]            # Files to ignore in Pages
   ignore_folders: [.git, .idea]        # Folders to ignore in Pages
+  ignore_hidden: true                  # Ignore all Hidden files and folders
+  url_taxonomy_filters: true           # Enable auto-magic URL-based taxonomy filters for page collections
 
 cache:
   enabled: true                        # Set to true to enable caching
@@ -82,7 +83,7 @@ assets:                                # Configuration for Assets Manager (JS, C
     jquery: system://assets/jquery/jquery-2.1.4.min.js
 
 errors:
-  display: true                        # Display full backtrace-style error page
+  display: false                       # Display full backtrace-style error page
   log: true                            # Log errors to /logs folder
 
 debugger:

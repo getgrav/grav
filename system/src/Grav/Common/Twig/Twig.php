@@ -85,7 +85,7 @@ class Twig
 
             // handle language templates if available
             if ($language->enabled()) {
-                $lang_templates = $locator->findResource('theme://templates/'.$active_language);
+                $lang_templates = $locator->findResource('theme://templates/'.($active_language ? $active_language : $language->getDefault()));
                 if ($lang_templates) {
                     $this->twig_paths[] = $lang_templates;
                 }
@@ -307,6 +307,7 @@ class Twig
         $twig_vars['pages'] = $pages->root();
         $twig_vars['page'] = $page;
         $twig_vars['header'] = $page->header();
+        $twig_vars['media'] = $page->media();
         $twig_vars['content'] = $content;
         $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
 

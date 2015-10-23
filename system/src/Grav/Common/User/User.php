@@ -46,6 +46,22 @@ class User extends Data
     }
 
     /**
+     * Remove user account.
+     *
+     * @param string $username
+     * @return bool True is the action was performed
+     */
+    public static function remove($username)
+    {
+        $file_path = self::getGrav()['locator']->findResource('account://' . $username . YAML_EXT);
+        if (file_exists($file_path) && unlink($file_path)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Authenticate user.
      *
      * If user password needs to be updated, new information will be saved.

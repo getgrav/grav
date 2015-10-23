@@ -17,6 +17,7 @@ class Language
     protected $active = null;
     protected $config;
     protected $http_accept_language;
+    protected $lang_in_url = false;
 
     /**
      * Constructor
@@ -161,12 +162,13 @@ class Language
      */
     public function setActiveFromUri($uri)
     {
-        $regex = '/(\/(' . $this->getAvailable() . ')).*/';
+        $regex = '/(^\/(' . $this->getAvailable() . ')).*/';
 
         // if languages set
         if ($this->enabled()) {
             // try setting from prefix of URL (/en/blah/blah)
             if (preg_match($regex, $uri, $matches)) {
+                $this->lang_in_url = true;
                 $this->active = $matches[2];
                 $uri = preg_replace("/\\" . $matches[1] . "/", '', $matches[0], 1);
 
@@ -198,6 +200,52 @@ class Language
         }
 
         return $uri;
+    }
+
+    /**
+     * Get's a URL prefix based on configuration
+     *
+     * @param null $lang
+     * @return string
+     */
+    public function getLanguageURLPrefix($lang = null)
+    {
+        // if active lang is not passed in, use current active
+        if (!$lang) {
+            $lang = $this->getLanguage();
+        }
+
+        return $this->isIncludeDefaultLanguage($lang) ? '/' . $lang : '';
+    }
+
+    /**
+     * Test to see if language is default and language should be included in the URL
+     *
+     * @param null $lang
+     * @return bool
+     */
+    public function isIncludeDefaultLanguage($lang = null)
+    {
+        // if active lang is not passed in, use current active
+        if (!$lang) {
+            $lang = $this->getLanguage();
+        }
+
+        if ($this->default == $lang && $this->config->get('system.languages.include_default_lang') === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Simple getter to tell if a language was found in the URL
+     *
+     * @return bool
+     */
+    public function isLanguageInUrl()
+    {
+        return (bool) $this->lang_in_url;
     }
 
 
@@ -254,6 +302,8 @@ class Language
                 }
                 $this->fallback_languages = $fallback_languages;
             }
+            // always add english in case a translation doesn't exist
+            $this->fallback_languages[] = 'en';
         }
 
         return $this->fallback_languages;

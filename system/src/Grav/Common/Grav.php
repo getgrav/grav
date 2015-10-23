@@ -108,6 +108,8 @@ class Grav extends Container
         $container['page'] = function ($c) {
             /** @var Pages $pages */
             $pages = $c['pages'];
+            /** @var Language $language */
+            $language = $c['language'];
 
             /** @var Uri $uri */
             $uri = $c['uri'];
@@ -117,9 +119,21 @@ class Grav extends Container
 
             $page = $pages->dispatch($path);
 
-            // handle redirect if not 'default route' configuration
-            if ($page && $c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                $c->redirectLangSafe($page->route());
+            // Redirection tests
+            if ($page) {
+                // Language-specific redirection scenarios
+                if ($language->enabled()) {
+                    if ($language->isLanguageInUrl() && !$language->isIncludeDefaultLanguage()) {
+                        $c->redirect($page->route());
+                    }
+                    if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
+                        $c->redirectLangSafe($page->route());
+                    }
+                }
+                // Default route test and redirect
+                if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
+                    $c->redirectLangSafe($page->route());
+                }
             }
 
             // if page is not found, try some fallback stuff
@@ -171,12 +185,15 @@ class Grav extends Container
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
 
+
+
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
+        $this['errors']->resetHandlers();
         $this['uri']->init();
         $this['session']->init();
-        $this['errors']->resetHandlers();
+
         $debugger->init();
         $this['config']->debug();
         $debugger->stopTimer('_config');
@@ -255,10 +272,22 @@ class Grav extends Container
      * @param string $route Internal route.
      * @param int $code Redirection code (30x)
      */
-    public function redirect($route, $code = 303)
+    public function redirect($route, $code = null)
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
+
+        //Check for code in route
+        $regex = '/.*(\[(30[1-7])\])$/';
+        preg_match($regex, $route, $matches);
+        if ($matches) {
+            $route = str_replace($matches[1], '', $matches[0]);
+            $code = $matches[2];
+        }
+
+        if ($code == null) {
+            $code = $this['config']->get('system.pages.redirect_default_code', 301);
+        }
 
         if (isset($this['session'])) {
             $this['session']->close();
@@ -280,15 +309,15 @@ class Grav extends Container
      * @param string $route Internal route.
      * @param int $code Redirection code (30x)
      */
-    public function redirectLangSafe($route, $code = 303)
+    public function redirectLangSafe($route, $code = null)
     {
         /** @var Language $language */
         $language = $this['language'];
 
-        if ($language->enabled()) {
+        if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
             return $this->redirect($language->getLanguage() . $route, $code);
         } else {
-            return $this->redirect($route);
+            return $this->redirect($route, $code);
         }
     }
 
@@ -332,7 +361,7 @@ class Grav extends Container
 
         if ($expires > 0) {
             $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
-            header('Cache-Control: max-age=' . $expires_date);
+            header('Cache-Control: max-age=' . $expires);
             header('Expires: '. $expires_date);
         }
 
