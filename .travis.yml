@@ -37,7 +37,7 @@ env:
     # GH_API_USER [for curl]
     - secure: "Xbk/V9aIys0NxccJGR3Zrm2GRxDnA0RuazBs1puIboTYDhbi0Z7JTL+mOx3xp5Kfoniad/xAuijQESTM9MMrKqq/qCzhAMaC1+vcL4pCHZH4NSG6DBxB9BPkKVFq+1llu5FTEf8bkxHzwGR0l1ARW6TVRcgTHr5B58bCEIwEOrI="
     # Latest Release version
-    - TRAVIS_TAG="$(curl --fail --user ${GH_API_USER} -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4)"
+    - TRAVIS_TAG=$(curl --fail --user ${GH_API_USER} -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4)
 
 before_install:
   - composer self-update
@@ -60,7 +60,7 @@ script:
         ASSETS="$(echo "${API}" | node gh-assets.js)";
         TAG="$(echo "${API}" | grep tag_name | head -n 1 | cut -d '"' -f 4)";
         if [ $REPO == "grav" ] && [ ! -z "$TRAVIS_TAG" ]; then
-          TAG=$TRAVIS_TAG;
+          TAG="$TRAVIS_TAG";
         fi;
         echo "Current Tag - ${TAG}";
         if [ ! -z "$ASSETS" ]; then
