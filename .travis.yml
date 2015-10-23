@@ -73,6 +73,6 @@ script:
           done;
         fi;
         echo "Uploading package ${BOLD}${BLUE}${NAME}${TEXTRESET} to ${YELLOW}${REPO}${TEXTRESET}@${YELLOW}${TAG}${TEXTRESET}";
-        github-release upload --security-token $GH_TOKEN --user ${GH_USER} --repo $REPO --tag $TAG "--name" "$NAME" --file "$file";
+        github-release upload --security-token $GH_TOKEN --user ${GH_USER} --repo $REPO --tag "$TAG" --name "$NAME" --file "$file";
       done;
     fi
