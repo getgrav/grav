@@ -421,7 +421,7 @@ class Assets
     public function addInlineJs($asset, $priority = null, $group = null)
     {
         if (is_a($asset, 'Twig_Markup')) {
-            $asset = strip_tags((string)$asset);
+            $asset = html_entity_decode(strip_tags((string) $asset));
         }
 
         $data = [
