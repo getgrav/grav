@@ -69,6 +69,16 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Return just metadata from the Medium object
+     *
+     * @return $this
+     */
+    public function meta()
+    {
+        return new Data($this->items);
+    }
+
+    /**
      * Add meta file for the medium.
      *
      * @param $filepath
@@ -375,8 +385,6 @@ class Medium extends Data implements RenderableInterface
         if (!empty($qs)) {
             $this->querystring($this->querystring(null, false) . '&' . $qs);
         }
-
-        self::$grav['debugger']->addMessage($this->querystring());
 
         return $this;
     }
