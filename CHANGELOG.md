@@ -1,3 +1,13 @@
+# v1.0.0-rc.2
+## xx/xx/2015
+
+1. [](#new)
+    * Added support for CSS Asset groups
+1. [](#improved)
+    * ...
+1. [](#bugfix)
+    * ...
+
 # v1.0.0-rc.1
 ## 10/23/2015
 
