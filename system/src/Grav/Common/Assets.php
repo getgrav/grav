@@ -227,22 +227,21 @@ class Assets
      * It checks for duplicates.
      * You may add more than one asset passing an array as argument.
      *
-     * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param  bool $pipeline false if this should not be pipelined
-     * @param null $group
+     * @param  mixed  $asset
+     * @param  int    $priority the priority, bigger comes first
+     * @param  bool   $pipeline false if this should not be pipelined
      *
      * @return $this
      */
-    public function addCss($asset, $priority = null, $pipeline = null, $group = null)
+    public function addCss($asset, $priority = null, $pipeline = null)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
-                $this->addCss($a, $priority, $pipeline, $group);
+                $this->addCss($a, $priority, $pipeline);
             }
             return $this;
         } elseif (isset($this->collections[$asset])) {
-            $this->add($this->collections[$asset], $priority, $pipeline, $group);
+            $this->add($this->collections[$asset], $priority, $pipeline);
             return $this;
         }
 
@@ -254,8 +253,7 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
-            'pipeline' => $pipeline ?: true,
-            'group' => $group ?: 'head'
+            'pipeline' => $pipeline ?: true
         ];
 
         // check for dynamic array and merge with defaults
@@ -371,12 +369,11 @@ class Assets
      * For adding chunks of string-based inline CSS
      *
      * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param null $group
+     * @param  int   $priority the priority, bigger comes first
      *
      * @return $this
      */
-    public function addInlineCss($asset, $priority = null, $group = null)
+    public function addInlineCss($asset, $priority = null)
     {
         if (is_a($asset, 'Twig_Markup')) {
             $asset = strip_tags((string)$asset);
@@ -385,8 +382,7 @@ class Assets
         $data = [
             'priority'  => intval($priority ?: 10),
             'order'     => count($this->inline_css),
-            'asset'     => $asset,
-            'group'     => $group ?: 'head'
+            'asset'     => $asset
         ];
 
         // check for dynamic array and merge with defaults
@@ -451,12 +447,11 @@ class Assets
     /**
      * Build the CSS link tags.
      *
-     * @param  string $group name of the group
      * @param  array $attributes
      *
      * @return string
      */
-    public function css($group = 'head', $attributes = [])
+    public function css($attributes = [])
     {
         if (!$this->css) {
             return null;
@@ -484,37 +479,29 @@ class Assets
         $attributes = $this->attributes(array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes));
 
         $output = '';
-        $inline_css = '';
-
         if ($this->css_pipeline) {
-            $pipeline_result = $this->pipelineCss($group);
+            $pipeline_result = $this->pipelineCss();
             if ($pipeline_result) {
                 $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
             }
             foreach ($this->css_no_pipeline as $file) {
-                if ($group && $file['group'] == $group) {
-                    $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
-                    $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
-                }
+                $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         } else {
             foreach ($this->css as $file) {
-                if ($group && $file['group'] == $group) {
-                    $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
-                    $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
-                }
+                $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
+                $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
             }
         }
 
         // Render Inline CSS
-        foreach ($this->inline_css as $inline) {
-            if ($group && $inline['group'] == $group) {
-                $inline_css .= $inline['asset'] . "\n";
+        if (count($this->inline_css) > 0) {
+            $output .= "<style>\n";
+            foreach ($this->inline_css as $inline) {
+                $output .= $inline['asset'] . "\n";
             }
-        }
-
-        if ($inline_css) {
-            $output .= "\n<style>\n" . $inline_css . "\n</style>\n";
+            $output .= "</style>\n";
         }
 
 
@@ -595,7 +582,7 @@ class Assets
      *
      * @return string
      */
-    protected function pipelineCss($group = 'head')
+    protected function pipelineCss()
     {
         /** @var Cache $cache */
         $cache = self::getGrav()['cache'];
@@ -607,7 +594,7 @@ class Assets
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
 
-        $file = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group) . '.css';
+        $file = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite) . '.css';
 
         $relative_path = "{$this->base_url}" . basename(ASSETS_DIR) . "/{$file}";
         $absolute_path = ASSETS_DIR . $file;
@@ -619,12 +606,10 @@ class Assets
 
         // Remove any non-pipeline files
         foreach ($this->css as $id => $asset) {
-            if ($asset['group'] == $group) {
-                if (!$asset['pipeline']) {
-                    $this->css_no_pipeline[$id] = $asset;
-                } else {
-                    $temp_css[$id] = $asset;
-                }
+            if (!$asset['pipeline']) {
+                $this->css_no_pipeline[$id] = $asset;
+            } else {
+                $temp_css[$id] = $asset;
             }
         }
 
@@ -945,7 +930,6 @@ class Assets
      * Download and concatenate the content of several links.
      *
      * @param  array $links
-     * @param  bool $css
      *
      * @return string
      */
