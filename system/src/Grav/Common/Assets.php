@@ -976,7 +976,12 @@ class Assets
                 $link = ROOT_DIR . $relative_path;
             }
 
-            $file = ($this->fetch_command instanceof Closure) ? $this->fetch_command->__invoke($link) : file_get_contents($link);
+            $file = ($this->fetch_command instanceof Closure) ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+
+            // No file found, skip it...
+            if ($file === false) {
+                continue;
+            }
 
             // Double check last character being
             if (!$css) {
