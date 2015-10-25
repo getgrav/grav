@@ -42,6 +42,8 @@ class Assets
     /** @const Regex to match CSS import content */
     const CSS_IMPORT_REGEX = '{@import(.*);}';
 
+    const HTML_TAG_REGEX = '#(<([A-Z][A-Z0-9]*)>)+(.*)(<\/\2>)#is';
+
 
     /**
      * Closure used by the pipeline to fetch assets.
@@ -378,8 +380,13 @@ class Assets
      */
     public function addInlineCss($asset, $priority = null, $group = null)
     {
+        $asset = trim($asset);
+
         if (is_a($asset, 'Twig_Markup')) {
-            $asset = strip_tags((string)$asset);
+            preg_match(self::HTML_TAG_REGEX, $asset, $matches );
+            if (isset($matches[3]))  {
+                $asset = $matches[3];
+            }
         }
 
         $data = [
@@ -420,9 +427,10 @@ class Assets
      */
     public function addInlineJs($asset, $priority = null, $group = null)
     {
+        $asset = trim($asset);
+
         if (is_a($asset, 'Twig_Markup')) {
-            $asset = trim(html_entity_decode($asset));
-            preg_match('#(<([A-Z][A-Z0-9]*)>)+(.*)(<\/\2>)#i', $asset, $matches );
+            preg_match(self::HTML_TAG_REGEX, $asset, $matches );
             if (isset($matches[3]))  {
                 $asset = $matches[3];
             }
