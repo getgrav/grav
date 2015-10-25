@@ -216,6 +216,10 @@ class Medium extends Data implements RenderableInterface
         !empty($title) && empty($attributes['title']) && $attributes['title'] = $title;
         !empty($alt) && empty($attributes['alt']) && $attributes['alt'] = $alt;
         !empty($class) && empty($attributes['class']) && $attributes['class'] = $class;
+        if (empty($attributes['title']) && !empty($this->items['title']))
+            $attributes['title'] = $this->items['title'];
+        if (empty($attributes['alt']) && !empty($this->items['alt_text']))
+            $attributes['alt'] = $this->items['alt_text'];
 
         switch ($this->mode) {
             case 'text':
