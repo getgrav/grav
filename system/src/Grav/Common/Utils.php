@@ -377,4 +377,14 @@ abstract class Utils
         }
     }
 
+    /**
+     * Checks if a value is positive
+     *
+     * @param string $value
+     *
+     * @return boolean
+     */
+    public static function isPositive($value) {
+        return in_array($value, [true, 1, '1', 'yes', 'on', 'true'], true);
+    }
 }

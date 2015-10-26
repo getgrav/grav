@@ -5,6 +5,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\GravTrait;
+use Grav\Common\Utils;
 
 /**
  * User object
@@ -138,7 +139,7 @@ class User extends Data
             return false;
         }
 
-        return in_array($this->get("access.{$action}"), array(true, 1, '1', 'yes', 'on', 'true'), true);
+        return Utils::isPositive($this->get("access.{$action}"));
     }
 
     /**
