@@ -138,7 +138,7 @@ class User extends Data
             return false;
         }
 
-        return $this->get("access.{$action}") === true;
+        return in_array($this->get("access.{$action}"), array(true, 1, '1', 'yes', 'on', 'true'), true);
     }
 
     /**
