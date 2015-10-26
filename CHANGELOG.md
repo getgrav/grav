@@ -4,7 +4,11 @@
 1. [](#new)
     * Added support for CSS Asset groups
 1. [](#improved)
-    * ...
+    * Missing pipelined remote asset will now fail quietly
+    * More reliably handle inline JS and CSS to remove only surrounding HTML tags
+    * `Medium.meta` returns new Data object so null checks are possible
+    * Improved Medium metadata merging to allow for automatic title/alt/class attributes
+    * Moved Grav object to global variable rather than template variable (useful for macros)
 1. [](#bugfix)
     * ...
 
@@ -28,7 +32,7 @@
 1. [](#improved)
     * Moved hardcoded mimetypes to `media.yaml` to be treated as Page media files
     * Set `errors: display: false` by default in `system.yaml`
-    * Strip out extra slashes in the URI 
+    * Strip out extra slashes in the URI
     * Validate hostname to ensure it is valid
     * Ignore more SCM folders in Backups
     * Removed `home_redirect` settings from `system.yaml`
@@ -39,7 +43,7 @@
     * Debugbar vendor library update
     * Always fallback to english if other translations are not available
 1. [](#bugfix)
-    * Fix for redirecting external URL with multi-language 
+    * Fix for redirecting external URL with multi-language
     * Fix for Asset pipeline not respecting asset groups
     * Fix language files with child/parent theme relationships
     * Fixed a regression issue resulting in incorrect default language
