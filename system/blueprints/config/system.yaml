@@ -127,8 +127,8 @@ form:
                     help: PLUGIN_ADMIN.DATE_BASED_PUBLISHING_HELP
                     highlight: 1
                     options:
-                        1: Yes
-                        0: No
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
 
@@ -153,10 +153,32 @@ form:
                     validate:
                         type: bool
 
+                pages.redirect_default_code:
+                    type: select
+                    size: medium
+                    classes: fancy
+                    label: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE
+                    help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
+                    options:
+                        301: 301 - Permanent
+                        303: 303 - Other
+                        307: 307 - Temporary
+
                 pages.redirect_trailing_slash:
                     type: toggle
                     label: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH
                     help: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                pages.ignore_hidden:
+                    type: toggle
+                    label: PLUGIN_ADMIN.IGNORE_HIDDEN
+                    help: PLUGIN_ADMIN.IGNORE_HIDDEN_HELP
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
@@ -181,6 +203,17 @@ form:
                     classes: fancy
                     validate:
                         type: commalist
+
+                pages.url_taxonomy_filters:
+                    type: toggle
+                    label: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS
+                    help: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
 
         languages:
             type: section

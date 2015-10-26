@@ -272,10 +272,22 @@ class Grav extends Container
      * @param string $route Internal route.
      * @param int $code Redirection code (30x)
      */
-    public function redirect($route, $code = 303)
+    public function redirect($route, $code = null)
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
+
+        //Check for code in route
+        $regex = '/.*(\[(30[1-7])\])$/';
+        preg_match($regex, $route, $matches);
+        if ($matches) {
+            $route = str_replace($matches[1], '', $matches[0]);
+            $code = $matches[2];
+        }
+
+        if ($code == null) {
+            $code = $this['config']->get('system.pages.redirect_default_code', 301);
+        }
 
         if (isset($this['session'])) {
             $this['session']->close();
@@ -297,7 +309,7 @@ class Grav extends Container
      * @param string $route Internal route.
      * @param int $code Redirection code (30x)
      */
-    public function redirectLangSafe($route, $code = 303)
+    public function redirectLangSafe($route, $code = null)
     {
         /** @var Language $language */
         $language = $this['language'];
@@ -305,7 +317,7 @@ class Grav extends Container
         if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
             return $this->redirect($language->getLanguage() . $route, $code);
         } else {
-            return $this->redirect($route);
+            return $this->redirect($route, $code);
         }
     }
 

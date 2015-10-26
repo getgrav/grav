@@ -47,9 +47,12 @@ pages:
   etag: false                          # Set the etag header tag
   vary_accept_encoding: false          # Add `Vary: Accept-Encoding` header
   redirect_default_route: false        # Automatically redirect to a page's default route
+  redirect_default_code: 301           # Default code to use for redirects
   redirect_trailing_slash:  true       # Handle automatically or 301 redirect a trailing / URL
   ignore_files: [.DS_Store]            # Files to ignore in Pages
   ignore_folders: [.git, .idea]        # Folders to ignore in Pages
+  ignore_hidden: true                  # Ignore all Hidden files and folders
+  url_taxonomy_filters: true           # Enable auto-magic URL-based taxonomy filters for page collections
 
 cache:
   enabled: true                        # Set to true to enable caching

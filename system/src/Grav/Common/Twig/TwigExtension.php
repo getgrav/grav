@@ -37,6 +37,18 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
+     * Register some standard globals
+     *
+     * @return array
+     */
+    public function getGlobals()
+    {
+        return array(
+            'grav' => $this->grav,
+        );
+    }
+
+    /**
      * Return a list of all filters.
      *
      * @return array
@@ -117,7 +129,7 @@ class TwigExtension extends \Twig_Extension
         $email = '';
         $str_len = strlen($str);
         for ($i = 0; $i < $str_len; $i++) {
-            $email .= "&#" . ord($str[$i]);
+            $email .= "&#" . ord($str[$i]). ";";
         }
         return $email;
     }

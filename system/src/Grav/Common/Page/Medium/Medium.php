@@ -69,6 +69,16 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Return just metadata from the Medium object
+     *
+     * @return $this
+     */
+    public function meta()
+    {
+        return new Data($this->items);
+    }
+
+    /**
      * Add meta file for the medium.
      *
      * @param $filepath
@@ -203,9 +213,29 @@ class Medium extends Data implements RenderableInterface
         }
         $attributes['style'] = $style;
 
-        !empty($title) && empty($attributes['title']) && $attributes['title'] = $title;
-        !empty($alt) && empty($attributes['alt']) && $attributes['alt'] = $alt;
-        !empty($class) && empty($attributes['class']) && $attributes['class'] = $class;
+        if (empty($attributes['title'])) {
+            if (!empty($title)) {
+                $attributes['title'] = $title;
+            } elseif (!empty($this->items['title'])) {
+                $attributes['title'] = $this->items['title'];
+            }
+        }
+
+        if (empty($attributes['alt'])) {
+            if (!empty($alt)) {
+                $attributes['alt'] = $alt;
+            } elseif (!empty($this->items['alt'])) {
+                $attributes['alt'] = $this->items['alt'];
+            }
+        }
+
+        if (empty($attributes['class'])) {
+            if (!empty($class)) {
+                $attributes['class'] = $class;
+            } elseif (!empty($this->items['class'])) {
+                $attributes['class'] = $this->items['class'];
+            }
+        }
 
         switch ($this->mode) {
             case 'text':
@@ -375,8 +405,6 @@ class Medium extends Data implements RenderableInterface
         if (!empty($qs)) {
             $this->querystring($this->querystring(null, false) . '&' . $qs);
         }
-
-        self::$grav['debugger']->addMessage($this->querystring());
 
         return $this;
     }

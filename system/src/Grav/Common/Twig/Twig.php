@@ -142,7 +142,6 @@ class Twig
 
             // Set some standard variables for twig
             $this->twig_vars = array(
-                'grav' => $this->grav,
                 'config' => $config,
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),

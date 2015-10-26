@@ -52,7 +52,11 @@ script:
       FILES="$RT_DEVTOOLS/grav-dist/*.zip";
       for file in ${FILES[@]}; do
         NAME=${file##*/};
-        REPO="$(echo ${NAME} | rev | cut -f 2- -d "-" | rev)";
+        if [[ "$NAME" == *"-rc"* ]]; then
+            REPO="$(echo ${NAME} | rev | cut -f 3- -d "-" | rev)";
+        else
+            REPO="$(echo ${NAME} | rev | cut -f 2- -d "-" | rev)";
+        fi;
         if [[ $REPO == 'grav' || $REPO == 'grav-admin' || $REPO == 'grav-update' ]]; then
           REPO="grav";
         fi;
@@ -60,7 +64,7 @@ script:
         ASSETS="$(echo "${API}" | node gh-assets.js)";
         TAG="$(echo "${API}" | grep tag_name | head -n 1 | cut -d '"' -f 4)";
         if [ $REPO == "grav" ]; then
-          TAG=$TRAVIS_TAG;
+          TAG="$TRAVIS_TAG";
         fi;
         if [ ! -z "$ASSETS" ]; then
           for asset in ${ASSETS[@]}; do
@@ -73,6 +77,6 @@ script:
           done;
         fi;
         echo "Uploading package ${BOLD}${BLUE}${NAME}${TEXTRESET} to ${YELLOW}${REPO}${TEXTRESET}@${YELLOW}${TAG}${TEXTRESET}";
-        github-release upload --security-token $GH_TOKEN --user ${GH_USER} --repo $REPO --tag $TAG --name "$NAME" --file "$file";
+        github-release upload --security-token $GH_TOKEN --user ${GH_USER} --repo $REPO --tag "$TAG" --name "$NAME" --file "$file";
       done;
     fi

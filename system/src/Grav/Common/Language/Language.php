@@ -302,6 +302,8 @@ class Language
                 }
                 $this->fallback_languages = $fallback_languages;
             }
+            // always add english in case a translation doesn't exist
+            $this->fallback_languages[] = 'en';
         }
 
         return $this->fallback_languages;
