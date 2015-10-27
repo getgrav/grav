@@ -1,9 +1,11 @@
 # v1.0.0-rc.2
-## xx/xx/2015
+## 10/27/2015
 
 1. [](#new)
     * Added support for CSS Asset groups
     * Added a `wrapped_site` system option for themes/plugins to use
+    * Pass `Page` object as event to `onTwigPageVariables()` event hook
+    * New `Data.items()` method to get all items
 1. [](#improved)
     * Missing pipelined remote asset will now fail quietly
     * More reliably handle inline JS and CSS to remove only surrounding HTML tags
@@ -11,8 +13,10 @@
     * Improved Medium metadata merging to allow for automatic title/alt/class attributes
     * Moved Grav object to global variable rather than template variable (useful for macros)
     * German language improvements
+    * Updated bundled composer
 1. [](#bugfix)
     * Accept variety of `true` values in `User.authorize()` method 
+    * Fix for `Validation` throwing an error if no label set
 
 # v1.0.0-rc.1
 ## 10/23/2015
