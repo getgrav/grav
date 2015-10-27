@@ -37,6 +37,18 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
+     * Register some standard globals
+     *
+     * @return array
+     */
+    public function getGlobals()
+    {
+        return array(
+            'grav' => $this->grav,
+        );
+    }
+
+    /**
      * Return a list of all filters.
      *
      * @return array

@@ -2,6 +2,7 @@ absolute_urls: false                   # Absolute or relative URLs for `base_url
 timezone: ''                           # Valid values: http://php.net/manual/en/timezones.php
 default_locale:                        # Default locale (defaults to system)
 param_sep: ':'                         # Parameter separator, use ';' for Apache on windows
+wrapped_site: false                    # For themes/plugins to know if Grav is wrapped by another platform
 
 languages:
   supported: []                        # List of languages supported. eg: [en, fr, de]
