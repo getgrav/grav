@@ -225,6 +225,16 @@ class Data implements DataInterface
     }
 
     /**
+     * Return the data items.
+     *
+     * @return array
+     */
+    public function items()
+    {
+        return $this->items;
+    }
+
+    /**
      * Set or get the data storage.
      *
      * @param FileInterface $storage Optionally enter a new storage.
