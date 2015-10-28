@@ -13,14 +13,14 @@ define('ROOT_DIR', GRAV_ROOT . '/');
 define('USER_PATH', 'user/');
 define('USER_DIR', ROOT_DIR . USER_PATH);
 define('SYSTEM_DIR', ROOT_DIR .'system/');
-define('ASSETS_DIR', ROOT_DIR . 'assets/');
 define('CACHE_DIR', ROOT_DIR . 'cache/');
-define('IMAGES_DIR', ROOT_DIR . 'images/');
 define('LOG_DIR', ROOT_DIR .'logs/');
-define('ACCOUNTS_DIR', USER_DIR .'accounts/');
-define('PAGES_DIR', USER_DIR .'pages/');
 
 // DEPRECATED: Do not use!
+define('ASSETS_DIR', ROOT_DIR . 'assets/');
+define('IMAGES_DIR', ROOT_DIR . 'images/');
+define('ACCOUNTS_DIR', USER_DIR .'accounts/');
+define('PAGES_DIR', USER_DIR .'pages/');
 define('DATA_DIR', USER_DIR .'data/');
 define('LIB_DIR', SYSTEM_DIR .'src/');
 define('PLUGINS_DIR', USER_DIR .'plugins/');
