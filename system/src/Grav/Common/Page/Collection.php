@@ -37,6 +37,18 @@ class Collection extends Iterator
     }
 
     /**
+     * Add a single page to a collection
+     *
+     * @param Page $page
+     * @return $this
+     */
+    public function addPage(Page $page)
+    {
+        $this->items[$page->path()] = ['slug' => $page->slug()];
+        return $this;
+    }
+
+    /**
      *
      * Create a copy of this collection
      *
@@ -96,6 +108,7 @@ class Collection extends Iterator
      * Remove item from the list.
      *
      * @param Page|string|null $key
+     * @return $this|void
      * @throws \InvalidArgumentException
      */
     public function remove($key = null)
@@ -110,6 +123,7 @@ class Collection extends Iterator
         }
 
         parent::remove($key);
+        return $this;
     }
 
     /**
