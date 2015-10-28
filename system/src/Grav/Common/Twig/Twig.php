@@ -7,6 +7,7 @@ use Grav\Common\Page\Page;
 use Grav\Common\Inflector;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * The Twig object handles all the Twig template rendering for Grav. It's a singleton object
@@ -201,7 +202,7 @@ class Twig
         $content = $content !== null ? $content : $item->content();
 
         // override the twig header vars for local resolution
-        $this->grav->fireEvent('onTwigPageVariables');
+        $this->grav->fireEvent('onTwigPageVariables',  new Event(['page' => $item]));
         $twig_vars = $this->twig_vars;
 
         $twig_vars['page'] = $item;

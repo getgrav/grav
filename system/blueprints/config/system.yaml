@@ -750,6 +750,17 @@ form:
             underline: true
 
             fields:
+                wrapped_site:
+                    type: toggle
+                    label: PLUGIN_ADMIN.WRAPPED_SITE
+                    highlight: 0
+                    help: PLUGIN_ADMIN.WRAPPED_SITE_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 absolute_urls:
                     type: toggle
                     label: PLUGIN_ADMIN.ABSOLUTE_URLS
