@@ -76,7 +76,7 @@ $ bin/gpm update
 
 # Contributing
 We appreciate any contribution to Grav, whether it is related to bugs, grammar, or simply a suggestion or improvement.
-However, we ask that any contribution follow our simple guidelines in order to be properly received.
+However, we ask that any contributions follow our simple guidelines in order to be properly received.
 
 All our projects follow the [GitFlow branching model][gitflow-model], from development to release. If you are not familiar with it, there are several guides and tutorials to make you understand what it is about.
 
