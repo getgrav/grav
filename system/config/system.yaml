@@ -54,6 +54,7 @@ pages:
   ignore_folders: [.git, .idea]        # Folders to ignore in Pages
   ignore_hidden: true                  # Ignore all Hidden files and folders
   url_taxonomy_filters: true           # Enable auto-magic URL-based taxonomy filters for page collections
+  fallback_types: [png,jpg,jpeg,gif]   # Allowed types of files found if accessed via Page route
 
 cache:
   enabled: true                        # Set to true to enable caching

@@ -215,6 +215,15 @@ form:
                     validate:
                         type: bool
 
+                pages.fallback_types:
+                    type: selectize
+                    size: large
+                    label: PLUGIN_ADMIN.FALLBACK_TYPES
+                    help: PLUGIN_ADMIN.FALLBACK_TYPES_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
+
         languages:
             type: section
             title: PLUGIN_ADMIN.LANGUAGES
@@ -774,6 +783,7 @@ form:
 
                 param_sep:
                     type: select
+                    size: medium
                     label: PLUGIN_ADMIN.PARAMETER_SEPARATOR
                     classes: fancy
                     help: PLUGIN_ADMIN.PARAMETER_SEPARATOR_HELP

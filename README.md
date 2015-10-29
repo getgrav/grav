@@ -9,10 +9,10 @@ The underlying architecture of Grav is designed to use well-established and _bes
 * [Twig Templating](http://twig.sensiolabs.org/): for powerful control of the user interface
 * [Markdown](http://en.wikipedia.org/wiki/Markdown): for easy content creation
 * [YAML](http://yaml.org): for simple configuration
-* [Parsedown](http://parsedown.org/): for fast Markdown and Mardown Extra support
+* [Parsedown](http://parsedown.org/): for fast Markdown and Markdown Extra support
 * [Doctrine Cache](http://docs.doctrine-project.org/en/2.0.x/reference/caching.html): layer for performance
 * [Pimple Dependency Injection Container](http://pimple.sensiolabs.org/): for extensibility and maintainability
-* [Symfony Event Dispacher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html): for plugin event handling
+* [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html): for plugin event handling
 * [Symfony Console](http://symfony.com/doc/current/components/console/introduction.html): for CLI interface
 * [Gregwar Image Library](https://github.com/Gregwar/Image): for dynamic image manipulation
 
@@ -53,7 +53,7 @@ You can download [plugins](http://getgrav.org/downloads/plugins) or [themes](htt
 $ bin/gpm index
 ```
 
-This will display all the available plugins and then you can install one ore more with:
+This will display all the available plugins and then you can install one or more with:
 
 ```
 $ bin/gpm install <plugin/theme>
@@ -76,7 +76,7 @@ $ bin/gpm update
 
 # Contributing
 We appreciate any contribution to Grav, whether it is related to bugs, grammar, or simply a suggestion or improvement.
-However, we ask that any contribution follow our simple guidelines in order to be properly received.
+However, we ask that any contributions follow our simple guidelines in order to be properly received.
 
 All our projects follow the [GitFlow branching model][gitflow-model], from development to release. If you are not familiar with it, there are several guides and tutorials to make you understand what it is about.
 

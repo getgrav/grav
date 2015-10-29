@@ -457,6 +457,16 @@ class Grav extends Container
         /** @var Uri $uri */
         $uri = $this['uri'];
 
+        /** @var Config $config */
+        $config = $this['config'];
+
+        $uri_extension = $uri->extension();
+
+        // Only allow whitelisted types to fallback
+        if (!in_array($uri_extension, $config->get('system.pages.fallback_types'))) {
+            return;
+        }
+
         $path_parts = pathinfo($path);
         $page = $this['pages']->dispatch($path_parts['dirname'], true);
         if ($page) {
@@ -478,7 +488,6 @@ class Grav extends Container
             }
 
             // unsupported media type, try to download it...
-            $uri_extension = $uri->extension();
             if ($uri_extension) {
                 $extension = $uri_extension;
             } else {
@@ -491,7 +500,7 @@ class Grav extends Container
 
             if ($extension) {
                 $download = true;
-                if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types', []))) {
+                if (in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []))) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);

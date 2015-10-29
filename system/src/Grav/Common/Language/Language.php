@@ -162,7 +162,7 @@ class Language
      */
     public function setActiveFromUri($uri)
     {
-        $regex = '/(^\/(' . $this->getAvailable() . ')).*/';
+        $regex = '/(^\/(' . $this->getAvailable() . '))(?:\/.*|$)/i';
 
         // if languages set
         if ($this->enabled()) {
