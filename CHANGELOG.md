@@ -1,3 +1,16 @@
+# v1.0.0-rc.3
+## 10/29/2015
+
+1. [](#new)
+    * New Page collection options! `@self.parent, @self.siblings, @self.descendants` + more
+    * Whitelist of file types for fallback route functionality
+1. [](#improved)
+    * Assets switched from defines to streams
+1. [](#bugfix)
+    * README.md typos fixed
+    * Fixed issue with routes that have lang string in them (`/en/english`)
+    * Trim strings before validation so whitespace is not satisfy 'required'
+
 # v1.0.0-rc.2
 ## 10/27/2015
 
