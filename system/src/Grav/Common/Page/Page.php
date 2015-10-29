@@ -1989,7 +1989,7 @@ class Page
                             $results = $this->parent()->children()->remove($this->path());
                             break;
 
-                        case 'recurse':
+                        case 'descendants':
                             $results = $pages->all($this)->remove($this->path())->nonModular();
                             break;
                     }
@@ -2005,7 +2005,7 @@ class Page
                     $page = $this->find($params[0]);
                 }
 
-                // Handle a @page.recurse
+                // Handle a @page.descendants
                 if (!empty($parts) && isset($page)) {
                     switch ($parts[0]) {
                         case 'self':
@@ -2013,7 +2013,7 @@ class Page
                             $results = $results->addPage($page);
                             break;
 
-                        case 'recurse':
+                        case 'descendants':
                             $results = $pages->all($page)->remove($page->path());
                             break;
 
@@ -2030,7 +2030,7 @@ class Page
                 break;
 
             case '@root':
-                if (!empty($parts) && $parts[0] == 'recurse') {
+                if (!empty($parts) && $parts[0] == 'descendants') {
                     $results = $pages->all($pages->root())->nonModular()->published();
                 } else {
                     $results = $pages->root()->children()->nonModular()->published();
