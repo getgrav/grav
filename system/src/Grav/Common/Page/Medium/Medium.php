@@ -401,7 +401,6 @@ class Medium extends Data implements RenderableInterface
      */
     public function style($style)
     {
-        error_log($style);
         $this->styleAttributes[] = rtrim($style, ';') . ';';
         return $this;
     }
