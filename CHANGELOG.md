@@ -3,7 +3,7 @@
 
 1. [](#new)
     * New Page collection options! `@self.parent, @self.siblings, @self.descendants` + more
-    * Whitelist of file types for fallback route functionality
+    * Whitelist of file types for fallback route functionality (images by default)
 1. [](#improved)
     * Assets switched from defines to streams
 1. [](#bugfix)
