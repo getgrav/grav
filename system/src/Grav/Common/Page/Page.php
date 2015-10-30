@@ -1963,7 +1963,7 @@ class Page
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
 
-        $results = null;
+        $results = new Collection();
         switch ($current) {
             case '@self':
                 if (!empty($parts)) {
@@ -2005,8 +2005,13 @@ class Page
                     $page = $this->find($params[0]);
                 }
 
+                // safety check in case page is not found
+                if (!isset($page)) {
+                    return $results;
+                }
+
                 // Handle a @page.descendants
-                if (!empty($parts) && isset($page)) {
+                if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'self':
                             $results = new Collection();
