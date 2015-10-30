@@ -72,6 +72,7 @@ twig:
   autoescape: false                    # Autoescape Twig vars
   undefined_functions: true            # Allow undefined functions
   undefined_filters: true              # Allow undefined filters
+  umask_fix: false                     # By default Twig creates cached files as 755, fix switches this to 775
 
 assets:                                # Configuration for Assets Manager (JS, CSS)
   css_pipeline: false                  # The CSS pipeline is the unification of multiple CSS resources into one file
