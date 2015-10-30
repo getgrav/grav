@@ -2,7 +2,7 @@
 ## 10/29/2015
 
 1. [](#bugfix)
-    * Fixed a fatal error if you have a collection with missing/invalid `@page: /route`
+    * Fixed a fatal error if you have a collection with missing or invalid `@page: /route`
 
 # v1.0.0-rc.3
 ## 10/29/2015
