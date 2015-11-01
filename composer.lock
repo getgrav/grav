@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "e1db721096772d41f16003b39b47c85a",
-    "content-hash": "294dd2282a332d96b19d163ad08e7ba7",
     "packages": [
         {
             "name": "doctrine/cache",
