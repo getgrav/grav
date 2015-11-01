@@ -260,6 +260,7 @@ class ImageMedium extends Medium
 
         if ($this->image) {
             $this->image();
+            $this->image->clearOperations(); // Clear previously applied operations
             $this->filter();
         }
 
