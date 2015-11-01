@@ -21,6 +21,8 @@ use Grav\Common\Filesystem\Folder;
  */
 class Cache extends Getters
 {
+    use GravTrait;
+
     /**
      * @var string Cache key.
      */
@@ -44,30 +46,30 @@ class Cache extends Getters
     protected $cache_dir;
 
     protected static $standard_remove = [
-        'cache/twig/',
-        'cache/doctrine/',
-        'cache/compiled/',
-        'cache/validated-',
-        'images/',
-        'assets/',
+        'cache://twig/',
+        'cache://doctrine/',
+        'cache://compiled/',
+        'cache://validated-',
+        'cache://images',
+        'asset://',
     ];
 
     protected static $all_remove = [
-        'cache/',
-        'images/',
-        'assets/'
+        'cache://',
+        'cache://images',
+        'asset://'
     ];
 
     protected static $assets_remove = [
-        'assets/'
+        'asset://'
     ];
 
     protected static $images_remove = [
-        'images/'
+        'cache://images'
     ];
 
     protected static $cache_remove = [
-        'cache/'
+        'cache://'
     ];
 
     /**
@@ -221,7 +223,7 @@ class Cache extends Getters
      */
     public static function clearCache($remove = 'standard')
     {
-
+        $locator = self::getGrav()['locator'];
         $output = [];
         $user_config = USER_DIR . 'config/system.yaml';
 
@@ -243,7 +245,13 @@ class Cache extends Getters
         }
 
 
-        foreach ($remove_paths as $path) {
+        foreach ($remove_paths as $stream) {
+
+            // Convert stream to a real path
+            $path = $locator->findResource($stream);
+            // Make sure path exists before proceeding, otherwise we would wipe ROOT_DIR
+            if (!$path)
+                throw new \RuntimeException("Stream '{$stream}' not found", 500);
 
             $anything = false;
             $files = glob(ROOT_DIR . $path . '*');
