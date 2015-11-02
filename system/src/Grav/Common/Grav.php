@@ -114,7 +114,7 @@ class Grav extends Container
             /** @var Uri $uri */
             $uri = $c['uri'];
 
-            $path = rtrim($uri->path(), '/');
+            $path = $uri->path(); // Don't trim to support trailing slash default routes
             $path = $path ?: '/';
 
             $page = $pages->dispatch($path);
@@ -296,7 +296,10 @@ class Grav extends Container
         if ($uri->isExternal($route)) {
             $url = $route;
         } else {
-            $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/');
+            if ($this['config']->get('system.pages.redirect_trailing_slash', true))
+                $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'); // Remove trailing slash
+            else
+                $url = rtrim($uri->rootUrl(), '/') .'/'. ltrim($route, '/'); // Support trailing slash default routes
         }
 
         header("Location: {$url}", true, $code);
