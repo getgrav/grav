@@ -254,7 +254,7 @@ class Cache extends Getters
                 throw new \RuntimeException("Stream '{$stream}' not found", 500);
 
             $anything = false;
-            $files = glob(ROOT_DIR . $path . '*');
+            $files = glob($path . '/*');
 
             if (is_array($files)) {
                 foreach ($files as $file) {
@@ -271,7 +271,7 @@ class Cache extends Getters
             }
 
             if ($anything) {
-                $output[] = '<red>Cleared:  </red>' . $path . '*';
+                $output[] = '<red>Cleared:  </red>' . $path . '/*';
             }
         }
 

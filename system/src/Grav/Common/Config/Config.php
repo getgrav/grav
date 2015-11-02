@@ -30,6 +30,12 @@ class Config extends Data
                 '' => ['user'],
             ]
         ],
+        'asset' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['assets'],
+            ]
+        ],
         'blueprints' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
