@@ -151,7 +151,11 @@ class User extends Data
         }
 
         //Check user access level
-        if (Utils::resolve($this->get("access"), $action) !== null) {
+        if (!$this->get('access')) {
+            return false;
+        }
+
+        if (Utils::resolve($this->get('access'), $action) !== null) {
             $permission = $this->get("access.{$action}");
             $return = Utils::isPositive($permission);
         }
