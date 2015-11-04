@@ -272,6 +272,10 @@ class Pages
     {
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
+        // Try without trailing slash
+        if (!$page && Utils::endsWith($url, '/')) {
+            $page = isset($this->routes[rtrim($url, '/')]) ? $this->get($this->routes[rtrim($url, '/')]) : null;
+        }
 
         // Are we in the admin? this is important!
         $not_admin = !isset($this->grav['admin']);

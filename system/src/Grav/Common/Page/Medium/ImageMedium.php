@@ -260,6 +260,7 @@ class ImageMedium extends Medium
 
         if ($this->image) {
             $this->image();
+            $this->image->clearOperations(); // Clear previously applied operations
             $this->filter();
         }
 
@@ -357,6 +358,48 @@ class ImageMedium extends Medium
         }
 
         return empty($this->sizes) ? '100vw' : $this->sizes;
+    }
+
+    /**
+     * Allows to set the width attribute from Markdown or Twig
+     * Examples: ![Example](myimg.png?width=200&height=400)
+     *           ![Example](myimg.png?resize=100,200&width=100&height=200)
+     *           ![Example](myimg.png?width=auto&height=auto)
+     *           ![Example](myimg.png?width&height)
+     *           {{ page.media['myimg.png'].width().height().html }}
+     *           {{ page.media['myimg.png'].resize(100,200).width(100).height(200).html }}
+     *
+     * @param mixed $value A value or 'auto' or empty to use the width of the image
+     * @return $this
+     */
+    public function width($value = 'auto')
+    {
+        if (!$value || $value == 'auto')
+            $this->attributes['width'] = $this->get('width');
+        else
+            $this->attributes['width'] = $value;
+        return $this;
+    }
+
+    /**
+     * Allows to set the height attribute from Markdown or Twig
+     * Examples: ![Example](myimg.png?width=200&height=400)
+     *           ![Example](myimg.png?resize=100,200&width=100&height=200)
+     *           ![Example](myimg.png?width=auto&height=auto)
+     *           ![Example](myimg.png?width&height)
+     *           {{ page.media['myimg.png'].width().height().html }}
+     *           {{ page.media['myimg.png'].resize(100,200).width(100).height(200).html }}
+     *
+     * @param mixed $value A value or 'auto' or empty to use the height of the image
+     * @return $this
+     */
+    public function height($value = 'auto')
+    {
+        if (!$value || $value == 'auto')
+            $this->attributes['height'] = $this->get('height');
+        else
+            $this->attributes['height'] = $value;
+        return $this;
     }
 
     /**

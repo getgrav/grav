@@ -74,6 +74,8 @@ class Assets
     protected $config;
     protected $base_url;
     protected $timestamp = '';
+    protected $assets_dir;
+    protected $assets_url;
 
     // Default values for pipeline settings
     protected $css_minify = true;
@@ -117,7 +119,7 @@ class Assets
         }
 
         // Pipeline requires public dir
-        if (($this->js_pipeline || $this->css_pipeline) && !is_dir(ASSETS_DIR)) {
+        if (($this->js_pipeline || $this->css_pipeline) && !is_dir($this->assets_dir)) {
             throw new \Exception('Assets: Public dir not found');
         }
 
@@ -174,6 +176,11 @@ class Assets
         $config = self::getGrav()['config'];
         $base_url = self::getGrav()['base_url'];
         $asset_config = (array)$config->get('system.assets');
+
+        /** @var Locator $locator */
+        $locator = self::$grav['locator'];
+        $this->assets_dir = self::getGrav()['locator']->findResource('asset://') . DS;
+        $this->assets_url = self::getGrav()['locator']->findResource('asset://', false);
 
         $this->config($asset_config);
         $this->base_url = $base_url . '/';
@@ -621,8 +628,8 @@ class Assets
 
         $file = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group) . '.css';
 
-        $relative_path = "{$this->base_url}" . basename(ASSETS_DIR) . "/{$file}";
-        $absolute_path = ASSETS_DIR . $file;
+        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
+        $absolute_path = $this->assets_dir . $file;
 
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
@@ -689,8 +696,8 @@ class Assets
 
         $file = md5(json_encode($this->js) . $this->js_minify . $group) . '.js';
 
-        $relative_path = "{$this->base_url}" . basename(ASSETS_DIR) . "/{$file}";
-        $absolute_path = ASSETS_DIR . $file;
+        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
+        $absolute_path = $this->assets_dir . $file;
 
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
@@ -852,12 +859,12 @@ class Assets
     public function addDir($directory, $pattern = self::DEFAULT_REGEX)
     {
         // Check if public_dir exists
-        if (!is_dir(ASSETS_DIR)) {
+        if (!is_dir($this->assets_dir)) {
             throw new Exception('Assets: Public dir not found');
         }
 
         // Get files
-        $files = $this->rglob(ASSETS_DIR . DIRECTORY_SEPARATOR . $directory, $pattern, ASSETS_DIR);
+        $files = $this->rglob($this->assets_dir . DIRECTORY_SEPARATOR . $directory, $pattern, $this->assets_dir);
 
         // No luck? Nothing to do
         if (!$files) {

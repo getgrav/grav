@@ -10,6 +10,14 @@ class ImageFile extends \Gregwar\Image\Image
     use GravTrait;
 
     /**
+     * Clear previously applied operations
+     */
+    public function clearOperations()
+    {
+        $this->operations = [];
+    }
+
+    /**
      * This is the same as the Gregwar Image class except this one fires a Grav Event on creation of new cached file
      *
      * @param string $type    the image type

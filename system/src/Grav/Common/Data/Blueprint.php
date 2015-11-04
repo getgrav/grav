@@ -76,7 +76,8 @@ class Blueprint
         try {
             $this->validateArray($data, $this->nested);
         } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('<b>Validation failed:</b> %s', $e->getMessage()));
+            $language = self::getGrav()['language'];
+            throw new \RuntimeException(sprintf('<b>Validation failed:</b> %s', $language->translate($e->getMessage())));
         }
     }
 

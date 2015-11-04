@@ -1935,7 +1935,7 @@ class Page
             // Format: @command.param
             $cmd = $value;
             $params = array();
-        } elseif (is_array($value) && count($value) == 1) {
+        } elseif (is_array($value) && count($value) == 1 && !is_int(key($value))) {
             // Format: @command.param: { attr1: value1, attr2: value2 }
             $cmd = (string) key($value);
             $params = (array) current($value);
@@ -1957,50 +1957,91 @@ class Page
             return $value;
         }
 
+        /** @var Pages $pages */
+        $pages = self::getGrav()['pages'];
+
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
 
-        $results = null;
+        $results = new Collection();
         switch ($current) {
             case '@self':
                 if (!empty($parts)) {
                     switch ($parts[0]) {
                         case 'modular':
+                            // @self.modular: false (alternative to @self.children)
                             if (!empty($params) && $params[0] === false) {
-                                $results = $this->children()->nonModular()->published();
+                                $results = $this->children()->nonModular();
                                 break;
                             }
-                            $results = $this->children()->modular()->published();
+                            $results = $this->children()->modular();
                             break;
                         case 'children':
-                            $results = $this->children()->nonModular()->published();
+                            $results = $this->children()->nonModular();
+                            break;
+
+                        case 'parent':
+                            $collection = new Collection();
+                            $results = $collection->addPage($this->parent());
+                            break;
+
+                        case 'siblings':
+                            $results = $this->parent()->children()->remove($this->path());
+                            break;
+
+                        case 'descendants':
+                            $results = $pages->all($this)->remove($this->path())->nonModular();
                             break;
                     }
                 }
+
+                $results = $results->published();
                 break;
 
             case '@page':
+                $page = null;
+
                 if (!empty($params)) {
-                    /** @var Pages $pages */
-                    $pages = self::getGrav()['pages'];
+                    $page = $this->find($params[0]);
+                }
 
-                    list($what, $recurse) = array_pad($params, 2, null);
+                // safety check in case page is not found
+                if (!isset($page)) {
+                    return $results;
+                }
 
-                    if ($what == '@root') {
-                        $page = $pages->root();
-                    } else {
-                        $page = $this->find($what);
+                // Handle a @page.descendants
+                if (!empty($parts)) {
+                    switch ($parts[0]) {
+                        case 'self':
+                            $results = new Collection();
+                            $results = $results->addPage($page);
+                            break;
+
+                        case 'descendants':
+                            $results = $pages->all($page)->remove($page->path());
+                            break;
+
+                        case 'children':
+                            $results = $page->children();
+                            break;
                     }
+                } else {
+                    $results = $page->children();
+                }
 
-                    if ($page) {
-                        if ($recurse) {
-                            $results = $pages->all($page)->nonModular()->published();
-                        } else {
-                            $results = $page->children()->nonModular()->published();
-                        }
-                     }
+                $results = $results->nonModular()->published();
+
+                break;
+
+            case '@root':
+                if (!empty($parts) && $parts[0] == 'descendants') {
+                    $results = $pages->all($pages->root())->nonModular()->published();
+                } else {
+                    $results = $pages->root()->children()->nonModular()->published();
                 }
                 break;
+
 
             case '@taxonomy':
                 // Gets a collection of pages by using one of the following formats:

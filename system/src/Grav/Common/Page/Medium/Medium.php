@@ -209,9 +209,13 @@ class Medium extends Data implements RenderableInterface
 
         $style = '';
         foreach ($this->styleAttributes as $key => $value) {
-            $style .= $key . ': ' . $value . ';';
+            if (is_numeric($key)) // Special case for inline style attributes, refer to style() method
+                $style .= $value;
+            else
+                $style .= $key . ': ' . $value . ';';
         }
-        $attributes['style'] = $style;
+        if ($style)
+            $attributes['style'] = $style;
 
         if (empty($attributes['title'])) {
             if (!empty($title)) {
@@ -389,6 +393,19 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Allows to add an inline style attribute from Markdown or Twig
+     * Example: ![Example](myimg.png?style=float:left)
+     *
+     * @param string $style
+     * @return $this
+     */
+    public function style($style)
+    {
+        $this->styleAttributes[] = rtrim($style, ';') . ';';
+        return $this;
+    }
+
+    /**
      * Allow any action to be called on this medium from twig or markdown
      *
      * @param string $method
@@ -440,4 +457,5 @@ class Medium extends Data implements RenderableInterface
 
         return $this->_thumbnail;
     }
+
 }

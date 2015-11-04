@@ -588,6 +588,10 @@ class Validation
 
     public static function validateRequired($value, $params)
     {
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+        
         return (bool) $params !== true || !empty($value);
     }
 

@@ -114,7 +114,7 @@ class Grav extends Container
             /** @var Uri $uri */
             $uri = $c['uri'];
 
-            $path = rtrim($uri->path(), '/');
+            $path = $uri->path(); // Don't trim to support trailing slash default routes
             $path = $path ?: '/';
 
             $page = $pages->dispatch($path);
@@ -296,7 +296,10 @@ class Grav extends Container
         if ($uri->isExternal($route)) {
             $url = $route;
         } else {
-            $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/');
+            if ($this['config']->get('system.pages.redirect_trailing_slash', true))
+                $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'); // Remove trailing slash
+            else
+                $url = rtrim($uri->rootUrl(), '/') .'/'. ltrim($route, '/'); // Support trailing slash default routes
         }
 
         header("Location: {$url}", true, $code);
@@ -457,6 +460,16 @@ class Grav extends Container
         /** @var Uri $uri */
         $uri = $this['uri'];
 
+        /** @var Config $config */
+        $config = $this['config'];
+
+        $uri_extension = $uri->extension();
+
+        // Only allow whitelisted types to fallback
+        if (!in_array($uri_extension, $config->get('system.pages.fallback_types'))) {
+            return;
+        }
+
         $path_parts = pathinfo($path);
         $page = $this['pages']->dispatch($path_parts['dirname'], true);
         if ($page) {
@@ -478,7 +491,6 @@ class Grav extends Container
             }
 
             // unsupported media type, try to download it...
-            $uri_extension = $uri->extension();
             if ($uri_extension) {
                 $extension = $uri_extension;
             } else {
@@ -491,7 +503,7 @@ class Grav extends Container
 
             if ($extension) {
                 $download = true;
-                if (in_array(ltrim($extension, '.'), $this['config']->get('system.media.unsupported_inline_types', []))) {
+                if (in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []))) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);

@@ -29,7 +29,7 @@ form:
                     size: large
                     label: PLUGIN_ADMIN.PASSWORD
                     validate:
-                      required: true
+                      required: false
                       message: PLUGIN_ADMIN.PASSWORD_VALIDATION_MESSAGE
                       pattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}'
 

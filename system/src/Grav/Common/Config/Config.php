@@ -30,6 +30,12 @@ class Config extends Data
                 '' => ['user'],
             ]
         ],
+        'asset' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['assets'],
+            ]
+        ],
         'blueprints' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
@@ -194,7 +200,7 @@ class Config extends Data
             $checkConfig = $this->get('system.cache.check.config', true);
             $checkSystem = $this->get('system.cache.check.system', true);
 
-            if (!$checkBlueprints && !!$checkLanguages && $checkConfig && !$checkSystem) {
+            if (!$checkBlueprints && !$checkLanguages && !$checkConfig && !$checkSystem) {
                 $this->messages[] = 'Skip configuration timestamp check.';
                 return false;
             }

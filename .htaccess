@@ -44,15 +44,17 @@ RewriteRule .* index.php [L]
 
 ## Begin - Security
 # Block all direct access for these folders
-RewriteRule ^(.git|cache|bin|logs|backup)/(.*) error [L]
-# Block access to specific file types for these folders
-RewriteRule ^(system|user|vendor)/(.*)\.(txt|md|html|yaml|php|twig|sh|bat)$ error [L]
+RewriteRule ^(.git|cache|bin|logs|backup)/(.*) error [F]
+# Block access to specific file types for these system folders
+RewriteRule ^(system|vendor)/(.*)\.(txt|xml|md|html|yaml|php|pl|py|cgi|twig|sh|bat)$ error [F]
+# Block access to specific file types for these user folders
+RewriteRule ^(user)/(.*)\.(txt|md|yaml|php|pl|py|cgi|twig|sh|bat)$ error [F]
 # Block all direct access to .md files:
-RewriteRule \.md$ error [L]
+RewriteRule \.md$ error [F]
 # Block all direct access to files and folders beginning with a dot
 RewriteRule (^\.|/\.) - [F]
 # Block access to specific files in the root folder
-RewriteRule ^(LICENSE|composer.lock|composer.json|nginx.conf|web.config)$ error [F]
+RewriteRule ^(LICENSE|composer.lock|composer.json|nginx.conf|web.config|htaccess.txt|\.htaccess)$ error [F]
 ## End - Security
 
 </IfModule>

@@ -171,6 +171,8 @@ class Themes extends Iterator
             exit("Theme '$name' does not exist, unable to display page.");
         }
 
+        $this->config->set('theme', $config->get('themes.' . $name));
+
         if (empty($class)) {
             $class = new Theme($grav, $config, $name);
         }
