@@ -105,7 +105,7 @@ class Group extends Data
      * Remove a group
      *
      * @param string $username
-     * @return bool True is the action was performed
+     * @return bool True if the action was performed
      */
     public static function remove($groupname)
     {
