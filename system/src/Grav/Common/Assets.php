@@ -413,7 +413,7 @@ class Assets
         }
 
         $key = md5($asset);
-        if (is_string($asset) && !array_key_exists($key, $this->inline_css)) {
+        if ($asset && is_string($asset) && !array_key_exists($key, $this->inline_css)) {
             $this->inline_css[$key] = $data;
         }
 
@@ -460,7 +460,7 @@ class Assets
         }
 
         $key = md5($asset);
-        if (is_string($asset) && !array_key_exists($key, $this->inline_js)) {
+        if ($asset && is_string($asset) && !array_key_exists($key, $this->inline_js)) {
             $this->inline_js[$key] = $data;
         }
 
