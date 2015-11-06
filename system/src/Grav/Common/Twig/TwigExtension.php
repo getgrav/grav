@@ -94,14 +94,17 @@ class TwigExtension extends \Twig_Extension
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('evaluate', [$this, 'evaluateFunc']),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
+            new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
-            new \Twig_SimpleFunction('evaluate', [$this, 'evaluateFunc']),
+
+
         ];
     }
 
@@ -594,5 +597,25 @@ class TwigExtension extends \Twig_Extension
         }
 
         return false;
+    }
+
+    /**
+     * Used to add a nonce to a form. Call {{ nonce_field('action') }} specifying a string representing the action.
+     *
+     * For maximum protection, ensure that the string representing the action is as specific as possible.
+     *
+     * @todo evaluate if adding referrer or not
+     *
+     * @param string action         the action
+     * @param string nonceParamName a custom nonce param name
+     *
+     * @return string the nonce input field
+     */
+    public function nonceFieldFunc($action, $nonceParamName = 'nonce')
+    {
+        $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) .'" />';
+        // $string += '<input type="hidden" name="_grav_http_referer" value="/admin/pages/test-page" />';
+        return $string;
+
     }
 }
