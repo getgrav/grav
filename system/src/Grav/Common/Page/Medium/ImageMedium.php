@@ -52,7 +52,6 @@ class ImageMedium extends Medium
         'forceResize' => [ 0, 1 ],
         'cropResize' => [ 0, 1 ],
         'crop' => [ 0, 1, 2, 3 ],
-        'cropResize' => [ 0, 1 ],
         'zoomCrop' => [ 0, 1 ]
     ];
 
