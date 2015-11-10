@@ -1,12 +1,8 @@
 <?php
 namespace Grav\Common\Markdown;
 
-use Grav\Common\Config\Config;
-use Grav\Common\Debugger;
 use Grav\Common\GravTrait;
-use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Uri;
-use Grav\Common\Utils;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra

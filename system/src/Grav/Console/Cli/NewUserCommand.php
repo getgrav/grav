@@ -1,9 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
-use Grav\Common\Data\Blueprints;
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\User\User;
 use Grav\Console\ConsoleTrait;
 use RuntimeException;
