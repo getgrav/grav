@@ -457,6 +457,7 @@ abstract class Utils
     public static function getNonce($action, $plusOneTick = false)
     {
         $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
+        $nonce = str_replace('/', '-', $nonce); // avoid having to deal with slashes in URLs
         return $nonce;
     }
 
