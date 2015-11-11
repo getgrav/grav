@@ -614,7 +614,6 @@ class TwigExtension extends \Twig_Extension
     public function nonceFieldFunc($action, $nonceParamName = 'nonce')
     {
         $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) .'" />';
-        // $string += '<input type="hidden" name="_grav_http_referer" value="/admin/pages/test-page" />';
         return $string;
 
     }
