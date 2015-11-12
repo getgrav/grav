@@ -516,4 +516,28 @@ class ImageMedium extends Medium
             $this->__call($method, $params);
         }
     }
+
+    /**
+     * Return the image higher quality version
+     *
+     * @return ImageMedium the alternative version with higher quality
+     */
+    public function higherQualityAlternative()
+    {
+        if ($this->alternatives) {
+            $max = reset($this->alternatives);
+            foreach($this->alternatives as $alternative)
+            {
+                if($alternative->quality() > $max->quality())
+                {
+                    $max = $alternative;
+                }
+            }
+
+            return $max;
+        } else {
+            return $this;
+        }
+    }
+
 }
