@@ -615,6 +615,5 @@ class TwigExtension extends \Twig_Extension
     {
         $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) .'" />';
         return $string;
-
     }
 }

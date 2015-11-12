@@ -400,10 +400,14 @@ abstract class Utils
      */
     private static function generateNonceString($action, $plusOneTick)
     {
-        $user = self::getGrav()['user'];
-        $username = $user->username;
+        if (isset(self::getGrav()['user'])) {
+            $user = self::getGrav()['user'];
+            $username = $user->username;
+        } else {
+            $username = false;
+        }
 
-        if ( ! $username ) {
+        if (!$username) {
             $username = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         }
 
