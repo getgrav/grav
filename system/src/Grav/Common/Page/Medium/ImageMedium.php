@@ -311,19 +311,23 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Sets the quality of the image
+     * Sets or gets the quality of the image
      *
      * @param  int $quality 0-100 quality
      * @return Medium
      */
-    public function quality($quality)
+    public function quality($quality = null)
     {
-        if (!$this->image) {
-            $this->image();
+        if ($quality) {
+            if (!$this->image) {
+                $this->image();
+            }
+
+            $this->quality = $quality;
+            return $this;
         }
 
-        $this->quality = $quality;
-        return $this;
+        return $this->quality;
     }
 
     /**
