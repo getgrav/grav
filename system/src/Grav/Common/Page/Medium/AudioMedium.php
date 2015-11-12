@@ -1,13 +1,6 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Config\Config;
-use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
-use Grav\Common\GravTrait;
-use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\Data;
-
 class AudioMedium extends Medium
 {
     use StaticResizeTrait;
