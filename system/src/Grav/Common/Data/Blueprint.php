@@ -3,7 +3,8 @@ namespace Grav\Common\Data;
 
 use Grav\Common\GravTrait;
 use RocketTheme\Toolbox\ArrayTraits\Export;
-use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccess;
+use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
+use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 
 /**
  * Blueprint handles the inside logic of blueprints.
@@ -11,9 +12,9 @@ use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccess;
  * @author RocketTheme
  * @license MIT
  */
-class Blueprint
+class Blueprint implements \ArrayAccess, ExportInterface
 {
-    use Export, NestedArrayAccess, GravTrait;
+    use Export, NestedArrayAccessWithGetters, GravTrait;
 
     public $name;
 

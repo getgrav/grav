@@ -3,6 +3,7 @@ namespace Grav\Common\Data;
 
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\FileInterface;
@@ -13,7 +14,7 @@ use RocketTheme\Toolbox\File\FileInterface;
  * @author RocketTheme
  * @license MIT
  */
-class Data implements DataInterface
+class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
 {
     use NestedArrayAccessWithGetters, Countable, Export;
 
