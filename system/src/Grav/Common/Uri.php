@@ -571,4 +571,20 @@ class Uri
             return $normalized_url;
         }
     }
+
+    /**
+     * Adds the nonce to a URL for a specific action
+     *
+     * @param string $url the url
+     * @param string $action the action
+     * @param string $nonceParamName the param name to use
+     *
+     * @return string the url with the nonce
+     */
+    public static function addNonce($url, $action, $nonceParamName = 'nonce')
+    {
+        $nonce = Utils::getNonce($action);
+        $urlWithNonce = $url . '/' . $nonceParamName . self::getGrav()['config']->get('system.param_sep', ':') . $nonce;
+        return $urlWithNonce;
+    }
 }
