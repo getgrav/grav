@@ -1,3 +1,9 @@
+# v1.0.0-refactor
+## XX/XX/2015
+
+1. [](#new)
+    * Refactor Data classes to use NestedArrayAccess instead of DataMutatorTrait
+
 # v1.0.0-rc.4
 ## 10/29/2015
 

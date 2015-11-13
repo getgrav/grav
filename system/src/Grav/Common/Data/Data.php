@@ -1,9 +1,9 @@
 <?php
 namespace Grav\Common\Data;
 
-use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\FileInterface;
 
@@ -15,7 +15,7 @@ use RocketTheme\Toolbox\File\FileInterface;
  */
 class Data implements DataInterface
 {
-    use ArrayAccessWithGetters, Countable, Export, DataMutatorTrait;
+    use NestedArrayAccessWithGetters, Countable, Export;
 
     protected $gettersVariable = 'items';
     protected $items;

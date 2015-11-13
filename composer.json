@@ -21,9 +21,15 @@
         "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
-        "rockettheme/toolbox": "1.1.*",
+        "rockettheme/toolbox": "dev-develop",
         "maximebf/debugbar": "~1.10"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/rockettheme/toolbox"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"
