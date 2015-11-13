@@ -2,7 +2,6 @@
 namespace Grav\Common;
 
 use Grav\Common\Page\Page;
-use Grav\Common\Page\Pages;
 
 /**
  * The URI object provides information about the current URL

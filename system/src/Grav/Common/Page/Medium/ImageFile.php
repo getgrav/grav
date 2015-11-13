@@ -4,8 +4,9 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\GravTrait;
 use Gregwar\Image\Exceptions\GenerationError;
 use RocketTheme\Toolbox\Event\Event;
+use Gregwar\Image\Image;
 
-class ImageFile extends \Gregwar\Image\Image
+class ImageFile extends Image
 {
     use GravTrait;
 

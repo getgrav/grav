@@ -131,7 +131,7 @@ class Truncator {
             $inner .= $txt;
             if ($remaining < 0) {
                 if (static::ellipsable($node)) {
-                    $inner = preg_replace('/(?:[\s\pP]+|(?:&(?:[a-z]+|#[0-9]+);?))*$/', '', $inner).$opts['ellipsis'];
+                    $inner = preg_replace('/(?:[\s\pP]+|(?:&(?:[a-z]+|#[0-9]+);?))*$/u', '', $inner).$opts['ellipsis'];
                     $opts['ellipsis'] = '';
                     $opts['was_truncated'] = true;
                 }

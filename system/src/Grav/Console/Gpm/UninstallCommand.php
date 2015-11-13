@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Console\Gpm;
 
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Console\ConsoleTrait;

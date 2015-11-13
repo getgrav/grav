@@ -450,7 +450,8 @@ class Blueprint
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true
                 && empty($data[$name])) {
-                throw new \RuntimeException("Missing required field: {$field['name']}");
+                $value = isset($field['label']) ? $field['label'] : $field['name'];
+                throw new \RuntimeException("Missing required field: {$value}");
             }
         }
     }

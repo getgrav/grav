@@ -52,7 +52,6 @@ class ImageMedium extends Medium
         'forceResize' => [ 0, 1 ],
         'cropResize' => [ 0, 1 ],
         'crop' => [ 0, 1, 2, 3 ],
-        'cropResize' => [ 0, 1 ],
         'zoomCrop' => [ 0, 1 ]
     ];
 
@@ -312,19 +311,23 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Sets the quality of the image
+     * Sets or gets the quality of the image
      *
      * @param  int $quality 0-100 quality
      * @return Medium
      */
-    public function quality($quality)
+    public function quality($quality = null)
     {
-        if (!$this->image) {
-            $this->image();
+        if ($quality) {
+            if (!$this->image) {
+                $this->image();
+            }
+
+            $this->quality = $quality;
+            return $this;
         }
 
-        $this->quality = $quality;
-        return $this;
+        return $this->quality;
     }
 
     /**
@@ -513,4 +516,28 @@ class ImageMedium extends Medium
             $this->__call($method, $params);
         }
     }
+
+    /**
+     * Return the image higher quality version
+     *
+     * @return ImageMedium the alternative version with higher quality
+     */
+    public function higherQualityAlternative()
+    {
+        if ($this->alternatives) {
+            $max = reset($this->alternatives);
+            foreach($this->alternatives as $alternative)
+            {
+                if($alternative->quality() > $max->quality())
+                {
+                    $max = $alternative;
+                }
+            }
+
+            return $max;
+        } else {
+            return $this;
+        }
+    }
+
 }
