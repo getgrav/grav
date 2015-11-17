@@ -398,7 +398,7 @@ abstract class Utils
      *
      * @return string the nonce string
      */
-    private static function generateNonceString($action, $plusOneTick)
+    private static function generateNonceString($action, $plusOneTick = false)
     {
         if (isset(self::getGrav()['user'])) {
             $user = self::getGrav()['user'];
@@ -436,7 +436,7 @@ abstract class Utils
     }
 
     /**
-     * Get hash of given string. Uses BCrypt. The salt is taken from system.security.default_hash
+     * Get hash of given string
      *
      * @param string $data string to hash
      *
@@ -444,8 +444,7 @@ abstract class Utils
      */
     private static function hash($data)
     {
-        $hash = password_hash($data, PASSWORD_BCRYPT, ['salt' => self::getGrav()['config']->get('system.security.default_hash')]);
-        $hash = substr($hash, -12, 10);
+        $hash = password_hash($data, PASSWORD_DEFAULT);
         return $hash;
     }
 
@@ -456,12 +455,11 @@ abstract class Utils
      * @param string $action the action the nonce is tied to (e.g. save-user-admin or move-page-homepage)
      * @param bool $plusOneTick if true, generates the token for the next tick (the next 12 hours)
      *
-     * @return string the nonce, a 10 characters string
+     * @return string the nonce
      */
     public static function getNonce($action, $plusOneTick = false)
     {
         $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
-        $nonce = str_replace('/', '-', $nonce); // avoid having to deal with slashes in URLs
         return $nonce;
     }
 
@@ -475,15 +473,18 @@ abstract class Utils
      */
     public static function verifyNonce($nonce, $action)
     {
-        if ($nonce == self::getNonce($action)) {
+        //Nonce generated 0-12 hours ago
+        if (password_verify(self::generateNonceString($action), $nonce)) {
             return true;
         }
 
+        //Nonce generated 12-24 hours ago
         $plusOneTick = true;
-        if ($nonce == self::getNonce($action, $plusOneTick)) {
+        if (password_verify(self::generateNonceString($action, $plusOneTick), $nonce)) {
             return true;
         }
 
+        //Invalid nonce
         return false;
     }
 }
