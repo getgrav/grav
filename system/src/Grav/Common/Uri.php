@@ -139,6 +139,7 @@ class Uri
 
         $valid_page_types = implode('|', $config->get('system.pages.types'));
 
+        // Strip the file extension for valid page types
         if (preg_match("/\.(".$valid_page_types.")$/", $parts['basename'])) {
             $uri = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, $parts['dirname']), DS). '/' .$parts['filename'];
         }
