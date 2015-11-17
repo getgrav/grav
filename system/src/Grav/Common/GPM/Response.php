@@ -50,6 +50,7 @@ class Response
     /**
      * Sets the preferred method to use for making HTTP calls.
      * @param string $method Default is `auto`
+     * @return Response
      */
     public static function setMethod($method = 'auto')
     {
@@ -64,8 +65,9 @@ class Response
 
     /**
      * Makes a request to the URL by using the preferred method
-     * @param  string $uri     URL to call
-     * @param  array  $options An array of parameters for both `curl` and `fopen`
+     * @param  string $uri URL to call
+     * @param  array $options An array of parameters for both `curl` and `fopen`
+     * @param null $callback
      * @return string The response of the request
      */
     public static function get($uri = '', $options = [], $callback = null)

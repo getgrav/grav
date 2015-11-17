@@ -16,6 +16,8 @@ class Themes extends AbstractPackageCollection
 
     /**
      * Local Themes Constructor
+     * @param bool $refresh
+     * @param null $callback
      */
     public function __construct($refresh = false, $callback = null)
     {
