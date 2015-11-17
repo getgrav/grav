@@ -72,13 +72,11 @@ class Blueprint
     {
         // Initialize data
         $this->fields();
-        
-        // Get language class
-        $language = self::getGrav()['language'];
 
         try {
             $this->validateArray($data, $this->nested);
         } catch (\RuntimeException $e) {
+            $language = self::getGrav()['language'];
             $message = sprintf($language->translate('FORM.VALIDATION_FAIL', null, true) . ' %s', $e->getMessage());
             throw new \RuntimeException($message);
         }
