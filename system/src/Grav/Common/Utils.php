@@ -473,6 +473,8 @@ abstract class Utils
      */
     public static function verifyNonce($nonce, $action)
     {
+        $nonce = str_replace('SLASH', '/', $nonce);
+
         //Nonce generated 0-12 hours ago
         if (password_verify(self::generateNonceString($action), $nonce)) {
             return true;
