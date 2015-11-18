@@ -67,7 +67,7 @@ class Response
      * Makes a request to the URL by using the preferred method
      * @param  string $uri URL to call
      * @param  array $options An array of parameters for both `curl` and `fopen`
-     * @param null $callback
+     * @param  callable $callback Either a function or callback in array notation
      * @return string The response of the request
      */
     public static function get($uri = '', $options = [], $callback = null)

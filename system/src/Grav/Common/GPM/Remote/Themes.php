@@ -17,7 +17,7 @@ class Themes extends AbstractPackageCollection
     /**
      * Local Themes Constructor
      * @param bool $refresh
-     * @param null $callback
+     * @param callable $callback Either a function or callback in array notation
      */
     public function __construct($refresh = false, $callback = null)
     {
