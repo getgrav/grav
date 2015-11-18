@@ -46,7 +46,6 @@ class InstallCommand extends ConsoleCommand
                 'destination',
                 InputArgument::OPTIONAL,
                 'Where to install the required bits (default to current project)'
-
             )
             ->setDescription("Installs the dependencies needed by Grav. Optionally can create symbolic links")
             ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
