@@ -73,7 +73,7 @@ form:
                     options:
                         "F jS \\a\\t g:ia": Date1
                         "l jS \\of F g:i A": Date2
-                        "D, m M Y G:i:s": Date3
+                        "D, d M Y G:i:s": Date3
                         "d-m-y G:i": Date4
                         "jS M Y": Date5
 
@@ -86,7 +86,7 @@ form:
                     options:
                         "F jS \\a\\t g:ia": Date1
                         "l jS \\of F g:i A": Date2
-                        "D, m M Y G:i:s": Date3
+                        "D, d M Y G:i:s": Date3
                         "d-m-y G:i": Date4
                         "jS M Y": Date5
 
