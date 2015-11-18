@@ -63,7 +63,26 @@ $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, a
 $output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
 
 if (!$name) {
-    $output->writeln("<red>A Plugin Name (slug format) is required. Example: <white>'{$bin} error log'</white></red>");
+    $output->writeln('');
+    $output->writeln("<red>Usage:</red>");
+    $output->writeln("  {$bin} [slug] [command] [arguments]");
+    $output->writeln('');
+    $output->writeln("<red>Example:</red>");
+    $output->writeln("  {$bin} error log -l 1 --trace");
+    $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '/\/cli\/([A-Z][a-z]+Command\.php)$/usm']);
+
+    if (count($list)) {
+        $available = [];
+        $output->writeln('');
+        $output->writeln('<red>Plugins with CLI available:</red>');
+        foreach($list as $index => $entry) {
+            $split = explode('/', $entry);
+            $entry = array_shift($split);
+            $index = str_pad($index++ + 1, 2, '0', STR_PAD_LEFT);
+            $output->writeln('  ' . $index  . ". <red>" . str_pad($entry, 15) . "</red> <white>${bin} ${entry} list</white>");
+        }
+    }
+
     exit;
 }
 
