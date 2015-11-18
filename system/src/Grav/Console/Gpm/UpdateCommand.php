@@ -3,23 +3,18 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class UpdateCommand
  * @package Grav\Console\Gpm
  */
-class UpdateCommand extends Command
+class UpdateCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var
      */
@@ -85,15 +80,10 @@ class UpdateCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
-
         $this->gpm = new GPM($this->input->getOption('force'));
         $this->destination = realpath($this->input->getOption('destination'));
         $skip_prompt = $this->input->getOption('all-yes');

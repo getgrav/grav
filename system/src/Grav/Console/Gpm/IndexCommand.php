@@ -2,20 +2,16 @@
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class IndexCommand
+ *
  * @package Grav\Console\Gpm
  */
-class IndexCommand extends Command
+class IndexCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var
      */
@@ -39,19 +35,15 @@ class IndexCommand extends Command
                 'Force re-fetching the data from remote'
             )
             ->setDescription("Lists the plugins and themes available for installation")
-            ->setHelp('The <info>index</info> command lists the plugins and themes available for installation');
+            ->setHelp('The <info>index</info> command lists the plugins and themes available for installation')
+        ;
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
-
         $this->gpm = new GPM($this->input->getOption('force'));
 
         $this->data = $this->gpm->getRepository();
@@ -93,15 +85,15 @@ class IndexCommand extends Command
      */
     private function versionDetails($package)
     {
-        $list = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
-        $package = isset($list[$package->slug]) ? $list[$package->slug] : $package;
-        $type = ucfirst(preg_replace("/s$/", '', $package->package_type));
+        $list      = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
+        $package   = isset($list[$package->slug]) ? $list[$package->slug] : $package;
+        $type      = ucfirst(preg_replace("/s$/", '', $package->package_type));
         $updatable = $this->gpm->{'is' . $type . 'Updatable'}($package->slug);
         $installed = $this->gpm->{'is' . $type . 'Installed'}($package->slug);
-        $local = $this->gpm->{'getInstalled' . $type}($package->slug);
+        $local     = $this->gpm->{'getInstalled' . $type}($package->slug);
 
         if (!$installed || !$updatable) {
-            $version = $installed ? $local->version : $package->version;
+            $version   = $installed ? $local->version : $package->version;
             $installed = !$installed ? ' (<magenta>not installed</magenta>)' : ' (<cyan>installed</cyan>)';
 
             return str_pad(" [v<green>" . $version . "</green>]", 35) . $installed;

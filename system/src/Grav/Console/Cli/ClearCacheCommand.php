@@ -2,29 +2,24 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Cache;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Input\InputInterface;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ClearCacheCommand
  * @package Grav\Console\Cli
  */
-class ClearCacheCommand extends Command
+class ClearCacheCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      *
      */
     protected function configure()
     {
         $this
-            ->setName("clear-cache")
-            ->setDescription("Clears Grav cache")
+            ->setName('clear-cache')
+            ->setAliases(['clearcache'])
+            ->setDescription('Clears Grav cache')
             ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all including compiled, twig, doctrine caches')
             ->addOption('assets-only', null, InputOption::VALUE_NONE, 'If set will remove only assets/*')
             ->addOption('images-only', null, InputOption::VALUE_NONE, 'If set will remove only images/*')
@@ -33,14 +28,10 @@ class ClearCacheCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
         $this->cleanPaths();
     }
 

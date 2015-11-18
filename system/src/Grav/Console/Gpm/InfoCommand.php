@@ -2,21 +2,16 @@
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class InfoCommand
  * @package Grav\Console\Gpm
  */
-class InfoCommand extends Command
+class InfoCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var
      */
@@ -49,20 +44,16 @@ class InfoCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
         $this->gpm = new GPM($this->input->getOption('force'));
 
-        $foundPackage = $this->gpm->findPackage($input->getArgument('package'));
+        $foundPackage = $this->gpm->findPackage($this->input->getArgument('package'));
 
         if (!$foundPackage) {
-            $this->output->writeln("The package <cyan>'" . $input->getArgument('package') . "'</cyan> was not found in the Grav repository.");
+            $this->output->writeln("The package <cyan>'" . $this->input->getArgument('package') . "'</cyan> was not found in the Grav repository.");
             $this->output->writeln('');
             $this->output->writeln("You can list all the available packages by typing:");
             $this->output->writeln("    <green>" . $this->argv . " index</green>");
@@ -70,7 +61,7 @@ class InfoCommand extends Command
             exit;
         }
 
-        $this->output->writeln("Found package <cyan>'" . $input->getArgument('package') . "'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
+        $this->output->writeln("Found package <cyan>'" . $this->input->getArgument('package') . "'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
         $this->output->writeln('');
         $this->output->writeln("<cyan>" . $foundPackage->name . "</cyan> [" . $foundPackage->slug . "]");
         $this->output->writeln(str_repeat('-', strlen($foundPackage->name) + strlen($foundPackage->slug) + 3));
