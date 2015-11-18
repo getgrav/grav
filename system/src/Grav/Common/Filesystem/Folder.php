@@ -64,8 +64,8 @@ abstract class Folder
     /**
      * Get relative path between target and base path. If path isn't relative, return full path.
      *
-     * @param  string  $path
-     * @param  string  $base
+     * @param  string $path
+     * @param mixed|string $base
      * @return string
      */
     public static function getRelativePath($path, $base = GRAV_ROOT)
