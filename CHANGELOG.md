@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed a fatal error if you have a collection with missing or invalid `@page: /route`
+    * Fixed gzip compression making it to work correctly with all servers and browsers
 
 # v1.0.0-rc.3
 ## 10/29/2015
