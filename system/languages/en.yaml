@@ -92,3 +92,6 @@ NICETIME:
     MO_PLURAL: mos
     YR_PLURAL: yrs
     DEC_PLURAL: decs
+FORM:
+    VALIDATION_FAIL: <b>Validation failed:</b>
+    INVALID_INPUT: Invalid input in
