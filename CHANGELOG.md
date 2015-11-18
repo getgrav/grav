@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Refactor Data classes to use NestedArrayAccess instead of DataMutatorTrait
+    * Data objects: Allow function call chaining
+    * Data objects: Lazy load blueprints only if needed 
 
 # v1.0.0-rc.4
 ## 10/29/2015
