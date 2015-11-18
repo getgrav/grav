@@ -12,6 +12,15 @@ use Grav\Common\Data\Data;
 class Languages extends Data
 {
 
+    public function checksum($checksum = null)
+    {
+        if ($checksum !== null) {
+            $this->checksum = $checksum;
+        }
+
+        return $this->checksum;
+    }
+
     public function reformat()
     {
         if (isset($this->items['plugins'])) {
