@@ -139,6 +139,7 @@ class Uri
 
         $valid_page_types = implode('|', $config->get('system.pages.types'));
 
+        // Strip the file extension for valid page types
         if (preg_match("/\.(".$valid_page_types.")$/", $parts['basename'])) {
             $uri = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, $parts['dirname']), DS). '/' .$parts['filename'];
         }
@@ -570,5 +571,22 @@ class Uri
 
             return $normalized_url;
         }
+    }
+
+    /**
+     * Adds the nonce to a URL for a specific action
+     *
+     * @param string $url the url
+     * @param string $action the action
+     * @param string $nonceParamName the param name to use
+     *
+     * @return string the url with the nonce
+     */
+    public static function addNonce($url, $action, $nonceParamName = 'nonce')
+    {
+        $nonce = Utils::getNonce($action);
+        $nonce = str_replace('/', 'SLASH', $nonce);
+        $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . $nonce;
+        return $urlWithNonce;
     }
 }
