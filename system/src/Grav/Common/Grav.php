@@ -473,13 +473,10 @@ class Grav extends Container
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
         $supported_types = $config->get('media');
 
-        // If there is a whitelist of fallback types defined, extension must be in this list
+        // Check whitelist first, then ensure extension is a valid media type
         if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {
             return;
-        }
-
-        // Must be in the list of valid media types else abort
-        if (!array_key_exists($uri_extension, $supported_types)) {
+        } elseif (!array_key_exists($uri_extension, $supported_types)) {
             return;
         }
 
