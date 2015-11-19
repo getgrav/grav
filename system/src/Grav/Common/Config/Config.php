@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Config;
 
+use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Service\ConfigServiceProvider;
@@ -14,6 +15,7 @@ use Grav\Common\Service\ConfigServiceProvider;
 class Config extends Data
 {
     protected $checksum;
+    protected $modified = false;
 
     public function key()
     {
@@ -45,11 +47,16 @@ class Config extends Data
         // Load new configuration.
         $config = ConfigServiceProvider::load($grav);
 
-        // Update current configuration if needed.
+        /** @var Debugger $debugger */
+        $debugger = $grav['debugger'];
+
         if ($config->modified()) {
+            // Update current configuration.
             $this->items = $config->toArray();
             $this->checksum($config->checksum());
-            $this->modified($config->modified());
+            $this->modified(true);
+
+            $debugger->addMessage('Configuration was changed and saved.');
         }
 
         return $this;
@@ -57,7 +64,9 @@ class Config extends Data
 
     public function debug()
     {
+        /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
+
         $debugger->addMessage('Environment Name: ' . $this->environment);
         if ($this->modified()) {
             $debugger->addMessage('Configuration reloaded and cached.');

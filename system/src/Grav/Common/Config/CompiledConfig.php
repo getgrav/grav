@@ -65,12 +65,22 @@ class CompiledConfig extends CompiledBase
         }
 
         $this->object = new Config($data, $this->callable);
-        $this->object->checksum($this->checksum());
-        $this->object->modified($this->modified());
+    }
 
-        if (method_exists($this->object, 'prepare')) {
-            $this->object->prepare();
-        }
+    /**
+     * Finalize configuration object.
+     */
+    protected function finalizeObject()
+    {
+        $this->object->checksum($this->checksum());
+    }
+
+    /**
+     * Function gets called when cached configuration is saved.
+     */
+    public function modified()
+    {
+        $this->object->modified(true);
     }
 
     /**

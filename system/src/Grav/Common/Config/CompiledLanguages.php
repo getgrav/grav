@@ -26,7 +26,23 @@ class CompiledLanguages extends CompiledBase
     protected function createObject(array $data = [])
     {
         $this->object = new Languages($data);
+    }
+
+    /**
+     * Finalize configuration object.
+     */
+    protected function finalizeObject()
+    {
         $this->object->checksum($this->checksum());
+    }
+
+
+    /**
+     * Function gets called when cached configuration is saved.
+     */
+    public function modified()
+    {
+        $this->object->modified(true);
     }
 
     /**

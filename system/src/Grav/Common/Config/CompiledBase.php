@@ -44,11 +44,6 @@ abstract class CompiledBase
     protected $object;
 
     /**
-     * @var bool
-     */
-    protected $modified = false;
-
-    /**
      * @param  string $cacheFolder  Cache folder to be used.
      * @param  array  $files  List of files as returned from ConfigFileFinder class.
      * @param string $path  Base path for the file list.
@@ -81,12 +76,9 @@ abstract class CompiledBase
     }
 
     /**
-     * @return bool
+     * Function gets called when cached configuration is saved.
      */
-    public function modified()
-    {
-        return $this->modified;
-    }
+    public function modified() {}
 
     /**
      * Load the configuration.
@@ -136,6 +128,11 @@ abstract class CompiledBase
     abstract protected function createObject(array $data = []);
 
     /**
+     * Finalize configuration object.
+     */
+    abstract protected function finalizeObject();
+
+    /**
      * Load single configuration file and append it to the correct position.
      *
      * @param  string  $name  Name of the position.
@@ -159,6 +156,8 @@ abstract class CompiledBase
                 $this->loadFile($name, $this->path . $item['file']);
             }
         }
+
+        $this->finalizeObject();
 
         return true;
     }
@@ -232,6 +231,6 @@ abstract class CompiledBase
         $file->unlock();
         $file->free();
 
-        $this->modified = true;
+        $this->modified();
     }
 }

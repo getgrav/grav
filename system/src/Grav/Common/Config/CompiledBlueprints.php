@@ -30,6 +30,11 @@ class CompiledBlueprints extends CompiledBase
     }
 
     /**
+     * Finalize configuration object.
+     */
+    protected function finalizeObject() {}
+
+    /**
      * Load single configuration file and append it to the correct position.
      *
      * @param  string  $name  Name of the position.
