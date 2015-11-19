@@ -264,6 +264,12 @@ form:
                   default: default
                   '@data-options': '\Grav\Common\Page\Pages::types'
 
+                header.append_url_extension:
+                  type: text
+                  label: PLUGIN_ADMIN.APPEND_URL_EXT
+                  toggleable: true
+                  help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
+
                 header.order_by:
                   type: hidden
 

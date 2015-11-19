@@ -142,6 +142,12 @@ form:
                          twig: Twig Events
                      use: keys
 
+                pages.append_url_extension:
+                    type: text
+                    placeholder: "e.g. .html"
+                    label: PLUGIN_ADMIN.APPEND_URL_EXT
+                    help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
+
                 pages.redirect_default_route:
                     type: toggle
                     label: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE
@@ -225,6 +231,7 @@ form:
                 languages.supported:
                     type: selectize
                     size: large
+                    placeholder: "e.g. en, fr"
                     label: PLUGIN_ADMIN.SUPPORTED
                     help: PLUGIN_ADMIN.SUPPORTED_HELP
                     classes: fancy
