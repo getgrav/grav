@@ -469,6 +469,21 @@ abstract class Utils
     }
 
     /**
+     * Returns the nonce prepared for a GET request (slashes cleared)
+     *
+     * @param string $action the action
+     *
+     * @return string the nonce
+     */
+    public static function getNonceForGetRequest($action)
+    {
+        $nonce = self::getNonce($action);
+        $nonce = str_replace('/', 'SLASH', $nonce);
+
+        return $nonce;
+    }
+
+    /**
      * Verify the passed nonce for the give action
      *
      * @param string $nonce the nonce to verify
@@ -494,4 +509,5 @@ abstract class Utils
         //Invalid nonce
         return false;
     }
+
 }
