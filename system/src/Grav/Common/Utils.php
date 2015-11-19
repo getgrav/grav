@@ -465,21 +465,7 @@ abstract class Utils
     public static function getNonce($action, $plusOneTick = false)
     {
         $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
-        return $nonce;
-    }
-
-    /**
-     * Returns the nonce prepared for a GET request (slashes cleared)
-     *
-     * @param string $action the action
-     *
-     * @return string the nonce
-     */
-    public static function getNonceForGetRequest($action)
-    {
-        $nonce = self::getNonce($action);
         $nonce = str_replace('/', 'SLASH', $nonce);
-
         return $nonce;
     }
 
