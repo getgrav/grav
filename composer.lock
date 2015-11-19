@@ -217,12 +217,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "9a393ceb80f7497b6513feb574638e87048fed55"
+                "reference": "50a288b51058fa94cf5b37cfa4277535983cc9d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/9a393ceb80f7497b6513feb574638e87048fed55",
-                "reference": "9a393ceb80f7497b6513feb574638e87048fed55",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/50a288b51058fa94cf5b37cfa4277535983cc9d5",
+                "reference": "50a288b51058fa94cf5b37cfa4277535983cc9d5",
                 "shasum": ""
             },
             "require": {
@@ -267,7 +267,7 @@
                 "whoops",
                 "zf2"
             ],
-            "time": "2015-09-27 09:47:06"
+            "time": "2015-11-14 20:08:27"
         },
         {
             "name": "gregwar/cache",
@@ -670,12 +670,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "0a7006b00880bd6873c49e2ed23939c785310417"
+                "reference": "defdf78a4c2f537067c6548c99560b78ed92745d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/0a7006b00880bd6873c49e2ed23939c785310417",
-                "reference": "0a7006b00880bd6873c49e2ed23939c785310417",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/defdf78a4c2f537067c6548c99560b78ed92745d",
+                "reference": "defdf78a4c2f537067c6548c99560b78ed92745d",
                 "shasum": ""
             },
             "require": {
@@ -714,7 +714,7 @@
                 "source": "https://github.com/rockettheme/toolbox/tree/develop",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2015-11-13 11:39:58"
+            "time": "2015-11-19 15:03:27"
         },
         {
             "name": "symfony/console",
