@@ -485,12 +485,14 @@ class Uri
     /**
      * Converts links from absolute '/' or relative (../..) to a grav friendly format
      *
-     * @param         $page         the current page to use as reference
+     * @param Page|the $page the current page to use as reference
      * @param  string $markdown_url the URL as it was written in the markdown
+     * @param string $type the type of URL, image | link
+     * @param null $relative if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $markdown_url, $type = 'link')
+    public static function convertUrl(Page $page, $markdown_url, $type = 'link', $relative = null)
     {
         $grav = Grav::instance();
 
@@ -504,7 +506,13 @@ class Uri
         }
 
         $pages_dir = $grav['locator']->findResource('page://');
-        $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/') . $language_append;
+        if (is_null($relative)) {
+            $base = $grav['base_url'];
+        } else {
+            $base =  $relative ? $grav['base_url_relative'] : $grav['base_url_absolute'];
+        }
+
+        $base_url = rtrim($base . $grav['pages']->base(), '/') . $language_append;
 
         // if absolute and starts with a base_url move on
         if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.' && $page->url() == '/') {

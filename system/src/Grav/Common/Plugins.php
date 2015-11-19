@@ -121,6 +121,12 @@ class Plugins extends Iterator
 
         // Load default configuration.
         $file = CompiledYamlFile::instance("plugins://{$name}/{$name}.yaml");
+
+        // ensure the plugin exists physically
+        if (!$file->exists()) {
+            return null;
+        }
+
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.

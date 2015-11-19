@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common\GPM;
 
+use Grav\Common\Utils;
+
 class Response
 {
     /**
@@ -74,6 +76,11 @@ class Response
     {
         if (!self::isCurlAvailable() && !self::isFopenAvailable()) {
             throw new \RuntimeException('Could not start an HTTP request. `allow_url_open` is disabled and `cURL` is not available');
+        }
+
+        // disable time limit if possible to help with slow downloads
+        if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode')) {
+            set_time_limit(0);
         }
 
         $options = array_replace_recursive(self::$defaults, $options);

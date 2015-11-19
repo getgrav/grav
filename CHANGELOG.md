@@ -7,12 +7,18 @@
     * Data objects: Lazy load blueprints only if needed
     * Refactor Config classes
 
+# v1.0.0-rc.5
+## XX/XX/2015
+
+1. [](#new)
+    * Implemented the ability for Plugins to provide their own CLI commands through `bin/plugin`
+    * Fixed gzip compression making it to work correctly with all servers and browsers
+
 # v1.0.0-rc.4
 ## 10/29/2015
 
 1. [](#bugfix)
     * Fixed a fatal error if you have a collection with missing or invalid `@page: /route`
-    * Fixed gzip compression making it to work correctly with all servers and browsers
 
 # v1.0.0-rc.3
 ## 10/29/2015

@@ -1,23 +1,17 @@
 <?php
 namespace Grav\Console\Cli;
 
+use Grav\Console\ConsoleCommand;
 use Grav\Common\Filesystem\Folder;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class SandboxCommand
  * @package Grav\Console\Cli
  */
-class SandboxCommand extends Command
+class SandboxCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var array
      */
@@ -96,18 +90,14 @@ class SandboxCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
-        $this->destination = $input->getArgument('destination');
+        $this->destination = $this->input->getArgument('destination');
 
         // Symlink the Core Stuff
-        if ($input->getOption('symlink')) {
+        if ($this->input->getOption('symlink')) {
             // Create Some core stuff if it doesn't exist
             $this->createDirectories();
 
