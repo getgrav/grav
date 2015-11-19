@@ -55,7 +55,6 @@ pages:
   ignore_folders: [.git, .idea]             # Folders to ignore in Pages
   ignore_hidden: true                       # Ignore all Hidden files and folders
   url_taxonomy_filters: true                # Enable auto-magic URL-based taxonomy filters for page collections
-  fallback_types: [png,jpg,jpeg,gif]        # Allowed types of files found if accessed via Page route
 
 cache:
   enabled: true                             # Set to true to enable caching
@@ -103,7 +102,8 @@ images:
 media:
   enable_media_timestamp: false             # Enable media timetsamps
   upload_limit: 0                           # Set maximum upload size in bytes (0 is unlimited)
-  unsupported_inline_types: []              # Array of unsupported media file types to try to display inline
+  unsupported_inline_types: []              # Array of supported media types to try to display inline
+  allowed_fallback_types: []                # Array of allowed media types of files found if accessed via Page route
 
 session:
   enabled: true                             # Enable Session support
