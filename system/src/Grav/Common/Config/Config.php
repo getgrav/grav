@@ -3,6 +3,7 @@ namespace Grav\Common\Config;
 
 use Grav\Common\Grav;
 use Grav\Common\Data\Data;
+use Grav\Common\Service\ConfigServiceProvider;
 
 /**
  * The Config class contains configuration information.
@@ -39,10 +40,17 @@ class Config extends Data
 
     public function reload()
     {
-        throw new \Exception('TODO');
-        $this->items = $this->setup;
-        $this->init();
-        $this->debug();
+        $grav = Grav::instance();
+
+        // Load new configuration.
+        $config = ConfigServiceProvider::load($grav);
+
+        // Update current configuration if needed.
+        if ($config->modified()) {
+            $this->items = $config->toArray();
+            $this->checksum($config->checksum());
+            $this->modified($config->modified());
+        }
 
         return $this;
     }
