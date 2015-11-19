@@ -300,6 +300,11 @@ abstract class Utils
         return $root . implode('/', $ret);
     }
 
+    public static function isFunctionDisabled($function)
+    {
+        return in_array($function, explode(',', ini_get('disable_functions')));
+    }
+
     public static function timezones()
     {
         $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
