@@ -207,7 +207,7 @@ trait ParsedownGravTrait
             // if there is no scheme, the file is local
             if (!isset($url['scheme']) && (count($url) > 0)) {
                 // convert the URl is required
-                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type);
+                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type, true);
             }
         }
 
