@@ -29,6 +29,6 @@ class NewUserCommand extends ConsoleCommand
     {
         $this->output->writeln('');
         $this->output->writeln('<red>DEPRECATED COMMAND</red>');
-        $this->output->writeln('  <white>`bin/grav new-user`</white> has been <red>deprecated</red> in favor of the new <white>`bin/plugin admin new-user`</white>');
+        $this->output->writeln('  <white>`bin/grav new-user`</white> has been <red>deprecated</red> in favor of the new <white>`bin/plugin login new-user`</white>');
     }
 }
