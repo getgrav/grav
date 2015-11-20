@@ -465,6 +465,7 @@ abstract class Utils
     public static function getNonce($action, $plusOneTick = false)
     {
         $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
+        $nonce = str_replace('/', 'SLASH', $nonce);
         return $nonce;
     }
 
@@ -494,4 +495,5 @@ abstract class Utils
         //Invalid nonce
         return false;
     }
+
 }

@@ -592,9 +592,8 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
-        $nonce = Utils::getNonce($action);
-        $nonce = str_replace('/', 'SLASH', $nonce);
-        $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . $nonce;
+        $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . Utils::getNonce($action);
         return $urlWithNonce;
     }
+
 }

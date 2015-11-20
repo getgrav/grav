@@ -16,9 +16,9 @@ class NewUserCommand extends ConsoleCommand
     protected function configure()
     {
         $this
-            ->setName('new-user')
+            ->setName('newuser')
             ->setDescription('DEPRECATED: Creates a new user')
-            ->setHelp('The <info>new-user</info> from `bin/grav` has been deprecated. Please refer to `bin/plugin admin new-user')
+            ->setHelp('The <info>newuser</info> from `bin/grav` has been deprecated. Please refer to `bin/plugin login new-user')
         ;
     }
 
@@ -29,6 +29,6 @@ class NewUserCommand extends ConsoleCommand
     {
         $this->output->writeln('');
         $this->output->writeln('<red>DEPRECATED COMMAND</red>');
-        $this->output->writeln('  <white>`bin/grav new-user`</white> has been <red>deprecated</red> in favor of the new <white>`bin/plugin admin new-user`</white>');
+        $this->output->writeln('  <white>`bin/grav new-user`</white> has been <red>deprecated</red> in favor of the new <white>`bin/plugin login new-user`</white>');
     }
 }

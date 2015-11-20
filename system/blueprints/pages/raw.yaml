@@ -25,7 +25,6 @@ form:
 
             content:
               type: markdown
-              label: PLUGIN_ADMIN.CONTENT
 
             uploads:
               type: pagemedia

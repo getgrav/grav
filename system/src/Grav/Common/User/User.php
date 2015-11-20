@@ -145,7 +145,7 @@ class User extends Data
             return false;
         }
 
-        if ($this->state !== 'enabled') {
+        if (isset($this->state) && $this->state !== 'enabled') {
             return false;
         }
 

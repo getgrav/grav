@@ -29,7 +29,6 @@ form:
 
             content:
                 type: markdown
-                label: PLUGIN_ADMIN.CONTENT
                 validate:
                   type: textarea
 
@@ -87,7 +86,6 @@ form:
                   help: PLUGIN_ADMIN.METADATA_HELP
                   placeholder_key: PLUGIN_ADMIN.METADATA_KEY
                   placeholder_value: PLUGIN_ADMIN.METADATA_VALUE
-
 
             taxonomies:
               type: section
