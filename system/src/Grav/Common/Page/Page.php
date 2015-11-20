@@ -1484,7 +1484,17 @@ class Page
      */
     public function filePathClean()
     {
-        return str_replace(ROOT_DIR, '', $this->filePath());
+        $path = str_replace(ROOT_DIR, '', $this->filePath());
+        return $path;
+    }
+
+    /**
+     * Returns the clean path to the page file
+     */
+    public function relativePagePath()
+    {
+        $path = str_replace('/'.$this->name, '', $this->filePathClean());
+        return $path;
     }
 
     /**
