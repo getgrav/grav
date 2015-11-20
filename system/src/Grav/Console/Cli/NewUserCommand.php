@@ -16,9 +16,9 @@ class NewUserCommand extends ConsoleCommand
     protected function configure()
     {
         $this
-            ->setName('new-user')
+            ->setName('newuser')
             ->setDescription('DEPRECATED: Creates a new user')
-            ->setHelp('The <info>new-user</info> from `bin/grav` has been deprecated. Please refer to `bin/plugin admin new-user')
+            ->setHelp('The <info>newuser</info> from `bin/grav` has been deprecated. Please refer to `bin/plugin login new-user')
         ;
     }
 
