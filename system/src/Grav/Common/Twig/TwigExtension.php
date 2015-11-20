@@ -70,6 +70,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
             new \Twig_SimpleFilter('modulus', [$this,'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
+            new \Twig_SimpleFilter('pad', [$this, 'padFilter']),
             new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
             new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils','safeTruncate']),
             new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils','safeTruncateHTML']),
@@ -536,6 +537,22 @@ class TwigExtension extends \Twig_Extension
     {
         return Utils::generateRandomString($count);
     }
+
+    /**
+     * Pad a string to a certain length with another string
+     *
+     * @param        $input
+     * @param        $pad_length
+     * @param string $pad_string
+     * @param int    $pad_type
+     *
+     * @return string
+     */
+    public static function padFilter($input, $pad_length, $pad_string = " ", $pad_type = STR_PAD_RIGHT)
+    {
+        return str_pad($input, (int) $pad_length, $pad_string, $pad_type);
+    }
+
 
     /**
      * Cast a value to array
