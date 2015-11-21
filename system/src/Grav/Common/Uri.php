@@ -2,7 +2,6 @@
 namespace Grav\Common;
 
 use Grav\Common\Page\Page;
-use Grav\Common\Page\Pages;
 
 /**
  * The URI object provides information about the current URL
@@ -140,6 +139,7 @@ class Uri
 
         $valid_page_types = implode('|', $config->get('system.pages.types'));
 
+        // Strip the file extension for valid page types
         if (preg_match("/\.(".$valid_page_types.")$/", $parts['basename'])) {
             $uri = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, $parts['dirname']), DS). '/' .$parts['filename'];
         }
@@ -485,12 +485,14 @@ class Uri
     /**
      * Converts links from absolute '/' or relative (../..) to a grav friendly format
      *
-     * @param         $page         the current page to use as reference
+     * @param Page|the $page the current page to use as reference
      * @param  string $markdown_url the URL as it was written in the markdown
+     * @param string $type the type of URL, image | link
+     * @param null $relative if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $markdown_url, $type = 'link')
+    public static function convertUrl(Page $page, $markdown_url, $type = 'link', $relative = null)
     {
         $grav = Grav::instance();
 
@@ -504,7 +506,13 @@ class Uri
         }
 
         $pages_dir = $grav['locator']->findResource('page://');
-        $base_url = rtrim($grav['base_url'] . $grav['pages']->base(), '/') . $language_append;
+        if (is_null($relative)) {
+            $base = $grav['base_url'];
+        } else {
+            $base =  $relative ? $grav['base_url_relative'] : $grav['base_url_absolute'];
+        }
+
+        $base_url = rtrim($base . $grav['pages']->base(), '/') . $language_append;
 
         // if absolute and starts with a base_url move on
         if (pathinfo($markdown_url, PATHINFO_DIRNAME) == '.' && $page->url() == '/') {
@@ -572,4 +580,20 @@ class Uri
             return $normalized_url;
         }
     }
+
+    /**
+     * Adds the nonce to a URL for a specific action
+     *
+     * @param string $url the url
+     * @param string $action the action
+     * @param string $nonceParamName the param name to use
+     *
+     * @return string the url with the nonce
+     */
+    public static function addNonce($url, $action, $nonceParamName = 'nonce')
+    {
+        $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . Utils::getNonce($action);
+        return $urlWithNonce;
+    }
+
 }

@@ -40,6 +40,9 @@ class User extends Data
         if (!isset($content['username'])) {
             $content['username'] = $username;
         }
+        if (!isset($content['state'])) {
+            $content['state'] = 'enabled';
+        }
         $user = new User($content, $blueprint);
         $user->file($file);
 
@@ -136,6 +139,10 @@ class User extends Data
     public function authorize($action)
     {
         if (empty($this->items)) {
+            return false;
+        }
+
+        if (isset($this->state) && $this->state !== 'enabled') {
             return false;
         }
 

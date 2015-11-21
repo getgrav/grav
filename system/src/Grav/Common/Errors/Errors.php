@@ -10,7 +10,7 @@ use Whoops\Run;
  * Class Debugger
  * @package Grav\Common
  */
-class Errors extends \Whoops\Run
+class Errors extends Run
 {
 
     public function pushHandler($handler, $key = null)

@@ -1,3 +1,47 @@
+# v1.0.0-rc.5
+## 11/20/2015
+
+1. [](#new)
+    * Added **nonce** functionality for all admin forms for improved security
+    * Implemented the ability for Plugins to provide their own CLI commands through `bin/plugin`
+    * Added Croatian translation
+    * Added missing `umask_fix` property to `system.yaml`
+    * Added current theme's config to global config. E.g. `config.theme.dropdown_enabled` 
+    * Added `append_url_extension` option to system config & page headers
+    * Users have a new `state` property to allow disabling/banning
+    * Added new `Page.relativePagePath()` helper method
+    * Added new `|pad` Twig filter for strings (uses `str_pad()`)
+    * Added `lighttpd.conf` for Lightly web server
+1. [](#improved)
+    * Clear previously applied operations when doing a reset on image media
+    * Password no longer required when editing user
+    * Improved support for trailing `/` URLs
+    * Improved `.nginx.conf` configuration file
+    * Improved `.htaccess` security
+    * Updated vendor libs
+    * Updated `composer.phar`
+    * Use streams instead of paths for `clearCache()`
+    * Use PCRE_UTF8 so unicode strings can be regexed in Truncator
+    * Handle case when login plugin is disabled
+    * Improved `quality` functionality in media handling
+    * Added some missing translation strings
+    * Deprecated `bin/grav newuser` in favor of `bin/plugin login new-user`
+    * Moved fallback types to use any valid media type
+    * Renamed `system.pages.fallback_types` to `system.media.allowed_fallback_types`
+    * Removed version number in default `generator` meta tag
+    * Disable time limit in case of slow downloads
+    * Removed default hash in `system.yaml`
+1. [](#bugfix)
+    * Fix for media using absolute URLs causing broken links
+    * Fix theme auto-loading #432
+    * Don't create empty `<style>` or `<script>` scripts if no data
+    * Code cleanups
+    * Fix undefined variable in Config class
+    * Fix exception message when label is not set
+    * Check in `Plugins::get()` to ensure plugins exists
+    * Fixed GZip compression making output buffering work correctly with all servers and browsers
+    * Fixed date representation in system config
+
 # v1.0.0-rc.4
 ## 10/29/2015
 

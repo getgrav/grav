@@ -114,7 +114,7 @@ class Grav extends Container
             /** @var Uri $uri */
             $uri = $c['uri'];
 
-            $path = rtrim($uri->path(), '/');
+            $path = $uri->path(); // Don't trim to support trailing slash default routes
             $path = $path ?: '/';
 
             $page = $pages->dispatch($path);
@@ -201,7 +201,10 @@ class Grav extends Container
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
         if ($this['config']->get('system.cache.gzip')) {
-            ob_start('ob_gzhandler');
+            // Enable zip/deflate with a fallback in case of if browser does not support compressing.
+            if(!ob_start("ob_gzhandler")) {
+                ob_start();
+            }
         }
 
         // Initialize the timezone
@@ -296,7 +299,10 @@ class Grav extends Container
         if ($uri->isExternal($route)) {
             $url = $route;
         } else {
-            $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/');
+            if ($this['config']->get('system.pages.redirect_trailing_slash', true))
+                $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'); // Remove trailing slash
+            else
+                $url = rtrim($uri->rootUrl(), '/') .'/'. ltrim($route, '/'); // Support trailing slash default routes
         }
 
         header("Location: {$url}", true, $code);
@@ -413,22 +419,25 @@ class Grav extends Container
     public function shutdown()
     {
         if ($this['config']->get('system.debugger.shutdown.close_connection')) {
-            //stop user abort
+            // Prevent user abort.
             if (function_exists('ignore_user_abort')) {
                 @ignore_user_abort(true);
             }
 
-            // close the session
+            // Close the session.
             if (isset($this['session'])) {
                 $this['session']->close();
             }
 
-            // flush buffer if gzip buffer was started
             if ($this['config']->get('system.cache.gzip')) {
-                ob_end_flush(); // gzhandler buffer
+                // Flush gzhandler buffer if gzip was enabled.
+                ob_end_flush();
+            } else {
+                // Otherwise prevent server from compressing the output.
+                header('Content-Encoding: none');
             }
 
-            // get lengh and close the connection
+            // Get length and close the connection.
             header('Content-Length: ' . ob_get_length());
             header("Connection: close");
 
@@ -437,7 +446,7 @@ class Grav extends Container
             @ob_flush();
             flush();
 
-            // fix for fastcgi close connection issue
+            // Fix for fastcgi close connection issue.
             if (function_exists('fastcgi_finish_request')) {
                 @fastcgi_finish_request();
             }
@@ -461,9 +470,13 @@ class Grav extends Container
         $config = $this['config'];
 
         $uri_extension = $uri->extension();
+        $fallback_types = $config->get('system.media.allowed_fallback_types', null);
+        $supported_types = $config->get('media');
 
-        // Only allow whitelisted types to fallback
-        if (!in_array($uri_extension, $config->get('system.pages.fallback_types'))) {
+        // Check whitelist first, then ensure extension is a valid media type
+        if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {
+            return;
+        } elseif (!array_key_exists($uri_extension, $supported_types)) {
             return;
         }
 

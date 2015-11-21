@@ -1,5 +1,6 @@
 <?php
 namespace Grav\Common\Data;
+
 use Grav\Common\GravTrait;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
@@ -37,7 +38,7 @@ class Validation
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
         $name = ucfirst(isset($field['label']) ? $field['label'] : $field['name']);
-        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : 'Invalid input in "' . $language->translate($name) . '""';
+        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : $language->translate('FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
         if (method_exists(__CLASS__, $method)) {
             $success = self::$method($value, $validate, $field);

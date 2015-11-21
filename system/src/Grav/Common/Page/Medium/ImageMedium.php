@@ -52,7 +52,6 @@ class ImageMedium extends Medium
         'forceResize' => [ 0, 1 ],
         'cropResize' => [ 0, 1 ],
         'crop' => [ 0, 1, 2, 3 ],
-        'cropResize' => [ 0, 1 ],
         'zoomCrop' => [ 0, 1 ]
     ];
 
@@ -260,6 +259,7 @@ class ImageMedium extends Medium
 
         if ($this->image) {
             $this->image();
+            $this->image->clearOperations(); // Clear previously applied operations
             $this->filter();
         }
 
@@ -311,19 +311,23 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Sets the quality of the image
+     * Sets or gets the quality of the image
      *
      * @param  int $quality 0-100 quality
      * @return Medium
      */
-    public function quality($quality)
+    public function quality($quality = null)
     {
-        if (!$this->image) {
-            $this->image();
+        if ($quality) {
+            if (!$this->image) {
+                $this->image();
+            }
+
+            $this->quality = $quality;
+            return $this;
         }
 
-        $this->quality = $quality;
-        return $this;
+        return $this->quality;
     }
 
     /**
@@ -357,6 +361,48 @@ class ImageMedium extends Medium
         }
 
         return empty($this->sizes) ? '100vw' : $this->sizes;
+    }
+
+    /**
+     * Allows to set the width attribute from Markdown or Twig
+     * Examples: ![Example](myimg.png?width=200&height=400)
+     *           ![Example](myimg.png?resize=100,200&width=100&height=200)
+     *           ![Example](myimg.png?width=auto&height=auto)
+     *           ![Example](myimg.png?width&height)
+     *           {{ page.media['myimg.png'].width().height().html }}
+     *           {{ page.media['myimg.png'].resize(100,200).width(100).height(200).html }}
+     *
+     * @param mixed $value A value or 'auto' or empty to use the width of the image
+     * @return $this
+     */
+    public function width($value = 'auto')
+    {
+        if (!$value || $value == 'auto')
+            $this->attributes['width'] = $this->get('width');
+        else
+            $this->attributes['width'] = $value;
+        return $this;
+    }
+
+    /**
+     * Allows to set the height attribute from Markdown or Twig
+     * Examples: ![Example](myimg.png?width=200&height=400)
+     *           ![Example](myimg.png?resize=100,200&width=100&height=200)
+     *           ![Example](myimg.png?width=auto&height=auto)
+     *           ![Example](myimg.png?width&height)
+     *           {{ page.media['myimg.png'].width().height().html }}
+     *           {{ page.media['myimg.png'].resize(100,200).width(100).height(200).html }}
+     *
+     * @param mixed $value A value or 'auto' or empty to use the height of the image
+     * @return $this
+     */
+    public function height($value = 'auto')
+    {
+        if (!$value || $value == 'auto')
+            $this->attributes['height'] = $this->get('height');
+        else
+            $this->attributes['height'] = $value;
+        return $this;
     }
 
     /**
@@ -470,4 +516,28 @@ class ImageMedium extends Medium
             $this->__call($method, $params);
         }
     }
+
+    /**
+     * Return the image higher quality version
+     *
+     * @return ImageMedium the alternative version with higher quality
+     */
+    public function higherQualityAlternative()
+    {
+        if ($this->alternatives) {
+            $max = reset($this->alternatives);
+            foreach($this->alternatives as $alternative)
+            {
+                if($alternative->quality() > $max->quality())
+                {
+                    $max = $alternative;
+                }
+            }
+
+            return $max;
+        } else {
+            return $this;
+        }
+    }
+
 }

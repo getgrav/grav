@@ -70,6 +70,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
             new \Twig_SimpleFilter('modulus', [$this,'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
+            new \Twig_SimpleFilter('pad', [$this, 'padFilter']),
             new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
             new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils','safeTruncate']),
             new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils','safeTruncateHTML']),
@@ -94,14 +95,17 @@ class TwigExtension extends \Twig_Extension
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('evaluate', [$this, 'evaluateFunc']),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
+            new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
-            new \Twig_SimpleFunction('evaluate', [$this, 'evaluateFunc']),
+
+
         ];
     }
 
@@ -535,6 +539,22 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
+     * Pad a string to a certain length with another string
+     *
+     * @param        $input
+     * @param        $pad_length
+     * @param string $pad_string
+     * @param int    $pad_type
+     *
+     * @return string
+     */
+    public static function padFilter($input, $pad_length, $pad_string = " ", $pad_type = STR_PAD_RIGHT)
+    {
+        return str_pad($input, (int) $pad_length, $pad_string, $pad_type);
+    }
+
+
+    /**
      * Cast a value to array
      *
      * @param $value
@@ -594,5 +614,23 @@ class TwigExtension extends \Twig_Extension
         }
 
         return false;
+    }
+
+    /**
+     * Used to add a nonce to a form. Call {{ nonce_field('action') }} specifying a string representing the action.
+     *
+     * For maximum protection, ensure that the string representing the action is as specific as possible.
+     *
+     * @todo evaluate if adding referrer or not
+     *
+     * @param string action         the action
+     * @param string nonceParamName a custom nonce param name
+     *
+     * @return string the nonce input field
+     */
+    public function nonceFieldFunc($action, $nonceParamName = 'nonce')
+    {
+        $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) .'" />';
+        return $string;
     }
 }

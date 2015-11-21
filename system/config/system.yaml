@@ -1,112 +1,113 @@
-absolute_urls: false                   # Absolute or relative URLs for `base_url`
-timezone: ''                           # Valid values: http://php.net/manual/en/timezones.php
-default_locale:                        # Default locale (defaults to system)
-param_sep: ':'                         # Parameter separator, use ';' for Apache on windows
-wrapped_site: false                    # For themes/plugins to know if Grav is wrapped by another platform
+absolute_urls: false                        # Absolute or relative URLs for `base_url`
+timezone: ''                                # Valid values: http://php.net/manual/en/timezones.php
+default_locale:                             # Default locale (defaults to system)
+param_sep: ':'                              # Parameter separator, use ';' for Apache on windows
+wrapped_site: false                         # For themes/plugins to know if Grav is wrapped by another platform
 
 languages:
-  supported: []                        # List of languages supported. eg: [en, fr, de]
-  include_default_lang: true           # Include the default lang prefix in all URLs
-  translations: true                   # Enable translations by default
-  translations_fallback: true          # Fallback through supported translations if active lang doesn't exist
-  session_store_active: false          # Store active language in session
-  http_accept_language: false          # Attempt to set the language based on http_accept_language header in the browser
-  override_locale: false               # Override the default or system locale with language specific one
+  supported: []                             # List of languages supported. eg: [en, fr, de]
+  include_default_lang: true                # Include the default lang prefix in all URLs
+  translations: true                        # Enable translations by default
+  translations_fallback: true               # Fallback through supported translations if active lang doesn't exist
+  session_store_active: false               # Store active language in session
+  http_accept_language: false               # Attempt to set the language based on http_accept_language header in the browser
+  override_locale: false                    # Override the default or system locale with language specific one
 
 home:
-  alias: '/home'                       # Default path for home, ie /
+  alias: '/home'                            # Default path for home, ie /
 
 pages:
-  theme: antimatter                    # Default theme (defaults to "antimatter" theme)
+  theme: antimatter                         # Default theme (defaults to "antimatter" theme)
   order:
-    by: default                        # Order pages by "default", "alpha" or "date"
-    dir: asc                           # Default ordering direction, "asc" or "desc"
+    by: default                             # Order pages by "default", "alpha" or "date"
+    dir: asc                                # Default ordering direction, "asc" or "desc"
   list:
-    count: 20                          # Default item count per page
+    count: 20                               # Default item count per page
   dateformat:
-    default:                           # The default date format Grav expects in the `date: ` field
-    short: 'jS M Y'                    # Short date format
-    long: 'F jS \a\t g:ia'             # Long date format
-  publish_dates: true                  # automatically publish/unpublish based on dates
+    default:                                # The default date format Grav expects in the `date: ` field
+    short: 'jS M Y'                         # Short date format
+    long: 'F jS \a\t g:ia'                  # Long date format
+  publish_dates: true                       # automatically publish/unpublish based on dates
   process:
-    markdown: true                     # Process Markdown
-    twig: false                        # Process Twig
+    markdown: true                          # Process Markdown
+    twig: false                             # Process Twig
   events:
-    page: true                         # Enable page level events
-    twig: true                         # Enable twig level events
+    page: true                              # Enable page level events
+    twig: true                              # Enable twig level events
   markdown:
-    extra: false                       # Enable support for Markdown Extra support (GFM by default)
-    auto_line_breaks: false            # Enable automatic line breaks
-    auto_url_links: false              # Enable automatic HTML links
-    escape_markup: false               # Escape markup tags into entities
-    special_chars:                     # List of special characters to automatically convert to entities
+    extra: false                            # Enable support for Markdown Extra support (GFM by default)
+    auto_line_breaks: false                 # Enable automatic line breaks
+    auto_url_links: false                   # Enable automatic HTML links
+    escape_markup: false                    # Escape markup tags into entities
+    special_chars:                          # List of special characters to automatically convert to entities
       '>': 'gt'
       '<': 'lt'
-  types: [txt,xml,html,json,rss,atom]  # list of valid page types
-  expires: 604800                      # Page expires time in seconds (604800 seconds = 7 days)
-  last_modified: false                 # Set the last modified date header based on file modifcation timestamp
-  etag: false                          # Set the etag header tag
-  vary_accept_encoding: false          # Add `Vary: Accept-Encoding` header
-  redirect_default_route: false        # Automatically redirect to a page's default route
-  redirect_default_code: 301           # Default code to use for redirects
-  redirect_trailing_slash: true        # Handle automatically or 301 redirect a trailing / URL
-  ignore_files: [.DS_Store]            # Files to ignore in Pages
-  ignore_folders: [.git, .idea]        # Folders to ignore in Pages
-  ignore_hidden: true                  # Ignore all Hidden files and folders
-  url_taxonomy_filters: true           # Enable auto-magic URL-based taxonomy filters for page collections
-  fallback_types: [png,jpg,jpeg,gif]   # Allowed types of files found if accessed via Page route
+  types: [txt,xml,html,htm,json,rss,atom]   # list of valid page types
+  append_url_extension: ''                  # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
+  expires: 604800                           # Page expires time in seconds (604800 seconds = 7 days)
+  last_modified: false                      # Set the last modified date header based on file modifcation timestamp
+  etag: false                               # Set the etag header tag
+  vary_accept_encoding: false               # Add `Vary: Accept-Encoding` header
+  redirect_default_route: false             # Automatically redirect to a page's default route
+  redirect_default_code: 301                # Default code to use for redirects
+  redirect_trailing_slash: true             # Handle automatically or 301 redirect a trailing / URL
+  ignore_files: [.DS_Store]                 # Files to ignore in Pages
+  ignore_folders: [.git, .idea]             # Folders to ignore in Pages
+  ignore_hidden: true                       # Ignore all Hidden files and folders
+  url_taxonomy_filters: true                # Enable auto-magic URL-based taxonomy filters for page collections
 
 cache:
-  enabled: true                        # Set to true to enable caching
+  enabled: true                             # Set to true to enable caching
   check:
-    method: file                       # Method to check for updates in pages: file|folder|none
-  driver: auto                         # One of: auto|file|apc|xcache|memcache|wincache
-  prefix: 'g'                          # Cache prefix string (prevents cache conflicts)
-  lifetime: 604800                     # Lifetime of cached data in seconds (0 = infinite)
-  gzip: false                          # GZip compress the page output
+    method: file                            # Method to check for updates in pages: file|folder|none
+  driver: auto                              # One of: auto|file|apc|xcache|memcache|wincache
+  prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
+  lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)
+  gzip: false                               # GZip compress the page output
 
 twig:
-  cache: true                          # Set to true to enable twig caching
-  debug: false                         # Enable Twig debug
-  auto_reload: true                    # Refresh cache on changes
-  autoescape: false                    # Autoescape Twig vars
-  undefined_functions: true            # Allow undefined functions
-  undefined_filters: true              # Allow undefined filters
+  cache: true                               # Set to true to enable twig caching
+  debug: false                              # Enable Twig debug
+  auto_reload: true                         # Refresh cache on changes
+  autoescape: false                         # Autoescape Twig vars
+  undefined_functions: true                 # Allow undefined functions
+  undefined_filters: true                   # Allow undefined filters
+  umask_fix: false                          # By default Twig creates cached files as 755, fix switches this to 775
 
-assets:                                # Configuration for Assets Manager (JS, CSS)
-  css_pipeline: false                  # The CSS pipeline is the unification of multiple CSS resources into one file
-  css_minify: true                     # Minify the CSS during pipelining
-  css_minify_windows: false            # Minify Override for Windows platforms. False by default due to ThreadStackSize
-  css_rewrite: true                    # Rewrite any CSS relative URLs during pipelining
-  js_pipeline: false                   # The JS pipeline is the unification of multiple JS resources into one file
-  js_minify: true                      # Minify the JS during pipelining
-  enable_asset_timestamp: false        # Enable asset timestamps
+assets:                                     # Configuration for Assets Manager (JS, CSS)
+  css_pipeline: false                       # The CSS pipeline is the unification of multiple CSS resources into one file
+  css_minify: true                          # Minify the CSS during pipelining
+  css_minify_windows: false                 # Minify Override for Windows platforms. False by default due to ThreadStackSize
+  css_rewrite: true                         # Rewrite any CSS relative URLs during pipelining
+  js_pipeline: false                        # The JS pipeline is the unification of multiple JS resources into one file
+  js_minify: true                           # Minify the JS during pipelining
+  enable_asset_timestamp: false             # Enable asset timestamps
   collections:
     jquery: system://assets/jquery/jquery-2.1.4.min.js
 
 errors:
-  display: false                       # Display full backtrace-style error page
-  log: true                            # Log errors to /logs folder
+  display: false                            # Display full backtrace-style error page
+  log: true                                 # Log errors to /logs folder
 
 debugger:
-  enabled: false                       # Enable Grav debugger and following settings
+  enabled: false                            # Enable Grav debugger and following settings
   shutdown:
-    close_connection: true             # Close the connection before calling onShutdown(). false for debugging
+    close_connection: true                  # Close the connection before calling onShutdown(). false for debugging
 
 images:
-  default_image_quality: 85            # Default image quality to use when resampling images (85%)
-  cache_all: false                     # Cache all image by default
-  debug: false                         # Show an overlay over images indicating the pixel depth of the image when working with retina for example
+  default_image_quality: 85                 # Default image quality to use when resampling images (85%)
+  cache_all: false                          # Cache all image by default
+  debug: false                              # Show an overlay over images indicating the pixel depth of the image when working with retina for example
 
 media:
-  enable_media_timestamp: false        # Enable media timetsamps
-  upload_limit: 0                      # Set maximum upload size in bytes (0 is unlimited)
-  unsupported_inline_types: []         # Array of unsupported media file types to try to display inline
+  enable_media_timestamp: false             # Enable media timetsamps
+  upload_limit: 0                           # Set maximum upload size in bytes (0 is unlimited)
+  unsupported_inline_types: []              # Array of supported media types to try to display inline
+  allowed_fallback_types: []                # Array of allowed media types of files found if accessed via Page route
 
 session:
-  enabled: true                        # Enable Session support
-  timeout: 1800                        # Timeout in seconds
-  name: grav-site                      # Name prefix of the session cookie
+  enabled: true                             # Enable Session support
+  timeout: 1800                             # Timeout in seconds
+  name: grav-site                           # Name prefix of the session cookie
 
-security:
-  default_hash: $2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK
+

@@ -29,7 +29,6 @@ form:
 
             content:
                 type: markdown
-                label: PLUGIN_ADMIN.CONTENT
                 validate:
                   type: textarea
 
@@ -87,7 +86,6 @@ form:
                   help: PLUGIN_ADMIN.METADATA_HELP
                   placeholder_key: PLUGIN_ADMIN.METADATA_KEY
                   placeholder_value: PLUGIN_ADMIN.METADATA_VALUE
-
 
             taxonomies:
               type: section
@@ -263,6 +261,12 @@ form:
                   label: PLUGIN_ADMIN.DISPLAY_TEMPLATE
                   default: default
                   '@data-options': '\Grav\Common\Page\Pages::types'
+
+                header.append_url_extension:
+                  type: text
+                  label: PLUGIN_ADMIN.APPEND_URL_EXT
+                  toggleable: true
+                  help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
 
                 header.order_by:
                   type: hidden

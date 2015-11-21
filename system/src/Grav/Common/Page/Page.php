@@ -41,6 +41,7 @@ class Page
     protected $folder;
     protected $path;
     protected $extension;
+    protected $url_extension;
 
     protected $id;
     protected $parent;
@@ -128,6 +129,7 @@ class Page
         $this->modularTwig($this->slug[0] == '_');
         $this->setPublishState();
         $this->published();
+        $this->urlExtension();
 
         // some extension logic
         if (empty($extension)) {
@@ -135,6 +137,7 @@ class Page
         } else {
             $this->extension($extension);
         }
+
 
         // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
@@ -349,7 +352,6 @@ class Page
             if (isset($this->header->last_modified)) {
                 $this->last_modified = (bool) $this->header->last_modified;
             }
-
         }
 
         return $this->header;
@@ -957,6 +959,17 @@ class Page
         return $this->extension;
     }
 
+    public function urlExtension()
+    {
+        // if not set in the page get the value from system config
+        if (empty($this->url_extension)) {
+            $this->url_extension = trim(isset($this->header->append_url_extension) ? $this->header->append_url_extension : self::getGrav()['config']->get('system.pages.append_url_extension', false));
+        }
+
+        return $this->url_extension;
+
+    }
+
     /**
      * Gets and sets the expires field. If not set will return the default
      *
@@ -1137,7 +1150,7 @@ class Page
             $this->metadata = [];
 
             // Set the Generator tag
-            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS ' . GRAV_VERSION);
+            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS');
 
             // Get initial metadata for the page
             $metadata  = self::getGrav()['config']->get('site.metadata');
@@ -1262,7 +1275,7 @@ class Page
 
         $rootUrl = $uri->rootUrl($include_host) . $pages->base();
 
-        $url = $rootUrl.'/'.trim($route, '/');
+        $url = $rootUrl.'/'.trim($route, '/') . $this->urlExtension();
 
         // trim trailing / if not root
         if ($url !== '/') {
@@ -1471,7 +1484,17 @@ class Page
      */
     public function filePathClean()
     {
-        return str_replace(ROOT_DIR, '', $this->filePath());
+        $path = str_replace(ROOT_DIR, '', $this->filePath());
+        return $path;
+    }
+
+    /**
+     * Returns the clean path to the page file
+     */
+    public function relativePagePath()
+    {
+        $path = str_replace('/'.$this->name, '', $this->filePathClean());
+        return $path;
     }
 
     /**

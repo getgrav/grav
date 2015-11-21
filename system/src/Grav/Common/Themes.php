@@ -171,6 +171,8 @@ class Themes extends Iterator
             exit("Theme '$name' does not exist, unable to display page.");
         }
 
+        $this->config->set('theme', $config->get('themes.' . $name));
+
         if (empty($class)) {
             $class = new Theme($grav, $config, $name);
         }
@@ -282,11 +284,11 @@ class Themes extends Iterator
             $class = substr($class, strlen($prefix));
 
             // Replace namespace tokens to directory separators
-            $path = ltrim(preg_replace('#\\\|_(?!.+\\\)#', '/', $class), '/');
+            $path = strtolower(ltrim(preg_replace('#\\\|_(?!.+\\\)#', '/', $class), '/'));
             $file = $locator->findResource("themes://{$path}/{$path}.php");
 
             // Load class
-            if (stream_resolve_include_path($file)) {
+            if (file_exists($file)) {
               return include_once($file);
             }
         }
