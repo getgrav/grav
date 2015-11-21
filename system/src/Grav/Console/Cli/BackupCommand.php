@@ -2,23 +2,17 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Backup\ZipBackup;
-use Grav\Console\ConsoleTrait;
+use Grav\Console\ConsoleCommand;
 use RocketTheme\Toolbox\File\JsonFile;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class BackupCommand
  * @package Grav\Console\Cli
  */
-class BackupCommand extends Command
+class BackupCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     protected $source;
     protected $progress;
 
@@ -42,21 +36,16 @@ class BackupCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
-
-        $this->progress = new ProgressBar($output);
+        $this->progress = new ProgressBar($this->output);
         $this->progress->setFormat('Archiving <cyan>%current%</cyan> files [<green>%bar%</green>] %elapsed:6s% %memory:6s%');
 
         self::getGrav()['config']->init();
 
-        $destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : null;
+        $destination = ($this->input->getArgument('destination')) ? $this->input->getArgument('destination') : null;
         $log = JsonFile::instance(self::getGrav()['locator']->findResource("log://backup.log", true, true));
         $backup = ZipBackup::backup($destination, [$this, 'output']);
 
@@ -66,16 +55,13 @@ class BackupCommand extends Command
         ]);
         $log->save();
 
-        $output->writeln('');
-        $output->writeln('');
+        $this->output->writeln('');
+        $this->output->writeln('');
 
     }
 
     /**
-     * @param $folder
-     * @param $zipFile
-     * @param $exclusiveLength
-     * @param $progress
+     * @param $args
      */
     public function output($args)
     {

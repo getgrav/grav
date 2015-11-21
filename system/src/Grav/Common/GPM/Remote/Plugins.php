@@ -16,6 +16,8 @@ class Plugins extends AbstractPackageCollection
 
     /**
      * Local Plugins Constructor
+     * @param bool $refresh
+     * @param callable $callback Either a function or callback in array notation
      */
     public function __construct($refresh = false, $callback = null)
     {

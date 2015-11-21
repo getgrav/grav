@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common\GPM;
 
+use Grav\Common\Utils;
+
 class Response
 {
     /**
@@ -50,6 +52,7 @@ class Response
     /**
      * Sets the preferred method to use for making HTTP calls.
      * @param string $method Default is `auto`
+     * @return Response
      */
     public static function setMethod($method = 'auto')
     {
@@ -64,14 +67,20 @@ class Response
 
     /**
      * Makes a request to the URL by using the preferred method
-     * @param  string $uri     URL to call
-     * @param  array  $options An array of parameters for both `curl` and `fopen`
+     * @param  string $uri URL to call
+     * @param  array $options An array of parameters for both `curl` and `fopen`
+     * @param  callable $callback Either a function or callback in array notation
      * @return string The response of the request
      */
     public static function get($uri = '', $options = [], $callback = null)
     {
         if (!self::isCurlAvailable() && !self::isFopenAvailable()) {
             throw new \RuntimeException('Could not start an HTTP request. `allow_url_open` is disabled and `cURL` is not available');
+        }
+
+        // disable time limit if possible to help with slow downloads
+        if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode')) {
+            set_time_limit(0);
         }
 
         $options = array_replace_recursive(self::$defaults, $options);

@@ -77,7 +77,8 @@ class Blueprint
             $this->validateArray($data, $this->nested);
         } catch (\RuntimeException $e) {
             $language = self::getGrav()['language'];
-            throw new \RuntimeException(sprintf('<b>Validation failed:</b> %s', $language->translate($e->getMessage())));
+            $message = sprintf($language->translate('FORM.VALIDATION_FAIL', null, true) . ' %s', $e->getMessage());
+            throw new \RuntimeException($message);
         }
     }
 
@@ -450,7 +451,8 @@ class Blueprint
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true
                 && empty($data[$name])) {
-                throw new \RuntimeException("Missing required field: {$field['name']}");
+                $value = isset($field['label']) ? $field['label'] : $field['name'];
+                throw new \RuntimeException("Missing required field: {$value}");
             }
         }
     }

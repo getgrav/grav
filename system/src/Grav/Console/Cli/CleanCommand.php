@@ -2,20 +2,14 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Grav\Console\ConsoleCommand;
 
 /**
  * Class CleanCommand
  * @package Grav\Console\Cli
  */
-class CleanCommand extends Command
+class CleanCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var array
      */
@@ -172,14 +166,10 @@ class CleanCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
         $this->cleanPaths();
     }
 

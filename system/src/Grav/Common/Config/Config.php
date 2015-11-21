@@ -292,6 +292,7 @@ class Config extends Data
 
     protected function loadCompiledConfig($configs, $plugins, $filename = null)
     {
+        $checksum = md5(json_encode($configs));
         $filename = $filename
             ? CACHE_DIR . 'compiled/config/' . $filename . '-' . $this->environment . '.php'
             : CACHE_DIR . 'compiled/config/' . $checksum . '-' . $this->environment . '.php';
