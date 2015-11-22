@@ -13,7 +13,7 @@ INFLECTOR_ORDINALS:
 NICETIME:
     NO_DATE_PROVIDED: Nincs dátum megadva
     BAD_DATE: Hibás dátum
-    AGO: óta
+    AGO: elteltével
     FROM_NOW: mostantól
     SECOND: másodperc
     MINUTE: perc
