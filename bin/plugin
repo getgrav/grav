@@ -44,7 +44,7 @@ $grav['plugins']->init();
 $grav['themes']->init();
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
-$pattern = '/([A-Z]\w+Command\.php)$/usm';
+$pattern = '([A-Z]\w+Command\.php)';
 
 // get arguments and  strip the application name
 if (null === $argv) {
@@ -70,7 +70,7 @@ if (!$name) {
     $output->writeln('');
     $output->writeln("<red>Example:</red>");
     $output->writeln("  {$bin} error log -l 1 --trace");
-    $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '\/cli\/' . $pattern]);
+    $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '/\/cli\/' . $pattern . '$/usm']);
 
     if (count($list)) {
         $available = [];
@@ -101,7 +101,7 @@ if ($plugin === null) {
 $path = 'plugins://' . $name . '/cli';
 
 try {
-    $commands = Folder::all($path, ['compare' => 'Filename', 'pattern' => $pattern]);
+    $commands = Folder::all($path, ['compare' => 'Filename', 'pattern' => '/' . $pattern . '$/usm']);
 } catch (\RuntimeException $e) {
     $output->writeln("<red>No Console Commands for <white>'{$name}'</white> where found in <white>'{$path}'</white></red>");
     exit;

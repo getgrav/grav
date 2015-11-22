@@ -1,3 +1,9 @@
+# v1.0.0-rc.6
+## XX/XX/2015
+
+1. [](#bugfix)
+    * Fixed help output for `bin/plugin`
+
 # v1.0.0-rc.5
 ## 11/20/2015
 
@@ -6,7 +12,7 @@
     * Implemented the ability for Plugins to provide their own CLI commands through `bin/plugin`
     * Added Croatian translation
     * Added missing `umask_fix` property to `system.yaml`
-    * Added current theme's config to global config. E.g. `config.theme.dropdown_enabled` 
+    * Added current theme's config to global config. E.g. `config.theme.dropdown_enabled`
     * Added `append_url_extension` option to system config & page headers
     * Users have a new `state` property to allow disabling/banning
     * Added new `Page.relativePagePath()` helper method
@@ -78,7 +84,7 @@
     * German language improvements
     * Updated bundled composer
 1. [](#bugfix)
-    * Accept variety of `true` values in `User.authorize()` method 
+    * Accept variety of `true` values in `User.authorize()` method
     * Fix for `Validation` throwing an error if no label set
 
 # v1.0.0-rc.1
