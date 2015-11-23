@@ -100,6 +100,9 @@ abstract class Utils
         return (object)array_merge((array)$obj1, (array)$obj2);
     }
 
+    /**
+     * @return array
+     */
     public static function dateFormats()
     {
         $now = new DateTime();
@@ -300,11 +303,19 @@ abstract class Utils
         return $root . implode('/', $ret);
     }
 
+    /**
+     * @param $function
+     *
+     * @return bool
+     */
     public static function isFunctionDisabled($function)
     {
         return in_array($function, explode(',', ini_get('disable_functions')));
     }
 
+    /**
+     * @return array
+     */
     public static function timezones()
     {
         $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
@@ -332,6 +343,12 @@ abstract class Utils
 
     }
 
+    /**
+     * @param array $source
+     * @param       $fn
+     *
+     * @return array
+     */
     public static function arrayFilterRecursive(Array $source, $fn)
     {
         $result = array();
@@ -351,6 +368,11 @@ abstract class Utils
         return $result;
     }
 
+    /**
+     * @param $string
+     *
+     * @return bool
+     */
     public static function pathPrefixedByLangCode($string)
     {
         $languages_enabled = self::getGrav()['config']->get('system.languages.supported', []);
@@ -362,6 +384,11 @@ abstract class Utils
         return false;
     }
 
+    /**
+     * @param $date
+     *
+     * @return int
+     */
     public static function date2timestamp($date)
     {
         $config = self::getGrav()['config'];

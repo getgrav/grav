@@ -226,7 +226,7 @@
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.3.3"
             },
             "require-dev": {
                 "mockery/mockery": "0.9.*"
