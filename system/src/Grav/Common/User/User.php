@@ -83,7 +83,10 @@ class User extends Data
                 // Plain-text passwords do not match, we know we should fail but execute
                 // verify to protect us from timing attacks and return false regardless of
                 // the result
-                Authentication::verify($password, self::getGrav()['config']->get('system.security.default_hash'));
+                Authentication::verify(
+                    $password,
+                    self::getGrav()['config']->get('system.security.default_hash', '$2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK')
+                );
                 return false;
             } else {
                 // Plain-text does match, we can update the hash and proceed
