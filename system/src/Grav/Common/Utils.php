@@ -474,7 +474,7 @@ abstract class Utils
      *
      * @return string hashed value of $data, cut to 10 characters
      */
-    private static function hash($data)
+    public static function hash($data)
     {
         $hash = password_hash($data, PASSWORD_DEFAULT);
         return $hash;
