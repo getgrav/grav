@@ -3,6 +3,8 @@ namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Data;
+use Grav\Common\Utils;
+use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -165,7 +167,7 @@ class Setup extends Data
         }
 
         // Make sure we have valid setup.
-        $this->check();
+        $this->check($locator);
 
         return $this;
     }
@@ -214,9 +216,10 @@ class Setup extends Data
     }
 
     /**
+     * @param UniformResourceLocator $locator
      * @throws \InvalidArgumentException
      */
-    protected function check()
+    protected function check(UniformResourceLocator $locator)
     {
         $streams = isset($this->items['streams']['schemes']) ? $this->items['streams']['schemes'] : null;
         if (!is_array($streams)) {
@@ -227,6 +230,14 @@ class Setup extends Data
             throw new \InvalidArgumentException(
                 sprintf('Configuration is missing keys %s from streams.schemes!', implode(', ', $diff))
             );
+        }
+
+        // Create security.yaml if it doesn't exist.
+        $filename = $locator->findResource('config://security.yaml', true, true);
+        $file = YamlFile::instance($filename);
+        if (!$file->exists()) {
+            $file->save(['salt' => Utils::generateRandomString(14)]);
+            $file->free();
         }
     }
 }

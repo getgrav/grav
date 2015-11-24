@@ -1,4 +1,4 @@
-# v1.0.0-refactor
+# v1.0.0-rc.6
 ## XX/XX/2015
 
 1. [](#new)
@@ -6,11 +6,8 @@
     * Data objects: Allow function call chaining
     * Data objects: Lazy load blueprints only if needed
     * Refactor Config classes
-
-# v1.0.0-rc.6
-## XX/XX/2015
-
-1. [](#bugfix)
+    * Automatically create unique security salt for each configuration
+2. [](#bugfix)
     * Fixed help output for `bin/plugin`
 
 # v1.0.0-rc.5
