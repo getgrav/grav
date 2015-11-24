@@ -331,7 +331,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
             $field['name'] = $prefix . $key;
             $field += $params;
 
-            if (isset($field['fields']) && (!isset($field['type']) || $field['type'] !== 'list')) {
+            if (isset($field['fields']) && isset($field['type'])) {
                 // Recursively get all the nested fields.
                 $newParams = array_intersect_key($this->filter, $field);
                 $this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
