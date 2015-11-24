@@ -335,33 +335,23 @@ class Blueprint implements \ArrayAccess, ExportInterface
 				// Recursively get all the nested fields.
 				$newParams = array_intersect_key($this->filter, $field);
 				$this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
-			} else if( $field['type'] === 'list') {
-				// Lists have different structure for fields (one level deeper)
-                // This means we need to loop through the list to get to the actual field
-                // The property and rule setting need to be set on the list field
-                // and NOT on the children, which is why we need to duplicate some of
-                // the code below :(
-
-				$this->rules[$prefix . $key] = &$field;
-				$this->addProperty($prefix . $key);
-
-				foreach($field['fields'] as $subName => &$subField) {
-					$this->parseFormField($subField);
-				}
-
-				if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
-					$field['validate'] += $this->getRule($field['validate']['rule']);
-				}
 			} else if ($field['type'] !== 'ignore') {
                 $this->rules[$prefix . $key] = &$field;
-				$this->addProperty($prefix . $key);
-
-				$this->parseFormField($field);
-
-				if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
-					$field['validate'] += $this->getRule($field['validate']['rule']);
-				}
-			}
+                $this->addProperty($prefix . $key);
+            
+                if ($field['type'] === 'list') {
+                    // we loop through list to get the actual field
+                    foreach($field['fields'] as $subName => &$subField) {
+                        $this->parseFormField($subField);
+                    }
+                } else {
+                    $this->parseFormField($field);
+                }
+            
+                if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
+                    $field['validate'] += $this->getRule($field['validate']['rule']);
+                }
+            }
 		}
 	}
 	/**
