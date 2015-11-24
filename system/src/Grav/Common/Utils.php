@@ -15,6 +15,8 @@ abstract class Utils
 {
     use GravTrait;
 
+    protected static $nonce;
+
     /**
      * @param  string $haystack
      * @param  string $needle
@@ -491,9 +493,15 @@ abstract class Utils
      */
     public static function getNonce($action, $plusOneTick = false)
     {
+        // Don't regenerate this again if not needed
+        if (isset(static::$nonce)) {
+            return static::$nonce;
+        }
         $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
-        $nonce = str_replace('/', 'SLASH', $nonce);
-        return $nonce;
+
+        static::$nonce = str_replace('/', 'SLASH', $nonce);
+
+        return static::$nonce;
     }
 
     /**
