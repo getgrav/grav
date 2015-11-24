@@ -11,6 +11,23 @@ use Grav\Common\Data\Data;
  */
 class Languages extends Data
 {
+    public function checksum($checksum = null)
+    {
+        if ($checksum !== null) {
+            $this->checksum = $checksum;
+        }
+
+        return $this->checksum;
+    }
+
+    public function modified($modified = null)
+    {
+        if ($modified !== null) {
+            $this->modified = $modified;
+        }
+
+        return $this->modified;
+    }
 
     public function reformat()
     {
