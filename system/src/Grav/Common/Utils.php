@@ -15,7 +15,7 @@ abstract class Utils
 {
     use GravTrait;
 
-    protected static $nonce;
+    protected static $nonces = [];
 
     /**
      * @param  string $haystack
@@ -437,11 +437,10 @@ abstract class Utils
         if (isset(self::getGrav()['user'])) {
             $user = self::getGrav()['user'];
             $username = $user->username;
+            if (isset($_SERVER['REMOTE_ADDR'])) {
+                $username .= $_SERVER['REMOTE_ADDR'];
+            }
         } else {
-            $username = false;
-        }
-
-        if (!$username) {
             $username = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         }
 
@@ -494,14 +493,14 @@ abstract class Utils
     public static function getNonce($action, $plusOneTick = false)
     {
         // Don't regenerate this again if not needed
-        if (isset(static::$nonce)) {
-            return static::$nonce;
+        if (isset(static::$nonces[$action])) {
+            return static::$nonces[$action];
         }
         $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
 
-        static::$nonce = str_replace('/', 'SLASH', $nonce);
+        static::$nonces[$action] = str_replace('/', 'SLASH', $nonce);
 
-        return static::$nonce;
+        return static::$nonces[$action];
     }
 
     /**
