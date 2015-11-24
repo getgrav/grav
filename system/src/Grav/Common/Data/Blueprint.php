@@ -346,7 +346,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
 				$this->addProperty($prefix . $key);
 
 				foreach($field['fields'] as $subName => &$subField) {
-					$this->parseFormField($subField, $prefix, $key, false);
+					$this->parseFormField($subField);
 				}
 
 				if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
@@ -356,7 +356,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
                 $this->rules[$prefix . $key] = &$field;
 				$this->addProperty($prefix . $key);
 
-				$this->parseFormField($field, $prefix, $key, true);
+				$this->parseFormField($field);
 
 				if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
 					$field['validate'] += $this->getRule($field['validate']['rule']);
