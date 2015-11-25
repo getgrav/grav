@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "b1323e540382de7390663756b3a87de7",
-    "content-hash": "158cd4e3e1a40d5d1db9e3f29c24d83a",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -217,12 +216,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "50a288b51058fa94cf5b37cfa4277535983cc9d5"
+                "reference": "9a393ceb80f7497b6513feb574638e87048fed55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/50a288b51058fa94cf5b37cfa4277535983cc9d5",
-                "reference": "50a288b51058fa94cf5b37cfa4277535983cc9d5",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/9a393ceb80f7497b6513feb574638e87048fed55",
+                "reference": "9a393ceb80f7497b6513feb574638e87048fed55",
                 "shasum": ""
             },
             "require": {
@@ -267,7 +266,7 @@
                 "whoops",
                 "zf2"
             ],
-            "time": "2015-11-14 20:08:27"
+            "time": "2015-09-27 09:47:06"
         },
         {
             "name": "gregwar/cache",
