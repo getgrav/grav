@@ -297,6 +297,11 @@ class Twig
         $this->grav->fireEvent('onTwigSiteVariables');
         $pages = $this->grav['pages'];
         $page = $this->grav['page'];
+
+        if (!$page) {
+            throw new \RuntimeException('Page Not Found', 404);
+        }
+
         $content = $page->content();
         $config = $this->grav['config'];
 
