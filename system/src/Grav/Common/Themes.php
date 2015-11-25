@@ -41,17 +41,19 @@ class Themes extends Iterator
         $themes = $this->grav['themes'];
         $themes->configure();
 
-        try {
-            $instance = $themes->load();
-        } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException($this->current(). ' theme could not be found');
-        }
+        if (!isset($this->grav['admin'])) {
+            try {
+                $instance = $themes->load();
+            } catch (\InvalidArgumentException $e) {
+                throw new \RuntimeException($this->current(). ' theme could not be found');
+            }
 
-        if ($instance instanceof EventSubscriberInterface) {
-            $events->addSubscriber($instance);
-        }
+            if ($instance instanceof EventSubscriberInterface) {
+                $events->addSubscriber($instance);
+            }
 
-        $this->grav['theme'] = $instance;
+            $this->grav['theme'] = $instance;
+        }
     }
 
     /**
