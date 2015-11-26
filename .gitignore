@@ -22,6 +22,7 @@ user/plugins/*
 !user/plugins/.*
 user/themes/*
 !user/themes/.*
+user/localhost/config/security.yaml
 
 # OS Generated
 .DS_Store*

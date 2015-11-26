@@ -442,7 +442,6 @@ abstract class Utils
         return in_array($value, [true, 1, '1', 'yes', 'on', 'true'], true);
     }
 
-
     /**
      * Generates a nonce string to be hashed. Called by self::getNonce()
      *
@@ -470,7 +469,7 @@ abstract class Utils
             $i++;
         }
 
-        return ( $i . '|' . $action . '|' . $username . '|' . $token );
+        return ( $i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
     }
 
     /**
@@ -488,19 +487,6 @@ abstract class Utils
     }
 
     /**
-     * Get hash of given string
-     *
-     * @param string $data string to hash
-     *
-     * @return string hashed value of $data, cut to 10 characters
-     */
-    public static function hash($data)
-    {
-        $hash = password_hash($data, PASSWORD_DEFAULT);
-        return $hash;
-    }
-
-    /**
      * Creates a hashed nonce tied to the passed action. Tied to the current user and time. The nonce for a given
      * action is the same for 12 hours.
      *
@@ -515,9 +501,8 @@ abstract class Utils
         if (isset(static::$nonces[$action])) {
             return static::$nonces[$action];
         }
-        $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
-
-        static::$nonces[$action] = str_replace('/', 'SLASH', $nonce);
+        $nonce = md5(self::generateNonceString($action, $plusOneTick));
+        static::$nonces[$action] = $nonce;
 
         return static::$nonces[$action];
     }
@@ -532,21 +517,18 @@ abstract class Utils
      */
     public static function verifyNonce($nonce, $action)
     {
-        $nonce = str_replace('SLASH', '/', $nonce);
-
         //Nonce generated 0-12 hours ago
-        if (password_verify(self::generateNonceString($action), $nonce)) {
+        if ($nonce == self::getNonce($action)) {
             return true;
         }
 
         //Nonce generated 12-24 hours ago
         $plusOneTick = true;
-        if (password_verify(self::generateNonceString($action, $plusOneTick), $nonce)) {
+        if ($nonce == self::getNonce($action, $plusOneTick)) {
             return true;
         }
 
         //Invalid nonce
         return false;
     }
-
 }
