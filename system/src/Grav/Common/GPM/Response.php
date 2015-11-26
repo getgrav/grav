@@ -78,10 +78,9 @@ class Response
             throw new \RuntimeException('Could not start an HTTP request. `allow_url_open` is disabled and `cURL` is not available');
         }
 
-        // disable time limit if possible to help with slow downloads
-        if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode')) {
+        try {
             set_time_limit(0);
-        }
+        } catch (\Exception $e) {}
 
         $options = array_replace_recursive(self::$defaults, $options);
         $method  = 'get' . ucfirst(strtolower(self::$method));
