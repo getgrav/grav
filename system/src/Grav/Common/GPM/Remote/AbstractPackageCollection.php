@@ -3,13 +3,14 @@ namespace Grav\Common\GPM\Remote;
 
 use Grav\Common\GPM\Common\AbstractPackageCollection as BaseCollection;
 use Grav\Common\GPM\Response;
+
 use \Doctrine\Common\Cache\FilesystemCache;
 
 class AbstractPackageCollection extends BaseCollection
 {
     /**
      * The cached data previously fetched
-     * @var string
+     * @var array
      */
     protected $raw;
 
@@ -19,8 +20,16 @@ class AbstractPackageCollection extends BaseCollection
      */
     private $lifetime = 86400;
 
+    /**
+     * The URL(s) to a repository
+     * @var string|array
+     */
     protected $repository;
 
+    /**
+     * Cache
+     * @var \Doctrine\Common\Cache\FilesystemCache
+     */
     protected $cache;
 
     public function __construct($repository = null, $refresh = false, $callback = null)
@@ -32,21 +41,32 @@ class AbstractPackageCollection extends BaseCollection
         $cache_dir = self::getGrav()['locator']->findResource('cache://gpm', true, true);
         $this->cache = new FilesystemCache($cache_dir);
 
-        $this->repository = $repository;
-        $this->raw        = $this->cache->fetch(md5($this->repository));
+        // Allow custom repositories - for security reasons load built-in ones always at last
+        $repositories = self::getGrav()['config']->get("repositories.{$this->type}", []);
+        $repositories = array_merge($repositories, (array) $this->repository);
+
+        $this->repository = $repositories;
+        $this->raw        = $this->cache->fetch(md5(serialize($this->repository)));
 
         $this->fetch($refresh, $callback);
-        foreach (json_decode($this->raw, true) as $slug => $data) {
-            $this->items[$slug] = new Package($data, $this->type);
+        foreach ($this->raw as $raw) {
+            foreach (json_decode($raw, true) as $slug => $data) {
+                $this->items[$slug] = new Package($data, $this->type);
+            }
         }
     }
 
     public function fetch($refresh = false, $callback = null)
     {
         if (!$this->raw || $refresh) {
-            $response  = Response::get($this->repository, [], $callback);
-            $this->raw = $response;
-            $this->cache->save(md5($this->repository), $this->raw, $this->lifetime);
+            // Download repository databases
+            foreach ((array) $this->repository as $repository) {
+                $response  = Response::get($repository, [], $callback);
+                $this->raw[] = $response;
+            }
+
+            // Save results
+            $this->cache->save(md5(serialize($this->repository)), $this->raw, $this->lifetime);
         }
 
         return $this->raw;
