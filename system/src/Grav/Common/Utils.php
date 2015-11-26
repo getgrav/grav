@@ -218,8 +218,11 @@ abstract class Utils
             $file_parts = pathinfo($file);
             $filesize = filesize($file);
 
+            // check if this function is available, if so use it to stop any timeouts
             try {
-                set_time_limit(0);
+                if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode') && function_exists('set_time_limit')) {
+                    set_time_limit(0);
+                }
             } catch (\Exception $e) {}
 
             ignore_user_abort(false);
@@ -408,6 +411,25 @@ abstract class Utils
         } else {
             return strtotime($date);
         }
+    }
+
+    /**
+     * Get value of an array using dot notation
+     */
+    public static function resolve(array $array, $path, $default = null)
+    {
+        $current = $array;
+        $p = strtok($path, '.');
+
+        while ($p !== false) {
+            if (!isset($current[$p])) {
+                return $default;
+            }
+            $current = $current[$p];
+            $p = strtok('.');
+        }
+
+        return $current;
     }
 
     /**
