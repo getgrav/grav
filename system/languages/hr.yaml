@@ -26,12 +26,18 @@ NICETIME:
     YR: g
     DEC: des
     SECOND_PLURAL: sekundi
+    SECOND_PLURAL_MORE_THAN_TWO: sekunde
     MINUTE_PLURAL: minuta
+    MINUTE_PLURAL_MORE_THAN_TWO: minute
     HOUR_PLURAL: sati
+    HOUR_PLURAL_MORE_THAN_TWO: sata
     DAY_PLURAL: dana
     WEEK_PLURAL: tjedana
+    WEEK_PLURAL_MORE_THAN_TWO: tjedna
     MONTH_PLURAL: mjeseci
+    MONTH_PLURAL_MORE_THAN_TWO: mjeseca
     YEAR_PLURAL: godina
+    YEAR_PLURAL_MORE_THAN_TWO: godine
     DECADE_PLURAL: desetljeća
     SEC_PLURAL: sek
     MIN_PLURAL: min
