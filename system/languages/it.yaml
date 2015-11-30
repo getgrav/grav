@@ -19,3 +19,7 @@ NICETIME:
     MONTH_PLURAL: mesi
     YEAR_PLURAL: anni
     DECADE_PLURAL: decadi
+FORM:
+    VALIDATION_FAIL: <b>Validazione fallita:</b>
+    INVALID_INPUT: Input invalido in
+    MISSING_REQUIRED_FIELD: Campo richiesto mancante:
