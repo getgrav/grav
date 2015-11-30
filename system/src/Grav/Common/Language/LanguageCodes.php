@@ -193,7 +193,7 @@ class LanguageCodes
         ],
         "fr" => [
             "name"       => "French",
-            "nativeName" => "français"
+            "nativeName" => "Français"
         ],
         "ff" => [
             "name"       => "Fula",
