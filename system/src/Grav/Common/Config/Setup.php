@@ -232,9 +232,9 @@ class Setup extends Data
             );
         }
 
-        if (!$locator->findResource('environment://', true)) {
+        if (!$locator->findResource('environment://config', true)) {
             // If environment does not have its own directory, remove it from the lookup.
-            $this->set('streams.schemes.environment.prefixes', ['' => []]);
+            $this->set('streams.schemes.environment.prefixes', ['config' => []]);
             $this->initializeLocator($locator);
         }
 
