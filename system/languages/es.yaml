@@ -1,0 +1,4 @@
+FORM:
+    VALIDATION_FAIL: <b>Falló la validación. </b>
+    INVALID_INPUT: "Dato inválido en: "
+    MISSING_REQUIRED_FIELD: "Falta el campo requerido: "
