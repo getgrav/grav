@@ -232,6 +232,12 @@ class Setup extends Data
             );
         }
 
+        if (!$locator->findResource('environment://', true)) {
+            // If environment does not have its own directory, remove it from the lookup.
+            $this->set('streams.schemes.environment.prefixes', ['' => []]);
+            $this->initializeLocator($locator);
+        }
+
         // Create security.yaml if it doesn't exist.
         $filename = $locator->findResource('config://security.yaml', true, true);
         $file = YamlFile::instance($filename);
