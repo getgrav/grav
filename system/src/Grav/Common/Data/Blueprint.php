@@ -465,7 +465,9 @@ class Blueprint implements \ArrayAccess, ExportInterface
                 && $field['validate']['required'] === true
                 && empty($data[$name])) {
                 $value = isset($field['label']) ? $field['label'] : $field['name'];
-                throw new \RuntimeException("Missing required field: {$value}");
+                $language = self::getGrav()['language'];
+                $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $value);
+                throw new \RuntimeException($message);
             }
         }
     }
