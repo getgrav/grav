@@ -242,9 +242,6 @@ class Blueprint implements \ArrayAccess, ExportInterface
 
             if ($rule) {
                 // Item has been defined in blueprints.
-                if (is_array($field) && count($field) == 1 && reset($field) == '') {
-                    continue;
-                }
                 $field = Validation::filter($field, $rule);
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
@@ -338,7 +335,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
 			} else if ($field['type'] !== 'ignore') {
                 $this->rules[$prefix . $key] = &$field;
                 $this->addProperty($prefix . $key);
-            
+
                 if ($field['type'] === 'list') {
                     // we loop through list to get the actual field
                     foreach($field['fields'] as $subName => &$subField) {
@@ -347,7 +344,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
                 } else {
                     $this->parseFormField($field);
                 }
-            
+
                 if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
                     $field['validate'] += $this->getRule($field['validate']['rule']);
                 }
