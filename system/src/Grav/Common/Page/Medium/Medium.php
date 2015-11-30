@@ -214,8 +214,9 @@ class Medium extends Data implements RenderableInterface
             else
                 $style .= $key . ': ' . $value . ';';
         }
-        if ($style)
+        if ($style) {
             $attributes['style'] = $style;
+        }
 
         if (empty($attributes['title'])) {
             if (!empty($title)) {
@@ -390,6 +391,38 @@ class Medium extends Data implements RenderableInterface
         }
 
         return $this->link($reset, $attributes);
+    }
+
+    /**
+     * Add a class to the element from Markdown or Twig
+     * Example: ![Example](myimg.png?classes=float-left) or ![Example](myimg.png?classes=myclass1,myclass2)
+     *
+     * @return $this
+     */
+    public function classes()
+    {
+        $classes = func_get_args();
+        if (!empty($classes)) {
+            $this->attributes['class'] = implode(',', (array)$classes);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an id to the element from Markdown or Twig
+     * Example: ![Example](myimg.png?id=primary-img)
+     *
+     * @param $id
+     * @return $this
+     */
+    public function id($id)
+    {
+        if (is_string($id)) {
+            $this->attributes['id'] = trim($id);
+        }
+
+        return $this;
     }
 
     /**
