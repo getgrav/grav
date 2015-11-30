@@ -95,3 +95,4 @@ NICETIME:
 FORM:
     VALIDATION_FAIL: <b>La validation a échoué :</b>
     INVALID_INPUT: Saisie non valide
+    MISSING_REQUIRED_FIELD: Champ obligatoire manquant :
