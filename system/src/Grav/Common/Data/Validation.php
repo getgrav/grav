@@ -31,6 +31,11 @@ class Validation
             return;
         }
 
+        // special case for files, value is never empty and errors with code 4 instead
+        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE) || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
+            return;
+        }
+
         // Get language class
         $language = self::getGrav()['language'];
 
@@ -75,6 +80,11 @@ class Validation
 
         // If value isn't required, we will return null if empty value is given.
         if (empty($validate['required']) && ($value === null || $value === '')) {
+            return null;
+        }
+
+        // special case for files, value is never empty and errors with code 4 instead
+        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE) || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
             return null;
         }
 
@@ -256,6 +266,24 @@ class Validation
     public static function typeToggle($value, array $params, array $field)
     {
         return self::typeArray((array) $value, $params, $field);
+    }
+
+    /**
+     * Custom input: file
+     *
+     * @param  mixed  $value   Value to be validated.
+     * @param  array  $params  Validation parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return bool   True if validation succeeded.
+     */
+    public static function typeFile($value, array $params, array $field)
+    {
+        return self::typeArray((array) $value, $params, $field);
+    }
+
+    protected static function filterFile($value, array $params, array $field)
+    {
+        return (array) $value;
     }
 
     /**
