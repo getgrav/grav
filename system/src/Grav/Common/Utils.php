@@ -219,9 +219,11 @@ abstract class Utils
             $filesize = filesize($file);
 
             // check if this function is available, if so use it to stop any timeouts
-            if (function_exists('set_time_limit')) {
-                set_time_limit(0);
-            }
+            try {
+                if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode') && function_exists('set_time_limit')) {
+                    set_time_limit(0);
+                }
+            } catch (\Exception $e) {}
 
             ignore_user_abort(false);
 

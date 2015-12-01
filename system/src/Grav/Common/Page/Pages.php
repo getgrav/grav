@@ -528,7 +528,22 @@ class Pages
         /** @var Pages $pages */
         $pages = $grav['pages'];
 
-        return $pages->getList();
+        $parents = $pages->getList();
+
+        /** @var Admin $admin */
+        $admin = $grav['admin'];
+
+        // Remove current route from parents
+        if (isset($admin)) {
+            $page = $admin->getPage($admin->route);
+            $page_route = $page->route();
+            if (isset($parents[$page_route])) {
+                unset($parents[$page_route]);
+            }
+
+        }
+
+        return $parents;
     }
 
     /**
