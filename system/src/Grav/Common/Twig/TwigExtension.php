@@ -355,6 +355,12 @@ class TwigExtension extends \Twig_Extension
             $periods[$j] .= '_PLURAL';
         }
 
+        if ($this->grav['language']->getTranslation($this->grav['language']->getLanguage(), $periods[$j] . '_MORE_THAN_TWO')) {
+            if ($difference > 2) {
+                $periods[$j] .= '_MORE_THAN_TWO';
+            }
+        }
+
         $periods[$j] = $this->grav['language']->translate($periods[$j], null, true);
 
         return "$difference $periods[$j] {$tense}";

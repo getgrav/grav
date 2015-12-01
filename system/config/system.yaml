@@ -108,6 +108,6 @@ media:
 session:
   enabled: true                             # Enable Session support
   timeout: 1800                             # Timeout in seconds
-  name: grav-site                           # Name prefix of the session cookie
+  name: grav-site                           # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
 
 

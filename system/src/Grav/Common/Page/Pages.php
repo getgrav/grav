@@ -487,6 +487,36 @@ class Pages
     }
 
     /**
+     * Get access levels of the site pages
+     *
+     * @return array
+     */
+    public function accessLevels()
+    {
+        $accessLevels = [];
+        foreach($this->all() as $page) {
+            if (isset($page->header()->access)) {
+                if (is_array($page->header()->access)) {
+                    foreach($page->header()->access as $index => $accessLevel) {
+                        if (is_array($accessLevel)) {
+                            foreach($accessLevel as $innerIndex => $innerAccessLevel) {
+                                array_push($accessLevels, $innerIndex);
+                            }
+                        } else {
+                            array_push($accessLevels, $index);
+                        }
+                    }
+                } else {
+
+                    array_push($accessLevels, $page->header()->access);
+                }
+            }
+        }
+
+        return array_unique($accessLevels);
+    }
+
+    /**
      * Get available parents.
      *
      * @return array
@@ -498,7 +528,22 @@ class Pages
         /** @var Pages $pages */
         $pages = $grav['pages'];
 
-        return $pages->getList();
+        $parents = $pages->getList();
+
+        /** @var Admin $admin */
+        $admin = $grav['admin'];
+
+        // Remove current route from parents
+        if (isset($admin)) {
+            $page = $admin->getPage($admin->route);
+            $page_route = $page->route();
+            if (isset($parents[$page_route])) {
+                unset($parents[$page_route]);
+            }
+
+        }
+
+        return $parents;
     }
 
     /**

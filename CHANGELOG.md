@@ -1,3 +1,28 @@
+# v1.0.0-rc.6
+## 12/01/2015
+
+1. [](#new)
+    * Refactor Config classes for improved performance!
+    * Refactor Data classes to use `NestedArrayAccess` instead of `DataMutatorTrait`
+    * Added support for `classes` and `id` on medium objects to set CSS values
+    * Data objects: Allow function call chaining
+    * Data objects: Lazy load blueprints only if needed
+    * Automatically create unique security salt for each configuration
+    * Added Hungarian translation
+    * Added support for User groups
+1. [](#improved)   
+    * Improved robots.txt to disallow crawling of non-user folders
+    * Nonces only generated once per action and process
+    * Added IP into Nonce string calculation
+    * Nonces now use random string with random salt to improve performance
+    * Improved list form handling #475
+    * Vendor library updates
+1. [](#bugfix)
+    * Fixed help output for `bin/plugin`
+    * Fix for nested logic for lists and form parsing #273
+    * Fix for array form fields and last entry not getting deleted
+    * Should not be able to set parent to self #308
+
 # v1.0.0-rc.5
 ## 11/20/2015
 
@@ -6,7 +31,7 @@
     * Implemented the ability for Plugins to provide their own CLI commands through `bin/plugin`
     * Added Croatian translation
     * Added missing `umask_fix` property to `system.yaml`
-    * Added current theme's config to global config. E.g. `config.theme.dropdown_enabled` 
+    * Added current theme's config to global config. E.g. `config.theme.dropdown_enabled`
     * Added `append_url_extension` option to system config & page headers
     * Users have a new `state` property to allow disabling/banning
     * Added new `Page.relativePagePath()` helper method
@@ -78,7 +103,7 @@
     * German language improvements
     * Updated bundled composer
 1. [](#bugfix)
-    * Accept variety of `true` values in `User.authorize()` method 
+    * Accept variety of `true` values in `User.authorize()` method
     * Fix for `Validation` throwing an error if no label set
 
 # v1.0.0-rc.1

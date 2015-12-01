@@ -54,7 +54,7 @@ RewriteRule \.md$ error [F]
 # Block all direct access to files and folders beginning with a dot
 RewriteRule (^\.|/\.) - [F]
 # Block access to specific files in the root folder
-RewriteRule ^(LICENSE|composer.lock|composer.json|nginx.conf|web.config|htaccess.txt|\.htaccess)$ error [F]
+RewriteRule ^(LICENSE.txt|composer.lock|composer.json|nginx.conf|web.config|htaccess.txt|\.htaccess)$ error [F]
 ## End - Security
 
 </IfModule>

@@ -2002,16 +2002,16 @@ class Page
                         case 'children':
                             $results = $this->children()->nonModular();
                             break;
-
+                        case 'all':
+                            $results = $this->children();
+                            break;
                         case 'parent':
                             $collection = new Collection();
                             $results = $collection->addPage($this->parent());
                             break;
-
                         case 'siblings':
                             $results = $this->parent()->children()->remove($this->path());
                             break;
-
                         case 'descendants':
                             $results = $pages->all($this)->remove($this->path())->nonModular();
                             break;

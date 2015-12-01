@@ -453,6 +453,55 @@ class Collection extends Iterator
         return $this;
     }
 
+    /**
+     * Creates new collection with only pages of one of the specified access levels
+     *
+     * @return Collection The collection
+     */
+    public function ofOneOfTheseAccessLevels($accessLevels)
+    {
+        $items = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+
+            if ($page !== null && isset($page->header()->access)) {
+                if (is_array($page->header()->access)) {
+                    //Multiple values for access
+                    $valid = false;
+
+                    foreach ($page->header()->access as $index => $accessLevel) {
+                        if (is_array($accessLevel)) {
+                            foreach($accessLevel as $innerIndex => $innerAccessLevel) {
+                                if (in_array($innerAccessLevel, $accessLevels)) {
+                                    $valid = true;
+                                }
+                            }
+                        } else {
+                            if (in_array($index, $accessLevels)) {
+                                $valid = true;
+                            }
+                        }
+                    }
+                    if ($valid) {
+                        $items[$path] = $slug;
+                    }
+                } else {
+                    //Single value for access
+                    if (in_array($page->header()->access, $accessLevels)) {
+                        $items[$path] = $slug;
+                    }
+                }
+
+            }
+        }
+
+        $this->items = $items;
+        return $this;
+    }
+
+
+
 
 
 }

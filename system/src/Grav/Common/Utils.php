@@ -15,6 +15,8 @@ abstract class Utils
 {
     use GravTrait;
 
+    protected static $nonces = [];
+
     /**
      * @param  string $haystack
      * @param  string $needle
@@ -217,9 +219,11 @@ abstract class Utils
             $filesize = filesize($file);
 
             // check if this function is available, if so use it to stop any timeouts
-            if (function_exists('set_time_limit')) {
-                set_time_limit(0);
-            }
+            try {
+                if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode') && function_exists('set_time_limit')) {
+                    set_time_limit(0);
+                }
+            } catch (\Exception $e) {}
 
             ignore_user_abort(false);
 
@@ -410,6 +414,25 @@ abstract class Utils
     }
 
     /**
+     * Get value of an array using dot notation
+     */
+    public static function resolve(array $array, $path, $default = null)
+    {
+        $current = $array;
+        $p = strtok($path, '.');
+
+        while ($p !== false) {
+            if (!isset($current[$p])) {
+                return $default;
+            }
+            $current = $current[$p];
+            $p = strtok('.');
+        }
+
+        return $current;
+    }
+
+    /**
      * Checks if a value is positive
      *
      * @param string $value
@@ -420,7 +443,6 @@ abstract class Utils
     {
         return in_array($value, [true, 1, '1', 'yes', 'on', 'true'], true);
     }
-
 
     /**
      * Generates a nonce string to be hashed. Called by self::getNonce()
@@ -435,11 +457,10 @@ abstract class Utils
         if (isset(self::getGrav()['user'])) {
             $user = self::getGrav()['user'];
             $username = $user->username;
+            if (isset($_SERVER['REMOTE_ADDR'])) {
+                $username .= $_SERVER['REMOTE_ADDR'];
+            }
         } else {
-            $username = false;
-        }
-
-        if (!$username) {
             $username = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         }
 
@@ -450,7 +471,7 @@ abstract class Utils
             $i++;
         }
 
-        return ( $i . '|' . $action . '|' . $username . '|' . $token );
+        return ( $i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
     }
 
     /**
@@ -468,19 +489,6 @@ abstract class Utils
     }
 
     /**
-     * Get hash of given string
-     *
-     * @param string $data string to hash
-     *
-     * @return string hashed value of $data, cut to 10 characters
-     */
-    private static function hash($data)
-    {
-        $hash = password_hash($data, PASSWORD_DEFAULT);
-        return $hash;
-    }
-
-    /**
      * Creates a hashed nonce tied to the passed action. Tied to the current user and time. The nonce for a given
      * action is the same for 12 hours.
      *
@@ -491,9 +499,14 @@ abstract class Utils
      */
     public static function getNonce($action, $plusOneTick = false)
     {
-        $nonce = self::hash(self::generateNonceString($action, $plusOneTick));
-        $nonce = str_replace('/', 'SLASH', $nonce);
-        return $nonce;
+        // Don't regenerate this again if not needed
+        if (isset(static::$nonces[$action])) {
+            return static::$nonces[$action];
+        }
+        $nonce = md5(self::generateNonceString($action, $plusOneTick));
+        static::$nonces[$action] = $nonce;
+
+        return static::$nonces[$action];
     }
 
     /**
@@ -506,21 +519,18 @@ abstract class Utils
      */
     public static function verifyNonce($nonce, $action)
     {
-        $nonce = str_replace('SLASH', '/', $nonce);
-
         //Nonce generated 0-12 hours ago
-        if (password_verify(self::generateNonceString($action), $nonce)) {
+        if ($nonce == self::getNonce($action)) {
             return true;
         }
 
         //Nonce generated 12-24 hours ago
         $plusOneTick = true;
-        if (password_verify(self::generateNonceString($action, $plusOneTick), $nonce)) {
+        if ($nonce == self::getNonce($action, $plusOneTick)) {
             return true;
         }
 
         //Invalid nonce
         return false;
     }
-
 }

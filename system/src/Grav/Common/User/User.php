@@ -53,7 +53,7 @@ class User extends Data
      * Remove user account.
      *
      * @param string $username
-     * @return bool True is the action was performed
+     * @return bool True if the action was performed
      */
     public static function remove($username)
     {
@@ -83,7 +83,10 @@ class User extends Data
                 // Plain-text passwords do not match, we know we should fail but execute
                 // verify to protect us from timing attacks and return false regardless of
                 // the result
-                Authentication::verify($password, self::getGrav()['config']->get('system.security.default_hash'));
+                Authentication::verify(
+                    $password,
+                    self::getGrav()['config']->get('system.security.default_hash', '$2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK')
+                );
                 return false;
             } else {
                 // Plain-text does match, we can update the hash and proceed
@@ -146,7 +149,28 @@ class User extends Data
             return false;
         }
 
-        return Utils::isPositive($this->get("access.{$action}"));
+        $return = false;
+
+        //Check group access level
+        $groups = $this->get('groups');
+        if ($groups) foreach($groups as $group) {
+            $permission = self::getGrav()['config']->get("groups.{$group}.access.{$action}");
+            if (Utils::isPositive($permission)) {
+                $return = true;
+            }
+        }
+
+        //Check user access level
+        if (!$this->get('access')) {
+            return false;
+        }
+
+        if (Utils::resolve($this->get('access'), $action) !== null) {
+            $permission = $this->get("access.{$action}");
+            $return = Utils::isPositive($permission);
+        }
+
+        return $return;
     }
 
     /**
