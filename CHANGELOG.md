@@ -2,13 +2,26 @@
 ## XX/XX/2015
 
 1. [](#new)
-    * Refactor Data classes to use NestedArrayAccess instead of DataMutatorTrait
+    * Refactor Config classes for improved performance!
+    * Refactor Data classes to use `NestedArrayAccess` instead of `DataMutatorTrait`
+    * Added support for `classes` and `id` on medium objects to set CSS values
     * Data objects: Allow function call chaining
     * Data objects: Lazy load blueprints only if needed
-    * Refactor Config classes
     * Automatically create unique security salt for each configuration
-2. [](#bugfix)
+    * Added Hungarian translation
+    * Added support for User groups
+1. [](#improved)   
+    * Improved robots.txt to disallow crawling of non-user folders
+    * Nonces only generated once per action and process
+    * Added IP into Nonce string calculation
+    * Nonces now use random string with random salt to improve performance
+    * Improved list form handling #475
+    * Vendor library updates
+1. [](#bugfix)
     * Fixed help output for `bin/plugin`
+    * Fix for nested logic for lists and form parsing #273
+    * Fix for array form fields and last entry not getting deleted
+    * Should not be able to set parent to self #308
 
 # v1.0.0-rc.5
 ## 11/20/2015
