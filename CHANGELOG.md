@@ -1,5 +1,5 @@
 # v1.0.0-rc.6
-## XX/XX/2015
+## 12/01/2015
 
 1. [](#new)
     * Refactor Config classes for improved performance!
