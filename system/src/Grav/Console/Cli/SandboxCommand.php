@@ -48,7 +48,7 @@ class SandboxCommand extends ConsoleCommand
         '/.editorconfig' => '/.editorconfig',
         '/.gitignore' => '/.gitignore',
         '/CHANGELOG.md' => '/CHANGELOG.md',
-        '/LICENSE' => '/LICENSE',
+        '/LICENSE.txt' => '/LICENSE.txt',
         '/README.md' => '/README.md',
         '/index.php'     => '/index.php',
         '/composer.json' => '/composer.json',

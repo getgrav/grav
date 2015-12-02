@@ -50,3 +50,4 @@ NICETIME:
 FORM:
     VALIDATION_FAIL: <b>A validáció hibát talált:</b>
     INVALID_INPUT: Az itt megadott érték érvénytelen:
+    MISSING_REQUIRED_FIELD: Ez a kötelező mező nincs kitöltve:
