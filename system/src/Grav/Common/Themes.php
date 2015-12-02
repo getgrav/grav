@@ -36,12 +36,17 @@ class Themes extends Iterator
 
     public function init()
     {
-        /** @var EventDispatcher $events */
-        $events = $this->grav['events'];
-
         /** @var Themes $themes */
         $themes = $this->grav['themes'];
         $themes->configure();
+
+        $this->initTheme();
+    }
+
+    public function initTheme()
+    {
+        /** @var Themes $themes */
+        $themes = $this->grav['themes'];
 
         try {
             $instance = $themes->load();
@@ -50,10 +55,15 @@ class Themes extends Iterator
         }
 
         if ($instance instanceof EventSubscriberInterface) {
+            /** @var EventDispatcher $events */
+            $events = $this->grav['events'];
+
             $events->addSubscriber($instance);
         }
 
         $this->grav['theme'] = $instance;
+
+        $this->grav->fireEvent('onThemeInitialized');
     }
 
     /**
