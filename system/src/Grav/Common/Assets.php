@@ -1144,6 +1144,16 @@ class Assets
         $this->js_pipeline = (bool) $value;
     }
 
+    /**
+     * Explicitly set's a timestamp for assets
+     *
+     * @param $value
+     */
+    public function setTimestamp($value)
+    {
+        $this->timestamp = '?'.$value;
+    }
+
     public function __toString()
     {
         return '';
