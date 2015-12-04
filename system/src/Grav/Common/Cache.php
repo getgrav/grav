@@ -125,7 +125,7 @@ class Cache extends Getters
         $driver_name = 'file';
 
         if (!$setting || $setting == 'auto') {
-            if (extension_loaded('apc')) {
+            if (extension_loaded('apc') || extension_loaded('apcu')) {
                 $driver_name = 'apc';
             } elseif (extension_loaded('wincache')) {
                 $driver_name = 'wincache';
