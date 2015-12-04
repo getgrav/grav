@@ -204,6 +204,48 @@ trait ParsedownGravTrait
         if (isset($excerpt['element']['attributes']['href'])) {
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
 
+            // if there is a query, then parse it and build action calls
+            if (isset($url['query'])) {
+                $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
+                    $parts = explode('=', $item, 2);
+                    $value = isset($parts[1]) ? $parts[1] : null;
+                    $carry[$parts[0]] = $value;
+
+                    return $carry;
+                }, []);
+
+                // valid attributes supported
+                $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
+
+                // Unless told to not process, go through actions
+                if (array_key_exists('noprocess', $actions)) {
+                    unset($actions['noprocess']);
+                } else {
+                    // loop through actions for the image and call them
+                    foreach ($actions as $attrib => $value) {
+                        $key = $attrib;
+
+                        if (in_array($attrib, $valid_attributes)) {
+                            // support both class and classes
+                            if ($attrib == 'classes') {
+                                $attrib = 'class';
+                            }
+                            $excerpt['element']['attributes'][$attrib] = $value;
+                            unset($actions[$key]);
+                        }
+                    }
+                }
+
+
+                $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+            }
+
+            // if no query elements left, unset query
+            if (empty($url['query'])) {
+                unset ($url['query']);
+            }
+
+
             // if there is no scheme, the file is local
             if (!isset($url['scheme']) && (count($url) > 0)) {
                 // convert the URl is required

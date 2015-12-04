@@ -1124,6 +1124,36 @@ class Assets
         return $this->addDir($directory, self::JS_REGEX);
     }
 
+    /**
+     * Sets the state of CSS Pipeline
+     *
+     * @param boolean $value
+     */
+    public function setCssPipeline($value)
+    {
+        $this->css_pipeline = (bool) $value;
+    }
+
+    /**
+     * Sets the state of JS Pipeline
+     *
+     * @param boolean $value
+     */
+    public function setJsPipeline($value)
+    {
+        $this->js_pipeline = (bool) $value;
+    }
+
+    /**
+     * Explicitly set's a timestamp for assets
+     *
+     * @param $value
+     */
+    public function setTimestamp($value)
+    {
+        $this->timestamp = '?'.$value;
+    }
+
     public function __toString()
     {
         return '';

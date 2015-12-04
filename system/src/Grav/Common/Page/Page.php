@@ -1951,7 +1951,7 @@ class Page
      * @return mixed
      * @internal
      */
-    protected function evaluate($value)
+    public function evaluate($value)
     {
         // Parse command.
         if (is_string($value)) {
