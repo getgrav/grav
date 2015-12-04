@@ -274,6 +274,11 @@ abstract class Folder
             throw new \RuntimeException('Cannot move non-existing folder.');
         }
 
+        // Don't do anything if the source is the same as the new target
+        if ($source == $target) {
+            return;
+        }
+
         // Make sure that path to the target exists before moving.
         self::create(dirname($target));
 
