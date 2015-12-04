@@ -25,6 +25,7 @@ form:
 
             content:
               type: markdown
+              showPreview: true
 
             uploads:
               type: pagemedia
