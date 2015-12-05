@@ -22,6 +22,16 @@ class IndexCommand extends ConsoleCommand
     protected $gpm;
 
     /**
+     * @var
+     */
+    protected $options;
+
+    /**
+     * @var array
+     */
+    protected $sortKeys = ['name', 'slug', 'author', 'date'];
+
+    /**
      *
      */
     protected function configure()
@@ -34,6 +44,43 @@ class IndexCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'Force re-fetching the data from remote'
             )
+            ->addOption(
+                'filter',
+                'F',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Allows to limit the results based on one or multiple filters input. This can be either portion of a name/slug or a regex'
+            )
+            ->addOption(
+                'themes-only',
+                'T',
+                InputOption::VALUE_NONE,
+                'Filters the results to only Themes'
+            )
+            ->addOption(
+                'plugins-only',
+                'P',
+                InputOption::VALUE_NONE,
+                'Filters the results to only Plugins'
+            )
+            ->addOption(
+                'updates-only',
+                'U',
+                InputOption::VALUE_NONE,
+                'Filters the results to Updatable Themes and Plugins only'
+            )
+            ->addOption(
+                'sort',
+                's',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Allows to sort (ASC) the results based on one or multiple keys. SORT can be either "name", "slug", "author", "date"',
+                ['date']
+            )
+            ->addOption(
+                'desc',
+                'D',
+                InputOption::VALUE_NONE,
+                'Reverses the order of the output.'
+            )
             ->setDescription("Lists the plugins and themes available for installation")
             ->setHelp('The <info>index</info> command lists the plugins and themes available for installation')
         ;
@@ -44,16 +91,21 @@ class IndexCommand extends ConsoleCommand
      */
     protected function serve()
     {
-        $this->gpm = new GPM($this->input->getOption('force'));
+        $this->options = $this->input->getOptions();
+
+        $this->gpm = new GPM($this->options['force']);
 
         $this->data = $this->gpm->getRepository();
 
         $this->output->writeln('');
 
-        foreach ($this->data as $type => $packages) {
+        $data = $this->filter($this->data);
+
+        foreach ($data as $type => $packages) {
             $this->output->writeln("<green>" . ucfirst($type) . "</green> [ " . count($packages) . " ]");
 
-            $index = 0;
+            $index    = 0;
+            $packages = $this->sort($packages);
             foreach ($packages as $slug => $package) {
                 $this->output->writeln(
                 // index
@@ -107,5 +159,66 @@ class IndexCommand extends ConsoleCommand
         }
 
         return '';
+    }
+
+    /**
+     * @param $data
+     *
+     * @return mixed
+     */
+    public function filter($data)
+    {
+        // filtering and sorting
+        if ($this->options['plugins-only']) {
+            unset($data['themes']);
+        }
+        if ($this->options['themes-only']) {
+            unset($data['plugins']);
+        }
+
+        if ($this->options['filter'] || $this->options['updates-only'] || $this->options['desc']) {
+            foreach ($data as $type => $packages) {
+                foreach ($packages as $slug => $package) {
+                    $filter = true;
+
+                    // Filtering by string
+                    if ($this->options['filter']) {
+                        $filter = preg_grep('/(' . (implode('|', $this->options['filter'])) . ')/i', [$slug, $package->name]);
+                    }
+
+                    // Filtering updatables only
+                    if ($this->options['updates-only'] && $filter) {
+                        $method = ucfirst(preg_replace("/s$/", '', $package->package_type));
+                        $filter = $this->gpm->{'is' . $method . 'Updatable'}($package->slug);
+                    }
+
+                    if (!$filter) {
+                        unset($data[$type][$slug]);
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param $packages
+     */
+    public function sort($packages)
+    {
+        foreach ($this->options['sort'] as $key) {
+            $packages = $packages->sort(function ($a, $b) use ($key) {
+                switch ($key) {
+                    case 'author':
+                        return strcmp($a->{$key}['name'], $b->{$key}['name']);
+                        break;
+                    default:
+                        return strcmp($a->$key, $b->$key);
+                }
+            }, $this->options['desc'] ? true : false);
+        }
+
+        return $packages;
     }
 }
