@@ -215,4 +215,26 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
 
         return $this;
     }
+
+
+    /**
+     * Sorts elements from the list and returns a copy of the list in the proper order
+     *
+     * @param callable|null $callback
+     *
+     * @param bool          $desc
+     *
+     * @return $this|array
+     * @internal param bool $asc
+     *
+     */
+    public function sort(callable $callback = null, $desc = false)
+    {
+        if (!$callback || !is_callable($callback)) { return $this; }
+
+        $items = $this->items;
+        uasort($items, $callback);
+
+        return !$desc ? $items : array_reverse($items, true);
+    }
 }
