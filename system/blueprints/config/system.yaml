@@ -745,13 +745,14 @@ form:
 
             fields:
                 session.enabled:
-                    type: toggle
+                    type: hidden
                     label: PLUGIN_ADMIN.ENABLED
                     help: PLUGIN_ADMIN.SESSION_ENABLED_HELP
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
+                    default: true
                     validate:
                         type: bool
 
