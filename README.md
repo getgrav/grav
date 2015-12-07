@@ -103,7 +103,7 @@ What you mainly want to know is that:
 
 # License
 
-See [LICENSE](LICENSE)
+See [LICENSE](LICENSE.txt)
 
 
 [gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
