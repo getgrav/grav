@@ -352,7 +352,7 @@ class Language
                     if ($this->config->get('system.languages.translations_fallback', true)) {
                         $languages = $this->getFallbackLanguages();
                     } else {
-                        $languages = (array)$this->getDefault();
+                        $languages = (array)$this->getLanguage();
                     }
                 }
             } else {
