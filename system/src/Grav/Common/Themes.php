@@ -86,8 +86,13 @@ class Themes extends Iterator
                     continue;
                 }
 
-                $type = $directory->getBasename();
-                $list[$type] = self::get($type);
+                $theme = $directory->getBasename();
+
+                $filePath = $locator->findResource('themes://' . $theme . DS . $theme . PLUGIN_EXT);
+                if (!is_file($filePath)) {
+                    continue;
+                }
+                $list[$theme] = self::get($theme);
             }
         }
         ksort($list);

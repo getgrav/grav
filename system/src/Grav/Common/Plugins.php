@@ -104,8 +104,13 @@ class Plugins extends Iterator
                     continue;
                 }
 
-                $type = $directory->getBasename();
-                $list[$type] = self::get($type);
+                $plugin = $directory->getBasename();
+
+                $filePath = $locator->findResource('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
+                if (!is_file($filePath)) {
+                    continue;
+                }
+                $list[$plugin] = self::get($plugin);
             }
         }
         ksort($list);
