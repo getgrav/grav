@@ -87,12 +87,11 @@ class Themes extends Iterator
                 }
 
                 $theme = $directory->getBasename();
+                $result = self::get($theme);
 
-                $filePath = $locator->findResource('themes://' . $theme . DS . $theme . PLUGIN_EXT);
-                if (!is_file($filePath)) {
-                    continue;
+                if ($result) {
+                    $list[$theme] = $result;
                 }
-                $list[$theme] = self::get($theme);
             }
         }
         ksort($list);
@@ -117,14 +116,20 @@ class Themes extends Iterator
         $blueprint = $blueprints->get("{$name}/blueprints");
         $blueprint->name = $name;
 
+        // Load default configuration.
+        $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
+
+        // ensure this is a valid theme
+        if (!$file->exists()) {
+            return null;
+        }
+
         // Find thumbnail.
         $thumb = "themes://{$name}/thumbnail.jpg";
         if ($path = $this->grav['locator']->findResource($thumb, false)) {
             $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
-        // Load default configuration.
-        $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
