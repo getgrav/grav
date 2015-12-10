@@ -381,7 +381,7 @@ class Page
      */
     public function modifyHeader($key, $value)
     {
-        $this->header->$key = $value;
+        $this->header->{$key} = $value;
     }
 
     /**
@@ -392,8 +392,7 @@ class Page
      */
     public function summary($size = null)
     {
-        /** @var Config $config */
-        $config = self::getGrav()['config']->get('site.summary');
+        $config = (array) self::getGrav()['config']->get('site.summary');
         if (isset($this->header->summary)) {
             $config = array_merge($config, $this->header->summary);
         }
@@ -826,7 +825,7 @@ class Page
         $blueprints = $this->blueprints();
         $values = $blueprints->filter($this->toArray());
         if ($values && isset($values['header'])) {
-        	$this->header($values['header']);
+            $this->header($values['header']);
         }
     }
 
