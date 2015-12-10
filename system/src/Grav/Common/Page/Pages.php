@@ -264,7 +264,7 @@ class Pages
     /**
      * Dispatch URI to a page.
      *
-     * @param $url The relative URL of the page
+     * @param string $url The relative URL of the page
      * @param bool $all
      * @return Page|null
      */

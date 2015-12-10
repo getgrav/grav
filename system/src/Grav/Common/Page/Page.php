@@ -5,6 +5,7 @@ use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
+use Grav\Common\Language\Language;
 use Grav\Common\Utils;
 use Grav\Common\Cache;
 use Grav\Common\Twig;
@@ -1807,11 +1808,13 @@ class Page
 
         if (isset($routes[$uri_path])) {
             $child_page = $pages->dispatch($uri->route())->parent();
-            if ($child_page) while (!$child_page->root()) {
-                if ($this->path() == $child_page->path()) {
-                    return true;
+            if ($child_page) {
+                while (!$child_page->root()) {
+                    if ($this->path() == $child_page->path()) {
+                        return true;
+                    }
+                    $child_page = $child_page->parent();
                 }
-                $child_page = $child_page->parent();
             }
         }
 
@@ -1845,7 +1848,7 @@ class Page
     /**
      * Helper method to return a page.
      *
-     * @param  string $url the url of the page
+     * @param string  $url the url of the page
      * @param bool    $all
      *
      * @return \Grav\Common\Page\Page page you were looking for if it exists
@@ -2143,7 +2146,7 @@ class Page
      */
     protected function doRelocation($reorder)
     {
-        if (empty($this->_original) ) {
+        if (!$this->_original) {
             return;
         }
 
@@ -2184,7 +2187,7 @@ class Page
                     // Handle all the other pages.
                     $page = $pages->get($path);
 
-                    if ($page && $page->exists() && $page->order() != $order+1) {
+                    if ($page && $page->exists() && !$page->_original && $page->order() != $order+1) {
                         $page = $page->move($parent);
                         $page->order($order+1);
                         $page->save(false);
@@ -2192,11 +2195,12 @@ class Page
                 }
             }
         }
-        if ($this->_action == 'move' && $this->_original->exists()) {
-            Folder::move($this->_original->path(), $this->path());
-        }
-        if ($this->_action == 'copy' && $this->_original->exists()) {
-            Folder::copy($this->_original->path(), $this->path());
+        if (is_dir($this->_original->path())) {
+            if ($this->_action == 'move') {
+                Folder::move($this->_original->path(), $this->path());
+            } elseif ($this->_action == 'copy') {
+                Folder::copy($this->_original->path(), $this->path());
+            }
         }
 
         if ($this->name() != $this->_original->name()) {
