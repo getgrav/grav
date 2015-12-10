@@ -404,25 +404,25 @@
         },
         {
             "name": "maximebf/debugbar",
-            "version": "v1.10.5",
+            "version": "v1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maximebf/php-debugbar.git",
-                "reference": "30e53e8a28284b69dd223c9f5ee8957befd72636"
+                "reference": "07741d84d39d10f00551c94284cdefcc69703e77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/30e53e8a28284b69dd223c9f5ee8957befd72636",
-                "reference": "30e53e8a28284b69dd223c9f5ee8957befd72636",
+                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/07741d84d39d10f00551c94284cdefcc69703e77",
+                "reference": "07741d84d39d10f00551c94284cdefcc69703e77",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
-                "psr/log": "~1.0",
-                "symfony/var-dumper": "~2.6"
+                "psr/log": "^1.0",
+                "symfony/var-dumper": "^2.6|^3.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "phpunit/phpunit": "^4.0|^5.0"
             },
             "suggest": {
                 "kriswallsmith/assetic": "The best way to manage assets",
@@ -432,12 +432,12 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.10-dev"
+                    "dev-master": "1.11-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "DebugBar": "src/"
+                "psr-4": {
+                    "DebugBar\\": "src/DebugBar/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -449,14 +449,19 @@
                     "name": "Maxime Bouroumeau-Fuseau",
                     "email": "maxime.bouroumeau@gmail.com",
                     "homepage": "http://maximebf.com"
+                },
+                {
+                    "name": "Barry vd. Heuvel",
+                    "email": "barryvdh@gmail.com"
                 }
             ],
             "description": "Debug bar in the browser for php application",
             "homepage": "https://github.com/maximebf/php-debugbar",
             "keywords": [
-                "debug"
+                "debug",
+                "debugbar"
             ],
-            "time": "2015-10-19 20:35:12"
+            "time": "2015-12-10 09:50:24"
         },
         {
             "name": "monolog/monolog",
