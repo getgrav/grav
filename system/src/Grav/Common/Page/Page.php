@@ -727,27 +727,30 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
-     * @return Page
+     * @return $this
      */
     public function move(Page $parent)
     {
-        $clone = clone $this;
-        $clone->_action = 'move';
-        $clone->_original = $this;
-        $clone->parent($parent);
-        $clone->id(time().md5($clone->filePath()));
+        if (!$this->_original) {
+            $clone = clone $this;
+            $this->_original = $clone;
+        }
+
+        $this->_action = 'move';
+        $this->parent($parent);
+        $this->id(time().md5($this->filePath()));
 
         if ($parent->path()) {
-            $clone->path($parent->path() . '/' . $clone->folder());
+            $this->path($parent->path() . '/' . $this->folder());
         }
 
         if ($parent->route()) {
-            $clone->route($parent->route() . '/'. $clone->slug());
+            $this->route($parent->route() . '/'. $this->slug());
         } else {
-            $clone->route(self::getGrav()['pages']->root()->route() . '/'. $clone->slug());
+            $this->route(self::getGrav()['pages']->root()->route() . '/'. $this->slug());
         }
 
-        return $clone;
+        return $this;
     }
 
     /**
@@ -757,14 +760,14 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
-     * @return Page
+     * @return $this
      */
     public function copy($parent)
     {
-        $clone = $this->move($parent);
-        $clone->_action = 'copy';
+        $this->move($parent);
+        $this->_action = 'copy';
 
-        return $clone;
+        return $this;
     }
 
     /**
