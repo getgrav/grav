@@ -32,7 +32,7 @@ class Validation
         }
 
         // special case for files, value is never empty and errors with code 4 instead
-        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE) || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
+        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error'])))) {
             return;
         }
 
@@ -84,7 +84,7 @@ class Validation
         }
 
         // special case for files, value is never empty and errors with code 4 instead
-        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE) || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
+        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error'])))) {
             return null;
         }
 
@@ -620,7 +620,7 @@ class Validation
         if (is_string($value)) {
             $value = trim($value);
         }
-        
+
         return (bool) $params !== true || !empty($value);
     }
 
