@@ -2187,7 +2187,7 @@ class Page
                     // Handle all the other pages.
                     $page = $pages->get($path);
 
-                    if ($page && $page->exists() && !$page->_original && $page->order() != $order+1) {
+                    if ($page && $page->exists() && !$page->_action && $page->order() != $order+1) {
                         $page = $page->move($parent);
                         $page->order($order+1);
                         $page->save(false);
@@ -2210,7 +2210,6 @@ class Page
             }
         }
 
-        $this->_action = null;
         $this->_original = null;
     }
 
