@@ -1,3 +1,11 @@
+# v1.0.1
+## 12/11/2015
+
+1. [](#improved)   
+    * Reduced package sizes by removing extra vendor dev bits
+1. [](#bugfix)
+    * Fix issue when you enable debugger from admin plugin
+
 # v1.0.0
 ## 12/11/2015
 
