@@ -55,7 +55,7 @@ class Grav extends AbstractPackageCollection
 
         $diffLog = [];
         foreach ($this->data['changelog'] as $version => $changelog) {
-            preg_match("/[\d\.]+/", $version, $cleanVersion);
+            preg_match("/[\w-\.]+/", $version, $cleanVersion);
 
             if (!$cleanVersion || version_compare($diff, $cleanVersion[0], ">=")) { continue; }
 

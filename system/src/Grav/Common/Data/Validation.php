@@ -32,7 +32,7 @@ class Validation
         }
 
         // special case for files, value is never empty and errors with code 4 instead
-        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE) || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
+        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error'])))) {
             return;
         }
 
@@ -43,7 +43,7 @@ class Validation
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
         $name = ucfirst(isset($field['label']) ? $field['label'] : $field['name']);
-        $message = (string) isset($field['validate']['message']) ? $field['validate']['message'] : $language->translate('FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
+        $message = (string) isset($field['validate']['message']) ? $language->translate($field['validate']['message']) : $language->translate('FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
         if (method_exists(__CLASS__, $method)) {
             $success = self::$method($value, $validate, $field);
@@ -84,7 +84,7 @@ class Validation
         }
 
         // special case for files, value is never empty and errors with code 4 instead
-        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE) || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
+        if (empty($validate['required']) && $field['type'] == 'file' && (isset($value['error']) && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error'])))) {
             return null;
         }
 
@@ -620,7 +620,7 @@ class Validation
         if (is_string($value)) {
             $value = trim($value);
         }
-        
+
         return (bool) $params !== true || !empty($value);
     }
 

@@ -203,7 +203,7 @@ class Assets
      *
      * @return $this
      */
-    public function add($asset, $priority = null, $pipeline = null)
+    public function add($asset, $priority = null, $pipeline = true)
     {
         // More than one asset
         if (is_array($asset)) {
@@ -243,7 +243,7 @@ class Assets
      *
      * @return $this
      */
-    public function addCss($asset, $priority = null, $pipeline = null, $group = null)
+    public function addCss($asset, $priority = null, $pipeline = true, $group = null)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
@@ -259,16 +259,20 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
+        // Check for existence
+        if ($asset === false) {
+            return $this;
+        }
+
         $data = [
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
-            'pipeline' => $pipeline ?: true,
+            'pipeline' => (bool) $pipeline,
             'group' => $group ?: 'head'
         ];
 
         // check for dynamic array and merge with defaults
-        $count_args = func_num_args();
         if (func_num_args() == 2) {
             $dynamic_arg = func_get_arg(1);
             if (is_array($dynamic_arg)) {
@@ -297,7 +301,7 @@ class Assets
      * @param  string $group name of the group
      * @return $this
      */
-    public function addJs($asset, $priority = null, $pipeline = null, $loading = null, $group = null)
+    public function addJs($asset, $priority = null, $pipeline = true, $loading = null, $group = null)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
@@ -313,17 +317,21 @@ class Assets
             $asset = $this->buildLocalLink($asset);
         }
 
+        // Check for existence
+        if ($asset === false) {
+            return $this;
+        }
+
         $data = [
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
-            'pipeline' => $pipeline ?: true,
+            'pipeline' => (bool) $pipeline,
             'loading'  => $loading ?: '',
             'group' => $group ?: 'head'
         ];
 
         // check for dynamic array and merge with defaults
-        $count_args = func_num_args();
         if (func_num_args() == 2) {
             $dynamic_arg = func_get_arg(1);
             if (is_array($dynamic_arg)) {
@@ -351,7 +359,7 @@ class Assets
      *
      * @return \Grav\Common\Assets
      */
-    public function addAsyncJs($asset, $priority = null, $pipeline = null, $group = null)
+    public function addAsyncJs($asset, $priority = null, $pipeline = true, $group = null)
     {
         return $this->addJs($asset, $priority, $pipeline, 'async', $group);
     }
@@ -368,7 +376,7 @@ class Assets
      *
      * @return \Grav\Common\Assets
      */
-    public function addDeferJs($asset, $priority = null, $pipeline = null, $group = null)
+    public function addDeferJs($asset, $priority = null, $pipeline = true, $group = null)
     {
         return $this->addJs($asset, $priority, $pipeline, 'defer', $group);
     }
@@ -1122,6 +1130,36 @@ class Assets
     public function addDirJs($directory)
     {
         return $this->addDir($directory, self::JS_REGEX);
+    }
+
+    /**
+     * Sets the state of CSS Pipeline
+     *
+     * @param boolean $value
+     */
+    public function setCssPipeline($value)
+    {
+        $this->css_pipeline = (bool) $value;
+    }
+
+    /**
+     * Sets the state of JS Pipeline
+     *
+     * @param boolean $value
+     */
+    public function setJsPipeline($value)
+    {
+        $this->js_pipeline = (bool) $value;
+    }
+
+    /**
+     * Explicitly set's a timestamp for assets
+     *
+     * @param $value
+     */
+    public function setTimestamp($value)
+    {
+        $this->timestamp = '?'.$value;
     }
 
     public function __toString()

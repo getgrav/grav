@@ -38,6 +38,8 @@ class Cache extends Getters
      */
     protected $driver;
 
+    protected $driver_name;
+
     /**
      * @var bool
      */
@@ -110,6 +112,10 @@ class Cache extends Getters
 
         // Set the cache namespace to our unique key
         $this->driver->setNamespace($this->key);
+
+        // Dump Cache state
+        $grav['debugger']->addMessage('Cache: [' . ($this->enabled ? 'true' : 'false') . '] Driver: [' . $this->driver_name . ']');
+
     }
 
     /**
@@ -135,6 +141,8 @@ class Cache extends Getters
         } else {
             $driver_name = $setting;
         }
+
+        $this->driver_name = $driver_name;
 
         switch ($driver_name) {
             case 'apc':

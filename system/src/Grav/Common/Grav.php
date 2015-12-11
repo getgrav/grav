@@ -230,7 +230,6 @@ class Grav extends Container
 
         $debugger->startTimer('themes', 'Themes');
         $this['themes']->init();
-        $this->fireEvent('onThemeInitialized');
         $debugger->stopTimer('themes');
 
         $task = $this['task'];

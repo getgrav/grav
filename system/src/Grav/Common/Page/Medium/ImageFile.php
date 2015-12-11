@@ -55,6 +55,7 @@ class ImageFile extends Image
             $cacheFile .= $this->prettyName;
         }
 
+
         $cacheFile .= '.'.$type;
 
         // If the files does not exists, save it
@@ -79,7 +80,8 @@ class ImageFile extends Image
 
         // Asking the cache for the cacheFile
         try {
-            $file = $this->cache->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
+            $perms = octdec(self::getGrav()['config']->get('system.images.cache_perms', '0755'));
+            $file = $this->cache->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {
             $file = $e->getNewFile();
         }

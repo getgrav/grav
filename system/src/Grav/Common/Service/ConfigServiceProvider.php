@@ -40,7 +40,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public static function setup(Container $container)
     {
-        return new Setup($container['uri']->environment());
+        return new Setup($container);
     }
 
     public static function blueprints(Container $container)

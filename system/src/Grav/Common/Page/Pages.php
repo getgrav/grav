@@ -237,7 +237,7 @@ class Pages
     /**
      * Get a page instance.
      *
-     * @param  string  $path
+     * @param  string  $path The filesystem full path of the page
      * @return Page
      * @throws \Exception
      */
@@ -264,7 +264,7 @@ class Pages
     /**
      * Dispatch URI to a page.
      *
-     * @param $url
+     * @param string $url The relative URL of the page
      * @param bool $all
      * @return Page|null
      */

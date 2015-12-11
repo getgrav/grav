@@ -54,26 +54,32 @@ form:
                     default: 'en'
                     help: PLUGIN_ADMIN.LANGUAGE_HELP
 
-                groups:
-                    type: selectize
-                    size: large
-                    label: PLUGIN_ADMIN.GROUPS
-                    '@data-options': '\Grav\User\Groups::groups'
-                    classes: fancy
-                    help: PLUGIN_ADMIN.GROUPS_HELP
-                    validate:
-                        type: commalist
+                security:
+                    title: Security
+                    type: section
+                    security: admin.super
 
-                access.admin:
-                    type: array
-                    label: PLUGIN_ADMIN.ADMIN_ACCESS
-                    multiple: false
-                    validate:
-                        type: array
+                    fields:
+                        groups:
+                            type: selectize
+                            size: large
+                            label: PLUGIN_ADMIN.GROUPS
+                            '@data-options': '\Grav\User\Groups::groups'
+                            classes: fancy
+                            help: PLUGIN_ADMIN.GROUPS_HELP
+                            validate:
+                                type: commalist
 
-                access.site:
-                    type: array
-                    label: PLUGIN_ADMIN.SITE_ACCESS
-                    multiple: false
-                    validate:
-                        type: array
+                        access.admin:
+                            type: array
+                            label: PLUGIN_ADMIN.ADMIN_ACCESS
+                            multiple: false
+                            validate:
+                                type: array
+
+                        access.site:
+                            type: array
+                            label: PLUGIN_ADMIN.SITE_ACCESS
+                            multiple: false
+                            validate:
+                                type: array

@@ -29,6 +29,7 @@ form:
 
             content:
                 type: markdown
+                showPreview: true
                 validate:
                   type: textarea
 

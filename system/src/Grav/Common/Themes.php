@@ -25,6 +25,8 @@ class Themes extends Iterator
 
     public function __construct(Grav $grav)
     {
+        parent::__construct();
+
         $this->grav = $grav;
         $this->config = $grav['config'];
 
@@ -34,12 +36,17 @@ class Themes extends Iterator
 
     public function init()
     {
-        /** @var EventDispatcher $events */
-        $events = $this->grav['events'];
-
         /** @var Themes $themes */
         $themes = $this->grav['themes'];
         $themes->configure();
+
+        $this->initTheme();
+    }
+
+    public function initTheme()
+    {
+        /** @var Themes $themes */
+        $themes = $this->grav['themes'];
 
         try {
             $instance = $themes->load();
@@ -48,10 +55,15 @@ class Themes extends Iterator
         }
 
         if ($instance instanceof EventSubscriberInterface) {
+            /** @var EventDispatcher $events */
+            $events = $this->grav['events'];
+
             $events->addSubscriber($instance);
         }
 
         $this->grav['theme'] = $instance;
+
+        $this->grav->fireEvent('onThemeInitialized');
     }
 
     /**
@@ -74,8 +86,12 @@ class Themes extends Iterator
                     continue;
                 }
 
-                $type = $directory->getBasename();
-                $list[$type] = self::get($type);
+                $theme = $directory->getBasename();
+                $result = self::get($theme);
+
+                if ($result) {
+                    $list[$theme] = $result;
+                }
             }
         }
         ksort($list);
@@ -100,14 +116,20 @@ class Themes extends Iterator
         $blueprint = $blueprints->get("{$name}/blueprints");
         $blueprint->name = $name;
 
+        // Load default configuration.
+        $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
+
+        // ensure this is a valid theme
+        if (!$file->exists()) {
+            return null;
+        }
+
         // Find thumbnail.
         $thumb = "themes://{$name}/thumbnail.jpg";
         if ($path = $this->grav['locator']->findResource($thumb, false)) {
             $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
-        // Load default configuration.
-        $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.

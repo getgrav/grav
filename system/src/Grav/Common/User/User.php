@@ -32,6 +32,9 @@ class User extends Data
     {
         $locator = self::getGrav()['locator'];
 
+        // force lowercase of username
+        $username = strtolower($username);
+
         $blueprints = new Blueprints('blueprints://');
         $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);

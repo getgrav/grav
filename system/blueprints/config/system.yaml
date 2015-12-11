@@ -516,6 +516,17 @@ form:
                     validate:
                         type: bool
 
+                twig.umask_fix:
+                    type: toggle
+                    label: PLUGIN_ADMIN.TWIG_UMASK_FIX
+                    help: PLUGIN_ADMIN.TWIG_UMASK_FIX_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
         assets:
             type: section
             title: PLUGIN_ADMIN.ASSETS
@@ -688,6 +699,17 @@ form:
                     validate:
                         type: bool
 
+                images.cache_perms:
+                    type: select
+                    size: small
+                    label: PLUGIN_ADMIN.CACHE_PERMS
+                    help: PLUGIN_ADMIN.CACHE_PERMS_HELP
+                    highlight: '0755'
+                    options:
+                        1: '0755'
+                        0: '0775'
+
+
                 images.debug:
                     type: toggle
                     label: PLUGIN_ADMIN.IMAGES_DEBUG
@@ -745,13 +767,14 @@ form:
 
             fields:
                 session.enabled:
-                    type: toggle
+                    type: hidden
                     label: PLUGIN_ADMIN.ENABLED
                     help: PLUGIN_ADMIN.SESSION_ENABLED_HELP
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
+                    default: true
                     validate:
                         type: bool
 

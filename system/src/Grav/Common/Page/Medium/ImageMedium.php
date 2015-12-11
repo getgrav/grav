@@ -135,7 +135,7 @@ class ImageMedium extends Medium
      */
     public function url($reset = true)
     {
-        $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->saveImage());
+        $output = preg_replace('|^' . preg_quote(GRAV_ROOT) . '|', '', $this->saveImage());
 
         if ($reset) {
             $this->reset();

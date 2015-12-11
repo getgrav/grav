@@ -104,8 +104,12 @@ class Plugins extends Iterator
                     continue;
                 }
 
-                $type = $directory->getBasename();
-                $list[$type] = self::get($type);
+                $plugin = $directory->getBasename();
+                $result = self::get($plugin);
+
+                if ($result) {
+                    $list[$plugin] = $result;
+                }
             }
         }
         ksort($list);
@@ -120,9 +124,9 @@ class Plugins extends Iterator
         $blueprint->name = $name;
 
         // Load default configuration.
-        $file = CompiledYamlFile::instance("plugins://{$name}/{$name}.yaml");
+        $file = CompiledYamlFile::instance("plugins://{$name}/{$name}" . YAML_EXT);
 
-        // ensure the plugin exists physically
+        // ensure this is a valid plugin
         if (!$file->exists()) {
             return null;
         }

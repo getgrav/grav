@@ -137,7 +137,7 @@ class Medium extends Data implements RenderableInterface
      */
     public function url($reset = true)
     {
-        $output = preg_replace('|^' . GRAV_ROOT . '|', '', $this->get('filepath'));
+        $output = preg_replace('|^' . preg_quote(GRAV_ROOT) . '|', '', $this->get('filepath'));
 
         if ($reset) {
             $this->reset();
