@@ -706,8 +706,8 @@ form:
                     help: PLUGIN_ADMIN.CACHE_PERMS_HELP
                     highlight: '0755'
                     options:
-                        1: '0755'
-                        0: '0775'
+                        '0755': '0755'
+                        '0775': '0775'
 
 
                 images.debug:
