@@ -107,7 +107,7 @@ class Debugger
 
     public function stopTimer($name)
     {
-        if (isset($this->timers[$name]) && ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled'))) {
+        if (in_array($name, $this->timers) && ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled'))) {
             $this->debugbar['time']->stopMeasure($name);
         }
 
