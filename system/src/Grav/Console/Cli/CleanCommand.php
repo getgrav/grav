@@ -93,7 +93,7 @@ class CleanCommand extends Command
         'vendor/maximebf/debugbar/bower.json',
         'vendor/maximebf/debugbar/composer.json',
         'vendor/maximebf/debugbar/.bowerrc',
-        'vendor/maximebf/debugbar/src/Debugbar/Resources/vendor',
+        'vendor/maximebf/debugbar/src/DebugBar/Resources/vendor',
         'vendor/maximebf/debugbar/demo',
         'vendor/maximebf/debugbar/docs',
         'vendor/maximebf/debugbar/tests',

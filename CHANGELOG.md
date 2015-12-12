@@ -1,3 +1,9 @@
+# v1.0.3
+## 12/11/2015
+
+1. [](#bugfix)
+    * Fixed issue when saving config causing incorrect image cache folder perms
+
 # v1.0.2
 ## 12/11/2015
 
