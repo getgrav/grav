@@ -162,7 +162,7 @@ class SandboxCommand extends ConsoleCommand
             $to = $this->destination . $target;
 
             $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
-            Folder::rcopy($from, $to);
+            @Folder::rcopy($from, $to);
         }
     }
 
