@@ -81,7 +81,6 @@ class ImageFile extends Image
         // Asking the cache for the cacheFile
         try {
             $perms = self::getGrav()['config']->get('system.images.cache_perms', '0755');
-            $perms = octdec($perms);
             $file = $this->cache->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {
             $file = $e->getNewFile();
