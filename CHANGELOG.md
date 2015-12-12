@@ -1,3 +1,9 @@
+# v1.0.2
+## 12/11/2015
+
+1. [](#bugfix)
+    * Fix for timing display in debugbar
+
 # v1.0.1
 ## 12/11/2015
 
