@@ -1,3 +1,9 @@
+# v1.0.4
+## 12/12/2015
+
+1. [](#bugfix)
+    * Needed to put default image folder permissions for YAML compatibility
+
 # v1.0.3
 ## 12/11/2015
 
