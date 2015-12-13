@@ -23,7 +23,7 @@ class Grav extends AbstractPackageCollection
 
         $this->fetch($refresh, $callback);
 
-        $this->data = json_decode($this->raw, true);
+        $this->data = json_decode(end($this->raw), true);
         $this->version = isset($this->data['version']) ? $this->data['version'] : '-';
         $this->date = isset($this->data['date']) ? $this->data['date'] : '-';
 
