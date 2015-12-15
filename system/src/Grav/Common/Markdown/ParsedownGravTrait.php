@@ -230,7 +230,7 @@ trait ParsedownGravTrait
                             if ($attrib == 'classes') {
                                 $attrib = 'class';
                             }
-                            $excerpt['element']['attributes'][$attrib] = $value;
+                            $excerpt['element']['attributes'][$attrib] = str_replace(',', ' ', $value);
                             unset($actions[$key]);
                         }
                     }
