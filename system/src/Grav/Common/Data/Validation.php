@@ -283,7 +283,11 @@ class Validation
 
     protected static function filterFile($value, array $params, array $field)
     {
-        return (array) $value;
+        if ($field['multiple'] == true) {
+            return (array) $value;
+        }
+
+        return reset($value);
     }
 
     /**
