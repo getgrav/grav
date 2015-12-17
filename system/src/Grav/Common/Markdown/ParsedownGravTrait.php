@@ -49,12 +49,23 @@ trait ParsedownGravTrait
 
     }
 
+    /**
+     * Be able to define a new Block type or override an existing one
+     *
+     * @param $type
+     * @param $tag
+     */
     public function addBlockType($type, $tag)
     {
         $this->BlockTypes[$type] []= $tag;
-        $this->inlineMarkerList .= $type;
     }
 
+    /**
+     * Be able to define a new Inline type or override an existing one
+     *
+     * @param $type
+     * @param $tag
+     */
     public function addInlineType($type, $tag)
     {
         $this->InlineTypes[$type] []= $tag;
