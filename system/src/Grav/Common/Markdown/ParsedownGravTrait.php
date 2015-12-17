@@ -3,6 +3,7 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\GravTrait;
 use Grav\Common\Uri;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
@@ -26,8 +27,10 @@ trait ParsedownGravTrait
      */
     protected function init($page, $defaults)
     {
+        $grav = self::getGrav();
+
         $this->page = $page;
-        $this->pages = self::getGrav()['pages'];
+        $this->pages = $grav['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
         $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
@@ -41,7 +44,23 @@ trait ParsedownGravTrait
         $this->setUrlsLinked($defaults['auto_url_links']);
         $this->setMarkupEscaped($defaults['escape_markup']);
         $this->setSpecialChars($defaults['special_chars']);
+
+        $grav->fireEvent('onMarkdownInitialized', new Event(['markdown' => $this]));
+
     }
+
+    public function addBlockType($type, $tag)
+    {
+        $this->BlockTypes[$type] []= $tag;
+        $this->inlineMarkerList .= $type;
+    }
+
+    public function addInlineType($type, $tag)
+    {
+        $this->InlineTypes[$type] []= $tag;
+        $this->inlineMarkerList .= $type;
+    }
+
 
     /**
      * Make the element function publicly accessible, Medium uses this to render from Twig
@@ -73,7 +92,7 @@ trait ParsedownGravTrait
      */
     protected function blockTwigTag($Line)
     {
-        if (preg_match('/[{%|{{|{#].*[#}|}}|%}]/', $Line['body'], $matches)) {
+        if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', $Line['body'], $matches)) {
             $Block = array(
                 'markup' => $Line['body'],
             );
@@ -255,4 +274,14 @@ trait ParsedownGravTrait
 
         return $excerpt;
     }
+
+    // For extending this class via plugins
+    public function __call($method, $args)
+    {
+        if (isset($this->$method) === true) {
+            $func = $this->$method;
+            return call_user_func_array($func, $args);
+        }
+    }
+
 }
