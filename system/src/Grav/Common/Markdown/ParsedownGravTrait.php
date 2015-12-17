@@ -16,8 +16,10 @@ trait ParsedownGravTrait
     protected $base_url;
     protected $pages_dir;
     protected $special_chars;
-
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
+
+    public $completeable_blocks = [];
+    public $continueable_blocks = [];
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -55,9 +57,17 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addBlockType($type, $tag)
+    public function addBlockType($type, $tag, $continueable = false, $completeable = false)
     {
         $this->BlockTypes[$type] []= $tag;
+
+        if ($continueable) {
+            $this->continueable_blocks[] = $tag;
+        }
+
+        if ($completeable) {
+            $this->completeable_blocks[] = $tag;
+        }
     }
 
     /**
@@ -70,6 +80,18 @@ trait ParsedownGravTrait
     {
         $this->InlineTypes[$type] []= $tag;
         $this->inlineMarkerList .= $type;
+    }
+
+    protected function isBlockContinueable($Type)
+    {
+        $continueable = in_array($Type, $this->continueable_blocks) || method_exists($this, 'block'.$Type.'Continue');
+        return $continueable;
+    }
+
+    protected function isBlockCompleteable($Type)
+    {
+        $completeable = in_array($Type, $this->completeable_blocks) || method_exists($this, 'block'.$Type.'Complete');
+        return $completeable;
     }
 
 
@@ -294,5 +316,7 @@ trait ParsedownGravTrait
             return call_user_func_array($func, $args);
         }
     }
+
+
 
 }
