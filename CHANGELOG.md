@@ -9,7 +9,8 @@
     * New function to persist plugin configuration to disk
     * GPM `selfupgrade` will now check PHP version requirements
 1. [](#improved)   
-    * If the field allows multiple files, return array    
+    * If the field allows multiple files, return array
+    * Handle non-array values in file validation
 1. [](#bugfix)
     * Fix when looping `fields` param in a `list` field
     * Properly convert commas to spaces for media attributes
