@@ -8,6 +8,7 @@
     "require": {
         "php": ">=5.4.0",
         "twig/twig": "~1.23",
+        "erusev/parsedown": "dev-master as 1.6.0",
         "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~2.8",
         "symfony/console": "~2.8",
@@ -25,6 +26,12 @@
         "rockettheme/toolbox": "~1.2",
         "maximebf/debugbar": "~1.10"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/parsedown"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"
