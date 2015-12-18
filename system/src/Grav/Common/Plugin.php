@@ -6,6 +6,7 @@ use Grav\Common\Page\Page;
 use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
+use RocketTheme\Toolbox\File\YamlFile;
 
 /**
  * The Plugin object just holds the id and path to a plugin.
@@ -181,5 +182,28 @@ class Plugin implements EventSubscriberInterface
         }
         // Return configurations as a new data config class
         return new Data($header);
+    }
+
+    /**
+     * Persists to disk the plugin parameters currently stored in the Grav Config object
+     *
+     * @param string $plugin_name   The name of the plugin whose config it should store.
+     *                              If omitted, saves the current plugin
+     *
+     * @return true
+     */
+    protected function saveConfig($plugin_name = '') {
+        if (!$plugin_name) {
+            $plugin_name = $this->name;
+        }
+
+        $locator = $this->grav['locator'];
+        $filename = 'config://plugins/' . $plugin_name . '.yaml';
+        $file = YamlFile::instance($locator->findResource($filename, true, true));
+        $content = $this->grav['config']->get('plugins.' . $plugin_name);
+        $file->save($content);
+        $file->free();
+
+        return true;
     }
 }
