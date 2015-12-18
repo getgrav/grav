@@ -12,3 +12,4 @@
 * Testing that grav-admin package gets properly released
 * Testing github-release fix with quoted tag (3)
 * Didn't pick up new tag.. trying again.
+* Build didn't kick off.. trying manually.
