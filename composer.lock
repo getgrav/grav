@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "09fcc6b4528be7d9c8af68a66e85f0b2",
-    "content-hash": "69bee250cbc5160401d50cc47c8d6aba",
+    "hash": "82d333365d7424d73da22f99a2daa42c",
+    "content-hash": "6d876da7dbe11934a98374e67d15550c",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -130,16 +130,16 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "1.6.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/erusev/parsedown.git",
-                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7"
+                "url": "https://github.com/getgrav/parsedown.git",
+                "reference": "10a7ff776c3f16b1b3aa41c176c48150fc091065"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
-                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
+                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/10a7ff776c3f16b1b3aa41c176c48150fc091065",
+                "reference": "10a7ff776c3f16b1b3aa41c176c48150fc091065",
                 "shasum": ""
             },
             "type": "library",
@@ -148,7 +148,6 @@
                     "Parsedown": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -165,7 +164,10 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2015-10-04 16:44:32"
+            "support": {
+                "source": "https://github.com/getgrav/parsedown/tree/master"
+            },
+            "time": "2015-12-17 17:48:21"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -1125,9 +1127,18 @@
         }
     ],
     "packages-dev": [],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "1.6.0",
+            "alias_normalized": "1.6.0.0",
+            "version": "9999999-dev",
+            "package": "erusev/parsedown"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "erusev/parsedown": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
