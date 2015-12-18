@@ -82,12 +82,24 @@ trait ParsedownGravTrait
         $this->inlineMarkerList .= $type;
     }
 
+    /**
+     * Overrides the default behavior to allow for plugin-provided blocks to be continueable
+     *
+     * @param $Type
+     * @return bool
+     */
     protected function isBlockContinueable($Type)
     {
         $continueable = in_array($Type, $this->continueable_blocks) || method_exists($this, 'block'.$Type.'Continue');
         return $continueable;
     }
 
+    /**
+     *  Overrides the default behavior to allow for plugin-provided blocks to be completeable
+     *
+     * @param $Type
+     * @return bool
+     */
     protected function isBlockCompleteable($Type)
     {
         $completeable = in_array($Type, $this->completeable_blocks) || method_exists($this, 'block'.$Type.'Complete');
