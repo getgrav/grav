@@ -287,7 +287,11 @@ class Validation
             return (array) $value;
         }
 
-        return reset($value);
+        if (is_array($value)) {
+            return reset($value);
+        }
+
+        return $value;
     }
 
     /**
