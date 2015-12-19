@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "09fcc6b4528be7d9c8af68a66e85f0b2",
-    "content-hash": "69bee250cbc5160401d50cc47c8d6aba",
+    "hash": "94131c9b1e1bafa572e1022ca6093544",
+    "content-hash": "fd3f9839960586cb8d7c841eb3a51610",
     "packages": [
         {
             "name": "doctrine/cache",
-            "version": "v1.5.2",
+            "version": "v1.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "47c7128262da274f590ae6f86eb137a7a64e82af"
+                "reference": "47cdc76ceb95cc591d9c79a36dc3794975b5d136"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/47c7128262da274f590ae6f86eb137a7a64e82af",
-                "reference": "47c7128262da274f590ae6f86eb137a7a64e82af",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/47cdc76ceb95cc591d9c79a36dc3794975b5d136",
+                "reference": "47cdc76ceb95cc591d9c79a36dc3794975b5d136",
                 "shasum": ""
             },
             "require": {
@@ -75,7 +75,7 @@
                 "cache",
                 "caching"
             ],
-            "time": "2015-12-03 10:50:37"
+            "time": "2015-12-19 05:03:47"
         },
         {
             "name": "donatj/phpuseragentparser",
@@ -130,16 +130,16 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "1.6.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/erusev/parsedown.git",
-                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7"
+                "url": "https://github.com/getgrav/parsedown.git",
+                "reference": "e7443a2bd868e78946ae6a01a1b07d477ce6f4cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
-                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
+                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/e7443a2bd868e78946ae6a01a1b07d477ce6f4cc",
+                "reference": "e7443a2bd868e78946ae6a01a1b07d477ce6f4cc",
                 "shasum": ""
             },
             "type": "library",
@@ -148,7 +148,6 @@
                     "Parsedown": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -165,7 +164,10 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2015-10-04 16:44:32"
+            "support": {
+                "source": "https://github.com/getgrav/parsedown/tree/master"
+            },
+            "time": "2015-12-19 03:45:14"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -213,36 +215,41 @@
         },
         {
             "name": "filp/whoops",
-            "version": "1.1.10",
+            "version": "2.0.0-alpha2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "72538eeb70bbfb11964412a3d098d109efd012f7"
+                "reference": "eb1ce6439db161a9f00cd57f33a9cfa1355229ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/72538eeb70bbfb11964412a3d098d109efd012f7",
-                "reference": "72538eeb70bbfb11964412a3d098d109efd012f7",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/eb1ce6439db161a9f00cd57f33a9cfa1355229ec",
+                "reference": "eb1ce6439db161a9f00cd57f33a9cfa1355229ec",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.5.9"
             },
             "require-dev": {
-                "mockery/mockery": "0.9.*"
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "^4.8 || ^5.0"
+            },
+            "suggest": {
+                "symfony/var-dumper": "Pretty print complex values better with var-dumper available",
+                "whoops/soap": "Formats errors as SOAP responses"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2-dev"
+                    "dev-master": "2.0-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Whoops": "src/"
+                "psr-4": {
+                    "Whoops\\": "src/Whoops/"
                 },
-                "classmap": [
-                    "src/deprecated"
+                "files": [
+                    "src/Whoops/functions.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -263,11 +270,10 @@
                 "exception",
                 "handling",
                 "library",
-                "silex-provider",
                 "whoops",
                 "zf2"
             ],
-            "time": "2015-06-29 05:42:04"
+            "time": "2015-12-15 12:27:17"
         },
         {
             "name": "gregwar/cache",
@@ -1125,13 +1131,23 @@
         }
     ],
     "packages-dev": [],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "1.6.0",
+            "alias_normalized": "1.6.0.0",
+            "version": "9999999-dev",
+            "package": "erusev/parsedown"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "erusev/parsedown": 20,
+        "filp/whoops": 15
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.4.0"
+        "php": ">=5.5.9"
     },
     "platform-dev": []
 }

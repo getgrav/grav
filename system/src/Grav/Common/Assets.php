@@ -186,7 +186,7 @@ class Assets
         $this->base_url = $base_url . '/';
 
         // Register any preconfigured collections
-        foreach ($config->get('system.assets.collections') as $name => $collection) {
+        foreach ($config->get('system.assets.collections', []) as $name => $collection) {
             $this->registerCollection($name, (array)$collection);
         }
     }

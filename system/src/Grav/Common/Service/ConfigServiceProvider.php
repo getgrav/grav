@@ -108,10 +108,45 @@ class ConfigServiceProvider implements ServiceProviderInterface
             $files += (new ConfigFileFinder)->locateFiles($paths);
             $paths = $locator->findResources('plugins://');
             $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths, 'languages');
+            $paths = static::pluginFolderPaths($paths, 'languages');
+            $files += (new ConfigFileFinder)->locateFiles($paths);
         }
 
         $languages = new CompiledLanguages($cache, $files, GRAV_ROOT);
 
         return $languages->name("master-{$setup->environment}")->load();
     }
+
+    /**
+     * Find specific paths in plugins
+     *
+     * @param $plugins
+     * @param $folder_path
+     * @return array
+     */
+    private static function pluginFolderPaths($plugins, $folder_path)
+    {
+        $paths = [];
+
+        foreach ($plugins as $path) {
+            $iterator = new \DirectoryIterator($path);
+
+            /** @var \DirectoryIterator $directory */
+            foreach ($iterator as $directory) {
+                if (!$directory->isDir() || $directory->isDot()) {
+                    continue;
+                }
+
+                // Path to the languages folder
+                $lang_path = $directory->getPathName() . '/' . $folder_path;
+
+                // If this folder exists, add it to the list of paths
+                if (file_exists($lang_path)) {
+                    $paths []= $lang_path;
+                }
+            }
+        }
+        return $paths;
+    }
+
 }
