@@ -43,7 +43,7 @@ before_install:
   - export TZ=Pacific/Honolulu
   - composer self-update
   - go get github.com/aktau/github-release
-  - echo "Travis Date: `date`"
+  - echo "Travis Date - `date`"
   - git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;
   - if [ ! -z "$TRAVIS_TAG" ]; then
       cd "${RT_DEVTOOLS}";
