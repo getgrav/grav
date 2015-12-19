@@ -13,30 +13,27 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     use ArrayAccess, Constructor, Iterator, Countable, Export;
 
     protected $items;
+    protected $systemBlueprints;
 
     public function register($type, $blueprint = null)
     {
+        if (!$blueprint && $this->systemBlueprints && isset($this->systemBlueprints[$type])) {
+            $useBlueprint = $this->systemBlueprints[$type];
+        } else {
+            $useBlueprint = $blueprint;
+        }
+
         if ($blueprint || empty($this->items[$type])) {
-            $this->items[$type] = $blueprint;
+            $this->items[$type] = $useBlueprint;
         }
     }
 
-    public function scanBlueprints($path)
+    public function scanBlueprints($paths)
     {
-        $options = [
-            'compare' => 'Filename',
-            'pattern' => '|\.yaml$|',
-            'filters' => [
-                'key' => '|\.yaml$|'
-                ],
-            'key' => 'SubPathName',
-            'value' => 'PathName',
-        ];
-
-        $this->items = Folder::all($path, $options) + $this->items;
+        $this->items = $this->findBlueprints($paths) + $this->items;
     }
 
-    public function scanTemplates($path)
+    public function scanTemplates($paths)
     {
         $options = [
             'compare' => 'Filename',
@@ -48,12 +45,22 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             'recursive' => false
         ];
 
-        foreach (Folder::all($path, $options) as $type) {
-            $this->register($type);
+        if (!$this->systemBlueprints) {
+            $this->systemBlueprints = $this->findBlueprints('blueprints://pages');
         }
-        if (file_exists($path . 'modular/')) {
-            foreach (Folder::all($path . 'modular/', $options) as $type) {
-                $this->register('modular/' . $type);
+
+        // register default by default
+        $this->register('default');
+
+        foreach ((array) $paths as $path) {
+            foreach (Folder::all($path, $options) as $type) {
+                $this->register($type);
+            }
+            $modular_path = rtrim($path, '/') . '/modular';
+            if (file_exists($modular_path)) {
+                foreach (Folder::all($modular_path, $options) as $type) {
+                    $this->register('modular/' . $type);
+                }
             }
         }
     }
@@ -78,9 +85,26 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             if (strpos($name, 'modular/') !== 0) {
                 continue;
             }
-            $list[basename($name)] = trim(ucfirst(strtr(basename($name), '_', ' ')));
+            $list[$name] = trim(ucfirst(strtr(basename($name), '_', ' ')));
         }
         ksort($list);
         return $list;
+    }
+
+    private function findBlueprints($paths)
+    {
+        $options = [
+            'compare' => 'Filename',
+            'pattern' => '|\.yaml$|',
+            'filters' => [
+                'key' => '|\.yaml$|'
+                ],
+            'key' => 'SubPathName',
+            'value' => 'PathName',
+        ];
+
+        foreach ((array) $paths as $path) {
+            return Folder::all($path, $options);
+        }
     }
 }

@@ -40,8 +40,11 @@ class GPM extends Iterator
     public function __construct($refresh = false, $callback = null)
     {
         $this->installed  = new Local\Packages();
-        $this->repository = new Remote\Packages($refresh, $callback);
-        $this->grav       = new Remote\Grav($refresh, $callback);
+        try {
+            $this->repository = new Remote\Packages($refresh, $callback);
+            $this->grav       = new Remote\Grav($refresh, $callback);
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -349,6 +352,7 @@ class GPM extends Iterator
     public function findPackages($searches = [])
     {
         $packages = ['total' => 0, 'not_found' => []];
+        $inflector = new Inflector();
 
         foreach ($searches as $search) {
             $repository = '';
@@ -361,7 +365,7 @@ class GPM extends Iterator
             }
 
             if ($found = $this->findPackage($search)) {
-                // set override respository if provided
+                // set override repository if provided
                 if ($repository) {
                     $found->override_repository = $repository;
                 }
@@ -380,7 +384,7 @@ class GPM extends Iterator
                 }
 
                 $not_found = new \stdClass();
-                $not_found->name = Inflector::camelize($search);
+                $not_found->name = $inflector->camelize($search);
                 $not_found->slug = $search;
                 $not_found->package_type = $type;
                 $not_found->install_path = str_replace('%name%', $search, $this->install_paths[$type]);

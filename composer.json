@@ -7,22 +7,31 @@
     "license": "MIT",
     "require": {
         "php": ">=5.4.0",
-        "twig/twig": "~1.16",
+        "twig/twig": "~1.23",
+        "erusev/parsedown": "dev-master as 1.6.0",
         "erusev/parsedown-extra": "~0.7",
-        "symfony/yaml": "2.7.*",
-        "symfony/console": "2.7.*",
-        "symfony/event-dispatcher": "2.7.*",
-        "doctrine/cache": "~1.4",
-        "maximebf/debugbar": "dev-master",
-        "filp/whoops": "1.2.*@dev",
+        "symfony/yaml": "~2.8",
+        "symfony/console": "~2.8",
+        "symfony/event-dispatcher": "~2.8",
+        "symfony/var-dumper": "~2.8",
+        "symfony/polyfill-iconv": "~1.0",
+        "doctrine/cache": "~1.5",
+        "filp/whoops": "1.1.10",
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
-        "mrclay/minify": "dev-master",
-        "donatj/phpuseragentparser": "dev-master",
+        "mrclay/minify": "~2.2",
+        "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
-        "rockettheme/toolbox": "1.0.*"
+        "rockettheme/toolbox": "~1.2",
+        "maximebf/debugbar": "~1.10"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/parsedown"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"

@@ -1,0 +1,53 @@
+FRONTMATTER_ERROR_PAGE: "---\ncím: %1$s\n---\n\n# Hiba: Érvénytelen Frontmatter\n\nElérési út: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+INFLECTOR_IRREGULAR:
+    'person': 'személyek'
+    'man': 'férfiak'
+    'child': 'gyerekek'
+    'sex': 'nemek'
+    'move': 'lépések'
+INFLECTOR_ORDINALS:
+    'default': '.'
+    'first': '.'
+    'second': '.'
+    'third': '.'
+NICETIME:
+    NO_DATE_PROVIDED: Nincs dátum megadva
+    BAD_DATE: Hibás dátum
+    AGO: elteltével
+    FROM_NOW: mostantól
+    SECOND: másodperc
+    MINUTE: perc
+    HOUR: óra
+    DAY: nap
+    WEEK: hét
+    MONTH: hónap
+    YEAR: év
+    DECADE: évtized
+    SEC: mp
+    MIN: p
+    HR: ó
+    DAY: nap
+    WK: hét
+    MO: hó
+    YR: év
+    DEC: évt
+    SECOND_PLURAL: másodperc
+    MINUTE_PLURAL: perc
+    HOUR_PLURAL: óra
+    DAY_PLURAL: nap
+    WEEK_PLURAL: hét
+    MONTH_PLURAL: hónap
+    YEAR_PLURAL: év
+    DECADE_PLURAL: évtized
+    SEC_PLURAL: mp
+    MIN_PLURAL: perc
+    HR_PLURAL: ó
+    DAY_PLURAL: nap
+    WK_PLURAL: hét
+    MO_PLURAL: hó
+    YR_PLURAL: év
+    DEC_PLURAL: évt
+FORM:
+    VALIDATION_FAIL: <b>A validáció hibát talált:</b>
+    INVALID_INPUT: Az itt megadott érték érvénytelen:
+    MISSING_REQUIRED_FIELD: Ez a kötelező mező nincs kitöltve:

@@ -1,4 +1,4 @@
-title: Add Account
+title: PLUGIN_ADMIN.ADD_ACCOUNT
 
 form:
   validation: loose
@@ -6,10 +6,11 @@ form:
 
     content:
       type: section
-      title: Add Account
+      title: PLUGIN_ADMIN.ADD_ACCOUNT
 
     username:
       type: text
-      label: Username
+      label: PLUGIN_ADMIN.USERNAME
+      help: PLUGIN_ADMIN.USERNAME_HELP
       validate:
         required: true

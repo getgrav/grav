@@ -1,33 +1,20 @@
 <?php
 namespace Grav\Console\Cli;
 
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Grav\Common\Backup\ZipBackup;
+use Grav\Console\ConsoleCommand;
+use RocketTheme\Toolbox\File\JsonFile;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Grav\Common\Backup\ZipBackup;
 
 /**
  * Class BackupCommand
  * @package Grav\Console\Cli
  */
-class BackupCommand extends Command
+class BackupCommand extends ConsoleCommand
 {
-
-    /**
-     * @var
-     */
     protected $source;
-    /**
-     * @var
-     */
     protected $progress;
-    /**
-     * @var
-     */
-    protected $output;
 
     /**
      *
@@ -39,48 +26,42 @@ class BackupCommand extends Command
             ->addArgument(
                 'destination',
                 InputArgument::OPTIONAL,
-                'Where to store the backup'
+                'Where to store the backup (/backup is default)'
 
             )
             ->setDescription("Creates a backup of the Grav instance")
             ->setHelp('The <info>backup</info> creates a zipped backup. Optionally can be saved in a different destination.');
 
-
         $this->source = getcwd();
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->output = $output;
-
-        $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red'));
-        $output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan'));
-        $output->getFormatter()->setStyle('green', new OutputFormatterStyle('green'));
-        $output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta'));
-
-        $this->progress = new ProgressBar($output);
+        $this->progress = new ProgressBar($this->output);
         $this->progress->setFormat('Archiving <cyan>%current%</cyan> files [<green>%bar%</green>] %elapsed:6s% %memory:6s%');
 
-        $destination = ($input->getArgument('destination')) ? $input->getArgument('destination') : ROOT_DIR;
+        self::getGrav()['config']->init();
 
-        ZipBackup::backup($destination, [$this, 'output']);
+        $destination = ($this->input->getArgument('destination')) ? $this->input->getArgument('destination') : null;
+        $log = JsonFile::instance(self::getGrav()['locator']->findResource("log://backup.log", true, true));
+        $backup = ZipBackup::backup($destination, [$this, 'output']);
 
-        $output->writeln('');
-        $output->writeln('');
+        $log->content([
+            'time' => time(),
+            'location' => $backup
+        ]);
+        $log->save();
+
+        $this->output->writeln('');
+        $this->output->writeln('');
 
     }
 
     /**
-     * @param $folder
-     * @param $zipFile
-     * @param $exclusiveLength
-     * @param $progress
+     * @param $args
      */
     public function output($args)
     {
@@ -97,5 +78,6 @@ class BackupCommand extends Command
                 break;
         }
     }
+
 }
 

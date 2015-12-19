@@ -10,39 +10,57 @@ form:
 
     section:
         type: section
-        title: Add Page
+        title: PLUGIN_ADMIN.ADD_PAGE
 
     title:
       type: text
-      label: Page Title
+      label: PLUGIN_ADMIN.PAGE_TITLE
+      help: PLUGIN_ADMIN.PAGE_TITLE_HELP
       validate:
         required: true
 
     folder:
       type: text
-      label: Folder Name
+      label: PLUGIN_ADMIN.FOLDER_NAME
+      help: PLUGIN_ADMIN.FOLDER_NAME_HELP
       validate:
         type: slug
         required: true
 
-
-
     route:
       type: select
-      label: Parent Page
+      label: PLUGIN_ADMIN.PARENT_PAGE
       classes: fancy
-      @data-options: '\Grav\Common\Page\Pages::parents'
-      @data-default: '\Grav\Plugin\admin::route'
+      '@data-options': '\Grav\Common\Page\Pages::parents'
+      '@data-default': '\Grav\Plugin\admin::getLastPageRoute'
       options:
-        '/': '- Root -'
+        '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
       validate:
         required: true
 
-    type:
+    name:
       type: select
       classes: fancy
-      label: Display Template
-      default: default
-      @data-options: '\Grav\Common\Page\Pages::types'
+      label: PLUGIN_ADMIN.PAGE_FILE
+      help: PLUGIN_ADMIN.PAGE_FILE_HELP
+      '@data-options': '\Grav\Common\Page\Pages::types'
+      '@data-default': '\Grav\Plugin\admin::getLastPageName'
       validate:
         required: true
+
+    visible:
+      type: toggle
+      label: PLUGIN_ADMIN.VISIBLE
+      help: PLUGIN_ADMIN.VISIBLE_HELP
+      highlight: ''
+      default: ''
+      options:
+        '': Auto
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
+        required: true
+
+    blueprint:
+      type: blueprint

@@ -22,10 +22,13 @@ trait CompiledFile
      */
     public function content($var = null)
     {
+        // Set some options
+        $this->settings(['native' => true, 'compat' => true]);
+
         // If nothing has been loaded, attempt to get pre-compiled version of the file first.
         if ($var === null && $this->raw === null && $this->content === null) {
             $key = md5($this->filename);
-            $file = PhpFile::instance(CACHE_DIR . "/compiled/files/{$key}{$this->extension}.php");
+            $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
             $modified = $this->modified();
 
             if (!$modified) {
@@ -44,10 +47,14 @@ trait CompiledFile
                 || $cache['filename'] != $this->filename
             ) {
                 // Attempt to lock the file for writing.
-                $file->lock(false);
+                try {
+                    $file->lock(false);
+                } catch (\Exception $e) {
+                    // Another process has locked the file; we will check this in a bit.
+                }
 
                 // Decode RAW file into compiled array.
-                $data = $this->decode($this->raw());
+                $data = (array) $this->decode($this->raw());
                 $cache = [
                     '@class' => $class,
                     'filename' => $this->filename,
@@ -61,6 +68,7 @@ trait CompiledFile
                     $file->unlock();
                 }
             }
+            $file->free();
 
             $this->content = $cache['data'];
         }

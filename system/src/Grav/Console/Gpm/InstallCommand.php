@@ -5,14 +5,10 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
-use Grav\Common\Inflector;
 use Grav\Common\Utils;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Yaml\Yaml;
@@ -23,10 +19,8 @@ define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/
  * Class InstallCommand
  * @package Grav\Console\Gpm
  */
-class InstallCommand extends Command
+class InstallCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var
      */
@@ -87,24 +81,21 @@ class InstallCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
-
         $this->gpm = new GPM($this->input->getOption('force'));
         $this->destination = realpath($this->input->getOption('destination'));
 
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
-        $local_config_file = exec('eval echo ~/.grav/config');
-        if (file_exists($local_config_file)) {
-            $this->local_config = Yaml::parse($local_config_file);
+        if (false === $this->isWindows() && @is_file(getenv("HOME").'/.grav/config')) {
+            $local_config_file = exec('eval echo ~/.grav/config');
+            if (file_exists($local_config_file)) {
+                $this->local_config = Yaml::parse($local_config_file);
+            }
         }
 
         if (
@@ -439,19 +430,19 @@ class InstallCommand extends Command
      */
     private function checkDestination($package)
     {
-        $questionHelper = $this->getHelper('question');
-        $skipPrompt = $this->input->getOption('all-yes');
+        $question_helper = $this->getHelper('question');
+        $skip_prompt = $this->input->getOption('all-yes');
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
 
         if (Installer::lastErrorCode() == Installer::EXISTS) {
-            if (!$skipPrompt) {
+            if (!$skip_prompt) {
                 $this->output->write("\x0D");
                 $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
 
                 $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ",
                     false);
-                $answer = $questionHelper->ask($this->input, $this->output, $question);
+                $answer = $question_helper->ask($this->input, $this->output, $question);
 
                 if (!$answer) {
                     $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
@@ -465,7 +456,7 @@ class InstallCommand extends Command
             $this->output->write("\x0D");
             $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
 
-            if ($skipPrompt) {
+            if ($skip_prompt) {
                 $this->output->writeln("  |     '- <yellow>Skipped automatically.</yellow>");
 
                 return false;
@@ -473,7 +464,7 @@ class InstallCommand extends Command
 
             $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
                 false);
-            $answer = $questionHelper->ask($this->input, $this->output, $question);
+            $answer = $question_helper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
                 $this->output->writeln("  |     '- <red>You decided to not delete the symlink automatically.</red>");
@@ -497,11 +488,13 @@ class InstallCommand extends Command
      */
     private function installPackage($package)
     {
-        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path]);
-        $errorCode = Installer::lastErrorCode();
+        $type = $package->package_type;
+
+        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path, 'theme' => (($type == 'themes'))]);
+        $error_code = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
-        if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+        if ($error_code & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing package...    <red>error</red>                             ");

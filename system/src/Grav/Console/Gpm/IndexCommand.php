@@ -2,20 +2,16 @@
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class IndexCommand
+ *
  * @package Grav\Console\Gpm
  */
-class IndexCommand extends Command
+class IndexCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
      * @var
      */
@@ -24,6 +20,16 @@ class IndexCommand extends Command
      * @var
      */
     protected $gpm;
+
+    /**
+     * @var
+     */
+    protected $options;
+
+    /**
+     * @var array
+     */
+    protected $sortKeys = ['name', 'slug', 'author', 'date'];
 
     /**
      *
@@ -38,38 +44,76 @@ class IndexCommand extends Command
                 InputOption::VALUE_NONE,
                 'Force re-fetching the data from remote'
             )
+            ->addOption(
+                'filter',
+                'F',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Allows to limit the results based on one or multiple filters input. This can be either portion of a name/slug or a regex'
+            )
+            ->addOption(
+                'themes-only',
+                'T',
+                InputOption::VALUE_NONE,
+                'Filters the results to only Themes'
+            )
+            ->addOption(
+                'plugins-only',
+                'P',
+                InputOption::VALUE_NONE,
+                'Filters the results to only Plugins'
+            )
+            ->addOption(
+                'updates-only',
+                'U',
+                InputOption::VALUE_NONE,
+                'Filters the results to Updatable Themes and Plugins only'
+            )
+            ->addOption(
+                'sort',
+                's',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Allows to sort (ASC) the results based on one or multiple keys. SORT can be either "name", "slug", "author", "date"',
+                ['date']
+            )
+            ->addOption(
+                'desc',
+                'D',
+                InputOption::VALUE_NONE,
+                'Reverses the order of the output.'
+            )
             ->setDescription("Lists the plugins and themes available for installation")
-            ->setHelp('The <info>index</info> command lists the plugins and themes available for installation');
+            ->setHelp('The <info>index</info> command lists the plugins and themes available for installation')
+        ;
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
+        $this->options = $this->input->getOptions();
 
-        $this->gpm = new GPM($this->input->getOption('force'));
+        $this->gpm = new GPM($this->options['force']);
 
         $this->data = $this->gpm->getRepository();
 
         $this->output->writeln('');
 
-        foreach ($this->data as $type => $packages) {
+        $data = $this->filter($this->data);
+
+        foreach ($data as $type => $packages) {
             $this->output->writeln("<green>" . ucfirst($type) . "</green> [ " . count($packages) . " ]");
 
-            $index = 0;
+            $index    = 0;
+            $packages = $this->sort($packages);
             foreach ($packages as $slug => $package) {
                 $this->output->writeln(
                 // index
                     str_pad($index++ + 1, 2, '0', STR_PAD_LEFT) . ". " .
                     // package name
-                    "<cyan>" . str_pad($package->name, 15) . "</cyan> " .
+                    "<cyan>" . str_pad($package->name, 20) . "</cyan> " .
                     // slug
-                    "[" . str_pad($slug, 15, ' ', STR_PAD_BOTH) . "] " .
+                    "[" . str_pad($slug, 20, ' ', STR_PAD_BOTH) . "] " .
                     // version details
                     $this->versionDetails($package)
                 );
@@ -93,15 +137,15 @@ class IndexCommand extends Command
      */
     private function versionDetails($package)
     {
-        $list = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
-        $package = isset($list[$package->slug]) ? $list[$package->slug] : $package;
-        $type = ucfirst(preg_replace("/s$/", '', $package->package_type));
+        $list      = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
+        $package   = isset($list[$package->slug]) ? $list[$package->slug] : $package;
+        $type      = ucfirst(preg_replace("/s$/", '', $package->package_type));
         $updatable = $this->gpm->{'is' . $type . 'Updatable'}($package->slug);
         $installed = $this->gpm->{'is' . $type . 'Installed'}($package->slug);
-        $local = $this->gpm->{'getInstalled' . $type}($package->slug);
+        $local     = $this->gpm->{'getInstalled' . $type}($package->slug);
 
         if (!$installed || !$updatable) {
-            $version = $installed ? $local->version : $package->version;
+            $version   = $installed ? $local->version : $package->version;
             $installed = !$installed ? ' (<magenta>not installed</magenta>)' : ' (<cyan>installed</cyan>)';
 
             return str_pad(" [v<green>" . $version . "</green>]", 35) . $installed;
@@ -115,5 +159,66 @@ class IndexCommand extends Command
         }
 
         return '';
+    }
+
+    /**
+     * @param $data
+     *
+     * @return mixed
+     */
+    public function filter($data)
+    {
+        // filtering and sorting
+        if ($this->options['plugins-only']) {
+            unset($data['themes']);
+        }
+        if ($this->options['themes-only']) {
+            unset($data['plugins']);
+        }
+
+        if ($this->options['filter'] || $this->options['updates-only'] || $this->options['desc']) {
+            foreach ($data as $type => $packages) {
+                foreach ($packages as $slug => $package) {
+                    $filter = true;
+
+                    // Filtering by string
+                    if ($this->options['filter']) {
+                        $filter = preg_grep('/(' . (implode('|', $this->options['filter'])) . ')/i', [$slug, $package->name]);
+                    }
+
+                    // Filtering updatables only
+                    if ($this->options['updates-only'] && $filter) {
+                        $method = ucfirst(preg_replace("/s$/", '', $package->package_type));
+                        $filter = $this->gpm->{'is' . $method . 'Updatable'}($package->slug);
+                    }
+
+                    if (!$filter) {
+                        unset($data[$type][$slug]);
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param $packages
+     */
+    public function sort($packages)
+    {
+        foreach ($this->options['sort'] as $key) {
+            $packages = $packages->sort(function ($a, $b) use ($key) {
+                switch ($key) {
+                    case 'author':
+                        return strcmp($a->{$key}['name'], $b->{$key}['name']);
+                        break;
+                    default:
+                        return strcmp($a->$key, $b->$key);
+                }
+            }, $this->options['desc'] ? true : false);
+        }
+
+        return $packages;
     }
 }

@@ -15,6 +15,8 @@ class Debugger
     protected $renderer;
     protected $enabled;
 
+    protected $timers = [];
+
     public function __construct()
     {
         $this->debugbar = new StandardDebugBar();
@@ -94,19 +96,21 @@ class Debugger
         return $this;
     }
 
-    public function startTimer($name, $desription = null)
+    public function startTimer($name, $description = null)
     {
         if ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled')) {
-            $this->debugbar['time']->startMeasure($name, $desription);
+            $this->debugbar['time']->startMeasure($name, $description);
+            $this->timers[] = $name;
         }
         return $this;
     }
 
     public function stopTimer($name)
     {
-        if ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled')) {
+        if (in_array($name, $this->timers) && ($name[0] == '_' || $this->grav['config']->get('system.debugger.enabled'))) {
             $this->debugbar['time']->stopMeasure($name);
         }
+
         return $this;
     }
 

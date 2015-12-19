@@ -27,7 +27,7 @@ class Grav extends AbstractPackageCollection
         $this->version = isset($this->data['version']) ? $this->data['version'] : '-';
         $this->date = isset($this->data['date']) ? $this->data['date'] : '-';
 
-        foreach ($this->data['assets'] as $slug => $data) {
+        if (isset($this->data['assets'])) foreach ($this->data['assets'] as $slug => $data) {
             $this->items[$slug] = new Package($data);
         }
     }
@@ -55,7 +55,7 @@ class Grav extends AbstractPackageCollection
 
         $diffLog = [];
         foreach ($this->data['changelog'] as $version => $changelog) {
-            preg_match("/[\d\.]+/", $version, $cleanVersion);
+            preg_match("/[\w-\.]+/", $version, $cleanVersion);
 
             if (!$cleanVersion || version_compare($diff, $cleanVersion[0], ">=")) { continue; }
 
@@ -86,5 +86,10 @@ class Grav extends AbstractPackageCollection
     public function isUpdatable()
     {
         return version_compare(GRAV_VERSION, $this->getVersion(), '<');
+    }
+
+    public function isSymlink()
+    {
+        return is_link(GRAV_ROOT . DS . 'index.php');
     }
 }

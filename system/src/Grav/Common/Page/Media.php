@@ -2,8 +2,6 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Getters;
-use Grav\Common\Grav;
-use Grav\Common\Config\Config;
 use Grav\Common\GravTrait;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
@@ -88,7 +86,7 @@ class Media extends Getters
 
                 $altMedium = $altMedium['file'];
 
-                $medium = MediumFactory::scaledFromMedium($altMedium, $ratio, 1);
+                $medium = MediumFactory::scaledFromMedium($altMedium, $ratio, 1)['file'];
             }
 
             if (!$medium) {
@@ -116,7 +114,7 @@ class Media extends Getters
                         continue;
                     }
 
-                    $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max], $max, $i);
+                    $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
                 }
 
                 foreach ($types['alternative'] as $ratio => $altMedium) {
