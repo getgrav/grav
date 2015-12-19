@@ -168,6 +168,10 @@ zip:
   type: file
   thumb: media/thumb-zip.png
   mime: application/zip
+7z:
+  type: file
+  thumb: media/thumb-7zip.png
+  mime: application/x-7z-compressed
 gz:
   type: file
   thumb: media/thumb-gz.png

@@ -338,8 +338,10 @@ class Blueprint implements \ArrayAccess, ExportInterface
 
                 if ($field['type'] === 'list') {
                     // we loop through list to get the actual field
-                    foreach($field['fields'] as $subName => &$subField) {
-                        $this->parseFormField($subField);
+                    if (isset($field['fields']) && $field['fields']) {
+                        foreach($field['fields'] as $subName => &$subField) {
+                            $this->parseFormField($subField);
+                        }
                     }
                 } else {
                     $this->parseFormField($field);
