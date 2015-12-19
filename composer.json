@@ -6,7 +6,7 @@
     "homepage": "http://getgrav.org",
     "license": "MIT",
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=5.5.9",
         "twig/twig": "~1.23",
         "erusev/parsedown": "dev-master as 1.6.0",
         "erusev/parsedown-extra": "~0.7",
@@ -16,7 +16,7 @@
         "symfony/var-dumper": "~2.8",
         "symfony/polyfill-iconv": "~1.0",
         "doctrine/cache": "~1.5",
-        "filp/whoops": "1.1.10",
+        "filp/whoops": "2.0.0-alpha2",
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
         "ircmaxell/password-compat": "1.0.*",
