@@ -46,7 +46,7 @@ class Uri
 
         // set the base
         if (isset($_SERVER['HTTPS'])) {
-            $base = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
+            $base = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
         } else {
             $base = 'http://';
         }
