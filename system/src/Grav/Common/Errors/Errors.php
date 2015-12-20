@@ -22,7 +22,6 @@ class Errors
             if ($config['display']) {
                 $error_page = new Whoops\Handler\PrettyPageHandler;
                 $error_page->setPageTitle('Crikey! There was an error...');
-                $error_page->setEditor('sublime');
                 $error_page->addResourcePath(GRAV_ROOT . '/system/assets');
                 $error_page->addCustomCss('whoops.css');
                 $whoops->pushHandler($error_page);
