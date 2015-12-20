@@ -2,6 +2,10 @@ body header {
     background: #8552A2;
 }
 
+body .left-panel {
+    background: inherit;
+}
+
 body .exc-title-primary {
     color: #fff;
 }
