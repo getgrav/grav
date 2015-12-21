@@ -41,8 +41,7 @@ class ImageMedium extends Medium
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
-        'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive',
-        'fixOrientation'
+        'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive', 'fixOrientation'
     ];
 
     /**
@@ -261,7 +260,6 @@ class ImageMedium extends Medium
         if ($this->image) {
             $this->image();
             $this->image->clearOperations(); // Clear previously applied operations
-            $this->fixOrientation();
             $this->filter();
         }
 
@@ -471,7 +469,6 @@ class ImageMedium extends Medium
             ->setPrettyName(basename($this->get('basename')));
 
         $this->filter();
-        $this->fixOrientation();
 
         return $this;
     }
