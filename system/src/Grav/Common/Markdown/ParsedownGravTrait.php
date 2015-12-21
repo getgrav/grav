@@ -272,7 +272,7 @@ trait ParsedownGravTrait
             if (isset($url['query'])) {
                 $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
                     $parts = explode('=', $item, 2);
-                    $value = isset($parts[1]) ? $parts[1] : null;
+                    $value = isset($parts[1]) ? $parts[1] : true;
                     $carry[$parts[0]] = $value;
 
                     return $carry;
