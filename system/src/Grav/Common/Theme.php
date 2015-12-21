@@ -20,4 +20,26 @@ class Theme extends Plugin
 
         parent::__construct($name, $grav, $config);
     }
+
+    /**
+     * Persists to disk the theme parameters currently stored in the Grav Config object
+     *
+     * @param string $theme_name   The name of the theme whose config it should store.
+     *
+     * @return true
+     */
+    public static function saveConfig($theme_name) {
+        if (!$theme_name) {
+            return false;
+        }
+
+        $locator = Grav::instance()['locator'];
+        $filename = 'config://themes/' . $theme_name . '.yaml';
+        $file = YamlFile::instance($locator->findResource($filename, true, true));
+        $content = Grav::instance()['config']->get('themes.' . $theme_name);
+        $file->save($content);
+        $file->free();
+
+        return true;
+    }
 }
