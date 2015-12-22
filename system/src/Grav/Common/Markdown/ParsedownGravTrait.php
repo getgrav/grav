@@ -259,6 +259,7 @@ trait ParsedownGravTrait
             $excerpt = parent::inlineLink($excerpt);
             $excerpt['element']['attributes']['href'] = $matches[1];
             $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+
             return $excerpt;
         } else {
             $excerpt = parent::inlineLink($excerpt);
@@ -299,16 +300,15 @@ trait ParsedownGravTrait
                         }
                     }
                 }
-
-
-                $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
             }
+
+            $actions['fixOrientation'] = true;
+            $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
 
             // if no query elements left, unset query
             if (empty($url['query'])) {
                 unset ($url['query']);
             }
-
 
             // if there is no scheme, the file is local
             if (!isset($url['scheme']) && (count($url) > 0)) {

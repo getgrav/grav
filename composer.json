@@ -18,7 +18,7 @@
         "doctrine/cache": "~1.5",
         "filp/whoops": "2.0.0-alpha2",
         "monolog/monolog": "~1.0",
-        "gregwar/image": "~2.0",
+        "gregwar/image": "dev-master",
         "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
