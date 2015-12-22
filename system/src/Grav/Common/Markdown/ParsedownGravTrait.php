@@ -267,8 +267,7 @@ trait ParsedownGravTrait
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
-            $actions = [];
-            
+
             // if there is a query, then parse it and build action calls
             if (isset($url['query'])) {
                 $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
@@ -278,6 +277,8 @@ trait ParsedownGravTrait
 
                     return $carry;
                 }, []);
+
+                $actions['fixOrientation'] = true;
 
                 // valid attributes supported
                 $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
@@ -300,10 +301,13 @@ trait ParsedownGravTrait
                         }
                     }
                 }
-            }
 
-            $actions['fixOrientation'] = true;
-            $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+
+                $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+            } else {
+                $actions['fixOrientation'] = true;
+                $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+            }
 
             // if no query elements left, unset query
             if (empty($url['query'])) {
