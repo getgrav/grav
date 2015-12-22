@@ -278,8 +278,6 @@ trait ParsedownGravTrait
                     return $carry;
                 }, []);
 
-                $actions['fixOrientation'] = true;
-
                 // valid attributes supported
                 $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
 
@@ -303,9 +301,6 @@ trait ParsedownGravTrait
                 }
 
 
-                $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
-            } else {
-                $actions['fixOrientation'] = true;
                 $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
             }
 
