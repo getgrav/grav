@@ -55,7 +55,7 @@ form:
                     help: PLUGIN_ADMIN.LANGUAGE_HELP
 
                 security:
-                    title: Security
+                    title: PLUGIN_ADMIN.ACCESS_LEVELS
                     type: section
                     security: admin.super
 

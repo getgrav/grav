@@ -1,3 +1,47 @@
+# v1.0.5
+## 12/18/2015
+
+1. [](#new)
+    * Add ability to extend markdown with plugins
+    * Added support for plugins to have individual language files
+    * Added `7z` to media formats
+    * Use Grav's fork of Parsedown until PR is merged
+    * New function to persist plugin configuration to disk
+    * GPM `selfupgrade` will now check PHP version requirements
+1. [](#improved)   
+    * If the field allows multiple files, return array
+    * Handle non-array values in file validation
+1. [](#bugfix)
+    * Fix when looping `fields` param in a `list` field
+    * Properly convert commas to spaces for media attributes
+    * Forcing Travis VM to HI timezone to address future files in zip file
+
+# v1.0.4
+## 12/12/2015
+
+1. [](#bugfix)
+    * Needed to put default image folder permissions for YAML compatibility
+
+# v1.0.3
+## 12/11/2015
+
+1. [](#bugfix)
+    * Fixed issue when saving config causing incorrect image cache folder perms
+
+# v1.0.2
+## 12/11/2015
+
+1. [](#bugfix)
+    * Fix for timing display in debugbar
+
+# v1.0.1
+## 12/11/2015
+
+1. [](#improved)   
+    * Reduced package sizes by removing extra vendor dev bits
+1. [](#bugfix)
+    * Fix issue when you enable debugger from admin plugin
+
 # v1.0.0
 ## 12/11/2015
 

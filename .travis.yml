@@ -40,8 +40,10 @@ env:
     - TRAVIS_TAG=$(curl --fail --user ${GH_API_USER} -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4)
 
 before_install:
+  - export TZ=Pacific/Honolulu
   - composer self-update
   - go get github.com/aktau/github-release
+  - echo "Travis Date - `date`"
   - git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;
   - if [ ! -z "$TRAVIS_TAG" ]; then
       cd "${RT_DEVTOOLS}";

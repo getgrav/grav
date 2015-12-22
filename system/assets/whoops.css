@@ -1,110 +1,19 @@
-body {
-    background-color: #eee;
-}
-
 body header {
-    background: #349886;
-    border-left: 8px solid #29796B;
+    background: #8552A2;
 }
 
-body .clipboard {
-    width: 28px;
-    height: 28px;
-    background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcAQMAAABIw03XAAAAA3NCSVQICAjb4U/gAAAABlBMVEX///////9VfPVsAAAAAnRSTlP/AOW3MEoAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzbovLKMAAAAFnRFWHRDcmVhdGlvbiBUaW1lADEwLzE1LzE0xr/LJAAAADhJREFUCJlj+P///wcGBPGDQR5E8OMi2IEEczOIaAQRHSCioQBGHAAR/7AT/z+DiA8MMALVXhABAJf9Sr5aY+UFAAAAAElFTkSuQmCC);
+body .left-panel {
+    background: inherit;
 }
 
 body .exc-title-primary {
-    color: #1C3631;
-    text-shadow: none;
+    color: #fff;
 }
 
 body .exc-title {
-    color: #2F5B52;
-    text-shadow: none;
-}
-
-body .data-table-container label {
-    color: #0082BA;
-}
-
-body .frame {
-    border: 0;
-}
-
-body .frames-container {
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-body .active .frame-class {
-    color: #E3D8E9;
-}
-
-body .frame-class {
-    color: #9055AF;
-}
-
-body .frame.active {
-    border: 0;
-    box-shadow: none;
-    background-color: #9055AF;
+    color: #ddd;
 }
 
 body .frame:not(.active):hover {
-    background: #e9e9e9;
-}
-
-body .frame-file, body .data-table tbody {
-    font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, Courier, monospace;
-    font-size: 13px;
-}
-
-body .frame-code {
-    background: #305669;
-    border-left: 8px solid #253A47;
-    padding: 1rem;
-}
-
-body .frame-code .frame-file {
-    background: #253A47;
-    color: #eee;
-    text-shadow: none;
-    box-shadow: none;
-    font-family: inherit;
-}
-
-body .frame-code .frame-file strong {
-    color: #fff;
-    font-weight: normal;
-}
-
-body .frame-comments {
-    background: #283E4D;
-
-    box-shadow: none;
-}
-
-body .frame-comments.empty:before {
-    color: #789AAB;
-}
-
-body .details-container {
-    border: 0;
-}
-
-body .details {
-    background-color: #eee;
-    border-left: 8px solid #ddd;
-    padding: 1rem;
-}
-
-body .code-block {
-    background: #2C4454;
-    box-shadow: none;
-    font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, Courier, monospace;
-    font-size: 13px;
-}
-
-body .handler.active {
-    background: #666;
+    background: #e6e6e6;
 }

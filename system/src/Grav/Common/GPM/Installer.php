@@ -281,6 +281,10 @@ class Installer
     {
         $msg = 'Unknown Error';
 
+        if (is_string(self::$error)) {
+            return self::$error;
+        }
+
         switch (self::$error) {
             case 0:
                 $msg = 'No Error';
@@ -333,7 +337,7 @@ class Installer
 
     /**
      * Allows to manually set an error
-     * @param $error the Error code
+     * @param int|string $error the Error code
      */
 
     public static function setError($error)
