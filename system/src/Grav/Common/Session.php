@@ -42,7 +42,10 @@ class Session extends \RocketTheme\Toolbox\Session\Session
                 $session_path
             );
 
-            $domain = ($_SERVER['HTTP_HOST'] != 'localhost') ? $_SERVER['HTTP_HOST'] : false;
+            $domain = $uri->host();
+            if ($domain == 'localhost') {
+                $domain = '';
+            }
             $secure = $config->get('system.session.secure', false);
             $httponly = $config->get('system.session.httponly', true);
 
