@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "82d333365d7424d73da22f99a2daa42c",
-    "content-hash": "6d876da7dbe11934a98374e67d15550c",
+    "hash": "94131c9b1e1bafa572e1022ca6093544",
+    "content-hash": "fd3f9839960586cb8d7c841eb3a51610",
     "packages": [
         {
             "name": "doctrine/cache",
-            "version": "v1.5.2",
+            "version": "v1.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "47c7128262da274f590ae6f86eb137a7a64e82af"
+                "reference": "47cdc76ceb95cc591d9c79a36dc3794975b5d136"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/47c7128262da274f590ae6f86eb137a7a64e82af",
-                "reference": "47c7128262da274f590ae6f86eb137a7a64e82af",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/47cdc76ceb95cc591d9c79a36dc3794975b5d136",
+                "reference": "47cdc76ceb95cc591d9c79a36dc3794975b5d136",
                 "shasum": ""
             },
             "require": {
@@ -75,7 +75,7 @@
                 "cache",
                 "caching"
             ],
-            "time": "2015-12-03 10:50:37"
+            "time": "2015-12-19 05:03:47"
         },
         {
             "name": "donatj/phpuseragentparser",
@@ -134,12 +134,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/parsedown.git",
-                "reference": "10a7ff776c3f16b1b3aa41c176c48150fc091065"
+                "reference": "e7443a2bd868e78946ae6a01a1b07d477ce6f4cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/10a7ff776c3f16b1b3aa41c176c48150fc091065",
-                "reference": "10a7ff776c3f16b1b3aa41c176c48150fc091065",
+                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/e7443a2bd868e78946ae6a01a1b07d477ce6f4cc",
+                "reference": "e7443a2bd868e78946ae6a01a1b07d477ce6f4cc",
                 "shasum": ""
             },
             "type": "library",
@@ -167,7 +167,7 @@
             "support": {
                 "source": "https://github.com/getgrav/parsedown/tree/master"
             },
-            "time": "2015-12-17 17:48:21"
+            "time": "2015-12-19 03:45:14"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -215,36 +215,41 @@
         },
         {
             "name": "filp/whoops",
-            "version": "1.1.10",
+            "version": "2.0.0-alpha2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "72538eeb70bbfb11964412a3d098d109efd012f7"
+                "reference": "eb1ce6439db161a9f00cd57f33a9cfa1355229ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/72538eeb70bbfb11964412a3d098d109efd012f7",
-                "reference": "72538eeb70bbfb11964412a3d098d109efd012f7",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/eb1ce6439db161a9f00cd57f33a9cfa1355229ec",
+                "reference": "eb1ce6439db161a9f00cd57f33a9cfa1355229ec",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.5.9"
             },
             "require-dev": {
-                "mockery/mockery": "0.9.*"
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "^4.8 || ^5.0"
+            },
+            "suggest": {
+                "symfony/var-dumper": "Pretty print complex values better with var-dumper available",
+                "whoops/soap": "Formats errors as SOAP responses"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2-dev"
+                    "dev-master": "2.0-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Whoops": "src/"
+                "psr-4": {
+                    "Whoops\\": "src/Whoops/"
                 },
-                "classmap": [
-                    "src/deprecated"
+                "files": [
+                    "src/Whoops/functions.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -265,11 +270,10 @@
                 "exception",
                 "handling",
                 "library",
-                "silex-provider",
                 "whoops",
                 "zf2"
             ],
-            "time": "2015-06-29 05:42:04"
+            "time": "2015-12-15 12:27:17"
         },
         {
             "name": "gregwar/cache",
@@ -1137,12 +1141,13 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "erusev/parsedown": 20
+        "erusev/parsedown": 20,
+        "filp/whoops": 15
     },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.4.0"
+        "php": ">=5.5.9"
     },
     "platform-dev": []
 }

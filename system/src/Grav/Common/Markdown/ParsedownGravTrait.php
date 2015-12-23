@@ -18,8 +18,8 @@ trait ParsedownGravTrait
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
 
-    public $completeable_blocks = [];
-    public $continueable_blocks = [];
+    public $completable_blocks = [];
+    public $continuable_blocks = [];
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -57,16 +57,16 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addBlockType($type, $tag, $continueable = false, $completeable = false)
+    public function addBlockType($type, $tag, $continuable = false, $completable = false)
     {
         $this->BlockTypes[$type] []= $tag;
 
-        if ($continueable) {
-            $this->continueable_blocks[] = $tag;
+        if ($continuable) {
+            $this->continuable_blocks[] = $tag;
         }
 
-        if ($completeable) {
-            $this->completeable_blocks[] = $tag;
+        if ($completable) {
+            $this->completable_blocks[] = $tag;
         }
     }
 
@@ -83,27 +83,27 @@ trait ParsedownGravTrait
     }
 
     /**
-     * Overrides the default behavior to allow for plugin-provided blocks to be continueable
+     * Overrides the default behavior to allow for plugin-provided blocks to be continuable
      *
      * @param $Type
      * @return bool
      */
-    protected function isBlockContinueable($Type)
+    protected function isBlockContinuable($Type)
     {
-        $continueable = in_array($Type, $this->continueable_blocks) || method_exists($this, 'block'.$Type.'Continue');
-        return $continueable;
+        $continuable = in_array($Type, $this->continuable_blocks) || method_exists($this, 'block'.$Type.'Continue');
+        return $continuable;
     }
 
     /**
-     *  Overrides the default behavior to allow for plugin-provided blocks to be completeable
+     *  Overrides the default behavior to allow for plugin-provided blocks to be completable
      *
      * @param $Type
      * @return bool
      */
-    protected function isBlockCompleteable($Type)
+    protected function isBlockCompletable($Type)
     {
-        $completeable = in_array($Type, $this->completeable_blocks) || method_exists($this, 'block'.$Type.'Complete');
-        return $completeable;
+        $completable = in_array($Type, $this->completable_blocks) || method_exists($this, 'block'.$Type.'Complete');
+        return $completable;
     }
 
 
@@ -272,7 +272,7 @@ trait ParsedownGravTrait
             if (isset($url['query'])) {
                 $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
                     $parts = explode('=', $item, 2);
-                    $value = isset($parts[1]) ? $parts[1] : null;
+                    $value = isset($parts[1]) ? $parts[1] : true;
                     $carry[$parts[0]] = $value;
 
                     return $carry;

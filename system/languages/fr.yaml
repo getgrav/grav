@@ -43,13 +43,13 @@ INFLECTOR_SINGULAR:
     '/([ti])a$/i': '\1um'
     '/(n)ews$/i': '\1ews'
     '/s$/i': ''
-INFLECTOR_UNCOUNTABLE: ['équipment', 'information', 'riz', 'argent', 'espèces', 'séries', 'poisson', 'mouton']
+INFLECTOR_UNCOUNTABLE: ['équipement', 'information', 'riz', 'argent', 'espèces', 'séries', 'poisson', 'mouton']
 INFLECTOR_IRREGULAR:
     'person': 'personnes'
-    'man': 'Hommes'
+    'man': 'hommes'
     'child': 'enfants'
     'sex': 'sexes'
-    'move': 'déplacemements'
+    'move': 'déplacements'
 INFLECTOR_ORDINALS:
     'default': 'ème'
     'first': 'er'

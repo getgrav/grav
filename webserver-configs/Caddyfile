@@ -1,0 +1,12 @@
+:8080
+gzip
+fastcgi / 127.0.0.1:9000 {
+    ext   .php
+    split .php
+    index index.php
+}
+rewrite {
+    regexp .*
+    ext    /
+    to     /index.php?_url={uri}
+}

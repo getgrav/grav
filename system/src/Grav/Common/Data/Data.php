@@ -211,7 +211,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function extra()
     {
-        return $this->blueprints()->extra($this->items);
+        return $this->blueprints ? $this->blueprints->extra($this->items) : array();
     }
 
     /**

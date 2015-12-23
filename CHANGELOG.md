@@ -1,3 +1,20 @@
+# v1.0.6
+## 12/22/2015
+
+1. [](#new)
+    * Set minimum requirements to [PHP 5.5.9](http://bit.ly/1Jt9OXO) 
+    * Added `saveConfig` to Themes
+1. [](#improved)   
+    * Updated Whoops to new 2.0 version (PHP 7.0 compatbile)
+    * Moved sample web server configs into dedicated directory
+    * FastCGI will use Apache's `mod_deflate` if gzip turned off
+1. [](#bugfix)
+    * Fix broken media image operators
+    * Only call extra method of blueprints if blueprints exist
+    * Fix lang prefix in url twig variables #523
+    * Fix case insensitive HTTPS check #535
+    * Field field validation handles case `multiple` missing
+    
 # v1.0.5
 ## 12/18/2015
 
