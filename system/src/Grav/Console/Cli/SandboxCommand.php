@@ -50,6 +50,7 @@ class SandboxCommand extends ConsoleCommand
         '/CHANGELOG.md' => '/CHANGELOG.md',
         '/LICENSE.txt' => '/LICENSE.txt',
         '/README.md' => '/README.md',
+        '/CONTRIBUTING.md' => '/CONTRIBUTING.md',
         '/index.php'     => '/index.php',
         '/composer.json' => '/composer.json',
         '/bin'           => '/bin',
