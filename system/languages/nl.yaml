@@ -41,3 +41,5 @@ NICETIME:
     MO_PLURAL: maanden
     YR_PLURAL: jaren
     DEC_PLURAL: decs
+MONTHS_OF_THE_YEAR: ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December']
+DAYS_OF_THE_WEEK: ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag']

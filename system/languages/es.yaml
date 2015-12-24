@@ -39,4 +39,6 @@ FORM:
     VALIDATION_FAIL: <b>Falló la validación. </b>
     INVALID_INPUT: "Dato inválido en: "
     MISSING_REQUIRED_FIELD: "Falta el campo requerido: "
+MONTHS_OF_THE_YEAR: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Augosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+DAYS_OF_THE_WEEK: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 

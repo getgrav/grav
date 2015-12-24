@@ -35,3 +35,5 @@ NICETIME:
     MO_PLURAL: m
     YR_PLURAL: r
     DEC_PLURAL: dek
+MONTHS_OF_THE_YEAR: ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec']
+DAYS_OF_THE_WEEK: ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle']
