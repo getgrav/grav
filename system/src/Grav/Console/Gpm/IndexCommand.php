@@ -69,6 +69,12 @@ class IndexCommand extends ConsoleCommand
                 'Filters the results to Updatable Themes and Plugins only'
             )
             ->addOption(
+                'installed-only',
+                'I',
+                InputOption::VALUE_NONE,
+                'Filters the results to only the Themes and Plugins you have installed'
+            )
+            ->addOption(
                 'sort',
                 's',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
@@ -176,7 +182,14 @@ class IndexCommand extends ConsoleCommand
             unset($data['plugins']);
         }
 
-        if ($this->options['filter'] || $this->options['updates-only'] || $this->options['desc']) {
+        $filter = [
+            $this->options['filter'],
+            $this->options['installed-only'],
+            $this->options['updates-only'],
+            $this->options['desc']
+        ];
+
+        if (count(array_filter($filter))) {
             foreach ($data as $type => $packages) {
                 foreach ($packages as $slug => $package) {
                     $filter = true;
@@ -184,6 +197,12 @@ class IndexCommand extends ConsoleCommand
                     // Filtering by string
                     if ($this->options['filter']) {
                         $filter = preg_grep('/(' . (implode('|', $this->options['filter'])) . ')/i', [$slug, $package->name]);
+                    }
+
+                    // Filtering updatables only
+                    if ($this->options['installed-only'] && $filter) {
+                        $method = ucfirst(preg_replace("/s$/", '', $package->package_type));
+                        $filter = $this->gpm->{'is' . $method . 'Installed'}($package->slug);
                     }
 
                     // Filtering updatables only
