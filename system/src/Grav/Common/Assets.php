@@ -485,7 +485,7 @@ class Assets
      */
     public function css($group = 'head', $attributes = [])
     {
-        if (!$this->css) {
+        if (!$this->css && !$this->inline_css) {
             return null;
         }
 
@@ -558,7 +558,7 @@ class Assets
      */
     public function js($group = 'head', $attributes = [])
     {
-        if (!$this->js) {
+        if (!$this->js && !$this->inline_js) {
             return null;
         }
 
