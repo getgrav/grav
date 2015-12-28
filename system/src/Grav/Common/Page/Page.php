@@ -1079,10 +1079,6 @@ class Page
             $this->publish_date = Utils::date2timestamp($var);
         }
 
-        if ($this->publish_date === null) {
-            $this->publish_date = $this->date();
-        }
-
         return $this->publish_date;
     }
 
@@ -2227,7 +2223,7 @@ class Page
                 }
             }
             // publish if required, if not clear cache right before page is published
-            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
+            if ($this->publishDate() && $this->publishDate() && $this->publishDate() > time()) {
                 $this->published(false);
                 self::getGrav()['cache']->setLifeTime($this->publishDate());
             }
