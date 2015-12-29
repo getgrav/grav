@@ -309,11 +309,11 @@ trait ParsedownGravTrait
                 unset ($url['query']);
             }
 
-
-            // if there is no scheme, the file is local
+            // if there is no scheme, the file is local and we'll need to convert that URL
             if (!isset($url['scheme']) && (count($url) > 0)) {
-                // convert the URl is required
                 $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type, true);
+            } else {
+                $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
             }
         }
 
@@ -328,7 +328,4 @@ trait ParsedownGravTrait
             return call_user_func_array($func, $args);
         }
     }
-
-
-
 }
