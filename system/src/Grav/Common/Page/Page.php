@@ -498,6 +498,10 @@ class Page
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
+
+                    // Content Processed but not cached yet
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
                     if ($cache_enable) {
                         $this->cachePageContent();
                     }
@@ -505,9 +509,10 @@ class Page
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
-                    if (!$cache_enable) {
-                        $this->cachePageContent();
-                    }
+
+                    // Content Processed but not cached yet
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
                     if ($process_twig) {
                         $this->processTwig();
                         $twig_already_processed = true;
@@ -516,7 +521,6 @@ class Page
                         $this->cachePageContent();
                     }
                 }
-            // content cached, but twig cache off
             }
 
             // only markdown content cached, process twig if required and not already processed
@@ -582,8 +586,6 @@ class Page
     {
         $cache = self::getGrav()['cache'];
         $cache_id = md5('page'.$this->id());
-
-        self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
         $cache->save($cache_id, $this->content);
     }
 
