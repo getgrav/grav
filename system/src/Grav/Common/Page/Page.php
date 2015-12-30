@@ -481,12 +481,12 @@ class Page
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
-            $cache_twig = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
+            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
             $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : false;
             $twig_already_processed = false;
 
             // if no cached-content run everything
-            if ($this->content === false) {
+            if ($this->content === false || $cache_enable == false) {
                 $this->content = $this->raw_content;
                 self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
@@ -498,21 +498,21 @@ class Page
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
-                    if ($cache_twig) {
+                    if ($cache_enable) {
                         $this->cachePageContent();
                     }
                 } else {
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
-                    if (!$cache_twig) {
+                    if (!$cache_enable) {
                         $this->cachePageContent();
                     }
                     if ($process_twig) {
                         $this->processTwig();
                         $twig_already_processed = true;
                     }
-                    if ($cache_twig) {
+                    if ($cache_enable) {
                         $this->cachePageContent();
                     }
                 }
@@ -520,7 +520,7 @@ class Page
             }
 
             // only markdown content cached, process twig if required and not already processed
-            if ($process_twig && !$cache_twig && !$twig_already_processed) {
+            if ($process_twig && !$cache_enable && !$twig_already_processed) {
                 $this->processTwig();
             }
 
