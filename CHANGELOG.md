@@ -5,7 +5,7 @@
     * Set minimum requirements to [PHP 5.5.9](http://bit.ly/1Jt9OXO) 
     * Added `saveConfig` to Themes
 1. [](#improved)   
-    * Updated Whoops to new 2.0 version (PHP 7.0 compatbile)
+    * Updated Whoops to new 2.0 version (PHP 7.0 compatible)
     * Moved sample web server configs into dedicated directory
     * FastCGI will use Apache's `mod_deflate` if gzip turned off
 1. [](#bugfix)
