@@ -484,9 +484,9 @@ class Page
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
-            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
+            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled', true);
             $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first', true);
-            $twig_already_processed = false;
+
 
             // if no cached-content run everything
             if ($this->content === false || $cache_enable == false) {
@@ -496,7 +496,6 @@ class Page
                 if ($twig_first) {
                     if ($process_twig) {
                         $this->processTwig();
-                        $twig_already_processed = true;
                     }
                     if ($process_markdown) {
                         $this->processMarkdown();
@@ -518,17 +517,11 @@ class Page
 
                     if ($process_twig) {
                         $this->processTwig();
-                        $twig_already_processed = true;
                     }
                     if ($cache_enable) {
                         $this->cachePageContent();
                     }
                 }
-            }
-
-            // only markdown content cached, process twig if required and not already processed
-            if ($process_twig && !$cache_enable && !$twig_already_processed) {
-                $this->processTwig();
             }
 
             // Handle summary divider
