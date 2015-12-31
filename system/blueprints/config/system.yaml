@@ -221,6 +221,19 @@ form:
                     validate:
                         type: bool
 
+                pages.twig_first:
+                    type: toggle
+                    label: PLUGIN_ADMIN.TWIG_FIRST
+                    highlight: asc
+                    default: desc
+                    help: PLUGIN_ADMIN.TWIG_FIRST_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
         languages:
             type: section
             title: PLUGIN_ADMIN.LANGUAGES

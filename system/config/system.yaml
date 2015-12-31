@@ -31,6 +31,7 @@ pages:
   process:
     markdown: true                          # Process Markdown
     twig: false                             # Process Twig
+  twig_first: true                          # Process Twig before markdown when processing both on a page
   events:
     page: true                              # Enable page level events
     twig: true                              # Enable twig level events

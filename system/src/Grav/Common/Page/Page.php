@@ -473,6 +473,9 @@ class Page
             // Get media
             $this->media();
 
+            /** @var Config $config */
+            $config = self::getGrav()['config'];
+
             // Load cached content
             /** @var Cache $cache */
             $cache = self::getGrav()['cache'];
@@ -482,7 +485,7 @@ class Page
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
             $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
-            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : false;
+            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first', true);
             $twig_already_processed = false;
 
             // if no cached-content run everything
@@ -529,7 +532,7 @@ class Page
             }
 
             // Handle summary divider
-            $delimiter = self::getGrav()['config']->get('site.summary.delimiter', '===');
+            $delimiter = $config->get('site.summary.delimiter', '===');
             $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
