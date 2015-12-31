@@ -1,10 +1,6 @@
 :8080
 gzip
-fastcgi / 127.0.0.1:9000 {
-    ext   .php
-    split .php
-    index index.php
-}
+fastcgi / 127.0.0.1:9000 php
 rewrite {
     regexp .*
     ext    /
