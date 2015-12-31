@@ -504,9 +504,6 @@ class Page
                     // Content Processed but not cached yet
                     self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
-                    if ($cache_enable) {
-                        $this->cachePageContent();
-                    }
                 } else {
                     if ($process_markdown) {
                         $this->processMarkdown();
@@ -518,9 +515,10 @@ class Page
                     if ($process_twig) {
                         $this->processTwig();
                     }
-                    if ($cache_enable) {
-                        $this->cachePageContent();
-                    }
+                }
+
+                if ($cache_enable) {
+                    $this->cachePageContent();
                 }
             }
 
