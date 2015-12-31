@@ -131,7 +131,9 @@ class Cache extends Getters
         $driver_name = 'file';
 
         if (!$setting || $setting == 'auto') {
-            if (extension_loaded('apc')) {
+            if (extension_loaded('apcu')) {
+                $driver_name = 'apcu';
+            } elseif (extension_loaded('apc')) {
                 $driver_name = 'apc';
             } elseif (extension_loaded('wincache')) {
                 $driver_name = 'wincache';
@@ -147,6 +149,10 @@ class Cache extends Getters
         switch ($driver_name) {
             case 'apc':
                 $driver = new \Doctrine\Common\Cache\ApcCache();
+                break;
+
+            case 'apcu':
+                $driver = new \Doctrine\Common\Cache\ApcuCache();
                 break;
 
             case 'wincache':
