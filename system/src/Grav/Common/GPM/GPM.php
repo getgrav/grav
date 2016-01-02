@@ -327,6 +327,10 @@ class GPM extends Iterator
         $plugins = $this->getRepositoryPlugins();
 
         if (!$themes && !$plugins) {
+            if (!is_writable(ROOT_DIR . '/cache/gpm')) {
+                throw new \RuntimeException("The cache/gpm folder is not writable. Please check the folder permissions.");
+            }
+
             throw new \RuntimeException("GPM not reachable. Please check your internet connection or check the Grav site is reachable");
         }
 
