@@ -57,8 +57,6 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
-
-
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_init', 'Initialize');
 
@@ -184,8 +182,6 @@ class Grav extends Container
     {
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-
-
 
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
