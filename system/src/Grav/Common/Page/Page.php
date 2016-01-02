@@ -520,6 +520,9 @@ class Page
                 if ($cache_enable) {
                     $this->cachePageContent();
                 }
+            } else {
+                // Inform plugins that content was cached
+                self::getGrav()->fireEvent('onPageContentFromCache', new Event(['page' => $this]));                
             }
 
             // Handle summary divider
