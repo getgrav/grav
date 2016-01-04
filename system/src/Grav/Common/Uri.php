@@ -170,7 +170,7 @@ class Uri
                 if (strpos($bit, $delimiter) !== false) {
                     $param = explode($delimiter, $bit);
                     if (count($param) == 2) {
-                        $plain_var = filter_var(urldecode($param[1]), FILTER_SANITIZE_STRING);
+                        $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
                         $this->params[$param[0]] = $plain_var;
                     }
                 } else {
@@ -206,7 +206,7 @@ class Uri
      */
     public function route($absolute = false, $domain = false)
     {
-        return urldecode(($absolute ? $this->rootUrl($domain) : '') . '/' . implode('/', $this->paths));
+        return rawurldecode(($absolute ? $this->rootUrl($domain) : '') . '/' . implode('/', $this->paths));
     }
 
     /**
@@ -268,7 +268,7 @@ class Uri
     public function param($id)
     {
         if (isset($this->params[$id])) {
-            return urldecode($this->params[$id]);
+            return rawurldecode($this->params[$id]);
         } else {
             return false;
         }
@@ -545,8 +545,8 @@ class Uri
 
             if (file_exists($full_path)) {
                 // do nothing
-            } elseif (file_exists(urldecode($full_path))) {
-                $full_path = urldecode($full_path);
+            } elseif (file_exists(rawurldecode($full_path))) {
+                $full_path = rawurldecode($full_path);
             } else {
                 return $normalized_url;
             }
