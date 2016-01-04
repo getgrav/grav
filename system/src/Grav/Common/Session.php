@@ -36,18 +36,23 @@ class Session extends \RocketTheme\Toolbox\Session\Session
         }
 
         if ($config->get('system.session.enabled') || $is_admin) {
-
-
             // Define session service.
             parent::__construct(
                 $session_timeout,
                 $session_path
             );
 
+            $domain = $uri->host();
+            if ($domain == 'localhost') {
+                $domain = '';
+            }
+            $secure = $config->get('system.session.secure', false);
+            $httponly = $config->get('system.session.httponly', true);
+
             $unique_identifier = GRAV_ROOT;
             $this->setName($config->get('system.session.name', 'grav_site') . '-' . substr(md5($unique_identifier), 0, 7) . ($is_admin ? '-admin' : ''));
             $this->start();
-            setcookie(session_name(), session_id(), time() + $session_timeout, $session_path);
+            setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
         }
     }
 }

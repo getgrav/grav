@@ -806,6 +806,29 @@ form:
                     label: PLUGIN_ADMIN.NAME
                     help: PLUGIN_ADMIN.SESSION_NAME_HELP
 
+                session.secure:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_SECURE
+                    help: PLUGIN_ADMIN.SESSION_SECURE_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: false
+                    validate:
+                        type: bool
+
+                session.httponly:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_HTTPONLY
+                    help: PLUGIN_ADMIN.SESSION_HTTPONLY_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
 
         advanced:
             type: section
