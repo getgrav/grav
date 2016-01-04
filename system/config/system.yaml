@@ -15,6 +15,7 @@ languages:
 
 home:
   alias: '/home'                            # Default path for home, ie /
+  hide_in_urls: false                       # Hide the home route in URLs
 
 pages:
   theme: antimatter                         # Default theme (defaults to "antimatter" theme)

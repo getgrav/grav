@@ -85,6 +85,8 @@ class Page
     protected $markdown_extra;
     protected $etag;
     protected $last_modified;
+    protected $home_route;
+    protected $hide_home_route;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -118,6 +120,10 @@ class Page
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
+        $config = self::getGrav()['config'];
+
+        $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
+        $this->home_route = $config->get('system.home.alias');
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
@@ -131,6 +137,8 @@ class Page
         $this->setPublishState();
         $this->published();
         $this->urlExtension();
+
+
 
         // some extension logic
         if (empty($extension)) {
@@ -1295,8 +1303,18 @@ class Page
         }
 
         if (empty($this->route)) {
+            $baseRoute = null;
+
             // calculate route based on parent slugs
-            $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
+            $parent = $this->parent();
+            if (isset($parent)) {
+                if ($this->hide_home_route && $parent->route() == $this->home_route) {
+                    $baseRoute = '';
+                } else {
+                    $baseRoute = (string) $parent->route();
+                }
+            }
+
             $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
 
             if (!empty($this->routes) && isset($this->routes['default'])) {
@@ -1688,6 +1706,31 @@ class Page
         $pages = self::getGrav()['pages'];
 
         return $pages->get($this->parent);
+    }
+
+    /**
+     * Gets the top parent object for this page
+     *
+     * @return Page|null the top parent page object if it exists.
+     */
+    public function topParent()
+    {
+        $topParent = $this->parent();
+
+        if (!$topParent) {
+            return null;
+        }
+
+        while (true) {
+            $theParent = $topParent->parent();
+            if ($theParent != null && $theParent->parent() !== null) {
+                $topParent = $theParent;
+            } else {
+                break;
+            }
+        }
+
+        return $topParent;
     }
 
     /**
