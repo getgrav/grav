@@ -139,8 +139,11 @@ class InstallCommand extends ConsoleCommand
 
                         foreach($dependency_data as $type => $dep_data) {
                             foreach($dep_data as $name => $dep_package) {
-
-                                $this->processPackage($dep_package);
+                                Installer::isValidDestination($this->destination . DS . $dep_package->install_path);
+                                $error_code = Installer::lastErrorCode();
+                                if (!$error_code) {
+                                    $this->processPackage($dep_package);
+                                }
                             }
                         }
                     }
