@@ -36,3 +36,5 @@ Thumbs.db
 # phpstorm
 .idea/*
 user/config/security.yaml
+
+tests/_output/*
