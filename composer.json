@@ -43,5 +43,10 @@
     },
     "scripts": {
         "post-create-project-cmd": "bin/grav install"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "1.x-dev"
+        }
     }
 }
