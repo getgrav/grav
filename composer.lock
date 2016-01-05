@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "94131c9b1e1bafa572e1022ca6093544",
-    "content-hash": "fd3f9839960586cb8d7c841eb3a51610",
+    "hash": "85173a1bfa9ece106f687d69402d99d8",
+    "content-hash": "410b016e6cd8af6cd8ee9cdb6d5fd7a4",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -130,16 +130,16 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "dev-master",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/parsedown.git",
-                "reference": "e7443a2bd868e78946ae6a01a1b07d477ce6f4cc"
+                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/e7443a2bd868e78946ae6a01a1b07d477ce6f4cc",
-                "reference": "e7443a2bd868e78946ae6a01a1b07d477ce6f4cc",
+                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
+                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
                 "shasum": ""
             },
             "type": "library",
@@ -165,9 +165,9 @@
                 "parser"
             ],
             "support": {
-                "source": "https://github.com/getgrav/parsedown/tree/master"
+                "source": "https://github.com/getgrav/parsedown/tree/1.6.0"
             },
-            "time": "2015-12-19 03:45:14"
+            "time": "2015-10-04 16:44:32"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -1137,17 +1137,9 @@
         }
     ],
     "packages-dev": [],
-    "aliases": [
-        {
-            "alias": "1.6.0",
-            "alias_normalized": "1.6.0.0",
-            "version": "9999999-dev",
-            "package": "erusev/parsedown"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "erusev/parsedown": 20,
         "filp/whoops": 15
     },
     "prefer-stable": false,
