@@ -1,10 +1,19 @@
+# Unreleased
+## (TBA)
+
+1. [](#new)
+    * Added `composer create-project` as an additional installation method
+    * Added languages: Greek, Finnish, Norwegian, Polish, Portuguese, Romanian
+1. [](#improved)
+1. [](#bugfix)
+
 # v1.0.6
 ## 12/22/2015
 
 1. [](#new)
-    * Set minimum requirements to [PHP 5.5.9](http://bit.ly/1Jt9OXO) 
+    * Set minimum requirements to [PHP 5.5.9](http://bit.ly/1Jt9OXO)
     * Added `saveConfig` to Themes
-1. [](#improved)   
+1. [](#improved)
     * Updated Whoops to new 2.0 version (PHP 7.0 compatible)
     * Moved sample web server configs into dedicated directory
     * FastCGI will use Apache's `mod_deflate` if gzip turned off
@@ -14,7 +23,7 @@
     * Fix lang prefix in url twig variables #523
     * Fix case insensitive HTTPS check #535
     * Field field validation handles case `multiple` missing
-    
+
 # v1.0.5
 ## 12/18/2015
 
@@ -25,7 +34,7 @@
     * Use Grav's fork of Parsedown until PR is merged
     * New function to persist plugin configuration to disk
     * GPM `selfupgrade` will now check PHP version requirements
-1. [](#improved)   
+1. [](#improved)
     * If the field allows multiple files, return array
     * Handle non-array values in file validation
 1. [](#bugfix)
@@ -54,7 +63,7 @@
 # v1.0.1
 ## 12/11/2015
 
-1. [](#improved)   
+1. [](#improved)
     * Reduced package sizes by removing extra vendor dev bits
 1. [](#bugfix)
     * Fix issue when you enable debugger from admin plugin
@@ -67,7 +76,7 @@
     * Added setters to set state of CSS/JS pipelining
     * Added `user/accounts` to `.gitignore`
     * Added configurable permissions option for Image cache
-1. [](#improved)   
+1. [](#improved)
     * Hungarian translation updated
     * Refactored Theme initialization for improved flexibility
     * Wrapped security section of account blueprints in an 'super user' authorize check
@@ -101,7 +110,7 @@
     * Automatically create unique security salt for each configuration
     * Added Hungarian translation
     * Added support for User groups
-1. [](#improved)   
+1. [](#improved)
     * Improved robots.txt to disallow crawling of non-user folders
     * Nonces only generated once per action and process
     * Added IP into Nonce string calculation
