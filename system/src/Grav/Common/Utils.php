@@ -454,6 +454,35 @@ abstract class Utils
      */
     private static function generateNonceString($action, $plusOneTick = false)
     {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+
+        $username = '';
+        if (isset(self::getGrav()['user'])) {
+            $user = self::getGrav()['user'];
+            $username = $user->username;
+        }
+
+        $username .= $ip;
+
+        $token = session_id();
+        $i = self::nonceTick();
+
+        if ($plusOneTick) {
+            $i++;
+        }
+
+        return ( $i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
+    }
+
+    //TODO: Remove after 1.0.8 release
+    private static function generateNonceStringOldStyle($action, $plusOneTick = false)
+    {
         if (isset(self::getGrav()['user'])) {
             $user = self::getGrav()['user'];
             $username = $user->username;
@@ -463,14 +492,11 @@ abstract class Utils
         } else {
             $username = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         }
-
         $token = session_id();
         $i = self::nonceTick();
-
         if ($plusOneTick) {
             $i++;
         }
-
         return ( $i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
     }
 
@@ -509,6 +535,19 @@ abstract class Utils
         return static::$nonces[$action];
     }
 
+    //TODO: Remove after 1.0.8 release
+    public static function getNonceOldStyle($action, $plusOneTick = false)
+    {
+        // Don't regenerate this again if not needed
+        if (isset(static::$nonces[$action])) {
+            return static::$nonces[$action];
+        }
+        $nonce = md5(self::generateNonceStringOldStyle($action, $plusOneTick));
+        static::$nonces[$action] = $nonce;
+
+        return static::$nonces[$action];
+    }
+
     /**
      * Verify the passed nonce for the give action
      *
@@ -527,6 +566,20 @@ abstract class Utils
         //Nonce generated 12-24 hours ago
         $plusOneTick = true;
         if ($nonce == self::getNonce($action, $plusOneTick)) {
+            return true;
+        }
+
+        //Add a one-time check in version 1.0.8 to ensure that existing nonces are not broken.
+        //TODO to be removed as soon as released
+
+        //Nonce generated 0-12 hours ago
+        if ($nonce == self::getNonceOldStyle($action)) {
+            return true;
+        }
+
+        //Nonce generated 12-24 hours ago
+        $plusOneTick = true;
+        if ($nonce == self::getNonceOldStyle($action, $plusOneTick)) {
             return true;
         }
 
