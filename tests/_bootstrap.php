@@ -1,10 +1,10 @@
 <?php
 // This is global bootstrap for autoloading
 
-
 namespace Grav;
 
 use Codeception\Util\Fixtures;
+use Faker\Factory;
 
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/../vendor/autoload.php';
@@ -37,4 +37,8 @@ $grav = Grav::instance(
         'loader' => $loader
     )
 );
+
+
+$fake = Factory::create();
 Fixtures::add('grav', $grav);
+Fixtures::add('fake', $fake);
