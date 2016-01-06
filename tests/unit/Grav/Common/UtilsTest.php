@@ -1,5 +1,6 @@
 <?php
 
+use Codeception\Util\Fixtures;
 use Grav\Common\Utils;
 
 class UtilsTest extends \Codeception\TestCase\Test
@@ -17,6 +18,12 @@ class UtilsTest extends \Codeception\TestCase\Test
     {
     }
 
+    public function grav()
+    {
+        $grav = Fixtures::get('grav');
+        return $grav;
+    }
+    
     public function testStartsWith()
     {
         $this->assertTrue(Utils::startsWith('english', 'en'));        
@@ -75,10 +82,19 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertObjectHasAttribute('test2', $objMerged);
     }
     
-    public function dateFormats()
+    public function testDateFormats()
     {
-
-    }
+        $grav = $this->grav();
+        $dateFormats = Utils::dateFormats();
+        $this->assertTrue(is_array($dateFormats));
+        $this->assertContainsOnly('string', $dateFormats);
+        
+        $default_format = $grav['config']->get('system.pages.dateformat.default');
+        
+        if ($default_format !== null) {
+            $this->assertContains($default_format, $dateFormats);    
+        }        
+    }        
 
     public function truncate()
     {
