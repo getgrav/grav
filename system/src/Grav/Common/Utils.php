@@ -454,15 +454,19 @@ abstract class Utils
      */
     private static function generateNonceString($action, $plusOneTick = false)
     {
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+
+        $username = '';
         if (isset(self::getGrav()['user'])) {
             $user = self::getGrav()['user'];
             $username = $user->username;
-            if (isset($_SERVER['REMOTE_ADDR'])) {
-                $username .= $_SERVER['REMOTE_ADDR'];
-            }
-        } else {
-            $username = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         }
+
+        $username .= $ip;
 
         $token = session_id();
         $i = self::nonceTick();
