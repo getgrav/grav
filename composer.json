@@ -27,7 +27,8 @@
         "maximebf/debugbar": "~1.10"
     },
     "require-dev": {
-        "codeception/codeception": "^2.1"
+        "codeception/codeception": "^2.1",
+        "fzaninotto/faker": "^1.5"
     },
     "repositories": [
         {
