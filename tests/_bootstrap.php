@@ -4,6 +4,7 @@
 
 namespace Grav;
 
+use Codeception\Util\Fixtures;
 
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/../vendor/autoload.php';
@@ -36,3 +37,4 @@ $grav = Grav::instance(
         'loader' => $loader
     )
 );
+Fixtures::add('grav', $grav);
