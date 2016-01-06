@@ -483,23 +483,20 @@ abstract class Utils
     //TODO: Remove after 1.0.8 release
     private static function generateNonceStringOldStyle($action, $plusOneTick = false)
     {
-        $ip = $_SERVER['REMOTE_ADDR'];
-
-        $username = '';
         if (isset(self::getGrav()['user'])) {
             $user = self::getGrav()['user'];
             $username = $user->username;
+            if (isset($_SERVER['REMOTE_ADDR'])) {
+                $username .= $_SERVER['REMOTE_ADDR'];
+            }
+        } else {
+            $username = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         }
-
-        $username .= $ip;
-
         $token = session_id();
         $i = self::nonceTick();
-
         if ($plusOneTick) {
             $i++;
         }
-
         return ( $i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
     }
 
