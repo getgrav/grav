@@ -209,9 +209,9 @@ trait ParsedownGravTrait
                 }
 
                 // if there is a media file that matches the path referenced..
-                if ($media && isset($media->all()[$url['path']])) {
+                if ($media && isset($media->all()[$path_parts['basename']])) {
                     // get the medium object
-                    $medium = $media->all()[$url['path']];
+                    $medium = $media->all()[$path_parts['basename']];
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {

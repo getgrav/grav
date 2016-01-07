@@ -23,11 +23,19 @@ The underlying architecture of Grav is designed to use well-established and _bes
 
 # QuickStart
 
-You have two options to get Grav:
+These are the options to get Grav:
 
 ### Downloading a Grav Package
 
 You can download a **ready-built** package from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads)
+
+### With composer
+
+You can create a new project with the latest **stable** Grav release with the following command:
+
+```
+$ composer create-project getgrav/grav ~/webroot/grav
+```
 
 ### From GitHub
 
