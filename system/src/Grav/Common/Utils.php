@@ -18,6 +18,8 @@ abstract class Utils
     protected static $nonces = [];
 
     /**
+     * Check if the $haystack string starts with the substring $needle
+     *
      * @param  string $haystack
      * @param  string $needle
      *
@@ -41,6 +43,8 @@ abstract class Utils
     }
 
     /**
+     * Check if the $haystack string ends with the substring $needle
+     *
      * @param  string $haystack
      * @param  string $needle
      *
@@ -64,6 +68,8 @@ abstract class Utils
     }
 
     /**
+     * Check if the $haystack string contains the substring $needle
+     *
      * @param  string $haystack
      * @param  string $needle
      *
@@ -103,6 +109,8 @@ abstract class Utils
     }
 
     /**
+     * Return the Grav date formats allowed
+     *
      * @return array
      */
     public static function dateFormats()
@@ -283,7 +291,7 @@ abstract class Utils
     /**
      * Normalize path by processing relative `.` and `..` syntax and merging path
      *
-     * @param $path
+     * @param string $path
      *
      * @return string
      */
@@ -308,7 +316,9 @@ abstract class Utils
     }
 
     /**
-     * @param $function
+     * Check whether a function is disabled in the PHP settings
+     *
+     * @param string $function the name of the function to check
      *
      * @return bool
      */
@@ -318,6 +328,8 @@ abstract class Utils
     }
 
     /**
+     * Get the formatted timezones list 
+     *
      * @return array
      */
     public static function timezones()
@@ -347,8 +359,10 @@ abstract class Utils
     }
 
     /**
-     * @param array $source
-     * @param       $fn
+     * Recursively filter an array, filtering values by processing them through the $fn function argument
+     *
+     * @param array $source the Array to filter
+     * @param       $fn     the function to pass through each array item
      *
      * @return array
      */
@@ -372,7 +386,9 @@ abstract class Utils
     }
 
     /**
-     * @param $string
+     * Checks if the passed path contains the language code prefix
+     *
+     * @param $string The path
      *
      * @return bool
      */
@@ -392,9 +408,11 @@ abstract class Utils
     }
 
     /**
-     * @param $date
+     * Get the timestamp of a date
      *
-     * @return int
+     * @param $date a String expressed in the system.pages.dateformat.default format, with fallback to a strtotime argument
+     *
+     * @return int the timestamp
      */
     public static function date2timestamp($date)
     {
@@ -417,7 +435,13 @@ abstract class Utils
     }
 
     /**
-     * Get value of an array using dot notation
+     * Get value of an array element using dot notation
+     *
+     * @param array $array the Array to check
+     * @param string $path the dot notation path to check  
+     * @param $default a value to be returned if $path is not found in $array
+     *
+     * @return mixed the value found
      */
     public static function resolve(array $array, $path, $default = null)
     {
