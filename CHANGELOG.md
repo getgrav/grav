@@ -31,6 +31,7 @@
     * Fix for markdown attributes on external URLs
     * Fixed issue where `data:` page header was acting as `publish_date:`
     * Fix for special characters in URL parameters (e.g. /tag:c++) #541
+    * Safety check for an array of nonces to only use the first one
 
 # v1.0.6
 ## 12/22/2015
