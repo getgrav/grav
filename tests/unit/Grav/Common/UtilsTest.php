@@ -96,29 +96,41 @@ class UtilsTest extends \Codeception\TestCase\Test
         }        
     }        
 
-    public function truncate()
+    public function testTruncate()
     {
-
+        $this->assertEquals(Utils::truncate('english', 5), 'engli' . '&hellip;');
+        $this->assertEquals(Utils::truncate('english'), 'english');
+        $this->assertEquals(Utils::truncate('This is a string to truncate'), 'This is a string to truncate');
+        $this->assertEquals(Utils::truncate('This is a string to truncate', 2), 'Th' . '&hellip;');
+        $this->assertEquals(Utils::truncate('english', 5, true, " ", "..."), 'engli' . '...');
+        $this->assertEquals(Utils::truncate('english'), 'english');
+        $this->assertEquals(Utils::truncate('This is a string to truncate'), 'This is a string to truncate');
+        $this->assertEquals(Utils::truncate('This is a string to truncate', 3, true), 'This ');
     }
 
-    public function safeTruncate()
+    public function testSafeTruncate()
     {
-
+        $this->assertEquals(Utils::safeTruncate('This is a string to truncate', 1), 'This ');
+        $this->assertEquals(Utils::safeTruncate('This is a string to truncate', 4), 'This ');
+        $this->assertEquals(Utils::safeTruncate('This is a string to truncate', 5), 'This is ');
     }
 
-    public function truncateHtml()
+    public function testTruncateHtml()
     {
-
+        $this->assertEquals(Utils::truncateHtml('<p>This is a string to truncate</p>', 1), '<p>T…</p>');
+        $this->assertEquals(Utils::truncateHtml('<p>This is a string to truncate</p>', 4), '<p>This…</p>');
     }
 
-    public function safeTruncateHtml()
+    public function testSafeTruncateHtml()
     {
-
+        $this->assertEquals(Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1), '<p>This…</p>');
+        $this->assertEquals(Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 4), '<p>This…</p>');
     }
 
-    public function generateRandomString()
+    public function testGenerateRandomString()
     {
-
+        $this->assertNotEquals(Utils::generateRandomString(), Utils::generateRandomString());
+        $this->assertNotEquals(Utils::generateRandomString(20), Utils::generateRandomString(20));
     }
 
     public function download()
@@ -126,30 +138,57 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     }
 
-    public function getMimeType()
+    public function testGetMimeType()
     {
-
+        $this->assertEquals(Utils::getMimeType(''), 'application/octet-stream'); 
+        $this->assertEquals(Utils::getMimeType('jpg'), 'image/jpeg');
+        $this->assertEquals(Utils::getMimeType('png'), 'image/png');
+        $this->assertEquals(Utils::getMimeType('txt'), 'text/plain');
+        $this->assertEquals(Utils::getMimeType('doc'), 'application/msword');
     }
 
-    public function normalizePath()
+    public function testNormalizePath()
     {
-
+        $this->assertEquals(Utils::normalizePath('/test'), '/test');
+        $this->assertEquals(Utils::normalizePath('test'), 'test');
+        $this->assertEquals(Utils::normalizePath('../test'), 'test');
+        $this->assertEquals(Utils::normalizePath('/../test'), '/test');
+        $this->assertEquals(Utils::normalizePath('/test/../test2'), '/test2');
+        $this->assertEquals(Utils::normalizePath('/test/./test2'), '/test/test2');
     }
 
-    public function isFunctionDisabled()
+    public function testIsFunctionDisabled()
     {
+        $disabledFunctions = explode(',', ini_get('disable_functions'));
         
+        if ($disabledFunctions[0]) {
+            $this->assertEquals(Utils::isFunctionDisabled($disabledFunctions[0]), true);   
+        }
     }
 
-    public function timezones()
+    public function testTimezones()
     {
-
-
+        $timezones = Utils::timezones();
+        
+        $this->assertTrue(is_array($timezones));
+        $this->assertContainsOnly('string', $timezones);
     }
 
-    public function arrayFilterRecursive()
+    public function testArrayFilterRecursive()
     {
+        $array = [
+            'test' => '',
+            'test2' => 'test2'
+        ];
 
+        $array = Utils::arrayFilterRecursive($array, function($k, $v) {
+                    return !(is_null($v) || $v === '');
+                });
+
+        $this->assertContainsOnly('string', $array);
+        $this->assertFalse(isset($array['test']));
+        $this->assertTrue(isset($array['test2']));
+        $this->assertEquals($array['test2'], 'test2');
     }
     
     public function pathPrefixedByLangCode()
