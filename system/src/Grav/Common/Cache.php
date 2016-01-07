@@ -40,6 +40,8 @@ class Cache extends Getters
 
     protected $driver_name;
 
+    protected $driver_setting;
+
     /**
      * @var bool
      */
@@ -108,13 +110,15 @@ class Cache extends Getters
         // Cache key allows us to invalidate all cache on configuration changes.
         $this->key = ($prefix ? $prefix : 'g') . '-' . substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION), 2, 8);
 
+        $this->driver_setting = $this->config->get('system.cache.driver');
+
         $this->driver = $this->getCacheDriver();
 
         // Set the cache namespace to our unique key
         $this->driver->setNamespace($this->key);
 
         // Dump Cache state
-        $grav['debugger']->addMessage('Cache: [' . ($this->enabled ? 'true' : 'false') . '] Driver: [' . $this->driver_name . ']');
+        $grav['debugger']->addMessage('Cache: [' . ($this->enabled ? 'true' : 'false') . '] Setting: [' . $this->driver_setting . '] Driver: [' . $this->driver_name . ']');
 
     }
 
@@ -127,11 +131,13 @@ class Cache extends Getters
      */
     public function getCacheDriver()
     {
-        $setting = $this->config->get('system.cache.driver');
+        $setting = $this->driver_setting;
         $driver_name = 'file';
 
         if (!$setting || $setting == 'auto') {
-            if (extension_loaded('apc')) {
+            if (extension_loaded('apcu')) {
+                $driver_name = 'apcu';
+            } elseif (extension_loaded('apc')) {
                 $driver_name = 'apc';
             } elseif (extension_loaded('wincache')) {
                 $driver_name = 'wincache';
@@ -147,6 +153,10 @@ class Cache extends Getters
         switch ($driver_name) {
             case 'apc':
                 $driver = new \Doctrine\Common\Cache\ApcCache();
+                break;
+
+            case 'apcu':
+                $driver = new \Doctrine\Common\Cache\ApcuCache();
                 break;
 
             case 'wincache':

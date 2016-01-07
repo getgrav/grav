@@ -103,8 +103,11 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             'value' => 'PathName',
         ];
 
+        $list = [];
         foreach ((array) $paths as $path) {
-            return Folder::all($path, $options);
+            $list += Folder::all($path, $options);
         }
+
+        return $list;
     }
 }

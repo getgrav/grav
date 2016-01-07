@@ -209,9 +209,9 @@ trait ParsedownGravTrait
                 }
 
                 // if there is a media file that matches the path referenced..
-                if ($media && isset($media->all()[$url['path']])) {
+                if ($media && isset($media->all()[$path_parts['basename']])) {
                     // get the medium object
-                    $medium = $media->all()[$url['path']];
+                    $medium = $media->all()[$path_parts['basename']];
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
@@ -309,11 +309,11 @@ trait ParsedownGravTrait
                 unset ($url['query']);
             }
 
-
-            // if there is no scheme, the file is local
+            // if there is no scheme, the file is local and we'll need to convert that URL
             if (!isset($url['scheme']) && (count($url) > 0)) {
-                // convert the URl is required
                 $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type, true);
+            } else {
+                $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
             }
         }
 
@@ -328,7 +328,4 @@ trait ParsedownGravTrait
             return call_user_func_array($func, $args);
         }
     }
-
-
-
 }

@@ -96,3 +96,5 @@ FORM:
     VALIDATION_FAIL: <b>La validation a échoué :</b>
     INVALID_INPUT: Saisie non valide
     MISSING_REQUIRED_FIELD: Champ obligatoire manquant :
+MONTHS_OF_THE_YEAR: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+DAYS_OF_THE_WEEK: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']

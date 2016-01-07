@@ -1,6 +1,6 @@
 {
     "name": "getgrav/grav",
-    "type": "library",
+    "type": "project",
     "description": "Modern, Crazy Fast, Ridiculously Easy and Amazingly Powerful Flat-File CMS",
     "keywords": ["cms","flat-file cms","flat cms","flatfile cms","php"],
     "homepage": "http://getgrav.org",
@@ -8,7 +8,6 @@
     "require": {
         "php": ">=5.5.9",
         "twig/twig": "~1.23",
-        "erusev/parsedown": "dev-master as 1.6.0",
         "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~2.8",
         "symfony/console": "~2.8",
@@ -40,5 +39,13 @@
     },
     "archive": {
         "exclude": ["VERSION"]
+    },
+    "scripts": {
+        "post-create-project-cmd": "bin/grav install"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "1.x-dev"
+        }
     }
 }

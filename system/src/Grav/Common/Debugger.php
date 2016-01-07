@@ -28,7 +28,8 @@ class Debugger
         $this->grav = Grav::instance();
 
         if ($this->enabled()) {
-            $this->debugbar->addCollector(new \DebugBar\DataCollector\ConfigCollector((array)$this->grav['config']->get('system')));
+            $this->debugbar->addCollector(new \DebugBar\DataCollector\ConfigCollector((array)$this->grav['config']->get('system'), 'Config'));
+            $this->debugbar->addCollector(new \DebugBar\DataCollector\ConfigCollector((array)$this->grav['config']->get('plugins'), 'Plugins'));
         }
         return $this;
     }

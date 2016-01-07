@@ -2,10 +2,6 @@
 <?php
 define('GRAV_CLI', true);
 
-if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
-    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
-}
-
 if (!file_exists(__DIR__ . '/../vendor')){
     require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
 }
@@ -23,6 +19,10 @@ if (!file_exists(__DIR__ . '/../vendor')){
 use Symfony\Component\Console\Application;
 
 require_once __DIR__ . '/../vendor/autoload.php';
+
+if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
+    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
+}
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');

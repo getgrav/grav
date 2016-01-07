@@ -85,6 +85,8 @@ class Page
     protected $markdown_extra;
     protected $etag;
     protected $last_modified;
+    protected $home_route;
+    protected $hide_home_route;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -118,6 +120,10 @@ class Page
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
+        $config = self::getGrav()['config'];
+
+        $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
+        $this->home_route = $config->get('system.home.alias');
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
         $this->id($this->modified().md5($this->filePath()));
@@ -131,6 +137,8 @@ class Page
         $this->setPublishState();
         $this->published();
         $this->urlExtension();
+
+
 
         // some extension logic
         if (empty($extension)) {
@@ -473,6 +481,9 @@ class Page
             // Get media
             $this->media();
 
+            /** @var Config $config */
+            $config = self::getGrav()['config'];
+
             // Load cached content
             /** @var Cache $cache */
             $cache = self::getGrav()['cache'];
@@ -481,51 +492,46 @@ class Page
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
-            $cache_twig = isset($this->header->cache_enable) ? $this->header->cache_enable : true;
-            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : false;
-            $twig_already_processed = false;
+            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled', true);
+            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first', true);
+
 
             // if no cached-content run everything
-            if ($this->content === false) {
+            if ($this->content === false || $cache_enable == false) {
                 $this->content = $this->raw_content;
                 self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                 if ($twig_first) {
                     if ($process_twig) {
                         $this->processTwig();
-                        $twig_already_processed = true;
                     }
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
-                    if ($cache_twig) {
-                        $this->cachePageContent();
-                    }
+
+                    // Content Processed but not cached yet
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
                 } else {
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
-                    if (!$cache_twig) {
-                        $this->cachePageContent();
-                    }
+
+                    // Content Processed but not cached yet
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
                     if ($process_twig) {
                         $this->processTwig();
-                        $twig_already_processed = true;
-                    }
-                    if ($cache_twig) {
-                        $this->cachePageContent();
                     }
                 }
-            // content cached, but twig cache off
-            }
 
-            // only markdown content cached, process twig if required and not already processed
-            if ($process_twig && !$cache_twig && !$twig_already_processed) {
-                $this->processTwig();
+                if ($cache_enable) {
+                    $this->cachePageContent();
+                }
             }
 
             // Handle summary divider
-            $delimiter = self::getGrav()['config']->get('site.summary.delimiter', '===');
+            $delimiter = $config->get('site.summary.delimiter', '===');
             $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
@@ -582,8 +588,6 @@ class Page
     {
         $cache = self::getGrav()['cache'];
         $cache_id = md5('page'.$this->id());
-
-        self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
         $cache->save($cache_id, $this->content);
     }
 
@@ -1079,10 +1083,6 @@ class Page
             $this->publish_date = Utils::date2timestamp($var);
         }
 
-        if ($this->publish_date === null) {
-            $this->publish_date = $this->date();
-        }
-
         return $this->publish_date;
     }
 
@@ -1303,8 +1303,18 @@ class Page
         }
 
         if (empty($this->route)) {
+            $baseRoute = null;
+
             // calculate route based on parent slugs
-            $baseRoute = $this->parent ? (string) $this->parent()->route() : null;
+            $parent = $this->parent();
+            if (isset($parent)) {
+                if ($this->hide_home_route && $parent->route() == $this->home_route) {
+                    $baseRoute = '';
+                } else {
+                    $baseRoute = (string) $parent->route();
+                }
+            }
+
             $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
 
             if (!empty($this->routes) && isset($this->routes['default'])) {
@@ -1696,6 +1706,31 @@ class Page
         $pages = self::getGrav()['pages'];
 
         return $pages->get($this->parent);
+    }
+
+    /**
+     * Gets the top parent object for this page
+     *
+     * @return Page|null the top parent page object if it exists.
+     */
+    public function topParent()
+    {
+        $topParent = $this->parent();
+
+        if (!$topParent) {
+            return null;
+        }
+
+        while (true) {
+            $theParent = $topParent->parent();
+            if ($theParent != null && $theParent->parent() !== null) {
+                $topParent = $theParent;
+            } else {
+                break;
+            }
+        }
+
+        return $topParent;
     }
 
     /**
@@ -2227,7 +2262,7 @@ class Page
                 }
             }
             // publish if required, if not clear cache right before page is published
-            if ($this->publishDate() != $this->modified() && $this->publishDate() > time()) {
+            if ($this->publishDate() && $this->publishDate() && $this->publishDate() > time()) {
                 $this->published(false);
                 self::getGrav()['cache']->setLifeTime($this->publishDate());
             }

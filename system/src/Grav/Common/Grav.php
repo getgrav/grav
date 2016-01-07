@@ -57,8 +57,6 @@ class Grav extends Container
 
         $container['grav'] = $container;
 
-
-
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_init', 'Initialize');
 
@@ -184,8 +182,6 @@ class Grav extends Container
     {
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-
-
 
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
@@ -492,7 +488,7 @@ class Grav extends Container
         if ($page) {
             $media = $page->media()->all();
 
-            $parsed_url = parse_url(urldecode($uri->basename()));
+            $parsed_url = parse_url(rawurldecode($uri->basename()));
 
             $media_file = $parsed_url['path'];
 

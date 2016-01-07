@@ -20,6 +20,18 @@ form:
                     show_root: false
                     help: PLUGIN_ADMIN.HOME_PAGE_HELP
 
+                home.hide_in_urls:
+                      type: toggle
+                      label: PLUGIN_ADMIN.HIDE_HOME_IN_URLS
+                      help: PLUGIN_ADMIN.HIDE_HOME_IN_URLS_HELP
+                      highlight: 0
+                      options:
+                          1: PLUGIN_ADMIN.YES
+                          0: PLUGIN_ADMIN.NO
+                      validate:
+                          type: bool
+
+
                 pages.theme:
                     type: themeselect
                     classes: fancy
@@ -215,6 +227,19 @@ form:
                     label: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS
                     help: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS_HELP
                     highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                pages.twig_first:
+                    type: toggle
+                    label: PLUGIN_ADMIN.TWIG_FIRST
+                    highlight: asc
+                    default: desc
+                    help: PLUGIN_ADMIN.TWIG_FIRST_HELP
+                    highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
@@ -793,6 +818,29 @@ form:
                     label: PLUGIN_ADMIN.NAME
                     help: PLUGIN_ADMIN.SESSION_NAME_HELP
 
+                session.secure:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_SECURE
+                    help: PLUGIN_ADMIN.SESSION_SECURE_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: false
+                    validate:
+                        type: bool
+
+                session.httponly:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_HTTPONLY
+                    help: PLUGIN_ADMIN.SESSION_HTTPONLY_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
 
         advanced:
             type: section

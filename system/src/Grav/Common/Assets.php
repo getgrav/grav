@@ -485,20 +485,20 @@ class Assets
      */
     public function css($group = 'head', $attributes = [])
     {
-        if (!$this->css) {
+        if (!$this->css && !$this->inline_css) {
             return null;
         }
 
         // Sort array by priorities (larger priority first)
         if (self::getGrav()) {
-            usort($this->css, function ($a, $b) {
+            uasort($this->css, function ($a, $b) {
                 if ($a['priority'] == $b['priority']) {
                     return $b['order'] - $a['order'];
                 }
                 return $a['priority'] - $b['priority'];
             });
 
-            usort($this->inline_css, function ($a, $b) {
+            uasort($this->inline_css, function ($a, $b) {
                 if ($a['priority'] == $b['priority']) {
                     return $b['order'] - $a['order'];
                 }
@@ -558,19 +558,19 @@ class Assets
      */
     public function js($group = 'head', $attributes = [])
     {
-        if (!$this->js) {
+        if (!$this->js && !$this->inline_js) {
             return null;
         }
 
         // Sort array by priorities (larger priority first)
-        usort($this->js, function ($a, $b) {
+        uasort($this->js, function ($a, $b) {
             if ($a['priority'] == $b['priority']) {
                 return $b['order'] - $a['order'];
             }
             return $a['priority'] - $b['priority'];
         });
 
-        usort($this->inline_js, function ($a, $b) {
+        uasort($this->inline_js, function ($a, $b) {
             if ($a['priority'] == $b['priority']) {
                 return $b['order'] - $a['order'];
             }

@@ -192,7 +192,9 @@ abstract class CompiledBase
         }
 
         $this->createObject($cache['data']);
-
+        
+        $this->finalizeObject();
+        
         return true;
     }
 

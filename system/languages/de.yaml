@@ -41,3 +41,5 @@ NICETIME:
     MO_PLURAL: Monate
     YR_PLURAL: Jahre
     DEC_PLURAL: Dekaden
+MONTHS_OF_THE_YEAR: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+DAYS_OF_THE_WEEK: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
