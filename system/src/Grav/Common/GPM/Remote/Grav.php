@@ -5,7 +5,7 @@ use \Doctrine\Common\Cache\FilesystemCache;
 
 class Grav extends AbstractPackageCollection
 {
-    protected $repository = 'http://getgrav.org/downloads/grav.json';
+    protected $repository = 'https://getgrav.org/downloads/grav.json';
     private $data;
 
     private $version;
