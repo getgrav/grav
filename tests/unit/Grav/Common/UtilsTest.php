@@ -194,11 +194,8 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testPathPrefixedByLangCode()
     {
         $languagesEnabled = $this->grav()['config']->get('system.languages.supported', []);
-/*dump($languagesEnabled[0]); exit();*/
         $arrayOfLanguages = ['en', 'de', 'it', 'es', 'dk', 'el'];
-        
         $languagesNotEnabled = array_diff($arrayOfLanguages, $languagesEnabled); 
-        
         $oneLanguageNotEnabled = reset($languagesNotEnabled);
         
         $this->assertTrue(Utils::pathPrefixedByLangCode('/' . $languagesEnabled[0] . '/test'));       
@@ -207,32 +204,54 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::pathPrefixedByLangCode('/xx'));
         $this->assertFalse(Utils::pathPrefixedByLangCode('/xx/'));
         $this->assertFalse(Utils::pathPrefixedByLangCode('/'));
-
-
     }
 
-    public function date2timestamp()
+    public function testDate2timestamp()
     {
-
+        $timestamp = strtotime('10 September 2000');
+        $this->assertSame(Utils::date2timestamp('10 September 2000'), $timestamp);
+        $this->assertSame(Utils::date2timestamp('2000-09-10 00:00:00'), $timestamp);
     }
 
-    public function resolve()
+    public function testResolve()
     {
-
-    }
-
-    public function isPositive()
-    {
-
-    }
-
-    public function getNonce()
-    {
+        $array = [
+            'test' => [
+                'test2' => 'test2Value'
+            ]
+        ];
         
+        $this->assertEquals(Utils::resolve($array, 'test.test2'), 'test2Value');
+    }
+
+    public function testIsPositive()
+    {
+        $this->assertTrue(Utils::isPositive(true));
+        $this->assertTrue(Utils::isPositive(1));
+        $this->assertTrue(Utils::isPositive('1'));
+        $this->assertTrue(Utils::isPositive('yes'));
+        $this->assertTrue(Utils::isPositive('on'));
+        $this->assertTrue(Utils::isPositive('true'));
+        $this->assertFalse(Utils::isPositive(false));
+        $this->assertFalse(Utils::isPositive(0));
+        $this->assertFalse(Utils::isPositive('0'));
+        $this->assertFalse(Utils::isPositive('no'));
+        $this->assertFalse(Utils::isPositive('off'));
+        $this->assertFalse(Utils::isPositive('false'));
+        $this->assertFalse(Utils::isPositive('some'));
+        $this->assertFalse(Utils::isPositive(2));
+    }
+
+    public function testGetNonce()
+    {
+        $this->assertTrue(is_string(Utils::getNonce('test-action')));
+        $this->assertTrue(is_string(Utils::getNonce('test-action', true)));           
+        $this->assertSame(Utils::getNonce('test-action'), Utils::getNonce('test-action'));          
+        $this->assertNotSame(Utils::getNonce('test-action'), Utils::getNonce('test-action2'));
     }
     
-    public function verifyNonce()
+    public function testVerifyNonce()
     {
-
+        $this->assertTrue(Utils::verifyNonce(Utils::getNonce('test-action'), 'test-action'));
     }
 }
