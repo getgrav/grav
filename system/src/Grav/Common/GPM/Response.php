@@ -289,7 +289,7 @@ class Response
         curl_close($rch);
 
         if (!$max_redirects) {
-            if ($maxredirect === null) {
+            if ($max_redirects === null) {
                 trigger_error('Too many redirects. When following redirects, libcurl hit the maximum amount.', E_USER_WARNING);
             }
 
