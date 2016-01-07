@@ -264,7 +264,7 @@ abstract class Utils
     /**
      * Return the mimetype based on filename
      *
-     * @param $extension Extension of file (eg .txt)
+     * @param $extension Extension of file (eg "txt")
      *
      * @return string
      */
@@ -344,7 +344,6 @@ abstract class Utils
         }
 
         return $timezone_list;
-
     }
 
     /**
