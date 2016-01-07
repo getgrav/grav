@@ -480,7 +480,8 @@ abstract class Utils
         return ( $i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
     }
 
-    //TODO: Remove after 1.0.8 release
+    //Added in version 1.0.8 to ensure that existing nonces are not broken.
+    //TODO: to be removed
     private static function generateNonceStringOldStyle($action, $plusOneTick = false)
     {
         if (isset(self::getGrav()['user'])) {
@@ -535,7 +536,8 @@ abstract class Utils
         return static::$nonces[$action];
     }
 
-    //TODO: Remove after 1.0.8 release
+    //Added in version 1.0.8 to ensure that existing nonces are not broken.
+    //TODO: to be removed
     public static function getNonceOldStyle($action, $plusOneTick = false)
     {
         // Don't regenerate this again if not needed
@@ -569,9 +571,9 @@ abstract class Utils
             return true;
         }
 
-        //Add a one-time check in version 1.0.8 to ensure that existing nonces are not broken.
-        //TODO to be removed as soon as released
 
+        //Added in version 1.0.8 to ensure that existing nonces are not broken.
+        //TODO: to be removed
         //Nonce generated 0-12 hours ago
         if ($nonce == self::getNonceOldStyle($action)) {
             return true;
@@ -582,6 +584,7 @@ abstract class Utils
         if ($nonce == self::getNonceOldStyle($action, $plusOneTick)) {
             return true;
         }
+        //End TODO: to be removed
 
         //Invalid nonce
         return false;
