@@ -1,5 +1,5 @@
 # v1.0.7
-## 01/XX/2016
+## 01/07/2016
 
 1. [](#new)
     * Added `composer create-project` as an additional installation method #585
@@ -11,6 +11,7 @@
     * Added global setting for `twig_first` processing (false by default)
     * New configuration options for Session settings #553
 1. [](#improved)   
+    * Switched to SSL for GPM calls
     * Use `URI->host()` for session domain
     * Add support for `open_basedir` when installing packages via GPM
     * Improved `Utils::generateNonceString()` method to handle reverse proxies
