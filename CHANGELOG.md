@@ -1,5 +1,5 @@
 # v1.0.7
-## 01/04/2016
+## 01/XX/2016
 
 1. [](#new)
     * Added `composer create-project` as an additional installation method #585
@@ -12,6 +12,8 @@
     * New configuration options for Session settings #553
 1. [](#improved)   
     * Use `URI->host()` for session domain
+    * Add support for `open_basedir` when installing packages via GPM
+    * Improved `Utils::generateNonceString()` method to handle reverse proxies
     * Optimized core thumbnails saving 38% in file size
     * Added new `bin/gpm index --installed-only` option 
     * Improved GPM errors to provider more helpful diagnostic of issues
@@ -28,7 +30,6 @@
     * Fix for markdown attributes on external URLs
     * Fixed issue where `data:` page header was acting as `publish_date:`
     * Fix for special characters in URL parameters (e.g. /tag:c++) #541
->>>>>>> Stashed changes
 
 # v1.0.6
 ## 12/22/2015
