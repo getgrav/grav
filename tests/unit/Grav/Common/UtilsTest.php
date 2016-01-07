@@ -92,7 +92,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         $default_format = $grav['config']->get('system.pages.dateformat.default');
         
         if ($default_format !== null) {
-            $this->assertContains($default_format, $dateFormats);    
+            $this->assertTrue(isset($dateFormats[$default_format]));    
         }        
     }        
 
@@ -191,8 +191,23 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals($array['test2'], 'test2');
     }
     
-    public function pathPrefixedByLangCode()
+    public function testPathPrefixedByLangCode()
     {
+        $languagesEnabled = $this->grav()['config']->get('system.languages.supported', []);
+/*dump($languagesEnabled[0]); exit();*/
+        $arrayOfLanguages = ['en', 'de', 'it', 'es', 'dk', 'el'];
+        
+        $languagesNotEnabled = array_diff($arrayOfLanguages, $languagesEnabled); 
+        
+        $oneLanguageNotEnabled = reset($languagesNotEnabled);
+        
+        $this->assertTrue(Utils::pathPrefixedByLangCode('/' . $languagesEnabled[0] . '/test'));       
+        $this->assertFalse(Utils::pathPrefixedByLangCode('/' . $oneLanguageNotEnabled . '/test'));
+        $this->assertFalse(Utils::pathPrefixedByLangCode('/test'));
+        $this->assertFalse(Utils::pathPrefixedByLangCode('/xx'));
+        $this->assertFalse(Utils::pathPrefixedByLangCode('/xx/'));
+        $this->assertFalse(Utils::pathPrefixedByLangCode('/'));
+
 
     }
 
