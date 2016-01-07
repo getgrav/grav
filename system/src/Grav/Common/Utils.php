@@ -560,6 +560,11 @@ abstract class Utils
      */
     public static function verifyNonce($nonce, $action)
     {
+        //Safety check for multiple nonces
+        if (is_array($nonce)) {
+            $nonce = array_shift($nonce);
+        }
+
         //Nonce generated 0-12 hours ago
         if ($nonce == self::getNonce($action)) {
             return true;
