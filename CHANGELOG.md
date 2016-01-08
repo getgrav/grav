@@ -4,7 +4,7 @@
 1. [](#new)
     * Added `rotate`, `flip` and `fixOrientation` image medium methods
 1. [](#bugfix)
-    * Removed IP from Nonce generation. Should be more reliably in a variety of scenarios
+    * Removed IP from Nonce generation. Should be more reliable in a variety of scenarios
 
 # v1.0.7
 ## 01/07/2016
