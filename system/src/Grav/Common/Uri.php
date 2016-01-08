@@ -26,6 +26,9 @@ class Uri
     protected $paths;
     protected $query;
     protected $params;
+    protected $port;
+    protected $uri;
+    protected $root_path;
 
     /**
      * Constructor.
@@ -54,11 +57,6 @@ class Uri
         // add the sever name
         $base .= $name;
 
-        // add the port of needed
-        if ($port != '80' && $port != '443') {
-            $base .= ":".$port;
-        }
-
         // check if userdir in the path and workaround PHP bug with PHP_SELF
         if (strpos($uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
             $root_path = substr($uri, 0, strpos($uri, '/', 1)) . $root_path;
@@ -74,9 +72,11 @@ class Uri
             $this->host = $name;
         }
 
+        $this->port = $port;
         $this->base = $base;
-        $this->root = $base . $root_path;
-        $this->url = $base . $uri;
+        $this->uri = $uri;
+        $this->root_path = $root_path;
+
     }
 
     /**
@@ -93,6 +93,15 @@ class Uri
         $this->paths = [];
         $this->params = [];
         $this->query = [];
+
+        // add the port to the base for non-standard ports
+        if ($config->get('system.reverse_proxy_setup') == false && $this->port != '80' && $this->port != '443') {
+            $this->base .= ":".$this->port;
+        }
+
+        // Set some defaults
+        $this->root = $this->base . $this->root_path;
+        $this->url = $this->base . $this->uri;
 
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
@@ -327,6 +336,16 @@ class Uri
     public function host()
     {
         return $this->host;
+    }
+
+    /**
+     * Return the port number
+     *
+     * @return int
+     */
+    public function port()
+    {
+        return $this->port;
     }
 
     /**
