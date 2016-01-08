@@ -446,6 +446,8 @@ abstract class Utils
 
     /**
      * Generates a nonce string to be hashed. Called by self::getNonce()
+     * We removed the IP portion in this version because it causes too many inconsistencies
+     * with reverse proxy setups.
      *
      * @param string $action
      * @param bool $plusOneTick if true, generates the token for the next tick (the next 12 hours)
@@ -454,21 +456,11 @@ abstract class Utils
      */
     private static function generateNonceString($action, $plusOneTick = false)
     {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
-
         $username = '';
         if (isset(self::getGrav()['user'])) {
             $user = self::getGrav()['user'];
             $username = $user->username;
         }
-
-        $username .= $ip;
 
         $token = session_id();
         $i = self::nonceTick();
