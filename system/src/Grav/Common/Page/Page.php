@@ -1424,6 +1424,17 @@ class Page
         if ($var !== null) {
             $this->modified = $var;
         }
+
+        if ($this->template == 'modular') {
+            foreach ($this->children() as $child) {
+                $modified = $child->modified();
+
+                if ($modified > $this->modified) {
+                    $this->modified = $modified;
+                }
+            }
+        }
+
         return $this->modified;
     }
 
