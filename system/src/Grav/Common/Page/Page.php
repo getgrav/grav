@@ -1154,7 +1154,7 @@ class Page
 
             $metadata = [];
             // Set the Generator tag
-            $metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS');
+            $metadata['generator'] = 'GravCMS';
 
             // Get initial metadata for the page
             $metadata  = array_merge($metadata, self::getGrav()['config']->get('site.metadata'));
