@@ -23,48 +23,48 @@ class UtilsTest extends \Codeception\TestCase\Test
         $grav = Fixtures::get('grav');
         return $grav;
     }
-    
+
     public function testStartsWith()
     {
-        $this->assertTrue(Utils::startsWith('english', 'en'));        
-        $this->assertTrue(Utils::startsWith('English', 'En'));        
-        $this->assertTrue(Utils::startsWith('ENGLISH', 'EN'));        
-        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'EN')); 
+        $this->assertTrue(Utils::startsWith('english', 'en'));
+        $this->assertTrue(Utils::startsWith('English', 'En'));
+        $this->assertTrue(Utils::startsWith('ENGLISH', 'EN'));
+        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'EN'));
 
-        $this->assertFalse(Utils::startsWith('english', 'En'));        
-        $this->assertFalse(Utils::startsWith('English', 'EN'));        
-        $this->assertFalse(Utils::startsWith('ENGLISH', 'en'));        
-        $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'e')); 
+        $this->assertFalse(Utils::startsWith('english', 'En'));
+        $this->assertFalse(Utils::startsWith('English', 'EN'));
+        $this->assertFalse(Utils::startsWith('ENGLISH', 'en'));
+        $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'e'));
     }
-    
+
     public function testEndsWith()
     {
-        $this->assertTrue(Utils::endsWith('english', 'sh'));        
-        $this->assertTrue(Utils::endsWith('EngliSh', 'Sh'));        
-        $this->assertTrue(Utils::endsWith('ENGLISH', 'SH'));        
-        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'ENGLISH')); 
+        $this->assertTrue(Utils::endsWith('english', 'sh'));
+        $this->assertTrue(Utils::endsWith('EngliSh', 'Sh'));
+        $this->assertTrue(Utils::endsWith('ENGLISH', 'SH'));
+        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'ENGLISH'));
 
-        $this->assertFalse(Utils::endsWith('english', 'de'));    
+        $this->assertFalse(Utils::endsWith('english', 'de'));
         $this->assertFalse(Utils::endsWith('EngliSh', 'sh'));
         $this->assertFalse(Utils::endsWith('ENGLISH', 'Sh'));
-        $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'DEUSTCH')); 
+        $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'DEUSTCH'));
     }
 
     public function testContains()
     {
-        $this->assertTrue(Utils::contains('english', 'nglis'));        
-        $this->assertTrue(Utils::contains('EngliSh', 'gliSh'));        
-        $this->assertTrue(Utils::contains('ENGLISH', 'ENGLI'));        
-        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'ENGLISH')); 
-    
+        $this->assertTrue(Utils::contains('english', 'nglis'));
+        $this->assertTrue(Utils::contains('EngliSh', 'gliSh'));
+        $this->assertTrue(Utils::contains('ENGLISH', 'ENGLI'));
+        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'ENGLISH'));
+
         $this->assertFalse(Utils::contains('EngliSh', 'GLI'));        $this->assertFalse(Utils::contains('EngliSh', 'English'));
         $this->assertFalse(Utils::contains('ENGLISH', 'SCH'));
-        $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'DEUSTCH')); 
+        $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'DEUSTCH'));
     }
 
     public function testSubstrToString()
     {
-        $this->assertEquals(Utils::substrToString('english', 'glish'), 'en');       
+        $this->assertEquals(Utils::substrToString('english', 'glish'), 'en');
         $this->assertEquals(Utils::substrToString('english', 'test'), 'english');
         $this->assertNotEquals(Utils::substrToString('english', 'lish'), 'en');
     }
@@ -75,26 +75,26 @@ class UtilsTest extends \Codeception\TestCase\Test
         $obj1->test1 = 'x';
         $obj2 = new stdClass();
         $obj2->test2 = 'y';
-        
+
         $objMerged = Utils::mergeObjects($obj1, $obj2);
-        
+
         $this->assertObjectHasAttribute('test1', $objMerged);
         $this->assertObjectHasAttribute('test2', $objMerged);
     }
-    
+
     public function testDateFormats()
     {
         $grav = $this->grav();
         $dateFormats = Utils::dateFormats();
         $this->assertTrue(is_array($dateFormats));
         $this->assertContainsOnly('string', $dateFormats);
-        
+
         $default_format = $grav['config']->get('system.pages.dateformat.default');
-        
+
         if ($default_format !== null) {
-            $this->assertTrue(isset($dateFormats[$default_format]));    
-        }        
-    }        
+            $this->assertTrue(isset($dateFormats[$default_format]));
+        }
+    }
 
     public function testTruncate()
     {
@@ -140,7 +140,7 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testGetMimeType()
     {
-        $this->assertEquals(Utils::getMimeType(''), 'application/octet-stream'); 
+        $this->assertEquals(Utils::getMimeType(''), 'application/octet-stream');
         $this->assertEquals(Utils::getMimeType('jpg'), 'image/jpeg');
         $this->assertEquals(Utils::getMimeType('png'), 'image/png');
         $this->assertEquals(Utils::getMimeType('txt'), 'text/plain');
@@ -160,16 +160,16 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testIsFunctionDisabled()
     {
         $disabledFunctions = explode(',', ini_get('disable_functions'));
-        
+
         if ($disabledFunctions[0]) {
-            $this->assertEquals(Utils::isFunctionDisabled($disabledFunctions[0]), true);   
+            $this->assertEquals(Utils::isFunctionDisabled($disabledFunctions[0]), true);
         }
     }
 
     public function testTimezones()
     {
         $timezones = Utils::timezones();
-        
+
         $this->assertTrue(is_array($timezones));
         $this->assertContainsOnly('string', $timezones);
     }
@@ -190,12 +190,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertTrue(isset($array['test2']));
         $this->assertEquals($array['test2'], 'test2');
     }
-    
+
     public function testPathPrefixedByLangCode()
     {
         $languagesEnabled = $this->grav()['config']->get('system.languages.supported', []);
         $arrayOfLanguages = ['en', 'de', 'it', 'es', 'dk', 'el'];
-        $languagesNotEnabled = array_diff($arrayOfLanguages, $languagesEnabled); 
+        $languagesNotEnabled = array_diff($arrayOfLanguages, $languagesEnabled);
         $oneLanguageNotEnabled = reset($languagesNotEnabled);
         
         $this->assertTrue(Utils::pathPrefixedByLangCode('/' . $languagesEnabled[0] . '/test'));       
@@ -220,7 +220,7 @@ class UtilsTest extends \Codeception\TestCase\Test
                 'test2' => 'test2Value'
             ]
         ];
-        
+
         $this->assertEquals(Utils::resolve($array, 'test.test2'), 'test2Value');
     }
 
@@ -245,11 +245,11 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testGetNonce()
     {
         $this->assertTrue(is_string(Utils::getNonce('test-action')));
-        $this->assertTrue(is_string(Utils::getNonce('test-action', true)));           
-        $this->assertSame(Utils::getNonce('test-action'), Utils::getNonce('test-action'));          
+        $this->assertTrue(is_string(Utils::getNonce('test-action', true)));
+        $this->assertSame(Utils::getNonce('test-action'), Utils::getNonce('test-action'));
         $this->assertNotSame(Utils::getNonce('test-action'), Utils::getNonce('test-action2'));
     }
-    
+
     public function testVerifyNonce()
     {
         $this->assertTrue(Utils::verifyNonce(Utils::getNonce('test-action'), 'test-action'));
