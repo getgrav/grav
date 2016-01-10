@@ -58,7 +58,7 @@ class Grav extends Container
         $container['grav'] = $container;
 
         $container['debugger'] = new Debugger();
-        $container['debugger']->startTimer('_init', 'Initialize');
+        $container['debugger']->startTimer('_services', 'Services');
 
         $container->register(new LoggerServiceProvider);
 
@@ -173,7 +173,7 @@ class Grav extends Container
 
         $container['inflector'] = new Inflector();
 
-        $container['debugger']->stopTimer('_init');
+        $container['debugger']->stopTimer('_services');
 
         return $container;
     }
@@ -183,16 +183,24 @@ class Grav extends Container
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
 
+        // Load site setup and initializing streams.
+        $debugger->startTimer('_setup', 'Site Setup');
+        $this['setup']->init();
+        $this['streams'];
+        $debugger->stopTimer('_setup');
+
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
         $this['config']->init();
-        $this['errors']->resetHandlers();
-        $this['uri']->init();
-        $this['session']->init();
-
-        $debugger->init();
-        $this['config']->debug();
         $debugger->stopTimer('_config');
+
+        // Initialize error handlers.
+        $this['errors']->resetHandlers();
+
+        // Initialize debugger.
+        $debugger->init();
+        $debugger->startTimer('init', 'Initialize');
+        $this['config']->debug();
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
@@ -203,21 +211,23 @@ class Grav extends Container
             }
         }
 
-        // Initialize the timezone
+        // Initialize the timezone.
         if ($this['config']->get('system.timezone')) {
             date_default_timezone_set($this['config']->get('system.timezone'));
         }
 
-        // Initialize Locale if set and configured
+        // Initialize uri, session.
+        $this['uri']->init();
+        $this['session']->init();
+
+        // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
             setlocale(LC_ALL, $this['language']->getLanguage());
         } elseif ($this['config']->get('system.default_locale')) {
             setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
 
-        $debugger->startTimer('streams', 'Streams');
-        $this['streams'];
-        $debugger->stopTimer('streams');
+        $debugger->stopTimer('init');
 
         $debugger->startTimer('plugins', 'Plugins');
         $this['plugins']->init();

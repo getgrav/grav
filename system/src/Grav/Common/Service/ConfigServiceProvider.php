@@ -22,7 +22,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['setup'] = function ($c) {
-            return static::setup($c)->init();
+            return static::setup($c);
         };
 
         $container['blueprints'] = function ($c) {
