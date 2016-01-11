@@ -17,6 +17,11 @@ use RocketTheme\Toolbox\File\YamlFile;
 class Plugin implements EventSubscriberInterface
 {
     /**
+     * @var string
+     */
+    public $name;
+
+    /**
      * @var Grav
      */
     protected $grav;
@@ -27,10 +32,6 @@ class Plugin implements EventSubscriberInterface
     protected $config;
 
     protected $active = true;
-    /**
-     * @var \Grav\Common\string
-     */
-    protected $name;
 
     /**
      * By default assign all methods as listeners using the default priority.
@@ -58,13 +59,26 @@ class Plugin implements EventSubscriberInterface
      * @param Grav                $grav
      * @param Config              $config
      */
-    public function __construct($name, Grav $grav, Config $config)
+    public function __construct($name, Grav $grav)
     {
-        $this->grav = $grav;
-        $this->config = $config;
         $this->name = $name;
+        $this->grav = $grav;
     }
 
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
     public function isAdmin()
     {
         if (isset($this->grav['admin'])) {

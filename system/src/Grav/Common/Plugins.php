@@ -6,7 +6,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use RocketTheme\Toolbox\Event\EventDispatcher;
-use RocketTheme\Toolbox\Event\EventSubscriberInterface;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Plugins object holds an array of all the plugin objects that
@@ -19,8 +19,27 @@ class Plugins extends Iterator
 {
     use GravTrait;
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        $iterator = $locator->getIterator('plugins://');
+        foreach ($iterator as $directory) {
+            if (!$directory->isDir()) {
+                continue;
+            }
+
+            $plugin = $directory->getBasename();
+
+            $this->add($this->loadPlugin($plugin));
+        }
+    }
+
     /**
-     * Recurses through the plugins directory creating Plugin objects for each plugin it finds.
+     * Registers all plugins.
      *
      * @return array|Plugin[] array of Plugin objects
      * @throws \RuntimeException
@@ -29,47 +48,14 @@ class Plugins extends Iterator
     {
         /** @var Config $config */
         $config = self::getGrav()['config'];
-        $plugins = (array) $config->get('plugins');
-
-        $inflector = self::getGrav()['inflector'];
 
         /** @var EventDispatcher $events */
         $events = self::getGrav()['events'];
 
-        foreach ($plugins as $plugin => $data) {
-            if (empty($data['enabled'])) {
-                // Only load enabled plugins.
-                continue;
-            }
-
-            $locator = self::getGrav()['locator'];
-            $filePath = $locator->findResource('plugins://' . $plugin . DS . $plugin . PLUGIN_EXT);
-            if (!is_file($filePath)) {
-                self::getGrav()['log']->addWarning(sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $plugin));
-                continue;
-            }
-
-            require_once $filePath;
-
-            $pluginClassFormat = [
-                'Grav\\Plugin\\'.ucfirst($plugin).'Plugin',
-                'Grav\\Plugin\\'.$inflector->camelize($plugin).'Plugin'
-            ];
-            $pluginClassName = false;
-
-            foreach ($pluginClassFormat as $pluginClass) {
-                if (class_exists($pluginClass)) {
-                    $pluginClassName = $pluginClass;
-                    break;
-                }
-            }
-
-            if (false === $pluginClassName) {
-                throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $plugin));
-            }
-
-            $instance = new $pluginClassName($plugin, self::getGrav(), $config);
-            if ($instance instanceof EventSubscriberInterface) {
+        foreach ($this->items as $instance) {
+            // Register only enabled plugins.
+            if ($config["plugins.{$instance->name}.enabled"] && $instance instanceof Plugin) {
+                $instance->setConfig($config);
                 $events->addSubscriber($instance);
             }
         }
@@ -77,6 +63,9 @@ class Plugins extends Iterator
         return $this->items;
     }
 
+    /**
+     * @param $plugin
+     */
     public function add($plugin)
     {
         if (is_object($plugin)) {
@@ -91,28 +80,17 @@ class Plugins extends Iterator
      */
     public static function all()
     {
-        $list = array();
-        $locator = Grav::instance()['locator'];
+        $plugins = self::getGrav()['plugins'];
+        $list = [];
 
-        $plugins = (array) $locator->findResources('plugins://', false);
-        foreach ($plugins as $path) {
-            $iterator = new \DirectoryIterator($path);
+        foreach ($plugins as $instance) {
+            $name = $instance->name;
+            $result = self::get($name);
 
-            /** @var \DirectoryIterator $directory */
-            foreach ($iterator as $directory) {
-                if (!$directory->isDir() || $directory->isDot()) {
-                    continue;
-                }
-
-                $plugin = $directory->getBasename();
-                $result = self::get($plugin);
-
-                if ($result) {
-                    $list[$plugin] = $result;
-                }
+            if ($result) {
+                $list[$name] = $result;
             }
         }
-        ksort($list);
 
         return $list;
     }
@@ -141,6 +119,31 @@ class Plugins extends Iterator
         $obj->file($file);
 
         return $obj;
+    }
+
+    protected function loadPlugin($name)
+    {
+        $grav = self::getGrav();
+        $locator = $grav['locator'];
+
+        $filePath = $locator->findResource('plugins://' . $name . DS . $name . PLUGIN_EXT);
+        if (!is_file($filePath)) {
+            self::getGrav()['log']->addWarning(
+                sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $name)
+            );
+            return null;
+        }
+
+        require_once $filePath;
+
+        $pluginClassName = 'Grav\\Plugin\\' . ucfirst($name) . 'Plugin';
+        if (!class_exists($pluginClassName)) {
+            $pluginClassName = 'Grav\\Plugin\\' . $grav['inflector']->camelize($name) . 'Plugin';
+            if (!class_exists($pluginClassName)) {
+                throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $name));
+            }
+        }
+        return new $pluginClassName($name, self::getGrav());
     }
 
 }
