@@ -23,7 +23,10 @@
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
         "rockettheme/toolbox": "~1.2",
-        "maximebf/debugbar": "~1.10"
+        "maximebf/debugbar": "~1.10",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*"
     },
     "repositories": [
         {
