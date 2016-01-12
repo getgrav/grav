@@ -51,4 +51,6 @@ $app->addCommands(array(
     new \Grav\Console\Gpm\UpdateCommand(),
     new \Grav\Console\Gpm\SelfupgradeCommand(),
 ));
+
+$app->setDefaultCommand('index');
 $app->run();
