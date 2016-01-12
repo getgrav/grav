@@ -155,7 +155,7 @@ class Setup extends Data
             }
 
             // Update streams.
-            foreach ($files as $path) {
+            foreach (array_reverse($files) as $path) {
                 $file = CompiledYamlFile::instance($path);
                 $content = $file->content();
                 if (!empty($content['schemes'])) {
