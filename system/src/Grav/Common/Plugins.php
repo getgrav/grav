@@ -39,6 +39,30 @@ class Plugins extends Iterator
     }
 
     /**
+     * @return $this
+     */
+    public function setup()
+    {
+        $blueprints = [];
+        foreach ($this->items as $plugin) {
+            if (isset($plugin->features['blueprints'])) {
+                $blueprints["plugin://{$plugin->name}/blueprints"] = $plugin->features['blueprints'];
+            }
+        }
+
+        if ($blueprints) {
+            arsort($blueprints);
+
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+
+            $locator->addPath('blueprints', '', array_keys($blueprints), 'system/blueprints');
+        }
+
+        return $this;
+    }
+
+    /**
      * Registers all plugins.
      *
      * @return array|Plugin[] array of Plugin objects
