@@ -50,3 +50,5 @@ NICETIME:
 FORM:
     VALIDATION_FAIL: <b>Validacija nije uspjela:</b>
     INVALID_INPUT: Unos nije valjan
+MONTHS_OF_THE_YEAR: ['Siječanj', 'Veljača', 'Ožujak', 'Travanj', 'Svibanj', 'Lipanj', 'Srpanj', 'Kolovoz', 'Rujan', 'Listopad', 'Studeni', 'Prosinac']
+DAYS_OF_THE_WEEK: ['ponedjeljak', 'utorak', 'srijeda', 'četvrtak', 'petak', 'subota', 'nedjelja']
