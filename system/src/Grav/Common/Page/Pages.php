@@ -820,6 +820,17 @@ class Pages
             $page->routable(false);
         }
 
+        // Override the modified time if modular
+        if ($page->template() == 'modular') {
+            foreach ($page->collection() as $child) {
+                $modified = $child->modified();
+
+                if ($modified > $last_modified) {
+                    $last_modified = $modified;
+                }
+            }
+        }
+
         // Override the modified and ID so that it takes the latest change into account
         $page->modified($last_modified);
         $page->id($last_modified.md5($page->filePath()));
