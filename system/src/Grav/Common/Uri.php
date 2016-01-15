@@ -15,35 +15,97 @@ class Uri
 
     public $url;
 
-    protected $basename;
     protected $base;
-    protected $root;
+    protected $basename;
     protected $bits;
+    protected $content_path;
     protected $extension;
     protected $host;
-    protected $content_path;
+    protected $params;
     protected $path;
     protected $paths;
     protected $query;
-    protected $params;
+    protected $root;
+    protected $uri;
 
     /**
-     * Constructor.
+     * Constructor
      */
     public function __construct()
     {
+        // resets
+        $this->paths    = [];
+        $this->params   = [];
+        $this->query    = [];
+        $this->name     = $this->buildHostname();
+        $this->port     = $this->buildPort();
+        $this->uri      = $this->buildUri();
+        $this->base     = $this->buildBaseUrl();
+        $this->host     = $this->buildHost();
+        $root_path      = $this->buildRootPath();
+        $this->root     = $this->base . $root_path;
+        $this->url      = $this->base . $this->uri;
+    }
+
+    /**
+     * Return the hostname from $_SERVER, validated and without port
+     *
+     * @return string
+     */
+    private function buildHostname()
+    {
         $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+
         // Remove port from HTTP_HOST generated $name
         $name = Utils::substrToString($name, ':');
 
         // Validate the hostname
-        $name = preg_match(Uri::HOSTNAME_REGEX, $name) ? $name : 'unknown';
+        $name = $this->validateHostname($name) ? $name : 'unknown';
 
+        return $name;
+    }
+
+    /**
+     * Validate a hostname
+     *
+     * @param string $hostname The hostname
+     *
+     * @return boolean
+     */
+    public function validateHostname($hostname)
+    {
+        return (bool)preg_match(Uri::HOSTNAME_REGEX, $hostname);
+    }
+
+    /**
+     * Get the port from $_SERVER
+     *
+     * @return string
+     */
+    private function buildPort()
+    {
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
-        $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        return $port;
+    }
 
-        $root_path = str_replace(' ', '%20', rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/'));
+    /**
+     * Get the Uri from $_SERVER
+     *
+     * @return string
+     */
+    private function buildUri()
+    {
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        return $uri;
+    }
 
+    /**
+     * Get the base URI with port if needed
+     *
+     * @return string
+     */
+    private function buildBaseUrl()
+    {
         // set the base
         if (isset($_SERVER['HTTPS'])) {
             $base = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
@@ -51,32 +113,95 @@ class Uri
             $base = 'http://';
         }
 
-        // add the sever name
-        $base .= $name;
+        // add the server name
+        $base .= $this->name;
+        $port = $this->port;
 
         // add the port of needed
         if ($port != '80' && $port != '443') {
-            $base .= ":".$port;
+            $base .= ":" . $port;
         }
+
+        return $base;
+    }
+
+    /**
+     * Get the Grav Root Path
+     *
+     * @return string
+     */
+    private function buildRootPath()
+    {
+        $root_path = str_replace(' ', '%20', rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/'));
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
-        if (strpos($uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
-            $root_path = substr($uri, 0, strpos($uri, '/', 1)) . $root_path;
+        if (strpos($this->uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
+            $root_path = substr($uri, 0, strpos($this->uri, '/', 1)) . $root_path;
         }
 
+        return $root_path;
+    }
+
+    /**
+     * Returns the hostname
+     *
+     * @return string
+     */
+    private function buildHost()
+    {
         // set hostname
         $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 
         // check for localhost variations
-        if ($name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            $this->host = 'localhost';
+        if ($this->name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
+            $host = 'localhost';
         } else {
-            $this->host = $name;
+            $host = $this->name;
         }
 
-        $this->base = $base;
-        $this->root = $base . $root_path;
-        $this->url = $base . $uri;
+        return $host;
+    }
+
+    /**
+     * Initialize the URI class with a url passed via parameter.
+     * Used for testing purposes.
+     *
+     * @param string $url the URL to use in the class
+     *
+     * @return string
+     */
+    public function initializeWithUrl($url = '')
+    {
+        if (!$url) return;
+
+        $this->paths    = [];
+        $this->params   = [];
+        $this->query    = [];
+        $this->name     = [];
+        $this->port     = [];
+        $this->uri      = [];
+        $this->base     = [];
+        $this->host     = [];
+        $this->root     = [];
+        $this->url      = [];
+
+        $params = parse_url($url);
+
+        $this->name = $params['host'];
+        $this->port = $params['port'];
+        $this->uri = $params['path'];
+
+        if (isset($params['query'])) {
+            $this->uri .= '?' . $params['query'];
+            parse_str($params['query'], $this->query);
+        }
+
+        $this->base = $this->buildBaseUrl();
+        $this->host = $this->buildHost();
+
+        $root_path = $this->buildRootPath();
+        $this->root = $this->base . $root_path;
+        $this->url = $this->base . $this->uri;
     }
 
     /**
@@ -88,11 +213,6 @@ class Uri
 
         $config = $grav['config'];
         $language = $grav['language'];
-
-        // resets
-        $this->paths = [];
-        $this->params = [];
-        $this->query = [];
 
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
@@ -122,7 +242,9 @@ class Uri
 
         // process query string
         if (isset($bits['query']) && isset($bits['path'])) {
-            $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+            if (!$this->query) {
+                $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+            }
             $uri = $bits['path'];
         }
 
@@ -223,6 +345,9 @@ class Uri
             if ($raw) {
                 return $this->query;
             } else {
+                if (!$this->query) {
+                    return '';
+                }
                 return http_build_query($this->query);
             }
         }
