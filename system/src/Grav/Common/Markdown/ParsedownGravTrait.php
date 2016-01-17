@@ -34,6 +34,7 @@ trait ParsedownGravTrait
         $this->page = $page;
         $this->pages = $grav['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
+        $this->BlockTypes['['] [] = "ShortcodeTag";
         $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
@@ -138,6 +139,16 @@ trait ParsedownGravTrait
     protected function blockTwigTag($Line)
     {
         if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', $Line['body'], $matches)) {
+            $Block = array(
+                'markup' => $Line['body'],
+            );
+            return $Block;
+        }
+    }
+
+    protected function blockShortcodeTag($Line)
+    {
+        if (preg_match('/^(?:\[)(.*)(?:\])$/', $Line['body'], $matches)) {
             $Block = array(
                 'markup' => $Line['body'],
             );
