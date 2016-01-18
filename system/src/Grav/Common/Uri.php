@@ -199,6 +199,7 @@ class Uri
         $this->root = $this->base . $this->root_path;
         $this->url = $this->base . $this->uri;
 
+        return $this;
     }
 
     /**
