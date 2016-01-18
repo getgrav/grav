@@ -24,8 +24,10 @@ class Uri
     protected $params;
     protected $path;
     protected $paths;
+    protected $port;
     protected $query;
     protected $root;
+    protected $root_path;
     protected $uri;
 
     /**
@@ -117,11 +119,6 @@ class Uri
         $base .= $this->name;
         $port = $this->port;
 
-        // add the port of needed
-        if ($port != '80' && $port != '443') {
-            $base .= ":" . $port;
-        }
-
         return $base;
     }
 
@@ -202,6 +199,11 @@ class Uri
         $root_path = $this->buildRootPath();
         $this->root = $this->base . $root_path;
         $this->url = $this->base . $this->uri;
+
+        $this->port = $port;
+        $this->base = $base;
+        $this->uri = $uri;
+        $this->root_path = $root_path;
     }
 
     /**
@@ -213,6 +215,20 @@ class Uri
 
         $config = $grav['config'];
         $language = $grav['language'];
+
+        // resets
+        $this->paths = [];
+        $this->params = [];
+        $this->query = [];
+
+        // add the port to the base for non-standard ports
+        if ($config->get('system.reverse_proxy_setup') == false && $this->port != '80' && $this->port != '443') {
+            $this->base .= ":".$this->port;
+        }
+
+        // Set some defaults
+        $this->root = $this->base . $this->root_path;
+        $this->url = $this->base . $this->uri;
 
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
@@ -452,6 +468,16 @@ class Uri
     public function host()
     {
         return $this->host;
+    }
+
+    /**
+     * Return the port number
+     *
+     * @return int
+     */
+    public function port()
+    {
+        return $this->port;
     }
 
     /**

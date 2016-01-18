@@ -1152,11 +1152,12 @@ class Page
 
             $this->metadata = [];
 
+            $metadata = [];
             // Set the Generator tag
-            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS');
+            $metadata['generator'] = 'GravCMS';
 
             // Get initial metadata for the page
-            $metadata  = self::getGrav()['config']->get('site.metadata');
+            $metadata  = array_merge($metadata, self::getGrav()['config']->get('site.metadata'));
 
             if (isset($this->header->metadata)) {
                 // Merge any site.metadata settings in with page metadata
@@ -1173,12 +1174,15 @@ class Page
                     }
                 // If it this is a standard meta data type
                 } else {
-                    if (in_array($key, $header_tag_http_equivs)) {
-                        $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
-                    } else {
-                        $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
+                    if ($value) {
+                        if (in_array($key, $header_tag_http_equivs)) {
+                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
+                        } else {
+                            $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
+                        }
                     }
                 }
+
             }
         }
 
@@ -1420,6 +1424,7 @@ class Page
         if ($var !== null) {
             $this->modified = $var;
         }
+
         return $this->modified;
     }
 

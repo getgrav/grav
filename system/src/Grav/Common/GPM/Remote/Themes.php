@@ -12,7 +12,7 @@ class Themes extends AbstractPackageCollection
      */
     protected $type = 'themes';
 
-    protected $repository = 'http://getgrav.org/downloads/themes.json';
+    protected $repository = 'https://getgrav.org/downloads/themes.json';
 
     /**
      * Local Themes Constructor

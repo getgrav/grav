@@ -1,5 +1,13 @@
+# v1.0.8
+## 01/08/2016
+
+1. [](#new)
+    * Added `rotate`, `flip` and `fixOrientation` image medium methods
+1. [](#bugfix)
+    * Removed IP from Nonce generation. Should be more reliable in a variety of scenarios
+
 # v1.0.7
-## 01/XX/2016
+## 01/07/2016
 
 1. [](#new)
     * Added `composer create-project` as an additional installation method #585
@@ -11,6 +19,7 @@
     * Added global setting for `twig_first` processing (false by default)
     * New configuration options for Session settings #553
 1. [](#improved)   
+    * Switched to SSL for GPM calls
     * Use `URI->host()` for session domain
     * Add support for `open_basedir` when installing packages via GPM
     * Improved `Utils::generateNonceString()` method to handle reverse proxies
@@ -30,6 +39,7 @@
     * Fix for markdown attributes on external URLs
     * Fixed issue where `data:` page header was acting as `publish_date:`
     * Fix for special characters in URL parameters (e.g. /tag:c++) #541
+    * Safety check for an array of nonces to only use the first one
 
 # v1.0.6
 ## 12/22/2015
