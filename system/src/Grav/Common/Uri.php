@@ -184,7 +184,7 @@ class Uri
         $params = parse_url($url);
 
         $this->name = $params['host'];
-        $this->port = isset($params['port']) ? $params['port'] : '';
+        $this->port = isset($params['port']) ? $params['port'] : '80';
 
         $this->uri = $params['path'];
         if (isset($params['query'])) {

@@ -69,7 +69,7 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertTrue($uri->port() == '80');
 
         $uri->initializeWithURL('http://localhost/grav/it/ueper?test=x')->init();
-        $this->assertTrue($uri->port() == '');
+        $this->assertTrue($uri->port() == '80');
 
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
         $this->assertTrue($uri->params() == null);
