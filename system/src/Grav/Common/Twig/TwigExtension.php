@@ -59,6 +59,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
+            new \Twig_SimpleFilter('cast_to_array', [$this, 'castToArrayFilter']),
             new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
             new \Twig_SimpleFilter('fieldName', [$this,'fieldNameFilter']),
@@ -104,8 +105,6 @@ class TwigExtension extends \Twig_Extension
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
-
-
         ];
     }
 
@@ -418,6 +417,30 @@ class TwigExtension extends \Twig_Extension
     public function ltrimFilter($value, $chars = null)
     {
         return ltrim($value, $chars);
+    }
+
+    /**
+     * Cast an object to array
+     *
+     * @param  object $itemToCast
+     * @return array
+     */
+    public function castToArrayFilter($itemToCast)
+    {
+        $response = [];
+
+        if (is_object($itemToCast)) {
+            foreach ($itemToCast as $key => $value) {
+                $response[$key] = $value;
+            }
+            return $response;
+        }
+
+        if (is_array($itemToCast)) {
+            return $itemToCast;
+        }
+
+        return $itemToCast;
     }
 
     public function translate()
