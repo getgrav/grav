@@ -50,25 +50,35 @@ class UriTest extends \Codeception\TestCase\Test
     {
         $uri = $this->getURI();
 
-        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper');
-        $uri->init();
-
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
         $this->assertTrue($uri->params() == null);
         $this->assertTrue($uri->query() == '');
 
-        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx');
-        $uri->init();
-
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
         $this->assertFalse($uri->params() == null);
         $this->assertTrue($uri->query() == '');
 
-        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x');
-        $uri->init();
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
 
         $this->assertTrue($uri->params() == null);
         $this->assertTrue($uri->query() != '');
         $this->assertTrue($uri->query() == 'test=x');
+        $this->assertTrue($uri->port() == '8080');
+
+        $uri->initializeWithURL('http://localhost:80/grav/it/ueper?test=x')->init();
+        $this->assertTrue($uri->port() == '80');
+
+        $uri->initializeWithURL('http://localhost/grav/it/ueper?test=x')->init();
+        $this->assertTrue($uri->port() == '');
+
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
+        $this->assertTrue($uri->params() == null);
+
+        $uri->initializeWithURL('http://grav/grav/it/ueper')->init();
+        $this->assertTrue($uri->params() == null);
     }
+
+
 
 }
 
