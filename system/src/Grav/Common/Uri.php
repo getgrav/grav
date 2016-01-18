@@ -36,17 +36,17 @@ class Uri
     public function __construct()
     {
         // resets
-        $this->paths    = [];
-        $this->params   = [];
-        $this->query    = [];
-        $this->name     = $this->buildHostname();
-        $this->port     = $this->buildPort();
-        $this->uri      = $this->buildUri();
-        $this->base     = $this->buildBaseUrl();
-        $this->host     = $this->buildHost();
-        $this->root_path = $this->buildRootPath();
-        $this->root     = $this->base . $this->root_path;
-        $this->url      = $this->base . $this->uri;
+        $this->paths        = [];
+        $this->params       = [];
+        $this->query        = [];
+        $this->name         = $this->buildHostname();
+        $this->port         = $this->buildPort();
+        $this->uri          = $this->buildUri();
+        $this->base         = $this->buildBaseUrl();
+        $this->host         = $this->buildHost();
+        $this->root_path    = $this->buildRootPath();
+        $this->root         = $this->base . $this->root_path;
+        $this->url          = $this->base . $this->uri;
     }
 
     /**
@@ -117,7 +117,6 @@ class Uri
 
         // add the server name
         $base .= $this->name;
-        $port = $this->port;
 
         return $base;
     }
@@ -195,7 +194,6 @@ class Uri
 
         $this->base = $this->buildBaseUrl();
         $this->host = $this->buildHost();
-
         $this->root_path = $this->buildRootPath();
         $this->root = $this->base . $this->root_path;
         $this->url = $this->base . $this->uri;
@@ -626,12 +624,12 @@ class Uri
     }
 
     /**
-     * Converts links from absolute '/' or relative (../..) to a grav friendly format
+     * Converts links from absolute '/' or relative (../..) to a Grav friendly format
      *
-     * @param Page|the $page the current page to use as reference
-     * @param  string $markdown_url the URL as it was written in the markdown
-     * @param string $type the type of URL, image | link
-     * @param null $relative if null, will use system default, if true will use relative links internally
+     * @param Page      $page           the current page to use as reference
+     * @param string    $markdown_url   the URL as it was written in the markdown
+     * @param string    $type           the type of URL, image | link
+     * @param null      $relative       if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
@@ -698,7 +696,6 @@ class Uri
             $page_path = $path_info['dirname'];
             $filename = '';
 
-
             if ($markdown_url == '..') {
                 $page_path = $full_path;
             } else {
@@ -738,5 +735,4 @@ class Uri
         $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . Utils::getNonce($action);
         return $urlWithNonce;
     }
-
 }
