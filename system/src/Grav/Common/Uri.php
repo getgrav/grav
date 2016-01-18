@@ -44,8 +44,8 @@ class Uri
         $this->uri      = $this->buildUri();
         $this->base     = $this->buildBaseUrl();
         $this->host     = $this->buildHost();
-        $root_path      = $this->buildRootPath();
-        $this->root     = $this->base . $root_path;
+        $this->root_path = $this->buildRootPath();
+        $this->root     = $this->base . $this->root_path;
         $this->url      = $this->base . $this->uri;
     }
 
@@ -187,7 +187,6 @@ class Uri
         $this->name = $params['host'];
         $this->port = $params['port'];
         $this->uri = $params['path'];
-
         if (isset($params['query'])) {
             $this->uri .= '?' . $params['query'];
             parse_str($params['query'], $this->query);
@@ -196,14 +195,10 @@ class Uri
         $this->base = $this->buildBaseUrl();
         $this->host = $this->buildHost();
 
-        $root_path = $this->buildRootPath();
-        $this->root = $this->base . $root_path;
+        $this->root_path = $this->buildRootPath();
+        $this->root = $this->base . $this->root_path;
         $this->url = $this->base . $this->uri;
 
-        $this->port = $port;
-        $this->base = $base;
-        $this->uri = $uri;
-        $this->root_path = $root_path;
     }
 
     /**
@@ -215,11 +210,6 @@ class Uri
 
         $config = $grav['config'];
         $language = $grav['language'];
-
-        // resets
-        $this->paths = [];
-        $this->params = [];
-        $this->query = [];
 
         // add the port to the base for non-standard ports
         if ($config->get('system.reverse_proxy_setup') == false && $this->port != '80' && $this->port != '443') {
