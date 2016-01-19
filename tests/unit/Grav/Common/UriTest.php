@@ -259,13 +259,19 @@ class UriTest extends \Codeception\TestCase\Test
     public function testHost()
     {
         $uri = $this->getURI();
+
+        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
+        if ($uri->host() == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
+            $address = 'localhost';
+        }
+
         $uri->initializeWithURL('http://localhost/a-page')->init();
-        $this->assertsame($uri->host(), 'localhost');
+        $this->assertSame($uri->host(), $address);
         $uri->initializeWithURL('http://localhost/')->init();
-        $this->assertsame($uri->host(), 'localhost');
+        $this->assertSame($uri->host(), $address);
         //Host is set to localhost when running from local
         $uri->initializeWithURL('http://google.com/')->init();
-        $this->assertsame($uri->host(), 'localhost');
+        $this->assertSame($uri->host(), $address);
     }
 
     public function testPort()
