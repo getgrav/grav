@@ -86,7 +86,7 @@ class Uri
      */
     private function buildPort()
     {
-        $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
+        $port = isset($_SERVER['SERVER_PORT']) ? (string)$_SERVER['SERVER_PORT'] : '80';
         return $port;
     }
 
