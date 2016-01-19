@@ -256,6 +256,18 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertsame($uri->extension(), 'foo');
     }
 
+    public function testHost()
+    {
+        $uri = $this->getURI();
+        $uri->initializeWithURL('http://localhost/a-page')->init();
+        $this->assertsame($uri->host(), 'localhost');
+        $uri->initializeWithURL('http://localhost/')->init();
+        $this->assertsame($uri->host(), 'localhost');
+        //Host is set to localhost when running from local
+        $uri->initializeWithURL('http://google.com/')->init();
+        $this->assertsame($uri->host(), 'localhost');
+    }
+
 
 
 
