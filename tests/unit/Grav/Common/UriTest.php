@@ -413,6 +413,29 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertTrue($uri->isExternal('http://google.it/test'));
     }
 
+    public function testBuildUrl()
+    {
+        $parsed_url = [
+            'scheme' => 'http',
+            'host' => 'localhost',
+            'port' => '8080',
+        ];
+
+        $this->assertSame($this->grav()['uri']::buildUrl($parsed_url), 'http://localhost:8080');
+
+        $parsed_url = [
+            'scheme' => 'http',
+            'host' => 'localhost',
+            'port' => '8080',
+            'user' => 'foo',
+            'pass' => 'bar',
+            'path' => '/test',
+            'query' => 'x=2',
+            'fragment' => 'xxx',
+        ];
+
+        $this->assertSame($this->grav()['uri']::buildUrl($parsed_url), 'http://foo:bar@localhost:8080/test?x=2#xxx');
+    }
 
 }
 
