@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 
 class UriTest extends \Codeception\TestCase\Test
 {
@@ -437,5 +438,22 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertSame($this->grav()['uri']::buildUrl($parsed_url), 'http://foo:bar@localhost:8080/test?x=2#xxx');
     }
 
+    public function testConvertUrl()
+    {
+        //TODO when we have a fixed testing page structure
+    }
+
+    public function testAddNonce()
+    {
+        $url = 'http://localhost/foo';
+        $this->assertStringStartsWith($url, $this->grav()['uri']::addNonce($url, 'test-action'));
+        $this->assertStringStartsWith($url . '/nonce:', $this->grav()['uri']::addNonce($url, 'test-action'));
+
+        $uri = $this->getURI();
+
+        $uri->initializeWithURL($this->grav()['uri']::addNonce($url, 'test-action'))->init();
+        $this->assertTrue(is_string($uri->param('nonce')));
+        $this->assertSame($uri->param('nonce'), Utils::getNonce('test-action'));
+    }
 }
 
