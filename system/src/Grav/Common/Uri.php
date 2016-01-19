@@ -15,6 +15,7 @@ class Uri
 
     public $url;
 
+    protected $scheme;
     protected $basename;
     protected $base;
     protected $root;
@@ -35,12 +36,12 @@ class Uri
      */
     public function __construct()
     {
-        $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
-        // Remove port from HTTP_HOST generated $name
-        $name = Utils::substrToString($name, ':');
+        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        // Remove port from HTTP_HOST generated $host
+        $host = Utils::substrToString($host, ':');
 
         // Validate the hostname
-        $name = preg_match(Uri::HOSTNAME_REGEX, $name) ? $name : 'unknown';
+        $host = preg_match(Uri::HOSTNAME_REGEX, $host) ? $host : 'unknown';
 
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
         $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
@@ -49,13 +50,13 @@ class Uri
 
         // set the base
         if (isset($_SERVER['HTTPS'])) {
-            $base = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
+            $scheme = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
         } else {
-            $base = 'http://';
+            $scheme = 'http://';
         }
 
         // add the sever name
-        $base .= $name;
+        $base =  $scheme . $host;
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
         if (strpos($uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
@@ -66,12 +67,13 @@ class Uri
         $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 
         // check for localhost variations
-        if ($name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
+        if ($host == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
             $this->host = 'localhost';
         } else {
-            $this->host = $name;
+            $this->host = $host;
         }
 
+        $this->scheme = $scheme;
         $this->port = $port;
         $this->base = $base;
         $this->uri = $uri;
@@ -329,6 +331,16 @@ class Uri
     }
 
     /**
+     * Return the scheme of the URI
+     *
+     * @return String The scheme of the URI
+     */
+    public function scheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
      * Return the host of the URI
      *
      * @return String The host of the URI
@@ -378,6 +390,7 @@ class Uri
     {
         return $this->base;
     }
+
 
     /**
      * Return root URL to the site.
