@@ -241,6 +241,21 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertsame($uri->path(), '/');
     }
 
+    public function testExtension()
+    {
+        $uri = $this->getURI();
+        $uri->initializeWithURL('http://localhost/a-page')->init();
+        $this->assertsame($uri->extension(), null);
+        $uri->initializeWithURL('http://localhost/a-page')->init();
+        $this->assertsame($uri->extension('x'), 'x');
+        $uri->initializeWithURL('http://localhost/a-page.html')->init();
+        $this->assertsame($uri->extension(), 'html');
+        $uri->initializeWithURL('http://localhost/a-page.xml')->init();
+        $this->assertsame($uri->extension(), 'xml');
+        $uri->initializeWithURL('http://localhost/a-page.foo')->init();
+        $this->assertsame($uri->extension(), 'foo');
+    }
+
 
 
 
