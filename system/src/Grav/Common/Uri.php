@@ -201,6 +201,15 @@ class Uri
         return $this;
     }
 
+    public function initializeWithUrlAndRootPath($url, $root_path)
+    {
+        $this->initializeWithUrl($url);
+        $this->root_path = $root_path;
+        $this->root = $this->base . $this->root_path;
+
+        return $this;
+    }
+
     /**
      * Initializes the URI object based on the url set on the object
      */
