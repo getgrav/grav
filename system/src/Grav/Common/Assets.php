@@ -179,8 +179,8 @@ class Assets
 
         /** @var Locator $locator */
         $locator = self::$grav['locator'];
-        $this->assets_dir = self::getGrav()['locator']->findResource('asset://') . DS;
-        $this->assets_url = self::getGrav()['locator']->findResource('asset://', false);
+        $this->assets_dir = $locator->findResource('asset://') . DS;
+        $this->assets_url = $locator->findResource('asset://', false);
 
         $this->config($asset_config);
         $this->base_url = $base_url . '/';
