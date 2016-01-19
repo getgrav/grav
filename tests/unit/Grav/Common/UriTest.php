@@ -279,6 +279,26 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertsame($uri->port(), 443);
         $uri->initializeWithURL('https://localhost/a-page')->init();
         $this->assertsame($uri->port(), '80');
+
+    public function testEnvironment()
+    {
+        $uri = $this->getURI();
+
+        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
+        if ($uri->host() == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
+            $address = 'localhost';
+        }
+
+        $uri->initializeWithURL('http://localhost/a-page')->init();
+        $this->assertSame($uri->environment(), $address);
+        $uri->initializeWithURL('http://localhost:8080/a-page')->init();
+        $this->assertSame($uri->environment(), $address);
+        $uri->initializeWithURL('http://foobar.it:443/a-page')->init();
+        $this->assertSame($uri->environment(), $address);
+        $uri->initializeWithURL('https://google.com/a-page')->init();
+        $this->assertSame($uri->environment(), $address);
+    }
+
     }
 
 
