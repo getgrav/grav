@@ -83,15 +83,15 @@ class UriTest extends \Codeception\TestCase\Test
         $uri = $this->getURI();
 
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
-        $this->assertsame($uri->paths(), ['grav', 'it', 'ueper']);
+        $this->assertSame($uri->paths(), ['grav', 'it', 'ueper']);
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertsame($uri->paths(), ['grav', 'it']);
+        $this->assertSame($uri->paths(), ['grav', 'it']);
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertsame($uri->paths(), ['grav', 'it', 'ueper']);
+        $this->assertSame($uri->paths(), ['grav', 'it', 'ueper']);
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertsame($uri->paths(), ['a', 'b', 'c', 'd']);
+        $this->assertSame($uri->paths(), ['a', 'b', 'c', 'd']);
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertsame($uri->paths(), ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']);
+        $this->assertSame($uri->paths(), ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']);
     }
 
     public function testRoute()
@@ -99,15 +99,15 @@ class UriTest extends \Codeception\TestCase\Test
         $uri = $this->getURI();
 
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
-        $this->assertsame($uri->route(), '/grav/it/ueper');
+        $this->assertSame($uri->route(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertsame($uri->route(), '/grav/it');
+        $this->assertSame($uri->route(), '/grav/it');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertsame($uri->route(), '/grav/it/ueper');
+        $this->assertSame($uri->route(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertsame($uri->route(), '/a/b/c/d');
+        $this->assertSame($uri->route(), '/a/b/c/d');
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertsame($uri->route(), '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f');
+        $this->assertSame($uri->route(), '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f');
     }
 
     public function testQuery()
@@ -115,38 +115,38 @@ class UriTest extends \Codeception\TestCase\Test
         $uri = $this->getURI();
 
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
-        $this->assertsame($uri->query(), '');
+        $this->assertSame($uri->query(), '');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertsame($uri->query(), '');
-        $this->assertsame($uri->query('id'), null);
+        $this->assertSame($uri->query(), '');
+        $this->assertSame($uri->query('id'), null);
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertsame($uri->query(), 'test=x');
-        $this->assertsame($uri->query('id'), null);
-        $this->assertsame($uri->query('test'), 'x');
+        $this->assertSame($uri->query(), 'test=x');
+        $this->assertSame($uri->query('id'), null);
+        $this->assertSame($uri->query('test'), 'x');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y')->init();
-        $this->assertsame($uri->query(), 'test=x&test2=y');
-        $this->assertsame($uri->query('id'), null);
-        $this->assertsame($uri->query('test'), 'x');
-        $this->assertsame($uri->query('test2'), 'y');
+        $this->assertSame($uri->query(), 'test=x&test2=y');
+        $this->assertSame($uri->query('id'), null);
+        $this->assertSame($uri->query('test'), 'x');
+        $this->assertSame($uri->query('test2'), 'y');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y')->init();
-        $this->assertsame($uri->query(), 'test=x&test2=y&test3=x&test4=y');
-        $this->assertsame($uri->query('id'), null);
-        $this->assertsame($uri->query('test'), 'x');
-        $this->assertsame($uri->query('test2'), 'y');
-        $this->assertsame($uri->query('test4'), 'y');
+        $this->assertSame($uri->query(), 'test=x&test2=y&test3=x&test4=y');
+        $this->assertSame($uri->query('id'), null);
+        $this->assertSame($uri->query('test'), 'x');
+        $this->assertSame($uri->query('test2'), 'y');
+        $this->assertSame($uri->query('test4'), 'y');
         //Test all after the ? is encoded in the query
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test')->init();
-        $this->assertsame($uri->query(), 'test=x&test2=y&test3=x&test4=y%2Ftest');
-        $this->assertsame($uri->query('id'), null);
-        $this->assertsame($uri->query('test'), 'x');
-        $this->assertsame($uri->query('test2'), 'y');
-        $this->assertsame($uri->query('test4'), 'y/test');
+        $this->assertSame($uri->query(), 'test=x&test2=y&test3=x&test4=y%2Ftest');
+        $this->assertSame($uri->query('id'), null);
+        $this->assertSame($uri->query('test'), 'x');
+        $this->assertSame($uri->query('test2'), 'y');
+        $this->assertSame($uri->query('test4'), 'y/test');
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertsame($uri->query(), '');
-        $this->assertsame($uri->query('id'), null);
+        $this->assertSame($uri->query(), '');
+        $this->assertSame($uri->query('id'), null);
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertsame($uri->query(), '');
-        $this->assertsame($uri->query('id'), null);
+        $this->assertSame($uri->query(), '');
+        $this->assertSame($uri->query('id'), null);
     }
 
     public function testParams()
@@ -154,32 +154,32 @@ class UriTest extends \Codeception\TestCase\Test
         $uri = $this->getURI();
 
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
-        $this->assertsame($uri->params(), null);
+        $this->assertSame($uri->params(), null);
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertsame($uri->params(), '/ueper:xxx');
-        $this->assertsame($uri->params('ueper'), '/ueper:xxx');
+        $this->assertSame($uri->params(), '/ueper:xxx');
+        $this->assertSame($uri->params('ueper'), '/ueper:xxx');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
-        $this->assertsame($uri->params(), '/ueper:xxx/test:yyy');
-        $this->assertsame($uri->params('ueper'), '/ueper:xxx');
-        $this->assertsame($uri->params('test'), '/test:yyy');
+        $this->assertSame($uri->params(), '/ueper:xxx/test:yyy');
+        $this->assertSame($uri->params('ueper'), '/ueper:xxx');
+        $this->assertSame($uri->params('test'), '/test:yyy');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertsame($uri->params(), null);
-        $this->assertsame($uri->params('ueper'), null);
+        $this->assertSame($uri->params(), null);
+        $this->assertSame($uri->params('ueper'), null);
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y')->init();
-        $this->assertsame($uri->params(), null);
-        $this->assertsame($uri->params('ueper'), null);
+        $this->assertSame($uri->params(), null);
+        $this->assertSame($uri->params('ueper'), null);
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y')->init();
-        $this->assertsame($uri->params(), null);
-        $this->assertsame($uri->params('ueper'), null);
+        $this->assertSame($uri->params(), null);
+        $this->assertSame($uri->params('ueper'), null);
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test')->init();
-        $this->assertsame($uri->params(), null);
-        $this->assertsame($uri->params('ueper'), null);
+        $this->assertSame($uri->params(), null);
+        $this->assertSame($uri->params('ueper'), null);
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertsame($uri->params(), null);
-        $this->assertsame($uri->params('ueper'), null);
+        $this->assertSame($uri->params(), null);
+        $this->assertSame($uri->params('ueper'), null);
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertsame($uri->params(), null);
-        $this->assertsame($uri->params('ueper'), null);
+        $this->assertSame($uri->params(), null);
+        $this->assertSame($uri->params('ueper'), null);
     }
 
     public function testParam()
@@ -187,73 +187,73 @@ class UriTest extends \Codeception\TestCase\Test
         $uri = $this->getURI();
 
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertsame($uri->param('ueper'), 'xxx');
+        $this->assertSame($uri->param('ueper'), 'xxx');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
-        $this->assertsame($uri->param('ueper'), 'xxx');
-        $this->assertsame($uri->param('test'), 'yyy');
+        $this->assertSame($uri->param('ueper'), 'xxx');
+        $this->assertSame($uri->param('test'), 'yyy');
     }
 
     public function testUrl()
     {
         $uri = $this->getURI();
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
-        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $this->assertSame($uri->url(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertsame($uri->url(), '/grav/it');
+        $this->assertSame($uri->url(), '/grav/it');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
-        $this->assertsame($uri->url(), '/grav/it');
+        $this->assertSame($uri->url(), '/grav/it');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $this->assertSame($uri->url(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y')->init();
-        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $this->assertSame($uri->url(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y')->init();
-        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $this->assertSame($uri->url(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test')->init();
-        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $this->assertSame($uri->url(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertsame($uri->url(), '/a/b/c/d');
+        $this->assertSame($uri->url(), '/a/b/c/d');
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertsame($uri->url(), '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f');
+        $this->assertSame($uri->url(), '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f');
     }
 
     public function testPath()
     {
         $uri = $this->getURI();
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
-        $this->assertsame($uri->path(), '/grav/it/ueper');
+        $this->assertSame($uri->path(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertsame($uri->path(), '/grav/it');
+        $this->assertSame($uri->path(), '/grav/it');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
-        $this->assertsame($uri->path(), '/grav/it');
+        $this->assertSame($uri->path(), '/grav/it');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertsame($uri->path(), '/grav/it/ueper');
+        $this->assertSame($uri->path(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y')->init();
-        $this->assertsame($uri->path(), '/grav/it/ueper');
+        $this->assertSame($uri->path(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y')->init();
-        $this->assertsame($uri->path(), '/grav/it/ueper');
+        $this->assertSame($uri->path(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test')->init();
-        $this->assertsame($uri->path(), '/grav/it/ueper');
+        $this->assertSame($uri->path(), '/grav/it/ueper');
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertsame($uri->path(), '/a/b/c/d');
+        $this->assertSame($uri->path(), '/a/b/c/d');
         $uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertsame($uri->path(), '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f');
+        $this->assertSame($uri->path(), '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f');
         $uri->initializeWithURL('http://localhost/')->init();
-        $this->assertsame($uri->path(), '/');
+        $this->assertSame($uri->path(), '/');
     }
 
     public function testExtension()
     {
         $uri = $this->getURI();
         $uri->initializeWithURL('http://localhost/a-page')->init();
-        $this->assertsame($uri->extension(), null);
+        $this->assertSame($uri->extension(), null);
         $uri->initializeWithURL('http://localhost/a-page')->init();
-        $this->assertsame($uri->extension('x'), 'x');
+        $this->assertSame($uri->extension('x'), 'x');
         $uri->initializeWithURL('http://localhost/a-page.html')->init();
-        $this->assertsame($uri->extension(), 'html');
+        $this->assertSame($uri->extension(), 'html');
         $uri->initializeWithURL('http://localhost/a-page.xml')->init();
-        $this->assertsame($uri->extension(), 'xml');
+        $this->assertSame($uri->extension(), 'xml');
         $uri->initializeWithURL('http://localhost/a-page.foo')->init();
-        $this->assertsame($uri->extension(), 'foo');
+        $this->assertSame($uri->extension(), 'foo');
     }
 
     public function testHost()
@@ -272,13 +272,14 @@ class UriTest extends \Codeception\TestCase\Test
     {
         $uri = $this->getURI();
         $uri->initializeWithURL('http://localhost/a-page')->init();
-        $this->assertsame($uri->port(), '80');
+        $this->assertSame($uri->port(), '80');
         $uri->initializeWithURL('http://localhost:8080/a-page')->init();
-        $this->assertsame($uri->port(), 8080);
+        $this->assertSame($uri->port(), 8080);
         $uri->initializeWithURL('http://localhost:443/a-page')->init();
-        $this->assertsame($uri->port(), 443);
+        $this->assertSame($uri->port(), 443);
         $uri->initializeWithURL('https://localhost/a-page')->init();
-        $this->assertsame($uri->port(), '80');
+        $this->assertSame($uri->port(), '80');
+    }
 
     public function testEnvironment()
     {
