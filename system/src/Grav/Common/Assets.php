@@ -412,7 +412,6 @@ class Assets
         ];
 
         // check for dynamic array and merge with defaults
-        $count_args = func_num_args();
         if (func_num_args() == 2) {
             $dynamic_arg = func_get_arg(1);
             if (is_array($dynamic_arg)) {
@@ -459,7 +458,6 @@ class Assets
         ];
 
         // check for dynamic array and merge with defaults
-        $count_args = func_num_args();
         if (func_num_args() == 2) {
             $dynamic_arg = func_get_arg(1);
             if (is_array($dynamic_arg)) {
