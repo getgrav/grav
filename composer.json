@@ -15,7 +15,7 @@
         "symfony/var-dumper": "~2.8",
         "symfony/polyfill-iconv": "~1.0",
         "doctrine/cache": "~1.5",
-        "filp/whoops": "2.0.0-alpha2",
+        "filp/whoops": "2.0.0",
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
         "mrclay/minify": "~2.2",
