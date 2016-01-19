@@ -182,6 +182,17 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertsame($uri->params('ueper'), null);
     }
 
+    public function testParam()
+    {
+        $uri = $this->getURI();
+
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
+        $this->assertsame($uri->param('ueper'), 'xxx');
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
+        $this->assertsame($uri->param('ueper'), 'xxx');
+        $this->assertsame($uri->param('test'), 'yyy');
+    }
+
 
 
 
