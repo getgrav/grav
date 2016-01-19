@@ -268,6 +268,18 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertsame($uri->host(), 'localhost');
     }
 
+    public function testPort()
+    {
+        $uri = $this->getURI();
+        $uri->initializeWithURL('http://localhost/a-page')->init();
+        $this->assertsame($uri->port(), '80');
+        $uri->initializeWithURL('http://localhost:8080/a-page')->init();
+        $this->assertsame($uri->port(), 8080);
+        $uri->initializeWithURL('http://localhost:443/a-page')->init();
+        $this->assertsame($uri->port(), 443);
+        $uri->initializeWithURL('https://localhost/a-page')->init();
+        $this->assertsame($uri->port(), '80');
+    }
 
 
 
