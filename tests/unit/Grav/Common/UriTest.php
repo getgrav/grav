@@ -1,7 +1,6 @@
 <?php
 
 use Codeception\Util\Fixtures;
-use Grav\Common\Uri;
 use Grav\Common\Utils;
 
 class UriTest extends \Codeception\TestCase\Test
@@ -13,7 +12,6 @@ class UriTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $uri = $this->getURI();
     }
 
     protected function _after()
@@ -22,8 +20,7 @@ class UriTest extends \Codeception\TestCase\Test
 
     public function grav()
     {
-        $grav = Fixtures::get('grav');
-        return $grav;
+        return Fixtures::get('grav');
     }
 
     public function getURI()
