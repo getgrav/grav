@@ -193,6 +193,29 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertsame($uri->param('test'), 'yyy');
     }
 
+    public function testUrl()
+    {
+        $uri = $this->getURI();
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();
+        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
+        $this->assertsame($uri->url(), '/grav/it');
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
+        $this->assertsame($uri->url(), '/grav/it');
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
+        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y')->init();
+        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y')->init();
+        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test')->init();
+        $this->assertsame($uri->url(), '/grav/it/ueper');
+        $uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
+        $this->assertsame($uri->url(), '/a/b/c/d');
+        $uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
+        $this->assertsame($uri->url(), '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f');
+    }
+
 
 
 
