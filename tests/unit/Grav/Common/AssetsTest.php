@@ -29,7 +29,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         return $this->grav()['assets'];
     }
 
-    public function testAddingCSS()
+    public function testAddingAssets()
     {
         $assets = $this->assets();
 
@@ -39,19 +39,49 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $assets->css();
         $this->assertSame($css, '<link href="test.css" type="text/css" rel="stylesheet" />' . PHP_EOL);
 
+        $assets->add('test.js');
+        $js = $assets->js();
+        $this->assertSame($js, '<script src="test.js" type="text/javascript" ></script>' . PHP_EOL);
+
         //test addCss(). Test adding asset to a separate group
         $assets->reset();
         $assets->addCSS('test.css');
-
         $css = $assets->css();
         $this->assertSame($css, '<link href="test.css" type="text/css" rel="stylesheet" />' . PHP_EOL);
 
+        //test addJs()
+        $assets->reset();
+        $assets->addJs('test.js');
+        $js = $assets->js();
+        $this->assertSame($js, '<script src="test.js" type="text/javascript" ></script>' . PHP_EOL);
+
+        //Test CSS Groups
         $assets->reset();
         $assets->addCSS('test.css', null, true, 'footer');
         $css = $assets->css();
         $this->assertEmpty($css);
         $css = $assets->css('footer');
         $this->assertSame($css, '<link href="test.css" type="text/css" rel="stylesheet" />' . PHP_EOL);
+
+        //Test JS Groups
+        $assets->reset();
+        $assets->addJs('test.js', null, true, null, 'footer');
+        $js = $assets->js();
+        $this->assertEmpty($js);
+        $js = $assets->js('footer');
+        $this->assertSame($js, '<script src="test.js" type="text/javascript" ></script>' . PHP_EOL);
+
+        //Test async / defer
+        $assets->reset();
+        $assets->addJs('test.js', null, true, 'async', null);
+        $js = $assets->js();
+        $this->assertSame($js, '<script src="test.js" type="text/javascript" async></script>' . PHP_EOL);
+        $assets->reset();
+        $assets->addJs('test.js', null, true, 'defer', null);
+        $js = $assets->js();
+        $this->assertSame($js, '<script src="test.js" type="text/javascript" defer></script>' . PHP_EOL);
+
+
     }
 
     public function testPriorityOfAssets()
