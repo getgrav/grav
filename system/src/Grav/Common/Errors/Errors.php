@@ -30,11 +30,15 @@ class Errors
             }
         }
 
-        if (method_exists('Whoops\Util\Misc', 'isAjaxRequest')) { //Whoops 2
+        if (method_exists('Whoops\Util\Misc', 'isAjaxRequest')) { //Whoops 2.0
             if (Whoops\Util\Misc::isAjaxRequest()) {
                 $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
             }
-        } else { //Whoops 1
+        } elseif (function_exists('Whoops\isAjaxRequest')) { //Whoops 2.0.0-alpha
+            if (Whoops\isAjaxRequest()) {
+                $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
+            }
+        } else { //Whoops 1.x
             $json_page = new Whoops\Handler\JsonResponseHandler;
             $json_page->onlyForAjaxRequests(true);
         }
