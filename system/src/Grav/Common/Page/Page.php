@@ -966,6 +966,12 @@ class Page
         return $this->extension;
     }
 
+    /**
+     * Returns the page extension, got from the page `url_extension` config and falls back to the
+     * system config `system.pages.append_url_extension`.
+     *
+     * @return string      The extension of this page. For example `.html`
+     */
     public function urlExtension()
     {
         // if not set in the page get the value from system config
@@ -974,7 +980,6 @@ class Page
         }
 
         return $this->url_extension;
-
     }
 
     /**
@@ -1256,7 +1261,6 @@ class Page
      */
     public function url($include_host = false, $canonical = false, $include_lang = true)
     {
-
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
 
