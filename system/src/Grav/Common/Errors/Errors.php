@@ -30,8 +30,8 @@ class Errors
             }
         }
 
-        if (function_exists('Whoops\isAjaxRequest')) { //Whoops 2
-            if (Whoops\isAjaxRequest()) {
+        if (method_exists('Whoops\Util\Misc', 'isAjaxRequest')) { //Whoops 2
+            if (Whoops\Util\Misc::isAjaxRequest()) {
                 $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
             }
         } else { //Whoops 1
