@@ -25,7 +25,7 @@ class Twig
     /**
      * @var array
      */
-    public $twig_vars;
+    public $twig_vars = [];
 
     /**
      * @var array
@@ -143,7 +143,7 @@ class Twig
             $this->grav->fireEvent('onTwigExtensions');
 
             // Set some standard variables for twig
-            $this->twig_vars = array(
+            $this->twig_vars = $this->twig_vars + array(
                 'config' => $config,
                 'uri' => $this->grav['uri'],
                 'base_dir' => rtrim(ROOT_DIR, '/'),

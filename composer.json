@@ -15,15 +15,17 @@
         "symfony/var-dumper": "~2.8",
         "symfony/polyfill-iconv": "~1.0",
         "doctrine/cache": "~1.5",
-        "filp/whoops": "2.0.0-alpha2",
+        "filp/whoops": "~2.0",
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
-        "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
         "rockettheme/toolbox": "~1.2",
-        "maximebf/debugbar": "~1.10"
+        "maximebf/debugbar": "~1.10",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*"
     },
     "repositories": [
         {
