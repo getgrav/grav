@@ -3,7 +3,7 @@ form:
     validation: loose
     fields:
 
-        content:
+        section_content:
             type: section
             title: PLUGIN_ADMIN.DEFAULTS
             underline: true
@@ -39,7 +39,7 @@ form:
                     validate:
                         type: commalist
 
-        summary:
+        section_summary:
             type: section
             title: PLUGIN_ADMIN.PAGE_SUMMARY
             underline: true
@@ -82,7 +82,7 @@ form:
                     label: PLUGIN_ADMIN.DELIMITER
                     help: PLUGIN_ADMIN.DELIMITER_HELP
 
-        metadata:
+        section_metadata:
             type: section
             title: PLUGIN_ADMIN.METADATA
             underline: true
@@ -95,7 +95,7 @@ form:
                    placeholder_key: PLUGIN_ADMIN.METADATA_KEY
                    placeholder_value: PLUGIN_ADMIN.METADATA_VALUE
 
-        routes:
+        section_routes:
             type: section
             title: PLUGIN_ADMIN.REDIRECTS_AND_ROUTES
             underline: true

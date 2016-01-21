@@ -129,6 +129,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
      */
     public function extend(Blueprint $extends, $append = false)
     {
+        throw new \Exception('Extend is not implemented yet');
         // FIXME: Currently not working...
         $blueprints = $append ? $this->form : $extends->fields();
         $appended = $append ? $extends->fields() : $this->form;
