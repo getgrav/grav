@@ -120,4 +120,4 @@ See [LICENSE](LICENSE.txt)
 # Running Tests
 
 First install the dev dependencies by running `composer update` from the Grav root.
-Then `./vendor/bin/codecept run unit` will run the Unit Tests, which should be always executed successfully on any site.
+Then `composer test` will run the Unit Tests, which should be always executed successfully on any site.
