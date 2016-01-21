@@ -1424,6 +1424,7 @@ class Page
         if ($var !== null) {
             $this->modified = $var;
         }
+
         return $this->modified;
     }
 

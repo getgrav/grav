@@ -398,7 +398,7 @@ class Pages
      * @return array
      * @throws \RuntimeException
      */
-    public function getList(Page $current = null, $level = 0)
+    public function getList(Page $current = null, $level = 0, $rawRoutes = false)
     {
         if (!$current) {
             if ($level) {
@@ -411,11 +411,16 @@ class Pages
         $list = array();
 
         if (!$current->root()) {
-            $list[$current->route()] = str_repeat('&nbsp; ', ($level-1)*2) . $current->title();
+            if ($rawRoutes) {
+                $route = $current->rawRoute();
+            } else {
+                $route = $current->route();
+            }
+            $list[$route] = str_repeat('&nbsp; ', ($level-1)*2) . $current->title();
         }
 
         foreach ($current->children() as $next) {
-            $list = array_merge($list, $this->getList($next, $level + 1));
+            $list = array_merge($list, $this->getList($next, $level + 1, $rawRoutes));
         }
 
         return $list;
@@ -517,18 +522,42 @@ class Pages
     }
 
     /**
-     * Get available parents.
+     * Get available parents routes
      *
      * @return array
      */
     public static function parents()
+    {
+        $rawRoutes = false;
+        return self::getParents($rawRoutes);
+    }
+
+    /**
+     * Get available parents raw routes.
+     *
+     * @return array
+     */
+    public static function parentsRawRoutes()
+    {
+        $rawRoutes = true;
+        return self::getParents($rawRoutes);
+    }
+
+    /**
+     * Get available parents routes
+     *
+     * @param bool $rawRoutes get the raw route or the normal route
+     *
+     * @return array
+     */
+    private static function getParents($rawRoutes)
     {
         $grav = Grav::instance();
 
         /** @var Pages $pages */
         $pages = $grav['pages'];
 
-        $parents = $pages->getList();
+        $parents = $pages->getList(null, 0, $rawRoutes);
 
         /** @var Admin $admin */
         $admin = $grav['admin'];
@@ -544,6 +573,7 @@ class Pages
         }
 
         return $parents;
+
     }
 
     /**
@@ -788,6 +818,17 @@ class Pages
         // Set routability to false if no page found
         if (!$content_exists) {
             $page->routable(false);
+        }
+
+        // Override the modified time if modular
+        if ($page->template() == 'modular') {
+            foreach ($page->collection() as $child) {
+                $modified = $child->modified();
+
+                if ($modified > $last_modified) {
+                    $last_modified = $modified;
+                }
+            }
         }
 
         // Override the modified and ID so that it takes the latest change into account

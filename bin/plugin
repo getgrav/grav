@@ -107,10 +107,12 @@ try {
     exit;
 }
 
-foreach ($commands as $command) {
-    require_once "plugins://{$name}/cli/{$command}";
-    $command = 'Grav\Plugin\Console\\' . preg_replace('/.php$/', '', $command);
-    $app->add(new $command());
+foreach ($commands as $command_path) {
+    require_once "plugins://{$name}/cli/{$command_path}";
+
+    $command_class = 'Grav\Plugin\Console\\' . preg_replace('/.php$/', '', $command_path);
+    $command = new $command_class();
+    $app->add($command);
 }
 
 $app->run($input);

@@ -5,6 +5,7 @@ use Grav\Common\GPM\GPM;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class InfoCommand
@@ -33,6 +34,12 @@ class InfoCommand extends ConsoleCommand
                 'f',
                 InputOption::VALUE_NONE,
                 'Force fetching the new data remotely'
+            )
+            ->addOption(
+                'all-yes',
+                'y',
+                InputOption::VALUE_NONE,
+                'Assumes yes (or best approach) instead of prompting'
             )
             ->addArgument(
                 'package',
@@ -107,9 +114,62 @@ class InfoCommand extends ConsoleCommand
             }
         }
 
+        $type = rtrim($foundPackage->package_type, 's');
+        $updatable = $this->gpm->{'is' . $type . 'Updatable'}($foundPackage->slug);
+        $installed = $this->gpm->{'is' . $type . 'Installed'}($foundPackage->slug);
+
+        // display current version if installed and different
+        if ($installed && $updatable) {
+            $local = $this->gpm->{'getInstalled'. $type}($foundPackage->slug);
+            $this->output->writeln('');
+            $this->output->writeln("Currently installed version: <magenta>" . $local->version . "</magenta>");
+            $this->output->writeln('');
+        }
+
+        // display changelog information
+        $questionHelper = $this->getHelper('question');
+        $skipPrompt = $this->input->getOption('all-yes');
+
+        if (!$skipPrompt) {
+            $question = new ConfirmationQuestion("Would you like to read the changelog? [y|N] ",
+                false);
+            $answer = $questionHelper->ask($this->input, $this->output, $question);
+
+            if ($answer) {
+                $changelog = $foundPackage->changelog;
+
+                $this->output->writeln("");
+                foreach ($changelog as $version => $log) {
+                    $title = $version . ' [' . $log['date'] . ']';
+                    $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
+                        return "\n" . ucfirst($match[1]) . ":";
+                    }, $log['content']);
+
+                    $this->output->writeln('<cyan>'.$title.'</cyan>');
+                    $this->output->writeln(str_repeat('-', strlen($title)));
+                    $this->output->writeln($content);
+                    $this->output->writeln("");
+
+                    $question = new ConfirmationQuestion("Press [ENTER] to continue or [q] to quit ", true);
+                    if (!$questionHelper->ask($this->input, $this->output, $question)) {
+                        break;
+                    }
+                    $this->output->writeln("");
+                }
+            }
+        }
+
+
         $this->output->writeln('');
-        $this->output->writeln("You can install this package by typing:");
-        $this->output->writeln("    <green>" . $this->argv . " install</green> <cyan>" . $foundPackage->slug . "</cyan>");
+
+        if ($installed && $updatable) {
+            $this->output->writeln("You can update this package by typing:");
+            $this->output->writeln("    <green>" . $this->argv . " update</green> <cyan>" . $foundPackage->slug . "</cyan>");
+        } else {
+            $this->output->writeln("You can install this package by typing:");
+            $this->output->writeln("    <green>" . $this->argv . " install</green> <cyan>" . $foundPackage->slug . "</cyan>");
+        }
+
         $this->output->writeln('');
 
     }
