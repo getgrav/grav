@@ -251,7 +251,7 @@ class Assets
             }
             return $this;
         } elseif (isset($this->collections[$asset])) {
-            $this->add($this->collections[$asset], $priority, $pipeline, $group);
+            $this->addCss($this->collections[$asset], $priority, $pipeline, $group);
             return $this;
         }
 
@@ -309,7 +309,7 @@ class Assets
             }
             return $this;
         } elseif (isset($this->collections[$asset])) {
-            $this->add($this->collections[$asset], $priority, $pipeline, $loading, $group);
+            $this->addJs($this->collections[$asset], $priority, $pipeline, $loading, $group);
             return $this;
         }
 
