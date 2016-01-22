@@ -273,7 +273,7 @@ class Assets
         ];
 
         // check for dynamic array and merge with defaults
-        if (func_num_args() == 3) {
+        if (func_num_args() > 1) {
             $dynamic_arg = func_get_arg(1);
             if (is_array($dynamic_arg)) {
                 $data = array_merge($data, $dynamic_arg);
@@ -332,10 +332,10 @@ class Assets
         ];
 
         // check for dynamic array and merge with defaults
-        if (func_num_args() == 3) {
+        if (func_num_args() > 1) {
             $dynamic_arg = func_get_arg(1);
             if (is_array($dynamic_arg)) {
-               $data = array_merge($data, $dynamic_arg);
+                $data = array_merge($data, $dynamic_arg);
             }
         }
 
