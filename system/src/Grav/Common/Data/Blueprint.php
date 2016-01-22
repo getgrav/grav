@@ -51,6 +51,52 @@ class Blueprint extends BaseBlueprints implements ExportInterface
         return $this;
     }
 
+
+    /**
+     * Get meta value by using dot notation for nested arrays/objects.
+     *
+     * @param string  $name       Dot separated path to the requested value.
+     * @param string  $field      Meta field to fetch.
+     * @param mixed   $default    Default value (or null).
+     * @param string  $separator  Separator, defaults to '.'
+     *
+     * @return mixed  Value.
+     */
+    public function getMeta($name, $field, $default = null, $separator = '.')
+    {
+        $name = $separator != '.' ? strtr($name, $separator, '.') : $name;
+
+        return isset($this->items[$name]['meta'][$field]) ? $this->items[$name]['meta'][$field] : $default;
+    }
+
+    /**
+     * Set meta value by using dot notation for nested arrays/objects.
+     *
+     * @param string  $name       Dot separated path to the requested value.
+     * @param string  $field      Meta field to fetch.
+     * @param mixed   $value      New value.
+     * @param string  $separator  Separator, defaults to '.'
+     */
+    public function setMeta($name, $field, $value, $separator = '.')
+    {
+        $name = $separator != '.' ? strtr($name, $separator, '.') : $name;
+
+        $this->items[$name]['meta'][$field] = $value;
+    }
+
+    /**
+     * Define meta value by using dot notation for nested arrays/objects.
+     *
+     * @param string  $name       Dot separated path to the requested value.
+     * @param string  $field      Meta field to fetch.
+     * @param mixed   $value      New value.
+     * @param string  $separator  Separator, defaults to '.'
+     */
+    public function defMeta($name, $field, $value, $separator = '.')
+    {
+        $this->setMeta($name, $field, $this->getMeta($name, $field, $value, $separator), $separator);
+    }
+
     /**
      * Return all form fields in a nested list.
      *

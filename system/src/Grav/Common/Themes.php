@@ -127,7 +127,7 @@ class Themes extends Iterator
         // Find thumbnail.
         $thumb = "themes://{$name}/thumbnail.jpg";
         if ($path = $this->grav['locator']->findResource($thumb, false)) {
-            $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
+            $blueprint->setMeta('', 'thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
         $obj = new Data($file->content(), $blueprint);
