@@ -274,7 +274,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
             if (!is_string($field)) {
                 continue;
             }
-            $field = $this->rules[$field];
+            $field = $this->items[$field];
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true
                 && empty($data[$name])) {
