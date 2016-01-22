@@ -16,7 +16,7 @@ form:
       active: 1
 
       fields:
-        content:
+        tab_content:
           type: tab
           title: PLUGIN_ADMIN.CONTENT
 
@@ -37,7 +37,7 @@ form:
               type: pagemedia
               label: PLUGIN_ADMIN.PAGE_MEDIA
 
-        options:
+        tab_options:
           type: tab
           title: PLUGIN_ADMIN.OPTIONS
 
@@ -101,7 +101,7 @@ form:
                   validate:
                     type: array
 
-        advanced:
+        tab_advanced:
           type: tab
           title: PLUGIN_ADMIN.ADVANCED
 
