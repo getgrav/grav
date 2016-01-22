@@ -216,7 +216,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
 
         foreach ($data as $key => $field) {
             $val = isset($rules[$key]) ? $rules[$key] : null;
-            $rule = is_string($val) ? $this->rules[$val] : null;
+            $rule = is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
                 // Item has been defined in blueprints.
@@ -242,7 +242,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
         $results = array();
         foreach ($data as $key => $field) {
             $val = isset($rules[$key]) ? $rules[$key] : null;
-            $rule = is_string($val) ? $this->rules[$val] : null;
+            $rule = is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
                 // Item has been defined in blueprints.
