@@ -103,7 +103,7 @@ class Blueprints
                 }
             }
 
-            $this->instances[$type] = $blueprint;
+            $this->instances[$type] = $blueprint->init();
         }
 
         return $this->instances[$type];
