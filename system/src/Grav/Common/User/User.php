@@ -88,7 +88,7 @@ class User extends Data
                 // the result
                 Authentication::verify(
                     $password,
-                    self::getGrav()['config']->get('system.security.default_hash', '$2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK')
+                    self::getGrav()['config']->get('system.security.default_hash')
                 );
                 return false;
             } else {
