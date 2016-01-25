@@ -8,6 +8,7 @@ use Grav\Common\Config\Config;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 define('CSS_ASSET', true);
 define('JS_ASSET', false);
@@ -64,11 +65,12 @@ class Assets
     protected $js_pipeline = false;
 
     // The asset holding arrays
-    protected $collections = array();
-    protected $css = array();
-    protected $js = array();
-    protected $inline_css = array();
-    protected $inline_js = array();
+    protected $collections = [];
+    protected $css         = [];
+    protected $js          = [];
+    protected $inline_css  = [];
+    protected $inline_js   = [];
+    protected $imports     = [];
 
     // Some configuration variables
     protected $config;
@@ -84,10 +86,15 @@ class Assets
     protected $js_minify = true;
 
     // Arrays to hold assets that should NOT be pipelined
-    protected $css_no_pipeline = array();
-    protected $js_no_pipeline = array();
+    protected $css_no_pipeline = [];
+    protected $js_no_pipeline = [];
 
-    public function __construct(array $options = array())
+    /**
+     * Assets constructor.
+     *
+     * @param array $options
+     */
+    public function __construct(array $options = [])
     {
         // Forward config options
         if ($options) {
@@ -176,7 +183,7 @@ class Assets
         $base_url = self::getGrav()['base_url'];
         $asset_config = (array)$config->get('system.assets');
 
-        /** @var Locator $locator */
+        /** @var UniformResourceLocator $locator */
         $locator = self::$grav['locator'];
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
@@ -615,9 +622,10 @@ class Assets
     }
 
     /**
-     * Minify and concatenate CSS.
+     * Minify and concatenate CSS
      *
-     * @return string
+     * @param string $group
+     * @return bool|string
      */
     protected function pipelineCss($group = 'head')
     {
@@ -686,6 +694,7 @@ class Assets
     /**
      * Minify and concatenate JS files.
      *
+     * @param string $group
      * @return string
      */
     protected function pipelineJs($group = 'head')
@@ -824,7 +833,7 @@ class Assets
      */
     public function resetJs()
     {
-        $this->js = array();
+        $this->js = [];
 
         return $this;
     }
@@ -836,7 +845,7 @@ class Assets
      */
     public function resetCss()
     {
-        $this->css = array();
+        $this->css = [];
 
         return $this;
     }
@@ -980,6 +989,8 @@ class Assets
         $local = true;
 
         foreach ($links as $asset) {
+            $relative_dir = '';
+
             $link = $asset['asset'];
             $relative_path = $link;
 
@@ -1030,8 +1041,8 @@ class Assets
     /**
      * Finds relative CSS urls() and rewrites the URL with an absolute one
      *
-     * @param $file                 the css source file
-     * @param $relative_path        relative path to the css file
+     * @param string $file                 the css source file
+     * @param string $relative_path        relative path to the css file
      *
      * @return mixed
      */
@@ -1072,7 +1083,7 @@ class Assets
      */
     protected function moveImports($file)
     {
-        $this->imports = array();
+        $this->imports = [];
 
         $file = preg_replace_callback(
             self::CSS_IMPORT_REGEX,
@@ -1107,7 +1118,7 @@ class Assets
             $pattern
         );
         $offset = strlen($ltrim);
-        $files = array();
+        $files = [];
 
         foreach ($iterator as $file) {
             $files[] = substr($file->getPathname(), $offset);
@@ -1158,6 +1169,9 @@ class Assets
         $this->timestamp = '?'.$value;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return '';
