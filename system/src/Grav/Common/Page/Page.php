@@ -138,15 +138,12 @@ class Page
         $this->published();
         $this->urlExtension();
 
-
-
         // some extension logic
         if (empty($extension)) {
             $this->extension('.'.$file->getExtension());
         } else {
             $this->extension($extension);
         }
-
 
         // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
@@ -974,6 +971,10 @@ class Page
      */
     public function urlExtension()
     {
+        if ($this->home()) {
+            return '';
+        }
+
         // if not set in the page get the value from system config
         if (empty($this->url_extension)) {
             $this->url_extension = trim(isset($this->header->append_url_extension) ? $this->header->append_url_extension : self::getGrav()['config']->get('system.pages.append_url_extension', false));
