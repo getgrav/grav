@@ -159,6 +159,9 @@ class User extends Data
         if ($groups) foreach($groups as $group) {
             $permission = self::getGrav()['config']->get("groups.{$group}.access.{$action}");
             $return = Utils::isPositive($permission);
+            if ($return === true) {
+                break;
+            }
         }
 
         //Check user access level
