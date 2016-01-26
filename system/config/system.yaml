@@ -86,7 +86,7 @@ assets:                                     # Configuration for Assets Manager (
   js_minify: true                           # Minify the JS during pipelining
   enable_asset_timestamp: false             # Enable asset timestamps
   collections:
-    jquery: system://assets/jquery/jquery-2.2.0.min.js
+    jquery: system://assets/jquery/jquery-2.x.min.js
 
 errors:
   display: false                            # Display full backtrace-style error page
