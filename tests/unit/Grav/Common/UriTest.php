@@ -433,7 +433,7 @@ class UriTest extends \Codeception\TestCase\Test
             'fragment' => 'xxx',
         ];
 
-        $this->assertSame(\Uri::buildUrl($parsed_url), 'http://foo:bar@localhost:8080/test?x=2#xxx');
+        $this->assertSame(Uri::buildUrl($parsed_url), 'http://foo:bar@localhost:8080/test?x=2#xxx');
     }
 
     public function testConvertUrl()
