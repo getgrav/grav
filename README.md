@@ -101,7 +101,7 @@ What you mainly want to know is that:
 * [Install](http://learn.getgrav.org/basics/installation) Grav in few seconds
 * Understand the [Configuration](http://learn.getgrav.org/basics/grav-configuration)
 * Take a peek at our available free [Skeletons](http://getgrav.org/downloads/skeletons#extras)
-* If you have questions, check out `#grav` on irc.freenode.net
+* If you have questions, jump on our [Gitter Room](https://gitter.im/getgrav/grav)! 
 * Have fun!
 
 # Exploring More
