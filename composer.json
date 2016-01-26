@@ -7,7 +7,7 @@
     "license": "MIT",
     "require": {
         "php": ">=5.5.9",
-        "twig/twig": "~1.23",
+        "twig/twig": "~1.24",
         "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~2.8",
         "symfony/console": "~2.8",
