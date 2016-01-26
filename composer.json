@@ -27,6 +27,10 @@
         "ext-openssl": "*",
         "ext-curl": "*"
     },
+    "require-dev": {
+        "codeception/codeception": "^2.1",
+        "fzaninotto/faker": "^1.5"
+    },
     "repositories": [
         {
             "type": "vcs",
@@ -43,7 +47,8 @@
         "exclude": ["VERSION"]
     },
     "scripts": {
-        "post-create-project-cmd": "bin/grav install"
+        "post-create-project-cmd": "bin/grav install",
+        "test": "vendor/bin/codecept run unit"
     },
     "extra": {
         "branch-alias": {

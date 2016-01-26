@@ -104,7 +104,7 @@ What you mainly want to know is that:
 * If you have questions, check out `#grav` on irc.freenode.net
 * Have fun!
 
-# Exploring more
+# Exploring More
 
 * Have a look at our [Basic Tutorial](http://learn.getgrav.org/basics/basic-tutorial)
 * Dive into more [advanced](http://learn.getgrav.org/advanced) functions
@@ -116,3 +116,10 @@ See [LICENSE](LICENSE.txt)
 
 [gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gitflow-extensions]: https://github.com/nvie/gitflow
+
+# Running Tests
+
+First install the dev dependencies by running `composer update` from the Grav root.
+Then `composer test` will run the Unit Tests, which should be always executed successfully on any site.
+
+You can also run a single unit test file, e.g. `composer test tests/unit/Grav/Common/AssetsTest.php`

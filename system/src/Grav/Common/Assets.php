@@ -170,7 +170,6 @@ class Assets
             $this->timestamp = '?' . self::getGrav()['cache']->getKey();
         }
 
-
         return $this;
     }
 
@@ -685,6 +684,7 @@ class Assets
         // Write file
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($absolute_path, $buffer);
+
             return $relative_path . $key;
         } else {
             return false;
