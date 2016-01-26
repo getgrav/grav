@@ -217,4 +217,44 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertContains('type="text/css" rel="stylesheet" />', $css);
     }
 
+    public function testAddAsyncJs()
+    {
+        $assets = $this->assets();
+
+        $assets->reset();
+        $assets->addAsyncJs('jquery');
+        $js = $assets->js();
+        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
+    }
+
+    public function testAddDeferJs()
+    {
+        $assets = $this->assets();
+
+        $assets->reset();
+        $assets->addDeferJs('jquery');
+        $js = $assets->js();
+        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" defer></script>' . PHP_EOL);
+    }
+
+    public function testAddInlineCss()
+    {
+        $assets = $this->assets();
+
+        $assets->reset();
+        $assets->addInlineCss('body { color: black }');
+        $css = $assets->css();
+        $this->assertSame($css, PHP_EOL. '<style>' .PHP_EOL . 'body { color: black }' . PHP_EOL.PHP_EOL .'</style>' . PHP_EOL);
+    }
+
+    public function testAddInlineJs()
+    {
+        $assets = $this->assets();
+
+        $assets->reset();
+        $assets->addInlineJs('alert("test")');
+        $js = $assets->js();
+        $this->assertSame($js, PHP_EOL. '<script>' .PHP_EOL . 'alert("test")' . PHP_EOL.PHP_EOL .'</script>' . PHP_EOL);
+    }
+
 }
