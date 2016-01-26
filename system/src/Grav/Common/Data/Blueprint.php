@@ -299,7 +299,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
         if ($this->context) {
             $values = (array) $params;
             if (!isset($field['fields'])) {
-                $field['fields'] = array();
+                $field['fields'] = [];
             }
             foreach ($values as $bname) {
                 $b = $this->context->get($bname);
