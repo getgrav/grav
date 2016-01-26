@@ -104,7 +104,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $assets->reset();
         $assets->addJs('jquery', ['loading' => 'async']);
         $js = $assets->js();
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.1.4.min.js" type="text/javascript" async></script>' . PHP_EOL);
+        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
 
         //Test priority too
         $assets->reset();
@@ -112,7 +112,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $assets->addJs('test.js', ['loading' => 'async', 'priority' => 2]);
         $js = $assets->js();
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" async></script>' . PHP_EOL .
-            '<script src="/system/assets/jquery/jquery-2.1.4.min.js" type="text/javascript" async></script>' . PHP_EOL);
+            '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
 
         //Test multiple groups
         $assets->reset();
@@ -121,7 +121,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $js = $assets->js();
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" async></script>' . PHP_EOL);
         $js = $assets->js('footer');
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.1.4.min.js" type="text/javascript" async></script>' . PHP_EOL);
+        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
 
         //Test adding array of assets
         //Test priority too
@@ -129,7 +129,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $assets->addJs(['jquery', 'test.js'], ['loading' => 'async']);
         $js = $assets->js();
 
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.1.4.min.js" type="text/javascript" async></script>' . PHP_EOL .
+        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL .
             '<script src="/test.js" type="text/javascript" async></script>' . PHP_EOL);
     }
 
