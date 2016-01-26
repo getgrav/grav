@@ -15,38 +15,99 @@ class Uri
 
     public $url;
 
-    protected $basename;
     protected $base;
-    protected $root;
+    protected $basename;
     protected $bits;
+    protected $content_path;
     protected $extension;
     protected $host;
-    protected $content_path;
+    protected $params;
     protected $path;
     protected $paths;
-    protected $query;
-    protected $params;
     protected $port;
-    protected $uri;
+    protected $query;
+    protected $root;
     protected $root_path;
+    protected $uri;
 
     /**
-     * Constructor.
+     * Constructor
      */
     public function __construct()
     {
+        // resets
+        $this->paths        = [];
+        $this->params       = [];
+        $this->query        = [];
+        $this->name         = $this->buildHostname();
+        $this->port         = $this->buildPort();
+        $this->uri          = $this->buildUri();
+        $this->base         = $this->buildBaseUrl();
+        $this->host         = $this->buildHost();
+        $this->root_path    = $this->buildRootPath();
+        $this->root         = $this->base . $this->root_path;
+        $this->url          = $this->base . $this->uri;
+    }
+
+    /**
+     * Return the hostname from $_SERVER, validated and without port
+     *
+     * @return string
+     */
+    private function buildHostname()
+    {
         $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+
         // Remove port from HTTP_HOST generated $name
         $name = Utils::substrToString($name, ':');
 
         // Validate the hostname
-        $name = preg_match(Uri::HOSTNAME_REGEX, $name) ? $name : 'unknown';
+        $name = $this->validateHostname($name) ? $name : 'unknown';
 
-        $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
-        $uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        return $name;
+    }
 
-        $root_path = str_replace(' ', '%20', rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/'));
+    /**
+     * Validate a hostname
+     *
+     * @param string $hostname The hostname
+     *
+     * @return boolean
+     */
+    public function validateHostname($hostname)
+    {
+        return (bool)preg_match(Uri::HOSTNAME_REGEX, $hostname);
+    }
 
+    /**
+     * Get the port from $_SERVER
+     *
+     * @return string
+     */
+    private function buildPort()
+    {
+        $port = isset($_SERVER['SERVER_PORT']) ? (string)$_SERVER['SERVER_PORT'] : '80';
+        return $port;
+    }
+
+    /**
+     * Get the Uri from $_SERVER
+     *
+     * @return string
+     */
+    private function buildUri()
+    {
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        return $uri;
+    }
+
+    /**
+     * Get the base URI with port if needed
+     *
+     * @return string
+     */
+    private function buildBaseUrl()
+    {
         // set the base
         if (isset($_SERVER['HTTPS'])) {
             $base = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
@@ -54,29 +115,99 @@ class Uri
             $base = 'http://';
         }
 
-        // add the sever name
-        $base .= $name;
+        // add the server name
+        $base .= $this->name;
+
+        return $base;
+    }
+
+    /**
+     * Get the Grav Root Path
+     *
+     * @return string
+     */
+    private function buildRootPath()
+    {
+        $root_path = str_replace(' ', '%20', rtrim(substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], 'index.php')), '/'));
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
-        if (strpos($uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
-            $root_path = substr($uri, 0, strpos($uri, '/', 1)) . $root_path;
+        if (strpos($this->uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
+            $root_path = substr($uri, 0, strpos($this->uri, '/', 1)) . $root_path;
         }
 
+        return $root_path;
+    }
+
+    /**
+     * Returns the hostname
+     *
+     * @return string
+     */
+    private function buildHost()
+    {
         // set hostname
         $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 
         // check for localhost variations
-        if ($name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            $this->host = 'localhost';
+        if ($this->name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
+            $host = 'localhost';
         } else {
-            $this->host = $name;
+            $host = $this->name;
         }
 
-        $this->port = $port;
-        $this->base = $base;
-        $this->uri = $uri;
-        $this->root_path = $root_path;
+        return $host;
+    }
 
+    /**
+     * Initialize the URI class with a url passed via parameter.
+     * Used for testing purposes.
+     *
+     * @param string $url the URL to use in the class
+     *
+     * @return string
+     */
+    public function initializeWithUrl($url = '')
+    {
+        if (!$url) return;
+
+        $this->paths    = [];
+        $this->params   = [];
+        $this->query    = [];
+        $this->name     = [];
+        $this->port     = [];
+        $this->uri      = [];
+        $this->base     = [];
+        $this->host     = [];
+        $this->root     = [];
+        $this->url      = [];
+
+        $params = parse_url($url);
+
+        $this->name = $params['host'];
+        $this->port = isset($params['port']) ? $params['port'] : '80';
+
+        $this->uri = $params['path'];
+        if (isset($params['query'])) {
+            $this->uri .= '?' . $params['query'];
+            parse_str($params['query'], $this->query);
+        }
+
+        $this->base = $this->buildBaseUrl();
+        $this->host = $this->buildHost();
+        $this->root_path = $this->buildRootPath();
+        $this->root = $this->base . $this->root_path;
+        $this->url = $this->base . $this->uri;
+
+        return $this;
+    }
+
+    public function initializeWithUrlAndRootPath($url, $root_path)
+    {
+        $this->initializeWithUrl($url);
+        $this->root_path = $root_path;
+        $this->root = $this->base . $this->root_path;
+
+        return $this;
     }
 
     /**
@@ -88,11 +219,6 @@ class Uri
 
         $config = $grav['config'];
         $language = $grav['language'];
-
-        // resets
-        $this->paths = [];
-        $this->params = [];
-        $this->query = [];
 
         // add the port to the base for non-standard ports
         if ($config->get('system.reverse_proxy_setup') == false && $this->port != '80' && $this->port != '443') {
@@ -131,7 +257,9 @@ class Uri
 
         // process query string
         if (isset($bits['query']) && isset($bits['path'])) {
-            $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+            if (!$this->query) {
+                $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+            }
             $uri = $bits['path'];
         }
 
@@ -232,6 +360,9 @@ class Uri
             if ($raw) {
                 return $this->query;
             } else {
+                if (!$this->query) {
+                    return '';
+                }
                 return http_build_query($this->query);
             }
         }
@@ -502,12 +633,12 @@ class Uri
     }
 
     /**
-     * Converts links from absolute '/' or relative (../..) to a grav friendly format
+     * Converts links from absolute '/' or relative (../..) to a Grav friendly format
      *
-     * @param Page|the $page the current page to use as reference
-     * @param  string $markdown_url the URL as it was written in the markdown
-     * @param string $type the type of URL, image | link
-     * @param null $relative if null, will use system default, if true will use relative links internally
+     * @param Page      $page           the current page to use as reference
+     * @param string    $markdown_url   the URL as it was written in the markdown
+     * @param string    $type           the type of URL, image | link
+     * @param null      $relative       if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
@@ -574,7 +705,6 @@ class Uri
             $page_path = $path_info['dirname'];
             $filename = '';
 
-
             if ($markdown_url == '..') {
                 $page_path = $full_path;
             } else {
@@ -614,5 +744,4 @@ class Uri
         $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . Utils::getNonce($action);
         return $urlWithNonce;
     }
-
 }
