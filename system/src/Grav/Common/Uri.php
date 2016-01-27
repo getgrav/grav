@@ -132,7 +132,7 @@ class Uri
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
         if (strpos($this->uri, '/~') !== false && strpos($_SERVER['PHP_SELF'], '/~') === false) {
-            $root_path = substr($uri, 0, strpos($this->uri, '/', 1)) . $root_path;
+            $root_path = substr($this->uri, 0, strpos($this->uri, '/', 1)) . $root_path;
         }
 
         return $root_path;
@@ -646,7 +646,6 @@ class Uri
     {
         $grav = Grav::instance();
 
-        /** @var Grav\Common\Language\Language $language */
         $language = $grav['language'];
 
         // Link processing should prepend language
