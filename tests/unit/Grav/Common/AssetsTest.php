@@ -330,6 +330,16 @@ class AssetsTest extends \Codeception\TestCase\Test
         $assets->addInlineJs('alert("test")');
         $js = $assets->js();
         $this->assertSame($js, PHP_EOL. '<script>' .PHP_EOL . 'alert("test")' . PHP_EOL.PHP_EOL .'</script>' . PHP_EOL);
+
+    public function testGetCollections()
+    {
+        $assets = $this->assets();
+
+        $this->assertTrue(is_array($assets->getCollections()));
+        $this->assertTrue(in_array('jquery', array_keys($assets->getCollections())));
+        $this->assertTrue(in_array('system://assets/jquery/jquery-2.x.min.js', $assets->getCollections()));
+    }
+
     }
 
 }
