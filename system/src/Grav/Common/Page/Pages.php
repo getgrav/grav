@@ -297,9 +297,9 @@ class Pages
                 $page = $this->dispatch($route, $all);
             } else {
                 // Try Regex style redirects
-                $site_redirects = (array) $config->get("site.redirects");
-                if (!(count($site_redirects) == 1 && isset($site_redirects[0]) && $site_redirects[0] == '')) {
-                    foreach ($site_redirects as $pattern => $replace) {
+                $site_redirects = $config->get("site.redirects");
+                if (is_array($site_redirects)) {
+                    foreach ((array) $site_redirects as $pattern => $replace) {
                         $pattern = '#' . $pattern . '#';
                         try {
                             $found = preg_replace($pattern, $replace, $url);
@@ -313,9 +313,9 @@ class Pages
                 }
 
                 // Try Regex style routes
-                $site_routes = (array) $config->get("site.routes");
-                if (!(count($site_routes) == 1 && isset($site_routes[0]) && $site_routes[0] == '')) {
-                    foreach ($site_routes as $pattern => $replace) {
+                $site_routes = $config->get("site.routes");
+                if (is_array($site_routes)) {
+                    foreach ((array) $site_routes as $pattern => $replace) {
                         $pattern = '#' . $pattern . '#';
                         try {
                             $found = preg_replace($pattern, $replace, $url);
