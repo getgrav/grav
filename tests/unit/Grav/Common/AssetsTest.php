@@ -349,3 +349,26 @@ class AssetsTest extends \Codeception\TestCase\Test
     }
 
 }
+    public function testReset()
+    {
+        $assets = $this->assets();
+
+        $assets->addInlineJs('alert("test")');
+        $assets->reset();
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addAsyncJs('jquery');
+        $assets->reset();
+
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addInlineCss('body { color: black }');
+        $assets->reset();
+
+        $this->assertTrue(count($assets->css()) == 0);
+
+        $assets->add('/system/assets/debugger.css', null, true);
+        $assets->reset();
+
+        $this->assertTrue(count($assets->css()) == 0);
+    }
