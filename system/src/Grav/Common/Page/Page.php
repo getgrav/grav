@@ -986,8 +986,8 @@ class Page
     /**
      * Gets and sets the expires field. If not set will return the default
      *
-     * @param  string $var The name of this page.
-     * @return string      The name of this page.
+     * @param  int $var The new expires value.
+     * @return int      The expires value
      */
     public function expires($var = null)
     {
