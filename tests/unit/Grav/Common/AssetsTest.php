@@ -340,6 +340,12 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertTrue(in_array('system://assets/jquery/jquery-2.x.min.js', $assets->getCollections()));
     }
 
+    public function testExists()
+    {
+        $assets = $this->assets();
+
+        $this->assertTrue($assets->exists('jquery'));
+        $this->assertFalse($assets->exists('another-unexisting-library'));
     }
 
 }
