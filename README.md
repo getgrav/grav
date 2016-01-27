@@ -100,7 +100,7 @@ What you mainly want to know is that:
 * [What is Grav?](http://learn.getgrav.org/basics/what-is-grav)
 * [Install](http://learn.getgrav.org/basics/installation) Grav in few seconds
 * Understand the [Configuration](http://learn.getgrav.org/basics/grav-configuration)
-* Take a peek at our available free [Skeletons](http://getgrav.org/downloads/skeletons#extras)
+* Take a peek at our available free [Skeletons](http://getgrav.org/downloads/skeletons)
 * If you have questions, jump on our [Gitter Room](https://gitter.im/getgrav/grav)! 
 * Have fun!
 

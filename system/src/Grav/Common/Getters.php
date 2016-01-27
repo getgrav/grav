@@ -140,7 +140,7 @@ abstract class Getters implements \ArrayAccess, \Countable
             return $this->{$var};
         } else {
             $properties = (array) $this;
-            $list = array();
+            $list = [];
             foreach ($properties as $property => $value) {
                 if ($property[0] != "\0") $list[$property] = $value;
             }

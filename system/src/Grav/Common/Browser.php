@@ -13,6 +13,9 @@ class Browser
 {
     protected $useragent = [];
 
+    /**
+     * Browser constructor.
+     */
     public function __construct()
     {
         try {

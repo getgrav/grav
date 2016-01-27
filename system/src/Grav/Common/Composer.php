@@ -35,6 +35,11 @@ class Composer
         return $path;
     }
 
+    /**
+     * Return the composer executable file path
+     *
+     * @return string
+     */
     public static function getComposerExecutor()
     {
         $executor = PHP_BINARY . ' ';

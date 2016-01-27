@@ -1,8 +1,10 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Service\ErrorServiceProvider;
@@ -34,7 +36,13 @@ class Grav extends Container
      */
     protected static $instance;
 
-    public static function instance(array $values = array())
+    /**
+     * Return the Grav instance. Create it if it's not already instanced
+     *
+     * @param array $values
+     * @return Grav
+     */
+    public static function instance(array $values = [])
     {
         if (!self::$instance) {
             self::$instance = static::load($values);
@@ -51,6 +59,12 @@ class Grav extends Container
         return self::$instance;
     }
 
+    /**
+     * Initialize and return a Grav instance
+     *
+     * @param array $values
+     * @return static
+     */
     protected static function load(array $values)
     {
         $container = new static($values);
@@ -98,7 +112,7 @@ class Grav extends Container
         };
 
         $container['pages'] = function ($c) {
-            return new Page\Pages($c);
+            return new Pages($c);
         };
 
         $container['assets'] = new Assets();
@@ -178,6 +192,9 @@ class Grav extends Container
         return $container;
     }
 
+    /**
+     * Process a request
+     */
     public function process()
     {
         /** @var Debugger $debugger */
@@ -304,10 +321,13 @@ class Grav extends Container
         if ($uri->isExternal($route)) {
             $url = $route;
         } else {
-            if ($this['config']->get('system.pages.redirect_trailing_slash', true))
-                $url = rtrim($uri->rootUrl(), '/') .'/'. trim($route, '/'); // Remove trailing slash
-            else
-                $url = rtrim($uri->rootUrl(), '/') .'/'. ltrim($route, '/'); // Support trailing slash default routes
+            $url = rtrim($uri->rootUrl(), '/') .'/';
+
+            if ($this['config']->get('system.pages.redirect_trailing_slash', true)) {
+                $url .= trim($route, '/'); // Remove trailing slash
+            } else {
+                $url .= ltrim($route, '/'); // Support trailing slash default routes
+            }
         }
 
         header("Location: {$url}", true, $code);

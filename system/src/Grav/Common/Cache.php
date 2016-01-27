@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common;
 
-use \Doctrine\Common\Cache\Cache as DoctrineCache;
+use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 
@@ -31,10 +31,11 @@ class Cache extends Getters
     protected $lifetime;
     protected $now;
 
+    /** @var Config $config */
     protected $config;
 
     /**
-     * @var DoctrineCache
+     * @var DoctrineCache\CacheProvider
      */
     protected $driver;
 
@@ -79,7 +80,7 @@ class Cache extends Getters
     /**
      * Constructor
      *
-     * @params Grav $grav
+     * @param Grav $grav
      */
     public function __construct(Grav $grav)
     {
@@ -127,7 +128,7 @@ class Cache extends Getters
      * If there is no config option for $driver in the config, or it's set to 'auto', it will
      * pick the best option based on which cache extensions are installed.
      *
-     * @return DoctrineCacheDriver  The cache driver to use
+     * @return DoctrineCache\CacheProvider  The cache driver to use
      */
     public function getCacheDriver()
     {
@@ -152,26 +153,26 @@ class Cache extends Getters
 
         switch ($driver_name) {
             case 'apc':
-                $driver = new \Doctrine\Common\Cache\ApcCache();
+                $driver = new DoctrineCache\ApcCache();
                 break;
 
             case 'apcu':
-                $driver = new \Doctrine\Common\Cache\ApcuCache();
+                $driver = new DoctrineCache\ApcuCache();
                 break;
 
             case 'wincache':
-                $driver = new \Doctrine\Common\Cache\WinCacheCache();
+                $driver = new DoctrineCache\WinCacheCache();
                 break;
 
             case 'xcache':
-                $driver = new \Doctrine\Common\Cache\XcacheCache();
+                $driver = new DoctrineCache\XcacheCache();
                 break;
 
             case 'memcache':
                 $memcache = new \Memcache();
                 $memcache->connect($this->config->get('system.cache.memcache.server','localhost'),
                                    $this->config->get('system.cache.memcache.port', 11211));
-                $driver = new \Doctrine\Common\Cache\MemcacheCache();
+                $driver = new DoctrineCache\MemcacheCache();
                 $driver->setMemcache($memcache);
                 break;
 
@@ -180,12 +181,12 @@ class Cache extends Getters
                 $redis->connect($this->config->get('system.cache.redis.server','localhost'),
                                 $this->config->get('system.cache.redis.port', 6379));
 
-                $driver = new \Doctrine\Common\Cache\RedisCache();
+                $driver = new DoctrineCache\RedisCache();
                 $driver->setRedis($redis);
                 break;
 
             default:
-                $driver = new \Doctrine\Common\Cache\FilesystemCache($this->cache_dir);
+                $driver = new DoctrineCache\FilesystemCache($this->cache_dir);
                 break;
         }
 

@@ -834,6 +834,7 @@ class Assets
     public function resetJs()
     {
         $this->js = [];
+        $this->inline_js = [];
 
         return $this;
     }
@@ -846,14 +847,27 @@ class Assets
     public function resetCss()
     {
         $this->css = [];
+        $this->inline_css = [];
 
         return $this;
     }
 
     /**
-     * Add all CSS assets within $directory (relative to public dir).
+     * Add all JavaScript assets within $directory
      *
-     * @param  string $directory Relative to $this->public_dir
+     * @param  string $directory Relative to the Grav root path, or a stream identifier
+     *
+     * @return $this
+     */
+    public function addDirJs($directory)
+    {
+        return $this->addDir($directory, self::JS_REGEX);
+    }
+
+    /**
+     * Add all CSS assets within $directory
+     *
+     * @param  string $directory Relative to the Grav root path, or a stream identifier
      *
      * @return $this
      */
@@ -865,7 +879,7 @@ class Assets
     /**
      * Add all assets matching $pattern within $directory.
      *
-     * @param  string $directory Relative to $this->public_dir
+     * @param  string $directory Relative to the Grav root path, or a stream identifier
      * @param  string $pattern   (regex)
      *
      * @return $this
@@ -873,13 +887,15 @@ class Assets
      */
     public function addDir($directory, $pattern = self::DEFAULT_REGEX)
     {
-        // Check if public_dir exists
-        if (!is_dir($this->assets_dir)) {
-            throw new Exception('Assets: Public dir not found');
+        $root_dir = rtrim(ROOT_DIR, '/');
+
+        // Check if $directory is a stream.
+        if (strpos($directory, '://')) {
+            $directory = self::$grav['locator']->findResource($directory, null);
         }
 
         // Get files
-        $files = $this->rglob($this->assets_dir . DIRECTORY_SEPARATOR . $directory, $pattern, $this->assets_dir);
+        $files = $this->rglob($root_dir . DIRECTORY_SEPARATOR . $directory, $pattern, $root_dir . '/');
 
         // No luck? Nothing to do
         if (!$files) {
@@ -888,27 +904,23 @@ class Assets
 
         // Add CSS files
         if ($pattern === self::CSS_REGEX) {
-            $this->css = array_unique(array_merge($this->css, $files));
+            foreach ($files as $file) {
+                $this->addCss($file);
+            }
             return $this;
         }
 
         // Add JavaScript files
         if ($pattern === self::JS_REGEX) {
-            $this->js = array_unique(array_merge($this->js, $files));
+            foreach ($files as $file) {
+                $this->addJs($file);
+            }
             return $this;
         }
 
-        // Unknown pattern. We must poll to know the extension :(
+        // Unknown pattern.
         foreach ($files as $asset) {
-            $info = pathinfo($asset);
-            if (isset($info['extension'])) {
-                $ext = strtolower($info['extension']);
-                if ($ext === 'css' && !in_array($asset, $this->css)) {
-                    $this->css[] = $asset;
-                } elseif ($ext === 'js' && !in_array($asset, $this->js)) {
-                    $this->js[] = $asset;
-                }
-            }
+            $this->add($asset);
         }
 
         return $this;
@@ -1125,18 +1137,6 @@ class Assets
         }
 
         return $files;
-    }
-
-    /**
-     * Add all JavaScript assets within $directory.
-     *
-     * @param  string $directory Relative to $this->public_dir
-     *
-     * @return $this
-     */
-    public function addDirJs($directory)
-    {
-        return $this->addDir($directory, self::JS_REGEX);
     }
 
     /**
