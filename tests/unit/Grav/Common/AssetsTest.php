@@ -2,6 +2,9 @@
 
 use Codeception\Util\Fixtures;
 
+/**
+ * Class AssetsTest
+ */
 class AssetsTest extends \Codeception\TestCase\Test
 {
     /**
@@ -329,7 +332,9 @@ class AssetsTest extends \Codeception\TestCase\Test
         $assets->reset();
         $assets->addInlineJs('alert("test")');
         $js = $assets->js();
-        $this->assertSame($js, PHP_EOL. '<script>' .PHP_EOL . 'alert("test")' . PHP_EOL.PHP_EOL .'</script>' . PHP_EOL);
+        $this->assertSame($js,
+            PHP_EOL . '<script>' . PHP_EOL . 'alert("test")' . PHP_EOL . PHP_EOL . '</script>' . PHP_EOL);
+    }
 
     public function testGetCollections()
     {
@@ -377,6 +382,37 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $assets->add('/system/assets/debugger.css', null, true);
         $assets->reset();
+
+        $this->assertTrue(count($assets->css()) == 0);
+    }
+
+    public function testResetJs()
+    {
+        $assets = $this->assets();
+
+        $assets->addInlineJs('alert("test")');
+        $assets->resetJs();
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addAsyncJs('jquery');
+        $assets->resetJs();
+
+        $this->assertTrue(count($assets->js()) == 0);
+    }
+
+    public function testResetCss()
+    {
+        $assets = $this->assets();
+
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addInlineCss('body { color: black }');
+        $assets->resetCss();
+
+        $this->assertTrue(count($assets->css()) == 0);
+
+        $assets->add('/system/assets/debugger.css', null, true);
+        $assets->resetCss();
 
         $this->assertTrue(count($assets->css()) == 0);
     }
