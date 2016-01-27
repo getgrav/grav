@@ -297,28 +297,34 @@ class Pages
                 $page = $this->dispatch($route, $all);
             } else {
                 // Try Regex style redirects
-                foreach ((array)$config->get("site.redirects") as $pattern => $replace) {
-                    $pattern = '#' . $pattern . '#';
-                    try {
-                        $found = preg_replace($pattern, $replace, $url);
-                        if ($found != $url) {
-                            $this->grav->redirectLangSafe($found);
+                $site_redirects = (array) $config->get("site.redirects");
+                if (!(count($site_redirects) == 1 && isset($site_redirects[0]) && $site_redirects[0] == '')) {
+                    foreach ($site_redirects as $pattern => $replace) {
+                        $pattern = '#' . $pattern . '#';
+                        try {
+                            $found = preg_replace($pattern, $replace, $url);
+                            if ($found != $url) {
+                                $this->grav->redirectLangSafe($found);
+                            }
+                        } catch (ErrorException $e) {
+                            $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                         }
-                    } catch (ErrorException $e) {
-                        $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                     }
                 }
 
                 // Try Regex style routes
-                foreach ((array)$config->get("site.routes") as $pattern => $replace) {
-                    $pattern = '#' . $pattern . '#';
-                    try {
-                        $found = preg_replace($pattern, $replace, $url);
-                        if ($found != $url) {
-                            $page = $this->dispatch($found, $all);
+                $site_routes = (array) $config->get("site.routes");
+                if (!(count($site_routes) == 1 && isset($site_routes[0]) && $site_routes[0] == '')) {
+                    foreach ($site_routes as $pattern => $replace) {
+                        $pattern = '#' . $pattern . '#';
+                        try {
+                            $found = preg_replace($pattern, $replace, $url);
+                            if ($found != $url) {
+                                $page = $this->dispatch($found, $all);
+                            }
+                        } catch (ErrorException $e) {
+                            $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
                         }
-                    } catch (ErrorException $e) {
-                        $this->grav['log']->error('site.routes: '. $pattern . '-> ' . $e->getMessage());
                     }
                 }
             }
