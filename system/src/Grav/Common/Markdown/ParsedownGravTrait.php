@@ -17,6 +17,7 @@ trait ParsedownGravTrait
     protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
+    protected $special_protocols = ['xmpp','mailto','tel','sms'];
 
     public $completable_blocks = [];
     public $continuable_blocks = [];
@@ -312,6 +313,8 @@ trait ParsedownGravTrait
             // if there is no scheme, the file is local and we'll need to convert that URL
             if (!isset($url['scheme']) && (count($url) > 0)) {
                 $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type, true);
+            } elseif (in_array($url['scheme'], $this->special_protocols)) {
+                return $excerpt;
             } else {
                 $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
             }
