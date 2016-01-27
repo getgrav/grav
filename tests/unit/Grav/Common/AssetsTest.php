@@ -460,5 +460,14 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertTrue(is_array($assets->getJs()));
         $this->assertTrue(count($assets->getJs()) > 0);
 
+        //Use streams
+        $assets->reset();
+        $assets->addDir('system://assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
     }
 }
