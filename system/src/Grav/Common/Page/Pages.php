@@ -219,7 +219,7 @@ class Pages
             return [];
         }
 
-        $lookup = md5(json_encode($items));
+        $lookup = md5(json_encode($items).json_encode($orderManual).$orderBy.$orderDir);
         if (!isset($this->sort[$lookup][$orderBy])) {
             $this->buildSort($lookup, $items, $orderBy, $orderManual);
         }
