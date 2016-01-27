@@ -416,4 +416,49 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $this->assertTrue(count($assets->css()) == 0);
     }
+
+    public function testAddDirCss()
+    {
+        $assets = $this->assets();
+        $assets->reset();
+        $assets->addDirCss('/system');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) == 0);
+
+        $assets->reset();
+        $assets->addDirCss('/system/assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) == 0);
+
+        $assets->reset();
+        $assets->addDirJs('/system');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) == 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
+        $assets->reset();
+        $assets->addDirJs('/system/assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) == 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
+        $assets->reset();
+        $assets->addDir('/system/assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
+    }
 }
