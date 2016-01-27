@@ -834,6 +834,7 @@ class Assets
     public function resetJs()
     {
         $this->js = [];
+        $this->inline_js = [];
 
         return $this;
     }
@@ -846,6 +847,7 @@ class Assets
     public function resetCss()
     {
         $this->css = [];
+        $this->inline_css = [];
 
         return $this;
     }
