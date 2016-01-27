@@ -348,7 +348,15 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertFalse($assets->exists('another-unexisting-library'));
     }
 
-}
+    public function testRegisterCollection()
+    {
+        $assets = $this->assets();
+
+        $assets->registerCollection('debugger', ['/system/assets/debugger.css']);
+        $this->assertTrue($assets->exists('debugger'));
+        $this->assertTrue(in_array('debugger', array_keys($assets->getCollections())));
+    }
+
     public function testReset()
     {
         $assets = $this->assets();
@@ -372,3 +380,4 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $this->assertTrue(count($assets->css()) == 0);
     }
+}
