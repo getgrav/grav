@@ -853,7 +853,19 @@ class Assets
     }
 
     /**
-     * Add all CSS assets within $directory (relative to public dir).
+     * Add all JavaScript assets within $directory.
+     *
+     * @param  string $directory Relative to $this->public_dir
+     *
+     * @return $this
+     */
+    public function addDirJs($directory)
+    {
+        return $this->addDir($directory, self::JS_REGEX);
+    }
+
+    /**
+     * Add all CSS assets within $directory (relative to the Grav root path).
      *
      * @param  string $directory Relative to $this->public_dir
      *
@@ -1127,18 +1139,6 @@ class Assets
         }
 
         return $files;
-    }
-
-    /**
-     * Add all JavaScript assets within $directory.
-     *
-     * @param  string $directory Relative to $this->public_dir
-     *
-     * @return $this
-     */
-    public function addDirJs($directory)
-    {
-        return $this->addDir($directory, self::JS_REGEX);
     }
 
     /**
