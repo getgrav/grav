@@ -1,6 +1,11 @@
 <?php
 namespace Grav\Common;
 
+/**
+ * Class GravTrait
+ *
+ * @package Grav\Common
+ */
 trait GravTrait
 {
     /**
