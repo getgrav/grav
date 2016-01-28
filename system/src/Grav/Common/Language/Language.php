@@ -252,6 +252,8 @@ class Language
     /**
      * Gets an array of valid extensions with active first, then fallback extensions
      *
+     * @param string|null $file_ext
+     *
      * @return array
      */
     public function getFallbackPageExtensions($file_ext = null)
@@ -328,15 +330,15 @@ class Language
     /**
      * Translate a key and possibly arguments into a string using current lang and fallbacks
      *
-     * @param       $args       first argument is the lookup key value
-     *                          other arguments can be passed and replaced in the translation with sprintf syntax
-     * @param Array $languages
+     * @param mixed $args      The first argument is the lookup key value
+     *                         Other arguments can be passed and replaced in the translation with sprintf syntax
+     * @param array $languages
      * @param bool  $array_support
      * @param bool  $html_out
      *
      * @return string
      */
-    public function translate($args, Array $languages = null, $array_support = false, $html_out = false)
+    public function translate($args, array $languages = null, $array_support = false, $html_out = false)
     {
         if (is_array($args)) {
             $lookup = array_shift($args);
@@ -344,7 +346,6 @@ class Language
             $lookup = $args;
             $args = [];
         }
-
 
         if ($this->config->get('system.languages.translations', true)) {
             if ($this->enabled() && $lookup) {
@@ -422,8 +423,8 @@ class Language
     /**
      * Lookup the translation text for a given lang and key
      *
-     * @param      $lang lang code
-     * @param      $key  key to lookup with
+     * @param string $lang lang code
+     * @param string $key  key to lookup with
      * @param bool $array_support
      *
      * @return string
@@ -438,6 +439,13 @@ class Language
         return $translation;
     }
 
+    /**
+     * Get the browser accepted languages
+     *
+     * @param array $accept_langs
+     *
+     * @return array
+     */
     public function getBrowserLanguages($accept_langs = [])
     {
         if (empty($this->http_accept_language)) {
