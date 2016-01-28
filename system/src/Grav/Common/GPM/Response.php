@@ -258,7 +258,7 @@ class Response
         // if proxy set add that
         $proxy_url = self::getGrav()['config']->get('system.proxy_url');
         if ($proxy_url) {
-            curl_setopt($ch, CURLOP_PROXY, $proxy_url);
+            $options['curl'][CURLOPT_PROXY] = $proxy_url;
         }
 
         // no open_basedir set, we can proceed normally
