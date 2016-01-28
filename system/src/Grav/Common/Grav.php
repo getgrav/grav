@@ -19,8 +19,8 @@ use RocketTheme\Toolbox\Event\EventDispatcher;
 /**
  * Grav
  *
- * @author Andy Miller
- * @link http://www.rockettheme.com
+ * @author  Andy Miller
+ * @link    http://www.rockettheme.com
  * @license http://opensource.org/licenses/MIT
  *
  * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
@@ -41,6 +41,7 @@ class Grav extends Container
      * Return the Grav instance. Create it if it's not already instanced
      *
      * @param array $values
+     *
      * @return Grav
      */
     public static function instance(array $values = [])
@@ -64,6 +65,7 @@ class Grav extends Container
      * Initialize and return a Grav instance
      *
      * @param array $values
+     *
      * @return static
      */
     protected static function load(array $values)
@@ -175,6 +177,7 @@ class Grav extends Container
                     throw new \RuntimeException('Page Not Found', 404);
                 }
             }
+
             return $page;
         };
 
@@ -243,7 +246,7 @@ class Grav extends Container
         ob_start();
         if ($this['config']->get('system.cache.gzip')) {
             // Enable zip/deflate with a fallback in case of if browser does not support compressing.
-            if(!ob_start("ob_gzhandler")) {
+            if (!ob_start("ob_gzhandler")) {
                 ob_start();
             }
         }
@@ -315,7 +318,7 @@ class Grav extends Container
      * Redirect browser to another location.
      *
      * @param string $route Internal route.
-     * @param int $code Redirection code (30x)
+     * @param int    $code  Redirection code (30x)
      */
     public function redirect($route, $code = null)
     {
@@ -341,7 +344,7 @@ class Grav extends Container
         if ($uri->isExternal($route)) {
             $url = $route;
         } else {
-            $url = rtrim($uri->rootUrl(), '/') .'/';
+            $url = rtrim($uri->rootUrl(), '/') . '/';
 
             if ($this['config']->get('system.pages.redirect_trailing_slash', true)) {
                 $url .= trim($route, '/'); // Remove trailing slash
@@ -358,7 +361,7 @@ class Grav extends Container
      * Redirect browser to another location taking language into account (preferred)
      *
      * @param string $route Internal route.
-     * @param int $code Redirection code (30x)
+     * @param int    $code  Redirection code (30x)
      */
     public function redirectLangSafe($route, $code = null)
     {
@@ -376,6 +379,7 @@ class Grav extends Container
      * Returns mime type for the file format.
      *
      * @param string $format
+     *
      * @return string
      */
     public function mime($format)
@@ -392,6 +396,7 @@ class Grav extends Container
             case 'xml':
                 return 'application/xml';
         }
+
         return 'text/html';
     }
 
@@ -413,7 +418,7 @@ class Grav extends Container
         if ($expires > 0) {
             $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
             header('Cache-Control: max-age=' . $expires);
-            header('Expires: '. $expires_date);
+            header('Expires: ' . $expires_date);
         }
 
         // Set the last modified time
@@ -448,12 +453,14 @@ class Grav extends Container
      *
      * @param  string $eventName
      * @param  Event  $event
+     *
      * @return Event
      */
     public function fireEvent($eventName, Event $event = null)
     {
         /** @var EventDispatcher $events */
         $events = $this['events'];
+
         return $events->dispatch($eventName, $event);
     }
 
