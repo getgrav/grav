@@ -589,7 +589,7 @@ class Pages
      */
     public static function getHomeRoute()
     {
-        if (empty(self::$home)) {
+        if (empty(self::$home_route)) {
             $grav = Grav::instance();
 
             /** @var Config $config */
