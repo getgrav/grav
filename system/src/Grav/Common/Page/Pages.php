@@ -930,7 +930,7 @@ class Pages
         $header_default = null;
         $header_query = null;
 
-        // do this headery query work only once
+        // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
             $header_query = explode('|', str_replace('header.', '', $order_by));
             if (isset($header_query[1])) {
