@@ -55,6 +55,7 @@ class SandboxCommand extends ConsoleCommand
         '/system'               => '/system',
         '/vendor'               => '/vendor',
         '/webserver-configs'    => '/webserver-configs',
+        '/codeception.yml'      => '/codeception.yml',
     );
 
     /**
