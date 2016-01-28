@@ -12,7 +12,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 /**
  * The Themes object holds an array of all the theme objects that Grav knows about.
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Themes extends Iterator
@@ -56,7 +56,7 @@ class Themes extends Iterator
         try {
             $instance = $themes->load();
         } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException($this->current(). ' theme could not be found');
+            throw new \RuntimeException($this->current() . ' theme could not be found');
         }
 
         if ($instance instanceof EventSubscriberInterface) {
@@ -81,7 +81,7 @@ class Themes extends Iterator
         $list = [];
         $locator = Grav::instance()['locator'];
 
-        $themes = (array) $locator->findResources('themes://', false);
+        $themes = (array)$locator->findResources('themes://', false);
         foreach ($themes as $path) {
             $iterator = new \DirectoryIterator($path);
 
@@ -107,7 +107,8 @@ class Themes extends Iterator
     /**
      * Get theme configuration or throw exception if it cannot be found.
      *
-     * @param  string            $name
+     * @param  string $name
+     *
      * @return Data
      * @throws \RuntimeException
      */
@@ -156,7 +157,7 @@ class Themes extends Iterator
      */
     public function current()
     {
-        return (string) $this->config->get('system.pages.theme');
+        return (string)$this->config->get('system.pages.theme');
     }
 
     /**
@@ -183,8 +184,8 @@ class Themes extends Iterator
 
             if (!is_object($class)) {
                 $themeClassFormat = [
-                    'Grav\\Theme\\'.ucfirst($name),
-                    'Grav\\Theme\\'.$inflector->camelize($name)
+                    'Grav\\Theme\\' . ucfirst($name),
+                    'Grav\\Theme\\' . $inflector->camelize($name)
                 ];
 
                 foreach ($themeClassFormat as $themeClass) {
@@ -259,8 +260,8 @@ class Themes extends Iterator
     /**
      * Load theme configuration.
      *
-     * @param string  $name    Theme name
-     * @param Config  $config  Configuration class
+     * @param string $name   Theme name
+     * @param Config $config Configuration class
      */
     protected function loadConfiguration($name, Config $config)
     {
@@ -271,7 +272,7 @@ class Themes extends Iterator
     /**
      * Load theme languages.
      *
-     * @param Config  $config  Configuration class
+     * @param Config $config Configuration class
      */
     protected function loadLanguages(Config $config)
     {
@@ -317,7 +318,7 @@ class Themes extends Iterator
 
             // Load class
             if (file_exists($file)) {
-              return include_once($file);
+                return include_once($file);
             }
         }
 

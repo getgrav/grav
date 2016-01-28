@@ -12,7 +12,7 @@ use Grav\Common\Config\Config;
  */
 class Debugger
 {
-    /** @var Grav $grav*/
+    /** @var Grav $grav */
     protected $grav;
 
     /** @var Config $config */
@@ -52,6 +52,7 @@ class Debugger
             $this->debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
             $this->debugbar->addCollector(new ConfigCollector((array)$this->config->get('plugins'), 'Plugins'));
         }
+
         return $this;
     }
 
@@ -59,6 +60,7 @@ class Debugger
      * Set/get the enabled state of the debugger
      *
      * @param bool $state If null, the method returns the enabled value. If set, the method sets the enabled state
+     *
      * @return null
      */
     public function enabled($state = null)
@@ -70,6 +72,7 @@ class Debugger
                 $this->enabled = $this->config->get('system.debugger.enabled');
             }
         }
+
         return $this->enabled;
     }
 
@@ -102,6 +105,7 @@ class Debugger
                 $assets->addJs($js);
             }
         }
+
         return $this;
     }
 
@@ -109,12 +113,14 @@ class Debugger
      * Adds a data collector
      *
      * @param $collector
+     *
      * @return $this
      * @throws \DebugBar\DebugBarException
      */
     public function addCollector($collector)
     {
         $this->debugbar->addCollector($collector);
+
         return $this;
     }
 
@@ -122,6 +128,7 @@ class Debugger
      * Returns a data collector
      *
      * @param $collector
+     *
      * @return \DebugBar\DataCollector\DataCollectorInterface
      * @throws \DebugBar\DebugBarException
      */
@@ -140,6 +147,7 @@ class Debugger
         if ($this->enabled()) {
             echo $this->renderer->render();
         }
+
         return $this;
     }
 
@@ -151,13 +159,14 @@ class Debugger
     public function sendDataInHeaders()
     {
         $this->debugbar->sendDataInHeaders();
+
         return $this;
     }
 
     /**
      * Start a timer with an associated name and description
      *
-     * @param $name
+     * @param             $name
      * @param string|null $description
      *
      * @return $this
@@ -168,6 +177,7 @@ class Debugger
             $this->debugbar['time']->startMeasure($name, $description);
             $this->timers[] = $name;
         }
+
         return $this;
     }
 
@@ -175,6 +185,7 @@ class Debugger
      * Stop the named timer
      *
      * @param string $name
+     *
      * @return $this
      */
     public function stopTimer($name)
@@ -189,9 +200,9 @@ class Debugger
     /**
      * Dump variables into the Messages tab of the Debug Bar
      *
-     * @param $message
+     * @param        $message
      * @param string $label
-     * @param bool $isString
+     * @param bool   $isString
      *
      * @return $this
      */
@@ -200,6 +211,7 @@ class Debugger
         if ($this->enabled()) {
             $this->debugbar['messages']->addMessage($message, $label, $isString);
         }
+
         return $this;
     }
 }

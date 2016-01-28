@@ -21,6 +21,7 @@ trait GravTrait
         if (!self::$grav) {
             self::$grav = Grav::instance();
         }
+
         return self::$grav;
     }
 

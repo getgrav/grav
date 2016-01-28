@@ -12,7 +12,7 @@ use RocketTheme\Toolbox\Event\EventSubscriberInterface;
  * The Plugins object holds an array of all the plugin objects that
  * Grav knows about
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Plugins extends Iterator
@@ -29,7 +29,7 @@ class Plugins extends Iterator
     {
         /** @var Config $config */
         $config = self::getGrav()['config'];
-        $plugins = (array) $config->get('plugins');
+        $plugins = (array)$config->get('plugins');
 
         $inflector = self::getGrav()['inflector'];
 
@@ -52,8 +52,8 @@ class Plugins extends Iterator
             require_once $filePath;
 
             $pluginClassFormat = [
-                'Grav\\Plugin\\'.ucfirst($plugin).'Plugin',
-                'Grav\\Plugin\\'.$inflector->camelize($plugin).'Plugin'
+                'Grav\\Plugin\\' . ucfirst($plugin) . 'Plugin',
+                'Grav\\Plugin\\' . $inflector->camelize($plugin) . 'Plugin'
             ];
             $pluginClassName = false;
 
@@ -65,7 +65,8 @@ class Plugins extends Iterator
             }
 
             if (false === $pluginClassName) {
-                throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $plugin));
+                throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.",
+                    $plugin));
             }
 
             $instance = new $pluginClassName($plugin, self::getGrav(), $config);
@@ -99,7 +100,7 @@ class Plugins extends Iterator
         $list = [];
         $locator = Grav::instance()['locator'];
 
-        $plugins = (array) $locator->findResources('plugins://', false);
+        $plugins = (array)$locator->findResources('plugins://', false);
         foreach ($plugins as $path) {
             $iterator = new \DirectoryIterator($path);
 
@@ -126,6 +127,7 @@ class Plugins extends Iterator
      * Get a plugin by name
      *
      * @param string $name
+     *
      * @return Data|null
      */
     public static function get($name)

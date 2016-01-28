@@ -16,7 +16,7 @@ use Grav\Common\Filesystem\Folder;
  * MemCacheD
  * FileSystem
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Cache extends Getters
@@ -91,6 +91,7 @@ class Cache extends Getters
      * Initialization that sets a base key and the driver based on configuration settings
      *
      * @param  Grav $grav
+     *
      * @return void
      */
     public function init(Grav $grav)
@@ -106,10 +107,11 @@ class Cache extends Getters
 
         $prefix = $this->config->get('system.cache.prefix');
 
-        $this->enabled = (bool) $this->config->get('system.cache.enabled');
+        $this->enabled = (bool)$this->config->get('system.cache.enabled');
 
         // Cache key allows us to invalidate all cache on configuration changes.
-        $this->key = ($prefix ? $prefix : 'g') . '-' . substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION), 2, 8);
+        $this->key = ($prefix ? $prefix : 'g') . '-' . substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION),
+                2, 8);
 
         $this->driver_setting = $this->config->get('system.cache.driver');
 
@@ -170,16 +172,16 @@ class Cache extends Getters
 
             case 'memcache':
                 $memcache = new \Memcache();
-                $memcache->connect($this->config->get('system.cache.memcache.server','localhost'),
-                                   $this->config->get('system.cache.memcache.port', 11211));
+                $memcache->connect($this->config->get('system.cache.memcache.server', 'localhost'),
+                    $this->config->get('system.cache.memcache.port', 11211));
                 $driver = new DoctrineCache\MemcacheCache();
                 $driver->setMemcache($memcache);
                 break;
 
             case 'redis':
                 $redis = new \Redis();
-                $redis->connect($this->config->get('system.cache.redis.server','localhost'),
-                                $this->config->get('system.cache.redis.port', 6379));
+                $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
+                    $this->config->get('system.cache.redis.port', 6379));
 
                 $driver = new DoctrineCache\RedisCache();
                 $driver->setRedis($redis);
@@ -197,6 +199,7 @@ class Cache extends Getters
      * Gets a cached entry if it exists based on an id. If it does not exist, it returns false
      *
      * @param  string $id the id of the cached entry
+     *
      * @return object     returns the cached entry, can be any type, or false if doesn't exist
      */
     public function fetch($id)
@@ -211,9 +214,9 @@ class Cache extends Getters
     /**
      * Stores a new cached entry.
      *
-     * @param  string $id       the id of the cached entry
+     * @param  string       $id       the id of the cached entry
      * @param  array|object $data     the data for the cached entry to store
-     * @param  int $lifetime    the lifetime to store the entry in seconds
+     * @param  int          $lifetime the lifetime to store the entry in seconds
      */
     public function save($id, $data, $lifetime = null)
     {
@@ -236,7 +239,7 @@ class Cache extends Getters
     /**
      * Helper method to clear all Grav caches
      *
-     * @param string $remove    standard|all|assets-only|images-only|cache-only
+     * @param string $remove standard|all|assets-only|images-only|cache-only
      *
      * @return array
      */
@@ -246,7 +249,7 @@ class Cache extends Getters
         $output = [];
         $user_config = USER_DIR . 'config/system.yaml';
 
-        switch($remove) {
+        switch ($remove) {
             case 'all':
                 $remove_paths = self::$all_remove;
                 break;
@@ -269,8 +272,9 @@ class Cache extends Getters
             // Convert stream to a real path
             $path = $locator->findResource($stream, true, true);
             // Make sure path exists before proceeding, otherwise we would wipe ROOT_DIR
-            if (!$path)
+            if (!$path) {
                 throw new \RuntimeException("Stream '{$stream}' not found", 500);
+            }
 
             $anything = false;
             $files = glob($path . '/*');

@@ -110,6 +110,7 @@ class Browser
     public function getVersion()
     {
         $version = explode('.', $this->getLongVersion());
+
         return intval($version[0]);
     }
 
