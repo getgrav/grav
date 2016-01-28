@@ -459,9 +459,9 @@ class Language
                 // split $pref again by ';q='
                 // and decorate the language entries by inverted position
                 if (false !== ($i = strpos($pref, ';q='))) {
-                    $langs[substr($pref, 0, $i)] = array((float)substr($pref, $i + 3), -$k);
+                    $langs[substr($pref, 0, $i)] = [(float)substr($pref, $i + 3), -$k];
                 } else {
-                    $langs[$pref] = array(1, -$k);
+                    $langs[$pref] = [1, -$k];
                 }
             }
             arsort($langs);
