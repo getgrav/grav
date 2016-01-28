@@ -151,8 +151,8 @@ class Pages
     /**
      * Adds a page and assigns a route to it.
      *
-     * @param Page   $page   Page to be added.
-     * @param string $route  Optional route (uses route from the object if not set).
+     * @param Page $page Page to be added.
+     * @param string $route Optional route (uses route from the object if not set).
      */
     public function addPage(Page $page, $route = null)
     {
@@ -219,7 +219,7 @@ class Pages
             return [];
         }
 
-        $lookup = md5(json_encode($items).json_encode($orderManual).$orderBy.$orderDir);
+        $lookup = md5(json_encode($items) . json_encode($orderManual) . $orderBy . $orderDir);
         if (!isset($this->sort[$lookup][$orderBy])) {
             $this->buildSort($lookup, $items, $orderBy, $orderManual);
         }
@@ -237,7 +237,7 @@ class Pages
     /**
      * Get a page instance.
      *
-     * @param  string  $path The filesystem full path of the page
+     * @param  string $path The filesystem full path of the page
      * @return Page
      * @throws \Exception
      */
@@ -246,7 +246,7 @@ class Pages
         if (!is_null($path) && !is_string($path)) {
             throw new \Exception();
         }
-        return isset($this->instances[(string) $path]) ? $this->instances[(string) $path] : null;
+        return isset($this->instances[(string)$path]) ? $this->instances[(string)$path] : null;
     }
 
     /**
@@ -257,7 +257,7 @@ class Pages
      */
     public function children($path)
     {
-        $children = isset($this->children[(string) $path]) ? $this->children[(string) $path] : [];
+        $children = isset($this->children[(string)$path]) ? $this->children[(string)$path] : [];
         return new Collection($children, [], $this);
     }
 
@@ -299,7 +299,7 @@ class Pages
                 // Try Regex style redirects
                 $site_redirects = $config->get("site.redirects");
                 if (is_array($site_redirects)) {
-                    foreach ((array) $site_redirects as $pattern => $replace) {
+                    foreach ((array)$site_redirects as $pattern => $replace) {
                         $pattern = '#' . $pattern . '#';
                         try {
                             $found = preg_replace($pattern, $replace, $url);
@@ -315,7 +315,7 @@ class Pages
                 // Try Regex style routes
                 $site_routes = $config->get("site.routes");
                 if (is_array($site_routes)) {
-                    foreach ((array) $site_routes as $pattern => $replace) {
+                    foreach ((array)$site_routes as $pattern => $replace) {
                         $pattern = '#' . $pattern . '#';
                         try {
                             $found = preg_replace($pattern, $replace, $url);
@@ -349,7 +349,7 @@ class Pages
     /**
      * Get a blueprint for a page type.
      *
-     * @param  string  $type
+     * @param  string $type
      * @return Blueprint
      */
     public function blueprints($type)
@@ -386,7 +386,7 @@ class Pages
         $current = $current ?: $this->root();
 
         if (!$current->root()) {
-            $all[$current->path()] = [ 'slug' => $current->slug() ];
+            $all[$current->path()] = ['slug' => $current->slug()];
         }
 
         foreach ($current->children() as $next) {
@@ -425,7 +425,7 @@ class Pages
             } else {
                 $route = $current->route();
             }
-            $list[$route] = str_repeat('&nbsp; ', ($level-1)*2) . $current->title();
+            $list[$route] = str_repeat('&nbsp; ', ($level - 1) * 2) . $current->title();
         }
 
         foreach ($current->children() as $next) {
@@ -508,12 +508,12 @@ class Pages
     public function accessLevels()
     {
         $accessLevels = [];
-        foreach($this->all() as $page) {
+        foreach ($this->all() as $page) {
             if (isset($page->header()->access)) {
                 if (is_array($page->header()->access)) {
-                    foreach($page->header()->access as $index => $accessLevel) {
+                    foreach ($page->header()->access as $index => $accessLevel) {
                         if (is_array($accessLevel)) {
-                            foreach($accessLevel as $innerIndex => $innerAccessLevel) {
+                            foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
                                 array_push($accessLevels, $innerIndex);
                             }
                         } else {
@@ -582,7 +582,6 @@ class Pages
         }
 
         return $parents;
-
     }
 
     /**
@@ -665,7 +664,7 @@ class Pages
                     $last_modified = Folder::lastModifiedFile($pages_dir);
             }
 
-            $page_cache_id = md5(USER_DIR.$last_modified.$language->getActive().$config->checksum());
+            $page_cache_id = md5(USER_DIR . $last_modified . $language->getActive() . $config->checksum());
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
@@ -698,16 +697,13 @@ class Pages
 
         // cache if needed
         if ($this->grav['config']->get('system.cache.enabled')) {
-                /** @var Cache $cache */
+            /** @var Cache $cache */
             $cache = $this->grav['cache'];
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->save(
-                $page_cache_id,
-                [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]
-            );
+            $cache->save($page_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
         }
     }
 
@@ -722,11 +718,11 @@ class Pages
      */
     protected function recurse($directory, Page &$parent = null)
     {
-        $directory  = rtrim($directory, DS);
-        $page       = new Page;
+        $directory = rtrim($directory, DS);
+        $page = new Page;
 
         /** @var Config $config */
-        $config     = $this->grav['config'];
+        $config = $this->grav['config'];
 
         /** @var Language $language */
         $language = $this->grav['language'];
@@ -759,14 +755,14 @@ class Pages
         }
 
         $content_exists = false;
-        $pages_found = glob($directory.'/*'.CONTENT_EXT);
+        $pages_found = glob($directory . '/*' . CONTENT_EXT);
         $page_extension = '';
 
         if ($pages_found) {
             $page_extensions = $language->getFallbackPageExtensions();
             foreach ($page_extensions as $extension) {
                 foreach ($pages_found as $found) {
-                    if (preg_match('/^.*\/[0-9A-Za-z\-\_]+('.$extension.')$/', $found)) {
+                    if (preg_match('/^.*\/[0-9A-Za-z\-\_]+(' . $extension . ')$/', $found)) {
                         $page_found = $found;
                         $page_extension = $extension;
                         break 2;
@@ -810,7 +806,7 @@ class Pages
                     $page->path($file->getPath());
                 }
 
-                $path = $directory.DS.$name;
+                $path = $directory . DS . $name;
                 $child = $this->recurse($path, $page);
 
                 if (Utils::startsWith($name, '_')) {
@@ -843,7 +839,7 @@ class Pages
 
         // Override the modified and ID so that it takes the latest change into account
         $page->modified($last_modified);
-        $page->id($last_modified.md5($page->filePath()));
+        $page->id($last_modified . md5($page->filePath()));
 
         // Sort based on Defaults or Page Overridden sort order
         $this->children[$page->path()] = $this->sort($page);
@@ -869,7 +865,7 @@ class Pages
                 // process taxonomy
                 $taxonomy->addTaxonomy($page);
 
-                $route =  $page->route();
+                $route = $page->route();
                 $raw_route = $page->rawRoute();
                 $page_path = $page->path();
 
@@ -984,7 +980,7 @@ class Pages
                 if ($order === false) {
                     $order = $i++;
                 }
-                $new_list[$key] = (int) $order;
+                $new_list[$key] = (int)$order;
             }
 
             $list = $new_list;
