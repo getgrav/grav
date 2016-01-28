@@ -28,7 +28,7 @@ define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
  * can be retrieved via public functions. Also each page can potentially contain an array of sub-pages.
  * Recursively traversing the page structure allows Grav to create navigation systems.
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Page
@@ -115,7 +115,7 @@ class Page
      * Initializes the page instance variables based on a file
      *
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
-     * @param  string $extension
+     * @param  string       $extension
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
@@ -203,6 +203,7 @@ class Page
      * Gets and Sets the raw data
      *
      * @param  string $var Raw content string
+     *
      * @return Object      Raw content string
      */
     public function raw($var = null)
@@ -222,6 +223,7 @@ class Page
             $this->content = null;
             $this->summary = null;
         }
+
         return $file ? $file->raw() : '';
     }
 
@@ -229,6 +231,7 @@ class Page
      * Gets and Sets the page frontmatter
      *
      * @param string|null $var
+     *
      * @return string
      */
     public function frontmatter($var = null)
@@ -249,6 +252,7 @@ class Page
         if (!$this->frontmatter) {
             $this->header();
         }
+
         return $this->frontmatter;
     }
 
@@ -256,6 +260,7 @@ class Page
      * Gets and Sets the header based on the YAML configuration at the top of the .md file
      *
      * @param  object|array $var a YAML object representing the configuration for the file
+     *
      * @return object      the current YAML configuration
      */
     public function header($var = null)
@@ -407,6 +412,7 @@ class Page
      * Get the summary.
      *
      * @param  int $size Max summary size.
+     *
      * @return string
      */
     public function summary($size = null)
@@ -469,6 +475,7 @@ class Page
      * Gets and Sets the content based on content portion of the .md file
      *
      * @param  string $var Content
+     *
      * @return string      Content
      */
     public function content($var = null)
@@ -628,6 +635,7 @@ class Page
      *
      * @param string $name Variable name.
      * @param mixed  $default
+     *
      * @return mixed
      */
     public function value($name, $default = null)
@@ -640,6 +648,7 @@ class Page
         }
         if ($name == 'order') {
             $order = $this->order();
+
             return $order ? (int)$this->order() : '';
         }
         if ($name == 'ordering') {
@@ -647,6 +656,7 @@ class Page
         }
         if ($name == 'folder') {
             $regex = '/^[0-9]+\./u';
+
             return preg_replace($regex, '', $this->folder);
         }
         if ($name == 'name') {
@@ -655,6 +665,7 @@ class Page
             if ($this->modular()) {
                 return 'modular/' . $name_val;
             }
+
             return $name_val;
         }
         if ($name == 'media') {
@@ -700,7 +711,9 @@ class Page
 
     /**
      * Gets and Sets the Page raw content
+     *
      * @param null $var
+     *
      * @return null
      */
     public function rawMarkdown($var = null)
@@ -722,11 +735,13 @@ class Page
         if ($this->name) {
             return MarkdownFile::instance($this->filePath());
         }
+
         return null;
     }
 
     /**
      * Save page if there's a file assigned to it.
+     *
      * @param bool $reorder Internal use.
      */
     public function save($reorder = true)
@@ -749,6 +764,7 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
+     *
      * @return $this
      */
     public function move(Page $parent)
@@ -782,6 +798,7 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
+     *
      * @return $this
      */
     public function copy($parent)
@@ -862,6 +879,7 @@ class Page
     public function extra()
     {
         $blueprints = $this->blueprints();
+
         return $blueprints->extra($this->toArray()['header'], 'header.');
     }
 
@@ -873,7 +891,7 @@ class Page
     public function toArray()
     {
         return [
-            'header' => (array)$this->header(),
+            'header'  => (array)$this->header(),
             'content' => (string)$this->value('content')
         ];
     }
@@ -902,6 +920,7 @@ class Page
      * Gets and sets the associated media as found in the page folder.
      *
      * @param  Media $var Representation of associated media.
+     *
      * @return Media      Representation of associated media.
      */
     public function media($var = null)
@@ -921,6 +940,7 @@ class Page
             }
             $this->media = $media;
         }
+
         return $this->media;
     }
 
@@ -928,6 +948,7 @@ class Page
      * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
      *
      * @param  string $var The name of this page.
+     *
      * @return string      The name of this page.
      */
     public function name($var = null)
@@ -935,6 +956,7 @@ class Page
         if ($var !== null) {
             $this->name = $var;
         }
+
         return empty($this->name) ? 'default.md' : $this->name;
     }
 
@@ -953,6 +975,7 @@ class Page
      * If no field is set, it will return the name without the .md extension
      *
      * @param  string $var the template name
+     *
      * @return string      the template name
      */
     public function template($var = null)
@@ -963,6 +986,7 @@ class Page
         if (empty($this->template)) {
             $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name());
         }
+
         return $this->template;
     }
 
@@ -970,6 +994,7 @@ class Page
      * Gets and sets the extension field.
      *
      * @param null $var
+     *
      * @return null|string
      */
     public function extension($var = null)
@@ -980,6 +1005,7 @@ class Page
         if (empty($this->extension)) {
             $this->extension = '.' . pathinfo($this->name(), PATHINFO_EXTENSION);
         }
+
         return $this->extension;
     }
 
@@ -1007,6 +1033,7 @@ class Page
      * Gets and sets the expires field. If not set will return the default
      *
      * @param  int $var The new expires value.
+     *
      * @return int      The expires value
      */
     public function expires($var = null)
@@ -1014,6 +1041,7 @@ class Page
         if ($var !== null) {
             $this->expires = $var;
         }
+
         return empty($this->expires) ? self::getGrav()['config']->get('system.pages.expires') : $this->expires;
     }
 
@@ -1021,6 +1049,7 @@ class Page
      * Gets and sets the title for this Page.  If no title is set, it will use the slug() to get a name
      *
      * @param  string $var the title of the Page
+     *
      * @return string      the title of the Page
      */
     public function title($var = null)
@@ -1031,6 +1060,7 @@ class Page
         if (empty($this->title)) {
             $this->title = ucfirst($this->slug());
         }
+
         return $this->title;
     }
 
@@ -1039,6 +1069,7 @@ class Page
      * If no menu field is set, it will use the title()
      *
      * @param  string $var the menu field for the page
+     *
      * @return string      the menu field for the page
      */
     public function menu($var = null)
@@ -1049,6 +1080,7 @@ class Page
         if (empty($this->menu)) {
             $this->menu = $this->title();
         }
+
         return $this->menu;
     }
 
@@ -1056,6 +1088,7 @@ class Page
      * Gets and Sets whether or not this Page is visible for navigation
      *
      * @param  bool $var true if the page is visible
+     *
      * @return bool      true if the page is visible
      */
     public function visible($var = null)
@@ -1074,6 +1107,7 @@ class Page
                 $this->visible = false;
             }
         }
+
         return $this->visible;
     }
 
@@ -1081,6 +1115,7 @@ class Page
      * Gets and Sets whether or not this Page is considered published
      *
      * @param  bool $var true if the page is published
+     *
      * @return bool      true if the page is published
      */
     public function published($var = null)
@@ -1101,6 +1136,7 @@ class Page
      * Gets and Sets the Page publish date
      *
      * @param  string $var string representation of a date
+     *
      * @return int         unix timestamp representation of the date
      */
     public function publishDate($var = null)
@@ -1116,6 +1152,7 @@ class Page
      * Gets and Sets the Page unpublish date
      *
      * @param  string $var string representation of a date
+     *
      * @return int|null         unix timestamp representation of the date
      */
     public function unpublishDate($var = null)
@@ -1133,6 +1170,7 @@ class Page
      * The page must be *routable* and *published*
      *
      * @param  bool $var true if the page is routable
+     *
      * @return bool      true if the page is routable
      */
     public function routable($var = null)
@@ -1149,6 +1187,7 @@ class Page
      * a simple array of arrays with the form array("markdown"=>true) for example
      *
      * @param  array $var an Array of name value pairs where the name is the process and value is true or false
+     *
      * @return array      an Array of name value pairs where the name is the process and value is true or false
      */
     public function process($var = null)
@@ -1156,6 +1195,7 @@ class Page
         if ($var !== null) {
             $this->process = (array)$var;
         }
+
         return $this->process;
     }
 
@@ -1164,6 +1204,7 @@ class Page
      * that can then be rendered in the page.
      *
      * @param  array $var an Array of metadata values to set
+     *
      * @return array      an Array of metadata values for the page
      */
     public function metadata($var = null)
@@ -1198,7 +1239,7 @@ class Page
                         $prop_key = $key . ":" . $property;
                         $this->metadata[$prop_key] = [
                             'property' => $prop_key,
-                            'content' => htmlspecialchars($prop_value, ENT_QUOTES)
+                            'content'  => htmlspecialchars($prop_value, ENT_QUOTES)
                         ];
                     }
                     // If it this is a standard meta data type
@@ -1207,7 +1248,7 @@ class Page
                         if (in_array($key, $header_tag_http_equivs)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
-                                'content' => htmlspecialchars($value, ENT_QUOTES)
+                                'content'    => htmlspecialchars($value, ENT_QUOTES)
                             ];
                         } else {
                             $this->metadata[$key] = ['name' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
@@ -1226,6 +1267,7 @@ class Page
      * the parent folder from the path
      *
      * @param  string $var the slug, e.g. 'my-blog'
+     *
      * @return string      the slug
      */
     public function slug($var = null)
@@ -1245,6 +1287,7 @@ class Page
      * Get/set order number of this page.
      *
      * @param int $var
+     *
      * @return int|bool
      */
     public function order($var = null)
@@ -1271,6 +1314,7 @@ class Page
      * Gets the URL for a page - alias of url().
      *
      * @param bool $include_host
+     *
      * @return string the permalink
      */
     public function link($include_host = false)
@@ -1282,7 +1326,7 @@ class Page
      * Gets the url for the Page.
      *
      * @param bool $include_host Defaults false, but true would include http://yourhost.com
-     * @param bool $canonical true to return the canonical URL
+     * @param bool $canonical    true to return the canonical URL
      * @param bool $include_lang
      *
      * @return string The url.
@@ -1356,6 +1400,7 @@ class Page
             if (!empty($this->routes) && isset($this->routes['default'])) {
                 $this->routes['aliases'][] = $this->route;
                 $this->route = $this->routes['default'];
+
                 return $this->route;
             }
         }
@@ -1376,6 +1421,7 @@ class Page
      * Gets and Sets the page raw route
      *
      * @param null $var
+     *
      * @return null|string
      */
     public function rawRoute($var = null)
@@ -1441,6 +1487,7 @@ class Page
      * Gets and sets the identifier for this Page object.
      *
      * @param  string $var the identifier
+     *
      * @return string      the identifier
      */
     public function id($var = null)
@@ -1448,6 +1495,7 @@ class Page
         if ($var !== null) {
             $this->id = $var;
         }
+
         return $this->id;
     }
 
@@ -1455,6 +1503,7 @@ class Page
      * Gets and sets the modified timestamp.
      *
      * @param  int $var modified unix timestamp
+     *
      * @return int      modified unix timestamp
      */
     public function modified($var = null)
@@ -1470,6 +1519,7 @@ class Page
      * Gets the redirect set in the header.
      *
      * @param  string $var redirect url
+     *
      * @return array
      */
     public function redirect($var = null)
@@ -1477,6 +1527,7 @@ class Page
         if ($var !== null) {
             $this->redirect = $var;
         }
+
         return $this->redirect;
     }
 
@@ -1484,6 +1535,7 @@ class Page
      * Gets and sets the option to show the etag header for the page.
      *
      * @param  boolean $var show etag header
+     *
      * @return boolean      show etag header
      */
     public function eTag($var = null)
@@ -1494,6 +1546,7 @@ class Page
         if (!isset($this->etag)) {
             $this->etag = (bool)self::getGrav()['config']->get('system.pages.etag');
         }
+
         return $this->etag;
     }
 
@@ -1501,6 +1554,7 @@ class Page
      * Gets and sets the option to show the last_modified header for the page.
      *
      * @param  boolean $var show last_modified header
+     *
      * @return boolean      show last_modified header
      */
     public function lastModified($var = null)
@@ -1511,6 +1565,7 @@ class Page
         if (!isset($this->last_modified)) {
             $this->last_modified = (bool)self::getGrav()['config']->get('system.pages.last_modified');
         }
+
         return $this->last_modified;
     }
 
@@ -1518,6 +1573,7 @@ class Page
      * Gets and sets the path to the .md file for this Page object.
      *
      * @param  string $var the file path
+     *
      * @return string|null      the file path
      */
     public function filePath($var = null)
@@ -1530,6 +1586,7 @@ class Page
             // Path to the page.
             $this->path = dirname(dirname($var));
         }
+
         return $this->path . '/' . $this->folder . '/' . ($this->name ?: '');
     }
 
@@ -1541,6 +1598,7 @@ class Page
     public function filePathClean()
     {
         $path = str_replace(ROOT_DIR, '', $this->filePath());
+
         return $path;
     }
 
@@ -1550,6 +1608,7 @@ class Page
     public function relativePagePath()
     {
         $path = str_replace('/' . $this->name, '', $this->filePathClean());
+
         return $path;
     }
 
@@ -1558,6 +1617,7 @@ class Page
      * This is equivalent to the filePath but without the filename.
      *
      * @param  string $var the path
+     *
      * @return string|null      the path
      */
     public function path($var = null)
@@ -1568,6 +1628,7 @@ class Page
             // Path to the page.
             $this->path = dirname($var);
         }
+
         return $this->path ? $this->path . '/' . $this->folder : null;
     }
 
@@ -1575,6 +1636,7 @@ class Page
      * Get/set the folder.
      *
      * @param string $var Optional path
+     *
      * @return string|null
      */
     public function folder($var = null)
@@ -1582,6 +1644,7 @@ class Page
         if ($var !== null) {
             $this->folder = $var;
         }
+
         return $this->folder;
     }
 
@@ -1589,6 +1652,7 @@ class Page
      * Gets and sets the date for this Page object. This is typically passed in via the page headers
      *
      * @param  string $var string representation of a date
+     *
      * @return int         unix timestamp representation of the date
      */
     public function date($var = null)
@@ -1606,7 +1670,9 @@ class Page
 
     /**
      * Gets and sets the order by which any sub-pages should be sorted.
+     *
      * @param  string $var the order, either "asc" or "desc"
+     *
      * @return string      the order, either "asc" or "desc"
      */
     public function orderDir($var = null)
@@ -1617,6 +1683,7 @@ class Page
         if (empty($this->order_dir)) {
             $this->order_dir = 'asc';
         }
+
         return $this->order_dir;
     }
 
@@ -1629,6 +1696,7 @@ class Page
      * folder - is the order based on the name of the folder with any numerics omitted
      *
      * @param  string $var supported options include "default", "title", "date", and "folder"
+     *
      * @return string      supported options include "default", "title", "date", and "folder"
      */
     public function orderBy($var = null)
@@ -1636,6 +1704,7 @@ class Page
         if ($var !== null) {
             $this->order_by = $var;
         }
+
         return $this->order_by;
     }
 
@@ -1643,6 +1712,7 @@ class Page
      * Gets the manual order set in the header.
      *
      * @param  string $var supported options include "default", "title", "date", and "folder"
+     *
      * @return array
      */
     public function orderManual($var = null)
@@ -1650,6 +1720,7 @@ class Page
         if ($var !== null) {
             $this->order_manual = $var;
         }
+
         return (array)$this->order_manual;
     }
 
@@ -1658,6 +1729,7 @@ class Page
      * sub_pages header property is set for this page object.
      *
      * @param  int $var the maximum number of sub-pages
+     *
      * @return int      the maximum number of sub-pages
      */
     public function maxCount($var = null)
@@ -1670,6 +1742,7 @@ class Page
             $config = self::getGrav()['config'];
             $this->max_count = (int)$config->get('system.pages.list.count');
         }
+
         return $this->max_count;
     }
 
@@ -1677,6 +1750,7 @@ class Page
      * Gets and sets the taxonomy array which defines which taxonomies this page identifies itself with.
      *
      * @param  array $var an array of taxonomies
+     *
      * @return array      an array of taxonomies
      */
     public function taxonomy($var = null)
@@ -1684,6 +1758,7 @@ class Page
         if ($var !== null) {
             $this->taxonomy = $var;
         }
+
         return $this->taxonomy;
     }
 
@@ -1691,6 +1766,7 @@ class Page
      * Gets and sets the modular var that helps identify this parent page contains modular pages.
      *
      * @param  bool $var true if modular_twig
+     *
      * @return bool      true if modular_twig
      */
     public function modular($var = null)
@@ -1703,6 +1779,7 @@ class Page
      * twig processing handled differently from a regular page.
      *
      * @param  bool $var true if modular_twig
+     *
      * @return bool      true if modular_twig
      */
     public function modularTwig($var = null)
@@ -1718,6 +1795,7 @@ class Page
                 }
             }
         }
+
         return $this->modular_twig;
     }
 
@@ -1725,6 +1803,7 @@ class Page
      * Gets the configured state of the processing method.
      *
      * @param  string $process the process, eg "twig" or "markdown"
+     *
      * @return bool            whether or not the processing method is enabled for this Page
      */
     public function shouldProcess($process)
@@ -1736,12 +1815,14 @@ class Page
      * Gets and Sets the parent object for this page
      *
      * @param  Page $var the parent page object
+     *
      * @return Page|null the parent page object if it exists.
      */
     public function parent(Page $var = null)
     {
         if ($var) {
             $this->parent = $var->path();
+
             return $var;
         }
 
@@ -1785,6 +1866,7 @@ class Page
     {
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
+
         return $pages->children($this->path());
     }
 
@@ -1800,6 +1882,7 @@ class Page
         if ($collection instanceof Collection) {
             return $collection->isFirst($this->path());
         }
+
         return true;
     }
 
@@ -1814,6 +1897,7 @@ class Page
         if ($collection instanceof Collection) {
             return $collection->isLast($this->path());
         }
+
         return true;
     }
 
@@ -1841,6 +1925,7 @@ class Page
      * Returns the adjacent sibling based on a direction.
      *
      * @param  integer $direction either -1 or +1
+     *
      * @return Page             the sibling page
      */
     public function adjacentSibling($direction = 1)
@@ -1849,6 +1934,7 @@ class Page
         if ($collection instanceof Collection) {
             return $collection->adjacentSibling($this->path(), $direction);
         }
+
         return false;
     }
 
@@ -1868,6 +1954,7 @@ class Page
             }
 
         }
+
         return false;
     }
 
@@ -1928,7 +2015,7 @@ class Page
      * Helper method to return a page.
      *
      * @param string $url the url of the page
-     * @param bool $all
+     * @param bool   $all
      *
      * @return \Grav\Common\Page\Page page you were looking for if it exists
      */
@@ -1936,6 +2023,7 @@ class Page
     {
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
+
         return $pages->dispatch($url, $all);
     }
 
@@ -1943,7 +2031,8 @@ class Page
      * Get a collection of pages in the current context.
      *
      * @param string|array $params
-     * @param boolean $pagination
+     * @param boolean      $pagination
+     *
      * @return Collection
      * @throws \InvalidArgumentException
      */
@@ -1984,8 +2073,8 @@ class Page
                             continue;
                         }
                         foreach ($items as $item) {
-                            if (empty($page->taxonomy[$taxonomy])
-                                || !in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy])
+                            if (empty($page->taxonomy[$taxonomy]) || !in_array(htmlspecialchars_decode($item,
+                                    ENT_QUOTES), $page->taxonomy[$taxonomy])
                             ) {
                                 $collection->remove();
                             }
@@ -2057,6 +2146,7 @@ class Page
                 }
 
             }
+
             return new Collection($result);
         }
 
@@ -2182,6 +2272,7 @@ class Page
         if ($this->name) {
             return true;
         }
+
         return false;
     }
 
@@ -2203,6 +2294,7 @@ class Page
     public function exists()
     {
         $file = $this->file();
+
         return $file && $file->exists();
     }
 
@@ -2210,6 +2302,7 @@ class Page
      * Cleans the path.
      *
      * @param  string $path the path
+     *
      * @return string       the path
      */
     protected function cleanPath($path)
@@ -2218,6 +2311,7 @@ class Page
         if (strpos($lastchunk, ':') !== false) {
             $path = str_replace($lastchunk, '', $path);
         }
+
         return $path;
     }
 
@@ -2225,7 +2319,9 @@ class Page
      * Moves or copies the page in filesystem.
      *
      * @internal
+     *
      * @param bool $reorder
+     *
      * @throws Exception
      */
     protected function doRelocation($reorder)

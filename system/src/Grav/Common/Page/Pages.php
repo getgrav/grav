@@ -18,7 +18,7 @@ use Whoops\Exception\ErrorException;
 /**
  * GravPages is the class that is the entry point into the hierarchy of pages
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Pages
@@ -89,6 +89,7 @@ class Pages
      * Get or set base path for the pages.
      *
      * @param  string $path
+     *
      * @return string
      */
     public function base($path = null)
@@ -118,6 +119,7 @@ class Pages
      * Get or set last modification time.
      *
      * @param int $modified
+     *
      * @return int|null
      */
     public function lastModified($modified = null)
@@ -125,6 +127,7 @@ class Pages
         if ($modified && $modified > $this->last_modified) {
             $this->last_modified = $modified;
         }
+
         return $this->last_modified;
     }
 
@@ -151,7 +154,7 @@ class Pages
     /**
      * Adds a page and assigns a route to it.
      *
-     * @param Page $page Page to be added.
+     * @param Page   $page  Page to be added.
      * @param string $route Optional route (uses route from the object if not set).
      */
     public function addPage(Page $page, $route = null)
@@ -169,7 +172,7 @@ class Pages
     /**
      * Sort sub-pages in a page.
      *
-     * @param Page $page
+     * @param Page   $page
      * @param string $order_by
      * @param string $order_dir
      *
@@ -206,9 +209,10 @@ class Pages
 
     /**
      * @param Collection $collection
-     * @param $orderBy
-     * @param string $orderDir
-     * @param null $orderManual
+     * @param            $orderBy
+     * @param string     $orderDir
+     * @param null       $orderManual
+     *
      * @return array
      * @internal
      */
@@ -238,6 +242,7 @@ class Pages
      * Get a page instance.
      *
      * @param  string $path The filesystem full path of the page
+     *
      * @return Page
      * @throws \Exception
      */
@@ -246,6 +251,7 @@ class Pages
         if (!is_null($path) && !is_string($path)) {
             throw new \Exception();
         }
+
         return isset($this->instances[(string)$path]) ? $this->instances[(string)$path] : null;
     }
 
@@ -253,11 +259,13 @@ class Pages
      * Get children of the path.
      *
      * @param string $path
+     *
      * @return Collection
      */
     public function children($path)
     {
         $children = isset($this->children[(string)$path]) ? $this->children[(string)$path] : [];
+
         return new Collection($children, [], $this);
     }
 
@@ -265,7 +273,8 @@ class Pages
      * Dispatch URI to a page.
      *
      * @param string $url The relative URL of the page
-     * @param bool $all
+     * @param bool   $all
+     *
      * @return Page|null
      */
     public function dispatch($url, $all = false)
@@ -350,6 +359,7 @@ class Pages
      * Get a blueprint for a page type.
      *
      * @param  string $type
+     *
      * @return Blueprint
      */
     public function blueprints($type)
@@ -376,6 +386,7 @@ class Pages
      * Get all pages
      *
      * @param \Grav\Common\Page\Page $current
+     *
      * @return \Grav\Common\Page\Collection
      */
     public function all(Page $current = null)
@@ -400,7 +411,7 @@ class Pages
      * Get list of route/title of all pages.
      *
      * @param Page $current
-     * @param int $level
+     * @param int  $level
      * @param bool $rawRoutes
      *
      * @return array
@@ -538,6 +549,7 @@ class Pages
     public static function parents()
     {
         $rawRoutes = false;
+
         return self::getParents($rawRoutes);
     }
 
@@ -549,6 +561,7 @@ class Pages
     public static function parentsRawRoutes()
     {
         $rawRoutes = true;
+
         return self::getParents($rawRoutes);
     }
 
@@ -623,6 +636,7 @@ class Pages
 
             self::$home_route = trim($home, '/');
         }
+
         return self::$home_route;
     }
 
@@ -710,8 +724,9 @@ class Pages
     /**
      * Recursive function to load & build page relationships.
      *
-     * @param string $directory
+     * @param string    $directory
      * @param Page|null $parent
+     *
      * @return Page
      * @throws \RuntimeException
      * @internal
@@ -902,9 +917,10 @@ class Pages
 
     /**
      * @param string $path
-     * @param array $pages
+     * @param array  $pages
      * @param string $order_by
-     * @param array $manual
+     * @param array  $manual
+     *
      * @throws \RuntimeException
      * @internal
      */
