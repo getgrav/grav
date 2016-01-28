@@ -242,7 +242,7 @@ class Inflector
     */
     public function tableize($class_name)
     {
-        return $this->pluralize($this->underscore($class_name));
+        return $this->pluralize($this->underscorize($class_name));
     }
 
     /**
