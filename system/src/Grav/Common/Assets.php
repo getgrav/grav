@@ -66,11 +66,11 @@ class Assets
 
     // The asset holding arrays
     protected $collections = [];
-    protected $css         = [];
-    protected $js          = [];
-    protected $inline_css  = [];
-    protected $inline_js   = [];
-    protected $imports     = [];
+    protected $css = [];
+    protected $js = [];
+    protected $inline_css = [];
+    protected $inline_js = [];
+    protected $imports = [];
 
     // Some configuration variables
     protected $config;
@@ -243,9 +243,9 @@ class Assets
      * You may add more than one asset passing an array as argument.
      *
      * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param  bool $pipeline false if this should not be pipelined
-     * @param null $group
+     * @param  int   $priority the priority, bigger comes first
+     * @param  bool  $pipeline false if this should not be pipelined
+     * @param null   $group
      *
      * @return $this
      */
@@ -255,9 +255,11 @@ class Assets
             foreach ($asset as $a) {
                 $this->addCss($a, $priority, $pipeline, $group);
             }
+
             return $this;
         } elseif (isset($this->collections[$asset])) {
             $this->addCss($this->collections[$asset], $priority, $pipeline, $group);
+
             return $this;
         }
 
@@ -274,8 +276,8 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
-            'pipeline' => (bool) $pipeline,
-            'group' => $group ?: 'head'
+            'pipeline' => (bool)$pipeline,
+            'group'    => $group ?: 'head'
         ];
 
         // check for dynamic array and merge with defaults
@@ -300,11 +302,12 @@ class Assets
      * It checks for duplicates.
      * You may add more than one asset passing an array as argument.
      *
-     * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param  bool $pipeline false if this should not be pipelined
-     * @param  string $loading how the asset is loaded (async/defer)
-     * @param  string $group name of the group
+     * @param  mixed  $asset
+     * @param  int    $priority the priority, bigger comes first
+     * @param  bool   $pipeline false if this should not be pipelined
+     * @param  string $loading  how the asset is loaded (async/defer)
+     * @param  string $group    name of the group
+     *
      * @return $this
      */
     public function addJs($asset, $priority = null, $pipeline = true, $loading = null, $group = null)
@@ -313,9 +316,11 @@ class Assets
             foreach ($asset as $a) {
                 $this->addJs($a, $priority, $pipeline, $loading, $group);
             }
+
             return $this;
         } elseif (isset($this->collections[$asset])) {
             $this->addJs($this->collections[$asset], $priority, $pipeline, $loading, $group);
+
             return $this;
         }
 
@@ -332,9 +337,9 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
-            'pipeline' => (bool) $pipeline,
+            'pipeline' => (bool)$pipeline,
             'loading'  => $loading ?: '',
-            'group' => $group ?: 'head'
+            'group'    => $group ?: 'head'
         ];
 
         // check for dynamic array and merge with defaults
@@ -356,9 +361,9 @@ class Assets
     /**
      * Convenience wrapper for async loading of JavaScript
      *
-     * @param      $asset
-     * @param int  $priority
-     * @param bool $pipeline
+     * @param        $asset
+     * @param int    $priority
+     * @param bool   $pipeline
      * @param string $group name of the group
      *
      * @deprecated Please use dynamic method with ['loading' => 'async']
@@ -373,9 +378,9 @@ class Assets
     /**
      * Convenience wrapper for deferred loading of JavaScript
      *
-     * @param      $asset
-     * @param int  $priority
-     * @param bool $pipeline
+     * @param        $asset
+     * @param int    $priority
+     * @param bool   $pipeline
      * @param string $group name of the group
      *
      * @deprecated Please use dynamic method with ['loading' => 'defer']
@@ -394,8 +399,8 @@ class Assets
      * For adding chunks of string-based inline CSS
      *
      * @param  mixed $asset
-     * @param  int $priority the priority, bigger comes first
-     * @param null $group
+     * @param  int   $priority the priority, bigger comes first
+     * @param null   $group
      *
      * @return $this
      */
@@ -404,17 +409,17 @@ class Assets
         $asset = trim($asset);
 
         if (is_a($asset, 'Twig_Markup')) {
-            preg_match(self::HTML_TAG_REGEX, $asset, $matches );
-            if (isset($matches[3]))  {
+            preg_match(self::HTML_TAG_REGEX, $asset, $matches);
+            if (isset($matches[3])) {
                 $asset = $matches[3];
             }
         }
 
         $data = [
-            'priority'  => intval($priority ?: 10),
-            'order'     => count($this->inline_css),
-            'asset'     => $asset,
-            'group'     => $group ?: 'head'
+            'priority' => intval($priority ?: 10),
+            'order'    => count($this->inline_css),
+            'asset'    => $asset,
+            'group'    => $group ?: 'head'
         ];
 
         // check for dynamic array and merge with defaults
@@ -441,7 +446,7 @@ class Assets
      *
      * @param  mixed $asset
      * @param  int   $priority the priority, bigger comes first
-     * @param string $group name of the group
+     * @param string $group    name of the group
      *
      * @return $this
      */
@@ -450,8 +455,8 @@ class Assets
         $asset = trim($asset);
 
         if (is_a($asset, 'Twig_Markup')) {
-            preg_match(self::HTML_TAG_REGEX, $asset, $matches );
-            if (isset($matches[3]))  {
+            preg_match(self::HTML_TAG_REGEX, $asset, $matches);
+            if (isset($matches[3])) {
                 $asset = $matches[3];
             }
         }
@@ -460,7 +465,7 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
-            'group' => $group ?: 'head'
+            'group'    => $group ?: 'head'
         ];
 
         // check for dynamic array and merge with defaults
@@ -483,7 +488,7 @@ class Assets
      * Build the CSS link tags.
      *
      * @param  string $group name of the group
-     * @param  array $attributes
+     * @param  array  $attributes
      *
      * @return string
      */
@@ -499,6 +504,7 @@ class Assets
                 if ($a['priority'] == $b['priority']) {
                     return $b['order'] - $a['order'];
                 }
+
                 return $a['priority'] - $b['priority'];
             });
 
@@ -506,6 +512,7 @@ class Assets
                 if ($a['priority'] == $b['priority']) {
                     return $b['order'] - $a['order'];
                 }
+
                 return $a['priority'] - $b['priority'];
             });
         }
@@ -556,7 +563,7 @@ class Assets
      * Build the JavaScript script tags.
      *
      * @param  string $group name of the group
-     * @param  array $attributes
+     * @param  array  $attributes
      *
      * @return string
      */
@@ -571,6 +578,7 @@ class Assets
             if ($a['priority'] == $b['priority']) {
                 return $b['order'] - $a['order'];
             }
+
             return $a['priority'] - $b['priority'];
         });
 
@@ -578,6 +586,7 @@ class Assets
             if ($a['priority'] == $b['priority']) {
                 return $b['order'] - $a['order'];
             }
+
             return $a['priority'] - $b['priority'];
         });
 
@@ -596,7 +605,7 @@ class Assets
             }
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
-                    $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading']. '></script>' . "\n";
+                    $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
                 }
             }
         } else {
@@ -625,6 +634,7 @@ class Assets
      * Minify and concatenate CSS
      *
      * @param string $group
+     *
      * @return bool|string
      */
     protected function pipelineCss($group = 'head')
@@ -695,6 +705,7 @@ class Assets
      * Minify and concatenate JS files.
      *
      * @param string $group
+     *
      * @return string
      */
     protected function pipelineJs($group = 'head')
@@ -744,6 +755,7 @@ class Assets
         // Write file
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($absolute_path, $buffer);
+
             return $relative_path . $key;
         } else {
             return false;
@@ -789,9 +801,7 @@ class Assets
      */
     public function exists($asset)
     {
-        if (isset($this->collections[$asset]) ||
-            isset($this->css[$asset]) ||
-            isset($this->js[$asset])) {
+        if (isset($this->collections[$asset]) || isset($this->css[$asset]) || isset($this->js[$asset])) {
             return true;
         } else {
             return false;
@@ -907,6 +917,7 @@ class Assets
             foreach ($files as $file) {
                 $this->addCss($file);
             }
+
             return $this;
         }
 
@@ -915,6 +926,7 @@ class Assets
             foreach ($files as $file) {
                 $this->addJs($file);
             }
+
             return $this;
         }
 
@@ -937,8 +949,8 @@ class Assets
      */
     protected function isRemoteLink($link)
     {
-        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8)
-            || '//' === substr($link, 0, 2));
+        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8) || '//' === substr($link, 0,
+                2));
     }
 
     /**
@@ -991,7 +1003,7 @@ class Assets
      * Download and concatenate the content of several links.
      *
      * @param  array $links
-     * @param  bool $css
+     * @param  bool  $css
      *
      * @return string
      */
@@ -1053,8 +1065,8 @@ class Assets
     /**
      * Finds relative CSS urls() and rewrites the URL with an absolute one
      *
-     * @param string $file                 the css source file
-     * @param string $relative_path        relative path to the css file
+     * @param string $file          the css source file
+     * @param string $relative_path relative path to the css file
      *
      * @return mixed
      */
@@ -1065,23 +1077,19 @@ class Assets
 
         // Find any css url() elements, grab the URLs and calculate an absolute path
         // Then replace the old url with the new one
-        $file = preg_replace_callback(
-            self::CSS_URL_REGEX,
-            function ($matches) use ($relative_path) {
+        $file = preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($relative_path) {
 
-                $old_url = $matches[1];
+            $old_url = $matches[1];
 
-                // ensure this is not a data url
-                if (strpos($old_url, 'data:') === 0) {
-                    return $matches[0];
-                }
+            // ensure this is not a data url
+            if (strpos($old_url, 'data:') === 0) {
+                return $matches[0];
+            }
 
-                $new_url = $this->base_url . ltrim(Utils::normalizePath($relative_path . '/' . $old_url), '/');
+            $new_url = $this->base_url . ltrim(Utils::normalizePath($relative_path . '/' . $old_url), '/');
 
-                return str_replace($old_url, $new_url, $matches[0]);
-            },
-            $file
-        );
+            return str_replace($old_url, $new_url, $matches[0]);
+        }, $file);
 
         return $file;
     }
@@ -1097,14 +1105,11 @@ class Assets
     {
         $this->imports = [];
 
-        $file = preg_replace_callback(
-            self::CSS_IMPORT_REGEX,
-            function ($matches) {
-                $this->imports[] = $matches[0];
-                return '';
-            },
-            $file
-        );
+        $file = preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) {
+            $this->imports[] = $matches[0];
+
+            return '';
+        }, $file);
 
         return implode("\n", $this->imports) . "\n\n" . $file;
     }
@@ -1120,15 +1125,8 @@ class Assets
      */
     protected function rglob($directory, $pattern, $ltrim = null)
     {
-        $iterator = new RegexIterator(
-            new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(
-                    $directory,
-                    FilesystemIterator::SKIP_DOTS
-                )
-            ),
-            $pattern
-        );
+        $iterator = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory,
+            FilesystemIterator::SKIP_DOTS)), $pattern);
         $offset = strlen($ltrim);
         $files = [];
 
@@ -1146,7 +1144,7 @@ class Assets
      */
     public function setCssPipeline($value)
     {
-        $this->css_pipeline = (bool) $value;
+        $this->css_pipeline = (bool)$value;
     }
 
     /**
@@ -1156,7 +1154,7 @@ class Assets
      */
     public function setJsPipeline($value)
     {
-        $this->js_pipeline = (bool) $value;
+        $this->js_pipeline = (bool)$value;
     }
 
     /**
@@ -1166,7 +1164,7 @@ class Assets
      */
     public function setTimestamp($value)
     {
-        $this->timestamp = '?'.$value;
+        $this->timestamp = '?' . $value;
     }
 
     /**
