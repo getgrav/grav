@@ -183,7 +183,7 @@ abstract class Utils
      */
     public static function truncateHtml($text, $length = 100)
     {
-        return Truncator::truncate($text, $length, array('length_in_chars' => true));
+        return Truncator::truncate($text, $length, ['length_in_chars' => true]);
     }
 
     /**
@@ -196,7 +196,7 @@ abstract class Utils
      */
     public static function safeTruncateHtml($text, $length = 100)
     {
-        return Truncator::truncate($text, $length, array('length_in_chars' => true, 'word_safe' => true));
+        return Truncator::truncate($text, $length, ['length_in_chars' => true, 'word_safe' => true]);
     }
 
     /**
@@ -272,7 +272,7 @@ abstract class Utils
     /**
      * Return the mimetype based on filename
      *
-     * @param $extension Extension of file (eg "txt")
+     * @param string $extension Extension of file (eg "txt")
      *
      * @return string
      */
@@ -300,7 +300,7 @@ abstract class Utils
         $root = ($path[0] === '/') ? '/' : '';
 
         $segments = explode('/', trim($path, '/'));
-        $ret = array();
+        $ret = [];
         foreach ($segments as $segment) {
             if (($segment == '.') || empty($segment)) {
                 continue;
@@ -345,7 +345,7 @@ abstract class Utils
 
         asort($offsets);
 
-        $timezone_list = array();
+        $timezone_list = [];
         foreach ($offsets as $timezone => $offset) {
             $offset_prefix = $offset < 0 ? '-' : '+';
             $offset_formatted = gmdate('H:i', abs($offset));
@@ -361,14 +361,14 @@ abstract class Utils
     /**
      * Recursively filter an array, filtering values by processing them through the $fn function argument
      *
-     * @param array $source the Array to filter
-     * @param       $fn     the function to pass through each array item
+     * @param array    $source the Array to filter
+     * @param callable $fn     the function to pass through each array item
      *
      * @return array
      */
     public static function arrayFilterRecursive(Array $source, $fn)
     {
-        $result = array();
+        $result = [];
         foreach ($source as $key => $value)
         {
             if (is_array($value))
@@ -388,7 +388,7 @@ abstract class Utils
     /**
      * Checks if the passed path contains the language code prefix
      *
-     * @param $string The path
+     * @param string $string The path
      *
      * @return bool
      */
@@ -410,7 +410,7 @@ abstract class Utils
     /**
      * Get the timestamp of a date
      *
-     * @param $date a String expressed in the system.pages.dateformat.default format, with fallback to a strtotime argument
+     * @param string $date a String expressed in the system.pages.dateformat.default format, with fallback to a strtotime argument
      *
      * @return int the timestamp
      */
@@ -439,7 +439,7 @@ abstract class Utils
      *
      * @param array $array the Array to check
      * @param string $path the dot notation path to check  
-     * @param $default a value to be returned if $path is not found in $array
+     * @param mixed $default a value to be returned if $path is not found in $array
      *
      * @return mixed the value found
      */

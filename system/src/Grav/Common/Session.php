@@ -9,6 +9,11 @@ class Session extends \RocketTheme\Toolbox\Session\Session
     protected $grav;
     protected $session;
 
+    /**
+     * Session constructor.
+     *
+     * @param Grav $grav
+     */
     public function __construct(Grav $grav)
     {
         $this->grav = $grav;

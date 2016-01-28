@@ -4,7 +4,6 @@ namespace Grav\Common;
 /**
 * This file was originally part of the Akelos Framework
 */
-use Grav\Common\Language\Language;
 
 /**
 * Inflector for pluralize and singularize English nouns.
@@ -42,11 +41,13 @@ class Inflector
     }
 
     /**
-    * Pluralizes English nouns.
-    *
-    * @param    string    $word    English noun to pluralize
-    * @return string Plural noun
-    */
+     * Pluralizes English nouns.
+     *
+     * @param string $word English noun to pluralize
+     * @param int    $count The count
+     *
+     * @return string Plural noun
+     */
     public function pluralize($word, $count = 2)
     {
         $this->init();
@@ -291,6 +292,12 @@ class Inflector
         }
     }
 
+    /**
+     * Converts a number of days to a number of months
+     *
+     * @param int $days
+     * @return int
+     */
     public function monthize($days)
     {
         $now = new \DateTime();
@@ -300,7 +307,7 @@ class Inflector
 
         $diff = $end->add($duration)->diff($now);
 
-    // handle years
+        // handle years
         if ($diff->y > 0) {
             $diff->m = $diff->m + 12*$diff->y;
         }

@@ -144,7 +144,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
         $keys = array_keys($this->items);
         shuffle($keys);
 
-        $new = array();
+        $new = [];
         foreach ($keys as $key) {
             $new[$key] = $this->items[$key];
         }

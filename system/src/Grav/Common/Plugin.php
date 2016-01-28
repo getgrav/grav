@@ -41,7 +41,7 @@ class Plugin implements EventSubscriberInterface
     {
         $methods = get_class_methods(get_called_class());
 
-        $list = array();
+        $list = [];
         foreach ($methods as $method) {
             if (strpos($method, 'on') === 0) {
                 $list[$method] = [$method, 0];
@@ -83,12 +83,12 @@ class Plugin implements EventSubscriberInterface
 
         foreach ($events as $eventName => $params) {
             if (is_string($params)) {
-                $dispatcher->addListener($eventName, array($this, $params));
+                $dispatcher->addListener($eventName, [$this, $params]);
             } elseif (is_string($params[0])) {
-                $dispatcher->addListener($eventName, array($this, $params[0]), isset($params[1]) ? $params[1] : 0);
+                $dispatcher->addListener($eventName, [$this, $params[0]], isset($params[1]) ? $params[1] : 0);
             } else {
                 foreach ($params as $listener) {
-                    $dispatcher->addListener($eventName, array($this, $listener[0]), isset($listener[1]) ? $listener[1] : 0);
+                    $dispatcher->addListener($eventName, [$this, $listener[0]], isset($listener[1]) ? $listener[1] : 0);
                 }
             }
         }
@@ -104,12 +104,12 @@ class Plugin implements EventSubscriberInterface
 
         foreach ($events as $eventName => $params) {
             if (is_string($params)) {
-                $dispatcher->removeListener($eventName, array($this, $params));
+                $dispatcher->removeListener($eventName, [$this, $params]);
             } elseif (is_string($params[0])) {
-                $dispatcher->removeListener($eventName, array($this, $params[0]));
+                $dispatcher->removeListener($eventName, [$this, $params[0]]);
             } else {
                 foreach ($params as $listener) {
-                    $dispatcher->removeListener($eventName, array($this, $listener[0]));
+                    $dispatcher->removeListener($eventName, [$this, $listener[0]]);
                 }
             }
         }
@@ -122,9 +122,9 @@ class Plugin implements EventSubscriberInterface
      *
      * format: [plugin:myplugin_name](function_data)
      *
-     * @param        $content           The string to perform operations upon
-     * @param        $function          The anonymous callback function
-     * @param string $internal_regex    Optional internal regex to extra data from
+     * @param string   $content           The string to perform operations upon
+     * @param callable $function          The anonymous callback function
+     * @param string   $internal_regex    Optional internal regex to extra data from
      *
      * @return string
      */

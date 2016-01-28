@@ -32,10 +32,12 @@ class Taxonomy
 
     /**
      * Constructor that resets the map
+     *
+     * @param Grav $grav
      */
     public function __construct(Grav $grav)
     {
-        $this->taxonomy_map = array();
+        $this->taxonomy_map = [];
         $this->grav = $grav;
     }
 
@@ -62,7 +64,7 @@ class Taxonomy
             foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {
                     foreach ((array) $page_taxonomy[$taxonomy] as $item) {
-                        $this->taxonomy_map[$taxonomy][(string) $item][$page->path()] = array('slug' => $page->slug());
+                        $this->taxonomy_map[$taxonomy][(string) $item][$page->path()] = ['slug' => $page->slug()];
                     }
                 }
             }

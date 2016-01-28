@@ -23,6 +23,11 @@ class Themes extends Iterator
     /** @var Config */
     protected $config;
 
+    /**
+     * Themes constructor.
+     *
+     * @param Grav $grav
+     */
     public function __construct(Grav $grav)
     {
         parent::__construct();
@@ -73,7 +78,7 @@ class Themes extends Iterator
      */
     public function all()
     {
-        $list = array();
+        $list = [];
         $locator = Grav::instance()['locator'];
 
         $themes = (array) $locator->findResources('themes://', false);
@@ -126,7 +131,9 @@ class Themes extends Iterator
 
         // Find thumbnail.
         $thumb = "themes://{$name}/thumbnail.jpg";
-        if ($path = $this->grav['locator']->findResource($thumb, false)) {
+        $path = $this->grav['locator']->findResource($thumb, false);
+
+        if ($path) {
             $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
@@ -179,7 +186,6 @@ class Themes extends Iterator
                     'Grav\\Theme\\'.ucfirst($name),
                     'Grav\\Theme\\'.$inflector->camelize($name)
                 ];
-                $themeClassName = false;
 
                 foreach ($themeClassFormat as $themeClass) {
                     if (class_exists($themeClass)) {
@@ -282,7 +288,7 @@ class Themes extends Iterator
 
             if ($languages) {
                 $languages = call_user_func_array('array_replace_recursive', $languages);
-                $config->getLanguages()->mergeRecursive($languages);
+                $this->grav['languages']->mergeRecursive($languages);
             }
         }
     }

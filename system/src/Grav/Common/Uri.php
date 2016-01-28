@@ -168,7 +168,7 @@ class Uri
      */
     public function initializeWithUrl($url = '')
     {
-        if (!$url) return;
+        if (!$url) return $this;
 
         $this->paths    = [];
         $this->params   = [];
@@ -201,6 +201,13 @@ class Uri
         return $this;
     }
 
+    /**
+     * Initialize the URI class by providing url and root_path arguments
+     *
+     * @param string $url
+     * @param string $root_path
+     * @return $this
+     */
     public function initializeWithUrlAndRootPath($url, $root_path)
     {
         $this->initializeWithUrl($url);
@@ -302,7 +309,7 @@ class Uri
     {
         if (strpos($uri, $delimiter) !== false) {
             $bits = explode('/', $uri);
-            $path = array();
+            $path = [];
             foreach ($bits as $bit) {
                 if (strpos($bit, $delimiter) !== false) {
                     $param = explode($delimiter, $bit);
@@ -386,7 +393,7 @@ class Uri
             if ($array) {
                 return $this->params;
             }
-            $output = array();
+            $output = [];
             foreach ($this->params as $key => $value) {
                 $output[] = $key . $config->get('system.param_sep') . $value;
                 $params = '/'.implode('/', $output);
@@ -722,6 +729,7 @@ class Uri
             // get page instances and try to find one that fits
             $instances = $grav['pages']->instances();
             if (isset($instances[$page_path])) {
+                /** @var Page $target */
                 $target = $instances[$page_path];
                 $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
                 return Uri::buildUrl($url_bits);

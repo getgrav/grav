@@ -2,7 +2,12 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
+use RocketTheme\Toolbox\File\YamlFile;
 
+/**
+ * Class Theme
+ * @package Grav\Common
+ */
 class Theme extends Plugin
 {
     public $name;

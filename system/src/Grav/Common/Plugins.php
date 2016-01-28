@@ -77,6 +77,11 @@ class Plugins extends Iterator
         return $this->items;
     }
 
+    /**
+     * Add a plugin
+     *
+     * @param $plugin
+     */
     public function add($plugin)
     {
         if (is_object($plugin)) {
@@ -91,7 +96,7 @@ class Plugins extends Iterator
      */
     public static function all()
     {
-        $list = array();
+        $list = [];
         $locator = Grav::instance()['locator'];
 
         $plugins = (array) $locator->findResources('plugins://', false);
@@ -117,6 +122,12 @@ class Plugins extends Iterator
         return $list;
     }
 
+    /**
+     * Get a plugin by name
+     *
+     * @param string $name
+     * @return Data|null
+     */
     public static function get($name)
     {
         $blueprints = new Blueprints('plugins://');
