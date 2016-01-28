@@ -106,8 +106,7 @@ class Page
         /** @var Config $config */
         $config = self::getGrav()['config'];
 
-
-        $this->taxonomy = array();
+        $this->taxonomy = [];
         $this->process = $config->get('system.pages.process');
         $this->published = true;
     }
@@ -224,6 +223,12 @@ class Page
         return $file ? $file->raw() : '';
     }
 
+    /**
+     * Gets and Sets the page frontmatter
+     *
+     * @param string|null $var
+     * @return string
+     */
     public function frontmatter($var = null)
     {
 
@@ -420,7 +425,7 @@ class Page
         // Return calculated summary based on summary divider's position
         $format = $config['format'];
         // Return entire page content on wrong/ unknown format
-        if (!in_array($format, array('short', 'long'))) {
+        if (!in_array($format, ['short', 'long'])) {
             return $content;
         } elseif (($format === 'short') && isset($summary_size)) {
             return mb_substr($content, 0, $summary_size);
@@ -445,7 +450,7 @@ class Page
     /**
      * Sets the summary of the page
      *
-     * @param string $var Summary
+     * @param string $summary Summary
      */
     public function setSummary($summary)
     {
@@ -683,6 +688,11 @@ class Page
         return $default;
     }
 
+    /**
+     * Gets and Sets the Page raw content
+     * @param null $var
+     * @return null
+     */
     public function rawMarkdown($var = null)
     {
         if ($var !== null) {
@@ -852,10 +862,10 @@ class Page
      */
     public function toArray()
     {
-        return array(
+        return [
             'header' => (array) $this->header(),
             'content' => (string) $this->value('content')
-        );
+        ];
     }
 
     /**
@@ -1176,15 +1186,15 @@ class Page
                 if (is_array($value)) {
                     foreach ($value as $property => $prop_value) {
                         $prop_key =  $key.":".$property;
-                        $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
+                        $this->metadata[$prop_key] = ['property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES)];
                     }
                 // If it this is a standard meta data type
                 } else {
                     if ($value) {
                         if (in_array($key, $header_tag_http_equivs)) {
-                            $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
+                            $this->metadata[$key] = ['http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES)];
                         } else {
-                            $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
+                            $this->metadata[$key] = ['name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES)];
                         }
                     }
                 }
@@ -1255,8 +1265,9 @@ class Page
     /**
      * Gets the url for the Page.
      *
-     * @param  bool $include_host Defaults false, but true would include http://yourhost.com
-     * @param  bool $canonical true to return the canonical URL
+     * @param bool $include_host Defaults false, but true would include http://yourhost.com
+     * @param bool $canonical true to return the canonical URL
+     * @param bool $include_lang
      *
      * @return string The url.
      */
@@ -1345,6 +1356,12 @@ class Page
         unset($this->slug);
     }
 
+    /**
+     * Gets and Sets the page raw route
+     *
+     * @param null $var
+     * @return null|string
+     */
     public function rawRoute($var = null)
     {
         if ($var !== null) {
@@ -1852,6 +1869,7 @@ class Page
         $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
+            /** @var Page $child_page */
             $child_page = $pages->dispatch($uri->route())->parent();
             if ($child_page) {
                 while (!$child_page->root()) {
@@ -1922,7 +1940,7 @@ class Page
         }
 
         if (!isset($params['items'])) {
-            return array();
+            return [];
         }
 
         $collection = $this->evaluate($params['items']);
@@ -2007,7 +2025,7 @@ class Page
         if (is_string($value)) {
             // Format: @command.param
             $cmd = $value;
-            $params = array();
+            $params = [];
         } elseif (is_array($value) && count($value) == 1 && !is_int(key($value))) {
             // Format: @command.param: { attr1: value1, attr2: value2 }
             $cmd = (string) key($value);
@@ -2036,7 +2054,9 @@ class Page
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
 
+        /** @var Collection $results */
         $results = new Collection();
+
         switch ($current) {
             case '@self':
                 if (!empty($parts)) {
@@ -2188,6 +2208,8 @@ class Page
      * Moves or copies the page in filesystem.
      *
      * @internal
+     * @param bool $reorder
+     * @throws Exception
      */
     protected function doRelocation($reorder)
     {
@@ -2203,7 +2225,7 @@ class Page
             $parent = $this->parent();
 
             // Extract visible children from the parent page.
-            $list = array();
+            $list = [];
             /** @var Page $page */
             foreach ($parent->children()->visible() as $page) {
                 if ($page->order()) {
@@ -2220,7 +2242,7 @@ class Page
 
             // Then add it back to the new location (if needed).
             if ($this->order()) {
-                array_splice($list, min($this->order()-1, count($list)), 0, array($this->path()));
+                array_splice($list, min($this->order()-1, count($list)), 0, [$this->path()]);
             }
 
             // Reorder all moved pages.

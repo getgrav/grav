@@ -1,15 +1,15 @@
 <?php
 namespace Grav\Common\Page;
 
-use Grav\Common\Grav;
-use Grav\Common\Config\Config;
-use Grav\Common\Utils;
 use Grav\Common\Cache;
-use Grav\Common\Taxonomy;
-use Grav\Common\Language;
+use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
+use Grav\Common\Language\Language;
+use Grav\Common\Taxonomy;
+use Grav\Common\Utils;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -46,7 +46,7 @@ class Pages
     /**
      * @var array|string[]
      */
-    protected $routes = array();
+    protected $routes = [];
 
     /**
      * @var array
@@ -161,7 +161,7 @@ class Pages
         }
         $route = $page->route($route);
         if ($page->parent()) {
-            $this->children[$page->parent()->path()][$page->path()] = array('slug' => $page->slug());
+            $this->children[$page->parent()->path()][$page->path()] = ['slug' => $page->slug()];
         }
         $this->routes[$route] = $page->path();
     }
@@ -185,7 +185,7 @@ class Pages
         }
 
         $path = $page->path();
-        $children = isset($this->children[$path]) ? $this->children[$path] : array();
+        $children = isset($this->children[$path]) ? $this->children[$path] : [];
 
         if (!$children) {
             return $children;
@@ -257,8 +257,8 @@ class Pages
      */
     public function children($path)
     {
-        $children = isset($this->children[(string) $path]) ? $this->children[(string) $path] : array();
-        return new Collection($children, array(), $this);
+        $children = isset($this->children[(string) $path]) ? $this->children[(string) $path] : [];
+        return new Collection($children, [], $this);
     }
 
     /**
@@ -401,7 +401,10 @@ class Pages
      *
      * @param Page $current
      * @param int $level
+     * @param bool $rawRoutes
+     *
      * @return array
+     *
      * @throws \RuntimeException
      */
     public function getList(Page $current = null, $level = 0, $rawRoutes = false)
@@ -414,7 +417,7 @@ class Pages
             $current = $this->root();
         }
 
-        $list = array();
+        $list = [];
 
         if (!$current->root()) {
             if ($rawRoutes) {
@@ -583,7 +586,7 @@ class Pages
     }
 
     /**
-     * Get's the home route
+     * Gets the home route
      *
      * @return string
      */
@@ -631,7 +634,7 @@ class Pages
      */
     protected function buildPages()
     {
-        $this->sort = array();
+        $this->sort = [];
 
         /** @var Config $config */
         $config = $this->grav['config'];
@@ -703,7 +706,7 @@ class Pages
             // save pages, routes, taxonomy, and sort to cache
             $cache->save(
                 $page_cache_id,
-                array($this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort)
+                [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]
             );
         }
     }
@@ -749,7 +752,7 @@ class Pages
         if (!isset($this->instances[$page->path()])) {
             $this->instances[$page->path()] = $page;
             if ($parent && $page->path()) {
-                $this->children[$parent->path()][$page->path()] = array('slug' => $page->slug());
+                $this->children[$parent->path()][$page->path()] = ['slug' => $page->slug()];
             }
         } else {
             throw new \RuntimeException('Fatal error when creating page instances.');
@@ -757,9 +760,10 @@ class Pages
 
         $content_exists = false;
         $pages_found = glob($directory.'/*'.CONTENT_EXT);
-        $page_extensions = $language->getFallbackPageExtensions();
+        $page_extension = '';
 
         if ($pages_found) {
+            $page_extensions = $language->getFallbackPageExtensions();
             foreach ($page_extensions as $extension) {
                 foreach ($pages_found as $found) {
                     if (preg_match('/^.*\/[0-9A-Za-z\-\_]+('.$extension.')$/', $found)) {
@@ -813,7 +817,7 @@ class Pages
                     $child->routable(false);
                 }
 
-                $this->children[$page->path()][$child->path()] = array('slug' => $child->slug());
+                $this->children[$page->path()][$child->path()] = ['slug' => $child->slug()];
 
                 if ($config->get('system.pages.events.page')) {
                     $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
@@ -910,7 +914,7 @@ class Pages
      */
     protected function buildSort($path, array $pages, $order_by = 'default', $manual = null)
     {
-        $list = array();
+        $list = [];
         $header_default = null;
         $header_query = null;
 
@@ -971,7 +975,7 @@ class Pages
 
         // Move manually ordered items into the beginning of the list. Order of the unlisted items does not change.
         if (is_array($manual) && !empty($manual)) {
-            $new_list = array();
+            $new_list = [];
             $i = count($manual);
 
             foreach ($list as $key => $dummy) {
@@ -995,13 +999,19 @@ class Pages
         }
     }
 
-    // Shuffles and associative array
+    /**
+     * Shuffles an associative array
+     *
+     * @param array $list
+     *
+     * @return array
+     */
     protected function arrayShuffle($list)
     {
         $keys = array_keys($list);
         shuffle($keys);
 
-        $new = array();
+        $new = [];
         foreach ($keys as $key) {
             $new[$key] = $list[$key];
         }
