@@ -349,8 +349,10 @@ class Uri
     /**
      * Return full query string or a single query attribute.
      *
-     * @param  string  $id  Optional attribute.
-     * @return string
+     * @param  string $id  Optional attribute. Get a single query attribute if set
+     * @param  bool   $raw If true and $id is not set, return the full query array. Otherwise return the query string
+     *
+     * @return string|array Returns an array if $id = null and $raw = true
      */
     public function query($id = null, $raw = false)
     {

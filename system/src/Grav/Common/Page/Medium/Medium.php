@@ -118,7 +118,7 @@ class Medium extends Data implements RenderableInterface
      * Return PATH to file.
      *
      * @param bool $reset
-     * @return  string path to file
+     * @return string path to file
      */
     public function path($reset = true)
     {

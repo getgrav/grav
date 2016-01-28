@@ -4,6 +4,7 @@ namespace Grav\Common;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use Grav\Common\Service\ConfigServiceProvider;
@@ -79,45 +80,56 @@ class Grav extends Container
         $container->register(new ErrorServiceProvider);
 
         $container['uri'] = function ($c) {
+            /** @var Grav $c */
             return new Uri($c);
         };
 
         $container['task'] = function ($c) {
+            /** @var Grav $c */
             return !empty($_POST['task']) ? $_POST['task'] : $c['uri']->param('task');
         };
 
-        $container['events'] = function ($c) {
+        $container['events'] = function () {
             return new EventDispatcher;
         };
         $container['cache'] = function ($c) {
+            /** @var Grav $c */
             return new Cache($c);
         };
         $container['session'] = function ($c) {
+            /** @var Grav $c */
             return new Session($c);
         };
-        $container['plugins'] = function ($c) {
+        $container['plugins'] = function () {
             return new Plugins();
         };
         $container['themes'] = function ($c) {
+            /** @var Grav $c */
             return new Themes($c);
         };
         $container['twig'] = function ($c) {
+            /** @var Grav $c */
             return new Twig($c);
         };
         $container['taxonomy'] = function ($c) {
+            /** @var Grav $c */
             return new Taxonomy($c);
         };
         $container['language'] = function ($c) {
+            /** @var Grav $c */
             return new Language($c);
         };
 
         $container['pages'] = function ($c) {
+            /** @var Grav $c */
             return new Pages($c);
         };
 
         $container['assets'] = new Assets();
 
         $container['page'] = function ($c) {
+            /** @var Grav $c */
+
             /** @var Pages $pages */
             $pages = $c['pages'];
             /** @var Language $language */
@@ -152,7 +164,7 @@ class Grav extends Container
             if (!$page || !$page->routable()) {
 
                 // Try fallback URL stuff...
-                $c->fallbackUrl($page, $path);
+                $c->fallbackUrl($path);
 
                 // If no page found, fire event
                 $event = $c->fireEvent('onPageNotFound');
@@ -165,20 +177,28 @@ class Grav extends Container
             }
             return $page;
         };
+
         $container['output'] = function ($c) {
+            /** @var Grav $c */
             return $c['twig']->processSite($c['uri']->extension());
         };
-        $container['browser'] = function ($c) {
+
+        $container['browser'] = function () {
             return new Browser();
         };
 
         $container['base_url_absolute'] = function ($c) {
+            /** @var Grav $c */
             return $c['config']->get('system.base_url_absolute') ?: $c['uri']->rootUrl(true);
         };
+
         $container['base_url_relative'] = function ($c) {
+            /** @var Grav $c */
             return $c['config']->get('system.base_url_relative') ?: $c['uri']->rootUrl(false);
         };
+
         $container['base_url'] = function ($c) {
+            /** @var Grav $c */
             return $c['config']->get('system.absolute_urls') ? $c['base_url_absolute'] : $c['base_url_relative'];
         };
 
@@ -346,9 +366,9 @@ class Grav extends Container
         $language = $this['language'];
 
         if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
-            return $this->redirect($language->getLanguage() . $route, $code);
+            $this->redirect($language->getLanguage() . $route, $code);
         } else {
-            return $this->redirect($route, $code);
+            $this->redirect($route, $code);
         }
     }
 
@@ -491,10 +511,10 @@ class Grav extends Container
 
     /**
      * This attempts to find media, other files, and download them
-     * @param $page
+     *
      * @param $path
      */
-    protected function fallbackUrl($page, $path)
+    protected function fallbackUrl($path)
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
@@ -514,20 +534,22 @@ class Grav extends Container
         }
 
         $path_parts = pathinfo($path);
+
+        /** @var Page $page */
         $page = $this['pages']->dispatch($path_parts['dirname'], true);
+
         if ($page) {
             $media = $page->media()->all();
-
             $parsed_url = parse_url(rawurldecode($uri->basename()));
-
             $media_file = $parsed_url['path'];
 
             // if this is a media object, try actions first
             if (isset($media[$media_file])) {
+                /** @var Medium $medium */
                 $medium = $media[$media_file];
                 foreach ($uri->query(null, true) as $action => $params) {
                     if (in_array($action, ImageMedium::$magic_actions)) {
-                        call_user_func_array(array(&$medium, $action), explode(',', $params));
+                        call_user_func_array([&$medium, $action], explode(',', $params));
                     }
                 }
                 Utils::download($medium->path(), false);

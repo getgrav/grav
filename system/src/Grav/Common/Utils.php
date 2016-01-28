@@ -214,8 +214,8 @@ abstract class Utils
     /**
      * Provides the ability to download a file to the browser
      *
-     * @param      $file            the full path to the file to be downloaded
-     * @param bool $force_download  as opposed to letting browser choose if to download or render
+     * @param string $file            the full path to the file to be downloaded
+     * @param bool   $force_download  as opposed to letting browser choose if to download or render
      */
     public static function download($file, $force_download = true)
     {
