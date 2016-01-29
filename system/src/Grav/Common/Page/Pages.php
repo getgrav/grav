@@ -126,6 +126,10 @@ class Pages
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
         $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
 
+        $this->instances = [];
+        $this->children = [];
+        $this->routes = [];
+
         $this->buildPages();
     }
 
