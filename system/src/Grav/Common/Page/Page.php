@@ -100,6 +100,8 @@ class Page
 
     /**
      * Page Object Constructor
+     *
+     * @return $this
      */
     public function __construct()
     {
@@ -109,6 +111,8 @@ class Page
         $this->taxonomy = [];
         $this->process = $config->get('system.pages.process');
         $this->published = true;
+
+        return $this;
     }
 
     /**
@@ -116,6 +120,8 @@ class Page
      *
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
      * @param  string       $extension
+     *
+     * @return $this
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
@@ -147,6 +153,8 @@ class Page
         // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
         $this->language($language);
+
+        return $this;
     }
 
     /**
