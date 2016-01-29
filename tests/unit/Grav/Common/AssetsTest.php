@@ -2,6 +2,9 @@
 
 use Codeception\Util\Fixtures;
 
+/**
+ * Class AssetsTest
+ */
 class AssetsTest extends \Codeception\TestCase\Test
 {
     /**
@@ -38,9 +41,27 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $assets->css();
         $this->assertSame($css, '<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL);
 
+        $array = $assets->getCss();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.css',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'group' => 'head'
+        ]);
+
         $assets->add('test.js');
         $js = $assets->js();
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" ></script>' . PHP_EOL);
+
+        $array = $assets->getCss();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.css',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'group' => 'head'
+        ]);
 
         //test addCss(). Test adding asset to a separate group
         $assets->reset();
@@ -48,11 +69,30 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $assets->css();
         $this->assertSame($css, '<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL);
 
+        $array = $assets->getCss();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.css',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'group' => 'head'
+        ]);
+
         //test addJs()
         $assets->reset();
         $assets->addJs('test.js');
         $js = $assets->js();
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" ></script>' . PHP_EOL);
+
+        $array = $assets->getJs();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.js',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'loading' => '',
+            'group' => 'head'
+        ]);
 
         //Test CSS Groups
         $assets->reset();
@@ -62,6 +102,15 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $assets->css('footer');
         $this->assertSame($css, '<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL);
 
+        $array = $assets->getCss();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.css',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'group' => 'footer'
+        ]);
+
         //Test JS Groups
         $assets->reset();
         $assets->addJs('test.js', null, true, null, 'footer');
@@ -70,17 +119,46 @@ class AssetsTest extends \Codeception\TestCase\Test
         $js = $assets->js('footer');
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" ></script>' . PHP_EOL);
 
+        $array = $assets->getJs();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.js',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'loading' => '',
+            'group' => 'footer'
+        ]);
+
         //Test async / defer
         $assets->reset();
         $assets->addJs('test.js', null, true, 'async', null);
         $js = $assets->js();
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" async></script>' . PHP_EOL);
+
+        $array = $assets->getJs();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.js',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'loading' => 'async',
+            'group' => 'head'
+        ]);
+
         $assets->reset();
         $assets->addJs('test.js', null, true, 'defer', null);
         $js = $assets->js();
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" defer></script>' . PHP_EOL);
 
-
+        $array = $assets->getJs();
+        $this->assertSame(reset($array), [
+            'asset' => '/test.js',
+            'priority' => 10,
+            'order' => 0,
+            'pipeline' => true,
+            'loading' => 'defer',
+            'group' => 'head'
+        ]);
     }
 
     public function testAddingAssetPropertiesWithArray()
@@ -254,7 +332,142 @@ class AssetsTest extends \Codeception\TestCase\Test
         $assets->reset();
         $assets->addInlineJs('alert("test")');
         $js = $assets->js();
-        $this->assertSame($js, PHP_EOL. '<script>' .PHP_EOL . 'alert("test")' . PHP_EOL.PHP_EOL .'</script>' . PHP_EOL);
+        $this->assertSame($js,
+            PHP_EOL . '<script>' . PHP_EOL . 'alert("test")' . PHP_EOL . PHP_EOL . '</script>' . PHP_EOL);
     }
 
+    public function testGetCollections()
+    {
+        $assets = $this->assets();
+
+        $this->assertTrue(is_array($assets->getCollections()));
+        $this->assertTrue(in_array('jquery', array_keys($assets->getCollections())));
+        $this->assertTrue(in_array('system://assets/jquery/jquery-2.x.min.js', $assets->getCollections()));
+    }
+
+    public function testExists()
+    {
+        $assets = $this->assets();
+
+        $this->assertTrue($assets->exists('jquery'));
+        $this->assertFalse($assets->exists('another-unexisting-library'));
+    }
+
+    public function testRegisterCollection()
+    {
+        $assets = $this->assets();
+
+        $assets->registerCollection('debugger', ['/system/assets/debugger.css']);
+        $this->assertTrue($assets->exists('debugger'));
+        $this->assertTrue(in_array('debugger', array_keys($assets->getCollections())));
+    }
+
+    public function testReset()
+    {
+        $assets = $this->assets();
+
+        $assets->addInlineJs('alert("test")');
+        $assets->reset();
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addAsyncJs('jquery');
+        $assets->reset();
+
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addInlineCss('body { color: black }');
+        $assets->reset();
+
+        $this->assertTrue(count($assets->css()) == 0);
+
+        $assets->add('/system/assets/debugger.css', null, true);
+        $assets->reset();
+
+        $this->assertTrue(count($assets->css()) == 0);
+    }
+
+    public function testResetJs()
+    {
+        $assets = $this->assets();
+
+        $assets->addInlineJs('alert("test")');
+        $assets->resetJs();
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addAsyncJs('jquery');
+        $assets->resetJs();
+
+        $this->assertTrue(count($assets->js()) == 0);
+    }
+
+    public function testResetCss()
+    {
+        $assets = $this->assets();
+
+        $this->assertTrue(count($assets->js()) == 0);
+
+        $assets->addInlineCss('body { color: black }');
+        $assets->resetCss();
+
+        $this->assertTrue(count($assets->css()) == 0);
+
+        $assets->add('/system/assets/debugger.css', null, true);
+        $assets->resetCss();
+
+        $this->assertTrue(count($assets->css()) == 0);
+    }
+
+    public function testAddDirCss()
+    {
+        $assets = $this->assets();
+        $assets->reset();
+        $assets->addDirCss('/system');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) == 0);
+
+        $assets->reset();
+        $assets->addDirCss('/system/assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) == 0);
+
+        $assets->reset();
+        $assets->addDirJs('/system');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) == 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
+        $assets->reset();
+        $assets->addDirJs('/system/assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) == 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
+        $assets->reset();
+        $assets->addDir('/system/assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
+        //Use streams
+        $assets->reset();
+        $assets->addDir('system://assets');
+
+        $this->assertTrue(is_array($assets->getCss()));
+        $this->assertTrue(count($assets->getCss()) > 0);
+        $this->assertTrue(is_array($assets->getJs()));
+        $this->assertTrue(count($assets->getJs()) > 0);
+
+    }
 }

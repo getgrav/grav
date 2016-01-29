@@ -20,11 +20,11 @@ class Media extends Getters
     protected $gettersVariable = 'instances';
     protected $path;
 
-    protected $instances = array();
-    protected $images = array();
-    protected $videos = array();
-    protected $audios = array();
-    protected $files = array();
+    protected $instances = [];
+    protected $images = [];
+    protected $videos = [];
+    protected $audios = [];
+    protected $files = [];
 
     /**
      * @param $path

@@ -10,10 +10,7 @@ use Grav\Common\Utils;
 /**
  * Group object
  *
- * @property mixed authenticated
- * @property mixed password
- * @property bool|string hashed_password
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Group extends Data
@@ -28,11 +25,14 @@ class Group extends Data
     private static function groups()
     {
         $groups = self::getGrav()['config']->get('groups');
+
         return $groups;
     }
 
     /**
      * Checks if a group exists
+     *
+     * @param string $groupname
      *
      * @return object
      */
@@ -43,6 +43,8 @@ class Group extends Data
 
     /**
      * Get a group by name
+     *
+     * @param string $groupname
      *
      * @return object
      */
@@ -76,7 +78,7 @@ class Group extends Data
 
         self::getGrav()['config']->set("groups.$this->groupname", []);
 
-        foreach($fields as $field) {
+        foreach ($fields as $field) {
             if ($field['type'] == 'text') {
                 $value = $field['name'];
                 if (isset($this->items[$value])) {
@@ -87,8 +89,10 @@ class Group extends Data
                 $value = $field['name'];
                 $arrayValues = Utils::resolve($this->items, $field['name']);
 
-                if ($arrayValues) foreach($arrayValues as $arrayIndex => $arrayValue) {
-                    self::getGrav()['config']->set("groups.$this->groupname.$value.$arrayIndex", $arrayValue);
+                if ($arrayValues) {
+                    foreach ($arrayValues as $arrayIndex => $arrayValue) {
+                        self::getGrav()['config']->set("groups.$this->groupname.$value.$arrayIndex", $arrayValue);
+                    }
                 }
             }
         }
@@ -104,7 +108,8 @@ class Group extends Data
     /**
      * Remove a group
      *
-     * @param string $username
+     * @param string $groupname
+     *
      * @return bool True if the action was performed
      */
     public static function remove($groupname)

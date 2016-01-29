@@ -9,11 +9,19 @@ class Session extends \RocketTheme\Toolbox\Session\Session
     protected $grav;
     protected $session;
 
+    /**
+     * Session constructor.
+     *
+     * @param Grav $grav
+     */
     public function __construct(Grav $grav)
     {
         $this->grav = $grav;
     }
 
+    /**
+     * Session init
+     */
     public function init()
     {
         /** @var Uri $uri */
@@ -37,10 +45,7 @@ class Session extends \RocketTheme\Toolbox\Session\Session
 
         if ($config->get('system.session.enabled') || $is_admin) {
             // Define session service.
-            parent::__construct(
-                $session_timeout,
-                $session_path
-            );
+            parent::__construct($session_timeout, $session_path);
 
             $domain = $uri->host();
             if ($domain == 'localhost') {

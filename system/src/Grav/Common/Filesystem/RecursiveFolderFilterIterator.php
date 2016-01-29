@@ -3,12 +3,21 @@ namespace Grav\Common\Filesystem;
 
 use Grav\Common\GravTrait;
 
+/**
+ * Class RecursiveFolderFilterIterator
+ * @package Grav\Common\Filesystem
+ */
 class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
 {
     use GravTrait;
 
     protected static $folder_ignores;
 
+    /**
+     * Create a RecursiveFilterIterator from a RecursiveIterator
+     *
+     * @param RecursiveIterator $iterator
+     */
     public function __construct(\RecursiveIterator $iterator)
     {
         parent::__construct($iterator);
@@ -17,9 +26,13 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
         }
     }
 
+    /**
+     * Check whether the current element of the iterator is acceptable
+     *
+     * @return bool true if the current element is acceptable, otherwise false.
+     */
     public function accept()
     {
-
         /** @var $current \SplFileInfo */
         $current = $this->current();
 

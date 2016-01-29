@@ -64,8 +64,9 @@ abstract class Folder
     /**
      * Get relative path between target and base path. If path isn't relative, return full path.
      *
-     * @param  string  $path
-     * @param  string  $base
+     * @param string       $path
+     * @param mixed|string $base
+     *
      * @return string
      */
     public static function getRelativePath($path, $base = GRAV_ROOT)
@@ -141,7 +142,7 @@ abstract class Folder
      * @return array
      * @throws \RuntimeException
      */
-    public static function all($path, array $params = array())
+    public static function all($path, array $params = [])
     {
         if ($path === false) {
             throw new \RuntimeException("Path to {$path} doesn't exist.");
@@ -166,7 +167,7 @@ abstract class Folder
             $iterator = new \FilesystemIterator($path);
         }
 
-        $results = array();
+        $results = [];
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {

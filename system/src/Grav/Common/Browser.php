@@ -13,6 +13,9 @@ class Browser
 {
     protected $useragent = [];
 
+    /**
+     * Browser constructor.
+     */
     public function __construct()
     {
         try {
@@ -107,6 +110,7 @@ class Browser
     public function getVersion()
     {
         $version = explode('.', $this->getLongVersion());
+
         return intval($version[0]);
     }
 

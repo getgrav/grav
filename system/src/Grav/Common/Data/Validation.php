@@ -559,6 +559,10 @@ class Validation
         $options = isset($field['options']) ? array_keys($field['options']) : array();
         $multi = isset($field['multiple']) ? $field['multiple'] : false;
 
+        if (count($values) == 1 && isset($values[0]) && $values[0] == '') {
+            return null;
+        }
+
         if ($options) {
             $useKey = isset($field['use']) && $field['use'] == 'keys';
             foreach ($values as $key => $value) {

@@ -12,7 +12,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  * The Plugins object holds an array of all the plugin objects that
  * Grav knows about
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Plugins extends Iterator
@@ -88,6 +88,8 @@ class Plugins extends Iterator
     }
 
     /**
+     * Add a plugin
+     *
      * @param $plugin
      */
     public function add($plugin)
@@ -119,6 +121,13 @@ class Plugins extends Iterator
         return $list;
     }
 
+    /**
+     * Get a plugin by name
+     *
+     * @param string $name
+     *
+     * @return Data|null
+     */
     public static function get($name)
     {
         $blueprints = new Blueprints('plugins://');

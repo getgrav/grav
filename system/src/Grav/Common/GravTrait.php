@@ -1,6 +1,11 @@
 <?php
 namespace Grav\Common;
 
+/**
+ * Class GravTrait
+ *
+ * @package Grav\Common
+ */
 trait GravTrait
 {
     /**
@@ -16,6 +21,7 @@ trait GravTrait
         if (!self::$grav) {
             self::$grav = Grav::instance();
         }
+
         return self::$grav;
     }
 

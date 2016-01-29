@@ -2,9 +2,12 @@
 namespace Grav\Common\GPM;
 
 use Grav\Common\Utils;
+use Grav\Common\GravTrait;
 
 class Response
 {
+    use GravTrait;
+
     /**
      * The callback for the progress
      *
@@ -192,6 +195,12 @@ class Response
         $options  = $args[1];
         $callback = $args[2];
 
+        // if proxy set add that
+        $proxy_url = self::getGrav()['config']->get('system.proxy_url');
+        if ($proxy_url) {
+            $options['fopen']['proxy'] = $proxy_url;
+        }
+
         if ($callback) {
             $options['fopen']['notification'] = ['self', 'progress'];
         }
@@ -244,6 +253,12 @@ class Response
                     CURLOPT_PROGRESSFUNCTION => ['self', 'progress']
                 ]
             );
+        }
+
+        // if proxy set add that
+        $proxy_url = self::getGrav()['config']->get('system.proxy_url');
+        if ($proxy_url) {
+            $options['curl'][CURLOPT_PROXY] = $proxy_url;
         }
 
         // no open_basedir set, we can proceed normally
