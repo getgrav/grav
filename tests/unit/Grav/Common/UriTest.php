@@ -1,11 +1,21 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 
+/**
+ * Class UriTest
+ */
 class UriTest extends \Codeception\TestCase\Test
 {
+    /** @var Grav $grav */
+    protected $grav;
+
+    /** @var Uri $uri */
+    protected $uri;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
@@ -71,7 +81,8 @@ class UriTest extends \Codeception\TestCase\Test
         $this->uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
         $this->assertSame($this->uri->paths(), ['a', 'b', 'c', 'd']);
         $this->uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertSame($this->uri->paths(), ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']);
+        $this->assertSame($this->uri->paths(),
+            ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']);
     }
 
     public function testRoute()
@@ -367,20 +378,20 @@ class UriTest extends \Codeception\TestCase\Test
     {
         $parsed_url = [
             'scheme' => 'http',
-            'host' => 'localhost',
-            'port' => '8080',
+            'host'   => 'localhost',
+            'port'   => '8080',
         ];
 
         $this->assertSame(Uri::buildUrl($parsed_url), 'http://localhost:8080');
 
         $parsed_url = [
-            'scheme' => 'http',
-            'host' => 'localhost',
-            'port' => '8080',
-            'user' => 'foo',
-            'pass' => 'bar',
-            'path' => '/test',
-            'query' => 'x=2',
+            'scheme'   => 'http',
+            'host'     => 'localhost',
+            'port'     => '8080',
+            'user'     => 'foo',
+            'pass'     => 'bar',
+            'path'     => '/test',
+            'query'    => 'x=2',
             'fragment' => 'xxx',
         ];
 

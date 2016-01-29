@@ -1,10 +1,17 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 
+/**
+ * Class UtilsTest
+ */
 class UtilsTest extends \Codeception\TestCase\Test
 {
+    /** @var Grav $grav */
+    protected $grav;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
@@ -19,12 +26,14 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertTrue(Utils::startsWith('english', 'en'));
         $this->assertTrue(Utils::startsWith('English', 'En'));
         $this->assertTrue(Utils::startsWith('ENGLISH', 'EN'));
-        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'EN'));
+        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'EN'));
 
         $this->assertFalse(Utils::startsWith('english', 'En'));
         $this->assertFalse(Utils::startsWith('English', 'EN'));
         $this->assertFalse(Utils::startsWith('ENGLISH', 'en'));
-        $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'e'));
+        $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'e'));
     }
 
     public function testEndsWith()
@@ -32,12 +41,14 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertTrue(Utils::endsWith('english', 'sh'));
         $this->assertTrue(Utils::endsWith('EngliSh', 'Sh'));
         $this->assertTrue(Utils::endsWith('ENGLISH', 'SH'));
-        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'ENGLISH'));
+        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'ENGLISH'));
 
         $this->assertFalse(Utils::endsWith('english', 'de'));
         $this->assertFalse(Utils::endsWith('EngliSh', 'sh'));
         $this->assertFalse(Utils::endsWith('ENGLISH', 'Sh'));
-        $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'DEUSTCH'));
+        $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'DEUSTCH'));
     }
 
     public function testContains()
@@ -45,11 +56,14 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertTrue(Utils::contains('english', 'nglis'));
         $this->assertTrue(Utils::contains('EngliSh', 'gliSh'));
         $this->assertTrue(Utils::contains('ENGLISH', 'ENGLI'));
-        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'ENGLISH'));
+        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'ENGLISH'));
 
-        $this->assertFalse(Utils::contains('EngliSh', 'GLI'));        $this->assertFalse(Utils::contains('EngliSh', 'English'));
+        $this->assertFalse(Utils::contains('EngliSh', 'GLI'));
+        $this->assertFalse(Utils::contains('EngliSh', 'English'));
         $this->assertFalse(Utils::contains('ENGLISH', 'SCH'));
-        $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH', 'DEUSTCH'));
+        $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'DEUSTCH'));
     }
 
     public function testSubstrToString()
@@ -166,13 +180,13 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testArrayFilterRecursive()
     {
         $array = [
-            'test' => '',
+            'test'  => '',
             'test2' => 'test2'
         ];
 
-        $array = Utils::arrayFilterRecursive($array, function($k, $v) {
-                    return !(is_null($v) || $v === '');
-                });
+        $array = Utils::arrayFilterRecursive($array, function ($k, $v) {
+            return !(is_null($v) || $v === '');
+        });
 
         $this->assertContainsOnly('string', $array);
         $this->assertFalse(isset($array['test']));

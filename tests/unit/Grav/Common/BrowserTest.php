@@ -1,23 +1,40 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Grav;
 
+/**
+ * Class BrowserTest
+ */
 class BrowserTest extends \Codeception\TestCase\Test
 {
+    /** @var Grav $grav */
+    protected $grav;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
-        $this->assets = $this->grav['assets'];
     }
 
     protected function _after()
     {
     }
 
-    public function testGetBrowser() { /* Already covered by PhpUserAgent tests */ }
-    public function testGetPlatform() { /* Already covered by PhpUserAgent tests */ }
-    public function testGetLongVersion() { /* Already covered by PhpUserAgent tests */ }
-    public function testGetVersion() { /* Already covered by PhpUserAgent tests */ }
+    public function testGetBrowser()
+    { /* Already covered by PhpUserAgent tests */
+    }
+
+    public function testGetPlatform()
+    { /* Already covered by PhpUserAgent tests */
+    }
+
+    public function testGetLongVersion()
+    { /* Already covered by PhpUserAgent tests */
+    }
+
+    public function testGetVersion()
+    { /* Already covered by PhpUserAgent tests */
+    }
 
     public function testIsHuman()
     {

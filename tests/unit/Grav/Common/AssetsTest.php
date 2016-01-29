@@ -1,12 +1,20 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Grav;
+use Grav\Common\Assets;
 
 /**
  * Class AssetsTest
  */
 class AssetsTest extends \Codeception\TestCase\Test
 {
+    /** @var Grav $grav */
+    protected $grav;
+
+    /** @var Assets $assets */
+    protected $assets;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
@@ -27,11 +35,11 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getCss();
         $this->assertSame(reset($array), [
-            'asset' => '/test.css',
+            'asset'    => '/test.css',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'group' => 'head'
+            'group'    => 'head'
         ]);
 
         $this->assets->add('test.js');
@@ -40,11 +48,11 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getCss();
         $this->assertSame(reset($array), [
-            'asset' => '/test.css',
+            'asset'    => '/test.css',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'group' => 'head'
+            'group'    => 'head'
         ]);
 
         //test addCss(). Test adding asset to a separate group
@@ -55,11 +63,11 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getCss();
         $this->assertSame(reset($array), [
-            'asset' => '/test.css',
+            'asset'    => '/test.css',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'group' => 'head'
+            'group'    => 'head'
         ]);
 
         //test addJs()
@@ -70,12 +78,12 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getJs();
         $this->assertSame(reset($array), [
-            'asset' => '/test.js',
+            'asset'    => '/test.js',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'loading' => '',
-            'group' => 'head'
+            'loading'  => '',
+            'group'    => 'head'
         ]);
 
         //Test CSS Groups
@@ -88,11 +96,11 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getCss();
         $this->assertSame(reset($array), [
-            'asset' => '/test.css',
+            'asset'    => '/test.css',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'group' => 'footer'
+            'group'    => 'footer'
         ]);
 
         //Test JS Groups
@@ -105,12 +113,12 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getJs();
         $this->assertSame(reset($array), [
-            'asset' => '/test.js',
+            'asset'    => '/test.js',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'loading' => '',
-            'group' => 'footer'
+            'loading'  => '',
+            'group'    => 'footer'
         ]);
 
         //Test async / defer
@@ -121,12 +129,12 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getJs();
         $this->assertSame(reset($array), [
-            'asset' => '/test.js',
+            'asset'    => '/test.js',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'loading' => 'async',
-            'group' => 'head'
+            'loading'  => 'async',
+            'group'    => 'head'
         ]);
 
         $this->assets->reset();
@@ -136,12 +144,12 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $array = $this->assets->getJs();
         $this->assertSame(reset($array), [
-            'asset' => '/test.js',
+            'asset'    => '/test.js',
             'priority' => 10,
-            'order' => 0,
+            'order'    => 0,
             'pipeline' => true,
-            'loading' => 'defer',
-            'group' => 'head'
+            'loading'  => 'defer',
+            'group'    => 'head'
         ]);
     }
 
@@ -162,7 +170,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addJs('jquery', ['loading' => 'async']);
         $js = $this->assets->js();
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
+        $this->assertSame($js,
+            '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
 
         //Test priority too
         $this->assets->reset();
@@ -179,7 +188,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $js = $this->assets->js();
         $this->assertSame($js, '<script src="/test.js" type="text/javascript" async></script>' . PHP_EOL);
         $js = $this->assets->js('footer');
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
+        $this->assertSame($js,
+            '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
 
         //Test adding array of assets
         //Test priority too
@@ -187,7 +197,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addJs(['jquery', 'test.js'], ['loading' => 'async']);
         $js = $this->assets->js();
 
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL .
+        $this->assertSame($js,
+            '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL .
             '<script src="/test.js" type="text/javascript" async></script>' . PHP_EOL);
     }
 
@@ -274,7 +285,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addAsyncJs('jquery');
         $js = $this->assets->js();
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
+        $this->assertSame($js,
+            '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" async></script>' . PHP_EOL);
     }
 
     public function testAddDeferJs()
@@ -282,7 +294,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addDeferJs('jquery');
         $js = $this->assets->js();
-        $this->assertSame($js, '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" defer></script>' . PHP_EOL);
+        $this->assertSame($js,
+            '<script src="/system/assets/jquery/jquery-2.x.min.js" type="text/javascript" defer></script>' . PHP_EOL);
     }
 
     public function testAddInlineCss()
@@ -290,7 +303,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addInlineCss('body { color: black }');
         $css = $this->assets->css();
-        $this->assertSame($css, PHP_EOL. '<style>' .PHP_EOL . 'body { color: black }' . PHP_EOL.PHP_EOL .'</style>' . PHP_EOL);
+        $this->assertSame($css,
+            PHP_EOL . '<style>' . PHP_EOL . 'body { color: black }' . PHP_EOL . PHP_EOL . '</style>' . PHP_EOL);
     }
 
     public function testAddInlineJs()
