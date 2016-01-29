@@ -1,3 +1,9 @@
+# v1.0.9
+## XX/XX/2016
+
+1. [](#improved)
+    * [BC] Metadata now supports only flat arrays. To use open graph metas and the likes (ie, 'og:title'), simply specify it in the key.
+
 # v1.0.8
 ## 01/08/2016
 
@@ -18,13 +24,13 @@
     * Added support for APCu and PHP7.0 via new Doctrine Cache release
     * Added global setting for `twig_first` processing (false by default)
     * New configuration options for Session settings #553
-1. [](#improved)   
+1. [](#improved)
     * Switched to SSL for GPM calls
     * Use `URI->host()` for session domain
     * Add support for `open_basedir` when installing packages via GPM
     * Improved `Utils::generateNonceString()` method to handle reverse proxies
     * Optimized core thumbnails saving 38% in file size
-    * Added new `bin/gpm index --installed-only` option 
+    * Added new `bin/gpm index --installed-only` option
     * Improved GPM errors to provider more helpful diagnostic of issues
     * Removed old hardcoded PHP version references
     * Moved `onPageContentProcessed()` event so it's fired more reliably
@@ -34,7 +40,7 @@
     * Fixed an issue with cache/config checksum not being set on cache load
     * Fix for page blueprint and theme inheritance issue #534
     * Set `ZipBackup` timeout to 10 minutes if possible
-    * Fix case where we only have inline data for CSS or JS  #565 
+    * Fix case where we only have inline data for CSS or JS  #565
     * Fix `bin/grav sandbox` command to work with new `webserver-config` folder
     * Fix for markdown attributes on external URLs
     * Fixed issue where `data:` page header was acting as `publish_date:`
