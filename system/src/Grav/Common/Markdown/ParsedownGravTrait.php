@@ -2,6 +2,8 @@
 namespace Grav\Common\Markdown;
 
 use Grav\Common\GravTrait;
+use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -11,12 +13,18 @@ use RocketTheme\Toolbox\Event\Event;
 trait ParsedownGravTrait
 {
     use GravTrait;
+
+    /** @var Page $page */
     protected $page;
+
+    /** @var Pages $pages */
     protected $pages;
+
     protected $base_url;
     protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
+    protected $special_protocols = ['xmpp', 'mailto', 'tel', 'sms'];
 
     public $completable_blocks = [];
     public $continuable_blocks = [];
@@ -34,10 +42,9 @@ trait ParsedownGravTrait
         $this->page = $page;
         $this->pages = $grav['pages'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->BlockTypes['['] [] = "ShortcodeTag";
         $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
-        $this->special_chars = array('>' => 'gt', '<' => 'lt', '"' => 'quot');
+        $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
         if ($defaults === null) {
             $defaults = self::getGrav()['config']->get('system.pages.markdown');
@@ -60,7 +67,7 @@ trait ParsedownGravTrait
      */
     public function addBlockType($type, $tag, $continuable = false, $completable = false)
     {
-        $this->BlockTypes[$type] []= $tag;
+        $this->BlockTypes[$type] [] = $tag;
 
         if ($continuable) {
             $this->continuable_blocks[] = $tag;
@@ -79,7 +86,7 @@ trait ParsedownGravTrait
      */
     public function addInlineType($type, $tag)
     {
-        $this->InlineTypes[$type] []= $tag;
+        $this->InlineTypes[$type] [] = $tag;
         $this->inlineMarkerList .= $type;
     }
 
@@ -87,11 +94,13 @@ trait ParsedownGravTrait
      * Overrides the default behavior to allow for plugin-provided blocks to be continuable
      *
      * @param $Type
+     *
      * @return bool
      */
     protected function isBlockContinuable($Type)
     {
-        $continuable = in_array($Type, $this->continuable_blocks) || method_exists($this, 'block'.$Type.'Continue');
+        $continuable = in_array($Type, $this->continuable_blocks) || method_exists($this, 'block' . $Type . 'Continue');
+
         return $continuable;
     }
 
@@ -99,11 +108,13 @@ trait ParsedownGravTrait
      *  Overrides the default behavior to allow for plugin-provided blocks to be completable
      *
      * @param $Type
+     *
      * @return bool
      */
     protected function isBlockCompletable($Type)
     {
-        $completable = in_array($Type, $this->completable_blocks) || method_exists($this, 'block'.$Type.'Complete');
+        $completable = in_array($Type, $this->completable_blocks) || method_exists($this, 'block' . $Type . 'Complete');
+
         return $completable;
     }
 
@@ -111,7 +122,8 @@ trait ParsedownGravTrait
     /**
      * Make the element function publicly accessible, Medium uses this to render from Twig
      *
-     * @param  array  $Element
+     * @param  array $Element
+     *
      * @return string markup
      */
     public function elementToHtml(array $Element)
@@ -139,37 +151,28 @@ trait ParsedownGravTrait
     protected function blockTwigTag($Line)
     {
         if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', $Line['body'], $matches)) {
-            $Block = array(
+            $Block = [
                 'markup' => $Line['body'],
-            );
-            return $Block;
-        }
-    }
+            ];
 
-    protected function blockShortcodeTag($Line)
-    {
-        if (preg_match('/^(?:\[)(.*)(?:\])$/', $Line['body'], $matches)) {
-            $Block = array(
-                'markup' => $Line['body'],
-            );
             return $Block;
         }
     }
 
     protected function inlineSpecialCharacter($Excerpt)
     {
-        if ($Excerpt['text'][0] === '&' && ! preg_match('/^&#?\w+;/', $Excerpt['text'])) {
-            return array(
+        if ($Excerpt['text'][0] === '&' && !preg_match('/^&#?\w+;/', $Excerpt['text'])) {
+            return [
                 'markup' => '&amp;',
                 'extent' => 1,
-            );
+            ];
         }
 
         if (isset($this->special_chars[$Excerpt['text'][0]])) {
-            return array(
-                'markup' => '&'.$this->special_chars[$Excerpt['text'][0]].';',
+            return [
+                'markup' => '&' . $this->special_chars[$Excerpt['text'][0]] . ';',
                 'extent' => 1,
-            );
+            ];
         }
     }
 
@@ -180,6 +183,7 @@ trait ParsedownGravTrait
             $excerpt = parent::inlineImage($excerpt);
             $excerpt['element']['attributes']['src'] = $matches[1];
             $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+
             return $excerpt;
         } else {
             $excerpt['type'] = 'image';
@@ -187,7 +191,7 @@ trait ParsedownGravTrait
         }
 
         // Some stuff we will need
-        $actions = array();
+        $actions = [];
         $media = null;
 
         // if this is an image
@@ -229,7 +233,7 @@ trait ParsedownGravTrait
                         $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
                             $parts = explode('=', $item, 2);
                             $value = isset($parts[1]) ? $parts[1] : null;
-                            $carry[] = [ 'method' => $parts[0], 'params' => $value ];
+                            $carry[] = ['method' => $parts[0], 'params' => $value];
 
                             return $carry;
                         }, []);
@@ -237,7 +241,8 @@ trait ParsedownGravTrait
 
                     // loop through actions for the image and call them
                     foreach ($actions as $action) {
-                        $medium = call_user_func_array(array($medium, $action['method']), explode(',', urldecode($action['params'])));
+                        $medium = call_user_func_array([$medium, $action['method']],
+                            explode(',', urldecode($action['params'])));
                     }
 
                     if (isset($url['fragment'])) {
@@ -270,6 +275,7 @@ trait ParsedownGravTrait
             $excerpt = parent::inlineLink($excerpt);
             $excerpt['element']['attributes']['href'] = $matches[1];
             $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+
             return $excerpt;
         } else {
             $excerpt = parent::inlineLink($excerpt);
@@ -312,7 +318,7 @@ trait ParsedownGravTrait
                 }
 
 
-                $url['query']= http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+                $url['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
             }
 
             // if no query elements left, unset query
@@ -320,63 +326,15 @@ trait ParsedownGravTrait
                 unset ($url['query']);
             }
 
-            // set path to / if not set
-            if (empty($url['path'])) {
-                $url['path'] = '/';
-            }
-
             // if there is no scheme, the file is local and we'll need to convert that URL
             if (!isset($url['scheme']) && (count($url) > 0)) {
-                $url['path'] = Uri::convertUrl($this->page, $url['path'], $type, true);
+                $excerpt['element']['attributes']['href'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type,
+                    true);
+            } elseif (in_array($url['scheme'], $this->special_protocols)) {
+                return $excerpt;
+            } else {
+                $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
             }
-
-            // if absolute urls enabled, add them
-            if (self::getGrav()['config']->get('system.absolute_urls', false)) {
-                $uri = self::getGrav()['uri'];
-                $url['scheme'] = str_replace('://', '', $uri->scheme());
-                $url['host'] = $uri->host();
-
-                if ($uri->port() != 80 && $uri->port() != 443) {
-                    $url['port'] = $uri->port();
-                }
-
-                // check if page exists for this route, and if so, check if it has SSL enabled
-                $pages = self::getGrav()['pages'];
-                $routes = $pages->routes();
-
-                // if this is an image, get the proper path
-                $url_bits = pathinfo($url['path']);
-                if (isset($url_bits['extension'])) {
-                    $target_path = $url_bits['dirname'];
-                } else {
-                    $target_path = $url['path'];
-                }
-
-                // strip base from this path
-                $target_path = str_replace($uri->rootUrl(), '', $target_path);
-
-                // set to / if root
-                if (empty($target_path)) {
-                    $target_path = '/';
-                }
-
-                // look to see if this page exists and has ssl enabled
-                if (isset($routes[$target_path])) {
-                    $target_page = $pages->get($routes[$target_path]);
-                    if ($target_page) {
-                        $ssl_enabled = $target_page->ssl();
-                        if (isset($ssl_enabled)) {
-                            if ($ssl_enabled) {
-                                $url['scheme'] = 'https';
-                            } else {
-                                $url['scheme'] = 'http';
-                            }
-                        }
-                    }
-                }
-            }
-
-            $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
         }
 
         return $excerpt;
@@ -387,6 +345,7 @@ trait ParsedownGravTrait
     {
         if (isset($this->$method) === true) {
             $func = $this->$method;
+
             return call_user_func_array($func, $args);
         }
     }

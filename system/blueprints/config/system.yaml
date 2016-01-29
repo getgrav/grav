@@ -848,6 +848,13 @@ form:
             underline: true
 
             fields:
+                proxy_url:
+                    type: text
+                    size: medium
+                    placeholder: "e.g. 127.0.0.1:3128"
+                    label: PLUGIN_ADMIN.PROXY_URL
+                    help: PLUGIN_ADMIN.PROXY_URL_HELP
+
                 reverse_proxy_setup:
                     type: toggle
                     label: PLUGIN_ADMIN.REVERSE_PROXY

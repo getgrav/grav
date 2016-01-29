@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common;
 
-use \Doctrine\Common\Cache\Cache as DoctrineCache;
+use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 
@@ -16,7 +16,7 @@ use Grav\Common\Filesystem\Folder;
  * MemCacheD
  * FileSystem
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Cache extends Getters
@@ -31,10 +31,11 @@ class Cache extends Getters
     protected $lifetime;
     protected $now;
 
+    /** @var Config $config */
     protected $config;
 
     /**
-     * @var DoctrineCache
+     * @var DoctrineCache\CacheProvider
      */
     protected $driver;
 
@@ -79,7 +80,7 @@ class Cache extends Getters
     /**
      * Constructor
      *
-     * @params Grav $grav
+     * @param Grav $grav
      */
     public function __construct(Grav $grav)
     {
@@ -90,6 +91,7 @@ class Cache extends Getters
      * Initialization that sets a base key and the driver based on configuration settings
      *
      * @param  Grav $grav
+     *
      * @return void
      */
     public function init(Grav $grav)
@@ -105,10 +107,11 @@ class Cache extends Getters
 
         $prefix = $this->config->get('system.cache.prefix');
 
-        $this->enabled = (bool) $this->config->get('system.cache.enabled');
+        $this->enabled = (bool)$this->config->get('system.cache.enabled');
 
         // Cache key allows us to invalidate all cache on configuration changes.
-        $this->key = ($prefix ? $prefix : 'g') . '-' . substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION), 2, 8);
+        $this->key = ($prefix ? $prefix : 'g') . '-' . substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION),
+                2, 8);
 
         $this->driver_setting = $this->config->get('system.cache.driver');
 
@@ -127,7 +130,7 @@ class Cache extends Getters
      * If there is no config option for $driver in the config, or it's set to 'auto', it will
      * pick the best option based on which cache extensions are installed.
      *
-     * @return DoctrineCacheDriver  The cache driver to use
+     * @return DoctrineCache\CacheProvider  The cache driver to use
      */
     public function getCacheDriver()
     {
@@ -152,40 +155,40 @@ class Cache extends Getters
 
         switch ($driver_name) {
             case 'apc':
-                $driver = new \Doctrine\Common\Cache\ApcCache();
+                $driver = new DoctrineCache\ApcCache();
                 break;
 
             case 'apcu':
-                $driver = new \Doctrine\Common\Cache\ApcuCache();
+                $driver = new DoctrineCache\ApcuCache();
                 break;
 
             case 'wincache':
-                $driver = new \Doctrine\Common\Cache\WinCacheCache();
+                $driver = new DoctrineCache\WinCacheCache();
                 break;
 
             case 'xcache':
-                $driver = new \Doctrine\Common\Cache\XcacheCache();
+                $driver = new DoctrineCache\XcacheCache();
                 break;
 
             case 'memcache':
                 $memcache = new \Memcache();
-                $memcache->connect($this->config->get('system.cache.memcache.server','localhost'),
-                                   $this->config->get('system.cache.memcache.port', 11211));
-                $driver = new \Doctrine\Common\Cache\MemcacheCache();
+                $memcache->connect($this->config->get('system.cache.memcache.server', 'localhost'),
+                    $this->config->get('system.cache.memcache.port', 11211));
+                $driver = new DoctrineCache\MemcacheCache();
                 $driver->setMemcache($memcache);
                 break;
 
             case 'redis':
                 $redis = new \Redis();
-                $redis->connect($this->config->get('system.cache.redis.server','localhost'),
-                                $this->config->get('system.cache.redis.port', 6379));
+                $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
+                    $this->config->get('system.cache.redis.port', 6379));
 
-                $driver = new \Doctrine\Common\Cache\RedisCache();
+                $driver = new DoctrineCache\RedisCache();
                 $driver->setRedis($redis);
                 break;
 
             default:
-                $driver = new \Doctrine\Common\Cache\FilesystemCache($this->cache_dir);
+                $driver = new DoctrineCache\FilesystemCache($this->cache_dir);
                 break;
         }
 
@@ -196,6 +199,7 @@ class Cache extends Getters
      * Gets a cached entry if it exists based on an id. If it does not exist, it returns false
      *
      * @param  string $id the id of the cached entry
+     *
      * @return object     returns the cached entry, can be any type, or false if doesn't exist
      */
     public function fetch($id)
@@ -210,9 +214,9 @@ class Cache extends Getters
     /**
      * Stores a new cached entry.
      *
-     * @param  string $id       the id of the cached entry
+     * @param  string       $id       the id of the cached entry
      * @param  array|object $data     the data for the cached entry to store
-     * @param  int $lifetime    the lifetime to store the entry in seconds
+     * @param  int          $lifetime the lifetime to store the entry in seconds
      */
     public function save($id, $data, $lifetime = null)
     {
@@ -235,7 +239,7 @@ class Cache extends Getters
     /**
      * Helper method to clear all Grav caches
      *
-     * @param string $remove    standard|all|assets-only|images-only|cache-only
+     * @param string $remove standard|all|assets-only|images-only|cache-only
      *
      * @return array
      */
@@ -245,7 +249,7 @@ class Cache extends Getters
         $output = [];
         $user_config = USER_DIR . 'config/system.yaml';
 
-        switch($remove) {
+        switch ($remove) {
             case 'all':
                 $remove_paths = self::$all_remove;
                 break;
@@ -268,8 +272,9 @@ class Cache extends Getters
             // Convert stream to a real path
             $path = $locator->findResource($stream, true, true);
             // Make sure path exists before proceeding, otherwise we would wipe ROOT_DIR
-            if (!$path)
+            if (!$path) {
                 throw new \RuntimeException("Stream '{$stream}' not found", 500);
+            }
 
             $anything = false;
             $files = glob($path . '/*');
