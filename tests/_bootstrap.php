@@ -6,6 +6,8 @@ namespace Grav;
 use Codeception\Util\Fixtures;
 use Faker\Factory;
 
+ini_set('error_log', __DIR__ . '/error.log');
+
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/../vendor/autoload.php';
 
