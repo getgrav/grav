@@ -46,7 +46,7 @@ before_install:
   - echo "Travis Date - `date`"
   - git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;
   - if [ ! -z "$TRAVIS_TAG" ]; then
-      cd "${RT_DEVTOOLS}";
+      cd ${RT_DEVTOOLS};
       ./build-grav.sh skeletons.txt;
     fi
 script:
