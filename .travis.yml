@@ -1,7 +1,12 @@
 language: php
-php: 5.6
+php:
+  - '5.5'
+  - '5.6'
+  - '7.0'
+  - hhvm
 branches:
   only:
+    - develop
     - master
     - build_test
 notifications:
@@ -42,15 +47,22 @@ env:
 before_install:
   - export TZ=Pacific/Honolulu
   - composer self-update
-  - go get github.com/aktau/github-release
-  - echo "Travis Date - `date`"
-  - git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;
-  - if [ ! -z "$TRAVIS_TAG" ]; then
-      cd ${RT_DEVTOOLS};
-      ./build-grav.sh skeletons.txt;
+  - if [ $TRAVIS_BRANCH == 'develop' ]; then
+        composer install --dev --prefer-dist;
+    fi
+  - if [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == '5.6' ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+        go get github.com/aktau/github-release;
+        git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;
+        if [ ! -z "$TRAVIS_TAG" ]; then
+            cd ${RT_DEVTOOLS};
+            ./build-grav.sh skeletons.txt;
+        fi;
     fi
 script:
-  - if [ ! -z "$TRAVIS_TAG" ]; then
+  - if [ $TRAVIS_BRANCH == 'develop' ]; then
+        vendor/bin/codecept run;
+    fi
+  - if [ ! -z "$TRAVIS_TAG" ] && [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == '5.6' ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
       FILES="$RT_DEVTOOLS/grav-dist/*.zip";
       for file in ${FILES[@]}; do
         NAME=${file##*/};
