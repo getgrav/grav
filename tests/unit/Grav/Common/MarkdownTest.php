@@ -7,10 +7,6 @@ use Codeception\Util\Fixtures;
  */
 class MarkdownTest extends \Codeception\TestCase\Test
 {
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
     protected $parsedown;
 
     protected function _before()

@@ -5,23 +5,13 @@ use Grav\Common\Utils;
 
 class UtilsTest extends \Codeception\TestCase\Test
 {
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
-
     protected function _before()
     {
+        $this->grav = Fixtures::get('grav');
     }
 
     protected function _after()
     {
-    }
-
-    public function grav()
-    {
-        $grav = Fixtures::get('grav');
-        return $grav;
     }
 
     public function testStartsWith()
@@ -84,12 +74,11 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testDateFormats()
     {
-        $grav = $this->grav();
         $dateFormats = Utils::dateFormats();
         $this->assertTrue(is_array($dateFormats));
         $this->assertContainsOnly('string', $dateFormats);
 
-        $default_format = $grav['config']->get('system.pages.dateformat.default');
+        $default_format = $this->grav['config']->get('system.pages.dateformat.default');
 
         if ($default_format !== null) {
             $this->assertTrue(isset($dateFormats[$default_format]));
@@ -193,7 +182,7 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testPathPrefixedByLangCode()
     {
-        $languagesEnabled = $this->grav()['config']->get('system.languages.supported', []);
+        $languagesEnabled = $this->grav['config']->get('system.languages.supported', []);
         $arrayOfLanguages = ['en', 'de', 'it', 'es', 'dk', 'el'];
         $languagesNotEnabled = array_diff($arrayOfLanguages, $languagesEnabled);
         $oneLanguageNotEnabled = reset($languagesNotEnabled);
