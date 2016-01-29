@@ -1248,7 +1248,6 @@ class Page
                         $prop_key                  = $key . ":" . $property;
                         $this->metadata[$prop_key] = ['name' => $prop_key, 'property' => $prop_key, 'content' => htmlspecialchars($prop_value, ENT_QUOTES)];
                     }
-                    // If it this is a standard meta data type
                 } else {
                     // If it this is a standard meta data type
                     if ($value) {
@@ -1256,7 +1255,8 @@ class Page
                             $this->metadata[$key] = ['http_equiv' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
                         } else {
                             // if it's a social metadata with separator, render as property
-                            $hasSeparator = strpos($key, ':') && $separator < strlen($key) - 1;
+                            $separator    = strpos($key, ':');
+                            $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry        = ['name' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
 
                             if ($hasSeparator) {
