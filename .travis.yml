@@ -58,6 +58,8 @@ before_install:
             ./build-grav.sh skeletons.txt;
         fi;
     fi
+before_script:
+    - phpenv config-rm xdebug.ini
 script:
   - if [ $TRAVIS_BRANCH == 'develop' ]; then
         vendor/bin/codecept run;
