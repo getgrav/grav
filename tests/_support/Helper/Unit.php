@@ -6,5 +6,8 @@ namespace Helper;
 
 class Unit extends \Codeception\Module
 {
-
+    public function _afterSuite()
+    {
+        // Tear down after test suite
+    }
 }
