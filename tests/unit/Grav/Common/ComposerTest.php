@@ -5,11 +5,6 @@ use Grav\Common\Composer;
 
 class ComposerTest extends \Codeception\TestCase\Test
 {
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
-
     protected function _before()
     {
     }

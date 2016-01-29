@@ -101,6 +101,8 @@ class Page
 
     /**
      * Page Object Constructor
+     *
+     * @return $this
      */
     public function __construct()
     {
@@ -110,6 +112,8 @@ class Page
         $this->taxonomy = [];
         $this->process = $config->get('system.pages.process');
         $this->published = true;
+
+        return $this;
     }
 
     /**
@@ -117,6 +121,8 @@ class Page
      *
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
      * @param  string       $extension
+     *
+     * @return $this
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
@@ -148,6 +154,8 @@ class Page
         // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
         $this->language($language);
+
+        return $this;
     }
 
     /**
@@ -1247,28 +1255,31 @@ class Page
             // Build an array of meta objects..
             foreach ((array)$metadata as $key => $value) {
                 // If this is a property type metadata: "og", "twitter", "facebook" etc
+                // Backward compatibility for nested arrays in metas
                 if (is_array($value)) {
                     foreach ($value as $property => $prop_value) {
-                        $prop_key = $key . ":" . $property;
-                        $this->metadata[$prop_key] = [
-                            'property' => $prop_key,
-                            'content'  => htmlspecialchars($prop_value, ENT_QUOTES)
-                        ];
+                        $prop_key                  = $key . ":" . $property;
+                        $this->metadata[$prop_key] = ['name' => $prop_key, 'property' => $prop_key, 'content' => htmlspecialchars($prop_value, ENT_QUOTES)];
                     }
-                    // If it this is a standard meta data type
                 } else {
+                    // If it this is a standard meta data type
                     if ($value) {
                         if (in_array($key, $header_tag_http_equivs)) {
-                            $this->metadata[$key] = [
-                                'http_equiv' => $key,
-                                'content'    => htmlspecialchars($value, ENT_QUOTES)
-                            ];
+                            $this->metadata[$key] = ['http_equiv' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
                         } else {
-                            $this->metadata[$key] = ['name' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
+                            // if it's a social metadata with separator, render as property
+                            $separator    = strpos($key, ':');
+                            $hasSeparator = $separator && $separator < strlen($key) - 1;
+                            $entry        = ['name' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
+
+                            if ($hasSeparator) {
+                                $entry['property'] = $key;
+                            }
+
+                            $this->metadata[$key] = $entry;
                         }
                     }
                 }
-
             }
         }
 
