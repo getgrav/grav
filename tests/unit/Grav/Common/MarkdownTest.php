@@ -33,7 +33,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->pages->init();
 
         unset($this->grav['pages']);
-
         $this->grav['pages'] = $this->pages;
 
         $defaults = [
@@ -98,7 +97,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
             '<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>');
     }
 
-    public function testMarkdownSpecialProtocols()
+    public function testSpecialProtocols()
     {
         $this->assertSame($this->parsedown->text('[mailto](mailto:user@domain.com)'),
             '<p><a href="mailto:user@domain.com">mailto</a></p>');
@@ -110,7 +109,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
             '<p><a href="sms:123-555-12345">sms</a></p>');
     }
 
-    public function testMarkdownReferenceLinks()
+    public function testReferenceLinks()
     {
         $sample = '[relative link][r_relative]
                    [r_relative]: ../item2-3#blah';
@@ -126,7 +125,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->assertSame($this->parsedown->text($sample), '<p><a href="http://www.cnn.com">external link</a></p>');
     }
 
-    public function testMarkdownExternalLinks()
+    public function testExternalLinks()
     {
         $this->assertSame($this->parsedown->text('[cnn.com](http://www.cnn.com)'),
             '<p><a href="http://www.cnn.com">cnn.com</a></p>');
