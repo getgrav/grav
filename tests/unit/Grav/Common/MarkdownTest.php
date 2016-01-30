@@ -61,8 +61,23 @@ class MarkdownTest extends \Codeception\TestCase\Test
         return preg_replace('/^\s*(.*)/', '', $string);
     }
 
+    public function testAnchorLinks()
+    {
+        $this->assertSame($this->parsedown->text('[Peer Anchor](../item2-1#foo)'),
+            '<p><a href="/item2/item2-1#foo">Peer Anchor</a></p>');
+        $this->assertSame($this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'),
+            '<p><a href="/item2/item2-1/#foo">Peer Anchor 2</a></p>');
+//        $this->assertSame($this->parsedown->text('[Current Anchor](#foo)'),
+//            '<p><a href="#foo">Current Anchor</a></p>');
+        $this->assertSame($this->parsedown->text('[Root Anchor](/#foo)'),
+            '<p><a href="/#foo">Root Anchor</a></p>');
+
+    }
+
     public function testSlugRelativeLinks()
     {
+        $this->assertSame($this->parsedown->text('[Peer Page](../item2-1)'),
+            '<p><a href="/item2/item2-1">Peer Page</a></p>');
         $this->assertSame($this->parsedown->text('[Down a Level](item2-2-1)'),
             '<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>');
         $this->assertSame($this->parsedown->text('[Up a Level](..)'),
@@ -83,6 +98,8 @@ class MarkdownTest extends \Codeception\TestCase\Test
 
     public function testDirectoryRelativeLinks()
     {
+        $this->assertSame($this->parsedown->text('[Peer Page](../01.item2-1)'),
+            '<p><a href="/item2/item2-1">Peer Page</a></p>');
         $this->assertSame($this->parsedown->text('[Down a Level](01.item2-2-1)'),
             '<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>');
         $this->assertSame($this->parsedown->text('[Up and Down](../../03.item3/03.item3-3)'),
@@ -95,6 +112,22 @@ class MarkdownTest extends \Codeception\TestCase\Test
 //            '<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>');
         $this->assertSame($this->parsedown->text('[Up and Down with Anchor](../../03.item3/03.item3-3#foo)'),
             '<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>');
+    }
+
+    public function testDirectoryAbsoluteLinks()
+    {
+        $this->assertSame($this->parsedown->text('[Peer Page](/item2/item2-1)'),
+            '<p><a href="/item2/item2-1">Peer Page</a></p>');
+        $this->assertSame($this->parsedown->text('[Down a Level](/item2/item2-2/item2-2-1)'),
+            '<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>');
+        $this->assertSame($this->parsedown->text('[Up a Level](/item2)'),
+            '<p><a href="/item2">Up a Level</a></p>');
+        $this->assertSame($this->parsedown->text('[With Query](/item2?foo=bar)'),
+            '<p><a href="/item2?foo=bar">With Query</a></p>');
+        $this->assertSame($this->parsedown->text('[With Param](/item2/foo:bar)'),
+            '<p><a href="/item2/foo:bar">With Param</a></p>');
+        $this->assertSame($this->parsedown->text('[With Anchor](/item2#foo)'),
+            '<p><a href="/item2#foo">With Anchor</a></p>');
     }
 
     public function testSpecialProtocols()
