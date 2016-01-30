@@ -32,9 +32,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
         $this->pages->init();
 
-        unset($this->grav['pages']);
-        $this->grav['pages'] = $this->pages;
-
         $defaults = [
             'extra'            => false,
             'auto_line_breaks' => false,
