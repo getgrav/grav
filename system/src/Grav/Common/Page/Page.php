@@ -87,6 +87,7 @@ class Page
     protected $last_modified;
     protected $home_route;
     protected $hide_home_route;
+    protected $ssl;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -383,6 +384,9 @@ class Page
             }
             if (isset($this->header->last_modified)) {
                 $this->last_modified = (bool)$this->header->last_modified;
+            }
+            if (isset($this->header->ssl)) {
+                $this->ssl = (bool) $this->header->ssl;
             }
         }
 
@@ -1190,6 +1194,15 @@ class Page
         return $this->routable && $this->published();
     }
 
+    public function ssl($var = null)
+    {
+        if ($var !== null) {
+            $this->ssl = (bool) $var;
+        }
+
+        return $this->ssl;
+    }
+
     /**
      * Gets and Sets the process setup for this Page. This is multi-dimensional array that consists of
      * a simple array of arrays with the form array("markdown"=>true) for example
@@ -1347,8 +1360,16 @@ class Page
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
 
+        /** @var Config $config */
+        $config = self::getGrav()['config'];
+
         /** @var Language $language */
         $language = self::getGrav()['language'];
+
+        /** @var Uri $uri */
+        $uri = self::getGrav()['uri'];
+
+        $include_port = false;
 
         // get pre-route
         if ($include_lang && $language->enabled()) {
@@ -1357,15 +1378,17 @@ class Page
             $pre_route = '';
         }
 
+        // add full route if configured to do so
+        if ($config->get('system.absolute_urls', false)) {
+            $include_host = true;
+        }
+
         // get canonical route if requested
         if ($canonical) {
             $route = $pre_route . $this->routeCanonical();
         } else {
             $route = $pre_route . $this->route();
         }
-
-        /** @var Uri $uri */
-        $uri = self::getGrav()['uri'];
 
         $rootUrl = $uri->rootUrl($include_host) . $pages->base();
 
