@@ -372,6 +372,8 @@ class Pages
 
         dump(array_keys($this->instances));
         dump(rtrim($locator->findResource('page://'), DS));
+
+        dump($locator->getPaths('page'));
         exit();
 
         return $this->instances[rtrim($locator->findResource('page://'), DS)];
