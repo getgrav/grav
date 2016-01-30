@@ -343,6 +343,10 @@ trait ParsedownGravTrait
                 $url['path'] = Uri::convertUrl($this->page, $url['path'], $type, true);
             }
 
+            // URL path already has these now so remove them
+            unset($url['query']);
+            unset($url['fragment']);
+
             // if absolute urls enabled, add them
             if (self::getGrav()['config']->get('system.absolute_urls', false)) {
                 $uri = self::getGrav()['uri'];

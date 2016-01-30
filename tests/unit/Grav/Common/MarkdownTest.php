@@ -2,6 +2,10 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Common\Page\Pages;
+use Grav\Common\Page\Page;
+use Grav\Common\Markdown\Parsedown;
+
 
 /**
  * Class AssetsTest
@@ -14,9 +18,23 @@ class MarkdownTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
+    /** @var Pages $pages */
+    protected $pages;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
+
+        $this->pages = $this->grav['pages'];
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
+        $this->pages->init();
+
+        unset($this->grav['pages']);
+
+        $this->grav['pages'] = $this->pages;
 
         $defaults = [
             'extra'            => false,
@@ -25,7 +43,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
             'escape_markup'    => false,
             'special_chars'    => ['>' => 'gt', '<' => 'lt'],
         ];
-        $page = new \Grav\Common\Page\Page();
+        $page = $this->pages->dispatch('/item2/item2-2');
 
         $this->parsedown = new Parsedown($page, $defaults);
     }
@@ -44,6 +62,26 @@ class MarkdownTest extends \Codeception\TestCase\Test
         return preg_replace('/^\s*(.*)/', '', $string);
     }
 
+    public function testDirectoryRelativeLinks()
+    {
+        $this->assertSame($this->parsedown->text('[Down a Level](item2-2-1)'),
+            '<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>');
+        $this->assertSame($this->parsedown->text('[Up a Level](..)'),
+            '<p><a href="/item2">Up a Level</a></p>');
+        $this->assertSame($this->parsedown->text('[Up and Down](../../item3/item3-3)'),
+            '<p><a href="/item3/item3-3">Up and Down</a></p>');
+        $this->assertSame($this->parsedown->text('[Down a Level with Query](item2-2-1?foo=bar)'),
+            '<p><a href="/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>');
+//        $this->assertSame($this->parsedown->text('[Up a Level with Query](../?foo=bar)'),
+//            '<p><a href="/item2?foo=bar">Up a Level with Query</a></p>');
+        $this->assertSame($this->parsedown->text('[Up and Down with Query](../../item3/item3-3?foo=bar)'),
+        '<p><a href="/item3/item3-3?foo=bar">Up and Down with Query</a></p>');
+        $this->assertSame($this->parsedown->text('[Up and Down with Param](../../item3/item3-3/foo:bar)'),
+            '<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>');
+        $this->assertSame($this->parsedown->text('[Up and Down with Anchor](../../item3/item3-3#foo)'),
+            '<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>');
+    }
+
     public function testMarkdownSpecialProtocols()
     {
         $this->assertSame($this->parsedown->text('[mailto](mailto:user@domain.com)'),
@@ -59,13 +97,13 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testMarkdownReferenceLinks()
     {
         $sample = '[relative link][r_relative]
-                   [r_relative]: ../03.assets#blah';
-        $this->assertSame($this->parsedown->text($sample), '<p><a href="../03.assets#blah">relative link</a></p>');
+                   [r_relative]: ../item2-3#blah';
+        $this->assertSame($this->parsedown->text($sample), '<p><a href="/item2/item2-3#blah">relative link</a></p>');
 
         $sample = '[absolute link][r_absolute]
-                   [r_absolute]: /blog/focus-and-blur#blah';
+                   [r_absolute]: /item3#blah';
         $this->assertSame($this->parsedown->text($sample),
-            '<p><a href="/blog/focus-and-blur#blah">absolute link</a></p>');
+            '<p><a href="/item3#blah">absolute link</a></p>');
 
         $sample = '[external link][r_external]
                    [r_external]: http://www.cnn.com';
