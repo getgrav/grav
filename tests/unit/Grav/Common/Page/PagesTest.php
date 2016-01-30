@@ -30,12 +30,14 @@ class PagesTest extends \Codeception\TestCase\Test
         $locator = $this->grav['locator'];
         $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
         $this->pages->init();
-        dump($this->pages->all()->toArray()); exit();
-
     }
 
     public function testAll()
     {
+        $locator = $this->grav['locator'];
+        $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
+        $this->pages->init();
+
         $this->assertTrue(is_object($this->pages->all()));
         $this->assertTrue(is_array($this->pages->all()->toArray()));
         $this->assertInstanceOf('Grav\Common\Page\Page', $this->pages->all()->first());
