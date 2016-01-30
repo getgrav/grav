@@ -62,7 +62,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
         return preg_replace('/^\s*(.*)/', '', $string);
     }
 
-    public function testDirectoryRelativeLinks()
+    public function testSlugRelativeLinks()
     {
         $this->assertSame($this->parsedown->text('[Down a Level](item2-2-1)'),
             '<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>');
@@ -79,6 +79,22 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->assertSame($this->parsedown->text('[Up and Down with Param](../../item3/item3-3/foo:bar)'),
             '<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>');
         $this->assertSame($this->parsedown->text('[Up and Down with Anchor](../../item3/item3-3#foo)'),
+            '<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>');
+    }
+
+    public function testDirectoryRelativeLinks()
+    {
+        $this->assertSame($this->parsedown->text('[Down a Level](01.item2-2-1)'),
+            '<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>');
+        $this->assertSame($this->parsedown->text('[Up and Down](../../03.item3/03.item3-3)'),
+            '<p><a href="/item3/item3-3">Up and Down</a></p>');
+        $this->assertSame($this->parsedown->text('[Down a Level with Query](01.item2-2-1?foo=bar)'),
+            '<p><a href="/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>');
+        $this->assertSame($this->parsedown->text('[Up and Down with Query](../../03.item3/03.item3-3?foo=bar)'),
+            '<p><a href="/item3/item3-3?foo=bar">Up and Down with Query</a></p>');
+//        $this->assertSame($this->parsedown->text('[Up and Down with Param](../../03.item3/03.item3-3/foo:bar)'),
+//            '<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>');
+        $this->assertSame($this->parsedown->text('[Up and Down with Anchor](../../03.item3/03.item3-3#foo)'),
             '<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>');
     }
 
