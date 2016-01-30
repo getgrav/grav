@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a779e113a6d1bc09fff7a0a27ec8251e",
-    "content-hash": "335b1c5c62ea10a4df7d085816a50f91",
+    "hash": "e04c9aa74d3cb8cbfc3e4e7213caf0c8",
+    "content-hash": "ebb50288b4a646c7c093bf9e4a418c0b",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -273,6 +273,47 @@
             "time": "2016-01-06 17:51:21"
         },
         {
+            "name": "flaviocopes/toolbox",
+            "version": "dev-develop",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/flaviocopes/toolbox",
+                "reference": "e2d1a4efdf5e8a8c0304993c70853e6c136774c0"
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "pimple/pimple": "~3.0",
+                "symfony/event-dispatcher": "~2.5",
+                "symfony/yaml": "~2.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.0.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "RocketTheme\\Toolbox\\ArrayTraits\\": "ArrayTraits/src",
+                    "RocketTheme\\Toolbox\\Blueprints\\": "Blueprints/src",
+                    "RocketTheme\\Toolbox\\DI\\": "DI/src",
+                    "RocketTheme\\Toolbox\\Event\\": "Event/src",
+                    "RocketTheme\\Toolbox\\File\\": "File/src",
+                    "RocketTheme\\Toolbox\\ResourceLocator\\": "ResourceLocator/src",
+                    "RocketTheme\\Toolbox\\Session\\": "Session/src",
+                    "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "RocketTheme Toolbox Library",
+            "homepage": "http://www.rockettheme.com",
+            "keywords": [
+                "php",
+                "rockettheme"
+            ],
+            "time": "2016-01-30 18:52:22"
+        },
+        {
             "name": "gregwar/cache",
             "version": "v1.0.10",
             "target-dir": "Gregwar/Cache",
@@ -362,48 +403,6 @@
                 "image"
             ],
             "time": "2015-05-30 19:24:37"
-        },
-        {
-            "name": "ircmaxell/password-compat",
-            "version": "v1.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ircmaxell/password_compat.git",
-                "reference": "5c5cde8822a69545767f7c7f3058cb15ff84614c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ircmaxell/password_compat/zipball/5c5cde8822a69545767f7c7f3058cb15ff84614c",
-                "reference": "5c5cde8822a69545767f7c7f3058cb15ff84614c",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.*"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "lib/password.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Anthony Ferrara",
-                    "email": "ircmaxell@php.net",
-                    "homepage": "http://blog.ircmaxell.com"
-                }
-            ],
-            "description": "A compatibility library for the proposed simplified password hashing algorithm: https://wiki.php.net/rfc/password_hash",
-            "homepage": "https://github.com/ircmaxell/password_compat",
-            "keywords": [
-                "hashing",
-                "password"
-            ],
-            "time": "2014-11-20 16:49:30"
         },
         {
             "name": "maximebf/debugbar",
@@ -671,55 +670,6 @@
                 "psr-3"
             ],
             "time": "2012-12-21 11:40:51"
-        },
-        {
-            "name": "rockettheme/toolbox",
-            "version": "1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "0c7a3b4b6e4d73be8512e89f7acde6899334b7f2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/0c7a3b4b6e4d73be8512e89f7acde6899334b7f2",
-                "reference": "0c7a3b4b6e4d73be8512e89f7acde6899334b7f2",
-                "shasum": ""
-            },
-            "require": {
-                "ircmaxell/password-compat": "1.0.*",
-                "php": ">=5.4.0",
-                "pimple/pimple": "~3.0",
-                "symfony/event-dispatcher": "~2.5",
-                "symfony/yaml": "~2.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.0.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "RocketTheme\\Toolbox\\ArrayTraits\\": "ArrayTraits/src",
-                    "RocketTheme\\Toolbox\\Blueprints\\": "Blueprints/src",
-                    "RocketTheme\\Toolbox\\DI\\": "DI/src",
-                    "RocketTheme\\Toolbox\\Event\\": "Event/src",
-                    "RocketTheme\\Toolbox\\File\\": "File/src",
-                    "RocketTheme\\Toolbox\\ResourceLocator\\": "ResourceLocator/src",
-                    "RocketTheme\\Toolbox\\Session\\": "Session/src",
-                    "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "RocketTheme Toolbox Library",
-            "homepage": "http://www.rockettheme.com",
-            "keywords": [
-                "php",
-                "rockettheme"
-            ],
-            "time": "2015-11-24 17:04:24"
         },
         {
             "name": "symfony/console",
@@ -2649,7 +2599,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "flaviocopes/toolbox": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -21,7 +21,7 @@
         "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
-        "rockettheme/toolbox": "~1.2",
+        "flaviocopes/toolbox": "dev-develop",
         "maximebf/debugbar": "~1.10",
         "ext-mbstring": "*",
         "ext-openssl": "*",
@@ -35,6 +35,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/getgrav/parsedown"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/flaviocopes/toolbox"
         }
     ],
     "autoload": {

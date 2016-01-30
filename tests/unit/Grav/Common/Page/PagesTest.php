@@ -35,6 +35,7 @@ class PagesTest extends \Codeception\TestCase\Test
     public function testAll()
     {
         $locator = $this->grav['locator'];
+        $locator->resetScheme('page');
         $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
         $this->pages->init();
 
