@@ -35,10 +35,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/getgrav/parsedown"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/flaviocopes/toolbox"
         }
     ],
     "autoload": {
