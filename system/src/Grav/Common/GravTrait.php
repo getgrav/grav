@@ -22,14 +22,6 @@ trait GravTrait
             self::$grav = Grav::instance();
         }
 
-        return self::$grav;
-    }
-
-    /**
-     * @param Grav $grav
-     */
-    public static function setGrav(Grav $grav)
-    {
-        self::$grav = $grav;
+        return Grav::instance();
     }
 }
