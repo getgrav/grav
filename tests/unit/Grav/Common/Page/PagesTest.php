@@ -1,7 +1,6 @@
 <?php
 
 use Codeception\Util\Fixtures;
-use Codeception\Util\Stub;
 use Grav\Common\Grav;
 use Grav\Common\Page\Pages;
 use Grav\Common\Page\Page;
@@ -23,23 +22,16 @@ class PagesTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->pages = $this->grav['pages'];
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
+        $newPagesLocation = 'tests/fake/simple-site/user/pages/';
+        $this->grav['pages']->setPagesLocation($newPagesLocation);
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-        $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
-        $this->pages->init();
+        $this->pages = $this->grav['pages'];
     }
 
     public function testAll()
     {
-        $locator = $this->grav['locator'];
-        $locator->resetScheme('page');
-        $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
-        $this->pages->init();
-
         $this->assertTrue(is_object($this->pages->all()));
         $this->assertTrue(is_array($this->pages->all()->toArray()));
         $this->assertInstanceOf('Grav\Common\Page\Page', $this->pages->all()->first());
@@ -48,8 +40,9 @@ class PagesTest extends \Codeception\TestCase\Test
     public function testGetList()
     {
         $list = $this->pages->getList();
+
         $this->assertTrue(is_array($list));
-//        $this->assertSame($list['/home'], 'Home');
-//        $this->assertSame($list['/blog'], 'Blog');
+        $this->assertSame($list['/'], 'Home');
+        $this->assertSame($list['/blog'], 'Blog');
     }
 }

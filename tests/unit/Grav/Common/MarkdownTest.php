@@ -25,12 +25,10 @@ class MarkdownTest extends \Codeception\TestCase\Test
     {
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
+        $newPagesLocation = 'tests/fake/nested-site/user/pages/';
+        $this->grav['pages']->setPagesLocation($newPagesLocation);
 
         $this->pages = $this->grav['pages'];
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-        $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
         $this->pages->init();
 
         $defaults = [

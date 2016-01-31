@@ -370,12 +370,6 @@ class Pages
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        dump(array_keys($this->instances));
-        dump(rtrim($locator->findResource('page://'), DS));
-
-        dump($locator->getPaths('page'));
-        exit();
-
         return $this->instances[rtrim($locator->findResource('page://'), DS)];
     }
 
@@ -1054,4 +1048,24 @@ class Pages
 
         return $new;
     }
+
+
+    /**
+     * Set a new pages location folder
+     *
+     * @param $newLocation
+     *
+     * @return $this
+     */
+    public function setPagesLocation($newLocation)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        //$locator->resetScheme('page');
+        $locator->addPath('page', '', $newLocation, false);
+        $this->grav['pages']->init();
+
+        return $this;
+    }
+
 }
