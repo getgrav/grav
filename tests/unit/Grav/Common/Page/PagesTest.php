@@ -23,8 +23,9 @@ class PagesTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->grav = Fixtures::get('grav');
         $this->pages = $this->grav['pages'];
+        $grav = Fixtures::get('grav');
+        $this->grav = $grav();
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
