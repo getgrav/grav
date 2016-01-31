@@ -1,5 +1,5 @@
 ---
-title: Home
+title: Blog
 ---
 
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
