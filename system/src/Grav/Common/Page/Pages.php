@@ -274,10 +274,10 @@ class Pages
         if (!is_null($path) && !is_string($path)) {
             throw new \Exception();
         }
-
-        $e = new \Exception;
-        var_dump($e->getTraceAsString());
-        var_dump(array_keys($this->instances));
+//
+//        $e = new \Exception;
+//        var_dump($e->getTraceAsString());
+//        var_dump(array_keys($this->instances));
 
         return isset($this->instances[(string)$path]) ? $this->instances[(string)$path] : null;
     }
@@ -378,10 +378,10 @@ class Pages
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
-
-        $e = new \Exception;
-        var_dump($e->getTraceAsString());
-        var_dump(array_keys($this->instances)); exit();
+//
+//        $e = new \Exception;
+//        var_dump($e->getTraceAsString());
+//        var_dump(array_keys($this->instances)); exit();
 
 
         return $this->instances[rtrim($locator->findResource('page://'), DS)];
