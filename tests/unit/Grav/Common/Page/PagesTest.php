@@ -49,7 +49,7 @@ class PagesTest extends \Codeception\TestCase\Test
     {
         $list = $this->pages->getList();
         $this->assertTrue(is_array($list));
-        $this->assertSame($list['/'], 'Home');
-        $this->assertSame($list['/blog'], 'Blog');
+        $this->assertSame('Home', $list['/']);
+        $this->assertSame('Blog', $list['/blog']);
     }
 }
