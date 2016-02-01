@@ -27,9 +27,9 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->pages = $this->grav['pages'];
 
         /** @var UniformResourceLocator $locator */
-//        $locator = $this->grav['locator'];
-//        $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
-//        $this->pages->init();
+        $locator = $this->grav['locator'];
+        $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
+        $this->pages->init();
     }
 
     public function testAll()
@@ -43,7 +43,7 @@ class PagesTest extends \Codeception\TestCase\Test
     {
         $list = $this->pages->getList();
         $this->assertTrue(is_array($list));
-//        $this->assertSame($list['/home'], 'Home');
-//        $this->assertSame($list['/blog'], 'Blog');
+        $this->assertSame($list['/'], 'Home');
+        $this->assertSame($list['/blog'], 'Blog');
     }
 }

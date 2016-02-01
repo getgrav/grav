@@ -44,7 +44,7 @@ $grav = Grav::instance(
 $grav['uri']->init();
 $grav['debugger']->init();
 $grav['assets']->init();
-
+$grav['config']->set('system.cache.enabled', false);
 
 // Set default $_SERVER value used for nonces
 empty( $_SERVER['HTTP_CLIENT_IP'] ) && $_SERVER['HTTP_CLIENT_IP'] = '127.0.0.1';
