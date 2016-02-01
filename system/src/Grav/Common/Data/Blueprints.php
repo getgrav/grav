@@ -62,10 +62,11 @@ class Blueprints
 
             $blueprint = new Blueprint($type, $blueprints, $this);
 
-            if (isset($blueprints['@extends'])) {
-                // Extend blueprint by other blueprints.
-                $extends = (array) $blueprints['@extends'];
+            $extends = isset($blueprints['@extends']) ? (array) $blueprints['@extends']
+                : (isset($blueprints['extends@']) ? (array) $blueprints['extends@'] : null);
 
+            if (isset($extends)) {
+                // Extend blueprint by other blueprints.
                 if (is_string(key($extends))) {
                     $extends = [ $extends ];
                 }
@@ -75,7 +76,7 @@ class Blueprints
 
                     if (!$extendType) {
                         continue;
-                    } elseif ($extendType === '@parent') {
+                    } elseif ($extendType === '@parent' || $extendType === 'parent@') {
                         $parentFile = array_shift($parents);
                         if (!$parentFile || !is_file($parentFile)) {
                             continue;
