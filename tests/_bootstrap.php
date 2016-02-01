@@ -45,6 +45,7 @@ $grav = function() {
     $grav['uri']->init();
     $grav['debugger']->init();
     $grav['assets']->init();
+    $grav['config']->set('system.cache.enabled', false);
 //    $grav['pages']->init();
 
     // Set default $_SERVER value used for nonces
