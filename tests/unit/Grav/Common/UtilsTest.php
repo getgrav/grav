@@ -215,8 +215,8 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testDate2timestamp()
     {
         $timestamp = strtotime('10 September 2000');
-        $this->assertSame(Utils::date2timestamp('10 September 2000'), $timestamp);
-        $this->assertSame(Utils::date2timestamp('2000-09-10 00:00:00'), $timestamp);
+        $this->assertSame($timestamp, Utils::date2timestamp('10 September 2000'));
+        $this->assertSame($timestamp, Utils::date2timestamp('2000-09-10 00:00:00'));
     }
 
     public function testResolve()
