@@ -126,11 +126,16 @@ class Pages
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
         $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
 
+        $this->resetData();
+
+        $this->buildPages();
+    }
+
+    public function resetData()
+    {
         $this->instances = [];
         $this->children = [];
         $this->routes = [];
-
-        $this->buildPages();
     }
 
     /**
@@ -1061,6 +1066,8 @@ class Pages
      */
     public function setPagesLocation($newLocation)
     {
+        $this->resetData();
+
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
         //$locator->resetScheme('page');
