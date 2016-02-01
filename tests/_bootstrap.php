@@ -42,6 +42,7 @@ $grav = function() {
         )
     );
 
+    $grav['uri']->init();
     $grav['debugger']->init();
     $grav['assets']->init();
 //    $grav['pages']->init();
