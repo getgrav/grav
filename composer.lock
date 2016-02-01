@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "830fd45c43ba3b23a91a091237f64521",
-    "content-hash": "3ff379f8b303e28443453058c6e909cb",
+    "hash": "331f0e738802421f81e7e0d0b8222897",
+    "content-hash": "93e9fc9ecc82e91296f8a21aa9756123",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -130,17 +130,20 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "1.6.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/getgrav/parsedown.git",
-                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7"
+                "url": "https://github.com/erusev/parsedown.git",
+                "reference": "94688f21cc5d8bc85f1783b4c8b98b3288d712cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
-                "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/94688f21cc5d8bc85f1783b4c8b98b3288d712cb",
+                "reference": "94688f21cc5d8bc85f1783b4c8b98b3288d712cb",
                 "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
             },
             "type": "library",
             "autoload": {
@@ -165,7 +168,7 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2015-10-04 16:44:32"
+            "time": "2016-01-07 17:36:51"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -634,12 +637,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "09be2b8208ea9ceea9d0b30ed2dcdb8b97b4ac79"
+                "reference": "cb0ddd98b1e54f78be9927a217c0d53d122d5049"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/09be2b8208ea9ceea9d0b30ed2dcdb8b97b4ac79",
-                "reference": "09be2b8208ea9ceea9d0b30ed2dcdb8b97b4ac79",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/cb0ddd98b1e54f78be9927a217c0d53d122d5049",
+                "reference": "cb0ddd98b1e54f78be9927a217c0d53d122d5049",
                 "shasum": ""
             },
             "require": {
@@ -674,7 +677,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-01-22 19:38:57"
+            "time": "2016-02-01 08:32:50"
         },
         {
             "name": "symfony/console",
@@ -798,16 +801,16 @@
         },
         {
             "name": "symfony/polyfill-iconv",
-            "version": "v1.0.1",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-iconv.git",
-                "reference": "541cce29a46d6ee18bb9271c6ac3ca783b0faab0"
+                "reference": "be8627f0936f86fed0bec16fe79ebb4337299764"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-iconv/zipball/541cce29a46d6ee18bb9271c6ac3ca783b0faab0",
-                "reference": "541cce29a46d6ee18bb9271c6ac3ca783b0faab0",
+                "url": "https://api.github.com/repos/symfony/polyfill-iconv/zipball/be8627f0936f86fed0bec16fe79ebb4337299764",
+                "reference": "be8627f0936f86fed0bec16fe79ebb4337299764",
                 "shasum": ""
             },
             "require": {
@@ -819,7 +822,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "1.1-dev"
                 }
             },
             "autoload": {
@@ -853,20 +856,20 @@
                 "portable",
                 "shim"
             ],
-            "time": "2015-11-20 09:19:13"
+            "time": "2016-01-20 09:13:37"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.0.1",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "49ff736bd5d41f45240cec77b44967d76e0c3d25"
+                "reference": "1289d16209491b584839022f29257ad859b8532d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/49ff736bd5d41f45240cec77b44967d76e0c3d25",
-                "reference": "49ff736bd5d41f45240cec77b44967d76e0c3d25",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/1289d16209491b584839022f29257ad859b8532d",
+                "reference": "1289d16209491b584839022f29257ad859b8532d",
                 "shasum": ""
             },
             "require": {
@@ -878,7 +881,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "1.1-dev"
                 }
             },
             "autoload": {
@@ -912,7 +915,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2015-11-20 09:19:13"
+            "time": "2016-01-20 09:13:37"
         },
         {
             "name": "symfony/var-dumper",
@@ -1028,16 +1031,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.23.3",
+            "version": "v1.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "ae53fc2c312fdee63773b75cb570304f85388b08"
+                "reference": "3e5aa30ebfbafd5951fb1b01e338e1800ce7e0e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ae53fc2c312fdee63773b75cb570304f85388b08",
-                "reference": "ae53fc2c312fdee63773b75cb570304f85388b08",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/3e5aa30ebfbafd5951fb1b01e338e1800ce7e0e8",
+                "reference": "3e5aa30ebfbafd5951fb1b01e338e1800ce7e0e8",
                 "shasum": ""
             },
             "require": {
@@ -1050,7 +1053,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.23-dev"
+                    "dev-master": "1.24-dev"
                 }
             },
             "autoload": {
@@ -1085,13 +1088,21 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2016-01-11 14:02:19"
+            "time": "2016-01-25 21:22:18"
         }
     ],
-    "packages-dev": [],
-    "aliases": [],
+    "packages-dev": null,
+    "aliases": [
+        {
+            "alias": "1.6.0",
+            "alias_normalized": "1.6.0.0",
+            "version": "9999999-dev",
+            "package": "erusev/parsedown"
+        }
+    ],
     "minimum-stability": "stable",
     "stability-flags": {
+        "erusev/parsedown": 20,
         "rockettheme/toolbox": 20
     },
     "prefer-stable": false,
