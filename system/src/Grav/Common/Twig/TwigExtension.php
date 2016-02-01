@@ -457,6 +457,11 @@ class TwigExtension extends \Twig_Extension
             return false;
         }
 
+        if ($this->grav['config']->get('system.absolute_urls', false)) {
+            $domain = true;
+        }
+
+
         if (strpos((string) $input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];

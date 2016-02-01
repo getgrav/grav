@@ -24,6 +24,7 @@ class Uri
     protected $params;
     protected $path;
     protected $paths;
+    protected $scheme;
     protected $port;
     protected $query;
     protected $root;
@@ -42,6 +43,7 @@ class Uri
         $this->name         = $this->buildHostname();
         $this->port         = $this->buildPort();
         $this->uri          = $this->buildUri();
+        $this->scheme       = $this->buildScheme();
         $this->base         = $this->buildBaseUrl();
         $this->host         = $this->buildHost();
         $this->root_path    = $this->buildRootPath();
@@ -56,15 +58,15 @@ class Uri
      */
     private function buildHostname()
     {
-        $name = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
+        $hostname = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost');
 
-        // Remove port from HTTP_HOST generated $name
-        $name = Utils::substrToString($name, ':');
+        // Remove port from HTTP_HOST generated $hostname
+        $hostname = Utils::substrToString($hostname, ':');
 
         // Validate the hostname
-        $name = $this->validateHostname($name) ? $name : 'unknown';
+        $hostname = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
-        return $name;
+        return $hostname;
     }
 
     /**
@@ -103,6 +105,18 @@ class Uri
         return $uri;
     }
 
+    private function buildScheme()
+    {
+        // set the base
+        if (isset($_SERVER['HTTPS'])) {
+            $scheme = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
+        } else {
+            $scheme = 'http://';
+        }
+
+        return $scheme;
+    }
+
     /**
      * Get the base URI with port if needed
      *
@@ -110,17 +124,7 @@ class Uri
      */
     private function buildBaseUrl()
     {
-        // set the base
-        if (isset($_SERVER['HTTPS'])) {
-            $base = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
-        } else {
-            $base = 'http://';
-        }
-
-        // add the server name
-        $base .= $this->name;
-
-        return $base;
+        return $this->scheme . $this->name;
     }
 
     /**
@@ -217,7 +221,6 @@ class Uri
     {
         $this->initializeWithUrl($url);
         $this->root_path = $root_path;
-        $this->root = $this->base . $this->root_path;
 
         return $this;
     }
@@ -300,6 +303,11 @@ class Uri
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
         }
+
+        // Set some Grav stuff
+        $grav['base_url_absolute'] = $this->rootUrl(true);
+        $grav['base_url_relative'] = $this->rootUrl(false);
+        $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
     }
 
     /**
@@ -482,6 +490,17 @@ class Uri
 
         return $this->extension;
     }
+
+    /**
+     * Return the scheme of the URI
+     *
+     * @return String The scheme of the URI
+     */
+    public function scheme()
+    {
+        return $this->scheme;
+    }
+
 
     /**
      * Return the host of the URI

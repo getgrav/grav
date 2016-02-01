@@ -16,7 +16,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
 
 /**
- * GravPages is the class that is the entry point into the hierarchy of pages
+ * Pages is the class that is the entry point into the hierarchy of pages
  *
  * @author  RocketTheme
  * @license MIT
@@ -63,8 +63,19 @@ class Pages
      */
     protected $last_modified;
 
+    /**
+     * @var array|string[]
+     */
     protected $ignore_files;
+
+    /**
+     * @var array|string[]
+     */
     protected $ignore_folders;
+
+    /**
+     * @var bool
+     */
     protected $ignore_hidden;
 
     /**
@@ -72,6 +83,9 @@ class Pages
      */
     static protected $types;
 
+    /**
+     * @var string
+     */
     static protected $home_route;
 
     /**
@@ -111,6 +125,10 @@ class Pages
         $this->ignore_files = $config->get('system.pages.ignore_files');
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
         $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
+
+        $this->instances = [];
+        $this->children = [];
+        $this->routes = [];
 
         $this->buildPages();
     }
@@ -351,7 +369,6 @@ class Pages
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
-
         return $this->instances[rtrim($locator->findResource('page://'), DS)];
     }
 
