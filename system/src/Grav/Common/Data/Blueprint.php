@@ -175,33 +175,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
      */
     public function extend(Blueprint $extends, $append = false)
     {
-        throw new \Exception('Extend is not implemented yet');
-        // FIXME: Currently not working...
-        $blueprints = $append ? $this->form : $extends->fields();
-        $appended = $append ? $extends->fields() : $this->form;
-
-        $bref_stack = array(&$blueprints);
-        $head_stack = array($appended);
-
-        do {
-            end($bref_stack);
-
-            $bref = &$bref_stack[key($bref_stack)];
-            $head = array_pop($head_stack);
-
-            unset($bref_stack[key($bref_stack)]);
-
-            foreach (array_keys($head) as $key) {
-                if (isset($key, $bref[$key]) && is_array($bref[$key]) && is_array($head[$key])) {
-                    $bref_stack[] = &$bref[$key];
-                    $head_stack[] = $head[$key];
-                } else {
-                    $bref = array_merge($bref, array($key => $head[$key]));
-                }
-            }
-        } while (count($head_stack));
-
-        $this->form = $blueprints;
+        $this->embed('', $extends->toArray(), '.', ($append ? 1 : -1));
     }
 
     /**
