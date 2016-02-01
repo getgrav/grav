@@ -21,15 +21,21 @@ class PagesTest extends \Codeception\TestCase\Test
     /** @var Page $root_page */
     protected $root_page;
 
+    static $run = false;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
         $this->pages = $this->grav['pages'];
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-        $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
-        $this->pages->init();
+        if (!self::$run) {
+            /** @var UniformResourceLocator $locator */
+            $locator = $this->grav['locator'];
+            $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
+            $this->pages->init();
+            self::$run = true;
+        }
+
     }
 
     public function testAll()

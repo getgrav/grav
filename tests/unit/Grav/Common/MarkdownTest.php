@@ -29,6 +29,8 @@ class MarkdownTest extends \Codeception\TestCase\Test
     /** @var  Uri $uri */
     protected $uri;
 
+    static $run = false;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
@@ -39,10 +41,15 @@ class MarkdownTest extends \Codeception\TestCase\Test
 
         $this->uri = $this->grav['uri'];
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-        $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
-        $this->pages->init();
+        if (!self::$run) {
+
+            /** @var UniformResourceLocator $locator */
+            $locator = $this->grav['locator'];
+            $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
+            $this->pages->init();
+
+            self::$run = true;
+        }
 
         $defaults = [
             'extra'            => false,
@@ -54,6 +61,9 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $page = $this->pages->dispatch('/item2/item2-2');
 
         $this->parsedown = new Parsedown($page, $defaults);
+
+
+
     }
 
     protected function _after()
