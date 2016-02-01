@@ -18,7 +18,8 @@ class UriTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->grav = Fixtures::get('grav');
+        $grav = Fixtures::get('grav');
+        $this->grav = $grav();
         $this->uri = $this->grav['uri'];
     }
 

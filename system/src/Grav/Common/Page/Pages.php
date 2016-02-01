@@ -126,11 +126,16 @@ class Pages
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
         $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
 
+        $this->resetData();
+
+        $this->buildPages();
+    }
+
+    public function resetData()
+    {
         $this->instances = [];
         $this->children = [];
         $this->routes = [];
-
-        $this->buildPages();
     }
 
     /**
@@ -269,6 +274,10 @@ class Pages
         if (!is_null($path) && !is_string($path)) {
             throw new \Exception();
         }
+//
+//        $e = new \Exception;
+//        var_dump($e->getTraceAsString());
+//        var_dump(array_keys($this->instances));
 
         return isset($this->instances[(string)$path]) ? $this->instances[(string)$path] : null;
     }
@@ -369,6 +378,12 @@ class Pages
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+//
+//        $e = new \Exception;
+//        var_dump($e->getTraceAsString());
+//        var_dump(array_keys($this->instances)); exit();
+
+
         return $this->instances[rtrim($locator->findResource('page://'), DS)];
     }
 
@@ -1047,4 +1062,28 @@ class Pages
 
         return $new;
     }
+
+
+    /**
+     * Set a new pages location folder
+     *
+     * @param $newLocation
+     *
+     * @return $this
+     */
+    public function setPagesLocation($newLocation)
+    {
+        $this->resetData();
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+//        $locator->resetScheme('page');
+        $locator->addPath('page', '', $newLocation, false);
+
+        $this->resetData();
+        $this->init();
+
+        return $this;
+    }
+
 }

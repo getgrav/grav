@@ -31,17 +31,19 @@ class MarkdownTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->grav = Fixtures::get('grav');
+        $grav = Fixtures::get('grav');
+        $this->grav = $grav();
+        $newPagesLocation = 'tests/fake/nested-site/user/pages/';
+        $this->grav['pages']->setPagesLocation($newPagesLocation);
 
         $this->pages = $this->grav['pages'];
-
         $this->config = $this->grav['config'];
-
         $this->uri = $this->grav['uri'];
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
         $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
+
         $this->pages->init();
 
         $defaults = [
