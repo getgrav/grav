@@ -304,6 +304,11 @@ class Uri
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
         }
+
+        // Set some Grav stuff
+        $grav['base_url_absolute'] = $this->rootUrl(true);
+        $grav['base_url_relative'] = $this->rootUrl(false);
+        $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
     }
 
     /**
