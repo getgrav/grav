@@ -270,6 +270,8 @@ class Pages
             throw new \Exception();
         }
 
+        var_dump(array_keys($this->instances));
+
         return isset($this->instances[(string)$path]) ? $this->instances[(string)$path] : null;
     }
 
