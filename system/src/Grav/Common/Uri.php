@@ -221,7 +221,6 @@ class Uri
     {
         $this->initializeWithUrl($url);
         $this->root_path = $root_path;
-        $this->root = $this->base . $this->root_path;
 
         return $this;
     }
