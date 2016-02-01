@@ -75,15 +75,14 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->config->set('system.absolute_urls', false);
         $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
 
-
-        $this->assertSame($this->parsedown->text('[Peer Anchor](../item2-1#foo)'),
-            '<p><a href="/item2/item2-1#foo">Peer Anchor</a></p>');
-        $this->assertSame($this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'),
-            '<p><a href="/item2/item2-1/#foo">Peer Anchor 2</a></p>');
-//        $this->assertSame($this->parsedown->text('[Current Anchor](#foo)'),
-//            '<p><a href="#foo">Current Anchor</a></p>');
-        $this->assertSame($this->parsedown->text('[Root Anchor](/#foo)'),
-            '<p><a href="/#foo">Root Anchor</a></p>');
+        $this->assertSame('<p><a href="/item2/item2-1#foo">Peer Anchor</a></p>',
+            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
+        $this->assertSame('<p><a href="/item2/item2-1/#foo">Peer Anchor 2</a></p>',
+            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
+        $this->assertSame('<p><a href="/#foo">Root Anchor</a></p>',
+            $this->parsedown->text('[Root Anchor](/#foo)'));
 
     }
 
@@ -92,16 +91,14 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->config->set('system.absolute_urls', true);
         $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
 
-
-        $this->assertSame($this->parsedown->text('[Peer Anchor](../item2-1#foo)'),
-            '<p><a href="http://localhost/item2/item2-1#foo">Peer Anchor</a></p>');
-        $this->assertSame($this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'),
-            '<p><a href="http://localhost/item2/item2-1/#foo">Peer Anchor 2</a></p>');
-//        $this->assertSame($this->parsedown->text('[Current Anchor](#foo)'),
-//            '<p><a href="http://localhost/item2/item2-2#foo">Current Anchor</a></p>');
-        $this->assertSame($this->parsedown->text('[Root Anchor](/#foo)'),
-            '<p><a href="http://localhost/#foo">Root Anchor</a></p>');
-
+        $this->assertSame('<p><a href="http://localhost/item2/item2-1#foo">Peer Anchor</a></p>',
+            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
+        $this->assertSame('<p><a href="http://localhost/item2/item2-1/#foo">Peer Anchor 2</a></p>',
+            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
+        $this->assertSame('<p><a href="http://localhost/#foo">Root Anchor</a></p>',
+            $this->parsedown->text('[Root Anchor](/#foo)'));
     }
 
     public function testAnchorLinksWithPortAbsoluteUrls()
@@ -261,10 +258,10 @@ class MarkdownTest extends \Codeception\TestCase\Test
 
     public function testExternalLinks()
     {
-        $this->assertSame($this->parsedown->text('[cnn.com](http://www.cnn.com)'),
-            '<p><a href="http://www.cnn.com">cnn.com</a></p>');
-        $this->assertSame($this->parsedown->text('[google.com](https://www.google.com)'),
-            '<p><a href="https://www.google.com">google.com</a></p>');
+        $this->assertSame('<p><a href="http://www.cnn.com">cnn.com</a></p>',
+            $this->parsedown->text('[cnn.com](http://www.cnn.com)'));
+        $this->assertSame('<p><a href="https://www.google.com">google.com</a></p>',
+            $this->parsedown->text('[google.com](https://www.google.com)'));
     }
 
 }
