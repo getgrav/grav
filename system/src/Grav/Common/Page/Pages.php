@@ -371,7 +371,7 @@ class Pages
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
-
+                             var_dump(array_keys($this->instances)); exit();
         return $this->instances[rtrim($locator->findResource('page://'), DS)];
     }
 
