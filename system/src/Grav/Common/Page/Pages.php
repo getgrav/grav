@@ -1077,9 +1077,11 @@ class Pages
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
-        //$locator->resetScheme('page');
+//        $locator->resetScheme('page');
         $locator->addPath('page', '', $newLocation, false);
-        $this->grav['pages']->init();
+
+        $this->resetData();
+        $this->init();
 
         return $this;
     }
