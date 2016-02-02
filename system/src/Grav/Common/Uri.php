@@ -21,6 +21,7 @@ class Uri
     protected $content_path;
     protected $extension;
     protected $host;
+    protected $env;
     protected $params;
     protected $path;
     protected $paths;
@@ -41,6 +42,7 @@ class Uri
         $this->params       = [];
         $this->query        = [];
         $this->name         = $this->buildHostname();
+        $this->env          = $this->buildEnvironment();
         $this->port         = $this->buildPort();
         $this->uri          = $this->buildUri();
         $this->scheme       = $this->buildScheme();
@@ -151,17 +153,22 @@ class Uri
      */
     private function buildHost()
     {
+        return $this->name;
+    }
+
+    private function buildEnvironment()
+    {
         // set hostname
         $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 
         // check for localhost variations
         if ($this->name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            $host = 'localhost';
+            $env = 'localhost';
         } else {
-            $host = $this->name;
+            $env = $this->name;
         }
 
-        return $host;
+        return $env;
     }
 
     /**
@@ -182,6 +189,7 @@ class Uri
         $this->params   = [];
         $this->query    = [];
         $this->name     = [];
+        $this->env      = [];
         $this->port     = [];
         $this->uri      = [];
         $this->base     = [];
@@ -189,12 +197,17 @@ class Uri
         $this->root     = [];
         $this->url      = [];
 
-        $params = parse_url($url);
+        $params = Uri::parseUrl($url);
 
         $this->name = $params['host'];
         $this->port = isset($params['port']) ? $params['port'] : '80';
 
         $this->uri = $params['path'];
+
+        if (isset($params['params'])) {
+            $this->params($params['params']);
+        }
+
         if (isset($params['query'])) {
             $this->uri .= '?' . $params['query'];
             parse_str($params['query'], $this->query);
@@ -202,6 +215,7 @@ class Uri
 
         $this->base = $this->buildBaseUrl();
         $this->host = $this->buildHost();
+        $this->env = $this->buildEnvironment();
         $this->root_path = $this->buildRootPath();
         $this->root = $this->base . $this->root_path;
         $this->url = $this->base . $this->uri;
@@ -529,7 +543,7 @@ class Uri
      */
     public function environment()
     {
-        return $this->host();
+        return $this->env;
     }
 
 
