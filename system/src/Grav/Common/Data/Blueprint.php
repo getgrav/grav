@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\GravTrait;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
@@ -29,12 +30,13 @@ class Blueprint extends BaseBlueprints implements ExportInterface
     {
         parent::__construct(is_array($name) ? $name : null);
 
-        if ($data) {
-            $this->embed('', $data);
-        }
-
         if ($context) {
             $this->setContext($context);
+        }
+
+        if ($data) {
+            $this->embed('', $data);
+            $this->init('static');
         }
     }
 
@@ -265,21 +267,27 @@ class Blueprint extends BaseBlueprints implements ExportInterface
      * @param string $property
      * @param array $call
      */
-    protected function dynamicImport(array &$field, $property, array &$call)
+    protected function staticImport(array &$field, $property, array &$call)
     {
-        $params = $call['params'];
-
         // Support nested blueprints.
-        if ($this->context) {
-            $values = (array) $params;
-            if (!isset($field['fields'])) {
-                $field['fields'] = [];
-            }
-            foreach ($values as $bname) {
-                $b = $this->context->get($bname);
-                $field['fields'] = array_merge($field['fields'], $b->fields());
-            }
+        $value = $call['params'];
+        if (is_array($value)) {
+            $filename = $value['context'] . '/' . $value['type'] . YAML_EXT;
+            $type = $value['type'];
+        } else {
+            $filename = 'blueprints://' . $value . YAML_EXT;
+            $type = $value;
         }
+
+        if (!is_file($filename)) {
+            return;
+        }
+
+        $file = CompiledYamlFile::instance($filename);
+        $blueprint = (new Blueprint($type, $file->content(), $this->context))->init('static');
+
+        //$this->embed($field['name'], $blueprint->toArray(), '.', -1);
+        $this->parseFormFields($blueprint->toArray()['form']['fields'], $this->filter, '', $field['name'].'.', -1, $call['form']);
     }
 
     /**
