@@ -37,6 +37,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->pages = $this->grav['pages'];
         $this->config = $this->grav['config'];
         $this->uri = $this->grav['uri'];
+        $this->config->set('system.home.alias', '/item1');
 
         if (!self::$run) {
             /** @var UniformResourceLocator $locator */
@@ -306,22 +307,29 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testAbsoluteRootLinks()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+        $this->uri->initializeWithURL('http://testing.dev/')->init();
 
-        $this->assertSame('<p><a href="/">Root</a></p>',
-            $this->parsedown->text('[Root](/)'));
-        $this->assertSame('<p><a href="/item2/item2-1">Peer Page</a></p>',
-            $this->parsedown->text('[Peer Page](/item2/item2-1)'));
-        $this->assertSame('<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>',
-            $this->parsedown->text('[Down a Level](/item2/item2-2/item2-2-1)'));
-        $this->assertSame('<p><a href="/item2">Up a Level</a></p>',
-            $this->parsedown->text('[Up a Level](/item2)'));
-        $this->assertSame('<p><a href="/item2?foo=bar">With Query</a></p>',
-            $this->parsedown->text('[With Query](/item2?foo=bar)'));
-        $this->assertSame('<p><a href="/item2/foo:bar">With Param</a></p>',
-            $this->parsedown->text('[With Param](/item2/foo:bar)'));
-        $this->assertSame('<p><a href="/item2#foo">With Anchor</a></p>',
-            $this->parsedown->text('[With Anchor](/item2#foo)'));
+        $defaults = [
+            'extra'            => false,
+            'auto_line_breaks' => false,
+            'auto_url_links'   => false,
+            'escape_markup'    => false,
+            'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+        ];
+        $page = $this->pages->dispatch('/');
+        $this->parsedown = new Parsedown($page, $defaults);
+
+
+        $this->assertSame('<p><a href="/item2">Peer Page</a></p>',
+            $this->parsedown->text('[Peer Page](../item2)'));
+//        $this->assertSame('<p><a href="/item1/item1-3">Down a Level</a></p>',
+//            $this->parsedown->text('[Down a Level](item1-3)'));
+        $this->assertSame('<p><a href="/?foo=bar">With Query</a></p>',
+            $this->parsedown->text('[With Query](?foo=bar)'));
+        $this->assertSame('<p><a href="/foo:bar">With Param</a></p>',
+            $this->parsedown->text('[With Param](/foo:bar)'));
+        $this->assertSame('<p><a href="/#foo">With Anchor</a></p>',
+            $this->parsedown->text('[With Anchor](#foo)'));
     }
 
     public function testAbsoluteLinks()
