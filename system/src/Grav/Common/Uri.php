@@ -738,13 +738,14 @@ class Uri
             $url_path = $url;
         }
 
+        $external   = false;
         $base       = is_null($relative) ? $grav['base_url'] : ($relative ? $grav['base_url_relative'] : $grav['base_url_absolute']);
         $base_url   = rtrim($base . $grav['pages']->base(), '/') . $language_append;
         $pages_dir  = $grav['locator']->findResource('page://');
 
         // if absolute and starts with a base_url move on
         if (isset($url['scheme']) && Utils::startsWith($url['scheme'], 'http')) {
-            //do nothing it's external
+            $external = true;
         } elseif (($base_url != '' && Utils::startsWith($url_path, $base_url)) ||
                    $url_path == '/' ||
                    Utils::startsWith($url_path, '#')) {
@@ -813,7 +814,7 @@ class Uri
         }
 
         // handle absolute URLs
-        if ($grav['config']->get('system.absolute_urls', false)) {
+        if (!$external && $grav['config']->get('system.absolute_urls', false)) {
 
 
             $url['scheme'] = str_replace('://', '', $uri->scheme());
