@@ -675,10 +675,23 @@ class Uri
         $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
         $pass     = ($user || $pass) ? "$pass@" : '';
         $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $params   = isset($parsed_url['params']) ? static::buildParams($parsed_url['params']) : '';
         $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-        return "$scheme$user$pass$host$port$path$query$fragment";
+        return "$scheme$user$pass$host$port$path$params$query$fragment";
+    }
+
+    public static function buildParams($params)
+    {
+        $grav = Grav::instance();
+
+        $params_string = '';
+        foreach ($params as $key => $value) {
+            $output[] = $key . $grav['config']->get('system.param_sep') . $value;
+            $params_string .= '/' . implode('/', $output);
+        }
+        return $params_string;
     }
 
     /**
@@ -738,7 +751,7 @@ class Uri
             if ($just_path == $page->path() || $normalized_url == '/') {
                 $url_path = $normalized_url;
             } else {
-                $url_bits = parse_url($normalized_path);
+                $url_bits = static::parseUrl($normalized_path);
                 $full_path = ($url_bits['path']);
                 $raw_full_path = rawurldecode($full_path);
 
@@ -840,6 +853,46 @@ class Uri
         }
 
         return $url;
+    }
+
+    public static function parseUrl($url)
+    {
+        $bits = parse_url($url);
+
+        $grav = Grav::instance();
+
+        list($stripped_path, $params) = static::extractParams($bits['path'], $grav['config']->get('system.param_sep'));
+
+        if (!empty($params)) {
+            $bits['path'] = $stripped_path;
+            $bits['params'] = $params;
+        }
+
+        return $bits;
+    }
+
+    public static function extractParams($uri, $delimiter)
+    {
+        $params = [];
+
+        if (strpos($uri, $delimiter) !== false) {
+            $bits = explode('/', $uri);
+            $path = [];
+            foreach ($bits as $bit) {
+                if (strpos($bit, $delimiter) !== false) {
+                    $param = explode($delimiter, $bit);
+                    if (count($param) == 2) {
+                        $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
+                        $params[$param[0]] = $plain_var;
+                    }
+                } else {
+                    $path[] = $bit;
+                }
+            }
+            $uri = '/' . ltrim(implode('/', $path), '/');
+        }
+
+        return [$uri, $params];
     }
 
     /**

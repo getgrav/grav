@@ -61,6 +61,26 @@ class MarkdownTest extends \Codeception\TestCase\Test
     {
     }
 
+    public function testDirectoryRelativeLinks()
+    {
+        $this->config->set('system.absolute_urls', false);
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
+
+        $this->assertSame('<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
+            $this->parsedown->text('[Up and Down with Param](../../03.item3/03.item3-3/foo:bar)'));
+        $this->assertSame('<p><a href="/item2/item2-1">Peer Page</a></p>',
+            $this->parsedown->text('[Peer Page](../01.item2-1)'));
+        $this->assertSame('<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>',
+            $this->parsedown->text('[Down a Level](01.item2-2-1)'));
+        $this->assertSame('<p><a href="/item3/item3-3">Up and Down</a></p>',
+            $this->parsedown->text('[Up and Down](../../03.item3/03.item3-3)'));
+        $this->assertSame('<p><a href="/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>',
+            $this->parsedown->text('[Down a Level with Query](01.item2-2-1?foo=bar)'));
+        $this->assertSame('<p><a href="/item3/item3-3?foo=bar">Up and Down with Query</a></p>',
+            $this->parsedown->text('[Up and Down with Query](../../03.item3/03.item3-3?foo=bar)'));
+        $this->assertSame('<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>',
+            $this->parsedown->text('[Up and Down with Anchor](../../03.item3/03.item3-3#foo)'));
+    }
 
     public function testSlugRelativeLinks()
     {
@@ -69,14 +89,12 @@ class MarkdownTest extends \Codeception\TestCase\Test
 
         $this->assertSame('<p><a href="/">Up to Root Level</a></p>',
             $this->parsedown->text('[Up to Root Level](../..)'));
-
         $this->assertSame('<p><a href="/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](../item2-1)'));
         $this->assertSame('<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>',
             $this->parsedown->text('[Down a Level](item2-2-1)'));
         $this->assertSame('<p><a href="/item2">Up a Level</a></p>',
             $this->parsedown->text('[Up a Level](..)'));
-
         $this->assertSame('<p><a href="/item3/item3-3">Up and Down</a></p>',
             $this->parsedown->text('[Up and Down](../../item3/item3-3)'));
         $this->assertSame('<p><a href="/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>',
@@ -142,7 +160,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://localhost:8080/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
-
     }
 
     public function testAnchorLinksSubDirRelativeUrls()
@@ -158,7 +175,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="/subdir/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
-
     }
 
     public function testAnchorLinksSubDirAbsoluteUrls()
@@ -174,7 +190,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://localhost/subdir/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
-
     }
 
 
@@ -259,27 +274,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Up and Down with Anchor](../../item3/item3-3#foo)'));
     }
 
-    public function testDirectoryRelativeLinks()
-    {
-        $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
-
-        $this->assertSame('<p><a href="/item2/item2-1">Peer Page</a></p>',
-            $this->parsedown->text('[Peer Page](../01.item2-1)'));
-        $this->assertSame('<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>',
-            $this->parsedown->text('[Down a Level](01.item2-2-1)'));
-        $this->assertSame('<p><a href="/item3/item3-3">Up and Down</a></p>',
-            $this->parsedown->text('[Up and Down](../../03.item3/03.item3-3)'));
-        $this->assertSame('<p><a href="/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>',
-            $this->parsedown->text('[Down a Level with Query](01.item2-2-1?foo=bar)'));
-        $this->assertSame('<p><a href="/item3/item3-3?foo=bar">Up and Down with Query</a></p>',
-            $this->parsedown->text('[Up and Down with Query](../../03.item3/03.item3-3?foo=bar)'));
-        $this->assertSame('<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
-            $this->parsedown->text('[Up and Down with Param](../../03.item3/03.item3-3/foo:bar)'));
-        $this->assertSame('<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>',
-            $this->parsedown->text('[Up and Down with Anchor](../../03.item3/03.item3-3#foo)'));
-
-    }
 
     public function testDirectoryAbsoluteLinks()
     {
@@ -300,7 +294,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[With Param](/item2/foo:bar)'));
         $this->assertSame('<p><a href="/item2#foo">With Anchor</a></p>',
             $this->parsedown->text('[With Anchor](/item2#foo)'));
-
     }
 
     public function testDirectoryAbsoluteLinksSubDir()
@@ -322,7 +315,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[With Param](/item2/foo:bar)'));
         $this->assertSame('<p><a href="/subdir/item2#foo">With Anchor</a></p>',
             $this->parsedown->text('[With Anchor](/item2#foo)'));
-
     }
 
     public function testDirectoryAbsoluteLinksSubDirAbsoluteUrl()
@@ -414,7 +406,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Existent File](existing-file.zip)'));
         $this->assertSame('<p><a href="/item2/item2-2/missing-file.zip">Non Existent File</a></p>',
             $this->parsedown->text('[Non Existent File](missing-file.zip)'));
-
     }
 
 
