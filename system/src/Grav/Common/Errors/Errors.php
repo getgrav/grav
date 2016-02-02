@@ -14,9 +14,7 @@ class Errors
     {
         $grav = Grav::instance();
         $config = $grav['config']->get('system.errors');
-
-        $headers = @apache_request_headers();
-        $jsonRequest = $headers['Accept'] == 'application/json';
+        $jsonRequest = $_SERVER && $_SERVER['HTTP_ACCEPT'] && $_SERVER['HTTP_ACCEPT'] == 'application/json';
 
         // Setup Whoops-based error handler
         $whoops = new \Whoops\Run;
