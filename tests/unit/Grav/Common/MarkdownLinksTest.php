@@ -61,89 +61,14 @@ class MarkdownTest extends \Codeception\TestCase\Test
     {
     }
 
-    public function testAnchorLinksNoPortRelativeUrls()
-    {
-        $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
-
-        $this->assertSame('<p><a href="/item2/item2-1#foo">Peer Anchor</a></p>',
-            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
-        $this->assertSame('<p><a href="/item2/item2-1/#foo">Peer Anchor 2</a></p>',
-            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-//        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
-//            $this->parsedown->text('[Current Anchor](#foo)'));
-        $this->assertSame('<p><a href="/#foo">Root Anchor</a></p>',
-            $this->parsedown->text('[Root Anchor](/#foo)'));
-
-    }
-
-    public function testAnchorLinksNoPortAbsoluteUrls()
-    {
-        $this->config->set('system.absolute_urls', true);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
-
-        $this->assertSame('<p><a href="http://localhost/item2/item2-1#foo">Peer Anchor</a></p>',
-            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
-        $this->assertSame('<p><a href="http://localhost/item2/item2-1/#foo">Peer Anchor 2</a></p>',
-            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-//        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
-//            $this->parsedown->text('[Current Anchor](#foo)'));
-        $this->assertSame('<p><a href="http://localhost/#foo">Root Anchor</a></p>',
-            $this->parsedown->text('[Root Anchor](/#foo)'));
-    }
-
-    public function testAnchorLinksWithPortAbsoluteUrls()
-    {
-        $this->config->set('system.absolute_urls', true);
-        $this->uri->initializeWithURL('http://localhost:8080/item2/item-2-2')->init();
-
-        $this->assertSame('<p><a href="http://localhost:8080/item2/item2-1#foo">Peer Anchor</a></p>',
-            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
-        $this->assertSame('<p><a href="http://localhost:8080/item2/item2-1/#foo">Peer Anchor 2</a></p>',
-            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-//        $this->assertSame('<p><a href="http://localhost:8080#foo">Current Anchor</a></p>',
-//            $this->parsedown->text('[Current Anchor](#foo)'));
-        $this->assertSame('<p><a href="http://localhost:8080/#foo">Root Anchor</a></p>',
-            $this->parsedown->text('[Root Anchor](/#foo)'));
-
-    }
-
-    public function testAnchorLinksSubDirRelativeUrls()
-    {
-        $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item-2-2', '/subdir')->init();
-
-        $this->assertSame('<p><a href="/subdir/item2/item2-1#foo">Peer Anchor</a></p>',
-            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
-        $this->assertSame('<p><a href="/subdir/item2/item2-1/#foo">Peer Anchor 2</a></p>',
-            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-//        $this->assertSame('<p><a href="/subdir/#foo">Current Anchor</a></p>',
-//            $this->parsedown->text('[Current Anchor](#foo)'));
-        $this->assertSame('<p><a href="/subdir/#foo">Root Anchor</a></p>',
-            $this->parsedown->text('[Root Anchor](/#foo)'));
-
-    }
-
-    public function testAnchorLinksSubDirAbsoluteUrls()
-    {
-        $this->config->set('system.absolute_urls', true);
-        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item-2-2', '/subdir')->init();
-
-        $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-1#foo">Peer Anchor</a></p>',
-            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
-        $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-1/#foo">Peer Anchor 2</a></p>',
-            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-//        $this->assertSame('<p><a href="http://localhost/subdir#foo">Current Anchor</a></p>',
-//            $this->parsedown->text('[Current Anchor](#foo)'));
-        $this->assertSame('<p><a href="http://localhost/subdir/#foo">Root Anchor</a></p>',
-            $this->parsedown->text('[Root Anchor](/#foo)'));
-
-    }
 
     public function testSlugRelativeLinks()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
+
+        $this->assertSame('<p><a href="/">Up to Root Level</a></p>',
+            $this->parsedown->text('[Up to Root Level](../..)'));
 
         $this->assertSame('<p><a href="/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](../item2-1)'));
@@ -151,14 +76,13 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Down a Level](item2-2-1)'));
         $this->assertSame('<p><a href="/item2">Up a Level</a></p>',
             $this->parsedown->text('[Up a Level](..)'));
-//        $this->assertSame('<p><a href="/">Up to Root Level</a></p>',
-//            $this->parsedown->text('[Up to Root Level](../..)'));
+
         $this->assertSame('<p><a href="/item3/item3-3">Up and Down</a></p>',
             $this->parsedown->text('[Up and Down](../../item3/item3-3)'));
         $this->assertSame('<p><a href="/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>',
             $this->parsedown->text('[Down a Level with Query](item2-2-1?foo=bar)'));
-//        $this->assertSame('<p><a href="/item2?foo=bar">Up a Level with Query</a></p>',
-//            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
+        $this->assertSame('<p><a href="/item2?foo=bar">Up a Level with Query</a></p>',
+            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
         $this->assertSame('<p><a href="/item3/item3-3?foo=bar">Up and Down with Query</a></p>',
             $this->parsedown->text('[Up and Down with Query](../../item3/item3-3?foo=bar)'));
         $this->assertSame('<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
@@ -167,10 +91,97 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Up and Down with Anchor](../../item3/item3-3#foo)'));
     }
 
+    public function testExternalLinks()
+    {
+        $this->assertSame('<p><a href="http://www.cnn.com">cnn.com</a></p>',
+            $this->parsedown->text('[cnn.com](http://www.cnn.com)'));
+        $this->assertSame('<p><a href="https://www.google.com">google.com</a></p>',
+            $this->parsedown->text('[google.com](https://www.google.com)'));
+    }
+
+    public function testAnchorLinksNoPortRelativeUrls()
+    {
+        $this->config->set('system.absolute_urls', false);
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
+
+        $this->assertSame('<p><a href="/item2/item2-2#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
+        $this->assertSame('<p><a href="/#foo">Root Anchor</a></p>',
+            $this->parsedown->text('[Root Anchor](/#foo)'));
+        $this->assertSame('<p><a href="/item2/item2-1#foo">Peer Anchor</a></p>',
+            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
+        $this->assertSame('<p><a href="/item2/item2-1#foo">Peer Anchor 2</a></p>',
+            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
+    }
+
+    public function testAnchorLinksNoPortAbsoluteUrls()
+    {
+        $this->config->set('system.absolute_urls', true);
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
+
+        $this->assertSame('<p><a href="http://localhost/item2/item2-1#foo">Peer Anchor</a></p>',
+            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
+        $this->assertSame('<p><a href="http://localhost/item2/item2-1#foo">Peer Anchor 2</a></p>',
+            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
+        $this->assertSame('<p><a href="http://localhost/item2/item2-2#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
+        $this->assertSame('<p><a href="http://localhost/#foo">Root Anchor</a></p>',
+            $this->parsedown->text('[Root Anchor](/#foo)'));
+    }
+
+    public function testAnchorLinksWithPortAbsoluteUrls()
+    {
+        $this->config->set('system.absolute_urls', true);
+        $this->uri->initializeWithURL('http://localhost:8080/item2/item2-2')->init();
+
+        $this->assertSame('<p><a href="http://localhost:8080/item2/item2-1#foo">Peer Anchor</a></p>',
+            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
+        $this->assertSame('<p><a href="http://localhost:8080/item2/item2-1#foo">Peer Anchor 2</a></p>',
+            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
+        $this->assertSame('<p><a href="http://localhost:8080/item2/item2-2#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
+        $this->assertSame('<p><a href="http://localhost:8080/#foo">Root Anchor</a></p>',
+            $this->parsedown->text('[Root Anchor](/#foo)'));
+
+    }
+
+    public function testAnchorLinksSubDirRelativeUrls()
+    {
+        $this->config->set('system.absolute_urls', false);
+        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item2-2', '/subdir')->init();
+
+        $this->assertSame('<p><a href="/subdir/item2/item2-1#foo">Peer Anchor</a></p>',
+            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
+        $this->assertSame('<p><a href="/subdir/item2/item2-1#foo">Peer Anchor 2</a></p>',
+            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
+        $this->assertSame('<p><a href="/subdir/item2/item2-2#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
+        $this->assertSame('<p><a href="/subdir/#foo">Root Anchor</a></p>',
+            $this->parsedown->text('[Root Anchor](/#foo)'));
+
+    }
+
+    public function testAnchorLinksSubDirAbsoluteUrls()
+    {
+        $this->config->set('system.absolute_urls', true);
+        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item2-2', '/subdir')->init();
+
+        $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-1#foo">Peer Anchor</a></p>',
+            $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
+        $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-1#foo">Peer Anchor 2</a></p>',
+            $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
+        $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-2#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
+        $this->assertSame('<p><a href="http://localhost/subdir/#foo">Root Anchor</a></p>',
+            $this->parsedown->text('[Root Anchor](/#foo)'));
+
+    }
+
+
     public function testSlugRelativeLinksAbsoluteUrls()
     {
         $this->config->set('system.absolute_urls', true);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
 
         $this->assertSame('<p><a href="http://localhost/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](../item2-1)'));
@@ -178,14 +189,14 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Down a Level](item2-2-1)'));
         $this->assertSame('<p><a href="http://localhost/item2">Up a Level</a></p>',
             $this->parsedown->text('[Up a Level](..)'));
-//        $this->assertSame('<p><a href="http://localhost/">Up to Root Level</a></p>',
-//            $this->parsedown->text('[Up to Root Level](../..)'));
+        $this->assertSame('<p><a href="http://localhost/">Up to Root Level</a></p>',
+            $this->parsedown->text('[Up to Root Level](../..)'));
         $this->assertSame('<p><a href="http://localhost/item3/item3-3">Up and Down</a></p>',
             $this->parsedown->text('[Up and Down](../../item3/item3-3)'));
         $this->assertSame('<p><a href="http://localhost/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>',
             $this->parsedown->text('[Down a Level with Query](item2-2-1?foo=bar)'));
-//        $this->assertSame('<p><a href="/item2?foo=bar">Up a Level with Query</a></p>',
-//            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
+        $this->assertSame('<p><a href="http://localhost/item2?foo=bar">Up a Level with Query</a></p>',
+            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
         $this->assertSame('<p><a href="http://localhost/item3/item3-3?foo=bar">Up and Down with Query</a></p>',
             $this->parsedown->text('[Up and Down with Query](../../item3/item3-3?foo=bar)'));
         $this->assertSame('<p><a href="http://localhost/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
@@ -197,7 +208,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testSlugRelativeLinksSubDir()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item-2-2', '/subdir')->init();
+        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item2-2', '/subdir')->init();
 
         $this->assertSame('<p><a href="/subdir/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](../item2-1)'));
@@ -211,8 +222,8 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Up and Down](../../item3/item3-3)'));
         $this->assertSame('<p><a href="/subdir/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>',
             $this->parsedown->text('[Down a Level with Query](item2-2-1?foo=bar)'));
-//        $this->assertSame('<p><a href="/subdir/item2?foo=bar">Up a Level with Query</a></p>',
-//            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
+        $this->assertSame('<p><a href="/subdir/item2?foo=bar">Up a Level with Query</a></p>',
+            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
         $this->assertSame('<p><a href="/subdir/item3/item3-3?foo=bar">Up and Down with Query</a></p>',
             $this->parsedown->text('[Up and Down with Query](../../item3/item3-3?foo=bar)'));
         $this->assertSame('<p><a href="/subdir/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
@@ -224,7 +235,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testSlugRelativeLinksSubDirAbsoluteUrls()
     {
         $this->config->set('system.absolute_urls', true);
-        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item-2-2', '/subdir')->init();
+        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item2-2', '/subdir')->init();
 
         $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](../item2-1)'));
@@ -238,8 +249,8 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Up and Down](../../item3/item3-3)'));
         $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-2/item2-2-1?foo=bar">Down a Level with Query</a></p>',
             $this->parsedown->text('[Down a Level with Query](item2-2-1?foo=bar)'));
-//        $this->assertSame('<p><a href="http://localhost/subdir/item2?foo=bar">Up a Level with Query</a></p>',
-//            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
+        $this->assertSame('<p><a href="http://localhost/subdir/item2?foo=bar">Up a Level with Query</a></p>',
+            $this->parsedown->text('[Up a Level with Query](../?foo=bar)'));
         $this->assertSame('<p><a href="http://localhost/subdir/item3/item3-3?foo=bar">Up and Down with Query</a></p>',
             $this->parsedown->text('[Up and Down with Query](../../item3/item3-3?foo=bar)'));
         $this->assertSame('<p><a href="http://localhost/subdir/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
@@ -251,7 +262,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testDirectoryRelativeLinks()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
 
         $this->assertSame('<p><a href="/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](../01.item2-1)'));
@@ -263,8 +274,8 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Down a Level with Query](01.item2-2-1?foo=bar)'));
         $this->assertSame('<p><a href="/item3/item3-3?foo=bar">Up and Down with Query</a></p>',
             $this->parsedown->text('[Up and Down with Query](../../03.item3/03.item3-3?foo=bar)'));
-//        $this->assertSame('<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
-//            $this->parsedown->text('[Up and Down with Param](../../03.item3/03.item3-3/foo:bar)'));
+        $this->assertSame('<p><a href="/item3/item3-3/foo:bar">Up and Down with Param</a></p>',
+            $this->parsedown->text('[Up and Down with Param](../../03.item3/03.item3-3/foo:bar)'));
         $this->assertSame('<p><a href="/item3/item3-3#foo">Up and Down with Anchor</a></p>',
             $this->parsedown->text('[Up and Down with Anchor](../../03.item3/03.item3-3#foo)'));
 
@@ -273,10 +284,10 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testDirectoryAbsoluteLinks()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
 
-//        $this->assertSame('<p><a href="/">Root</a></p>',
-//            $this->parsedown->text('[Root](/)'));
+        $this->assertSame('<p><a href="/">Root</a></p>',
+            $this->parsedown->text('[Root](/)'));
         $this->assertSame('<p><a href="/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](/item2/item2-1)'));
         $this->assertSame('<p><a href="/item2/item2-2/item2-2-1">Down a Level</a></p>',
@@ -295,10 +306,10 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testDirectoryAbsoluteLinksSubDir()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item-2-2', '/subdir')->init();
+        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item2-2', '/subdir')->init();
 
-//        $this->assertSame('<p><a href="/subdir/">Root</a></p>',
-//            $this->parsedown->text('[Root](/)'));
+        $this->assertSame('<p><a href="/subdir/">Root</a></p>',
+            $this->parsedown->text('[Root](/)'));
         $this->assertSame('<p><a href="/subdir/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](/item2/item2-1)'));
         $this->assertSame('<p><a href="/subdir/item2/item2-2/item2-2-1">Down a Level</a></p>',
@@ -317,10 +328,10 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testDirectoryAbsoluteLinksSubDirAbsoluteUrl()
     {
         $this->config->set('system.absolute_urls', true);
-        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item-2-2', '/subdir')->init();
+        $this->uri->initializeWithUrlAndRootPath('http://localhost/subdir/item2/item2-2', '/subdir')->init();
 
-//        $this->assertSame('<p><a href="http://localhost/subdir/">Root</a></p>',
-//            $this->parsedown->text('[Root](/)'));
+        $this->assertSame('<p><a href="http://localhost/subdir/">Root</a></p>',
+            $this->parsedown->text('[Root](/)'));
         $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-1">Peer Page</a></p>',
             $this->parsedown->text('[Peer Page](/item2/item2-1)'));
         $this->assertSame('<p><a href="http://localhost/subdir/item2/item2-2/item2-2-1">Down a Level</a></p>',
@@ -338,7 +349,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testSpecialProtocols()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
 
         $this->assertSame('<p><a href="mailto:user@domain.com">mailto</a></p>',
             $this->parsedown->text('[mailto](mailto:user@domain.com)'));
@@ -353,7 +364,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
     public function testReferenceLinks()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
 
         $sample = '[relative link][r_relative]
                    [r_relative]: ../item2-3#blah';
@@ -371,18 +382,10 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text($sample));
     }
 
-    public function testExternalLinks()
-    {
-        $this->assertSame('<p><a href="http://www.cnn.com">cnn.com</a></p>',
-            $this->parsedown->text('[cnn.com](http://www.cnn.com)'));
-        $this->assertSame('<p><a href="https://www.google.com">google.com</a></p>',
-            $this->parsedown->text('[google.com](https://www.google.com)'));
-    }
-
     public function testAttributeLinks()
     {
         $this->config->set('system.absolute_urls', false);
-        $this->uri->initializeWithURL('http://localhost/item2/item-2-2')->init();
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
 
         $this->assertSame('<p><a href="/item2/item2-3" class="button">Relative Class</a></p>',
             $this->parsedown->text('[Relative Class](../item2-3?classes=button)'));
@@ -398,6 +401,20 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Relative Rel](../item2-3?rel=nofollow)'));
         $this->assertSame('<p><a href="/item2/item2-3?foo=bar&baz=qux" rel="nofollow" class="button">Relative Mixed</a></p>',
             $this->parsedown->text('[Relative Mixed](../item2-3?foo=bar&baz=qux&rel=nofollow&class=button)'));
+    }
+
+    public function testInvalidLinks()
+    {
+        $this->config->set('system.absolute_urls', false);
+        $this->uri->initializeWithURL('http://localhost/item2/item2-2')->init();
+
+        $this->assertSame('<p><a href="/item2/item2-2/no-page">Non Existent Page</a></p>',
+            $this->parsedown->text('[Non Existent Page](no-page)'));
+        $this->assertSame('<p><a href="/item2/item2-2/existing-file.zip">Existent File</a></p>',
+            $this->parsedown->text('[Existent File](existing-file.zip)'));
+        $this->assertSame('<p><a href="/item2/item2-2/missing-file.zip">Non Existent File</a></p>',
+            $this->parsedown->text('[Non Existent File](missing-file.zip)'));
+
     }
 
 
