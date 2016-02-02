@@ -197,12 +197,19 @@ class Uri
         $this->root     = [];
         $this->url      = [];
 
+        $grav = Grav::instance();
+
+        $language = $grav['language'];
+
         $params = Uri::parseUrl($url);
 
         $this->name = $params['host'];
         $this->port = isset($params['port']) ? $params['port'] : '80';
 
         $this->uri = $params['path'];
+
+        // set active language
+        $uri = $language->setActiveFromUri($this->uri);
 
         if (isset($params['params'])) {
             $this->params($params['params']);
@@ -218,7 +225,8 @@ class Uri
         $this->env = $this->buildEnvironment();
         $this->root_path = $this->buildRootPath();
         $this->root = $this->base . $this->root_path;
-        $this->url = $this->base . $this->uri;
+        $this->url = $this->root . $uri;
+        $this->path = $uri;
 
         return $this;
     }
