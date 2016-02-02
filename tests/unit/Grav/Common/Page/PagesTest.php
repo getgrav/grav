@@ -43,6 +43,8 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertSame('', $this->pages->base());
         $this->pages->base('/test');
         $this->assertSame('/test', $this->pages->base());
+        $this->pages->base('');
+        $this->assertSame(null, $this->pages->base());
     }
 
     public function testLastModified()
