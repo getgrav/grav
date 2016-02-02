@@ -71,6 +71,21 @@ class MarkdownTest extends \Codeception\TestCase\Test
     {
     }
 
+    public function testSlugRelativeImages()
+    {
+        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+
+//        * up and down with anchor ![](../gallery/preset-8.jpg?cropResize=200,200)
+//        * up more and down more ![](../../blog/focus-and-blur/unslpash_yair_hazout.jpg?cropResize=200,200)
+//        * just down ![](item2-1/image3.jpg?cropResize=200,200)
+//        * down more ![](item2-1/item2-1-2/image2.jpg?cropResize=200,200)
+
+        $this->assertSame('<p><a href="http://www.cnn.com">cnn.com</a></p>',
+            $this->parsedown->text('[cnn.com](http://www.cnn.com)'));
+        $this->assertSame('<p><a href="https://www.google.com">google.com</a></p>',
+            $this->parsedown->text('[google.com](https://www.google.com)'));
+    }
+
 
     public function testAnchorLinksLangRelativeUrls()
     {

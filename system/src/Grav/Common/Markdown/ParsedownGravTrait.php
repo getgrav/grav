@@ -20,6 +20,9 @@ trait ParsedownGravTrait
     /** @var Pages $pages */
     protected $pages;
 
+    /** @var  Uri $uri */
+    protected $uri;
+
     protected $base_url;
     protected $pages_dir;
     protected $special_chars;
@@ -41,8 +44,9 @@ trait ParsedownGravTrait
 
         $this->page = $page;
         $this->pages = $grav['pages'];
+        $this->uri = $grav['uri'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->base_url = rtrim(self::getGrav()['base_url'] . self::getGrav()['pages']->base(), '/');
+        $this->base_url = rtrim(self::getGrav()['base_url_relative'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
@@ -203,8 +207,10 @@ trait ParsedownGravTrait
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
 
+            $this_host = isset($url['host']) && $url['host'] == $this->uri->host();
+
             // if there is no host set but there is a path, the file is local
-            if (!isset($url['host']) && isset($url['path'])) {
+            if ((!isset($url['host']) || $this_host) && isset($url['path'])) {
                 $path_parts = pathinfo($url['path']);
 
                 // get the local path to page media if possible
@@ -336,7 +342,7 @@ trait ParsedownGravTrait
             }
 
             // handle paths and such
-            $url = Uri::convertUrl($this->page, $url, $type, true);
+            $url = Uri::convertUrl($this->page, $url, $type);
 
             // build the URL from the component parts and set it on the element
             $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);

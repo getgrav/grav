@@ -722,11 +722,11 @@ class Uri
      * @param Page   $page         the current page to use as reference
      * @param string $url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
-     * @param null   $relative     if null, will use system default, if true will use relative links internally
+     * @param null   $absolute     if null, will use system default, if true will use absolute links internally
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $url, $type = 'link', $relative = null)
+    public static function convertUrl(Page $page, $url, $type = 'link', $absolute = false)
     {
         $grav = Grav::instance();
 
@@ -747,7 +747,7 @@ class Uri
         }
 
         $external   = false;
-        $base       = is_null($relative) ? $grav['base_url'] : ($relative ? $grav['base_url_relative'] : $grav['base_url_absolute']);
+        $base       = $grav['base_url_relative'];
         $base_url   = rtrim($base . $grav['pages']->base(), '/') . $language_append;
         $pages_dir  = $grav['locator']->findResource('page://');
 
@@ -822,8 +822,7 @@ class Uri
         }
 
         // handle absolute URLs
-        if (!$external && $grav['config']->get('system.absolute_urls', false)) {
-
+        if (!$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
 
             $url['scheme'] = str_replace('://', '', $uri->scheme());
             $url['host'] = $uri->host();
@@ -837,11 +836,11 @@ class Uri
             $routes = $pages->routes();
 
             // if this is an image, get the proper path
-            $url_bits = pathinfo($url['path']);
+            $url_bits = pathinfo($url_path);
             if (isset($url_bits['extension'])) {
                 $target_path = $url_bits['dirname'];
             } else {
-                $target_path = $url['path'];
+                $target_path = $url_path;
             }
 
             // strip base from this path
