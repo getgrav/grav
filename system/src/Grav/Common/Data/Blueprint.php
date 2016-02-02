@@ -286,8 +286,9 @@ class Blueprint extends BaseBlueprints implements ExportInterface
         $file = CompiledYamlFile::instance($filename);
         $blueprint = (new Blueprint($type, $file->content(), $this->context))->init('static');
 
-        //$this->embed($field['name'], $blueprint->toArray(), '.', -1);
-        $this->parseFormFields($blueprint->toArray()['form']['fields'], $this->filter, '', $field['name'].'.', -1, $call['form']);
+        $fields = $this->parseFormFields($blueprint->toArray()['form']['fields'], $this->filter, '', $field['name'].'.', -1, $call['form']);
+
+        $this->setFormFields($call['form'], $fields);
     }
 
     /**
