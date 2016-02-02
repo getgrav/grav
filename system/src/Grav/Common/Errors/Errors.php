@@ -15,6 +15,9 @@ class Errors
         $grav = Grav::instance();
         $config = $grav['config']->get('system.errors');
 
+        $headers = @apache_request_headers();
+        $jsonRequest = $headers['Accept'] == 'application/json';
+
         // Setup Whoops-based error handler
         $whoops = new \Whoops\Run;
 
@@ -31,11 +34,11 @@ class Errors
         }
 
         if (method_exists('Whoops\Util\Misc', 'isAjaxRequest')) { //Whoops 2.0
-            if (Whoops\Util\Misc::isAjaxRequest()) {
+            if (Whoops\Util\Misc::isAjaxRequest() || $jsonRequest) {
                 $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
             }
         } elseif (function_exists('Whoops\isAjaxRequest')) { //Whoops 2.0.0-alpha
-            if (Whoops\isAjaxRequest()) {
+            if (Whoops\isAjaxRequest() || $jsonRequest) {
                 $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
             }
         } else { //Whoops 1.x
