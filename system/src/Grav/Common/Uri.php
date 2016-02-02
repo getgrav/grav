@@ -685,13 +685,174 @@ class Uri
      * Converts links from absolute '/' or relative (../..) to a Grav friendly format
      *
      * @param Page   $page         the current page to use as reference
+     * @param string $url the URL as it was written in the markdown
+     * @param string $type         the type of URL, image | link
+     * @param null   $relative     if null, will use system default, if true will use relative links internally
+     *
+     * @return string the more friendly formatted url
+     */
+    public static function convertUrl(Page $page, $url, $type = 'link', $relative = null)
+    {
+        $grav = Grav::instance();
+
+        $uri = $grav['uri'];
+
+        // Link processing should prepend language
+        $language = $grav['language'];
+        $language_append = '';
+        if ($type == 'link' && $language->enabled()) {
+            $language_append = $language->getLanguageURLPrefix();
+        }
+
+        // Handle Excerpt style $url array
+        if (is_array($url)) {
+            $url_path = $url['path'];
+        } else {
+            $url_path = $url;
+        }
+
+        $base       = is_null($relative) ? $grav['base_url'] : ($relative ? $grav['base_url_relative'] : $grav['base_url_absolute']);
+        $base_url   = rtrim($base . $grav['pages']->base(), '/') . $language_append;
+        $pages_dir  = $grav['locator']->findResource('page://');
+
+        // if absolute and starts with a base_url move on
+        if (isset($url['scheme']) && Utils::startsWith($url['scheme'], 'http')) {
+            //do nothing it's external
+        } elseif (($base_url != '' && Utils::startsWith($url_path, $base_url)) ||
+                   $url_path == '/' ||
+                   Utils::startsWith($url_path, '#')) {
+                       $url_path = $base_url . $url_path;
+        } else {
+
+            // see if page is relative to this or absolute
+            if (Utils::startsWith($url_path, '/')) {
+                $normalized_url = Utils::normalizePath($base_url . $url_path);
+                $normalized_path = Utils::normalizePath($pages_dir . $url_path);
+            } else {
+                $normalized_url = $base_url . Utils::normalizePath($page->route() . '/' . $url_path);
+                $normalized_path = Utils::normalizePath($page->path() . '/' . $url_path);
+            }
+
+            // special check to see if path checking is required.
+            $just_path = str_replace($normalized_url, '', $normalized_path);
+            if ($just_path == $page->path() || $normalized_url == '/') {
+                $url_path = $normalized_url;
+            } else {
+                $url_bits = parse_url($normalized_path);
+                $full_path = ($url_bits['path']);
+                $raw_full_path = rawurldecode($full_path);
+
+                if (file_exists($raw_full_path)) {
+                    $full_path = $raw_full_path;
+                } elseif (file_exists($full_path)) {
+                   // do nothing
+                } else {
+                    $full_path = false;
+                }
+
+                if ($full_path) {
+                    $path_info = pathinfo($full_path);
+                    $page_path = $path_info['dirname'];
+                    $filename = '';
+
+                    if ($url_path == '..') {
+                        $page_path = $full_path;
+                    } else {
+                        // save the filename if a file is part of the path
+                        if (is_file($full_path)) {
+                            if ($path_info['extension'] != 'md') {
+                                $filename = '/' . $path_info['basename'];
+                            }
+                        } else {
+                            $page_path = $full_path;
+                        }
+                    }
+
+                    // get page instances and try to find one that fits
+                    $instances = $grav['pages']->instances();
+                    if (isset($instances[$page_path])) {
+                        /** @var Page $target */
+                        $target = $instances[$page_path];
+                        $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
+
+                        $url_path = Uri::buildUrl($url_bits);
+                    } else {
+                        $url_path = $normalized_url;
+                    }
+                } else {
+                    $url_path = $normalized_url;
+                }
+            }
+        }
+
+        // handle absolute URLs
+        if ($grav['config']->get('system.absolute_urls', false)) {
+
+
+            $url['scheme'] = str_replace('://', '', $uri->scheme());
+            $url['host'] = $uri->host();
+
+            if ($uri->port() != 80 && $uri->port() != 443) {
+                $url['port'] = $uri->port();
+            }
+
+            // check if page exists for this route, and if so, check if it has SSL enabled
+            $pages = $grav['pages'];
+            $routes = $pages->routes();
+
+            // if this is an image, get the proper path
+            $url_bits = pathinfo($url['path']);
+            if (isset($url_bits['extension'])) {
+                $target_path = $url_bits['dirname'];
+            } else {
+                $target_path = $url['path'];
+            }
+
+            // strip base from this path
+            $target_path = str_replace($uri->rootUrl(), '', $target_path);
+
+            // set to / if root
+            if (empty($target_path)) {
+                $target_path = '/';
+            }
+
+            // look to see if this page exists and has ssl enabled
+            if (isset($routes[$target_path])) {
+                $target_page = $pages->get($routes[$target_path]);
+                if ($target_page) {
+                    $ssl_enabled = $target_page->ssl();
+                    if (isset($ssl_enabled)) {
+                        if ($ssl_enabled) {
+                            $url['scheme'] = 'https';
+                        } else {
+                            $url['scheme'] = 'http';
+                        }
+                    }
+                }
+            }
+        }
+
+        // transform back to string/array as needed
+        if (is_array($url)) {
+            $url['path'] = $url_path;
+        } else {
+            $url = $url_path;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Converts links from absolute '/' or relative (../..) to a Grav friendly format
+     *
+     * @param Page   $page         the current page to use as reference
      * @param string $markdown_url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
      * @param null   $relative     if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $markdown_url, $type = 'link', $relative = null)
+    public static function convertUrlOld(Page $page, $markdown_url, $type = 'link', $relative = null)
     {
         $grav = Grav::instance();
 

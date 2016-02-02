@@ -327,7 +327,7 @@ trait ParsedownGravTrait
 
             // set path to / if not set
             if (empty($url['path'])) {
-                $url['path'] = '/';
+                $url['path'] = '';
             }
 
             // if special scheme, just return
@@ -335,66 +335,11 @@ trait ParsedownGravTrait
                 return $excerpt;
             }
 
-            // if there is no scheme, the file is local and we'll need to convert that URL
-            if (!isset($url['scheme']) && (count($url) > 0)) {
-                $url['path'] = Uri::convertUrl($this->page, Uri::buildUrl($url), $type,
-                    true);
-            } else {
-                $url['path'] = Uri::convertUrl($this->page, $url['path'], $type, true);
-            }
+            // handle paths and such
+            $url = Uri::convertUrl($this->page, $url, $type, true);
 
-            // URL path already has these now so remove them
-            unset($url['query']);
-            unset($url['fragment']);
-
-            // if absolute urls enabled, add them
-            if (self::getGrav()['config']->get('system.absolute_urls', false)) {
-                $uri = self::getGrav()['uri'];
-                $url['scheme'] = str_replace('://', '', $uri->scheme());
-                $url['host'] = $uri->host();
-
-                if ($uri->port() != 80 && $uri->port() != 443) {
-                    $url['port'] = $uri->port();
-                }
-
-                // check if page exists for this route, and if so, check if it has SSL enabled
-                $pages = self::getGrav()['pages'];
-                $routes = $pages->routes();
-
-                // if this is an image, get the proper path
-                $url_bits = pathinfo($url['path']);
-                if (isset($url_bits['extension'])) {
-                    $target_path = $url_bits['dirname'];
-                } else {
-                    $target_path = $url['path'];
-                }
-
-                // strip base from this path
-                $target_path = str_replace($uri->rootUrl(), '', $target_path);
-
-                // set to / if root
-                if (empty($target_path)) {
-                    $target_path = '/';
-                }
-
-                // look to see if this page exists and has ssl enabled
-                if (isset($routes[$target_path])) {
-                    $target_page = $pages->get($routes[$target_path]);
-                    if ($target_page) {
-                        $ssl_enabled = $target_page->ssl();
-                        if (isset($ssl_enabled)) {
-                            if ($ssl_enabled) {
-                                $url['scheme'] = 'https';
-                            } else {
-                                $url['scheme'] = 'http';
-                            }
-                        }
-                    }
-                }
-            }
-
+            // build the URL from the component parts and set it on the element
             $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
-
         }
 
         return $excerpt;
