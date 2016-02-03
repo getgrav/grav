@@ -81,38 +81,54 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('![](cache-image.jpg?cropResize=200,200&foo)'));
         $this->assertRegexp('|<p><img src="\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
+        $this->assertSame('<p><img src="/item2/item2-2/missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](missing-image.jpg)'));
+        $this->assertSame('<p><img src="/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
 
+        $this->config->set('system.languages.supported', ['fr','en']);
+        unset($this->grav['language']);
+        $this->grav['language'] = new Language($this->grav);
+        $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
 
-    }
+        $this->assertSame('<p><img src="/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
+            $this->parsedown->text('![](cache-image.jpg?cropResize=200,200&foo)'));
+   }
 
     public function testImagesSubDir()
     {
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
 
+        $this->assertRegexp('|<p><img src="\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
         $this->assertSame('<p><img src="/subdir/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
         $this->assertRegexp('|<p><img src="\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cache)'));
-//        $this->assertRegexp('|<p><img src="\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
-//            $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
-
+        $this->assertSame('<p><img src="/subdir/item2/item2-2/missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](missing-image.jpg)'));
+        $this->assertSame('<p><img src="/subdir/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
 
     }
-
 
     public function testImagesAbsoluteUrls()
     {
         $this->config->set('system.absolute_urls', true);
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
-//        $this->assertSame('<p><img src="http://testing.dev/images/02.item2/02.item2-2/sample-image.jpg" /></p>',
-//            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertSame('<p><img src="http://testing.dev/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)'));
         $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cache)'));
         $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
-
-
+        $this->assertSame('<p><img src="http://testing.dev/item2/item2-2/missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](missing-image.jpg)'));
+        $this->assertSame('<p><img src="http://testing.dev/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
     }
 
     public function testImagesSubDirAbsoluteUrls()
@@ -120,14 +136,112 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->config->set('system.absolute_urls', true);
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
 
-//        $this->assertSame('<p><img src="http://testing.dev/subdir/02.item2/02.item2-2/sample-image.jpg" /></p>',
-//            $this->parsedown->text('![](sample-image.jpg)'));
-//        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-sample-image.jpe?g" \/><\/p>|',
-//            $this->parsedown->text('![](sample-image.jpg?cache)'));
-//        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-home-image.jpe?g" \/><\/p>|',
-//            $this->parsedown->text('![](/home-image.jpg?cache)'));
+        $this->assertSame('<p><img src="http://testing.dev/subdir/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](cache-image.jpg?cache)'));
+        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](/home-cache-image.jpg?cropResize=200,200)'));
+        $this->assertSame('<p><img src="http://testing.dev/subdir/item2/item2-2/missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](missing-image.jpg)'));
+        $this->assertSame('<p><img src="http://testing.dev/subdir/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
+    }
+
+    public function testRootImages()
+    {
+        $this->uri->initializeWithURL('http://testing.dev/')->init();
+
+        $defaults = [
+            'extra'            => false,
+            'auto_line_breaks' => false,
+            'auto_url_links'   => false,
+            'escape_markup'    => false,
+            'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+        ];
+        $page = $this->pages->dispatch('/');
+        $this->parsedown = new Parsedown($page, $defaults);
+
+        $this->assertSame('<p><img src="/01.item1/home-sample-image.jpg" /></p>',
+            $this->parsedown->text('![](home-sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](home-cache-image.jpg?cache)'));
+        $this->assertRegexp('|<p><img src="\/images\/.*-home-cache-image.jpe?g\?foo=1" \/><\/p>|',
+            $this->parsedown->text('![](home-cache-image.jpg?cropResize=200,200&foo)'));
+        $this->assertSame('<p><img src="/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
+
+        $this->config->set('system.languages.supported', ['fr','en']);
+        unset($this->grav['language']);
+        $this->grav['language'] = new Language($this->grav);
+        $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
+
+        $this->assertSame('<p><img src="/01.item1/home-sample-image.jpg" /></p>',
+            $this->parsedown->text('![](home-sample-image.jpg)'));
 
 
+    }
+
+    public function testRootImagesSubDirAbsoluteUrls()
+    {
+        $this->config->set('system.absolute_urls', true);
+        $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
+
+        $this->assertSame('<p><img src="http://testing.dev/subdir/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](cache-image.jpg?cache)'));
+        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](/home-cache-image.jpg?cropResize=200,200)'));
+        $this->assertSame('<p><img src="http://testing.dev/subdir/item2/item2-2/missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](missing-image.jpg)'));
+        $this->assertSame('<p><img src="http://testing.dev/subdir/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
+    }
+
+    public function testRootAbsoluteLinks()
+    {
+        $this->uri->initializeWithURL('http://testing.dev/')->init();
+
+        $defaults = [
+            'extra'            => false,
+            'auto_line_breaks' => false,
+            'auto_url_links'   => false,
+            'escape_markup'    => false,
+            'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+        ];
+        $page = $this->pages->dispatch('/');
+        $this->parsedown = new Parsedown($page, $defaults);
+
+
+        $this->assertSame('<p><a href="/item1/item1-3">Down a Level</a></p>',
+            $this->parsedown->text('[Down a Level](item1-3)'));
+
+        $this->assertSame('<p><a href="/item2">Peer Page</a></p>',
+            $this->parsedown->text('[Peer Page](../item2)'));
+
+        $this->assertSame('<p><a href="/?foo=bar">With Query</a></p>',
+            $this->parsedown->text('[With Query](?foo=bar)'));
+        $this->assertSame('<p><a href="/foo:bar">With Param</a></p>',
+            $this->parsedown->text('[With Param](/foo:bar)'));
+        $this->assertSame('<p><a href="/#foo">With Anchor</a></p>',
+            $this->parsedown->text('[With Anchor](#foo)'));
+
+        $this->config->set('system.languages.supported', ['fr','en']);
+        unset($this->grav['language']);
+        $this->grav['language'] = new Language($this->grav);
+        $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
+
+        $this->assertSame('<p><a href="/fr/item2">Peer Page</a></p>',
+            $this->parsedown->text('[Peer Page](../item2)'));
+        $this->assertSame('<p><a href="/fr/item1/item1-3">Down a Level</a></p>',
+            $this->parsedown->text('[Down a Level](item1-3)'));
+        $this->assertSame('<p><a href="/fr/?foo=bar">With Query</a></p>',
+            $this->parsedown->text('[With Query](?foo=bar)'));
+        $this->assertSame('<p><a href="/fr/foo:bar">With Param</a></p>',
+            $this->parsedown->text('[With Param](/foo:bar)'));
+        $this->assertSame('<p><a href="/fr/#foo">With Anchor</a></p>',
+            $this->parsedown->text('[With Anchor](#foo)'));
     }
 
 
@@ -167,8 +281,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Root Anchor](/#foo)'));
 
     }
-
-
 
 
     public function testExternalLinks()
@@ -403,48 +515,6 @@ class MarkdownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Up and Down with Anchor](../../03.item3/03.item3-3#foo)'));
     }
 
-    public function testAbsoluteRootLinks()
-    {
-        $this->uri->initializeWithURL('http://testing.dev/')->init();
-
-        $defaults = [
-            'extra'            => false,
-            'auto_line_breaks' => false,
-            'auto_url_links'   => false,
-            'escape_markup'    => false,
-            'special_chars'    => ['>' => 'gt', '<' => 'lt'],
-        ];
-        $page = $this->pages->dispatch('/');
-        $this->parsedown = new Parsedown($page, $defaults);
-
-
-        $this->assertSame('<p><a href="/item2">Peer Page</a></p>',
-            $this->parsedown->text('[Peer Page](../item2)'));
-//        $this->assertSame('<p><a href="/item1/item1-3">Down a Level</a></p>',
-//            $this->parsedown->text('[Down a Level](item1-3)'));
-        $this->assertSame('<p><a href="/?foo=bar">With Query</a></p>',
-            $this->parsedown->text('[With Query](?foo=bar)'));
-        $this->assertSame('<p><a href="/foo:bar">With Param</a></p>',
-            $this->parsedown->text('[With Param](/foo:bar)'));
-        $this->assertSame('<p><a href="/#foo">With Anchor</a></p>',
-            $this->parsedown->text('[With Anchor](#foo)'));
-
-        $this->config->set('system.languages.supported', ['fr','en']);
-        unset($this->grav['language']);
-        $this->grav['language'] = new Language($this->grav);
-        $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
-
-        $this->assertSame('<p><a href="/fr/item2">Peer Page</a></p>',
-            $this->parsedown->text('[Peer Page](../item2)'));
-//        $this->assertSame('<p><a href="/fr/item1/item1-3">Down a Level</a></p>',
-//            $this->parsedown->text('[Down a Level](item1-3)'));
-        $this->assertSame('<p><a href="/fr/?foo=bar">With Query</a></p>',
-            $this->parsedown->text('[With Query](?foo=bar)'));
-        $this->assertSame('<p><a href="/fr/foo:bar">With Param</a></p>',
-            $this->parsedown->text('[With Param](/foo:bar)'));
-        $this->assertSame('<p><a href="/fr/#foo">With Anchor</a></p>',
-            $this->parsedown->text('[With Anchor](#foo)'));
-    }
 
     public function testAbsoluteLinks()
     {

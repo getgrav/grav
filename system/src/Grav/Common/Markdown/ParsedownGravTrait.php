@@ -23,7 +23,6 @@ trait ParsedownGravTrait
     /** @var  Uri $uri */
     protected $uri;
 
-    protected $base_url;
     protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
@@ -46,7 +45,6 @@ trait ParsedownGravTrait
         $this->pages = $grav['pages'];
         $this->uri = $grav['uri'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->base_url = rtrim(self::getGrav()['base_url_relative'] . self::getGrav()['pages']->base(), '/');
         $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
@@ -215,17 +213,16 @@ trait ParsedownGravTrait
 
                 // get the local path to page media if possible
                 if ($path_parts['dirname'] == $this->page->url(false, false, false)) {
-                    $url['path'] = urldecode($path_parts['basename']);
                     // get the media objects for this page
                     $media = $this->page->media();
                 } else {
                     // see if this is an external page to this one
-                    $page_route = str_replace($this->base_url, '', $path_parts['dirname']);
+                    $base_url = rtrim(self::getGrav()['base_url_relative'] . self::getGrav()['pages']->base(), '/');
+                    $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
 
                     $ext_page = $this->pages->dispatch($page_route, true);
                     if ($ext_page) {
                         $media = $ext_page->media();
-                        $url['path'] = urldecode($path_parts['basename']);
                     }
                 }
 
