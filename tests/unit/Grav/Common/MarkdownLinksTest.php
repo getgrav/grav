@@ -71,19 +71,63 @@ class MarkdownTest extends \Codeception\TestCase\Test
     {
     }
 
-    public function testSlugRelativeImages()
+    public function testImages()
     {
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
-//        * up and down with anchor ![](../gallery/preset-8.jpg?cropResize=200,200)
-//        * up more and down more ![](../../blog/focus-and-blur/unslpash_yair_hazout.jpg?cropResize=200,200)
-//        * just down ![](item2-1/image3.jpg?cropResize=200,200)
-//        * down more ![](item2-1/item2-1-2/image2.jpg?cropResize=200,200)
+        $this->assertSame('<p><img src="/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
+            $this->parsedown->text('![](cache-image.jpg?cropResize=200,200&foo)'));
+        $this->assertRegexp('|<p><img src="\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
 
-        $this->assertSame('<p><a href="http://www.cnn.com">cnn.com</a></p>',
-            $this->parsedown->text('[cnn.com](http://www.cnn.com)'));
-        $this->assertSame('<p><a href="https://www.google.com">google.com</a></p>',
-            $this->parsedown->text('[google.com](https://www.google.com)'));
+
+    }
+
+    public function testImagesSubDir()
+    {
+        $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
+
+        $this->assertSame('<p><img src="/subdir/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](cache-image.jpg?cache)'));
+//        $this->assertRegexp('|<p><img src="\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+//            $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
+
+
+    }
+
+
+    public function testImagesAbsoluteUrls()
+    {
+        $this->config->set('system.absolute_urls', true);
+        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+
+//        $this->assertSame('<p><img src="http://testing.dev/images/02.item2/02.item2-2/sample-image.jpg" /></p>',
+//            $this->parsedown->text('![](sample-image.jpg)'));
+        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](cache-image.jpg?cache)'));
+        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+            $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
+
+
+    }
+
+    public function testImagesSubDirAbsoluteUrls()
+    {
+        $this->config->set('system.absolute_urls', true);
+        $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
+
+//        $this->assertSame('<p><img src="http://testing.dev/subdir/02.item2/02.item2-2/sample-image.jpg" /></p>',
+//            $this->parsedown->text('![](sample-image.jpg)'));
+//        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-sample-image.jpe?g" \/><\/p>|',
+//            $this->parsedown->text('![](sample-image.jpg?cache)'));
+//        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-home-image.jpe?g" \/><\/p>|',
+//            $this->parsedown->text('![](/home-image.jpg?cache)'));
+
+
     }
 
 
