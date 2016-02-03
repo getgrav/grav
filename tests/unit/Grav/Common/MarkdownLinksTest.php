@@ -32,6 +32,8 @@ class MarkdownTest extends \Codeception\TestCase\Test
     /** @var  Language $language */
     protected $language;
 
+    protected $old_home;
+
     static $run = false;
 
     protected function _before()
@@ -41,6 +43,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
         $this->config = $this->grav['config'];
         $this->uri = $this->grav['uri'];
         $this->language = $this->grav['language'];
+        $this->old_home = $this->config->get('system.home.alias');
         $this->config->set('system.home.alias', '/item1');
         $this->config->set('system.absolute_urls', false);
         $this->config->set('system.languages.supported', []);
@@ -69,6 +72,7 @@ class MarkdownTest extends \Codeception\TestCase\Test
 
     protected function _after()
     {
+        $this->config->set('system.home.alias', $this->old_home);
     }
 
     public function testImages()

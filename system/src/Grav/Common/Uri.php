@@ -201,23 +201,23 @@ class Uri
 
         $language = $grav['language'];
 
-        $params = Uri::parseUrl($url);
+        $uri_bits = Uri::parseUrl($url);
 
-        $this->name = $params['host'];
-        $this->port = isset($params['port']) ? $params['port'] : '80';
+        $this->name = $uri_bits['host'];
+        $this->port = isset($uri_bits['port']) ? $uri_bits['port'] : '80';
 
-        $this->uri = $params['path'];
+        $this->uri = $uri_bits['path'];
 
         // set active language
         $uri = $language->setActiveFromUri($this->uri);
 
-        if (isset($params['params'])) {
-            $this->params($params['params']);
+        if (isset($uri_bits['params'])) {
+            $this->params = $uri_bits['params'];
         }
 
-        if (isset($params['query'])) {
-            $this->uri .= '?' . $params['query'];
-            parse_str($params['query'], $this->query);
+        if (isset($uri_bits['query'])) {
+            $this->uri .= '?' . $uri_bits['query'];
+            parse_str($uri_bits['query'], $this->query);
         }
 
         $this->base = $this->buildBaseUrl();

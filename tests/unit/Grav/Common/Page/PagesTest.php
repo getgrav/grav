@@ -27,10 +27,12 @@ class PagesTest extends \Codeception\TestCase\Test
     {
         $this->grav = Fixtures::get('grav');
         $this->pages = $this->grav['pages'];
+        $this->grav['config']->set('system.home.alias', '/home');
 
         if (!self::$run) {
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
+
             $locator->addPath('page', '', 'tests/fake/simple-site/user/pages', false);
             $this->pages->init();
             self::$run = true;
