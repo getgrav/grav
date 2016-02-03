@@ -21,6 +21,7 @@ class Uri
     protected $content_path;
     protected $extension;
     protected $host;
+    protected $env;
     protected $params;
     protected $path;
     protected $paths;
@@ -41,6 +42,7 @@ class Uri
         $this->params       = [];
         $this->query        = [];
         $this->name         = $this->buildHostname();
+        $this->env          = $this->buildEnvironment();
         $this->port         = $this->buildPort();
         $this->uri          = $this->buildUri();
         $this->scheme       = $this->buildScheme();
@@ -151,17 +153,22 @@ class Uri
      */
     private function buildHost()
     {
+        return $this->name;
+    }
+
+    private function buildEnvironment()
+    {
         // set hostname
         $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
 
         // check for localhost variations
         if ($this->name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            $host = 'localhost';
+            $env = 'localhost';
         } else {
-            $host = $this->name;
+            $env = $this->name;
         }
 
-        return $host;
+        return $env;
     }
 
     /**
@@ -182,6 +189,7 @@ class Uri
         $this->params   = [];
         $this->query    = [];
         $this->name     = [];
+        $this->env      = [];
         $this->port     = [];
         $this->uri      = [];
         $this->base     = [];
@@ -189,12 +197,24 @@ class Uri
         $this->root     = [];
         $this->url      = [];
 
-        $params = parse_url($url);
+        $grav = Grav::instance();
+
+        $language = $grav['language'];
+
+        $params = Uri::parseUrl($url);
 
         $this->name = $params['host'];
         $this->port = isset($params['port']) ? $params['port'] : '80';
 
         $this->uri = $params['path'];
+
+        // set active language
+        $uri = $language->setActiveFromUri($this->uri);
+
+        if (isset($params['params'])) {
+            $this->params($params['params']);
+        }
+
         if (isset($params['query'])) {
             $this->uri .= '?' . $params['query'];
             parse_str($params['query'], $this->query);
@@ -202,9 +222,11 @@ class Uri
 
         $this->base = $this->buildBaseUrl();
         $this->host = $this->buildHost();
+        $this->env = $this->buildEnvironment();
         $this->root_path = $this->buildRootPath();
         $this->root = $this->base . $this->root_path;
-        $this->url = $this->base . $this->uri;
+        $this->url = $this->root . $uri;
+        $this->path = $uri;
 
         return $this;
     }
@@ -529,7 +551,7 @@ class Uri
      */
     public function environment()
     {
-        return $this->host();
+        return $this->env;
     }
 
 
@@ -675,10 +697,225 @@ class Uri
         $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
         $pass     = ($user || $pass) ? "$pass@" : '';
         $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $params   = isset($parsed_url['params']) ? static::buildParams($parsed_url['params']) : '';
         $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-        return "$scheme$user$pass$host$port$path$query$fragment";
+        return "$scheme$user$pass$host$port$path$params$query$fragment";
+    }
+
+    public static function buildParams($params)
+    {
+        $grav = Grav::instance();
+
+        $params_string = '';
+        foreach ($params as $key => $value) {
+            $output[] = $key . $grav['config']->get('system.param_sep') . $value;
+            $params_string .= '/' . implode('/', $output);
+        }
+        return $params_string;
+    }
+
+    /**
+     * Converts links from absolute '/' or relative (../..) to a Grav friendly format
+     *
+     * @param Page   $page         the current page to use as reference
+     * @param string $url the URL as it was written in the markdown
+     * @param string $type         the type of URL, image | link
+     * @param null   $absolute     if null, will use system default, if true will use absolute links internally
+     *
+     * @return string the more friendly formatted url
+     */
+    public static function convertUrl(Page $page, $url, $type = 'link', $absolute = false)
+    {
+        $grav = Grav::instance();
+
+        $uri = $grav['uri'];
+
+        // Link processing should prepend language
+        $language = $grav['language'];
+        $language_append = '';
+        if ($type == 'link' && $language->enabled()) {
+            $language_append = $language->getLanguageURLPrefix();
+        }
+
+        // Handle Excerpt style $url array
+        if (is_array($url)) {
+            $url_path = $url['path'];
+        } else {
+            $url_path = $url;
+        }
+
+        $external   = false;
+        $base       = $grav['base_url_relative'];
+        $base_url   = rtrim($base . $grav['pages']->base(), '/') . $language_append;
+        $pages_dir  = $grav['locator']->findResource('page://');
+
+        // if absolute and starts with a base_url move on
+        if (isset($url['scheme']) && Utils::startsWith($url['scheme'], 'http')) {
+            $external = true;
+        } elseif (($base_url != '' && Utils::startsWith($url_path, $base_url)) ||
+                   $url_path == '/' ||
+                   Utils::startsWith($url_path, '#')) {
+                       $url_path = $base_url . $url_path;
+        } else {
+
+            // see if page is relative to this or absolute
+            if (Utils::startsWith($url_path, '/')) {
+                $normalized_url = Utils::normalizePath($base_url . $url_path);
+                $normalized_path = Utils::normalizePath($pages_dir . $url_path);
+            } else {
+                $page_route = ($page->home() && !empty($url_path)) ? $page->rawRoute() : $page->route();
+                $normalized_url = $base_url . Utils::normalizePath($page_route . '/' . $url_path);
+                $normalized_path = Utils::normalizePath($page->path() . '/' . $url_path);
+            }
+
+            // special check to see if path checking is required.
+            $just_path = str_replace($normalized_url, '', $normalized_path);
+            if ($just_path == $page->path() || $normalized_url == '/') {
+                $url_path = $normalized_url;
+            } else {
+                $url_bits = static::parseUrl($normalized_path);
+                $full_path = ($url_bits['path']);
+                $raw_full_path = rawurldecode($full_path);
+
+                if (file_exists($raw_full_path)) {
+                    $full_path = $raw_full_path;
+                } elseif (file_exists($full_path)) {
+                   // do nothing
+                } else {
+                    $full_path = false;
+                }
+
+                if ($full_path) {
+                    $path_info = pathinfo($full_path);
+                    $page_path = $path_info['dirname'];
+                    $filename = '';
+
+                    if ($url_path == '..') {
+                        $page_path = $full_path;
+                    } else {
+                        // save the filename if a file is part of the path
+                        if (is_file($full_path)) {
+                            if ($path_info['extension'] != 'md') {
+                                $filename = '/' . $path_info['basename'];
+                            }
+                        } else {
+                            $page_path = $full_path;
+                        }
+                    }
+
+                    // get page instances and try to find one that fits
+                    $instances = $grav['pages']->instances();
+                    if (isset($instances[$page_path])) {
+                        /** @var Page $target */
+                        $target = $instances[$page_path];
+                        $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
+
+                        $url_path = Uri::buildUrl($url_bits);
+                    } else {
+                        $url_path = $normalized_url;
+                    }
+                } else {
+                    $url_path = $normalized_url;
+                }
+            }
+        }
+
+        // handle absolute URLs
+        if (!$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
+
+            $url['scheme'] = str_replace('://', '', $uri->scheme());
+            $url['host'] = $uri->host();
+
+            if ($uri->port() != 80 && $uri->port() != 443) {
+                $url['port'] = $uri->port();
+            }
+
+            // check if page exists for this route, and if so, check if it has SSL enabled
+            $pages = $grav['pages'];
+            $routes = $pages->routes();
+
+            // if this is an image, get the proper path
+            $url_bits = pathinfo($url_path);
+            if (isset($url_bits['extension'])) {
+                $target_path = $url_bits['dirname'];
+            } else {
+                $target_path = $url_path;
+            }
+
+            // strip base from this path
+            $target_path = str_replace($uri->rootUrl(), '', $target_path);
+
+            // set to / if root
+            if (empty($target_path)) {
+                $target_path = '/';
+            }
+
+            // look to see if this page exists and has ssl enabled
+            if (isset($routes[$target_path])) {
+                $target_page = $pages->get($routes[$target_path]);
+                if ($target_page) {
+                    $ssl_enabled = $target_page->ssl();
+                    if (isset($ssl_enabled)) {
+                        if ($ssl_enabled) {
+                            $url['scheme'] = 'https';
+                        } else {
+                            $url['scheme'] = 'http';
+                        }
+                    }
+                }
+            }
+        }
+
+        // transform back to string/array as needed
+        if (is_array($url)) {
+            $url['path'] = $url_path;
+        } else {
+            $url = $url_path;
+        }
+
+        return $url;
+    }
+
+    public static function parseUrl($url)
+    {
+        $bits = parse_url($url);
+
+        $grav = Grav::instance();
+
+        list($stripped_path, $params) = static::extractParams($bits['path'], $grav['config']->get('system.param_sep'));
+
+        if (!empty($params)) {
+            $bits['path'] = $stripped_path;
+            $bits['params'] = $params;
+        }
+
+        return $bits;
+    }
+
+    public static function extractParams($uri, $delimiter)
+    {
+        $params = [];
+
+        if (strpos($uri, $delimiter) !== false) {
+            $bits = explode('/', $uri);
+            $path = [];
+            foreach ($bits as $bit) {
+                if (strpos($bit, $delimiter) !== false) {
+                    $param = explode($delimiter, $bit);
+                    if (count($param) == 2) {
+                        $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
+                        $params[$param[0]] = $plain_var;
+                    }
+                } else {
+                    $path[] = $bit;
+                }
+            }
+            $uri = '/' . ltrim(implode('/', $path), '/');
+        }
+
+        return [$uri, $params];
     }
 
     /**
@@ -691,7 +928,7 @@ class Uri
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $markdown_url, $type = 'link', $relative = null)
+    public static function convertUrlOld(Page $page, $markdown_url, $type = 'link', $relative = null)
     {
         $grav = Grav::instance();
 
