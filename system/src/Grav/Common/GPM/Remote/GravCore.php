@@ -4,7 +4,7 @@ namespace Grav\Common\GPM\Remote;
 use Grav\Common\Grav;
 use \Doctrine\Common\Cache\FilesystemCache;
 
-class Grav extends AbstractPackageCollection
+class GravCore extends AbstractPackageCollection
 {
     protected $repository = 'https://getgrav.org/downloads/grav.json';
     private $data;
