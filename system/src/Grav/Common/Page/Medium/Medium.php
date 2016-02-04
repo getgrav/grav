@@ -143,7 +143,7 @@ class Medium extends Data implements RenderableInterface
             $this->reset();
         }
 
-        return self::$grav['base_url'] . $output . $this->querystring() . $this->urlHash();
+        return self::getGrav()['base_url'] . $output . $this->querystring() . $this->urlHash();
     }
 
     /**

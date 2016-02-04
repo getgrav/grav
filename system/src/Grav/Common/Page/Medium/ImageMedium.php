@@ -77,7 +77,7 @@ class ImageMedium extends Medium
     {
         parent::__construct($items, $blueprint);
 
-        $config = self::$grav['config'];
+        $config = self::getGrav()['config'];
 
         $image_info = getimagesize($this->get('filepath'));
         $this->def('width', $image_info[0]);
@@ -137,8 +137,8 @@ class ImageMedium extends Medium
      */
     public function url($reset = true)
     {
-        $image_path = self::$grav['locator']->findResource('cache://images', true);
-        $image_dir = self::$grav['locator']->findResource('cache://images', false);
+        $image_path = self::getGrav()['locator']->findResource('cache://images', true);
+        $image_dir = self::getGrav()['locator']->findResource('cache://images', false);
         $saved_image_path = $this->saveImage();
 
         $output = preg_replace('|^' . preg_quote(GRAV_ROOT) . '|', '', $saved_image_path);
@@ -151,7 +151,7 @@ class ImageMedium extends Medium
             $this->reset();
         }
 
-        return self::$grav['base_url'] . $output . $this->querystring() . $this->urlHash();
+        return self::getGrav()['base_url'] . $output . $this->querystring() . $this->urlHash();
     }
 
     /**
@@ -470,7 +470,7 @@ class ImageMedium extends Medium
      */
     protected function image()
     {
-        $locator = self::$grav['locator'];
+        $locator = self::getGrav()['locator'];
 
         $file = $this->get('filepath');
         $cacheDir = $locator->findResource('cache://images', true);
@@ -506,7 +506,7 @@ class ImageMedium extends Medium
                 $ratio = 1;
             }
 
-            $locator = self::$grav['locator'];
+            $locator = self::getGrav()['locator'];
             $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
             $this->image->merge(ImageFile::open($overlay));
         }

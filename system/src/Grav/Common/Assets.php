@@ -184,7 +184,7 @@ class Assets
         $asset_config = (array)$config->get('system.assets');
 
         /** @var UniformResourceLocator $locator */
-        $locator = self::$grav['locator'];
+        $locator = self::getGrav()['locator'];
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
 
@@ -901,7 +901,7 @@ class Assets
 
         // Check if $directory is a stream.
         if (strpos($directory, '://')) {
-            $directory = self::$grav['locator']->findResource($directory, null);
+            $directory = self::getGrav()['locator']->findResource($directory, null);
         }
 
         // Get files
