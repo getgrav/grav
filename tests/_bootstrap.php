@@ -6,6 +6,7 @@ namespace Grav;
 use Codeception\Util\Fixtures;
 use Faker\Factory;
 use Grav\Common\Grav;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 ini_set('error_log', __DIR__ . '/error.log');
 
@@ -36,11 +37,7 @@ $grav = function() {
     Grav::resetInstance();
 
     // Get the Grav instance
-    $grav = Grav::instance(
-        array(
-            'loader' => $loader
-        )
-    );
+    $grav = Grav::instance(['loader' => $loader]);
 
     $grav['uri']->init();
     $grav['debugger']->init();
