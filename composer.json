@@ -43,7 +43,8 @@
     },
     "scripts": {
         "post-create-project-cmd": "bin/grav install",
-        "test": "vendor/bin/codecept run unit"
+        "test": "vendor/bin/codecept run unit",
+        "test-windows": "vendor\\bin\\codecept run unit"
     },
     "extra": {
         "branch-alias": {
