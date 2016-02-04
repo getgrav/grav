@@ -20,6 +20,8 @@ notifications:
     template:
       - '%{repository}#%{build_number} (%{branch}): Travis Job Finished [%{duration}] (<a href="%{build_url}">Details</a>)'
     format: html
+  slack:
+    secure: dowksPsxxCxGKT6nis5hUgkp6+ZDAhoqzQHF9rJnx4hx0iEygPhVBs7pKl9yL2jubYJoLs+EXwE7z1dYgDAEJh4BnfrCokCMLpFGcxVxQC/HeAUdSQ2/RtdBYR5PRT75ScaFpqM/SfXXZVtnwVXAw9Z+JC6BjQ9vmn23m51Jw4k=
 env:
   global:
     # Colors!
