@@ -150,11 +150,14 @@ class Blueprint extends BaseBlueprints implements ExportInterface
     public function validate(array $data)
     {
         try {
-            $this->validateArray($data, $this->nested);
+            $messages = $this->validateArray($data, $this->nested);
+
         } catch (\RuntimeException $e) {
-            $language = self::getGrav()['language'];
-            $message = sprintf($language->translate('FORM.VALIDATION_FAIL', null, true) . ' %s', $e->getMessage());
-            throw new \RuntimeException($message);
+            throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
+        }
+
+        if (!empty($messages)) {
+            throw (new ValidationException())->setMessages($messages);
         }
     }
 
@@ -183,12 +186,13 @@ class Blueprint extends BaseBlueprints implements ExportInterface
     /**
      * @param array $data
      * @param array $rules
+     * @returns array
      * @throws \RuntimeException
      * @internal
      */
     protected function validateArray(array $data, array $rules)
     {
-        $this->checkRequired($data, $rules);
+        $messages = $this->checkRequired($data, $rules);
 
         foreach ($data as $key => $field) {
             $val = isset($rules[$key]) ? $rules[$key] : null;
@@ -196,15 +200,17 @@ class Blueprint extends BaseBlueprints implements ExportInterface
 
             if ($rule) {
                 // Item has been defined in blueprints.
-                Validation::validate($field, $rule);
+                $messages += Validation::validate($field, $rule);
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
-                $this->validateArray($field, $val);
+                $messages += $this->validateArray($field, $val);
             } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
                 // Undefined/extra item.
                 throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }
         }
+
+        return $messages;
     }
 
     /**
@@ -241,11 +247,12 @@ class Blueprint extends BaseBlueprints implements ExportInterface
     /**
      * @param array $data
      * @param array $fields
-     * @throws \RuntimeException
-     * @internal
+     * @return array
      */
     protected function checkRequired(array $data, array $fields)
     {
+        $messages = [];
+
         foreach ($fields as $name => $field) {
             if (!is_string($field)) {
                 continue;
@@ -253,13 +260,15 @@ class Blueprint extends BaseBlueprints implements ExportInterface
             $field = $this->items[$field];
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true
-                && empty($data[$name])) {
+                && !isset($data[$name])) {
                 $value = isset($field['label']) ? $field['label'] : $field['name'];
                 $language = self::getGrav()['language'];
                 $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $value);
-                throw new \RuntimeException($message);
+                $messages[$field['name']][] = $message;
             }
         }
+
+        return $messages;
     }
 
     /**
