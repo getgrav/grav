@@ -204,7 +204,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $messages += $this->validateArray($field, $val);
-            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
+            } elseif (isset($rules['validation']) && $rules['validation'] == 'strict') {
                 // Undefined/extra item.
                 throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }
@@ -232,7 +232,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $field = $this->filterArray($field, $val);
-            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
+            } elseif (isset($rules['validation']) && $rules['validation'] == 'strict') {
                 $field = null;
             }
 
