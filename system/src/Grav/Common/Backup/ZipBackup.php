@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Backup;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Inflector;
 
@@ -13,8 +13,6 @@ use Grav\Common\Inflector;
  */
 class ZipBackup
 {
-    use GravTrait;
-
     protected static $ignorePaths = [
         'backup',
         'cache',
@@ -40,7 +38,7 @@ class ZipBackup
     public static function backup($destination = null, callable $messager = null)
     {
         if (!$destination) {
-            $destination = self::getGrav()['locator']->findResource('backup://', true);
+            $destination = Grav::instance()['locator']->findResource('backup://', true);
 
             if (!$destination)
                 throw new \RuntimeException('The backup folder is missing.');
@@ -48,7 +46,7 @@ class ZipBackup
             Folder::mkdir($destination);
         }
 
-        $name = self::getGrav()['config']->get('site.title', basename(GRAV_ROOT));
+        $name = Grav::instance()['config']->get('site.title', basename(GRAV_ROOT));
 
         $inflector = new Inflector();
 

@@ -3,6 +3,7 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
+use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -131,7 +132,7 @@ class UninstallCommand extends ConsoleCommand
      */
     private function uninstallPackage($slug, $package)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' .$slug);
+        $path = Grav::instance()['locator']->findResource($package->package_type . '://' .$slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
 
@@ -160,7 +161,7 @@ class UninstallCommand extends ConsoleCommand
 
     private function checkDestination($slug, $package)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $slug);
+        $path = Grav::instance()['locator']->findResource($package->package_type . '://' . $slug);
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
 

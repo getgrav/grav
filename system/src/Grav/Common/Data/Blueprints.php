@@ -2,7 +2,7 @@
 namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -13,8 +13,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class Blueprints
 {
-    use GravTrait;
-
     protected $search;
     protected $types;
     protected $instances = array();
@@ -43,7 +41,7 @@ class Blueprints
 
                 // Check if search is a stream and resolve the path.
                 if (strpos($filename, '://')) {
-                    $grav = static::getGrav();
+                    $grav = Grav::instance();
                     /** @var UniformResourceLocator $locator */
                     $locator = $grav['locator'];
                     $parents = $locator->findResources($filename);
@@ -122,7 +120,7 @@ class Blueprints
             // Check if search is a stream.
             if (strpos($this->search, '://')) {
                 // Stream: use UniformResourceIterator.
-                $grav = static::getGrav();
+                $grav = Grav::instance();
                 /** @var UniformResourceLocator $locator */
                 $locator = $grav['locator'];
                 $iterator = $locator->getIterator($this->search, null);

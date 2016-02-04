@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Filesystem;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 
 /**
  * Class RecursiveFolderFilterIterator
@@ -9,8 +9,6 @@ use Grav\Common\GravTrait;
  */
 class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
 {
-    use GravTrait;
-
     protected static $folder_ignores;
 
     /**
@@ -22,7 +20,7 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
     {
         parent::__construct($iterator);
         if (empty($this::$folder_ignores)) {
-            $this::$folder_ignores = self::getGrav()['config']->get('system.pages.ignore_folders');
+            $this::$folder_ignores = Grav::instance()['config']->get('system.pages.ignore_folders');
         }
     }
 

@@ -1,11 +1,14 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 
+/**
+ * Class Link
+ * @package Grav\Common\Page\Medium
+ */
 class Link implements RenderableInterface
 {
-    use GravTrait;
     use ParsedownHtmlTrait;
 
     /**
