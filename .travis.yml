@@ -46,6 +46,9 @@ env:
 
 before_install:
   - export TZ=Pacific/Honolulu
+  - echo $TRAVIS_PHP_VERSION
+  - echo $TRAVIS_BRANCH
+  - echo $TRAVIS_PULL_REQUEST
   - composer self-update
   - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
         composer install --dev --prefer-dist;
