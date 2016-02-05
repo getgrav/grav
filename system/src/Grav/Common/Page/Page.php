@@ -1369,8 +1369,6 @@ class Page
         /** @var Uri $uri */
         $uri = self::getGrav()['uri'];
 
-        $include_port = false;
-
         // get pre-route
         if ($include_lang && $language->enabled()) {
             $pre_route = $language->getLanguageURLPrefix();
