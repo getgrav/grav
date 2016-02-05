@@ -28,7 +28,7 @@ define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
  * can be retrieved via public functions. Also each page can potentially contain an array of sub-pages.
  * Recursively traversing the page structure allows Grav to create navigation systems.
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class Page
@@ -87,6 +87,7 @@ class Page
     protected $last_modified;
     protected $home_route;
     protected $hide_home_route;
+    protected $ssl;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -100,16 +101,19 @@ class Page
 
     /**
      * Page Object Constructor
+     *
+     * @return $this
      */
     public function __construct()
     {
         /** @var Config $config */
         $config = self::getGrav()['config'];
 
-
-        $this->taxonomy = array();
+        $this->taxonomy = [];
         $this->process = $config->get('system.pages.process');
         $this->published = true;
+
+        return $this;
     }
 
     /**
@@ -117,6 +121,8 @@ class Page
      *
      * @param  \SplFileInfo $file The file information for the .md file that the page represents
      * @param  string       $extension
+     *
+     * @return $this
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
@@ -126,7 +132,7 @@ class Page
         $this->home_route = $config->get('system.home.alias');
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
-        $this->id($this->modified().md5($this->filePath()));
+        $this->id($this->modified() . md5($this->filePath()));
         $this->routable(true);
         $this->header();
         $this->date();
@@ -138,19 +144,18 @@ class Page
         $this->published();
         $this->urlExtension();
 
-
-
         // some extension logic
         if (empty($extension)) {
-            $this->extension('.'.$file->getExtension());
+            $this->extension('.' . $file->getExtension());
         } else {
             $this->extension($extension);
         }
 
-
         // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
         $this->language($language);
+
+        return $this;
     }
 
     /**
@@ -165,13 +170,15 @@ class Page
         $translatedLanguages = [];
 
         foreach ($languages as $language) {
-            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language .'.md';
+            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language . '.md';
             if (file_exists($path)) {
                 $aPage = new Page();
-                $aPage->init(new \SplFileInfo($path), $language .'.md');
+                $aPage->init(new \SplFileInfo($path), $language . '.md');
 
                 $route = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
-                if (!$route) $route = $aPage->slug();
+                if (!$route) {
+                    $route = $aPage->slug();
+                }
 
                 $translatedLanguages[$language] = $route;
             }
@@ -192,7 +199,7 @@ class Page
         $untranslatedLanguages = [];
 
         foreach ($languages as $language) {
-            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language .'.md';
+            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language . '.md';
             if (!file_exists($path)) {
                 $untranslatedLanguages[] = $language;
             }
@@ -205,6 +212,7 @@ class Page
      * Gets and Sets the raw data
      *
      * @param  string $var Raw content string
+     *
      * @return Object      Raw content string
      */
     public function raw($var = null)
@@ -219,32 +227,41 @@ class Page
 
             // Reset header and content.
             $this->modified = time();
-            $this->id($this->modified().md5($this->filePath()));
+            $this->id($this->modified() . md5($this->filePath()));
             $this->header = null;
             $this->content = null;
             $this->summary = null;
         }
+
         return $file ? $file->raw() : '';
     }
 
+    /**
+     * Gets and Sets the page frontmatter
+     *
+     * @param string|null $var
+     *
+     * @return string
+     */
     public function frontmatter($var = null)
     {
 
         if ($var) {
-            $this->frontmatter = (string) $var;
+            $this->frontmatter = (string)$var;
 
             // Update also file object.
             $file = $this->file();
             if ($file) {
-                $file->frontmatter((string) $var);
+                $file->frontmatter((string)$var);
             }
 
             // Force content re-processing.
-            $this->id(time().md5($this->filePath()));
+            $this->id(time() . md5($this->filePath()));
         }
         if (!$this->frontmatter) {
             $this->header();
         }
+
         return $this->frontmatter;
     }
 
@@ -252,21 +269,22 @@ class Page
      * Gets and Sets the header based on the YAML configuration at the top of the .md file
      *
      * @param  object|array $var a YAML object representing the configuration for the file
+     *
      * @return object      the current YAML configuration
      */
     public function header($var = null)
     {
         if ($var) {
-            $this->header = (object) $var;
+            $this->header = (object)$var;
 
             // Update also file object.
             $file = $this->file();
             if ($file) {
-                $file->header((array) $var);
+                $file->header((array)$var);
             }
 
             // Force content re-processing.
-            $this->id(time().md5($this->filePath()));
+            $this->id(time() . md5($this->filePath()));
         }
         if (!$this->header) {
             $file = $this->file();
@@ -278,7 +296,13 @@ class Page
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
                 } catch (ParseException $e) {
-                    $file->raw(self::getGrav()['language']->translate(['FRONTMATTER_ERROR_PAGE', $this->slug(), $file->filename(), $e->getMessage(), $file->raw()]));
+                    $file->raw(self::getGrav()['language']->translate([
+                        'FRONTMATTER_ERROR_PAGE',
+                        $this->slug(),
+                        $file->filename(),
+                        $e->getMessage(),
+                        $file->raw()
+                    ]));
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
@@ -307,10 +331,10 @@ class Page
                 $this->menu = trim($this->header->menu);
             }
             if (isset($this->header->routable)) {
-                $this->routable = (bool) $this->header->routable;
+                $this->routable = (bool)$this->header->routable;
             }
             if (isset($this->header->visible)) {
-                $this->visible = (bool) $this->header->visible;
+                $this->visible = (bool)$this->header->visible;
             }
             if (isset($this->header->redirect)) {
                 $this->redirect = trim($this->header->redirect);
@@ -331,7 +355,7 @@ class Page
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
             }
             if (isset($this->header->taxonomy)) {
-                foreach ((array) $this->header->taxonomy as $taxonomy => $taxitems) {
+                foreach ((array)$this->header->taxonomy as $taxonomy => $taxitems) {
                     $this->taxonomy[$taxonomy] = (array)$taxitems;
                 }
             }
@@ -339,12 +363,12 @@ class Page
                 $this->max_count = intval($this->header->max_count);
             }
             if (isset($this->header->process)) {
-                foreach ((array) $this->header->process as $process => $status) {
-                    $this->process[$process] = (bool) $status;
+                foreach ((array)$this->header->process as $process => $status) {
+                    $this->process[$process] = (bool)$status;
                 }
             }
             if (isset($this->header->published)) {
-                $this->published = (bool) $this->header->published;
+                $this->published = (bool)$this->header->published;
             }
             if (isset($this->header->publish_date)) {
                 $this->publishDate($this->header->publish_date);
@@ -356,10 +380,13 @@ class Page
                 $this->expires = intval($this->header->expires);
             }
             if (isset($this->header->etag)) {
-                $this->etag = (bool) $this->header->etag;
+                $this->etag = (bool)$this->header->etag;
             }
             if (isset($this->header->last_modified)) {
-                $this->last_modified = (bool) $this->header->last_modified;
+                $this->last_modified = (bool)$this->header->last_modified;
+            }
+            if (isset($this->header->ssl)) {
+                $this->ssl = (bool) $this->header->ssl;
             }
         }
 
@@ -396,12 +423,13 @@ class Page
     /**
      * Get the summary.
      *
-     * @param  int    $size Max summary size.
+     * @param  int $size Max summary size.
+     *
      * @return string
      */
     public function summary($size = null)
     {
-        $config = (array) self::getGrav()['config']->get('site.summary');
+        $config = (array)self::getGrav()['config']->get('site.summary');
         if (isset($this->header->summary)) {
             $config = array_merge($config, $this->header->summary);
         }
@@ -423,7 +451,7 @@ class Page
         // Return calculated summary based on summary divider's position
         $format = $config['format'];
         // Return entire page content on wrong/ unknown format
-        if (!in_array($format, array('short', 'long'))) {
+        if (!in_array($format, ['short', 'long'])) {
             return $content;
         } elseif (($format === 'short') && isset($summary_size)) {
             return mb_substr($content, 0, $summary_size);
@@ -437,7 +465,7 @@ class Page
         // If the size is zero, return the entire page content
         if ($size === 0) {
             return $content;
-        // Return calculated summary based on defaults
+            // Return calculated summary based on defaults
         } elseif (!is_numeric($size) || ($size < 0)) {
             $size = 300;
         }
@@ -448,7 +476,7 @@ class Page
     /**
      * Sets the summary of the page
      *
-     * @param string $var Summary
+     * @param string $summary Summary
      */
     public function setSummary($summary)
     {
@@ -459,6 +487,7 @@ class Page
      * Gets and Sets the content based on content portion of the .md file
      *
      * @param  string $var Content
+     *
      * @return string      Content
      */
     public function content($var = null)
@@ -473,7 +502,7 @@ class Page
             }
 
             // Force re-processing.
-            $this->id(time().md5($this->filePath()));
+            $this->id(time() . md5($this->filePath()));
             $this->content = null;
         }
         // If no content, process it
@@ -487,17 +516,19 @@ class Page
             // Load cached content
             /** @var Cache $cache */
             $cache = self::getGrav()['cache'];
-            $cache_id = md5('page'.$this->id());
+            $cache_id = md5('page' . $this->id());
             $this->content = $cache->fetch($cache_id);
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
-            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled', true);
-            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first', true);
+            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled',
+                true);
+            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first',
+                true);
 
 
             // if no cached-content run everything
-            if ($this->content === false || $cache_enable == false) {
+            if ($this->content === false || $cache_enable === false) {
                 $this->content = $this->raw_content;
                 self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
@@ -551,7 +582,7 @@ class Page
         /** @var Config $config */
         $config = self::getGrav()['config'];
 
-        $defaults = (array) $config->get('system.pages.markdown');
+        $defaults = (array)$config->get('system.pages.markdown');
         if (isset($this->header()->markdown)) {
             $defaults = array_merge($defaults, $this->header()->markdown);
         }
@@ -587,7 +618,7 @@ class Page
     private function cachePageContent()
     {
         $cache = self::getGrav()['cache'];
-        $cache_id = md5('page'.$this->id());
+        $cache_id = md5('page' . $this->id());
         $cache->save($cache_id, $this->content);
     }
 
@@ -614,8 +645,9 @@ class Page
     /**
      * Get value from a page variable (used mostly for creating edit forms).
      *
-     * @param  string  $name  Variable name.
-     * @param mixed $default
+     * @param string $name Variable name.
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public function value($name, $default = null)
@@ -628,21 +660,24 @@ class Page
         }
         if ($name == 'order') {
             $order = $this->order();
-            return $order ? (int) $this->order() : '';
+
+            return $order ? (int)$this->order() : '';
         }
         if ($name == 'ordering') {
-            return (bool) $this->order();
+            return (bool)$this->order();
         }
         if ($name == 'folder') {
             $regex = '/^[0-9]+\./u';
+
             return preg_replace($regex, '', $this->folder);
         }
         if ($name == 'name') {
             $language = $this->language() ? '.' . $this->language() : '';
-            $name_val = str_replace($language .'.md', '', $this->name());
+            $name_val = str_replace($language . '.md', '', $this->name());
             if ($this->modular()) {
                 return 'modular/' . $name_val;
             }
+
             return $name_val;
         }
         if ($name == 'media') {
@@ -686,6 +721,13 @@ class Page
         return $default;
     }
 
+    /**
+     * Gets and Sets the Page raw content
+     *
+     * @param null $var
+     *
+     * @return null
+     */
     public function rawMarkdown($var = null)
     {
         if ($var !== null) {
@@ -705,11 +747,13 @@ class Page
         if ($this->name) {
             return MarkdownFile::instance($this->filePath());
         }
+
         return null;
     }
 
     /**
      * Save page if there's a file assigned to it.
+     *
      * @param bool $reorder Internal use.
      */
     public function save($reorder = true)
@@ -720,7 +764,7 @@ class Page
         $file = $this->file();
         if ($file) {
             $file->filename($this->filePath());
-            $file->header((array) $this->header());
+            $file->header((array)$this->header());
             $file->markdown($this->raw_content);
             $file->save();
         }
@@ -732,6 +776,7 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
+     *
      * @return $this
      */
     public function move(Page $parent)
@@ -743,16 +788,16 @@ class Page
 
         $this->_action = 'move';
         $this->parent($parent);
-        $this->id(time().md5($this->filePath()));
+        $this->id(time() . md5($this->filePath()));
 
         if ($parent->path()) {
             $this->path($parent->path() . '/' . $this->folder());
         }
 
         if ($parent->route()) {
-            $this->route($parent->route() . '/'. $this->slug());
+            $this->route($parent->route() . '/' . $this->slug());
         } else {
-            $this->route(self::getGrav()['pages']->root()->route() . '/'. $this->slug());
+            $this->route(self::getGrav()['pages']->root()->route() . '/' . $this->slug());
         }
 
         return $this;
@@ -765,6 +810,7 @@ class Page
      * You need to call $this->save() in order to perform the move.
      *
      * @param Page $parent New parent page.
+     *
      * @return $this
      */
     public function copy($parent)
@@ -845,6 +891,7 @@ class Page
     public function extra()
     {
         $blueprints = $this->blueprints();
+
         return $blueprints->extra($this->toArray()['header'], 'header.');
     }
 
@@ -855,10 +902,10 @@ class Page
      */
     public function toArray()
     {
-        return array(
-            'header' => (array) $this->header(),
-            'content' => (string) $this->value('content')
-        );
+        return [
+            'header'  => (array)$this->header(),
+            'content' => (string)$this->value('content')
+        ];
     }
 
     /**
@@ -885,6 +932,7 @@ class Page
      * Gets and sets the associated media as found in the page folder.
      *
      * @param  Media $var Representation of associated media.
+     *
      * @return Media      Representation of associated media.
      */
     public function media($var = null)
@@ -897,13 +945,14 @@ class Page
         }
         if ($this->media === null) {
             // Use cached media if possible.
-            $media_cache_id = md5('media'.$this->id());
+            $media_cache_id = md5('media' . $this->id());
             if (!$media = $cache->fetch($media_cache_id)) {
                 $media = new Media($this->path());
                 $cache->save($media_cache_id, $media);
             }
             $this->media = $media;
         }
+
         return $this->media;
     }
 
@@ -911,6 +960,7 @@ class Page
      * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
      *
      * @param  string $var The name of this page.
+     *
      * @return string      The name of this page.
      */
     public function name($var = null)
@@ -918,6 +968,7 @@ class Page
         if ($var !== null) {
             $this->name = $var;
         }
+
         return empty($this->name) ? 'default.md' : $this->name;
     }
 
@@ -928,7 +979,7 @@ class Page
      */
     public function childType()
     {
-        return isset($this->header->child_type) ? (string) $this->header->child_type : 'default';
+        return isset($this->header->child_type) ? (string)$this->header->child_type : 'default';
     }
 
     /**
@@ -936,6 +987,7 @@ class Page
      * If no field is set, it will return the name without the .md extension
      *
      * @param  string $var the template name
+     *
      * @return string      the template name
      */
     public function template($var = null)
@@ -946,6 +998,7 @@ class Page
         if (empty($this->template)) {
             $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name());
         }
+
         return $this->template;
     }
 
@@ -953,6 +1006,7 @@ class Page
      * Gets and sets the extension field.
      *
      * @param null $var
+     *
      * @return null|string
      */
     public function extension($var = null)
@@ -963,31 +1017,43 @@ class Page
         if (empty($this->extension)) {
             $this->extension = '.' . pathinfo($this->name(), PATHINFO_EXTENSION);
         }
+
         return $this->extension;
     }
 
+    /**
+     * Returns the page extension, got from the page `url_extension` config and falls back to the
+     * system config `system.pages.append_url_extension`.
+     *
+     * @return string      The extension of this page. For example `.html`
+     */
     public function urlExtension()
     {
+        if ($this->home()) {
+            return '';
+        }
+
         // if not set in the page get the value from system config
         if (empty($this->url_extension)) {
             $this->url_extension = trim(isset($this->header->append_url_extension) ? $this->header->append_url_extension : self::getGrav()['config']->get('system.pages.append_url_extension', false));
         }
 
         return $this->url_extension;
-
     }
 
     /**
      * Gets and sets the expires field. If not set will return the default
      *
-     * @param  string $var The name of this page.
-     * @return string      The name of this page.
+     * @param  int $var The new expires value.
+     *
+     * @return int      The expires value
      */
     public function expires($var = null)
     {
         if ($var !== null) {
             $this->expires = $var;
         }
+
         return empty($this->expires) ? self::getGrav()['config']->get('system.pages.expires') : $this->expires;
     }
 
@@ -995,6 +1061,7 @@ class Page
      * Gets and sets the title for this Page.  If no title is set, it will use the slug() to get a name
      *
      * @param  string $var the title of the Page
+     *
      * @return string      the title of the Page
      */
     public function title($var = null)
@@ -1005,6 +1072,7 @@ class Page
         if (empty($this->title)) {
             $this->title = ucfirst($this->slug());
         }
+
         return $this->title;
     }
 
@@ -1013,6 +1081,7 @@ class Page
      * If no menu field is set, it will use the title()
      *
      * @param  string $var the menu field for the page
+     *
      * @return string      the menu field for the page
      */
     public function menu($var = null)
@@ -1023,6 +1092,7 @@ class Page
         if (empty($this->menu)) {
             $this->menu = $this->title();
         }
+
         return $this->menu;
     }
 
@@ -1030,12 +1100,13 @@ class Page
      * Gets and Sets whether or not this Page is visible for navigation
      *
      * @param  bool $var true if the page is visible
+     *
      * @return bool      true if the page is visible
      */
     public function visible($var = null)
     {
         if ($var !== null) {
-            $this->visible = (bool) $var;
+            $this->visible = (bool)$var;
         }
 
         if ($this->visible === null) {
@@ -1048,6 +1119,7 @@ class Page
                 $this->visible = false;
             }
         }
+
         return $this->visible;
     }
 
@@ -1055,12 +1127,13 @@ class Page
      * Gets and Sets whether or not this Page is considered published
      *
      * @param  bool $var true if the page is published
+     *
      * @return bool      true if the page is published
      */
     public function published($var = null)
     {
         if ($var !== null) {
-            $this->published = (bool) $var;
+            $this->published = (bool)$var;
         }
 
         // If not published, should not be visible in menus either
@@ -1075,6 +1148,7 @@ class Page
      * Gets and Sets the Page publish date
      *
      * @param  string $var string representation of a date
+     *
      * @return int         unix timestamp representation of the date
      */
     public function publishDate($var = null)
@@ -1090,6 +1164,7 @@ class Page
      * Gets and Sets the Page unpublish date
      *
      * @param  string $var string representation of a date
+     *
      * @return int|null         unix timestamp representation of the date
      */
     public function unpublishDate($var = null)
@@ -1107,15 +1182,25 @@ class Page
      * The page must be *routable* and *published*
      *
      * @param  bool $var true if the page is routable
+     *
      * @return bool      true if the page is routable
      */
     public function routable($var = null)
     {
         if ($var !== null) {
-            $this->routable = (bool) $var;
+            $this->routable = (bool)$var;
         }
 
         return $this->routable && $this->published();
+    }
+
+    public function ssl($var = null)
+    {
+        if ($var !== null) {
+            $this->ssl = (bool) $var;
+        }
+
+        return $this->ssl;
     }
 
     /**
@@ -1123,13 +1208,15 @@ class Page
      * a simple array of arrays with the form array("markdown"=>true) for example
      *
      * @param  array $var an Array of name value pairs where the name is the process and value is true or false
+     *
      * @return array      an Array of name value pairs where the name is the process and value is true or false
      */
     public function process($var = null)
     {
         if ($var !== null) {
-            $this->process = (array) $var;
+            $this->process = (array)$var;
         }
+
         return $this->process;
     }
 
@@ -1138,12 +1225,13 @@ class Page
      * that can then be rendered in the page.
      *
      * @param  array $var an Array of metadata values to set
+     *
      * @return array      an Array of metadata values for the page
      */
     public function metadata($var = null)
     {
         if ($var !== null) {
-            $this->metadata = (array) $var;
+            $this->metadata = (array)$var;
         }
 
         // if not metadata yet, process it.
@@ -1152,11 +1240,12 @@ class Page
 
             $this->metadata = [];
 
+            $metadata = [];
             // Set the Generator tag
-            $this->metadata['generator'] = array('name'=>'generator', 'content'=>'GravCMS');
+            $metadata['generator'] = 'GravCMS';
 
             // Get initial metadata for the page
-            $metadata  = self::getGrav()['config']->get('site.metadata');
+            $metadata = array_merge($metadata, self::getGrav()['config']->get('site.metadata'));
 
             if (isset($this->header->metadata)) {
                 // Merge any site.metadata settings in with page metadata
@@ -1166,17 +1255,29 @@ class Page
             // Build an array of meta objects..
             foreach ((array)$metadata as $key => $value) {
                 // If this is a property type metadata: "og", "twitter", "facebook" etc
+                // Backward compatibility for nested arrays in metas
                 if (is_array($value)) {
                     foreach ($value as $property => $prop_value) {
-                        $prop_key =  $key.":".$property;
-                        $this->metadata[$prop_key] = array('property'=>$prop_key, 'content'=>htmlspecialchars($prop_value, ENT_QUOTES));
+                        $prop_key                  = $key . ":" . $property;
+                        $this->metadata[$prop_key] = ['name' => $prop_key, 'property' => $prop_key, 'content' => htmlspecialchars($prop_value, ENT_QUOTES)];
                     }
-                // If it this is a standard meta data type
                 } else {
-                    if (in_array($key, $header_tag_http_equivs)) {
-                        $this->metadata[$key] = array('http_equiv'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
-                    } else {
-                        $this->metadata[$key] = array('name'=>$key, 'content'=>htmlspecialchars($value, ENT_QUOTES));
+                    // If it this is a standard meta data type
+                    if ($value) {
+                        if (in_array($key, $header_tag_http_equivs)) {
+                            $this->metadata[$key] = ['http_equiv' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
+                        } else {
+                            // if it's a social metadata with separator, render as property
+                            $separator    = strpos($key, ':');
+                            $hasSeparator = $separator && $separator < strlen($key) - 1;
+                            $entry        = ['name' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
+
+                            if ($hasSeparator) {
+                                $entry['property'] = $key;
+                            }
+
+                            $this->metadata[$key] = $entry;
+                        }
                     }
                 }
             }
@@ -1190,6 +1291,7 @@ class Page
      * the parent folder from the path
      *
      * @param  string $var the slug, e.g. 'my-blog'
+     *
      * @return string      the slug
      */
     public function slug($var = null)
@@ -1209,6 +1311,7 @@ class Page
      * Get/set order number of this page.
      *
      * @param int $var
+     *
      * @return int|bool
      */
     public function order($var = null)
@@ -1235,6 +1338,7 @@ class Page
      * Gets the URL for a page - alias of url().
      *
      * @param bool $include_host
+     *
      * @return string the permalink
      */
     public function link($include_host = false)
@@ -1245,25 +1349,36 @@ class Page
     /**
      * Gets the url for the Page.
      *
-     * @param  bool $include_host Defaults false, but true would include http://yourhost.com
-     * @param  bool $canonical true to return the canonical URL
+     * @param bool $include_host Defaults false, but true would include http://yourhost.com
+     * @param bool $canonical    true to return the canonical URL
+     * @param bool $include_lang
      *
      * @return string The url.
      */
     public function url($include_host = false, $canonical = false, $include_lang = true)
     {
-
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
+
+        /** @var Config $config */
+        $config = self::getGrav()['config'];
 
         /** @var Language $language */
         $language = self::getGrav()['language'];
 
+        /** @var Uri $uri */
+        $uri = self::getGrav()['uri'];
+
         // get pre-route
         if ($include_lang && $language->enabled()) {
-           $pre_route = $language->getLanguageURLPrefix();
+            $pre_route = $language->getLanguageURLPrefix();
         } else {
             $pre_route = '';
+        }
+
+        // add full route if configured to do so
+        if ($config->get('system.absolute_urls', false)) {
+            $include_host = true;
         }
 
         // get canonical route if requested
@@ -1273,12 +1388,9 @@ class Page
             $route = $pre_route . $this->route();
         }
 
-        /** @var Uri $uri */
-        $uri = self::getGrav()['uri'];
-
         $rootUrl = $uri->rootUrl($include_host) . $pages->base();
 
-        $url = $rootUrl.'/'.trim($route, '/') . $this->urlExtension();
+        $url = $rootUrl . '/' . trim($route, '/') . $this->urlExtension();
 
         // trim trailing / if not root
         if ($url !== '/') {
@@ -1292,7 +1404,7 @@ class Page
      * Gets the route for the page based on the route headers if available, else from
      * the parents route and the current Page's slug.
      *
-     * @param  string  $var  Set new default route.
+     * @param  string $var Set new default route.
      *
      * @return string  The route for the Page.
      */
@@ -1311,15 +1423,16 @@ class Page
                 if ($this->hide_home_route && $parent->route() == $this->home_route) {
                     $baseRoute = '';
                 } else {
-                    $baseRoute = (string) $parent->route();
+                    $baseRoute = (string)$parent->route();
                 }
             }
 
-            $this->route = isset($baseRoute) ? $baseRoute . '/'. $this->slug() : null;
+            $this->route = isset($baseRoute) ? $baseRoute . '/' . $this->slug() : null;
 
             if (!empty($this->routes) && isset($this->routes['default'])) {
                 $this->routes['aliases'][] = $this->route;
                 $this->route = $this->routes['default'];
+
                 return $this->route;
             }
         }
@@ -1336,6 +1449,13 @@ class Page
         unset($this->slug);
     }
 
+    /**
+     * Gets and Sets the page raw route
+     *
+     * @param null $var
+     *
+     * @return null|string
+     */
     public function rawRoute($var = null)
     {
         if ($var !== null) {
@@ -1343,12 +1463,12 @@ class Page
         }
 
         if (empty($this->raw_route)) {
-            $baseRoute = $this->parent ? (string) $this->parent()->rawRoute() : null;
+            $baseRoute = $this->parent ? (string)$this->parent()->rawRoute() : null;
 
             $regex = '/^[0-9]+\./u';
             $slug = preg_replace($regex, '', $this->folder);
 
-            $this->raw_route = isset($baseRoute) ? $baseRoute . '/'. $slug : null;
+            $this->raw_route = isset($baseRoute) ? $baseRoute . '/' . $slug : null;
         }
 
         return $this->raw_route;
@@ -1357,14 +1477,14 @@ class Page
     /**
      * Gets the route aliases for the page based on page headers.
      *
-     * @param  array  $var  list of route aliases
+     * @param  array $var list of route aliases
      *
      * @return array  The route aliases for the Page.
      */
     public function routeAliases($var = null)
     {
         if ($var !== null) {
-            $this->routes['aliases'] = (array) $var;
+            $this->routes['aliases'] = (array)$var;
         }
 
         if (!empty($this->routes) && isset($this->routes['aliases'])) {
@@ -1399,6 +1519,7 @@ class Page
      * Gets and sets the identifier for this Page object.
      *
      * @param  string $var the identifier
+     *
      * @return string      the identifier
      */
     public function id($var = null)
@@ -1406,6 +1527,7 @@ class Page
         if ($var !== null) {
             $this->id = $var;
         }
+
         return $this->id;
     }
 
@@ -1413,6 +1535,7 @@ class Page
      * Gets and sets the modified timestamp.
      *
      * @param  int $var modified unix timestamp
+     *
      * @return int      modified unix timestamp
      */
     public function modified($var = null)
@@ -1420,6 +1543,7 @@ class Page
         if ($var !== null) {
             $this->modified = $var;
         }
+
         return $this->modified;
     }
 
@@ -1427,6 +1551,7 @@ class Page
      * Gets the redirect set in the header.
      *
      * @param  string $var redirect url
+     *
      * @return array
      */
     public function redirect($var = null)
@@ -1434,6 +1559,7 @@ class Page
         if ($var !== null) {
             $this->redirect = $var;
         }
+
         return $this->redirect;
     }
 
@@ -1441,6 +1567,7 @@ class Page
      * Gets and sets the option to show the etag header for the page.
      *
      * @param  boolean $var show etag header
+     *
      * @return boolean      show etag header
      */
     public function eTag($var = null)
@@ -1449,8 +1576,9 @@ class Page
             $this->etag = $var;
         }
         if (!isset($this->etag)) {
-            $this->etag = (bool) self::getGrav()['config']->get('system.pages.etag');
+            $this->etag = (bool)self::getGrav()['config']->get('system.pages.etag');
         }
+
         return $this->etag;
     }
 
@@ -1458,6 +1586,7 @@ class Page
      * Gets and sets the option to show the last_modified header for the page.
      *
      * @param  boolean $var show last_modified header
+     *
      * @return boolean      show last_modified header
      */
     public function lastModified($var = null)
@@ -1466,8 +1595,9 @@ class Page
             $this->last_modified = $var;
         }
         if (!isset($this->last_modified)) {
-            $this->last_modified = (bool) self::getGrav()['config']->get('system.pages.last_modified');
+            $this->last_modified = (bool)self::getGrav()['config']->get('system.pages.last_modified');
         }
+
         return $this->last_modified;
     }
 
@@ -1475,6 +1605,7 @@ class Page
      * Gets and sets the path to the .md file for this Page object.
      *
      * @param  string $var the file path
+     *
      * @return string|null      the file path
      */
     public function filePath($var = null)
@@ -1487,6 +1618,7 @@ class Page
             // Path to the page.
             $this->path = dirname(dirname($var));
         }
+
         return $this->path . '/' . $this->folder . '/' . ($this->name ?: '');
     }
 
@@ -1498,6 +1630,7 @@ class Page
     public function filePathClean()
     {
         $path = str_replace(ROOT_DIR, '', $this->filePath());
+
         return $path;
     }
 
@@ -1506,7 +1639,8 @@ class Page
      */
     public function relativePagePath()
     {
-        $path = str_replace('/'.$this->name, '', $this->filePathClean());
+        $path = str_replace('/' . $this->name, '', $this->filePathClean());
+
         return $path;
     }
 
@@ -1515,6 +1649,7 @@ class Page
      * This is equivalent to the filePath but without the filename.
      *
      * @param  string $var the path
+     *
      * @return string|null      the path
      */
     public function path($var = null)
@@ -1525,6 +1660,7 @@ class Page
             // Path to the page.
             $this->path = dirname($var);
         }
+
         return $this->path ? $this->path . '/' . $this->folder : null;
     }
 
@@ -1532,6 +1668,7 @@ class Page
      * Get/set the folder.
      *
      * @param string $var Optional path
+     *
      * @return string|null
      */
     public function folder($var = null)
@@ -1539,6 +1676,7 @@ class Page
         if ($var !== null) {
             $this->folder = $var;
         }
+
         return $this->folder;
     }
 
@@ -1546,6 +1684,7 @@ class Page
      * Gets and sets the date for this Page object. This is typically passed in via the page headers
      *
      * @param  string $var string representation of a date
+     *
      * @return int         unix timestamp representation of the date
      */
     public function date($var = null)
@@ -1563,7 +1702,9 @@ class Page
 
     /**
      * Gets and sets the order by which any sub-pages should be sorted.
+     *
      * @param  string $var the order, either "asc" or "desc"
+     *
      * @return string      the order, either "asc" or "desc"
      */
     public function orderDir($var = null)
@@ -1574,6 +1715,7 @@ class Page
         if (empty($this->order_dir)) {
             $this->order_dir = 'asc';
         }
+
         return $this->order_dir;
     }
 
@@ -1586,6 +1728,7 @@ class Page
      * folder - is the order based on the name of the folder with any numerics omitted
      *
      * @param  string $var supported options include "default", "title", "date", and "folder"
+     *
      * @return string      supported options include "default", "title", "date", and "folder"
      */
     public function orderBy($var = null)
@@ -1593,6 +1736,7 @@ class Page
         if ($var !== null) {
             $this->order_by = $var;
         }
+
         return $this->order_by;
     }
 
@@ -1600,6 +1744,7 @@ class Page
      * Gets the manual order set in the header.
      *
      * @param  string $var supported options include "default", "title", "date", and "folder"
+     *
      * @return array
      */
     public function orderManual($var = null)
@@ -1607,7 +1752,8 @@ class Page
         if ($var !== null) {
             $this->order_manual = $var;
         }
-        return (array) $this->order_manual;
+
+        return (array)$this->order_manual;
     }
 
     /**
@@ -1615,18 +1761,20 @@ class Page
      * sub_pages header property is set for this page object.
      *
      * @param  int $var the maximum number of sub-pages
+     *
      * @return int      the maximum number of sub-pages
      */
     public function maxCount($var = null)
     {
         if ($var !== null) {
-            $this->max_count = (int) $var;
+            $this->max_count = (int)$var;
         }
         if (empty($this->max_count)) {
             /** @var Config $config */
             $config = self::getGrav()['config'];
-            $this->max_count = (int) $config->get('system.pages.list.count');
+            $this->max_count = (int)$config->get('system.pages.list.count');
         }
+
         return $this->max_count;
     }
 
@@ -1634,6 +1782,7 @@ class Page
      * Gets and sets the taxonomy array which defines which taxonomies this page identifies itself with.
      *
      * @param  array $var an array of taxonomies
+     *
      * @return array      an array of taxonomies
      */
     public function taxonomy($var = null)
@@ -1641,13 +1790,15 @@ class Page
         if ($var !== null) {
             $this->taxonomy = $var;
         }
+
         return $this->taxonomy;
     }
 
-     /**
+    /**
      * Gets and sets the modular var that helps identify this parent page contains modular pages.
      *
      * @param  bool $var true if modular_twig
+     *
      * @return bool      true if modular_twig
      */
     public function modular($var = null)
@@ -1660,12 +1811,13 @@ class Page
      * twig processing handled differently from a regular page.
      *
      * @param  bool $var true if modular_twig
+     *
      * @return bool      true if modular_twig
      */
     public function modularTwig($var = null)
     {
         if ($var !== null) {
-            $this->modular_twig = (bool) $var;
+            $this->modular_twig = (bool)$var;
             if ($var) {
                 $this->process['twig'] = true;
                 $this->visible(false);
@@ -1675,6 +1827,7 @@ class Page
                 }
             }
         }
+
         return $this->modular_twig;
     }
 
@@ -1682,23 +1835,26 @@ class Page
      * Gets the configured state of the processing method.
      *
      * @param  string $process the process, eg "twig" or "markdown"
+     *
      * @return bool            whether or not the processing method is enabled for this Page
      */
     public function shouldProcess($process)
     {
-        return isset($this->process[$process]) ? (bool) $this->process[$process] : false;
+        return isset($this->process[$process]) ? (bool)$this->process[$process] : false;
     }
 
     /**
      * Gets and Sets the parent object for this page
      *
      * @param  Page $var the parent page object
+     *
      * @return Page|null the parent page object if it exists.
      */
     public function parent(Page $var = null)
     {
         if ($var) {
             $this->parent = $var->path();
+
             return $var;
         }
 
@@ -1723,7 +1879,7 @@ class Page
 
         while (true) {
             $theParent = $topParent->parent();
-            if ($theParent != null && $theParent->parent() !== null) {
+            if ($theParent !== null && $theParent->parent() !== null) {
                 $topParent = $theParent;
             } else {
                 break;
@@ -1742,6 +1898,7 @@ class Page
     {
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
+
         return $pages->children($this->path());
     }
 
@@ -1757,6 +1914,7 @@ class Page
         if ($collection instanceof Collection) {
             return $collection->isFirst($this->path());
         }
+
         return true;
     }
 
@@ -1771,6 +1929,7 @@ class Page
         if ($collection instanceof Collection) {
             return $collection->isLast($this->path());
         }
+
         return true;
     }
 
@@ -1798,6 +1957,7 @@ class Page
      * Returns the adjacent sibling based on a direction.
      *
      * @param  integer $direction either -1 or +1
+     *
      * @return Page             the sibling page
      */
     public function adjacentSibling($direction = 1)
@@ -1806,6 +1966,7 @@ class Page
         if ($collection instanceof Collection) {
             return $collection->adjacentSibling($this->path(), $direction);
         }
+
         return false;
     }
 
@@ -1825,6 +1986,7 @@ class Page
             }
 
         }
+
         return false;
     }
 
@@ -1842,6 +2004,7 @@ class Page
         $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
+            /** @var Page $child_page */
             $child_page = $pages->dispatch($uri->route())->parent();
             if ($child_page) {
                 while (!$child_page->root()) {
@@ -1883,8 +2046,8 @@ class Page
     /**
      * Helper method to return a page.
      *
-     * @param string  $url the url of the page
-     * @param bool    $all
+     * @param string $url the url of the page
+     * @param bool   $all
      *
      * @return \Grav\Common\Page\Page page you were looking for if it exists
      */
@@ -1892,6 +2055,7 @@ class Page
     {
         /** @var Pages $pages */
         $pages = self::getGrav()['pages'];
+
         return $pages->dispatch($url, $all);
     }
 
@@ -1899,20 +2063,21 @@ class Page
      * Get a collection of pages in the current context.
      *
      * @param string|array $params
-     * @param boolean $pagination
+     * @param boolean      $pagination
+     *
      * @return Collection
      * @throws \InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
     {
         if (is_string($params)) {
-            $params = (array) $this->value('header.'.$params);
+            $params = (array)$this->value('header.' . $params);
         } elseif (!is_array($params)) {
             throw new \InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }
 
         if (!isset($params['items'])) {
-            return array();
+            return [];
         }
 
         $collection = $this->evaluate($params['items']);
@@ -1929,7 +2094,7 @@ class Page
         $process_taxonomy = isset($params['url_taxonomy_filters']) ? $params['url_taxonomy_filters'] : $config->get('system.pages.url_taxonomy_filters');
 
         if ($process_taxonomy) {
-            foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
+            foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
                 if ($uri->param($taxonomy)) {
                     $items = explode(',', $uri->param($taxonomy));
                     $collection->setParams(['taxonomies' => [$taxonomy => $items]]);
@@ -1940,8 +2105,9 @@ class Page
                             continue;
                         }
                         foreach ($items as $item) {
-                            if (empty($page->taxonomy[$taxonomy])
-                                || !in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy])) {
+                            if (empty($page->taxonomy[$taxonomy]) || !in_array(htmlspecialchars_decode($item,
+                                    ENT_QUOTES), $page->taxonomy[$taxonomy])
+                            ) {
                                 $collection->remove();
                             }
                         }
@@ -1997,21 +2163,22 @@ class Page
         if (is_string($value)) {
             // Format: @command.param
             $cmd = $value;
-            $params = array();
+            $params = [];
         } elseif (is_array($value) && count($value) == 1 && !is_int(key($value))) {
             // Format: @command.param: { attr1: value1, attr2: value2 }
-            $cmd = (string) key($value);
-            $params = (array) current($value);
+            $cmd = (string)key($value);
+            $params = (array)current($value);
         } else {
             $result = [];
-            foreach($value as $key => $val) {
+            foreach ($value as $key => $val) {
                 if (is_int($key)) {
                     $result = $result + $this->evaluate($val)->toArray();
                 } else {
-                    $result = $result + $this->evaluate([$key=>$val])->toArray();
+                    $result = $result + $this->evaluate([$key => $val])->toArray();
                 }
 
             }
+
             return new Collection($result);
         }
 
@@ -2026,7 +2193,9 @@ class Page
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
 
+        /** @var Collection $results */
         $results = new Collection();
+
         switch ($current) {
             case '@self':
                 if (!empty($parts)) {
@@ -2135,6 +2304,7 @@ class Page
         if ($this->name) {
             return true;
         }
+
         return false;
     }
 
@@ -2156,6 +2326,7 @@ class Page
     public function exists()
     {
         $file = $this->file();
+
         return $file && $file->exists();
     }
 
@@ -2163,6 +2334,7 @@ class Page
      * Cleans the path.
      *
      * @param  string $path the path
+     *
      * @return string       the path
      */
     protected function cleanPath($path)
@@ -2171,6 +2343,7 @@ class Page
         if (strpos($lastchunk, ':') !== false) {
             $path = str_replace($lastchunk, '', $path);
         }
+
         return $path;
     }
 
@@ -2178,6 +2351,10 @@ class Page
      * Moves or copies the page in filesystem.
      *
      * @internal
+     *
+     * @param bool $reorder
+     *
+     * @throws Exception
      */
     protected function doRelocation($reorder)
     {
@@ -2193,7 +2370,7 @@ class Page
             $parent = $this->parent();
 
             // Extract visible children from the parent page.
-            $list = array();
+            $list = [];
             /** @var Page $page */
             foreach ($parent->children()->visible() as $page) {
                 if ($page->order()) {
@@ -2210,21 +2387,21 @@ class Page
 
             // Then add it back to the new location (if needed).
             if ($this->order()) {
-                array_splice($list, min($this->order()-1, count($list)), 0, array($this->path()));
+                array_splice($list, min($this->order() - 1, count($list)), 0, [$this->path()]);
             }
 
             // Reorder all moved pages.
             foreach ($list as $order => $path) {
                 if ($path == $this->path()) {
                     // Handle current page; we do want to change ordering number, but nothing else.
-                    $this->order($order+1);
+                    $this->order($order + 1);
                 } else {
                     // Handle all the other pages.
                     $page = $pages->get($path);
 
-                    if ($page && $page->exists() && !$page->_action && $page->order() != $order+1) {
+                    if ($page && $page->exists() && !$page->_action && $page->order() != $order + 1) {
                         $page = $page->move($parent);
-                        $page->order($order+1);
+                        $page->order($order + 1);
                         $page->save(false);
                     }
                 }

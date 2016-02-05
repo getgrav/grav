@@ -11,6 +11,7 @@ trait WriteCacheFileTrait
     use GravTrait;
 
     protected static $umask;
+
     /**
      * This exists so template cache files use the same
      * group between apache and cli

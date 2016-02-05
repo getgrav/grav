@@ -7,7 +7,8 @@
     "license": "MIT",
     "require": {
         "php": ">=5.5.9",
-        "twig/twig": "~1.23",
+        "twig/twig": "~1.24",
+        "erusev/parsedown": "dev-master as 1.6.0",
         "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~2.8",
         "symfony/console": "~2.8",
@@ -15,22 +16,22 @@
         "symfony/var-dumper": "~2.8",
         "symfony/polyfill-iconv": "~1.0",
         "doctrine/cache": "~1.5",
-        "filp/whoops": "2.0.0-alpha2",
+        "filp/whoops": "~2.0",
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
-        "ircmaxell/password-compat": "1.0.*",
         "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
         "rockettheme/toolbox": "~1.2",
-        "maximebf/debugbar": "~1.10"
+        "maximebf/debugbar": "~1.10",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/getgrav/parsedown"
-        }
-    ],
+    "require-dev": {
+        "codeception/codeception": "^2.1",
+        "fzaninotto/faker": "^1.5"
+    },
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"
@@ -41,7 +42,9 @@
         "exclude": ["VERSION"]
     },
     "scripts": {
-        "post-create-project-cmd": "bin/grav install"
+        "post-create-project-cmd": "bin/grav install",
+        "test": "vendor/bin/codecept run unit",
+        "test-windows": "vendor\\bin\\codecept run unit"
     },
     "extra": {
         "branch-alias": {

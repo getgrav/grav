@@ -39,6 +39,7 @@ if (!function_exists('curl_version')) {
 
 $grav = Grav::instance(array('loader' => $autoload));
 $grav['config']->init();
+$grav['uri']->init();
 $grav['streams'];
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);
@@ -51,4 +52,6 @@ $app->addCommands(array(
     new \Grav\Console\Gpm\UpdateCommand(),
     new \Grav\Console\Gpm\SelfupgradeCommand(),
 ));
+
+$app->setDefaultCommand('index');
 $app->run();

@@ -283,7 +283,7 @@ class Validation
 
     protected static function filterFile($value, array $params, array $field)
     {
-        if (isset($field['multiple']) && $field['multiple'] == true) {
+        if (isset($field['multiple']) && $field['multiple'] === true) {
             return (array) $value;
         }
 
@@ -558,6 +558,10 @@ class Validation
         $values = (array) $value;
         $options = isset($field['options']) ? array_keys($field['options']) : array();
         $multi = isset($field['multiple']) ? $field['multiple'] : false;
+
+        if (count($values) == 1 && isset($values[0]) && $values[0] == '') {
+            return null;
+        }
 
         if ($options) {
             $useKey = isset($field['use']) && $field['use'] == 'keys';

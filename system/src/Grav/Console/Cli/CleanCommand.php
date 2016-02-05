@@ -24,6 +24,8 @@ class CleanCommand extends Command
      * @var array
      */
     protected $paths_to_remove = [
+        'codeception.yml',
+        'tests/',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/.travis.yml',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/build.xml',
         'user/plugins/email/vendor/swiftmailer/swiftmailer/composer.json',

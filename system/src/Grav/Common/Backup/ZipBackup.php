@@ -29,6 +29,14 @@ class ZipBackup
         '.idea'
     ];
 
+    /**
+     * Backup
+     *
+     * @param null          $destination
+     * @param callable|null $messager
+     *
+     * @return null|string
+     */
     public static function backup($destination = null, callable $messager = null)
     {
         if (!$destination) {

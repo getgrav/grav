@@ -118,7 +118,7 @@ class Medium extends Data implements RenderableInterface
      * Return PATH to file.
      *
      * @param bool $reset
-     * @return  string path to file
+     * @return string path to file
      */
     public function path($reset = true)
     {
@@ -155,7 +155,7 @@ class Medium extends Data implements RenderableInterface
      */
     public function querystring($querystring = null, $withQuestionmark = true)
     {
-        if ($querystring) {
+        if (!is_null($querystring)) {
             $this->set('querystring', ltrim($querystring, '?&'));
 
             foreach ($this->alternatives as $alt) {

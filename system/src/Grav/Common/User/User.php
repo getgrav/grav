@@ -10,10 +10,10 @@ use Grav\Common\Utils;
 /**
  * User object
  *
- * @property mixed authenticated
- * @property mixed password
+ * @property mixed       authenticated
+ * @property mixed       password
  * @property bool|string hashed_password
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class User extends Data
@@ -26,6 +26,7 @@ class User extends Data
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
+     *
      * @return User
      */
     public static function load($username)
@@ -56,6 +57,7 @@ class User extends Data
      * Remove user account.
      *
      * @param string $username
+     *
      * @return bool True if the action was performed
      */
     public static function remove($username)
@@ -73,7 +75,8 @@ class User extends Data
      *
      * If user password needs to be updated, new information will be saved.
      *
-     * @param string $password  Plaintext password.
+     * @param string $password Plaintext password.
+     *
      * @return bool
      */
     public function authenticate($password)
@@ -88,8 +91,9 @@ class User extends Data
                 // the result
                 Authentication::verify(
                     $password,
-                    self::getGrav()['config']->get('system.security.default_hash', '$2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK')
+                    self::getGrav()['config']->get('system.security.default_hash')
                 );
+
                 return false;
             } else {
                 // Plain-text does match, we can update the hash and proceed
@@ -113,7 +117,7 @@ class User extends Data
             $this->save();
         }
 
-        return (bool) $result;
+        return (bool)$result;
     }
 
     /**
@@ -139,7 +143,8 @@ class User extends Data
     /**
      * Checks user authorization to the action.
      *
-     * @param  string  $action
+     * @param  string $action
+     *
      * @return bool
      */
     public function authorize($action)
@@ -156,21 +161,22 @@ class User extends Data
 
         //Check group access level
         $groups = $this->get('groups');
-        if ($groups) foreach($groups as $group) {
-            $permission = self::getGrav()['config']->get("groups.{$group}.access.{$action}");
-            if (Utils::isPositive($permission)) {
-                $return = true;
+        if ($groups) {
+            foreach ((array)$groups as $group) {
+                $permission = self::getGrav()['config']->get("groups.{$group}.access.{$action}");
+                $return = Utils::isPositive($permission);
+                if ($return === true) {
+                    break;
+                }
             }
         }
 
         //Check user access level
-        if (!$this->get('access')) {
-            return false;
-        }
-
-        if (Utils::resolve($this->get('access'), $action) !== null) {
-            $permission = $this->get("access.{$action}");
-            $return = Utils::isPositive($permission);
+        if ($this->get('access')) {
+            if (Utils::resolve($this->get('access'), $action) !== null) {
+                $permission = $this->get("access.{$action}");
+                $return = Utils::isPositive($permission);
+            }
         }
 
         return $return;
@@ -181,6 +187,7 @@ class User extends Data
      * Ensures backwards compatibility
      *
      * @param  string $action
+     *
      * @deprecated use authorize()
      * @return bool
      */

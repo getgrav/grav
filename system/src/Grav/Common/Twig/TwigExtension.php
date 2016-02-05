@@ -5,12 +5,13 @@ use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Uri;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Twig extension adds some filters and functions that are useful for Grav
  *
- * @author RocketTheme
+ * @author  RocketTheme
  * @license MIT
  */
 class TwigExtension extends \Twig_Extension
@@ -19,6 +20,9 @@ class TwigExtension extends \Twig_Extension
     protected $debugger;
     protected $config;
 
+    /**
+     * TwigExtension constructor.
+     */
     public function __construct()
     {
         $this->grav = Grav::instance();
@@ -43,9 +47,9 @@ class TwigExtension extends \Twig_Extension
      */
     public function getGlobals()
     {
-        return array(
+        return [
             'grav' => $this->grav,
-        );
+        ];
     }
 
     /**
@@ -56,30 +60,30 @@ class TwigExtension extends \Twig_Extension
     public function getFilters()
     {
         return [
-            new \Twig_SimpleFilter('*ize', [$this,'inflectorFilter']),
+            new \Twig_SimpleFilter('*ize', [$this, 'inflectorFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
             new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
-            new \Twig_SimpleFilter('fieldName', [$this,'fieldNameFilter']),
-            new \Twig_SimpleFilter('ksort', [$this,'ksortFilter']),
+            new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
+            new \Twig_SimpleFilter('ksort', [$this, 'ksortFilter']),
             new \Twig_SimpleFilter('ltrim', [$this, 'ltrimFilter']),
             new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter']),
-            new \Twig_SimpleFilter('md5', [$this,'md5Filter']),
+            new \Twig_SimpleFilter('md5', [$this, 'md5Filter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
-            new \Twig_SimpleFilter('randomize', [$this,'randomizeFilter']),
-            new \Twig_SimpleFilter('modulus', [$this,'modulusFilter']),
+            new \Twig_SimpleFilter('randomize', [$this, 'randomizeFilter']),
+            new \Twig_SimpleFilter('modulus', [$this, 'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
             new \Twig_SimpleFilter('pad', [$this, 'padFilter']),
-            new \Twig_SimpleFilter('safe_email', [$this,'safeEmailFilter']),
-            new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils','safeTruncate']),
-            new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils','safeTruncateHTML']),
-            new \Twig_SimpleFilter('sort_by_key', [$this,'sortByKeyFilter']),
+            new \Twig_SimpleFilter('safe_email', [$this, 'safeEmailFilter']),
+            new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils', 'safeTruncate']),
+            new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils', 'safeTruncateHTML']),
+            new \Twig_SimpleFilter('sort_by_key', [$this, 'sortByKeyFilter']),
             new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
             new \Twig_SimpleFilter('t', [$this, 'translate']),
             new \Twig_SimpleFilter('ta', [$this, 'translateArray']),
-            new \Twig_SimpleFilter('truncate', ['\Grav\Common\Utils','truncate']),
-            new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils','truncateHTML']),
+            new \Twig_SimpleFilter('truncate', ['\Grav\Common\Utils', 'truncate']),
+            new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils', 'truncateHTML']),
         ];
     }
 
@@ -112,7 +116,8 @@ class TwigExtension extends \Twig_Extension
     /**
      * Filters field name by changing dot notation into array notation.
      *
-     * @param  string  $str
+     * @param  string $str
+     *
      * @return string
      */
     public function fieldNameFilter($str)
@@ -125,7 +130,8 @@ class TwigExtension extends \Twig_Extension
     /**
      * Protects email address.
      *
-     * @param  string  $str
+     * @param  string $str
+     *
      * @return string
      */
     public function safeEmailFilter($str)
@@ -133,8 +139,9 @@ class TwigExtension extends \Twig_Extension
         $email = '';
         $str_len = strlen($str);
         for ($i = 0; $i < $str_len; $i++) {
-            $email .= "&#" . ord($str[$i]). ";";
+            $email .= "&#" . ord($str[$i]) . ";";
         }
+
         return $email;
     }
 
@@ -142,7 +149,8 @@ class TwigExtension extends \Twig_Extension
      * Returns array in a random order.
      *
      * @param  array $original
-     * @param  int   $offset   Can be used to return only slice of the array.
+     * @param  int   $offset Can be used to return only slice of the array.
+     *
      * @return array
      */
     public function randomizeFilter($original, $offset = 0)
@@ -160,41 +168,44 @@ class TwigExtension extends \Twig_Extension
         shuffle($random);
 
         $sizeOf = sizeof($original);
-        for ($x=0; $x < $sizeOf; $x++) {
+        for ($x = 0; $x < $sizeOf; $x++) {
             if ($x < $offset) {
                 $sorted[] = $original[$x];
             } else {
                 $sorted[] = array_shift($random);
             }
         }
+
         return $sorted;
     }
 
     /**
      * Returns the modulus of an integer
      *
-     * @param  int $number
-     * @param  int $divider
+     * @param  int   $number
+     * @param  int   $divider
      * @param  array $items array of items to select from to return
+     *
      * @return int
      */
-     public function modulusFilter($number, $divider, $items = null)
-     {
-         if (is_string($number)) {
-             $number = strlen($number);
-         }
+    public function modulusFilter($number, $divider, $items = null)
+    {
+        if (is_string($number)) {
+            $number = strlen($number);
+        }
 
-         $remainder = $number % $divider;
+        $remainder = $number % $divider;
 
-         if (is_array($items)) {
-             if (isset($items[$remainder])) {
-                 return $items[$remainder];
-             } else {
-                 return $items[0];
-             }
-         }
-         return $remainder;
-     }
+        if (is_array($items)) {
+            if (isset($items[$remainder])) {
+                return $items[$remainder];
+            } else {
+                return $items[0];
+            }
+        }
+
+        return $remainder;
+    }
 
     /**
      * Inflector supports following notations:
@@ -211,21 +222,22 @@ class TwigExtension extends \Twig_Extension
      *
      * @param string $action
      * @param string $data
-     * @param int $count
+     * @param int    $count
+     *
      * @return mixed
      */
     public function inflectorFilter($action, $data, $count = null)
     {
-        $action = $action.'ize';
+        $action = $action . 'ize';
 
         $inflector = $this->grav['inflector'];
 
         if (in_array(
             $action,
-            ['titleize','camelize','underscorize','hyphenize', 'humanize','ordinalize','monthize']
+            ['titleize', 'camelize', 'underscorize', 'hyphenize', 'humanize', 'ordinalize', 'monthize']
         )) {
             return $inflector->$action($data);
-        } elseif (in_array($action, ['pluralize','singularize'])) {
+        } elseif (in_array($action, ['pluralize', 'singularize'])) {
             if ($count) {
                 return $inflector->$action($data, $count);
             } else {
@@ -240,6 +252,7 @@ class TwigExtension extends \Twig_Extension
      * Return MD5 hash from the input.
      *
      * @param  string $str
+     *
      * @return string
      */
     public function md5Filter($str)
@@ -277,11 +290,13 @@ class TwigExtension extends \Twig_Extension
      * Return ksorted collection.
      *
      * @param  array $array
+     *
      * @return array
      */
     public function ksortFilter(array $array)
     {
         ksort($array);
+
         return $array;
     }
 
@@ -314,14 +329,32 @@ class TwigExtension extends \Twig_Extension
         }
 
         if ($long_strings) {
-            $periods = array("NICETIME.SECOND", "NICETIME.MINUTE", "NICETIME.HOUR", "NICETIME.DAY", "NICETIME.WEEK", "NICETIME.MONTH", "NICETIME.YEAR", "NICETIME.DECADE");
+            $periods = [
+                "NICETIME.SECOND",
+                "NICETIME.MINUTE",
+                "NICETIME.HOUR",
+                "NICETIME.DAY",
+                "NICETIME.WEEK",
+                "NICETIME.MONTH",
+                "NICETIME.YEAR",
+                "NICETIME.DECADE"
+            ];
         } else {
-            $periods = array("NICETIME.SEC", "NICETIME.MIN", "NICETIME.HR", "NICETIME.DAY", "NICETIME.WK", "NICETIME.MO", "NICETIME.YR", "NICETIME.DEC");
+            $periods = [
+                "NICETIME.SEC",
+                "NICETIME.MIN",
+                "NICETIME.HR",
+                "NICETIME.DAY",
+                "NICETIME.WK",
+                "NICETIME.MO",
+                "NICETIME.YR",
+                "NICETIME.DEC"
+            ];
         }
 
-        $lengths         = array("60","60","24","7","4.35","12","10");
+        $lengths = ["60", "60", "24", "7", "4.35", "12", "10"];
 
-        $now             = time();
+        $now = time();
 
         // check if unix timestamp
         if ((string)(int)$date == $date) {
@@ -337,15 +370,15 @@ class TwigExtension extends \Twig_Extension
 
         // is it future date or past date
         if ($now > $unix_date) {
-            $difference     = $now - $unix_date;
-            $tense         = $this->grav['language']->translate('NICETIME.AGO', null, true);
+            $difference = $now - $unix_date;
+            $tense = $this->grav['language']->translate('NICETIME.AGO', null, true);
 
         } else {
-            $difference     = $unix_date - $now;
-            $tense         = $this->grav['language']->translate('NICETIME.FROM_NOW', null, true);
+            $difference = $unix_date - $now;
+            $tense = $this->grav['language']->translate('NICETIME.FROM_NOW', null, true);
         }
 
-        for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
+        for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths) - 1; $j++) {
             $difference /= $lengths[$j];
         }
 
@@ -355,7 +388,9 @@ class TwigExtension extends \Twig_Extension
             $periods[$j] .= '_PLURAL';
         }
 
-        if ($this->grav['language']->getTranslation($this->grav['language']->getLanguage(), $periods[$j] . '_MORE_THAN_TWO')) {
+        if ($this->grav['language']->getTranslation($this->grav['language']->getLanguage(),
+            $periods[$j] . '_MORE_THAN_TWO')
+        ) {
             if ($difference > 2) {
                 $periods[$j] .= '_MORE_THAN_TWO';
             }
@@ -366,14 +401,25 @@ class TwigExtension extends \Twig_Extension
         return "$difference $periods[$j] {$tense}";
     }
 
+    /**
+     * @param $string
+     *
+     * @return mixed
+     */
     public function absoluteUrlFilter($string)
     {
         $url = $this->grav['uri']->base();
         $string = preg_replace('/((?:href|src) *= *[\'"](?!(http|ftp)))/i', "$1$url", $string);
+
         return $string;
 
     }
 
+    /**
+     * @param $string
+     *
+     * @return mixed|string
+     */
     public function markdownFilter($string)
     {
         $page = $this->grav['page'];
@@ -391,16 +437,34 @@ class TwigExtension extends \Twig_Extension
         return $string;
     }
 
+    /**
+     * @param $haystack
+     * @param $needle
+     *
+     * @return bool
+     */
     public function startsWithFilter($haystack, $needle)
     {
         return Utils::startsWith($haystack, $needle);
     }
 
+    /**
+     * @param $haystack
+     * @param $needle
+     *
+     * @return bool
+     */
     public function endsWithFilter($haystack, $needle)
     {
         return Utils::endsWith($haystack, $needle);
     }
 
+    /**
+     * @param      $value
+     * @param null $default
+     *
+     * @return null
+     */
     public function definedDefaultFilter($value, $default = null)
     {
         if (isset($value)) {
@@ -410,21 +474,43 @@ class TwigExtension extends \Twig_Extension
         }
     }
 
+    /**
+     * @param      $value
+     * @param null $chars
+     *
+     * @return string
+     */
     public function rtrimFilter($value, $chars = null)
     {
         return rtrim($value, $chars);
     }
 
+    /**
+     * @param      $value
+     * @param null $chars
+     *
+     * @return string
+     */
     public function ltrimFilter($value, $chars = null)
     {
         return ltrim($value, $chars);
     }
 
+    /**
+     * @return mixed
+     */
     public function translate()
     {
         return $this->grav['language']->translate(func_get_args());
     }
 
+    /**
+     * @param      $key
+     * @param      $index
+     * @param null $lang
+     *
+     * @return mixed
+     */
     public function translateArray($key, $index, $lang = null)
     {
         return $this->grav['language']->translateArray($key, $index, $lang);
@@ -435,6 +521,7 @@ class TwigExtension extends \Twig_Extension
      *
      * @param  string $input
      * @param  int    $multiplier
+     *
      * @return string
      */
     public function repeatFunc($input, $multiplier)
@@ -447,24 +534,30 @@ class TwigExtension extends \Twig_Extension
      *
      * @example {{ url('theme://images/logo.png')|default('http://www.placehold.it/150x100/f4f4f4') }}
      *
-     * @param  string $input    Resource to be located.
-     * @param  bool $domain     True to include domain name.
+     * @param  string $input  Resource to be located.
+     * @param  bool   $domain True to include domain name.
+     *
      * @return string|null      Returns url to the resource or null if resource was not found.
      */
     public function urlFunc($input, $domain = false)
     {
-        if (!trim((string) $input)) {
+        if (!trim((string)$input)) {
             return false;
         }
 
-        if (strpos((string) $input, '://')) {
+        if ($this->grav['config']->get('system.absolute_urls', false)) {
+            $domain = true;
+        }
+
+
+        if (strpos((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
 
             // Get relative path to the resource (or false if not found).
-            $resource = $locator->findResource((string) $input, false);
+            $resource = $locator->findResource((string)$input, false);
         } else {
-            $resource = (string) $input;
+            $resource = (string)$input;
         }
 
         /** @var Uri $uri */
@@ -478,7 +571,8 @@ class TwigExtension extends \Twig_Extension
      *
      * @example {{ evaluate('grav.language.getLanguage') }}
      *
-     * @param  string $input    String to be evaluated
+     * @param  string $input String to be evaluated
+     *
      * @return string           Returns the evaluated string
      */
     public function evaluateFunc($input)
@@ -491,7 +585,7 @@ class TwigExtension extends \Twig_Extension
      * (c) 2011 Fabien Potencier
      *
      * @param \Twig_Environment $env
-     * @param $context
+     * @param                   $context
      */
     public function dump(\Twig_Environment $env, $context)
     {
@@ -525,11 +619,12 @@ class TwigExtension extends \Twig_Extension
      * Output a Gist
      *
      * @param  string $id
+     *
      * @return string
      */
     public function gistFunc($id)
     {
-        return '<script src="https://gist.github.com/'.$id.'.js"></script>';
+        return '<script src="https://gist.github.com/' . $id . '.js"></script>';
     }
 
     /**
@@ -556,7 +651,7 @@ class TwigExtension extends \Twig_Extension
      */
     public static function padFilter($input, $pad_length, $pad_string = " ", $pad_type = STR_PAD_RIGHT)
     {
-        return str_pad($input, (int) $pad_length, $pad_string, $pad_type);
+        return str_pad($input, (int)$pad_length, $pad_string, $pad_type);
     }
 
 
@@ -569,7 +664,7 @@ class TwigExtension extends \Twig_Extension
      */
     public function arrayFunc($value)
     {
-        return (array) $value;
+        return (array)$value;
     }
 
     /**
@@ -625,18 +720,17 @@ class TwigExtension extends \Twig_Extension
     /**
      * Used to add a nonce to a form. Call {{ nonce_field('action') }} specifying a string representing the action.
      *
-     * For maximum protection, ensure that the string representing the action is as specific as possible.
+     * For maximum protection, ensure that the string representing the action is as specific as possible
      *
-     * @todo evaluate if adding referrer or not
-     *
-     * @param string action         the action
-     * @param string nonceParamName a custom nonce param name
+     * @param string $action         the action
+     * @param string $nonceParamName a custom nonce param name
      *
      * @return string the nonce input field
      */
     public function nonceFieldFunc($action, $nonceParamName = 'nonce')
     {
-        $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) .'" />';
+        $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) . '" />';
+
         return $string;
     }
 }

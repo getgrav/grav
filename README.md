@@ -1,4 +1,4 @@
-# ![](https://avatars1.githubusercontent.com/u/8237355?v=2&s=50) Grav
+# ![](https://avatars1.githubusercontent.com/u/8237355?v=2&s=50) Grav [![Build Status](https://travis-ci.org/getgrav/grav.svg?branch=develop)](https://travis-ci.org/getgrav/grav)
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad/mini.png)](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad) [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/getgrav/grav?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -100,11 +100,11 @@ What you mainly want to know is that:
 * [What is Grav?](http://learn.getgrav.org/basics/what-is-grav)
 * [Install](http://learn.getgrav.org/basics/installation) Grav in few seconds
 * Understand the [Configuration](http://learn.getgrav.org/basics/grav-configuration)
-* Take a peek at our available free [Skeletons](http://getgrav.org/downloads/skeletons#extras)
-* If you have questions, check out `#grav` on irc.freenode.net
+* Take a peek at our available free [Skeletons](http://getgrav.org/downloads/skeletons)
+* If you have questions, jump on our [Gitter Room](https://gitter.im/getgrav/grav)!
 * Have fun!
 
-# Exploring more
+# Exploring More
 
 * Have a look at our [Basic Tutorial](http://learn.getgrav.org/basics/basic-tutorial)
 * Dive into more [advanced](http://learn.getgrav.org/advanced) functions
@@ -116,3 +116,10 @@ See [LICENSE](LICENSE.txt)
 
 [gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gitflow-extensions]: https://github.com/nvie/gitflow
+
+# Running Tests
+
+First install the dev dependencies by running `composer update` from the Grav root.
+Then `composer test` will run the Unit Tests, which should be always executed successfully on any site.
+
+You can also run a single unit test file, e.g. `composer test tests/unit/Grav/Common/AssetsTest.php`
