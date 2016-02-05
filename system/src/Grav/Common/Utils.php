@@ -505,7 +505,6 @@ abstract class Utils
     }
 
     //Added in version 1.0.8 to ensure that existing nonces are not broken.
-    //TODO: to be removed
     private static function generateNonceStringOldStyle($action, $plusOneTick = false)
     {
         if (isset(self::getGrav()['user'])) {
@@ -529,7 +528,7 @@ abstract class Utils
     /**
      * Get the time-dependent variable for nonce creation.
      *
-     * @todo now a tick lasts a day. Once the day is passed, the nonce is not valid any more. Find a better way
+     * Now a tick lasts a day. Once the day is passed, the nonce is not valid any more. Find a better way
      *       to ensure nonces issued near the end of the day do not expire in that small amount of time
      *
      * @return int the time part of the nonce. Changes once every 24 hours
@@ -563,7 +562,6 @@ abstract class Utils
     }
 
     //Added in version 1.0.8 to ensure that existing nonces are not broken.
-    //TODO: to be removed
     public static function getNonceOldStyle($action, $plusOneTick = false)
     {
         // Don't regenerate this again if not needed
@@ -604,7 +602,6 @@ abstract class Utils
 
 
         //Added in version 1.0.8 to ensure that existing nonces are not broken.
-        //TODO: to be removed
         //Nonce generated 0-12 hours ago
         if ($nonce == self::getNonceOldStyle($action)) {
             return true;
@@ -615,7 +612,6 @@ abstract class Utils
         if ($nonce == self::getNonceOldStyle($action, $plusOneTick)) {
             return true;
         }
-        //End TODO: to be removed
 
         //Invalid nonce
         return false;
