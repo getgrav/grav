@@ -10,9 +10,9 @@ use Grav\Common\Language\Language;
 
 
 /**
- * Class AssetsTest
+ * Class ParsedownTest
  */
-class MarkdownTest extends \Codeception\TestCase\Test
+class ParsedownTest extends \Codeception\TestCase\Test
 {
     /** @var Parsedown $parsedown */
     protected $parsedown;
