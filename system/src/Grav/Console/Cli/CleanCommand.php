@@ -2,7 +2,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
-use Grav\Console\ConsoleCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  * Class CleanCommand
  * @package Grav\Console\Cli
  */
-class CleanCommand extends ConsoleCommand
+class CleanCommand extends Command
 {
     /* @var InputInterface $output */
     protected $input;
@@ -186,8 +186,10 @@ class CleanCommand extends ConsoleCommand
     /**
      * @return int|null|void
      */
-    protected function serve()
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setupConsole($input, $output);
+
         $this->cleanPaths();
     }
 
@@ -210,6 +212,26 @@ class CleanCommand extends ConsoleCommand
             $this->output->writeln('');
             $this->output->writeln('<green>Nothing to clean...</green>');
         }
+    }
+
+        /**
+     * Set colors style definition for the formatter.
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
+    public function setupConsole(InputInterface $input, OutputInterface $output)
+    {
+        $this->input  = $input;
+        $this->output = $output;
+
+        $this->output->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
+        $this->output->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, array('bold')));
+        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, array('bold')));
+        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, array('bold')));
+        $this->output->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, array('bold')));
+        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, array('bold')));
+        $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
     }
 
 }
