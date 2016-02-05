@@ -234,7 +234,7 @@ class Response
 
         $ch = curl_init($uri);
 
-        $response = static::_curl_exec_follow($ch, $options, $callback);
+        $response = static::curlExecFollow($ch, $options, $callback);
         $errno = curl_errno($ch);
 
         if ($errno) {
@@ -254,7 +254,7 @@ class Response
      *
      * @return bool|mixed
      */
-    private static function _curl_exec_follow($ch, $options, $callback)
+    private static function curlExecFollow($ch, $options, $callback)
     {
         if ($callback) {
             curl_setopt_array(
