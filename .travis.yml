@@ -68,7 +68,7 @@ script:
   - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
         vendor/bin/codecept run;
     else
-        TRAVIS_TAG=$(curl --fail --user ${GH_API_USER} -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
+        export TRAVIS_TAG=$(curl --fail --user ${GH_API_USER} -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
     fi
   - echo $TRAVIS_TAG
   - if [ ! -z "$TRAVIS_TAG" ] && [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
