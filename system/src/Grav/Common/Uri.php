@@ -258,7 +258,7 @@ class Uri
         $language = $grav['language'];
 
         // add the port to the base for non-standard ports
-        if ($config->get('system.reverse_proxy_setup') == false && $this->port != '80' && $this->port != '443') {
+        if ($config->get('system.reverse_proxy_setup') === false && $this->port != '80' && $this->port != '443') {
             $this->base .= ":" . $this->port;
         }
 

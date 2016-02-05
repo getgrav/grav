@@ -528,7 +528,7 @@ class Page
 
 
             // if no cached-content run everything
-            if ($this->content === false || $cache_enable == false) {
+            if ($this->content === false || $cache_enable === false) {
                 $this->content = $this->raw_content;
                 self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
@@ -1881,7 +1881,7 @@ class Page
 
         while (true) {
             $theParent = $topParent->parent();
-            if ($theParent != null && $theParent->parent() !== null) {
+            if ($theParent !== null && $theParent->parent() !== null) {
                 $topParent = $theParent;
             } else {
                 break;
