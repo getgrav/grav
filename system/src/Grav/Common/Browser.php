@@ -6,8 +6,8 @@ namespace Grav\Common;
  *
  * Internally uses the PhpUserAgent package https://github.com/donatj/PhpUserAgent
  *
- * @author  RocketTHeme
- * @licence MIT
+ * @author  RocketTheme
+ * @license MIT
  */
 class Browser
 {
