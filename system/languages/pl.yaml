@@ -1,15 +1,14 @@
----
 FRONTMATTER_ERROR_PAGE: |
   ---
   title: %1$s
   ---
-  
+
   # Error: Nieprawidłowy Frontmatter
-  
+
   Path: `%2$s`
-  
+
   **%3$s**
-  
+
   ```
   %4$s
   ```
