@@ -65,6 +65,7 @@ class Page
     protected $frontmatter;
     protected $language;
     protected $content;
+    protected $content_meta;
     protected $summary;
     protected $raw_content;
     protected $pagination;
@@ -516,8 +517,16 @@ class Page
             // Load cached content
             /** @var Cache $cache */
             $cache = self::getGrav()['cache'];
-            $cache_id = md5('page' . $this->id());
-            $this->content = $cache->fetch($cache_id);
+            $cache_id = $this->id();
+            $content_obj = $cache->fetch($cache_id);
+
+            if (is_array($content_obj)) {
+                $this->content = $content_obj['content'];
+                $this->content_meta = $content_obj['content_meta'];
+            } else {
+                $this->content = $content_obj;
+            }
+
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
@@ -574,6 +583,17 @@ class Page
         return $this->content;
     }
 
+    public function addContentMeta($name, $value)
+    {
+        $this->content_meta[$name] = $value;
+    }
+
+    public function getContentMeta()
+    {
+        return $this->content_meta;
+    }
+
+
     /**
      * Process the Markdown content.  Uses Parsedown or Parsedown Extra depending on configuration
      */
@@ -618,8 +638,8 @@ class Page
     private function cachePageContent()
     {
         $cache = self::getGrav()['cache'];
-        $cache_id = md5('page' . $this->id());
-        $cache->save($cache_id, $this->content);
+        $cache_id = $this->id();
+        $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
     }
 
     /**
