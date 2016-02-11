@@ -517,7 +517,7 @@ class Page
             // Load cached content
             /** @var Cache $cache */
             $cache = self::getGrav()['cache'];
-            $cache_id = $this->id();
+            $cache_id = md5('page' . $this->id());
             $content_obj = $cache->fetch($cache_id);
 
             if (is_array($content_obj)) {
@@ -638,7 +638,7 @@ class Page
     private function cachePageContent()
     {
         $cache = self::getGrav()['cache'];
-        $cache_id = $this->id();
+        $cache_id = md5('page' . $this->id());
         $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
     }
 
