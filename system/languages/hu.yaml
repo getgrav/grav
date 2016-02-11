@@ -1,15 +1,14 @@
----
 FRONTMATTER_ERROR_PAGE: |
   ---
   cím: %1$s
   ---
-  
+
   # Hiba: Érvénytelen Frontmatter
-  
+
   Elérési út: `%2$s`
-  
+
   **%3$s**
-  
+
   ```
   %4$s
   ```

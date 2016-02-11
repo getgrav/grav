@@ -65,6 +65,7 @@ class Page
     protected $frontmatter;
     protected $language;
     protected $content;
+    protected $content_meta;
     protected $summary;
     protected $raw_content;
     protected $pagination;
@@ -517,7 +518,15 @@ class Page
             /** @var Cache $cache */
             $cache = self::getGrav()['cache'];
             $cache_id = md5('page' . $this->id());
-            $this->content = $cache->fetch($cache_id);
+            $content_obj = $cache->fetch($cache_id);
+
+            if (is_array($content_obj)) {
+                $this->content = $content_obj['content'];
+                $this->content_meta = $content_obj['content_meta'];
+            } else {
+                $this->content = $content_obj;
+            }
+
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
@@ -575,6 +584,51 @@ class Page
     }
 
     /**
+     * Get the contentMeta array and initialize content first if it's not already
+     *
+     * @return mixed
+     */
+    public function contentMeta()
+    {
+        if ($this->content === null) {
+            $this->content();
+        }
+        return $this->getContentMeta();
+    }
+
+    /**
+     * Add an entry to the page's contentMeta array
+     *
+     * @param $name
+     * @param $value
+     */
+    public function addContentMeta($name, $value)
+    {
+        $this->content_meta[$name] = $value;
+    }
+
+    /**
+     * Return the whole contentMeta array as it currently stands
+     *
+     * @return mixed
+     */
+    public function getContentMeta()
+    {
+        return $this->content_meta;
+    }
+
+    /**
+     * Sets the whole content meta array in one shot
+     *
+     * @param $content_meta
+     * @return mixed
+     */
+    public function setContentMeta($content_meta)
+    {
+        return $this->content_meta = $content_meta;
+    }
+
+    /**
      * Process the Markdown content.  Uses Parsedown or Parsedown Extra depending on configuration
      */
     protected function processMarkdown()
@@ -619,7 +673,7 @@ class Page
     {
         $cache = self::getGrav()['cache'];
         $cache_id = md5('page' . $this->id());
-        $cache->save($cache_id, $this->content);
+        $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
     }
 
     /**

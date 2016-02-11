@@ -1,15 +1,14 @@
----
 FRONTMATTER_ERROR_PAGE: |
   ---
   Tittel: %1$s
   ---
-  
+
   # Feilmelding: Ugyldig Frontmatter
-  
+
   Pane: '%2$s'
-  
+
   **%3$s **
-  
+
   ```
   %4$s
   ```
