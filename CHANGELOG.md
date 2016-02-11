@@ -1,3 +1,15 @@
+# v1.0.10
+## 02/11/2016
+    
+1. [](#new)
+    * Added new `Page::contentMeta()` mechanism to store content-level meta data alongside content
+    * Added Japanese language translation    
+1. [](#improved)
+    * Updated some vendor libraries
+1. [](#bugfix)
+    * Hide `streams` blueprint from Admin plugin
+    * Fix translations of languages with `---` in YAML files
+
 # v1.0.9
 ## 02/05/2016
 
