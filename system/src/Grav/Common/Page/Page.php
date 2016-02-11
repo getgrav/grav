@@ -583,16 +583,50 @@ class Page
         return $this->content;
     }
 
+    /**
+     * Get the contentMeta array and initialize content first if it's not already
+     *
+     * @return mixed
+     */
+    public function contentMeta()
+    {
+        if ($this->content === null) {
+            $this->content();
+        }
+        return $this->getContentMeta();
+    }
+
+    /**
+     * Add an entry to the page's contentMeta array
+     *
+     * @param $name
+     * @param $value
+     */
     public function addContentMeta($name, $value)
     {
         $this->content_meta[$name] = $value;
     }
 
+    /**
+     * Return the whole contentMeta array as it currently stands
+     *
+     * @return mixed
+     */
     public function getContentMeta()
     {
         return $this->content_meta;
     }
 
+    /**
+     * Sets the whole content meta array in one shot
+     *
+     * @param $content_meta
+     * @return mixed
+     */
+    public function setContentMeta($content_meta)
+    {
+        return $this->content_meta = $content_meta;
+    }
 
     /**
      * Process the Markdown content.  Uses Parsedown or Parsedown Extra depending on configuration
