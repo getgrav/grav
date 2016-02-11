@@ -39,6 +39,7 @@ if (!function_exists('curl_version')) {
 
 $grav = Grav::instance(array('loader' => $autoload));
 $grav['config']->init();
+$grav['uri']->init();
 $grav['streams'];
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);

@@ -30,6 +30,9 @@ class ConsoleCommand extends Command
     /**
      *
      */
-    protected function serve() { }
+    protected function serve()
+    {
+
+    }
 
 }

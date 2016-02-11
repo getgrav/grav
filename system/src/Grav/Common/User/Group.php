@@ -36,7 +36,7 @@ class Group extends Data
      *
      * @return object
      */
-    public static function group_exists($groupname)
+    public static function groupExists($groupname)
     {
         return isset(self::groups()[$groupname]);
     }
@@ -50,7 +50,7 @@ class Group extends Data
      */
     public static function load($groupname)
     {
-        if (self::group_exists($groupname)) {
+        if (self::groupExists($groupname)) {
             $content = self::groups()[$groupname];
         } else {
             $content = [];

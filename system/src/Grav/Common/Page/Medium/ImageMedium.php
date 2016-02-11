@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
+use Grav\Common\Utils;
 use Grav\Common\Data\Blueprint;
 
 class ImageMedium extends Medium
@@ -136,7 +137,15 @@ class ImageMedium extends Medium
      */
     public function url($reset = true)
     {
-        $output = preg_replace('|^' . preg_quote(GRAV_ROOT) . '|', '', $this->saveImage());
+        $image_path = self::$grav['locator']->findResource('cache://images', true);
+        $image_dir = self::$grav['locator']->findResource('cache://images', false);
+        $saved_image_path = $this->saveImage();
+
+        $output = preg_replace('|^' . preg_quote(GRAV_ROOT) . '|', '', $saved_image_path);
+
+        if (Utils::startsWith($output, $image_path)) {
+            $output = '/' . $image_dir . preg_replace('|^' . preg_quote($image_path) . '|', '', $output);
+        }
 
         if ($reset) {
             $this->reset();
@@ -155,6 +164,7 @@ class ImageMedium extends Medium
         if (!$this->image) {
             $this->image();
         }
+
         return $this;
     }
 
@@ -261,6 +271,7 @@ class ImageMedium extends Medium
         if ($this->image) {
             $this->image();
             $this->image->clearOperations(); // Clear previously applied operations
+            $this->querystring('');
             $this->filter();
         }
 

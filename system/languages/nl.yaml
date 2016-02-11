@@ -1,45 +1,50 @@
 INFLECTOR_IRREGULAR:
-    'person': 'personen'
-    'man': 'mensen'
-    'child': 'kinderen'
-    'sex': 'geslacht'
-    'move': 'verplaatsen'
+  person: personen
+  man: mensen
+  child: kinderen
+  sex: geslacht
+  move: verplaatsen
 NICETIME:
-    NO_DATE_PROVIDED: geen datum opgegeven
-    BAD_DATE: Datumformaat onjuist
-    AGO: geleden
-    FROM_NOW: vanaf nu
-    SECOND: seconde
-    MINUTE: minuut
-    HOUR: uur
-    DAY: dag
-    WEEK: week
-    MONTH: maand
-    YEAR: jaar
-    DECADE: decenium
-    SEC: sec
-    MIN: min
-    HR: hr
-    DAY: dag
-    WK: wk
-    MO: ma
-    YR: yr
-    DEC: dec
-    SECOND_PLURAL: seconden
-    MINUTE_PLURAL: minuten
-    HOUR_PLURAL: uren
-    DAY_PLURAL: dagen
-    WEEK_PLURAL: weken
-    MONTH_PLURAL: maanden
-    YEAR_PLURAL: jaren
-    DECADE_PLURAL: decennia
-    SEC_PLURAL: seconden
-    MIN_PLURAL: minuten
-    HR_PLURAL: uren
-    DAY_PLURAL: dagen
-    WK_PLURAL: weken
-    MO_PLURAL: maanden
-    YR_PLURAL: jaren
-    DEC_PLURAL: decs
-MONTHS_OF_THE_YEAR: ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December']
-DAYS_OF_THE_WEEK: ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag']
+  NO_DATE_PROVIDED: geen datum opgegeven
+  BAD_DATE: Datumformaat onjuist
+  AGO: geleden
+  FROM_NOW: vanaf nu
+  SECOND: seconde
+  MINUTE: minuut
+  HOUR: uur
+  DAY: dag
+  MONTH: maand
+  YEAR: jaar
+  DECADE: decenium
+  MO: ma
+  SECOND_PLURAL: seconden
+  MINUTE_PLURAL: minuten
+  HOUR_PLURAL: uren
+  DAY_PLURAL: dagen
+  WEEK_PLURAL: weken
+  MONTH_PLURAL: maanden
+  YEAR_PLURAL: jaren
+  DECADE_PLURAL: decennia
+  SEC_PLURAL: seconden
+  MIN_PLURAL: minuten
+  HR_PLURAL: uren
+  WK_PLURAL: weken
+  MO_PLURAL: maanden
+  YR_PLURAL: jaren
+MONTHS_OF_THE_YEAR:
+  0: Januari
+  1: Februari
+  2: Maart
+  4: Mei
+  5: Juni
+  6: Juli
+  7: Augustus
+  9: Oktober
+DAYS_OF_THE_WEEK:
+  - Maandag
+  - Dinsdag
+  - Woensdag
+  - Donderdag
+  - Vrijdag
+  - Zaterdag
+  - Zondag

@@ -2,6 +2,7 @@ title: PLUGIN_ADMIN.FILE_STREAMS
 
 form:
   validation: loose
+  hidden: true
   fields:
     schemes.xxx:
       type: array

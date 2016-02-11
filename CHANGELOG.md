@@ -1,8 +1,46 @@
 # v1.0.9
-## XX/XX/2016
+## 02/05/2016
 
+1. [](#new)
+    * New **Unit Testing** via Codeception http://codeception.com/
+    * New **page-level SSL** functionality when using `absolute_urls`
+    * Added `reverse_proxy` config option for issues with non-standard ports
+    * Added `proxy_url` config option to support GPM behind proxy servers #639
+    * New `Pages::parentsRawRoutes()` method 
+    * Enhanced `bin/gpm info` CLI command with Changelog support #559
+    * Ability to add empty *Folder* via admin plugin
+    * Added latest `jQuery 2.2.0` library to core
+    * Added translations from Crowdin
 1. [](#improved)
     * [BC] Metadata now supports only flat arrays. To use open graph metas and the likes (ie, 'og:title'), simply specify it in the key.
+    * Refactored `Uri::convertUrl()` method to be more reliable + tests created
+    * Date for last update of a modular sub-page sets modified date of modular page itself
+    * Split configuration up into two steps
+    * Moved Grav-based `base_uri` variables into `Uri::init()`
+    * Refactored init in `URI` to better support testing
+    * Allow `twig_vars` to be exposed earlier and merged later
+    * Avoid setting empty metadata
+    * Accept single group access as a string rather than requiring an array
+    * Return `$this` in Page constructor and init to allow chaining
+    * Added `ext-*` PHP requirements to `composer.json`
+    * Use Whoops 2.0 library while supporting old style
+    * Removed redundant old default-hash fallback mechanisms
+    * Commented out default redirects and routes in `site.yaml`
+    * Added `/tests` folder to deny's of all `webserver-configs/*` files
+    * Various PS and code style fixes
+1. [](#bugfix)
+    * Fix default generator metadata
+    * Fix for broken image processing caused by `Uri::convertUrl()` bugs
+    * Fix loading JS and CSS from collections #623
+    * Fix stream overriding
+    * Remove the URL extension for home link
+    * Fix permissions when the user has no access level set at all
+    * Fix issue with user with multiple groups getting denied on first group
+    * Fixed an issue with `Pages()` internal cache lookup not being unique enough
+    * Fix for bug with `site.redirects` and `site.routes` being an empty list
+    * [Markdown] Don't process links for **special protocols**
+    * [Whoops] serve JSON errors when request is JSON
+
 
 # v1.0.8
 ## 01/08/2016

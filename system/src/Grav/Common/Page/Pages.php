@@ -658,6 +658,15 @@ class Pages
     }
 
     /**
+     * Needed for testing where we change the home route via config
+     */
+    public static function resetHomeRoute()
+    {
+        self::$home_route = null;
+        return self::getHomeRoute();
+    }
+
+    /**
      * Builds pages.
      *
      * @internal
@@ -888,7 +897,7 @@ class Pages
         $taxonomy = $this->grav['taxonomy'];
 
         // Get the home route
-        $home = self::getHomeRoute();
+        $home = self::resetHomeRoute();
 
         // Build routes and taxonomy map.
         /** @var $page Page */
