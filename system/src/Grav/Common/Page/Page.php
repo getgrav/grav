@@ -315,7 +315,7 @@ class Page
 
         if ($var) {
             if (isset($this->header->slug)) {
-                $this->slug = trim($this->header->slug);
+                $this->slug(($this->header->slug));
             }
             if (isset($this->header->routes)) {
                 $this->routes = (array)($this->header->routes);
@@ -1356,11 +1356,16 @@ class Page
     {
         if ($var !== null) {
             $this->slug = $var;
+            if(!preg_match('/^[a-z0-9][-a-z0-9]*$/', $this->slug)){
+                Grav::instance()['log']->notice("Invalid slug set in YAML frontmatter: " . $this->rawRoute() . " => ".  $this->slug);
+            }
         }
 
         if (empty($this->slug)) {
-            $this->slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
+            $this->slug = strtolower(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
         }
+
+
 
         return $this->slug;
     }
