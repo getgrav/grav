@@ -178,6 +178,21 @@ form:
 
               fields:
 
+                header.dateformat:
+                  toggleable: true
+                  type: select
+                  size: medium
+                  selectize:
+                    create: true
+                  label: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT
+                  help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
+                  placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
+                  '@data-options': '\Grav\Common\Utils::dateFormats'
+                  options:
+                    "": Auto Guess or Enter Custom
+                  validate:
+                    type: string
+
                 header.menu:
                   type: text
                   label: PLUGIN_ADMIN.MENU
