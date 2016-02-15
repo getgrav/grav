@@ -68,9 +68,9 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testSubstrToString()
     {
-        $this->assertEquals(Utils::substrToString('english', 'glish'), 'en');
-        $this->assertEquals(Utils::substrToString('english', 'test'), 'english');
-        $this->assertNotEquals(Utils::substrToString('english', 'lish'), 'en');
+        $this->assertEquals('en', Utils::substrToString('english', 'glish'));
+        $this->assertEquals('english', Utils::substrToString('english', 'test'));
+        $this->assertNotEquals('en', Utils::substrToString('english', 'lish'));
     }
 
     public function testMergeObjects()
@@ -101,33 +101,35 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testTruncate()
     {
-        $this->assertEquals(Utils::truncate('english', 5), 'engli' . '&hellip;');
-        $this->assertEquals(Utils::truncate('english'), 'english');
-        $this->assertEquals(Utils::truncate('This is a string to truncate'), 'This is a string to truncate');
-        $this->assertEquals(Utils::truncate('This is a string to truncate', 2), 'Th' . '&hellip;');
-        $this->assertEquals(Utils::truncate('english', 5, true, " ", "..."), 'engli' . '...');
-        $this->assertEquals(Utils::truncate('english'), 'english');
-        $this->assertEquals(Utils::truncate('This is a string to truncate'), 'This is a string to truncate');
-        $this->assertEquals(Utils::truncate('This is a string to truncate', 3, true), 'This ');
+        $this->assertEquals('engli' . '&hellip;', Utils::truncate('english', 5));
+        $this->assertEquals('english', Utils::truncate('english'));
+        $this->assertEquals('This is a string to truncate', Utils::truncate('This is a string to truncate'));
+        $this->assertEquals('Th' . '&hellip;', Utils::truncate('This is a string to truncate', 2));
+        $this->assertEquals('engli' . '...', Utils::truncate('english', 5, true, " ", "..."));
+        $this->assertEquals('english', Utils::truncate('english'));
+        $this->assertEquals('This is a string to truncate', Utils::truncate('This is a string to truncate'));
+        $this->assertEquals('This ', Utils::truncate('This is a string to truncate', 3, true));
+
     }
 
     public function testSafeTruncate()
     {
-        $this->assertEquals(Utils::safeTruncate('This is a string to truncate', 1), 'This ');
-        $this->assertEquals(Utils::safeTruncate('This is a string to truncate', 4), 'This ');
-        $this->assertEquals(Utils::safeTruncate('This is a string to truncate', 5), 'This is ');
+        $this->assertEquals('This ', Utils::safeTruncate('This is a string to truncate', 1));
+        $this->assertEquals('This ', Utils::safeTruncate('This is a string to truncate', 4));
+        $this->assertEquals('This is ', Utils::safeTruncate('This is a string to truncate', 5));
     }
 
     public function testTruncateHtml()
     {
-        $this->assertEquals(Utils::truncateHtml('<p>This is a string to truncate</p>', 1), '<p>T…</p>');
-        $this->assertEquals(Utils::truncateHtml('<p>This is a string to truncate</p>', 4), '<p>This…</p>');
+        $this->assertEquals('<p>T…</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 1));
+        $this->assertEquals('<p>This…</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
+
     }
 
     public function testSafeTruncateHtml()
     {
-        $this->assertEquals(Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1), '<p>This…</p>');
-        $this->assertEquals(Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 4), '<p>This…</p>');
+        $this->assertEquals('<p>This…</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1));
+        $this->assertEquals('<p>This…</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 4));
     }
 
     public function testGenerateRandomString()
@@ -143,21 +145,21 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testGetMimeType()
     {
-        $this->assertEquals(Utils::getMimeType(''), 'application/octet-stream');
-        $this->assertEquals(Utils::getMimeType('jpg'), 'image/jpeg');
-        $this->assertEquals(Utils::getMimeType('png'), 'image/png');
-        $this->assertEquals(Utils::getMimeType('txt'), 'text/plain');
-        $this->assertEquals(Utils::getMimeType('doc'), 'application/msword');
+        $this->assertEquals('application/octet-stream', Utils::getMimeType(''));
+        $this->assertEquals('image/jpeg', Utils::getMimeType('jpg'));
+        $this->assertEquals('image/png', Utils::getMimeType('png'));
+        $this->assertEquals('text/plain', Utils::getMimeType('txt'));
+        $this->assertEquals('application/msword', Utils::getMimeType('doc'));
     }
 
     public function testNormalizePath()
     {
-        $this->assertEquals(Utils::normalizePath('/test'), '/test');
-        $this->assertEquals(Utils::normalizePath('test'), 'test');
-        $this->assertEquals(Utils::normalizePath('../test'), 'test');
-        $this->assertEquals(Utils::normalizePath('/../test'), '/test');
-        $this->assertEquals(Utils::normalizePath('/test/../test2'), '/test2');
-        $this->assertEquals(Utils::normalizePath('/test/./test2'), '/test/test2');
+        $this->assertEquals('/test', Utils::normalizePath('/test'));
+        $this->assertEquals('test', Utils::normalizePath('test'));
+        $this->assertEquals('test', Utils::normalizePath('../test'));
+        $this->assertEquals('/test', Utils::normalizePath('/../test'));
+        $this->assertEquals('/test2', Utils::normalizePath('/test/../test2'));
+        $this->assertEquals('/test/test2', Utils::normalizePath('/test/./test2'));
     }
 
     public function testIsFunctionDisabled()
@@ -191,7 +193,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertContainsOnly('string', $array);
         $this->assertFalse(isset($array['test']));
         $this->assertTrue(isset($array['test2']));
-        $this->assertEquals($array['test2'], 'test2');
+        $this->assertEquals('test2', $array['test2']);
     }
 
     public function testPathPrefixedByLangCode()
@@ -227,7 +229,7 @@ class UtilsTest extends \Codeception\TestCase\Test
             ]
         ];
 
-        $this->assertEquals(Utils::resolve($array, 'test.test2'), 'test2Value');
+        $this->assertEquals('test2Value', Utils::resolve($array, 'test.test2'));
     }
 
     public function testIsPositive()
