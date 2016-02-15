@@ -71,7 +71,7 @@ class Blueprints
                     $extends = [ $extends ];
                 }
 
-                foreach ($extends as $extendConfig) {
+                foreach (array_reverse($extends) as $extendConfig) {
                     $extendType = !is_string($extendConfig) ? empty($extendConfig['type']) ? false : $extendConfig['type'] : $extendConfig;
 
                     if (!$extendType) {
