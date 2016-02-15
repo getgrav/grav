@@ -109,6 +109,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('english', Utils::truncate('english'));
         $this->assertEquals('This is a string to truncate', Utils::truncate('This is a string to truncate'));
         $this->assertEquals('This ', Utils::truncate('This is a string to truncate', 3, true));
+        $this->assertEquals('<input ', Utils::truncate('<input type="file" id="file" multiple />', 6, true));
 
     }
 
@@ -123,6 +124,7 @@ class UtilsTest extends \Codeception\TestCase\Test
     {
         $this->assertEquals('<p>T…</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 1));
         $this->assertEquals('<p>This…</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
+        $this->assertEquals('', Utils::truncateHtml('<input type="file" id="file" multiple />', 6, true));
 
     }
 
