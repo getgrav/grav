@@ -955,6 +955,7 @@ class Pages
         $list = [];
         $header_default = null;
         $header_query = null;
+        $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
@@ -976,9 +977,11 @@ class Pages
                     break;
                 case 'date':
                     $list[$key] = $child->date();
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'modified':
                     $list[$key] = $child->modified();
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'slug':
                     $list[$key] = $child->slug();
@@ -994,11 +997,13 @@ class Pages
                     } else {
                         $list[$key] = $header_default ?: $key;
                     }
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'manual':
                 case 'default':
                 default:
                     $list[$key] = $key;
+                    $sort_flags = SORT_REGULAR;
             }
         }
 
@@ -1007,7 +1012,7 @@ class Pages
             $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
-            asort($list);
+            asort($list, $sort_flags);
         }
 
 

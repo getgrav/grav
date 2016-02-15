@@ -75,6 +75,7 @@ class Page
     protected $max_count;
     protected $menu;
     protected $date;
+    protected $dateformat;
     protected $taxonomy;
     protected $order_by;
     protected $order_dir;
@@ -314,7 +315,7 @@ class Page
 
         if ($var) {
             if (isset($this->header->slug)) {
-                $this->slug = trim($this->header->slug);
+                $this->slug(($this->header->slug));
             }
             if (isset($this->header->routes)) {
                 $this->routes = (array)($this->header->routes);
@@ -348,6 +349,9 @@ class Page
             }
             if (isset($this->header->order_manual)) {
                 $this->order_manual = (array)$this->header->order_manual;
+            }
+            if (isset($this->header->dateformat)) {
+                $this->dateformat($this->header->dateformat);
             }
             if (isset($this->header->date)) {
                 $this->date($this->header->date);
@@ -1208,7 +1212,7 @@ class Page
     public function publishDate($var = null)
     {
         if ($var !== null) {
-            $this->publish_date = Utils::date2timestamp($var);
+            $this->publish_date = Utils::date2timestamp($var, $this->dateformat);
         }
 
         return $this->publish_date;
@@ -1224,7 +1228,7 @@ class Page
     public function unpublishDate($var = null)
     {
         if ($var !== null) {
-            $this->unpublish_date = Utils::date2timestamp($var);
+            $this->unpublish_date = Utils::date2timestamp($var, $this->dateformat);
         }
 
         return $this->unpublish_date;
@@ -1352,11 +1356,16 @@ class Page
     {
         if ($var !== null) {
             $this->slug = $var;
+            if(!preg_match('/^[a-z0-9][-a-z0-9]*$/', $this->slug)){
+                Grav::instance()['log']->notice("Invalid slug set in YAML frontmatter: " . $this->rawRoute() . " => ".  $this->slug);
+            }
         }
 
         if (empty($this->slug)) {
-            $this->slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
+            $this->slug = strtolower(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
         }
+
+
 
         return $this->slug;
     }
@@ -1744,7 +1753,7 @@ class Page
     public function date($var = null)
     {
         if ($var !== null) {
-            $this->date = Utils::date2timestamp($var);
+            $this->date = Utils::date2timestamp($var, $this->dateformat);
         }
 
         if (!$this->date) {
@@ -1752,6 +1761,23 @@ class Page
         }
 
         return $this->date;
+    }
+
+    /**
+     * Gets and sets the date format for this Page object. This is typically passed in via the page headers
+     * using typical PHP date string structure - http://php.net/manual/en/function.date.php
+     *
+     * @param  string $var string representation of a date format
+     *
+     * @return string      string representation of a date format
+     */
+    public function dateformat($var = null)
+    {
+        if ($var !== null) {
+            $this->dateformat = $var;
+        }
+
+        return $this->dateformat;
     }
 
     /**
