@@ -91,7 +91,7 @@ class InstallCommand extends ConsoleCommand
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
-        if (false === $this->isWindows() && @is_file(getenv("HOME").'/.grav/config')) {
+        if (false === $this->isWindows() && @is_file(getenv("HOME") . '/.grav/config')) {
             $local_config_file = exec('eval echo ~/.grav/config');
             if (file_exists($local_config_file)) {
                 $this->local_config = Yaml::parse($local_config_file);
@@ -126,7 +126,7 @@ class InstallCommand extends ConsoleCommand
             foreach ($data as $package) {
                 //Check for dependencies
                 if (isset($package->dependencies)) {
-                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has ". count($package->dependencies) . " required dependencies that must be installed first...");
+                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has " . count($package->dependencies) . " required dependencies that must be installed first...");
                     $this->output->writeln('');
 
                     $dependency_data = $this->gpm->findPackages($package->dependencies);
@@ -137,9 +137,8 @@ class InstallCommand extends ConsoleCommand
                     } else {
                         unset($dependency_data['total']);
 
-                        foreach($dependency_data as $type => $dep_data) {
-                            foreach($dep_data as $name => $dep_package) {
-
+                        foreach ($dependency_data as $type => $dep_data) {
+                            foreach ($dep_data as $name => $dep_package) {
                                 $this->processPackage($dep_package);
                             }
                         }
@@ -180,6 +179,7 @@ class InstallCommand extends ConsoleCommand
         if (count($install_options) == 0) {
             // no valid install options - error and return
             $this->output->writeln("<red>not valid installation methods found!</red>");
+
             return;
         } elseif (count($install_options) == 1) {
             // only one option, use it...
@@ -187,7 +187,7 @@ class InstallCommand extends ConsoleCommand
         } else {
             $helper = $this->getHelper('question');
             $question = new ChoiceQuestion(
-                'Please select installation method for <cyan>' . $package->name . '</cyan> (<magenta>'.$install_options[0].' is default</magenta>)', array_values($install_options), 0
+                'Please select installation method for <cyan>' . $package->name . '</cyan> (<magenta>' . $install_options[0] . ' is default</magenta>)', array_values($install_options), 0
             );
             $question->setErrorMessage('Method %s is invalid');
             $method = $helper->ask($this->input, $this->output, $question);
@@ -195,7 +195,7 @@ class InstallCommand extends ConsoleCommand
 
         $this->output->writeln('');
 
-        $method_name = 'process'.$method;
+        $method_name = 'process' . $method;
         $this->$method_name($package);
 
         $this->installDemoContent($package);
@@ -213,24 +213,26 @@ class InstallCommand extends ConsoleCommand
 
         if (file_exists($demo_dir)) {
             // Demo content exists, prompt to install it.
-            $this->output->writeln("<white>Attention: </white><cyan>".$package->name . "</cyan> contains demo content");
+            $this->output->writeln("<white>Attention: </white><cyan>" . $package->name . "</cyan> contains demo content");
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Do you wish to install this demo content? [y|N] ', false);
 
             if (!$helper->ask($this->input, $this->output, $question)) {
                 $this->output->writeln("  '- <red>Skipped!</red>  ");
                 $this->output->writeln('');
+
                 return;
             }
 
             // if pages folder exists in demo
             if (file_exists($demo_dir . DS . 'pages')) {
                 $pages_backup = 'pages.' . date('m-d-Y-H-i-s');
-                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/'. $pages_backup. '`, continue? [y|N]', false);
+                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/' . $pages_backup . '`, continue? [y|N]', false);
 
                 if (!$helper->ask($this->input, $this->output, $question)) {
                     $this->output->writeln("  '- <red>Skipped!</red>  ");
                     $this->output->writeln('');
+
                     return;
                 }
 
@@ -294,6 +296,7 @@ class InstallCommand extends ConsoleCommand
                 return $from;
             }
         }
+
         return false;
     }
 
@@ -336,6 +339,7 @@ class InstallCommand extends ConsoleCommand
 
 
             }
+
             return;
         }
 
