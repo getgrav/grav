@@ -14,6 +14,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Yaml\Yaml;
 
 define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
+define('SECOND_IS_HIGHER', -1);
 
 /**
  * Class InstallCommand
@@ -25,25 +26,28 @@ class InstallCommand extends ConsoleCommand
      * @var
      */
     protected $data;
+
     /**
      * @var
      */
     protected $gpm;
+
     /**
      * @var
      */
     protected $destination;
+
     /**
      * @var
      */
     protected $file;
+
     /**
      * @var
      */
     protected $tmp;
 
     protected $local_config;
-
 
     /**
      *
@@ -151,6 +155,96 @@ class InstallCommand extends ConsoleCommand
 
         // clear cache after successful upgrade
         $this->clearCache();
+    }
+
+    /**
+     * Calculates and merges the dependencies of the passed packages
+     *
+     * @param array $packages
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function calculateMergedDependenciesOfPackages($packages)
+    {
+        foreach ($packages as $data) {
+            foreach ($data as $package) {
+
+                //Check for dependencies
+                if (isset($package->dependencies_versions)) {
+                    foreach ($package->dependencies_versions as $dependency) {
+
+                        $current_package_name = $dependency->name;
+                        if (isset($dependency->version)) {
+                            $current_package_version_information = $dependency->version;
+                        }
+
+                        if (!isset($dependencies[$current_package_name])) { // Dependency added for the first time
+
+                            if (!isset($current_package_version_information)) {
+                                $dependencies[$current_package_name] = '*';
+                            } else {
+                                $dependencies[$current_package_name] = $current_package_version_information;
+                            }
+
+                        } else { // Dependency already added by another package
+
+                            //if this package requires a version higher than the currently stored one, store this requirement instead
+                            if (isset($current_package_version_information) && $current_package_version_information !== '*') {
+
+                                $currently_stored_version_information = $dependencies[$current_package_name];
+
+                                $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
+                                if (!$currently_stored_version_number) {
+                                    $currently_stored_version_number = '*';
+                                }
+
+                                $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
+                                if (!$current_package_version_number) {
+                                    throw new \Exception('Bad format for package ' . $current_package_name);
+                                }
+
+                                //If I had stored '*', change right away with the more specific version required
+                                if ($currently_stored_version_number === '*') {
+                                    $dependencies[$current_package_name] = $current_package_version_information;
+                                } else {
+
+                                    if (version_compare($currently_stored_version_number, $current_package_version_number) == SECOND_IS_HIGHER) {
+                                        $dependencies[$current_package_name] = $current_package_version_information;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Returns the actual version from a dependency version string.
+     * Examples:
+     *      $versionInformation == '~2.0' => returns '2.0'
+     *      $versionInformation == '>=2.0.2' => returns '2.0.2'
+     *      $versionInformation == '*' => returns null
+     *      $versionInformation == '' => returns null
+     *
+     * @param $versionInformation
+     *
+     * @return null|string
+     */
+    public function calculateVersionNumberFromDependencyVersion($versionInformation)
+    {
+        if (substr($versionInformation, 0, 1) == '~') {
+            return substr($versionInformation, 1);
+        } elseif (substr($versionInformation, 0, 2) == '>=') {
+            return substr($versionInformation, 2);
+        }
+
+        return null;
     }
 
     /**
