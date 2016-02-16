@@ -2,7 +2,7 @@
 namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\Blueprints\Blueprints as BaseBlueprints;
@@ -15,7 +15,7 @@ use RocketTheme\Toolbox\Blueprints\Blueprints as BaseBlueprints;
  */
 class Blueprint extends BaseBlueprints implements ExportInterface
 {
-    use Export, GravTrait;
+    use Export;
 
     public $initialized = false;
 
@@ -33,6 +33,10 @@ class Blueprint extends BaseBlueprints implements ExportInterface
         if ($context) {
             $this->setContext($context);
         }
+
+        $types = Grav::instance()['plugins']->formFieldTypes;
+
+        $this->setTypes($types);
 
         if ($data) {
             $this->embed('', $data);
@@ -262,7 +266,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
                 && $field['validate']['required'] === true
                 && !isset($data[$name])) {
                 $value = isset($field['label']) ? $field['label'] : $field['name'];
-                $language = self::getGrav()['language'];
+                $language = Grav::instance()['language'];
                 $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $value);
                 $messages[$field['name']][] = $message;
             }
@@ -310,7 +314,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
         $value = $call['params'];
 
         $default = isset($field[$property]) ? $field[$property] : null;
-        $config = self::getGrav()['config']->get($value, $default);
+        $config = Grav::instance()['config']->get($value, $default);
 
         if (!is_null($config)) {
             $field[$property] = $config;

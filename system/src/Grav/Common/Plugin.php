@@ -22,6 +22,11 @@ class Plugin implements EventSubscriberInterface
     public $name;
 
     /**
+     * @var array
+     */
+    public $features = [];
+
+    /**
      * @var Grav
      */
     protected $grav;

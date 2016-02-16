@@ -19,6 +19,8 @@ class Plugins extends Iterator
 {
     use GravTrait;
 
+    public $formFieldTypes;
+
     public function __construct()
     {
         parent::__construct();
@@ -44,19 +46,38 @@ class Plugins extends Iterator
     public function setup()
     {
         $blueprints = [];
+        $formFields = [];
+
+        /** @var Plugin $plugin */
         foreach ($this->items as $plugin) {
             if (isset($plugin->features['blueprints'])) {
                 $blueprints["plugin://{$plugin->name}/blueprints"] = $plugin->features['blueprints'];
             }
+            if (method_exists($plugin, 'getFormFieldTypes')) {
+                $formFields[get_class($plugin)] = isset($plugin->features['formfields']) ? $plugin->features['formfields'] : 0;
+            }
         }
 
         if ($blueprints) {
+            // Order by priority.
             arsort($blueprints);
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-
             $locator->addPath('blueprints', '', array_keys($blueprints), 'system/blueprints');
+        }
+
+        if ($formFields) {
+            // Order by priority.
+            arsort($formFields);
+
+            $list = [];
+            foreach ($formFields as $className => $priority) {
+                $plugin = $this->items[$className];
+                $list += $plugin->getFormFieldTypes();
+            }
+
+            $this->formFieldTypes = $list;
         }
 
         return $this;

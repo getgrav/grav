@@ -637,22 +637,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "ede7afafb4ab4e808324ea2b6e6f58aee3efaf26"
+                "reference": "a88015f9e6e473e5ddf4294f747d8fe434de3857"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/ede7afafb4ab4e808324ea2b6e6f58aee3efaf26",
-                "reference": "ede7afafb4ab4e808324ea2b6e6f58aee3efaf26",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/a88015f9e6e473e5ddf4294f747d8fe434de3857",
+                "reference": "a88015f9e6e473e5ddf4294f747d8fe434de3857",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0",
                 "pimple/pimple": "~3.0",
-                "symfony/event-dispatcher": "~2.5",
-                "symfony/yaml": "~2.5"
+                "symfony/event-dispatcher": ">2.5",
+                "symfony/yaml": ">2.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "4.0.*"
+                "phpunit/phpunit": "~5.1"
             },
             "type": "library",
             "autoload": {
@@ -677,7 +677,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-02-11 19:08:48"
+            "time": "2016-02-16 10:01:59"
         },
         {
             "name": "symfony/console",

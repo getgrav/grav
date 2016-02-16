@@ -2,6 +2,7 @@
 namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\Grav;
 use RocketTheme\Toolbox\Blueprints\Blueprints;
 
 /**
@@ -20,19 +21,43 @@ class CompiledBlueprints extends CompiledBase
     protected $object;
 
     /**
+     * Returns checksum from the configuration files.
+     *
+     * You can set $this->checksum = false to disable this check.
+     *
+     * @return bool|string
+     */
+    public function checksum()
+    {
+        if (!isset($this->checksum)) {
+            $this->checksum = md5(json_encode($this->files) . json_encode($this->getTypes()) . $this->version);
+        }
+
+        return $this->checksum;
+    }
+
+    /**
      * Create configuration object.
      *
      * @param array  $data
      */
     protected function createObject(array $data = [])
     {
-        $this->object = new Blueprints($data);
+        $this->object = (new Blueprints($data))->setTypes($this->getTypes());
+    }
+
+    protected function getTypes()
+    {
+        return Grav::instance()['plugins']->formFieldTypes;
     }
 
     /**
      * Finalize configuration object.
      */
-    protected function finalizeObject() {}
+    protected function finalizeObject()
+    {
+        $this->object->init('static');
+    }
 
     /**
      * Load single configuration file and append it to the correct position.
