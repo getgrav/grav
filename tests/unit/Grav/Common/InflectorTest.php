@@ -90,7 +90,7 @@ class InflectorTest extends \Codeception\TestCase\Test
         $this->assertSame('This string is humanized',   $this->inflector->humanize('this_string_is_humanized'));
         //$this->assertSame('This string is humanized',   $this->inflector->humanize('this-string-is-humanized'));
 
-        $this->assertSame('This String Is Humanized',   $this->inflector->humanize('this_string_is_humanized'), 'all');
+        $this->assertSame('This String Is Humanized',   $this->inflector->humanize('this_string_is_humanized', 'all'));
         //$this->assertSame('This String Is Humanized',   $this->inflector->humanize('this-string-is-humanized'), 'all');
     }
 
