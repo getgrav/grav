@@ -14,7 +14,6 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Yaml\Yaml;
 
 define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
-define('SECOND_IS_HIGHER', -1);
 
 /**
  * Class InstallCommand
@@ -160,6 +159,8 @@ class InstallCommand extends ConsoleCommand
     /**
      * Calculates and merges the dependencies of the passed packages
      *
+     * @todo handle recursive dependencies
+     *
      * @param array $packages
      *
      * @return mixed
@@ -168,11 +169,11 @@ class InstallCommand extends ConsoleCommand
     public function calculateMergedDependenciesOfPackages($packages)
     {
         foreach ($packages as $data) {
-            foreach ($data as $package) {
+            foreach ($data as $packageName => $packageData) {
 
                 //Check for dependencies
-                if (isset($package->dependencies_versions)) {
-                    foreach ($package->dependencies_versions as $dependency) {
+                if (isset($packageData->dependencies_versions)) {
+                    foreach ($packageData->dependencies_versions as $dependency) {
 
                         $current_package_name = $dependency->name;
                         if (isset($dependency->version)) {
@@ -195,24 +196,44 @@ class InstallCommand extends ConsoleCommand
                                 $currently_stored_version_information = $dependencies[$current_package_name];
 
                                 $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
+
+                                $currently_stored_version_is_in_next_significant_release_format = false;
+                                if ($this->versionFormatIsNextSignificantRelease($currently_stored_version_information)) {
+                                    $currently_stored_version_is_in_next_significant_release_format = true;
+                                }
+
                                 if (!$currently_stored_version_number) {
                                     $currently_stored_version_number = '*';
                                 }
 
                                 $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
                                 if (!$current_package_version_number) {
-                                    throw new \Exception('Bad format for package ' . $current_package_name);
+                                    throw new \Exception('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName, 1);
+                                }
+
+                                $current_package_version_is_in_next_significant_release_format = false;
+                                if ($this->versionFormatIsNextSignificantRelease($current_package_version_information)) {
+                                    $current_package_version_is_in_next_significant_release_format = true;
                                 }
 
                                 //If I had stored '*', change right away with the more specific version required
                                 if ($currently_stored_version_number === '*') {
                                     $dependencies[$current_package_name] = $current_package_version_information;
                                 } else {
+                                    $version1 = $currently_stored_version_is_in_next_significant_release_format;
+                                    $version2 = $current_package_version_is_in_next_significant_release_format;
 
-                                    if (version_compare($currently_stored_version_number, $current_package_version_number) == SECOND_IS_HIGHER) {
-                                        $dependencies[$current_package_name] = $current_package_version_information;
+                                    if (!$version1 && !$version2) {
+                                        //Comparing versions equals or higher, a simple version_compare is enough
+                                        if (version_compare($currently_stored_version_number, $current_package_version_number) == -1) { //Current package version is higher
+                                            $dependencies[$current_package_name] = $current_package_version_information;
+                                        }
+                                    } else {
+                                        $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number, $current_package_version_number);
+                                        if (!$compatible) {
+                                            throw new \Exception('Dependency ' . $current_package_name . ' is required in two incompatible versions', 2);
+                                        }
                                     }
-
                                 }
                             }
                         }

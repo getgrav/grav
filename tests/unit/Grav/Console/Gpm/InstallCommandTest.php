@@ -4,6 +4,9 @@ use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
 use Grav\Console\Gpm\InstallCommand;
 
+define('EXCEPTION_BAD_FORMAT', 1);
+define('EXCEPTION_INCOMPATIBLE_VERSIONS', 2);
+
 /**
  * Class InstallCommandTest
  */
@@ -22,10 +25,10 @@ class InstallCommandTest extends \Codeception\TestCase\Test
     {
     }
 
-    public function testTest()
+    public function testCalculateMergedDependenciesOfPackages()
     {
         //////////////////////////////////////////////////////////////////////////////////////////
-        //First example
+        // First working example
         //////////////////////////////////////////////////////////////////////////////////////////
         $this->data = [
             [
@@ -57,7 +60,7 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->assertTrue($dependencies['problems'] == '*');
 
         //////////////////////////////////////////////////////////////////////////////////////////
-        //Second example
+        // Second working example
         //////////////////////////////////////////////////////////////////////////////////////////
         $this->data = [
             [
@@ -86,7 +89,7 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->assertTrue($dependencies['errors'] == '>=3.2');
 
         //////////////////////////////////////////////////////////////////////////////////////////
-        //Second example
+        // Third working example
         //////////////////////////////////////////////////////////////////////////////////////////
         $this->data = [
             [
@@ -113,6 +116,59 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->assertTrue(is_array($dependencies));
         $this->assertTrue(count($dependencies) == 1);
         $this->assertTrue($dependencies['errors'] == '>=4.0');
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+        // Raise exception if no version is specified
+        //////////////////////////////////////////////////////////////////////////////////////////
+        $this->data = [
+            [
+                'admin' => (object)[
+                    'dependencies_versions' => [
+                        (object)["name" => "errors", "version" => ">=4.0"],
+                    ]
+                ],
+                'test' => (object)[
+                    'dependencies_versions' => [
+                        (object)["name" => "errors", "version" => ">="]
+                    ]
+                ],
+            ]
+        ];
+
+        try {
+            $this->installCommand->calculateMergedDependenciesOfPackages($this->data);
+            $this->fail("Expected Exception not thrown");
+        } catch (Exception $e) {
+            $this->assertEquals(EXCEPTION_BAD_FORMAT, $e->getCode());
+            $this->assertStringStartsWith("Bad format for version of dependency", $e->getMessage());
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+        // Raise exception if incompatible versions are specified
+        //////////////////////////////////////////////////////////////////////////////////////////
+        $this->data = [
+            [
+                'admin' => (object)[
+                    'dependencies_versions' => [
+                        (object)["name" => "errors", "version" => "~4.0"],
+                    ]
+                ],
+                'test' => (object)[
+                    'dependencies_versions' => [
+                        (object)["name" => "errors", "version" => "~3.0"]
+                    ]
+                ],
+            ]
+        ];
+
+        try {
+            $this->installCommand->calculateMergedDependenciesOfPackages($this->data);
+            $this->fail("Expected Exception not thrown");
+        } catch (Exception $e) {
+            $this->assertEquals(EXCEPTION_INCOMPATIBLE_VERSIONS, $e->getCode());
+            $this->assertStringEndsWith("required in two incompatible versions", $e->getMessage());
+        }
+    }
 
     public function testVersionFormatIsNextSignificantRelease()
     {
