@@ -114,6 +114,24 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->assertTrue(count($dependencies) == 1);
         $this->assertTrue($dependencies['errors'] == '>=4.0');
 
+    public function testVersionFormatIsNextSignificantRelease()
+    {
+        $this->assertFalse($this->installCommand->versionFormatIsNextSignificantRelease('>=1.0'));
+        $this->assertFalse($this->installCommand->versionFormatIsNextSignificantRelease('>=2.3.4'));
+        $this->assertFalse($this->installCommand->versionFormatIsNextSignificantRelease('>=2.3.x'));
+        $this->assertFalse($this->installCommand->versionFormatIsNextSignificantRelease('1.0'));
+        $this->assertTrue($this->installCommand->versionFormatIsNextSignificantRelease('~2.3.x'));
+        $this->assertTrue($this->installCommand->versionFormatIsNextSignificantRelease('~2.0'));
+    }
+
+    public function testVersionFormatIsEqualOrHigher()
+    {
+        $this->assertTrue($this->installCommand->versionFormatIsEqualOrHigher('>=1.0'));
+        $this->assertTrue($this->installCommand->versionFormatIsEqualOrHigher('>=2.3.4'));
+        $this->assertTrue($this->installCommand->versionFormatIsEqualOrHigher('>=2.3.x'));
+        $this->assertFalse($this->installCommand->versionFormatIsEqualOrHigher('~2.3.x'));
+        $this->assertFalse($this->installCommand->versionFormatIsEqualOrHigher('1.0'));
+    }
 
     public function testCheckNextSignificantReleasesAreCompatible()
     {

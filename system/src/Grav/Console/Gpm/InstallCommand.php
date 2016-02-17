@@ -248,6 +248,30 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
+     * Check if the passed version information contains next significant release (tilde) operator
+     *
+     * Example: returns true for $version: '~2.0'
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public function versionFormatIsNextSignificantRelease($version) {
+        return substr($version, 0, 1) == '~';
+    }
+
+    /**
+     * Check if the passed version information contains equal or higher operator
+     *
+     * Example: returns true for $version: '>=2.0'
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public function versionFormatIsEqualOrHigher($version) {
+        return substr($version, 0, 2) == '>=';
+    }
 
     /**
      * Check if two releases are compatible by next significant release
