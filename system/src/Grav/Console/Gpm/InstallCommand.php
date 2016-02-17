@@ -259,9 +259,9 @@ class InstallCommand extends ConsoleCommand
      */
     public function calculateVersionNumberFromDependencyVersion($versionInformation)
     {
-        if (substr($versionInformation, 0, 1) == '~') {
+        if ($this->versionFormatIsNextSignificantRelease($versionInformation)) {
             return substr($versionInformation, 1);
-        } elseif (substr($versionInformation, 0, 2) == '>=') {
+        } elseif ($this->versionFormatIsEqualOrHigher($versionInformation)) {
             return substr($versionInformation, 2);
         }
 
