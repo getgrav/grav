@@ -114,6 +114,27 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->assertTrue(count($dependencies) == 1);
         $this->assertTrue($dependencies['errors'] == '>=4.0');
 
+
+    public function testCheckNextSignificantReleasesAreCompatible()
+    {
+        /*
+         * ~1.0     is equivalent to >=1.0 < 2.0.0
+         * ~1.2     is equivalent to >=1.2 <2.0.0
+         * ~1.2.3   is equivalent to >=1.2.3 <1.3.0
+         */
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('1.0', '1.2'));
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('1.2', '1.0'));
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('1.0', '1.0.10'));
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('1.1', '1.1.10'));
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('30.0', '30.10'));
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('1.0', '1.1.10'));
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('1.0', '1.8'));
+        $this->assertTrue($this->installCommand->checkNextSignificantReleasesAreCompatible('1.0.1', '1.1'));
+
+        $this->assertFalse($this->installCommand->checkNextSignificantReleasesAreCompatible('1.0', '2.2'));
+        $this->assertFalse($this->installCommand->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.0'));
+        $this->assertFalse($this->installCommand->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10'));
+        $this->assertFalse($this->installCommand->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10.2'));
     }
 
 

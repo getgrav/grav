@@ -248,6 +248,41 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
+
+    /**
+     * Check if two releases are compatible by next significant release
+     *
+     * ~1.2 is equivalent to >=1.2 <2.0.0
+     * ~1.2.3 is equivalent to >=1.2.3 <1.3.0
+     *
+     * In short, allows the last digit specified to go up
+     *
+     * @param string $version1 the version string (e.g. '2.0.0' or '1.0')
+     * @param string $version2 the version string (e.g. '2.0.0' or '1.0')
+     *
+     * @return bool
+     */
+    public function checkNextSignificantReleasesAreCompatible($version1, $version2)
+    {
+        $version1array = explode('.', $version1);
+        $version2array = explode('.', $version2);
+
+        if (count($version1array) > count($version2array)) {
+            list($version1array, $version2array) = [$version2array, $version1array];
+        }
+
+        $i = 0;
+        while ($i < count($version1array) - 1) {
+            if ($version1array[$i] != $version2array[$i]) {
+                return false;
+            }
+            $i++;
+        }
+
+        return true;
+    }
+
+    /**
      * @param $package
      */
     private function processPackage($package)
