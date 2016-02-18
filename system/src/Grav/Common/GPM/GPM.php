@@ -350,11 +350,6 @@ class GPM extends Iterator
     }
 
     /**
-     * Returns the list of Plugins and Themes available in the repository
-     * @return array Array of available Plugins and Themes
-     *               Format: ['plugins' => array, 'themes' => array]
-     */
-    /**
      * Searches for a list of Packages in the repository
      * @param  array $searches An array of either slugs or names
      * @return array Array of found Packages
