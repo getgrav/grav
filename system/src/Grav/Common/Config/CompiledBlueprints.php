@@ -81,6 +81,12 @@ class CompiledBlueprints extends CompiledBase
         }
     }
 
+    /**
+     * Internal function that handles loading extended blueprints.
+     *
+     * @param array $files
+     * @return array
+     */
     protected function loadBlueprints(array $files)
     {
         $filename = array_shift($files);
@@ -97,6 +103,13 @@ class CompiledBlueprints extends CompiledBase
         return $data;
     }
 
+    /**
+     * Internal function to recursively load extended blueprints.
+     *
+     * @param array $parents
+     * @param array $extends
+     * @return array
+     */
     protected function extendBlueprint(array $parents, array $extends)
     {
         if (is_string(key($extends))) {
