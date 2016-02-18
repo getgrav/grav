@@ -168,22 +168,27 @@ class InstallCommand extends ConsoleCommand
      * @throws \Exception
      */
     public function installDependencies($dependencies, $type, $message) {
-        $this->output->writeln($message);
         $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
-        foreach ($packages as $dependencyName => $dependencyVersion) {
-            $this->output->writeln("  |- Package <cyan>" . $dependencyName . "</cyan>");
-        }
+        if (count($packages) > 0) {
+            $this->output->writeln($message);
 
-        $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Do you wish to update these dependencies? [y|N] ', false);
-
-        if ($helper->ask($this->input, $this->output, $question)) {
             foreach ($packages as $dependencyName => $dependencyVersion) {
-                $this->processPackage($dependencyName);
+                $this->output->writeln("  |- Package <cyan>" . $dependencyName . "</cyan> requires a newer version");
             }
-            $this->output->writeln('');
-        } else {
-            throw new \Exception();
+
+            $this->output->writeln("");
+
+            $helper = $this->getHelper('question');
+            $question = new ConfirmationQuestion('Update these packages? [y|N] ', false);
+
+            if ($helper->ask($this->input, $this->output, $question)) {
+                foreach ($packages as $dependencyName => $dependencyVersion) {
+                    $this->processPackage($dependencyName);
+                }
+                $this->output->writeln('');
+            } else {
+                throw new \Exception();
+            }
         }
     }
 
