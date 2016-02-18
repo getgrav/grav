@@ -208,10 +208,9 @@ class InstallCommand extends ConsoleCommand
     public function processDependencies($packages) {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
 
-
-        //TODO: if version 0.9 is installed already, and 0.9 is required by some plugin, but 1.0 is out, don't update to 1.0, alert
-
         foreach ($dependencies as $dependencySlug => $dependencyVersion) {
+
+            $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersion);
 
             if ($this->gpm->isPluginInstalled($dependencySlug)) {
 
@@ -222,11 +221,23 @@ class InstallCommand extends ConsoleCommand
 
                 $currentlyInstalledVersion = $package_yaml['version'];
 
-                if ($currentlyInstalledVersion < $dependencyVersion) {
+                //if I already have the latest release, remove the dependency
+                $latestRelease = $this->gpm->getLatestVersionOfPackage($dependencySlug);
+
+                if (version_compare($latestRelease, $dependencyVersion) == -1) {
+                    //throw an exception if a required version cannot be found in the GPM yet
+                    throw new \Exception('Dependency ' . $package_yaml['name'] . ' is required in a version higher than the latest release. Try running `bin/gpm -f index` to force a refresh of the GPM cache', 1);
+                }
+
+                if (version_compare($currentlyInstalledVersion, $dependencyVersion) == -1) {
                     $dependencies[$dependencySlug] = 'update';
                 } else {
-                    //TODO: check if there's really a new release, or remove
-                    $dependencies[$dependencySlug] = 'ignore';
+
+                    if ($currentlyInstalledVersion == $latestRelease) {
+                        unset($dependencies[$dependencySlug]);
+                    } else {
+                        $dependencies[$dependencySlug] = 'ignore';
+                    }
                 }
 
             } else {
