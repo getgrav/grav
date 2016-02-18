@@ -113,6 +113,8 @@ class Blueprints
             $blueprint->embed('', $content, '/', true);
         }
 
+        $blueprint->init('static');
+
         return $blueprint;
     }
 

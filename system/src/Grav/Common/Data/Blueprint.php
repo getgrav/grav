@@ -273,12 +273,19 @@ class Blueprint extends BaseBlueprints implements ExportInterface
     {
         // Support nested blueprints.
         $value = $call['params'];
-        if (is_array($value)) {
-            $filename = $value['context'] . '/' . $value['type'] . YAML_EXT;
-            $type = $value['type'];
+
+        $type = !is_string($value) ? !isset($value['type']) ? null : $value['type'] : $value;
+
+        if (strpos($type, '://')) {
+            $filename = $type;
+        } elseif (empty($value['context'])) {
+            $filename = "blueprints://{$type}";
         } else {
-            $filename = 'blueprints://' . $value . YAML_EXT;
-            $type = $value;
+            $separator = $value['context'][strlen($value['context'])-1] === '/' ? '' : '/';
+            $filename = $value['context'] . $separator . $type;
+        }
+        if (!preg_match('/\.yaml$/', $filename)) {
+            $filename .= YAML_EXT;
         }
 
         if (!is_file($filename)) {
