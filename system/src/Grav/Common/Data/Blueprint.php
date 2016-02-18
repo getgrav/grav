@@ -26,7 +26,7 @@ class Blueprint extends BaseBlueprints implements ExportInterface
      * @param array $data
      * @param Blueprints $context
      */
-    public function __construct($name = null, array $data = [], Blueprints $context = null)
+    public function __construct($name = null, array $data = null, Blueprints $context = null)
     {
         parent::__construct(is_array($name) ? $name : null);
 

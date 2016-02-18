@@ -1,9 +1,9 @@
 <?php
 namespace Grav\Common\Config;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use RocketTheme\Toolbox\Blueprints\Blueprints;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -44,7 +44,7 @@ class CompiledBlueprints extends CompiledBase
      */
     protected function createObject(array $data = [])
     {
-        $this->object = (new Blueprints($data))->setTypes($this->getTypes());
+        $this->object = (new Blueprint($data))->setTypes($this->getTypes());
     }
 
     /**
@@ -182,5 +182,10 @@ class CompiledBlueprints extends CompiledBase
         $this->finalizeObject();
 
         return true;
+    }
+
+    protected function getState()
+    {
+        return $this->object->getState();
     }
 }
