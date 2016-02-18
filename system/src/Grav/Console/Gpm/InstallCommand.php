@@ -156,6 +156,36 @@ class InstallCommand extends ConsoleCommand
         $this->clearCache();
     }
 
+    /**
+     * Given a $dependencies list, filters their type according to $type and
+     * shows $message prior to listing them to the user. Then asks the user a confirmation prior
+     * to installing them.
+     *
+     * @param array $dependencies The dependencies array
+     * @param string $type The type of dependency to show: install, update, ignore
+     * @param string $message A message to be shown prior to listing the dependencies
+     *
+     * @throws \Exception
+     */
+    public function installDependencies($dependencies, $type, $message) {
+        $this->output->writeln($message);
+        $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
+        foreach ($packages as $dependencyName => $dependencyVersion) {
+            $this->output->writeln("  |- Package <cyan>" . $dependencyName . "</cyan>");
+        }
+
+        $helper = $this->getHelper('question');
+        $question = new ConfirmationQuestion('Do you wish to update these dependencies? [y|N] ', false);
+
+        if ($helper->ask($this->input, $this->output, $question)) {
+            foreach ($packages as $dependencyName => $dependencyVersion) {
+                $this->processPackage($dependencyName);
+            }
+            $this->output->writeln('');
+        } else {
+            throw new \Exception();
+        }
+    }
 
     /**
      * Fetch the dependencies, check the installed packages and return an array with
