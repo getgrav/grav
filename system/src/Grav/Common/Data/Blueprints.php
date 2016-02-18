@@ -110,7 +110,7 @@ class Blueprints
 
         // Merge all extends into a single blueprint.
         foreach ($data as $content) {
-            $blueprint->embed('', $content, '/', 1);
+            $blueprint->embed('', $content, '/', true);
         }
 
         return $blueprint;

@@ -77,7 +77,7 @@ class CompiledBlueprints extends CompiledBase
 
         // Merge all extends into a single blueprint.
         foreach ($data as $content) {
-            $this->object->embed($name, $content, '/', 1);
+            $this->object->embed($name, $content, '/', true);
         }
     }
 

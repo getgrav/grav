@@ -177,17 +177,6 @@ class Blueprint extends BaseBlueprints implements ExportInterface
     }
 
     /**
-     * Extend blueprint with another blueprint.
-     *
-     * @param Blueprint $extends
-     * @param bool $append
-     */
-    public function extend(Blueprint $extends, $append = false)
-    {
-        $this->embed('', $extends->toArray(), '.', ($append ? 1 : -1));
-    }
-
-    /**
      * @param array $data
      * @param array $rules
      * @returns array
