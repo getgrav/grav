@@ -156,6 +156,52 @@ class InstallCommand extends ConsoleCommand
         $this->clearCache();
     }
 
+
+    /**
+     * Fetch the dependencies, check the installed packages and return an array with
+     * the list of packages with associated an information on what to do: install, update or ignore.
+     *
+     * `ignore` means the package is already installed and can be safely left as-is.
+     * `install` means the package is not installed and must be installed.
+     * `update` means the package is already installed and must be updated as a dependency needs a higher version.
+     *
+     * @param array $packages
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function processDependencies($packages) {
+        $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
+
+
+        //TODO: if version 0.9 is installed already, and 0.9 is required by some plugin, but 1.0 is out, don't update to 1.0, alert
+
+        foreach ($dependencies as $dependencySlug => $dependencyVersion) {
+
+            if ($this->gpm->isPluginInstalled($dependencySlug)) {
+
+                // check the version, if an update is not strictly required mark as 'ignore'
+                $locator = self::getGrav()['locator'];
+                $blueprints_path = $locator->findResource('plugins://' . $dependencySlug . DS . 'blueprints.yaml');
+                $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+
+                $currentlyInstalledVersion = $package_yaml['version'];
+
+                if ($currentlyInstalledVersion < $dependencyVersion) {
+                    $dependencies[$dependencySlug] = 'update';
+                } else {
+                    //TODO: check if there's really a new release, or remove
+                    $dependencies[$dependencySlug] = 'ignore';
+                }
+
+            } else {
+                $dependencies[$dependencySlug] = 'install';
+            }
+        }
+
+        return $dependencies;
+    }
+
     /**
      * Calculates and merges the dependencies of the passed packages
      *
