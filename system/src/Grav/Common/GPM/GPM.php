@@ -195,6 +195,28 @@ class GPM extends Iterator
     }
 
     /**
+     * Get the latest release of a package from the GPM
+     *
+     * @param $package_name
+     *
+     * @return string
+     */
+    public function getLatestVersionOfPackage($package_name)
+    {
+        $repository = $this->repository['plugins'];
+
+        if (isset($repository[$package_name])) {
+            return $repository[$package_name]->version;
+        }
+
+        //Not a plugin, it's a theme?
+        $repository = $this->repository['themes'];
+        if (isset($repository[$package_name])) {
+            return $repository[$package_name]->version;
+        }
+    }
+
+    /**
      * Check if a Plugin or Theme is updatable
      * @param  string  $slug The slug of the package
      * @return boolean True if updatable. False otherwise or if not found
