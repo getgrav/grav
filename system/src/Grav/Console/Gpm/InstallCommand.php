@@ -125,29 +125,42 @@ class InstallCommand extends ConsoleCommand
         unset($this->data['not_found']);
         unset($this->data['total']);
 
+        try {
+            $dependencies = $this->processDependencies($this->data);
+        } catch (\Exception $e) {
+            //Error out if there are incompatible packages requirements and tell which ones, and what to do
+            //Error out if there is any error in parsing the dependencies and their versions, and tell which one is broken
+            $this->output->writeln("<red>" . $e->getMessage() . "</red>");
+            return false;
+        }
+
+        //TODO: handle packages prepended with author slug. How to handle with currently installed packages?
+
+        if ($dependencies) {
+
+            //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
+            if (isset($dependencies['grav'])) {
+                if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencies['grav']), GRAV_VERSION) === 1) {
+                    //Needs a Grav update first
+                    $this->output->writeln("<red>One of the package dependencies requires Grav " . $dependencies['grav'] . ". Please update Grav first with `bin/gpm selfupgrade`</red>");
+                    return false;
+                }
+                unset($dependencies['grav']);
+            }
+
+            try {
+                $this->installDependencies($dependencies, 'install', "The following dependencies need to be installed...");
+                $this->installDependencies($dependencies, 'update',  "The following dependencies need to be updated...");
+                $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...");
+            } catch (\Exception $e) {
+                $this->output->writeln("<red>Installation aborted</red>");
+                return;
+            }
+        }
+
+        //We're done installing dependencies. Install the actual packages
         foreach ($this->data as $data) {
             foreach ($data as $package) {
-                //Check for dependencies
-                if (isset($package->dependencies)) {
-                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has " . count($package->dependencies) . " required dependencies that must be installed first...");
-                    $this->output->writeln('');
-
-                    $dependency_data = $this->gpm->findPackages($package->dependencies);
-
-                    if (!$dependency_data['total']) {
-                        $this->output->writeln("No dependencies found...");
-                        $this->output->writeln('');
-                    } else {
-                        unset($dependency_data['total']);
-
-                        foreach ($dependency_data as $type => $dep_data) {
-                            foreach ($dep_data as $name => $dep_package) {
-                                $this->processPackage($dep_package);
-                            }
-                        }
-                    }
-                }
-
                 $this->processPackage($package);
             }
         }
@@ -252,6 +265,7 @@ class InstallCommand extends ConsoleCommand
      * Calculates and merges the dependencies of the passed packages
      *
      * @todo handle recursive dependencies
+     * @todo handle alpha, beta, rc. not just numeric versions
      *
      * @param array $packages
      *
