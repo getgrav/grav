@@ -188,6 +188,50 @@ class InstallCommandTest extends \Codeception\TestCase\Test
             $this->assertEquals(EXCEPTION_INCOMPATIBLE_VERSIONS, $e->getCode());
             $this->assertStringEndsWith("required in two incompatible versions", $e->getMessage());
         }
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+        // Test dependencies of dependencies
+        //////////////////////////////////////////////////////////////////////////////////////////
+        $this->gpm->data = [
+            'admin' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "grav", "version" => ">=1.0.10"],
+                    ["name" => "form", "version" => "~2.0"],
+                    ["name" => "login", "version" => ">=2.0"],
+                    ["name" => "errors", "version" => "*"],
+                    ["name" => "problems"],
+                ]
+            ],
+            'login' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "antimatter", "version" => ">=1.0"]
+                ]
+            ],
+            'grav',
+            'antimatter' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "something", "version" => ">=3.2"]
+                ]
+            ]
+
+
+        ];
+        $this->installCommand->setGpm($this->gpm);
+
+        $packages = ['admin'];
+
+        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($packages);
+
+        $this->assertTrue(is_array($dependencies));
+        $this->assertSame(7, count($dependencies));
+
+        $this->assertSame('>=1.0.10', $dependencies['grav']);
+        $this->assertTrue(isset($dependencies['errors']));
+        $this->assertTrue(isset($dependencies['problems']));
+        $this->assertTrue(isset($dependencies['antimatter']));
+        $this->assertTrue(isset($dependencies['something']));
+        $this->assertSame('>=3.2', $dependencies['something']);
+
     }
 
     public function testVersionFormatIsNextSignificantRelease()
