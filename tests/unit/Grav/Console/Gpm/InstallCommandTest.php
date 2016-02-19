@@ -54,113 +54,109 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         //////////////////////////////////////////////////////////////////////////////////////////
         // First working example
         //////////////////////////////////////////////////////////////////////////////////////////
-        $this->data = [
-            [
-                'admin' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "grav", "version" => ">=1.0.10"],
-                        (object)["name" => "form", "version" => "~2.0"],
-                        (object)["name" => "login", "version" => ">=2.0"],
-                        (object)["name" => "errors", "version" => "*"],
-                        (object)["name" => "problems"],
-                    ]
-                ],
-                'test' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">=1.0"]
-                    ]
+        $this->gpm->data = [
+            'admin' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "grav", "version" => ">=1.0.10"],
+                    ["name" => "form", "version" => "~2.0"],
+                    ["name" => "login", "version" => ">=2.0"],
+                    ["name" => "errors", "version" => "*"],
+                    ["name" => "problems"],
+                ]
+            ],
+            'test' => (object)[
+                'dependencies_versions' => [
+                   ["name" => "errors", "version" => ">=1.0"]
+                ]
+            ],
+            'grav',
+            'form' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "errors", "version" => ">=3.2"]
                 ]
             ]
-        ];
 
-        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($this->data);
+
+        ];
+        $this->installCommand->setGpm($this->gpm);
+
+        $packages = ['admin', 'test'];
+
+//        dump($this->gpm->findPackages());exit();
+
+        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($packages);
 
         $this->assertTrue(is_array($dependencies));
-        $this->assertTrue(count($dependencies) == 5);
+        $this->assertSame(5, count($dependencies));
 
         $this->assertTrue($dependencies['grav'] == '>=1.0.10');
-        $this->assertTrue($dependencies['errors'] == '>=1.0');
-        $this->assertFalse($dependencies['errors'] == '*');
-        $this->assertTrue($dependencies['problems'] == '*');
+        $this->assertTrue(isset($dependencies['errors']));
+        $this->assertTrue(isset($dependencies['problems']));
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Second working example
         //////////////////////////////////////////////////////////////////////////////////////////
-        $this->data = [
-            [
-                'admin' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => "*"],
-                    ]
-                ],
-                'test' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">=1.0"]
-                    ]
-                ],
-                'another' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">=3.2"]
-                    ]
-                ]
-            ]
-        ];
+        $packages = ['admin', 'form'];
 
-        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($this->data);
-
+        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($packages);
         $this->assertTrue(is_array($dependencies));
-        $this->assertTrue(count($dependencies) == 1);
+        $this->assertSame(5, count($dependencies));
         $this->assertTrue($dependencies['errors'] == '>=3.2');
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Third working example
         //////////////////////////////////////////////////////////////////////////////////////////
-        $this->data = [
-            [
-                'admin' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">=4.0"],
-                    ]
-                ],
-                'test' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">=1.0"]
-                    ]
-                ],
-                'another' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">=3.2"]
-                    ]
+        $this->gpm->data = [
+
+            'admin' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "errors", "version" => ">=4.0"],
+                ]
+            ],
+            'test' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "errors", "version" => ">=1.0"]
+                ]
+            ],
+            'another' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "errors", "version" => ">=3.2"]
                 ]
             ]
+
         ];
+        $this->installCommand->setGpm($this->gpm);
 
-        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($this->data);
+        $packages = ['admin', 'test', 'another'];
 
+
+        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($packages);
         $this->assertTrue(is_array($dependencies));
-        $this->assertTrue(count($dependencies) == 1);
+        $this->assertSame(1, count($dependencies));
         $this->assertTrue($dependencies['errors'] == '>=4.0');
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Raise exception if no version is specified
         //////////////////////////////////////////////////////////////////////////////////////////
-        $this->data = [
-            [
-                'admin' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">=4.0"],
-                    ]
-                ],
-                'test' => (object)[
-                    'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => ">="]
-                    ]
-                ],
-            ]
+        $this->gpm->data = [
+
+            'admin' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "errors", "version" => ">=4.0"],
+                ]
+            ],
+            'test' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "errors", "version" => ">="]
+                ]
+            ],
+
         ];
+        $this->installCommand->setGpm($this->gpm);
+        $packages = ['admin', 'test'];
 
         try {
-            $this->installCommand->calculateMergedDependenciesOfPackages($this->data);
+            $this->installCommand->calculateMergedDependenciesOfPackages($packages);
             $this->fail("Expected Exception not thrown");
         } catch (Exception $e) {
             $this->assertEquals(EXCEPTION_BAD_FORMAT, $e->getCode());
@@ -170,23 +166,23 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         //////////////////////////////////////////////////////////////////////////////////////////
         // Raise exception if incompatible versions are specified
         //////////////////////////////////////////////////////////////////////////////////////////
-        $this->data = [
-            [
+        $this->gpm->data = [
                 'admin' => (object)[
                     'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => "~4.0"],
+                        ["name" => "errors", "version" => "~4.0"],
                     ]
                 ],
                 'test' => (object)[
                     'dependencies_versions' => [
-                        (object)["name" => "errors", "version" => "~3.0"]
+                        ["name" => "errors", "version" => "~3.0"]
                     ]
                 ],
-            ]
         ];
+        $this->installCommand->setGpm($this->gpm);
+        $packages = ['admin', 'test'];
 
         try {
-            $this->installCommand->calculateMergedDependenciesOfPackages($this->data);
+            $this->installCommand->calculateMergedDependenciesOfPackages($packages);
             $this->fail("Expected Exception not thrown");
         } catch (Exception $e) {
             $this->assertEquals(EXCEPTION_INCOMPATIBLE_VERSIONS, $e->getCode());
