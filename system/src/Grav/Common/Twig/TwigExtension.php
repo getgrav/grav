@@ -96,6 +96,7 @@ class TwigExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
+            new \Twig_SimpleFunction('array_key_value', [$this, 'arrayKeyValueFunc']),
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
@@ -665,6 +666,26 @@ class TwigExtension extends \Twig_Extension
     public function arrayFunc($value)
     {
         return (array)$value;
+    }
+
+    /**
+     * Workaround for twig associative array initialization
+     * Returns a key => val array
+     *
+     * @param string $key               key of item
+     * @param string $val               value of item
+     * @param string $current_array     optional array to add to
+     *
+     * @return array
+     */
+    public function arrayKeyValueFunc($key, $val, $current_array = null)
+    {
+        if (empty($current_array)) {
+            return array( $key => $val );
+        } else {
+            $current_array[$key] = $val;
+            return $current_array;
+        }
     }
 
     /**
