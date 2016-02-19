@@ -36,7 +36,7 @@ class User extends Data
         // force lowercase of username
         $username = strtolower($username);
 
-        $blueprints = new Blueprints('blueprints://');
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
         $file = CompiledYamlFile::instance($file_path);

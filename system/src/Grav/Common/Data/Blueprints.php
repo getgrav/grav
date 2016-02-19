@@ -21,7 +21,7 @@ class Blueprints
     /**
      * @param  string|array  $search  Search path.
      */
-    public function __construct($search)
+    public function __construct($search = 'blueprints://')
     {
         $this->search = $search;
     }

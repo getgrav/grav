@@ -40,7 +40,6 @@ class Blueprint extends BaseBlueprints implements ExportInterface
 
         if ($data) {
             $this->embed('', $data);
-            $this->init('static');
         }
     }
 
@@ -56,7 +55,6 @@ class Blueprint extends BaseBlueprints implements ExportInterface
 
         return $this;
     }
-
 
     /**
      * Get meta value by using dot notation for nested arrays/objects.

@@ -56,7 +56,7 @@ class Group extends Data
             $content = [];
         }
 
-        $blueprints = new Blueprints('blueprints://');
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/group');
         if (!isset($content['groupname'])) {
             $content['groupname'] = $groupname;
@@ -71,7 +71,7 @@ class Group extends Data
      */
     public function save()
     {
-        $blueprints = new Blueprints('blueprints://');
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/group');
 
         $fields = $blueprint->fields();
@@ -114,7 +114,7 @@ class Group extends Data
      */
     public static function remove($groupname)
     {
-        $blueprints = new Blueprints('blueprints://');
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/group');
 
         $groups = self::getGrav()['config']->get("groups");
