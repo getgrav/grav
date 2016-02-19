@@ -264,7 +264,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * Calculates and merges the dependencies of a package
      *
-     * @param $packageName The package information
+     * @param string $packageName  The package information
      *
      * @param array $dependencies The dependencies array
      *
@@ -277,6 +277,7 @@ class InstallCommand extends ConsoleCommand
 
         //Check for dependencies
         if (isset($packageData->dependencies_versions)) {
+
             foreach ($packageData->dependencies_versions as $dependency) {
                 $current_package_name = $dependency['name'];
                 if (isset($dependency['version'])) {
@@ -297,12 +298,10 @@ class InstallCommand extends ConsoleCommand
                 }
                 else {
                     // Dependency already added by another package
-
                     //if this package requires a version higher than the currently stored one, store this requirement instead
                     if (isset($current_package_version_information) && $current_package_version_information !== '*') {
 
                         $currently_stored_version_information = $dependencies[$current_package_name];
-
                         $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
 
                         $currently_stored_version_is_in_next_significant_release_format = false;
@@ -328,10 +327,7 @@ class InstallCommand extends ConsoleCommand
                         if ($currently_stored_version_number === '*') {
                             $dependencies[$current_package_name] = $current_package_version_information;
                         } else {
-                            $version1 = $currently_stored_version_is_in_next_significant_release_format;
-                            $version2 = $current_package_version_is_in_next_significant_release_format;
-
-                            if (!$version1 && !$version2) {
+                            if (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
                                 //Comparing versions equals or higher, a simple version_compare is enough
                                 if (version_compare($currently_stored_version_number, $current_package_version_number) == -1) { //Current package version is higher
                                     $dependencies[$current_package_name] = $current_package_version_information;
@@ -354,7 +350,6 @@ class InstallCommand extends ConsoleCommand
     /**
      * Calculates and merges the dependencies of the passed packages
      *
-     * @todo handle recursive dependencies
      * @todo handle alpha, beta, rc. not just numeric versions
      *
      * @param array $packages
