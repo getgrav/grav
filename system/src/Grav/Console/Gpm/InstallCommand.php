@@ -293,7 +293,7 @@ class InstallCommand extends ConsoleCommand
                     }
 
                     //Factor in the package dependencies too
-                    $this->calculateMergedDependenciesOfPackage($current_package_name, $dependencies);
+                    $dependencies = $this->calculateMergedDependenciesOfPackage($current_package_name, $dependencies);
                 }
                 else {
                     // Dependency already added by another package
