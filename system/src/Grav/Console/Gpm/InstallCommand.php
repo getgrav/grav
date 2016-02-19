@@ -222,16 +222,13 @@ class InstallCommand extends ConsoleCommand
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
 
         foreach ($dependencies as $dependencySlug => $dependencyVersion) {
-
-            $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersion);
-
             if ($this->gpm->isPluginInstalled($dependencySlug)) {
+                $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersion);
 
                 // check the version, if an update is not strictly required mark as 'ignore'
                 $locator = self::getGrav()['locator'];
                 $blueprints_path = $locator->findResource('plugins://' . $dependencySlug . DS . 'blueprints.yaml');
                 $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
-
                 $currentlyInstalledVersion = $package_yaml['version'];
 
                 //if I already have the latest release, remove the dependency
@@ -245,14 +242,12 @@ class InstallCommand extends ConsoleCommand
                 if (version_compare($currentlyInstalledVersion, $dependencyVersion) == -1) {
                     $dependencies[$dependencySlug] = 'update';
                 } else {
-
                     if ($currentlyInstalledVersion == $latestRelease) {
                         unset($dependencies[$dependencySlug]);
                     } else {
                         $dependencies[$dependencySlug] = 'ignore';
                     }
                 }
-
             } else {
                 $dependencies[$dependencySlug] = 'install';
             }
