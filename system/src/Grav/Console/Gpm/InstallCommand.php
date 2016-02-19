@@ -27,7 +27,7 @@ class InstallCommand extends ConsoleCommand
     protected $data;
 
     /**
-     * @var
+     * @var GPM
      */
     protected $gpm;
 
@@ -126,7 +126,7 @@ class InstallCommand extends ConsoleCommand
         unset($this->data['total']);
 
         try {
-            $dependencies = $this->processDependencies($this->data);
+            $dependencies = $this->processDependencies($packages);
         } catch (\Exception $e) {
             //Error out if there are incompatible packages requirements and tell which ones, and what to do
             //Error out if there is any error in parsing the dependencies and their versions, and tell which one is broken
@@ -257,6 +257,96 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
+     * Calculates and merges the dependencies of a package
+     *
+     * @param $packageName The package information
+     *
+     * @param array $dependencies The dependencies array
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function calculateMergedDependenciesOfPackage($packageName, $dependencies)
+    {
+        $packageData = $this->gpm->findPackage($packageName);
+
+        //Check for dependencies
+        if (isset($packageData->dependencies_versions)) {
+            foreach ($packageData->dependencies_versions as $dependency) {
+                $current_package_name = $dependency['name'];
+                if (isset($dependency['version'])) {
+                    $current_package_version_information = $dependency['version'];
+                }
+
+                if (!isset($dependencies[$current_package_name])) {
+                    // Dependency added for the first time
+
+                    if (!isset($current_package_version_information)) {
+                        $dependencies[$current_package_name] = '*';
+                    } else {
+                        $dependencies[$current_package_name] = $current_package_version_information;
+                    }
+
+                    //Factor in the package dependencies too
+                    $this->calculateMergedDependenciesOfPackage($current_package_name, $dependencies);
+                }
+                else {
+                    // Dependency already added by another package
+
+                    //if this package requires a version higher than the currently stored one, store this requirement instead
+                    if (isset($current_package_version_information) && $current_package_version_information !== '*') {
+
+                        $currently_stored_version_information = $dependencies[$current_package_name];
+
+                        $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
+
+                        $currently_stored_version_is_in_next_significant_release_format = false;
+                        if ($this->versionFormatIsNextSignificantRelease($currently_stored_version_information)) {
+                            $currently_stored_version_is_in_next_significant_release_format = true;
+                        }
+
+                        if (!$currently_stored_version_number) {
+                            $currently_stored_version_number = '*';
+                        }
+
+                        $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
+                        if (!$current_package_version_number) {
+                            throw new \Exception('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName, 1);
+                        }
+
+                        $current_package_version_is_in_next_significant_release_format = false;
+                        if ($this->versionFormatIsNextSignificantRelease($current_package_version_information)) {
+                            $current_package_version_is_in_next_significant_release_format = true;
+                        }
+
+                        //If I had stored '*', change right away with the more specific version required
+                        if ($currently_stored_version_number === '*') {
+                            $dependencies[$current_package_name] = $current_package_version_information;
+                        } else {
+                            $version1 = $currently_stored_version_is_in_next_significant_release_format;
+                            $version2 = $current_package_version_is_in_next_significant_release_format;
+
+                            if (!$version1 && !$version2) {
+                                //Comparing versions equals or higher, a simple version_compare is enough
+                                if (version_compare($currently_stored_version_number, $current_package_version_number) == -1) { //Current package version is higher
+                                    $dependencies[$current_package_name] = $current_package_version_information;
+                                }
+                            } else {
+                                $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number, $current_package_version_number);
+                                if (!$compatible) {
+                                    throw new \Exception('Dependency ' . $current_package_name . ' is required in two incompatible versions', 2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $dependencies;
+    }
+
+    /**
      * Calculates and merges the dependencies of the passed packages
      *
      * @todo handle recursive dependencies
@@ -269,77 +359,10 @@ class InstallCommand extends ConsoleCommand
      */
     public function calculateMergedDependenciesOfPackages($packages)
     {
-        foreach ($packages as $data) {
-            foreach ($data as $packageName => $packageData) {
+        $dependencies = [];
 
-                //Check for dependencies
-                if (isset($packageData->dependencies_versions)) {
-                    foreach ($packageData->dependencies_versions as $dependency) {
-                        $current_package_name = $dependency['name'];
-                        if (isset($dependency['version'])) {
-                            $current_package_version_information = $dependency['version'];
-                        }
-
-                        if (!isset($dependencies[$current_package_name])) { // Dependency added for the first time
-
-                            if (!isset($current_package_version_information)) {
-                                $dependencies[$current_package_name] = '*';
-                            } else {
-                                $dependencies[$current_package_name] = $current_package_version_information;
-                            }
-
-                        } else { // Dependency already added by another package
-
-                            //if this package requires a version higher than the currently stored one, store this requirement instead
-                            if (isset($current_package_version_information) && $current_package_version_information !== '*') {
-
-                                $currently_stored_version_information = $dependencies[$current_package_name];
-
-                                $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
-
-                                $currently_stored_version_is_in_next_significant_release_format = false;
-                                if ($this->versionFormatIsNextSignificantRelease($currently_stored_version_information)) {
-                                    $currently_stored_version_is_in_next_significant_release_format = true;
-                                }
-
-                                if (!$currently_stored_version_number) {
-                                    $currently_stored_version_number = '*';
-                                }
-
-                                $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
-                                if (!$current_package_version_number) {
-                                    throw new \Exception('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName, 1);
-                                }
-
-                                $current_package_version_is_in_next_significant_release_format = false;
-                                if ($this->versionFormatIsNextSignificantRelease($current_package_version_information)) {
-                                    $current_package_version_is_in_next_significant_release_format = true;
-                                }
-
-                                //If I had stored '*', change right away with the more specific version required
-                                if ($currently_stored_version_number === '*') {
-                                    $dependencies[$current_package_name] = $current_package_version_information;
-                                } else {
-                                    $version1 = $currently_stored_version_is_in_next_significant_release_format;
-                                    $version2 = $current_package_version_is_in_next_significant_release_format;
-
-                                    if (!$version1 && !$version2) {
-                                        //Comparing versions equals or higher, a simple version_compare is enough
-                                        if (version_compare($currently_stored_version_number, $current_package_version_number) == -1) { //Current package version is higher
-                                            $dependencies[$current_package_name] = $current_package_version_information;
-                                        }
-                                    } else {
-                                        $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number, $current_package_version_number);
-                                        if (!$compatible) {
-                                            throw new \Exception('Dependency ' . $current_package_name . ' is required in two incompatible versions', 2);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        foreach ($packages as $package) {
+            $dependencies = $this->calculateMergedDependenciesOfPackage($package, $dependencies);
         }
 
         return $dependencies;
