@@ -1,17 +1,5 @@
 <?php
-/**
- * @package   Gantry5
- * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
- * @license   Dual License: MIT or GNU/GPLv2 and later
- *
- * http://opensource.org/licenses/MIT
- * http://www.gnu.org/licenses/gpl-2.0.html
- *
- * Gantry Framework code that extends GPL code is considered GNU/GPLv2 and later
- */
-
-namespace Gantry\Component\Config;
+namespace Grav\Common\Data;
 
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
 use RocketTheme\Toolbox\ArrayTraits\Export;
@@ -35,13 +23,17 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
     /**
      * Extend blueprint with another blueprint.
      *
-     * @param BlueprintForm $extends
+     * @param BlueprintForm|array $extends
      * @param bool $append
      */
-    public function extend(BlueprintForm $extends, $append = false)
+    public function extend($extends, $append = false)
     {
-        $blueprints = $append ? $this->items : $extends->toArray();
-        $appended = $append ? $extends->toArray() : $this->items;
+        if ($extends instanceof BlueprintForm) {
+            $extends = $extends->toArray();
+        }
+
+        $blueprints = $append ? $this->items : $extends;
+        $appended = $append ? $extends : $this->items;
         $bref_stack = array(&$blueprints);
         $head_stack = array($appended);
 

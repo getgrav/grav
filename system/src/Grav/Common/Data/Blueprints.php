@@ -3,7 +3,6 @@ namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Common\GravTrait;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -104,14 +103,15 @@ class Blueprints
      */
     protected function loadFile($name, $files)
     {
-        $blueprint = new Blueprint($name, [], $this);
-
         $data = $this->loadBlueprints($files);
 
         // Merge all extends into a single blueprint.
+        $blueprintForm = new BlueprintForm(array_shift($data));
         foreach ($data as $content) {
-            $blueprint->embed('', $content, '/', true);
+            $blueprintForm->extend($content, true);
         }
+
+        $blueprint = new Blueprint($name, $blueprintForm->toArray(), $this);
 
         $blueprint->init('static');
 
@@ -185,7 +185,7 @@ class Blueprints
 
                     $files = $locator->findResources($path);
                 } else {
-                    $files = [$path];
+                    $files = (array) $path;
                 }
             }
 

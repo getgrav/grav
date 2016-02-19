@@ -2,6 +2,7 @@
 namespace Grav\Common\Config;
 
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Data\BlueprintForm;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -17,7 +18,7 @@ class CompiledBlueprints extends CompiledBase
     public $version = 2;
 
     /**
-     * @var Blueprints  Blueprints object.
+     * @var Blueprint  Blueprints object.
      */
     protected $object;
 
@@ -76,9 +77,12 @@ class CompiledBlueprints extends CompiledBase
         $data = $this->loadBlueprints($files);
 
         // Merge all extends into a single blueprint.
+        $blueprintForm = new BlueprintForm(array_shift($data));
         foreach ($data as $content) {
-            $this->object->embed($name, $content, '/', true);
+            $blueprintForm->extend($content, true);
         }
+
+        $this->object->embed($name, $blueprintForm->toArray(), '/', true);
     }
 
     /**
