@@ -83,6 +83,11 @@ class InstallCommand extends ConsoleCommand
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
     }
 
+    public function setGpm($gpm)
+    {
+        $this->gpm = $gpm;
+    }
+
     /**
      * @return int|null|void
      */
