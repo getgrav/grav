@@ -7,6 +7,22 @@ use Grav\Console\Gpm\InstallCommand;
 define('EXCEPTION_BAD_FORMAT', 1);
 define('EXCEPTION_INCOMPATIBLE_VERSIONS', 2);
 
+class GpmStub extends stdClass
+{
+    public function findPackage($packageName)
+    {
+        if (isset($this->data[$packageName])) {
+            return $this->data[$packageName];
+        }
+
+    }
+
+    public function findPackages()
+    {
+        return $this->data;
+    }
+}
+
 /**
  * Class InstallCommandTest
  */
@@ -15,10 +31,18 @@ class InstallCommandTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
+    /** @var InstallCommand */
+    protected $installCommand;
+
+    /** @var GpmStub */
+    protected $gpm;
+
     protected function _before()
     {
         $this->grav = Fixtures::get('grav');
         $this->installCommand = new InstallCommand();
+
+        $this->gpm = new GpmStub();
     }
 
     protected function _after()
