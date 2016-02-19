@@ -110,6 +110,7 @@ class Blueprints
         foreach ($data as $content) {
             $blueprintForm->extend($content, true);
         }
+        $blueprintForm->init();
 
         $blueprint = new Blueprint($name, $blueprintForm->toArray(), $this);
 
