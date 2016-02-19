@@ -170,7 +170,7 @@ class Blueprints
                 if (strpos($extendType, '://')) {
                     $path = $extendType;
                 } elseif (empty($extendConfig['context'])) {
-                    $path = "blueprints://{$extendType}";
+                    $path = isset($this->search[$extendType]) ? $this->search[$extendType] : "blueprints://{$extendType}";
                 } else {
                     $separator = $extendConfig['context'][strlen($extendConfig['context'])-1] === '/' ? '' : '/';
                     $path = $extendConfig['context'] . $separator . $extendType;
@@ -179,10 +179,14 @@ class Blueprints
                     $path .= '.yaml';
                 }
 
-                /** @var UniformResourceLocator $locator */
-                $locator = Grav::instance()['locator'];
+                if (strpos($path, '://')) {
+                    /** @var UniformResourceLocator $locator */
+                    $locator = Grav::instance()['locator'];
 
-                $files = $locator->findResources($path);
+                    $files = $locator->findResources($path);
+                } else {
+                    $files = [$path];
+                }
             }
 
             if ($files) {
