@@ -218,7 +218,7 @@ class TwigExtension extends \Twig_Extension
      * {{ 'CamelCased'|underscorize }} => camel_cased
      * {{ 'Something Text'|hyphenize }} => something-text
      * {{ 'something_text_to_read'|humanize }} => "Something text to read"
-     * {{ '181'|monthize }} => 6
+     * {{ '181'|monthize }} => 5
      * {{ '10'|ordinalize }} => 10th
      *
      * @param string $action
