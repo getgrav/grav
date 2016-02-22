@@ -150,7 +150,6 @@ class InstallCommand extends ConsoleCommand
         //TODO: handle packages prepended with author slug. How to handle with currently installed packages?
 
         if ($dependencies) {
-
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
             if (isset($dependencies['grav'])) {
                 if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencies['grav']), GRAV_VERSION) === 1) {
@@ -467,9 +466,6 @@ class InstallCommand extends ConsoleCommand
      */
     private function processPackage($package)
     {
-        $this->output->writeln("<green>fake processing</green>");
-        return;
-
         $symlink = false;
         if ($this->use_symlinks) {
             if ($this->getSymlinkSource($package) || !isset($package->version)) {
