@@ -21,31 +21,22 @@ define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/
  */
 class InstallCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var */
     protected $data;
 
-    /**
-     * @var GPM
-     */
+    /** @var GPM */
     protected $gpm;
 
-    /**
-     * @var
-     */
+    /** @var */
     protected $destination;
 
-    /**
-     * @var
-     */
+    /** @var */
     protected $file;
 
-    /**
-     * @var
-     */
+    /** @var */
     protected $tmp;
 
+    /** @var */
     protected $local_config;
 
     /**
