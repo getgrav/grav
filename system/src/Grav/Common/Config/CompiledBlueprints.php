@@ -3,9 +3,7 @@ namespace Grav\Common\Config;
 
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\BlueprintForm;
-use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Compiled Blueprints class.
@@ -73,91 +71,10 @@ class CompiledBlueprints extends CompiledBase
      */
     protected function loadFile($name, $files)
     {
-        $data = $this->loadBlueprints($files);
+        // Load blueprint file.
+        $blueprintForm = new BlueprintForm($files);
 
-        // Merge all extends into a single blueprint.
-        $blueprintForm = new BlueprintForm(array_shift($data));
-        foreach ($data as $content) {
-            $blueprintForm->extend($content, true);
-        }
-        $blueprintForm->init();
-
-        $this->object->embed($name, $blueprintForm->toArray(), '/', true);
-    }
-
-    /**
-     * Internal function that handles loading extended blueprints.
-     *
-     * @param array $files
-     * @return array
-     */
-    protected function loadBlueprints(array $files)
-    {
-        $filename = array_shift($files);
-        $file = CompiledYamlFile::instance($filename);
-        $content = $file->content();
-        $file->free();
-
-        $extends = isset($content['@extends']) ? (array) $content['@extends']
-            : (isset($content['extends@']) ? (array) $content['extends@'] : null);
-
-        $data = isset($extends) ? $this->extendBlueprint($files, $extends) : [];
-        $data[] = $content;
-
-        return $data;
-    }
-
-    /**
-     * Internal function to recursively load extended blueprints.
-     *
-     * @param array $parents
-     * @param array $extends
-     * @return array
-     */
-    protected function extendBlueprint(array $parents, array $extends)
-    {
-        if (is_string(key($extends))) {
-            $extends = [$extends];
-        }
-
-        $data = [];
-        foreach ($extends as $extendConfig) {
-            // Accept array of type and context or a string.
-            $extendType = !is_string($extendConfig)
-                ? !isset($extendConfig['type']) ? null : $extendConfig['type'] : $extendConfig;
-
-            if (!$extendType) {
-                continue;
-            }
-
-            if ($extendType === '@parent' || $extendType === 'parent@') {
-                $files = $parents;
-
-            } else {
-                if (strpos($extendType, '://')) {
-                    $path = $extendType;
-                } elseif (empty($extendConfig['context'])) {
-                    $path = "blueprints://{$extendType}";
-                } else {
-                    $separator = $extendConfig['context'][strlen($extendConfig['context'])-1] === '/' ? '' : '/';
-                    $path = $extendConfig['context'] . $separator . $extendType;
-                }
-                if (!preg_match('/\.yaml$/', $path)) {
-                    $path .= '.yaml';
-                }
-
-                /** @var UniformResourceLocator $locator */
-                $locator = Grav::instance()['locator'];
-
-                $files = $locator->findResources($path);
-            }
-
-            if ($files) {
-                $data = array_merge($data, $this->loadBlueprints($files));
-            }
-        }
-
-        return $data;
+        $this->object->embed($name, $blueprintForm->load()->toArray(), '/', true);
     }
 
     /**
