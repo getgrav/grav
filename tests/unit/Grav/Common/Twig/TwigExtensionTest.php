@@ -29,4 +29,52 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
             $this->twig_ext->arrayKeyValueFunc('meat', 'steak', ['fruit' => 'apple']));
     }
 
+    public function testContainsFilter()
+    {
+        $this->assertTrue($this->twig_ext->containsFilter('grav','grav'));
+        $this->assertTrue($this->twig_ext->containsFilter('So, I found this new cms, called grav, and it\'s pretty awesome guys','grav'));
+    }
+
+    public function testMd5Filter()
+    {
+        $this->assertSame(md5('grav'),              $this->twig_ext->md5Filter('grav'));
+        $this->assertSame(md5('devs@getgrav.org'),  $this->twig_ext->md5Filter('devs@getgrav.org'));
+    }
+
+    public function testSafeEmailFilter()
+    {
+        $this->assertSame('&#100;&#101;&#118;&#115;&#64;&#103;&#101;&#116;&#103;&#114;&#97;&#118;&#46;&#111;&#114;&#103;',   $this->twig_ext->safeEmailFilter('devs@getgrav.org'));
+        $this->assertSame('&#115;&#111;&#109;&#101;&#111;&#110;&#101;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;',   $this->twig_ext->safeEmailFilter('someone@example.com'));
+    }
+
+    public function testRandomizeFilter()
+    {
+        $array = [1,2,3,4,5];
+        $this->assertContains(2,        $this->twig_ext->randomizeFilter($array));
+        $this->assertSame($array,       $this->twig_ext->randomizeFilter($array, 5));
+        $this->assertSame($array[0],    $this->twig_ext->randomizeFilter($array, 1)[0]);
+        $this->assertSame($array[3],    $this->twig_ext->randomizeFilter($array, 4)[3]);
+        $this->assertSame($array[1],    $this->twig_ext->randomizeFilter($array, 4)[1]);
+    }
+
+    public function testModulusFilter()
+    {
+        $this->assertSame(3,    $this->twig_ext->modulusFilter(3,4));
+        $this->assertSame(1,    $this->twig_ext->modulusFilter(11,2));
+        $this->assertSame(0,    $this->twig_ext->modulusFilter(10,2));
+        $this->assertSame(2,    $this->twig_ext->modulusFilter(10,4));
+    }
+
+    public function testInflectorFilter()
+    {
+        $this->assertSame('people',                     $this->twig_ext->inflectorFilter('plural',       'person'));
+        $this->assertSame('shoe',                       $this->twig_ext->inflectorFilter('singular',     'shoes'));
+        $this->assertSame('Welcome Page',               $this->twig_ext->inflectorFilter('title',        'welcome page'));
+        $this->assertSame('SendEmail',                  $this->twig_ext->inflectorFilter('camel',        'send_email'));
+        $this->assertSame('camel_cased',                $this->twig_ext->inflectorFilter('underscor',    'CamelCased'));
+        $this->assertSame('something-text',             $this->twig_ext->inflectorFilter('hyphen',       'Something Text'));
+        $this->assertSame('Something text to read',     $this->twig_ext->inflectorFilter('human',        'something_text_to_read'));
+        $this->assertSame(5,                            $this->twig_ext->inflectorFilter('month',        181));
+        $this->assertSame('10th',                       $this->twig_ext->inflectorFilter('ordinal',      10));
+    }
 }
