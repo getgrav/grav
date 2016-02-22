@@ -647,7 +647,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param $package
      */
-    private function processGPM($package)
+    private function processGpm($package)
     {
         $version = isset($package->available) ? $package->available : $package->version;
 
