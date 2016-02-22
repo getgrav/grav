@@ -267,42 +267,6 @@ class Blueprint extends BaseBlueprints implements ExportInterface
      * @param string $property
      * @param array $call
      */
-    protected function staticImport(array &$field, $property, array &$call)
-    {
-        // Support nested blueprints.
-        $value = $call['params'];
-
-        $type = !is_string($value) ? !isset($value['type']) ? null : $value['type'] : $value;
-
-        if (strpos($type, '://')) {
-            $filename = $type;
-        } elseif (empty($value['context'])) {
-            $filename = "blueprints://{$type}";
-        } else {
-            $separator = $value['context'][strlen($value['context'])-1] === '/' ? '' : '/';
-            $filename = $value['context'] . $separator . $type;
-        }
-        if (!preg_match('/\.yaml$/', $filename)) {
-            $filename .= YAML_EXT;
-        }
-
-        if (!is_file($filename)) {
-            return;
-        }
-
-        $file = CompiledYamlFile::instance($filename);
-        $blueprint = (new Blueprint($type, $file->content(), $this->context))->init('static');
-
-        $fields = $this->parseFormFields($blueprint->toArray()['form']['fields'], $this->filter, '', $field['name'].'.', -1, $call['form']);
-
-        $this->setFormFields($call['form'], $fields);
-    }
-
-    /**
-     * @param array $field
-     * @param string $property
-     * @param array $call
-     */
     protected function dynamicConfig(array &$field, $property, array &$call)
     {
         $value = $call['params'];

@@ -63,7 +63,6 @@ class CompiledBlueprints extends CompiledBase
      */
     protected function finalizeObject()
     {
-        $this->object->init('static');
     }
 
     /**
@@ -81,6 +80,7 @@ class CompiledBlueprints extends CompiledBase
         foreach ($data as $content) {
             $blueprintForm->extend($content, true);
         }
+        $blueprintForm->init();
 
         $this->object->embed($name, $blueprintForm->toArray(), '/', true);
     }

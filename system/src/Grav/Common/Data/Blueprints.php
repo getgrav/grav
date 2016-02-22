@@ -114,8 +114,6 @@ class Blueprints
 
         $blueprint = new Blueprint($name, $blueprintForm->toArray(), $this);
 
-        $blueprint->init('static');
-
         return $blueprint;
     }
 

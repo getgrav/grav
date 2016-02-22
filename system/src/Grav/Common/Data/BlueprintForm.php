@@ -29,16 +29,6 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
     }
 
     /**
-     * Get form fields.
-     *
-     * @return array
-     */
-    public function fields()
-    {
-        return (array) $this->get('form.fields');
-    }
-
-    /**
      * Get form.
      *
      * @return array
@@ -46,6 +36,16 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
     public function form()
     {
         return (array) $this->get('form');
+    }
+
+    /**
+     * Get form fields.
+     *
+     * @return array
+     */
+    public function fields()
+    {
+        return (array) $this->get('form.fields');
     }
 
     /**
@@ -186,7 +186,7 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
                 $name = trim($key, '@');
 
                 if ($name === 'import') {
-                    $this->import($item, $path);
+                    $this->doImport($item, $path);
                     unset($items[$key]);
                 }
 
@@ -202,7 +202,7 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
      * @param array $value
      * @param array $path
      */
-    protected function import(array &$value, array &$path)
+    protected function doImport(array &$value, array &$path)
     {
         $type = !is_string($value) ? !isset($value['type']) ? null : $value['type'] : $value;
 
