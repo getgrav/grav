@@ -647,33 +647,6 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param $package
      */
-    private function processGit($package)
-    {
-        $matches = $this->getGitRegexMatches($package);
-
-        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan> from " . $matches[0]);
-
-        $this->output->write("  |- Checking destination...  ");
-        $checks = $this->checkDestination($package);
-
-        if (!$checks) {
-            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-            $this->output->writeln('');
-        } else {
-            $cmd = 'cd ' . $this->destination . ' && git clone ' . $matches[0] . ' ' . $package->install_path;
-            exec($cmd);
-
-            // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- Cloning package...    <green>ok</green>                             ");
-
-            $this->output->writeln("  '- <green>Success!</green>  ");
-            $this->output->writeln('');
-        }
-    }
-
-    /**
-     * @param $package
-     */
     private function processGPM($package)
     {
         $version = isset($package->available) ? $package->available : $package->version;
