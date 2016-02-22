@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common\Data;
 
-use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
@@ -19,20 +18,14 @@ class Blueprint extends BaseBlueprints implements ExportInterface
 
     public $initialized = false;
 
-    protected $context;
-
     /**
      * @param string|array $name
      * @param array $data
      * @param Blueprints $context
      */
-    public function __construct($name = null, array $data = null, Blueprints $context = null)
+    public function __construct($name = null, array $data = null)
     {
         parent::__construct(is_array($name) ? $name : null);
-
-        if ($context) {
-            $this->setContext($context);
-        }
 
         $types = Grav::instance()['plugins']->formFieldTypes;
 
@@ -41,19 +34,6 @@ class Blueprint extends BaseBlueprints implements ExportInterface
         if ($data) {
             $this->embed('', $data);
         }
-    }
-
-    /**
-     * Set context to find external blueprints.
-     *
-     * @param Blueprints $context
-     * @return $this
-     */
-    public function setContext(Blueprints $context)
-    {
-        $this->context = $context;
-
-        return $this;
     }
 
     /**
