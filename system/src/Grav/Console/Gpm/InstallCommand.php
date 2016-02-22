@@ -173,8 +173,12 @@ class InstallCommand extends ConsoleCommand
 
         //We're done installing dependencies. Install the actual packages
         foreach ($this->data as $data) {
-            foreach ($data as $package) {
-                $this->processPackage($package);
+            foreach ($data as $packageName => $package) {
+                if (in_array($packageName, array_keys($dependencies))) {
+                    $this->output->writeln("<green>Package " . $packageName . " already installed as dependency</green>");
+                } else {
+                    $this->processPackage($package);
+                }
             }
         }
 
