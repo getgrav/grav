@@ -105,22 +105,41 @@ class InflectorTest extends \Codeception\TestCase\Test
 
     public function testTableize()
     {
-
+        $this->assertSame('people',                 $this->inflector->tableize('Person'));
+        $this->assertSame('pages',                  $this->inflector->tableize('Page'));
+        $this->assertSame('blog_pages',             $this->inflector->tableize('BlogPage'));
+        $this->assertSame('admin_dependencies',     $this->inflector->tableize('adminDependency'));
+        $this->assertSame('admin_dependencies',     $this->inflector->tableize('admin-dependency'));
+        $this->assertSame('admin_dependencies',     $this->inflector->tableize('admin_dependency'));
     }
 
     public function testClassify()
     {
-
+        $this->assertSame('Person',                 $this->inflector->classify('people'));
+        $this->assertSame('Page',                  $this->inflector->classify('pages'));
+        $this->assertSame('BlogPage',             $this->inflector->classify('blog_pages'));
+        $this->assertSame('AdminDependency',     $this->inflector->classify('admin_dependencies'));
     }
 
     public function testOrdinalize()
     {
-
+        $this->assertSame('1st',    $this->inflector->ordinalize(1));
+        $this->assertSame('2nd',    $this->inflector->ordinalize(2));
+        $this->assertSame('3rd',    $this->inflector->ordinalize(3));
+        $this->assertSame('4th',    $this->inflector->ordinalize(4));
+        $this->assertSame('5th',    $this->inflector->ordinalize(5));
+        $this->assertSame('16th',   $this->inflector->ordinalize(16));
+        $this->assertSame('51st',   $this->inflector->ordinalize(51));
+        $this->assertSame('111th',  $this->inflector->ordinalize(111));
+        $this->assertSame('123rd',  $this->inflector->ordinalize(123));
     }
 
     public function testMonthize()
     {
-
+        $this->assertSame(0,    $this->inflector->monthize(10));
+        $this->assertSame(1,    $this->inflector->monthize(30));
+        $this->assertSame(1,    $this->inflector->monthize(41));
+        $this->assertSame(11,   $this->inflector->monthize(365));
     }
 }
 
