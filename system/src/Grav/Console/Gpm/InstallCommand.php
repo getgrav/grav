@@ -39,6 +39,9 @@ class InstallCommand extends ConsoleCommand
     /** @var */
     protected $local_config;
 
+    /** @var bool */
+    protected $use_symlinks;
+
     /**
      *
      */
@@ -80,7 +83,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @return int|null|void
+     * @return int|null|void|bool
      */
     protected function serve()
     {
@@ -121,6 +124,20 @@ class InstallCommand extends ConsoleCommand
         unset($this->data['not_found']);
         unset($this->data['total']);
 
+        if (isset($this->local_config)) {
+            // Symlinks available, ask if Grav should use them
+
+            $this->use_symlinks = false;
+            $helper = $this->getHelper('question');
+            $question = new ConfirmationQuestion('Should Grav use the symlinks if available? [y|N] ', false);
+
+            if ($helper->ask($this->input, $this->output, $question)) {
+                $this->use_symlinks = true;
+            }
+        }
+
+        $this->output->writeln('');
+
         try {
             $dependencies = $this->processDependencies($packages);
         } catch (\Exception $e) {
@@ -150,7 +167,7 @@ class InstallCommand extends ConsoleCommand
                 $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...");
             } catch (\Exception $e) {
                 $this->output->writeln("<red>Installation aborted</red>");
-                return;
+                return false;
             }
         }
 
@@ -446,45 +463,17 @@ class InstallCommand extends ConsoleCommand
      */
     private function processPackage($package)
     {
-        $install_options = ['GPM'];
+        $this->output->writeln("<green>fake processing</green>");
+        return;
 
-        // if no name, not found in GPM
-        if (!isset($package->version)) {
-            unset($install_options[0]);
-        }
-        // if local config found symlink is a valid option
-        if (isset($this->local_config) && $this->getSymlinkSource($package)) {
-            $install_options[] = 'Symlink';
-        }
-        // if override set, can install via git
-        if (isset($package->override_repository)) {
-            $install_options[] = 'Git';
+        $symlink = false;
+        if ($this->use_symlinks) {
+            if ($this->getSymlinkSource($package) || !isset($package->version)) {
+                $symlink = true;
+            }
         }
 
-        // reindex list
-        $install_options = array_values($install_options);
-
-        if (count($install_options) == 0) {
-            // no valid install options - error and return
-            $this->output->writeln("<red>not valid installation methods found!</red>");
-
-            return;
-        } elseif (count($install_options) == 1) {
-            // only one option, use it...
-            $method = $install_options[0];
-        } else {
-            $helper = $this->getHelper('question');
-            $question = new ChoiceQuestion(
-                'Please select installation method for <cyan>' . $package->name . '</cyan> (<magenta>' . $install_options[0] . ' is default</magenta>)', array_values($install_options), 0
-            );
-            $question->setErrorMessage('Method %s is invalid');
-            $method = $helper->ask($this->input, $this->output, $question);
-        }
-
-        $this->output->writeln('');
-
-        $method_name = 'process' . $method;
-        $this->$method_name($package);
+        $symlink ? $this->processSymlink($package) : $this->processGpm($package);
 
         $this->installDemoContent($package);
     }
@@ -549,9 +538,7 @@ class InstallCommand extends ConsoleCommand
      */
     private function getGitRegexMatches($package)
     {
-        if (isset($package->override_repository)) {
-            $repository = $package->override_repository;
-        } elseif (isset($package->repository)) {
+        if (isset($package->repository)) {
             $repository = $package->repository;
         } else {
             return false;
