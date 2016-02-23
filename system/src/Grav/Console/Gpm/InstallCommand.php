@@ -368,8 +368,6 @@ class InstallCommand extends ConsoleCommand
     /**
      * Calculates and merges the dependencies of the passed packages
      *
-     * @todo handle alpha, beta, rc. not just numeric versions
-     *
      * @param array $packages
      *
      * @return mixed
@@ -485,6 +483,11 @@ class InstallCommand extends ConsoleCommand
         $this->processDemo($package);
     }
 
+    /**
+     * Add package to the queue to process the demo content, if demo content exists
+     *
+     * @param $package
+     */
     private function processDemo($package)
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
@@ -494,6 +497,8 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
+     * Prompt to install the demo content of a package
+     *
      * @param $package
      */
     private function installDemoContent($package)
