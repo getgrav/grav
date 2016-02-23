@@ -1294,7 +1294,7 @@ class Page
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible'];
 
             $this->metadata = [];
 
