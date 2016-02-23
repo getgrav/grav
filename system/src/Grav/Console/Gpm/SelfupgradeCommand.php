@@ -35,7 +35,7 @@ class SelfupgradeCommand extends ConsoleCommand
     /**
      * @var array
      */
-    protected $types = array('plugins', 'themes');
+    protected $types = ['plugins', 'themes'];
     /**
      * @var
      */

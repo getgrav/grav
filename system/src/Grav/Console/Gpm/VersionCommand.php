@@ -70,7 +70,8 @@ class VersionCommand extends ConsoleCommand
                 }
 
             } else {
-                if ($installed = $this->gpm->findPackage($package)) {
+                $installed = $this->gpm->findPackage($package);
+                if ($installed) {
                     $name = $installed->name;
                     $version = $installed->version;
 
