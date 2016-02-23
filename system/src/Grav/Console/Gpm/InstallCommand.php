@@ -42,6 +42,9 @@ class InstallCommand extends ConsoleCommand
     /** @var bool */
     protected $use_symlinks;
 
+    /** @var array */
+    protected $demo_processing = [];
+
     /**
      *
      */
@@ -147,8 +150,6 @@ class InstallCommand extends ConsoleCommand
             return false;
         }
 
-        //TODO: handle packages prepended with author slug. How to handle with currently installed packages?
-
         if ($dependencies) {
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
             if (isset($dependencies['grav'])) {
@@ -178,6 +179,12 @@ class InstallCommand extends ConsoleCommand
                 } else {
                     $this->processPackage($package);
                 }
+            }
+        }
+
+        if (count($this->demo_processing) > 0) {
+            foreach ($this->demo_processing as $package) {
+                $this->installDemoContent($package);
             }
         }
 
@@ -475,9 +482,16 @@ class InstallCommand extends ConsoleCommand
 
         $symlink ? $this->processSymlink($package) : $this->processGpm($package);
 
-        $this->installDemoContent($package);
+        $this->processDemo($package);
     }
 
+    private function processDemo($package)
+    {
+        $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
+        if (file_exists($demo_dir)) {
+            $this->demo_processing[] = $package;
+        }
+    }
 
     /**
      * @param $package
@@ -485,10 +499,11 @@ class InstallCommand extends ConsoleCommand
     private function installDemoContent($package)
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
-        $dest_dir = $this->destination . DS . 'user';
-        $pages_dir = $dest_dir . DS . 'pages';
 
         if (file_exists($demo_dir)) {
+            $dest_dir = $this->destination . DS . 'user';
+            $pages_dir = $dest_dir . DS . 'pages';
+
             // Demo content exists, prompt to install it.
             $this->output->writeln("<white>Attention: </white><cyan>" . $package->name . "</cyan> contains demo content");
             $helper = $this->getHelper('question');
