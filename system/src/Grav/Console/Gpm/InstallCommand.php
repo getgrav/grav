@@ -10,7 +10,6 @@ use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Yaml\Yaml;
 
 define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
@@ -80,6 +79,11 @@ class InstallCommand extends ConsoleCommand
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
     }
 
+    /**
+     * Allows to set the GPM object, used for testing the class
+     *
+     * @param $gpm
+     */
     public function setGpm($gpm)
     {
         $this->gpm = $gpm;
@@ -190,6 +194,8 @@ class InstallCommand extends ConsoleCommand
 
         // clear cache after successful upgrade
         $this->clearCache();
+
+        return true;
     }
 
     /**
