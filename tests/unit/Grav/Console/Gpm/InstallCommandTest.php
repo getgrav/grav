@@ -82,8 +82,6 @@ class InstallCommandTest extends \Codeception\TestCase\Test
 
         $packages = ['admin', 'test'];
 
-//        dump($this->gpm->findPackages());exit();
-
         $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($packages);
 
         $this->assertTrue(is_array($dependencies));
@@ -134,6 +132,46 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->assertTrue(is_array($dependencies));
         $this->assertSame(1, count($dependencies));
         $this->assertTrue($dependencies['errors'] == '>=4.0');
+
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+        // Test alpha / beta / rc
+        //////////////////////////////////////////////////////////////////////////////////////////
+        $this->gpm->data = [
+            'admin' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "package1", "version" => ">=4.0.0-rc1"],
+                    ["name" => "package4", "version" => ">=3.2.0"],
+                ]
+            ],
+            'test' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "package1", "version" => ">=4.0.0-rc2"],
+                    ["name" => "package2", "version" => ">=3.2.0-alpha"],
+                    ["name" => "package3", "version" => ">=3.2.0-alpha.2"],
+                    ["name" => "package4", "version" => ">=3.2.0-alpha"],
+                ]
+            ],
+            'another' => (object)[
+                'dependencies_versions' => [
+                    ["name" => "package2", "version" => ">=3.2.0-beta.11"],
+                    ["name" => "package3", "version" => ">=3.2.0-alpha.1"],
+                    ["name" => "package4", "version" => ">=3.2.0-beta"],
+                ]
+            ]
+        ];
+        $this->installCommand->setGpm($this->gpm);
+
+        $packages = ['admin', 'test', 'another'];
+
+
+        $dependencies = $this->installCommand->calculateMergedDependenciesOfPackages($packages);
+        $this->assertTrue($dependencies['package1'] == '>=4.0.0-rc2');
+        $this->assertTrue($dependencies['package2'] == '>=3.2.0-beta.11');
+        $this->assertTrue($dependencies['package3'] == '>=3.2.0-alpha.2');
+        $this->assertTrue($dependencies['package4'] == '>=3.2.0');
+
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Raise exception if no version is specified
@@ -231,7 +269,6 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->assertTrue(isset($dependencies['antimatter']));
         $this->assertTrue(isset($dependencies['something']));
         $this->assertSame('>=3.2', $dependencies['something']);
-
     }
 
     public function testVersionFormatIsNextSignificantRelease()
