@@ -137,6 +137,11 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
 
     }
 
+    public function testRegexReplace()
+    {
+
+    }
+
     public function testUrlFunc()
     {
 
@@ -169,7 +174,10 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
 
     public function testArrayFunc()
     {
-
+        $this->assertSame('this is my text',
+            $this->twig_ext->regexReplace('<p>this is my text</p>', '(<\/?p>)', ''));
+        $this->assertSame('<i>this is my text</i>',
+            $this->twig_ext->regexReplace('<p>this is my text</p>', ['(<p>)','(<\/p>)'], ['<i>','</i>']));
     }
 
     public function testArrayKeyValue()
