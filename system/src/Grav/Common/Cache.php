@@ -229,6 +229,32 @@ class Cache extends Getters
     }
 
     /**
+     * Deletes an item in the cache based on the id
+     *
+     * @param $id       the id of the cached data entry
+     * @return bool     true if the item was deleted successfully
+     */
+    public function delete($id)
+    {
+        if ($this->enabled) {
+            return $this->driver->delete($id);
+        }
+    }
+
+    /**
+     * Returns a boolean state of whether or not the item exists in the cache based on id key
+     *
+     * @param $id       the id of the cached data entry
+     * @return bool     true if the cached items exists
+     */
+    public function contains($id)
+    {
+        if ($this->enabled) {
+            return $this->driver->contains(($id));
+        }
+    }
+
+    /**
      * Getter method to get the cache key
      */
     public function getKey()
