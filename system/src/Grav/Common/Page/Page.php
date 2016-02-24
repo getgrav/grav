@@ -1324,6 +1324,8 @@ class Page
                     if ($value) {
                         if (in_array($key, $header_tag_http_equivs)) {
                             $this->metadata[$key] = ['http_equiv' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
+                        } elseif ($key == 'charset') {
+                            $this->metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES)];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator    = strpos($key, ':');
