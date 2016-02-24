@@ -2,7 +2,7 @@
 namespace Grav\Common\Config;
 
 use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\BlueprintForm;
+use Grav\Common\Data\BlueprintSchema;
 use Grav\Common\Grav;
 
 /**
@@ -16,7 +16,7 @@ class CompiledBlueprints extends CompiledBase
     public $version = 2;
 
     /**
-     * @var Blueprint  Blueprints object.
+     * @var BlueprintSchema  Blueprints object.
      */
     protected $object;
 
@@ -43,7 +43,7 @@ class CompiledBlueprints extends CompiledBase
      */
     protected function createObject(array $data = [])
     {
-        $this->object = (new Blueprint($data))->setTypes($this->getTypes());
+        $this->object = (new BlueprintSchema($data))->setTypes($this->getTypes());
     }
 
     /**
@@ -72,9 +72,9 @@ class CompiledBlueprints extends CompiledBase
     protected function loadFile($name, $files)
     {
         // Load blueprint file.
-        $blueprintForm = new BlueprintForm($files);
+        $blueprint = new Blueprint($files);
 
-        $this->object->embed($name, $blueprintForm->load()->toArray(), '/', true);
+        $this->object->embed($name, $blueprint->load()->toArray(), '/', true);
     }
 
     /**

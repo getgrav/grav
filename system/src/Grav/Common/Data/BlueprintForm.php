@@ -1,19 +1,16 @@
 <?php
 namespace Grav\Common\Data;
 
-use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * The Config class contains configuration information.
  *
  * @author RocketTheme
  */
-class BlueprintForm implements \ArrayAccess, ExportInterface
+abstract class BlueprintForm implements \ArrayAccess, ExportInterface
 {
     use NestedArrayAccessWithGetters, Export;
 
@@ -30,12 +27,30 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
     /**
      * @var string
      */
-    protected $context = 'blueprints://';
+    protected $context;
 
     /**
      * @var array
      */
     protected $overrides = [];
+
+
+    /**
+     * Load file and return its contents.
+     *
+     * @param string $filename
+     * @return string
+     */
+    abstract protected function loadFile($filename);
+
+    /**
+     * Get list of blueprint form files (file and its parents for overrides).
+     *
+     * @param string|array $path
+     * @param string $context
+     * @return array
+     */
+    abstract protected function getFiles($path, $context = null);
 
     /**
      * Constructor.
@@ -82,32 +97,16 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
      */
     public function load()
     {
-        $path = $this->filename;
-
-        if (is_string($path) && !strpos($path, '://')) {
-            // Resolve filename.
-            $path = isset($this->overrides[$path]) ? $this->overrides[$path] : "{$this->context}{$path}";
-            if (!preg_match('/\.yaml$/', $path)) {
-                $path .= YAML_EXT;
-            }
-        }
-
         // Only load and extend blueprint if it has not yet been loaded.
         if (empty($this->items)) {
-            // Get list of parent files.
-            if (is_string($path) && strpos($path, '://')) {
-                /** @var UniformResourceLocator $locator */
-                $locator = Grav::instance()['locator'];
-
-                $files = $locator->findResources($path);
-            } else {
-                $files = (array) $path;
-            }
+            // Get list of files.
+            $files = $this->getFiles($this->filename);
 
             // Load and extend blueprints.
             $data = $this->doLoad($files);
 
             $this->items = array_shift($data);
+
             foreach ($data as $content) {
                 $this->extend($content, true);
             }
@@ -281,6 +280,10 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
         return $a;
     }
 
+    /**
+     * @param array $items
+     * @param array $path
+     */
     protected function deepInit(array &$items, $path = [])
     {
         foreach ($items as $key => &$item) {
@@ -308,24 +311,15 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
     {
         $type = !is_string($value) ? !isset($value['type']) ? null : $value['type'] : $value;
 
-        if (strpos($type, '://')) {
-            $filename = $type;
-        } elseif (empty($value['context'])) {
-            $filename = isset($this->overrides[$type]) ? $this->overrides[$type] : "{$this->context}{$type}";
-        } else {
-            $separator = $value['context'][strlen($value['context'])-1] === '/' ? '' : '/';
-            $filename = $value['context'] . $separator . $type;
-        }
-        if (!preg_match('/\.yaml$/', $filename)) {
-            $filename .= YAML_EXT;
-        }
+        $files = $this->getFiles($type, isset($value['context']) ? $value['context'] : null);
 
-
-        if (!is_file($filename)) {
+        if (!$files) {
             return;
         }
 
-        $blueprint = (new BlueprintForm($filename))->setContext($this->context)->setOverrides($this->overrides)->load();
+        /** @var BlueprintForm $blueprint */
+        $blueprint = new static($files);
+        $blueprint->setContext($this->context)->$blueprint->setOverrides($this->overrides)->load();
 
         $name = implode('/', $path);
 
@@ -341,9 +335,7 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
     protected function doLoad(array $files)
     {
         $filename = array_shift($files);
-        $file = CompiledYamlFile::instance($filename);
-        $content = $file->content();
-        $file->free();
+        $content = $this->loadFile($filename);
 
         $extends = isset($content['@extends']) ? (array) $content['@extends']
             : (isset($content['extends@']) ? (array) $content['extends@'] : null);
@@ -379,28 +371,8 @@ class BlueprintForm implements \ArrayAccess, ExportInterface
 
             if ($type === '@parent' || $type === 'parent@') {
                 $files = $parents;
-
             } else {
-                if (strpos($type, '://')) {
-                    $path = $type;
-                } elseif (empty($value['context'])) {
-                    $path = isset($this->overrides[$type]) ? $this->overrides[$type] : "{$this->context}{$type}";
-                } else {
-                    $separator = $value['context'][strlen($value['context'])-1] === '/' ? '' : '/';
-                    $path = $value['context'] . $separator . $type;
-                }
-                if (!preg_match('/\.yaml$/', $path)) {
-                    $path .= YAML_EXT;
-                }
-
-                if (strpos($path, '://')) {
-                    /** @var UniformResourceLocator $locator */
-                    $locator = Grav::instance()['locator'];
-
-                    $files = $locator->findResources($path);
-                } else {
-                    $files = (array) $path;
-                }
+                $files = $this->getFiles($type, isset($value['context']) ? $value['context'] : null);
             }
 
             if ($files) {

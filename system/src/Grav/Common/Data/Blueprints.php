@@ -84,16 +84,14 @@ class Blueprints
      */
     protected function loadFile($name)
     {
-        $blueprintForm = new BlueprintForm($name);
+        $blueprint = new Blueprint($name);
+
         if (is_array($this->search)) {
-            $blueprintForm->setOverrides($this->search);
+            $blueprint->setOverrides($this->search);
         } else {
-            $blueprintForm->setContext($this->search);
+            $blueprint->setContext($this->search);
         }
-        $blueprintForm->load();
 
-        $blueprint = new Blueprint($name, $blueprintForm->toArray());
-
-        return $blueprint->init();
+        return $blueprint->load();
     }
 }
