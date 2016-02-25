@@ -398,7 +398,7 @@ class UriTest extends \Codeception\TestCase\Test
 
     public function testConvertUrl()
     {
-        //TODO when we have a fixed testing page structure
+
     }
 
     public function testAddNonce()

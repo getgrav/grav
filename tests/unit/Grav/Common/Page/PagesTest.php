@@ -211,9 +211,6 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertSame('pages', $root->folder());
     }
 
-    /**
-     * @todo
-     */
     public function testBlueprints()
     {
 
@@ -236,73 +233,46 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertSame('Blog', $list['/blog']);
     }
 
-    /**
-     * @todo
-     */
     public function testGetTypes()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testTypes()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testModularTypes()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testPageTypes()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testAccessLevels()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testParents()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testParentsRawRoutes()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testGetHomeRoute()
     {
 
     }
 
-    /**
-     * @todo
-     */
     public function testResetPages()
     {
 

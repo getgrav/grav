@@ -127,8 +127,7 @@ class Response
 
     /**
      * Progress normalized for cURL and Fopen
-     *
-     * @param  args   Variable length of arguments passed in by stream method
+     * Accepts a vsariable length of arguments passed in by stream method
      *
      * @return array Normalized array with useful data.
      *               Format: ['code' => int|false, 'filesize' => bytes, 'transferred' => bytes, 'percent' => int]
@@ -233,9 +232,10 @@ class Response
 
         $ch = curl_init($uri);
 
-        $response = static::_curl_exec_follow($ch, $options, $callback);
+        $response = static::curlExecFollow($ch, $options, $callback);
+        $errno = curl_errno($ch);
 
-        if ($errno = curl_errno($ch)) {
+        if ($errno) {
             $error_message = curl_strerror($errno);
             throw new \RuntimeException("cURL error ({$errno}):\n {$error_message}");
         }
@@ -245,7 +245,14 @@ class Response
         return $response;
     }
 
-    private static function _curl_exec_follow($ch, $options, $callback)
+    /**
+     * @param $ch
+     * @param $options
+     * @param $callback
+     *
+     * @return bool|mixed
+     */
+    private static function curlExecFollow($ch, $options, $callback)
     {
         if ($callback) {
             curl_setopt_array(

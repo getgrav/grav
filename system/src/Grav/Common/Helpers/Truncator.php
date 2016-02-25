@@ -118,7 +118,7 @@ class Truncator {
                 list($txt, $nb, $opts) = static::truncateNode($doc, $childNode, $remaining, $opts);
             }
             else if ($childNode->nodeType === XML_TEXT_NODE) {
-                list($txt, $nb, $opts) = static::truncateText($doc, $childNode, $remaining, $opts);
+                list($txt, $nb, $opts) = static::truncateText($childNode, $remaining, $opts);
             } else {
                 $txt = '';
                 $nb  = 0;
@@ -141,7 +141,7 @@ class Truncator {
         return array($inner, $remaining, $opts);
     }
 
-    protected static function truncateText($doc, $node, $length, $opts)
+    protected static function truncateText($node, $length, $opts)
     {
         $string = $node->textContent;
 
@@ -165,7 +165,7 @@ class Truncator {
             $words = $words[0];
             $count = count($words);
             if ($count <= $length && $length > 0) {
-                return array($xhtml, $count, $opts);
+                return array($string, $count, $opts);
             }
             return array(implode('', array_slice($words, 0, $length)), $count, $opts);
         }

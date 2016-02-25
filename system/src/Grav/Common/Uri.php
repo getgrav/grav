@@ -258,7 +258,7 @@ class Uri
         $language = $grav['language'];
 
         // add the port to the base for non-standard ports
-        if ($config->get('system.reverse_proxy_setup') == false && $this->port != '80' && $this->port != '443') {
+        if ($config->get('system.reverse_proxy_setup') === false && $this->port != '80' && $this->port != '443') {
             $this->base .= ":" . $this->port;
         }
 
@@ -746,18 +746,18 @@ class Uri
             $url_path = $url;
         }
 
-        $external   = false;
-        $base       = $grav['base_url_relative'];
-        $base_url   = rtrim($base . $grav['pages']->base(), '/') . $language_append;
-        $pages_dir  = $grav['locator']->findResource('page://');
+        $external          = false;
+        $base              = $grav['base_url_relative'];
+        $base_url          = rtrim($base . $grav['pages']->base(), '/') . $language_append;
+        $pages_dir         = $grav['locator']->findResource('page://');
 
         // if absolute and starts with a base_url move on
         if (isset($url['scheme']) && Utils::startsWith($url['scheme'], 'http')) {
             $external = true;
-        } elseif (($base_url != '' && Utils::startsWith($url_path, $base_url)) ||
-                   $url_path == '/' ||
-                   Utils::startsWith($url_path, '#')) {
-                       $url_path = $base_url . $url_path;
+        } elseif ($url_path == '' && isset($url['fragment'])) {
+            $external = true;
+        } elseif (($base_url != '' && Utils::startsWith($url_path, $base_url)) || $url_path == '/') {
+            $url_path = $base_url . $url_path;
         } else {
 
             // see if page is relative to this or absolute

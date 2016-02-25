@@ -325,7 +325,7 @@ class Grav extends Container
             $code = $matches[2];
         }
 
-        if ($code == null) {
+        if ($code === null) {
             $code = $this['config']->get('system.pages.redirect_default_code', 301);
         }
 

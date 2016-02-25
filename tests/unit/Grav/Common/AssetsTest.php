@@ -152,6 +152,12 @@ class AssetsTest extends \Codeception\TestCase\Test
             'loading'  => 'defer',
             'group'    => 'head'
         ], reset($array));
+
+        //Test adding media queries
+        $this->assets->reset();
+        $this->assets->add('test.css', ['media' => 'only screen and (min-width: 640px)']);
+        $css = $this->assets->css();
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" media="only screen and (min-width: 640px)" />' . PHP_EOL, $css);
     }
 
     public function testAddingAssetPropertiesWithArray()

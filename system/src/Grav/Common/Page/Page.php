@@ -62,6 +62,7 @@ class Page
     protected $frontmatter;
     protected $language;
     protected $content;
+    protected $content_meta;
     protected $summary;
     protected $raw_content;
     protected $pagination;
@@ -71,6 +72,7 @@ class Page
     protected $max_count;
     protected $menu;
     protected $date;
+    protected $dateformat;
     protected $taxonomy;
     protected $order_by;
     protected $order_dir;
@@ -310,7 +312,7 @@ class Page
 
         if ($var) {
             if (isset($this->header->slug)) {
-                $this->slug = trim($this->header->slug);
+                $this->slug(($this->header->slug));
             }
             if (isset($this->header->routes)) {
                 $this->routes = (array)($this->header->routes);
@@ -344,6 +346,9 @@ class Page
             }
             if (isset($this->header->order_manual)) {
                 $this->order_manual = (array)$this->header->order_manual;
+            }
+            if (isset($this->header->dateformat)) {
+                $this->dateformat($this->header->dateformat);
             }
             if (isset($this->header->date)) {
                 $this->date($this->header->date);
@@ -514,7 +519,15 @@ class Page
             /** @var Cache $cache */
             $cache = Grav::instance()['cache'];
             $cache_id = md5('page' . $this->id());
-            $this->content = $cache->fetch($cache_id);
+            $content_obj = $cache->fetch($cache_id);
+
+            if (is_array($content_obj)) {
+                $this->content = $content_obj['content'];
+                $this->content_meta = $content_obj['content_meta'];
+            } else {
+                $this->content = $content_obj;
+            }
+
 
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig');
@@ -525,7 +538,7 @@ class Page
 
 
             // if no cached-content run everything
-            if ($this->content === false || $cache_enable == false) {
+            if ($this->content === false || $cache_enable === false) {
                 $this->content = $this->raw_content;
                 Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
@@ -569,6 +582,51 @@ class Page
         }
 
         return $this->content;
+    }
+
+    /**
+     * Get the contentMeta array and initialize content first if it's not already
+     *
+     * @return mixed
+     */
+    public function contentMeta()
+    {
+        if ($this->content === null) {
+            $this->content();
+        }
+        return $this->getContentMeta();
+    }
+
+    /**
+     * Add an entry to the page's contentMeta array
+     *
+     * @param $name
+     * @param $value
+     */
+    public function addContentMeta($name, $value)
+    {
+        $this->content_meta[$name] = $value;
+    }
+
+    /**
+     * Return the whole contentMeta array as it currently stands
+     *
+     * @return mixed
+     */
+    public function getContentMeta()
+    {
+        return $this->content_meta;
+    }
+
+    /**
+     * Sets the whole content meta array in one shot
+     *
+     * @param $content_meta
+     * @return mixed
+     */
+    public function setContentMeta($content_meta)
+    {
+        return $this->content_meta = $content_meta;
     }
 
     /**
@@ -616,7 +674,7 @@ class Page
     {
         $cache = Grav::instance()['cache'];
         $cache_id = md5('page' . $this->id());
-        $cache->save($cache_id, $this->content);
+        $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
     }
 
     /**
@@ -1151,7 +1209,7 @@ class Page
     public function publishDate($var = null)
     {
         if ($var !== null) {
-            $this->publish_date = Utils::date2timestamp($var);
+            $this->publish_date = Utils::date2timestamp($var, $this->dateformat);
         }
 
         return $this->publish_date;
@@ -1167,7 +1225,7 @@ class Page
     public function unpublishDate($var = null)
     {
         if ($var !== null) {
-            $this->unpublish_date = Utils::date2timestamp($var);
+            $this->unpublish_date = Utils::date2timestamp($var, $this->dateformat);
         }
 
         return $this->unpublish_date;
@@ -1233,7 +1291,7 @@ class Page
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible'];
 
             $this->metadata = [];
 
@@ -1263,6 +1321,8 @@ class Page
                     if ($value) {
                         if (in_array($key, $header_tag_http_equivs)) {
                             $this->metadata[$key] = ['http_equiv' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
+                        } elseif ($key == 'charset') {
+                            $this->metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES)];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator    = strpos($key, ':');
@@ -1295,11 +1355,16 @@ class Page
     {
         if ($var !== null) {
             $this->slug = $var;
+            if(!preg_match('/^[a-z0-9][-a-z0-9]*$/', $this->slug)){
+                Grav::instance()['log']->notice("Invalid slug set in YAML frontmatter: " . $this->rawRoute() . " => ".  $this->slug);
+            }
         }
 
         if (empty($this->slug)) {
-            $this->slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
+            $this->slug = strtolower(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
         }
+
+
 
         return $this->slug;
     }
@@ -1365,8 +1430,6 @@ class Page
 
         /** @var Uri $uri */
         $uri = Grav::instance()['uri'];
-
-        $include_port = false;
 
         // get pre-route
         if ($include_lang && $language->enabled()) {
@@ -1689,7 +1752,7 @@ class Page
     public function date($var = null)
     {
         if ($var !== null) {
-            $this->date = Utils::date2timestamp($var);
+            $this->date = Utils::date2timestamp($var, $this->dateformat);
         }
 
         if (!$this->date) {
@@ -1697,6 +1760,23 @@ class Page
         }
 
         return $this->date;
+    }
+
+    /**
+     * Gets and sets the date format for this Page object. This is typically passed in via the page headers
+     * using typical PHP date string structure - http://php.net/manual/en/function.date.php
+     *
+     * @param  string $var string representation of a date format
+     *
+     * @return string      string representation of a date format
+     */
+    public function dateformat($var = null)
+    {
+        if ($var !== null) {
+            $this->dateformat = $var;
+        }
+
+        return $this->dateformat;
     }
 
     /**
@@ -1878,7 +1958,7 @@ class Page
 
         while (true) {
             $theParent = $topParent->parent();
-            if ($theParent != null && $theParent->parent() !== null) {
+            if ($theParent !== null && $theParent->parent() !== null) {
                 $topParent = $theParent;
             } else {
                 break;

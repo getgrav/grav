@@ -75,6 +75,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('modulus', [$this, 'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
             new \Twig_SimpleFilter('pad', [$this, 'padFilter']),
+            new \Twig_SimpleFilter('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFilter('safe_email', [$this, 'safeEmailFilter']),
             new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils', 'safeTruncate']),
             new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils', 'safeTruncateHTML']),
@@ -96,6 +97,7 @@ class TwigExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
+            new \Twig_SimpleFunction('array_key_value', [$this, 'arrayKeyValueFunc']),
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
@@ -104,6 +106,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
+            new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
@@ -217,7 +220,7 @@ class TwigExtension extends \Twig_Extension
      * {{ 'CamelCased'|underscorize }} => camel_cased
      * {{ 'Something Text'|hyphenize }} => something-text
      * {{ 'something_text_to_read'|humanize }} => "Something text to read"
-     * {{ '181'|monthize }} => 6
+     * {{ '181'|monthize }} => 5
      * {{ '10'|ordinalize }} => 10th
      *
      * @param string $action
@@ -668,6 +671,26 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
+     * Workaround for twig associative array initialization
+     * Returns a key => val array
+     *
+     * @param string $key               key of item
+     * @param string $val               value of item
+     * @param string $current_array     optional array to add to
+     *
+     * @return array
+     */
+    public function arrayKeyValueFunc($key, $val, $current_array = null)
+    {
+        if (empty($current_array)) {
+            return array( $key => $val );
+        } else {
+            $current_array[$key] = $val;
+            return $current_array;
+        }
+    }
+
+    /**
      * Returns a string from a value. If the value is array, return it json encoded
      *
      * @param $value
@@ -732,5 +755,20 @@ class TwigExtension extends \Twig_Extension
         $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) . '" />';
 
         return $string;
+    }
+
+    /**
+     * Twig wrapper for PHP's preg_replace method
+     *
+     * @param mixed $subject    the content to perform the replacement on
+     * @param mixed $pattern    the regex pattern to use for matches
+     * @param mixed $replace    the replacement value either as a string or an array of replacements
+     * @param int   $limit      the maximum possible replacements for each pattern in each subject
+
+     * @return mixed the resulting content
+     */
+    public function regexReplace($subject, $pattern, $replace, $limit = -1)
+    {
+        return preg_replace($pattern, $replace, $subject, $limit);
     }
 }

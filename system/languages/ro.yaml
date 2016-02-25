@@ -1,2 +1,20 @@
-MONTHS_OF_THE_YEAR: ['Ianuarie', 'Februarie', 'Martie', 'Aprilue', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie']
-DAYS_OF_THE_WEEK: ['Luni', 'Marti', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică']
+MONTHS_OF_THE_YEAR:
+  0: Ianuarie
+  1: Februarie
+  2: Martie
+  3: Aprilue
+  4: Mai
+  5: Iunie
+  6: Iulie
+  8: Septembrie
+  9: Octombrie
+  10: Noiembrie
+  11: Decembrie
+DAYS_OF_THE_WEEK:
+  - Luni
+  - Marti
+  - Miercuri
+  - Joi
+  - Vineri
+  - Sâmbătă
+  - Duminică

@@ -121,7 +121,7 @@ abstract class Utils
         $date_formats = [
             'd-m-Y H:i' => 'd-m-Y H:i (e.g. '.$now->format('d-m-Y H:i').')',
             'Y-m-d H:i' => 'Y-m-d H:i (e.g. '.$now->format('Y-m-d H:i').')',
-            'm/d/Y h:i a' => 'm/d/Y h:i (e.g. '.$now->format('m/d/Y h:i a').')',
+            'm/d/Y h:i a' => 'm/d/Y h:i a (e.g. '.$now->format('m/d/Y h:i a').')',
             'H:i d-m-Y' => 'H:i d-m-Y (e.g. '.$now->format('H:i d-m-Y').')',
             'h:i a m/d/Y' => 'h:i a m/d/Y (e.g. '.$now->format('h:i a m/d/Y').')',
             ];
@@ -415,17 +415,17 @@ abstract class Utils
      *
      * @param string $date a String expressed in the system.pages.dateformat.default format, with fallback to a
      *                     strtotime argument
-     *
+     * @param string $format a date format to use if possible
      * @return int the timestamp
      */
-    public static function date2timestamp($date)
+    public static function date2timestamp($date, $format = null)
     {
         $config = Grav::instance()['config'];
-        $default_dateformat = $config->get('system.pages.dateformat.default');
+        $dateformat = $format ?: $config->get('system.pages.dateformat.default');
 
         // try to use DateTime and default format
-        if ($default_dateformat) {
-            $datetime = DateTime::createFromFormat($default_dateformat, $date);
+        if ($dateformat) {
+            $datetime = DateTime::createFromFormat($dateformat, $date);
         } else {
             $datetime = new DateTime($date);
         }
@@ -504,7 +504,6 @@ abstract class Utils
     }
 
     //Added in version 1.0.8 to ensure that existing nonces are not broken.
-    //TODO: to be removed
     private static function generateNonceStringOldStyle($action, $plusOneTick = false)
     {
         if (isset(Grav::instance()['user'])) {
@@ -528,7 +527,7 @@ abstract class Utils
     /**
      * Get the time-dependent variable for nonce creation.
      *
-     * @todo now a tick lasts a day. Once the day is passed, the nonce is not valid any more. Find a better way
+     * Now a tick lasts a day. Once the day is passed, the nonce is not valid any more. Find a better way
      *       to ensure nonces issued near the end of the day do not expire in that small amount of time
      *
      * @return int the time part of the nonce. Changes once every 24 hours
@@ -562,7 +561,6 @@ abstract class Utils
     }
 
     //Added in version 1.0.8 to ensure that existing nonces are not broken.
-    //TODO: to be removed
     public static function getNonceOldStyle($action, $plusOneTick = false)
     {
         // Don't regenerate this again if not needed
@@ -603,7 +601,6 @@ abstract class Utils
 
 
         //Added in version 1.0.8 to ensure that existing nonces are not broken.
-        //TODO: to be removed
         //Nonce generated 0-12 hours ago
         if ($nonce == self::getNonceOldStyle($action)) {
             return true;
@@ -614,7 +611,6 @@ abstract class Utils
         if ($nonce == self::getNonceOldStyle($action, $plusOneTick)) {
             return true;
         }
-        //End TODO: to be removed
 
         //Invalid nonce
         return false;
