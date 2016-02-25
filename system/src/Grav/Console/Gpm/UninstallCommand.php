@@ -58,6 +58,38 @@ class UninstallCommand extends ConsoleCommand
     }
 
     /**
+     * Return the list of packages that have the passed one as dependency
+     *
+     * @param $package_slug The slug name of the package
+     *
+     * @return bool
+     */
+    protected function getPackagesThatDependOnPackage($package_slug)
+    {
+        $plugins = $this->gpm->getInstalledPlugins();
+        $themes = $this->gpm->getInstalledThemes();
+        $packages = array_merge($plugins->toArray(), $themes->toArray());
+
+        $dependent_packages = [];
+
+        foreach($packages as $package_name => $package) {
+            if (isset($package['dependencies'])) {
+                foreach($package['dependencies'] as $dependency) {
+                    if (is_array($dependency)) {
+                        $dependency = array_keys($dependency)[0];
+                    }
+
+                    if ($dependency == $package_slug) {
+                        $dependent_packages[] = $package_name;
+                    }
+                }
+            }
+        }
+
+        return $dependent_packages;
+    }
+
+    /**
      * @return int|null|void
      */
     protected function serve()
@@ -97,6 +129,13 @@ class UninstallCommand extends ConsoleCommand
         foreach ($this->data as $slug => $package) {
             $this->output->writeln("Preparing to uninstall <cyan>" . $package->name . "</cyan> [v" . $package->version . "]");
 
+            //check if there are packages that have this as a dependency. Abort and show list
+            $dependency_packages = $this->getPackagesThatDependOnPackage($slug);
+            if ($dependency_packages) {
+                $this->output->writeln("The installed packages <cyan>" . implode('</cyan>, <cyan>', $dependency_packages) . "</cyan> have a dependency on this package. Please remove those first.");
+                $this->output->writeln('');
+                exit;
+            }
 
             $this->output->write("  |- Checking destination...  ");
             $checks = $this->checkDestination($slug, $package);
