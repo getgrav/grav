@@ -300,9 +300,8 @@ class InstallCommand extends ConsoleCommand
         $packageData = $this->gpm->findPackage($packageName);
 
         //Check for dependencies
-        if (isset($packageData->dependencies_versions)) {
-
-            foreach ($packageData->dependencies_versions as $dependency) {
+        if (isset($packageData->dependencies)) {
+            foreach ($packageData->dependencies as $dependency) {
                 $current_package_name = $dependency['name'];
                 if (isset($dependency['version'])) {
                     $current_package_version_information = $dependency['version'];
