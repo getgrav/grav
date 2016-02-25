@@ -4,6 +4,7 @@ namespace Grav\Common;
 use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
@@ -21,8 +22,6 @@ use Grav\Common\Filesystem\Folder;
  */
 class Cache extends Getters
 {
-    use GravTrait;
-
     /**
      * @var string Cache key.
      */
@@ -271,7 +270,7 @@ class Cache extends Getters
      */
     public static function clearCache($remove = 'standard')
     {
-        $locator = self::getGrav()['locator'];
+        $locator = Grav::instance()['locator'];
         $output = [];
         $user_config = USER_DIR . 'config/system.yaml';
 

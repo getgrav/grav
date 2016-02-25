@@ -1,15 +1,13 @@
 <?php
 namespace Grav\Common\Twig;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 
 /**
  * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
  */
 trait WriteCacheFileTrait
 {
-    use GravTrait;
-
     protected static $umask;
 
     /**
@@ -26,7 +24,7 @@ trait WriteCacheFileTrait
         }
 
         if (!isset(self::$umask)) {
-            self::$umask = self::getGrav()['config']->get('system.twig.umask_fix', false);
+            self::$umask = Grav::instance()['config']->get('system.twig.umask_fix', false);
         }
 
         if (self::$umask) {

@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Console\Cli;
 
+use Grav\Common\Grav;
 use Grav\Common\Backup\ZipBackup;
 use Grav\Console\ConsoleCommand;
 use RocketTheme\Toolbox\File\JsonFile;
@@ -43,10 +44,10 @@ class BackupCommand extends ConsoleCommand
         $this->progress = new ProgressBar($this->output);
         $this->progress->setFormat('Archiving <cyan>%current%</cyan> files [<green>%bar%</green>] %elapsed:6s% %memory:6s%');
 
-        self::getGrav()['config']->init();
+        Grav::instance()['config']->init();
 
         $destination = ($this->input->getArgument('destination')) ? $this->input->getArgument('destination') : null;
-        $log = JsonFile::instance(self::getGrav()['locator']->findResource("log://backup.log", true, true));
+        $log = JsonFile::instance(Grav::instance()['locator']->findResource("log://backup.log", true, true));
         $backup = ZipBackup::backup($destination, [$this, 'output']);
 
         $log->content([

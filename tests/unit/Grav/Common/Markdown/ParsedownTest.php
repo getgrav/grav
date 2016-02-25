@@ -34,11 +34,10 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
     protected $old_home;
 
-    static $run = false;
-
     protected function _before()
     {
-        $this->grav = Fixtures::get('grav');
+        $grav = Fixtures::get('grav');
+        $this->grav = $grav();
         $this->pages = $this->grav['pages'];
         $this->config = $this->grav['config'];
         $this->uri = $this->grav['uri'];
@@ -51,13 +50,10 @@ class ParsedownTest extends \Codeception\TestCase\Test
         unset($this->grav['language']);
         $this->grav['language'] = new Language($this->grav);
 
-        if (!self::$run) {
-            /** @var UniformResourceLocator $locator */
-            $locator = $this->grav['locator'];
-            $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
-            $this->pages->init();
-            self::$run = true;
-        }
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
+        $this->pages->init();
 
         $defaults = [
             'extra'            => false,

@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
@@ -14,7 +14,7 @@ use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
  */
 class Blueprint implements \ArrayAccess, ExportInterface
 {
-    use Export, NestedArrayAccessWithGetters, GravTrait;
+    use Export, NestedArrayAccessWithGetters;
 
     public $name;
 
@@ -78,7 +78,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
         try {
             $this->validateArray($data, $this->nested);
         } catch (\RuntimeException $e) {
-            $language = self::getGrav()['language'];
+            $language = Grav::instance()['language'];
             $message = sprintf($language->translate('FORM.VALIDATION_FAIL', null, true) . ' %s', $e->getMessage());
             throw new \RuntimeException($message);
         }
@@ -404,7 +404,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
 			elseif (substr($name, 0, 8) == '@config-') {
 				$property = substr($name, 8);
 				$default = isset($field[$property]) ? $field[$property] : null;
-				$config = self::getGrav()['config']->get($value, $default);
+				$config = Grav::instance()['config']->get($value, $default);
 
 				if (!is_null($config)) {
 					$field[$property] = $config;
@@ -467,7 +467,7 @@ class Blueprint implements \ArrayAccess, ExportInterface
                 && $field['validate']['required'] === true
                 && empty($data[$name])) {
                 $value = isset($field['label']) ? $field['label'] : $field['name'];
-                $language = self::getGrav()['language'];
+                $language = Grav::instance()['language'];
                 $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $value);
                 throw new \RuntimeException($message);
             }

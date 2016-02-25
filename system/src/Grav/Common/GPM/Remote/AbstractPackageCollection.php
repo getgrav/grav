@@ -1,10 +1,15 @@
 <?php
 namespace Grav\Common\GPM\Remote;
 
+use Grav\Common\Grav;
 use Grav\Common\GPM\Common\AbstractPackageCollection as BaseCollection;
 use Grav\Common\GPM\Response;
 use \Doctrine\Common\Cache\FilesystemCache;
 
+/**
+ * Class AbstractPackageCollection
+ * @package Grav\Common\GPM\Remote
+ */
 class AbstractPackageCollection extends BaseCollection
 {
     /**
@@ -23,13 +28,20 @@ class AbstractPackageCollection extends BaseCollection
 
     protected $cache;
 
+    /**
+     * AbstractPackageCollection constructor.
+     *
+     * @param null $repository
+     * @param bool $refresh
+     * @param null $callback
+     */
     public function __construct($repository = null, $refresh = false, $callback = null)
     {
         if ($repository === null) {
             throw new \RuntimeException("A repository is required to indicate the origin of the remote collection");
         }
 
-        $cache_dir = self::getGrav()['locator']->findResource('cache://gpm', true, true);
+        $cache_dir = Grav::instance()['locator']->findResource('cache://gpm', true, true);
         $this->cache = new FilesystemCache($cache_dir);
 
         $this->repository = $repository;

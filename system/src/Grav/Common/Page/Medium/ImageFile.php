@@ -1,15 +1,14 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Gregwar\Image\Exceptions\GenerationError;
-use RocketTheme\Toolbox\Event\Event;
 use Gregwar\Image\Image;
+use RocketTheme\Toolbox\Event\Event;
+
 
 class ImageFile extends Image
 {
-    use GravTrait;
-
     /**
      * Clear previously applied operations
      */
@@ -75,12 +74,12 @@ class ImageFile extends Image
                 throw new GenerationError($result);
             }
 
-            self::getGrav()->fireEvent('onImageMediumSaved', new Event(['image' => $target]));
+            Grav::instance()->fireEvent('onImageMediumSaved', new Event(['image' => $target]));
         };
 
         // Asking the cache for the cacheFile
         try {
-            $perms = self::getGrav()['config']->get('system.images.cache_perms', '0755');
+            $perms = Grav::instance()['config']->get('system.images.cache_perms', '0755');
             $perms = octdec($perms);
             $file = $this->cache->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {

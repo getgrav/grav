@@ -1,9 +1,10 @@
 <?php
 namespace Grav\Common\GPM\Remote;
 
+use Grav\Common\Grav;
 use \Doctrine\Common\Cache\FilesystemCache;
 
-class Grav extends AbstractPackageCollection
+class GravCore extends AbstractPackageCollection
 {
     protected $repository = 'https://getgrav.org/downloads/grav.json';
     private $data;
@@ -17,7 +18,7 @@ class Grav extends AbstractPackageCollection
      */
     public function __construct($refresh = false, $callback = null)
     {
-        $cache_dir      = self::getGrav()['locator']->findResource('cache://gpm', true, true);
+        $cache_dir      = Grav::instance()['locator']->findResource('cache://gpm', true, true);
         $this->cache    = new FilesystemCache($cache_dir);
         $this->raw      = $this->cache->fetch(md5($this->repository));
 
