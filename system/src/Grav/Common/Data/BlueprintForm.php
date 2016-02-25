@@ -283,24 +283,46 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
     /**
      * @param array $items
      * @param array $path
+     * @return string
      */
     protected function deepInit(array &$items, $path = [])
     {
+        $ordering = '';
+        $order = [];
+
         foreach ($items as $key => &$item) {
+            // Handle special instructions in the form.
             if (!empty($key) && ($key[0] === '@' || $key[strlen($key) - 1] === '@')) {
                 $name = trim($key, '@');
 
-                if ($name === 'import') {
-                    $this->doImport($item, $path);
-                    unset($items[$key]);
+                switch ($name) {
+                    case 'import':
+                        $this->doImport($item, $path);
+                        unset($items[$key]);
+                        break;
+                    case 'ordering':
+                        $ordering = $item;
+                        unset($items[$key]);
+                        break;
                 }
 
             } elseif (is_array($item)) {
+                // Recursively initialize form.
                 $newPath = array_merge($path, [$key]);
 
-                $this->deepInit($item, $newPath);
+                $location = $this->deepInit($item, $newPath);
+                if ($location) {
+                    $order[$key] = $location;
+                }
             }
         }
+
+        if ($order) {
+            // Reorder fields if needed.
+            $items = $this->doReorder($items, $order);
+        }
+
+        return $ordering;
     }
 
     /**
@@ -381,5 +403,33 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
         }
 
         return $data;
+    }
+
+    /**
+     * Internal function to reorder items.
+     *
+     * @param array $items
+     * @param array $keys
+     * @return array
+     */
+    protected function doReorder(array $items, array $keys)
+    {
+        $reordered = array_keys($items);
+
+        foreach ($keys as $item => $ordering) {
+            if ((string)(int) $ordering === (string) $ordering) {
+                $location = array_search($item, $reordered);
+                $rel = array_splice($reordered, $location, 1);
+                array_splice($reordered, $ordering, 0, $rel);
+
+            } elseif (isset($items[$ordering])) {
+                $location = array_search($item, $reordered);
+                $rel = array_splice($reordered, $location, 1);
+                $location = array_search($ordering, $reordered);
+                array_splice($reordered, $location + 1, 0, $rel);
+            }
+        }
+
+        return array_merge(array_flip($reordered), $items);
     }
 }
