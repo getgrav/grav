@@ -70,8 +70,6 @@ form:
                     help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
                     placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
                     '@data-options': '\Grav\Common\Utils::dateFormats'
-                    options:
-                        "": Auto Guess or Enter Custom
                     validate:
                         type: string
 
