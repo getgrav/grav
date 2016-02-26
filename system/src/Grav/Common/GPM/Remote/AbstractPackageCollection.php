@@ -44,7 +44,7 @@ class AbstractPackageCollection extends BaseCollection
         $cache_dir = Grav::instance()['locator']->findResource('cache://gpm', true, true);
         $this->cache = new FilesystemCache($cache_dir);
 
-        $this->repository = $repository;
+        $this->repository = $repository . '?v=' . GRAV_VERSION;
         $this->raw        = $this->cache->fetch(md5($this->repository));
 
         $this->fetch($refresh, $callback);
