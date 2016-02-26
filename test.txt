@@ -14,3 +14,4 @@
 * Didn't pick up new tag.. trying again.
 * Build didn't kick off.. trying manually.
 * Manual build to pick up new admin release
+* tests unexpectedly failed, HHVM fluke?
