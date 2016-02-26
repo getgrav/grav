@@ -92,6 +92,6 @@ class Blueprints
             $blueprint->setContext($this->search);
         }
 
-        return $blueprint->load();
+        return $blueprint->load()->init();
     }
 }

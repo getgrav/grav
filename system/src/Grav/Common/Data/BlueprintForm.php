@@ -34,6 +34,10 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
      */
     protected $overrides = [];
 
+    /**
+     * @var array
+     */
+    protected $dynamic = [];
 
     /**
      * Load file and return its contents.
@@ -112,22 +116,54 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
             }
         }
 
-        // Finally initialize blueprint.
-        return $this->init();
-    }
-
-    /**
-     * Initialize blueprint.
-     *
-     * @return $this
-     */
-    public function init()
-    {
         // Import blueprints.
         $this->deepInit($this->items);
 
         return $this;
     }
+
+    /**
+     * Initialize blueprints with its dynamic fields.
+     *
+     * @return $this
+     */
+    public function init()
+    {
+        foreach ($this->dynamic as $key => $data) {
+            // Locate field.
+            $path = explode('/', $key);
+            $current = &$this->items;
+            foreach ($path as $field) {
+                if (is_object($current)) {
+                    // Handle objects.
+                    if (!isset($current->{$field})) {
+                        $current->{$field} = array();
+                    }
+                    $current = &$current->{$field};
+                } else {
+                    // Handle arrays and scalars.
+                    if (!is_array($current)) {
+                        $current = array($field => array());
+                    } elseif (!isset($current[$field])) {
+                        $current[$field] = array();
+                    }
+                    $current = &$current[$field];
+                }
+            }
+
+            // Set dynamic property.
+            foreach ($data as $property => $call) {
+                $action = 'dynamic' . ucfirst($call['action']);
+
+                if (method_exists($this, $action)) {
+                    $this->{$action}($current, $property, $call);
+                }
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * Get form.
@@ -304,6 +340,12 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
                         $ordering = $item;
                         unset($items[$key]);
                         break;
+                    default:
+                        $list = explode('-', trim($name, '@'), 2);
+                        $action = array_shift($list);
+                        $property = array_shift($list);
+
+                        $this->dynamic[implode('/', $path)][$property] = ['action' => $action, 'params' => $item];
                 }
 
             } elseif (is_array($item)) {

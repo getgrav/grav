@@ -160,4 +160,60 @@ class Blueprint extends BlueprintForm
 
         return $files;
     }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicData(array &$field, $property, array &$call)
+    {
+        $params = $call['params'];
+
+        if (is_array($params)) {
+            $function = array_shift($params);
+        } else {
+            $function = $params;
+            $params = [];
+        }
+
+        list($o, $f) = preg_split('/::/', $function, 2);
+        if (!$f) {
+            if (function_exists($o)) {
+                $data = call_user_func_array($o, $params);
+            }
+        } else {
+            if (method_exists($o, $f)) {
+                $data = call_user_func_array(array($o, $f), $params);
+            }
+        }
+
+        // If function returns a value,
+        if (isset($data)) {
+            if (isset($field[$property]) && is_array($field[$property]) && is_array($data)) {
+                // Combine field and @data-field together.
+                $field[$property] += $data;
+            } else {
+                // Or create/replace field with @data-field.
+                $field[$property] = $data;
+            }
+        }
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicConfig(array &$field, $property, array &$call)
+    {
+        $value = $call['params'];
+
+        $default = isset($field[$property]) ? $field[$property] : null;
+        $config = Grav::instance()['config']->get($value, $default);
+
+        if (!is_null($config)) {
+            $field[$property] = $config;
+        }
+    }
 }

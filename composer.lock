@@ -366,16 +366,16 @@
         },
         {
             "name": "maximebf/debugbar",
-            "version": "v1.11.0",
+            "version": "v1.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maximebf/php-debugbar.git",
-                "reference": "07741d84d39d10f00551c94284cdefcc69703e77"
+                "reference": "d9302891c1f0a0ac5a4f66725163a00537c6359f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/07741d84d39d10f00551c94284cdefcc69703e77",
-                "reference": "07741d84d39d10f00551c94284cdefcc69703e77",
+                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/d9302891c1f0a0ac5a4f66725163a00537c6359f",
+                "reference": "d9302891c1f0a0ac5a4f66725163a00537c6359f",
                 "shasum": ""
             },
             "require": {
@@ -423,7 +423,7 @@
                 "debug",
                 "debugbar"
             ],
-            "time": "2015-12-10 09:50:24"
+            "time": "2016-01-22 12:22:23"
         },
         {
             "name": "monolog/monolog",
@@ -637,12 +637,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "ceb00d34e24bf137e1fc368411d1a94497d991c8"
+                "reference": "cfb20f0396f1dc8e556cdf0e785f311e10742eee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/ceb00d34e24bf137e1fc368411d1a94497d991c8",
-                "reference": "ceb00d34e24bf137e1fc368411d1a94497d991c8",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/cfb20f0396f1dc8e556cdf0e785f311e10742eee",
+                "reference": "cfb20f0396f1dc8e556cdf0e785f311e10742eee",
                 "shasum": ""
             },
             "require": {
@@ -677,7 +677,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-02-18 13:35:02"
+            "time": "2016-02-25 18:01:13"
         },
         {
             "name": "symfony/console",
