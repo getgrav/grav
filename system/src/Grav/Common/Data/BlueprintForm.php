@@ -325,8 +325,14 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
     {
         $ordering = '';
         $order = [];
+        $field = end($path) === 'fields';
 
         foreach ($items as $key => &$item) {
+            // Set name for nested field.
+            if ($field && isset($item['type'])) {
+                $item['name'] = $key;
+            }
+
             // Handle special instructions in the form.
             if (!empty($key) && ($key[0] === '@' || $key[strlen($key) - 1] === '@')) {
                 $name = trim($key, '@');
