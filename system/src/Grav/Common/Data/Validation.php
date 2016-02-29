@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common\Data;
 
+use Grav\Common\Grav;
 use Grav\Common\GravTrait;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
@@ -13,8 +14,6 @@ use Symfony\Component\Yaml\Parser;
  */
 class Validation
 {
-    use GravTrait;
-
     /**
      * Validate value against a blueprint field definition.
      *
@@ -40,7 +39,7 @@ class Validation
         }
 
         // Get language class.
-        $language = self::getGrav()['language'];
+        $language = Grav::instance()['language'];
 
         // Validate type with fallback type text.
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
@@ -356,7 +355,7 @@ class Validation
 
     protected static function filterDateTime($value, array $params, array $field)
     {
-        $format = self::getGrav()['config']->get('system.pages.dateformat.default');
+        $format = Grav::instance()['config']->get('system.pages.dateformat.default');
         if ($format) {
             $converted = new \DateTime($value);
             return $converted->format($format);

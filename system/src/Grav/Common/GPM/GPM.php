@@ -20,7 +20,7 @@ class GPM extends Iterator
     private $repository;
 
     /**
-     * @var Remote\Grav
+     * @var Remote\GravCore
      */
     public $grav;
 
@@ -42,7 +42,7 @@ class GPM extends Iterator
         $this->installed  = new Local\Packages();
         try {
             $this->repository = new Remote\Packages($refresh, $callback);
-            $this->grav       = new Remote\Grav($refresh, $callback);
+            $this->grav       = new Remote\GravCore($refresh, $callback);
         } catch (\Exception $e) {
         }
     }

@@ -17,8 +17,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class Plugins extends Iterator
 {
-    use GravTrait;
-
     public $formFieldTypes;
 
     public function __construct()
@@ -92,10 +90,10 @@ class Plugins extends Iterator
     public function init()
     {
         /** @var Config $config */
-        $config = self::getGrav()['config'];
+        $config = Grav::instance()['config'];
 
         /** @var EventDispatcher $events */
-        $events = self::getGrav()['events'];
+        $events = Grav::instance()['events'];
 
         foreach ($this->items as $instance) {
             // Register only enabled plugins.
@@ -127,7 +125,7 @@ class Plugins extends Iterator
      */
     public static function all()
     {
-        $plugins = self::getGrav()['plugins'];
+        $plugins = Grav::instance()['plugins'];
         $list = [];
 
         foreach ($plugins as $instance) {
@@ -166,7 +164,7 @@ class Plugins extends Iterator
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $obj->merge(self::getGrav()['config']->get('plugins.' . $name) ?: []);
+        $obj->merge(Grav::instance()['config']->get('plugins.' . $name) ?: []);
 
         // Save configuration always to user/config.
         $file = CompiledYamlFile::instance("config://plugins/{$name}.yaml");
@@ -177,12 +175,12 @@ class Plugins extends Iterator
 
     protected function loadPlugin($name)
     {
-        $grav = self::getGrav();
+        $grav = Grav::instance();
         $locator = $grav['locator'];
 
         $filePath = $locator->findResource('plugins://' . $name . DS . $name . PLUGIN_EXT);
         if (!is_file($filePath)) {
-            self::getGrav()['log']->addWarning(
+            $grav['log']->addWarning(
                 sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $name)
             );
             return null;
@@ -197,7 +195,7 @@ class Plugins extends Iterator
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $name));
             }
         }
-        return new $pluginClassName($name, self::getGrav());
+        return new $pluginClassName($name, $grav);
     }
 
 }

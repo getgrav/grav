@@ -4,7 +4,7 @@ namespace Grav\Common\User;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 
 /**
@@ -15,8 +15,6 @@ use Grav\Common\Utils;
  */
 class Group extends Data
 {
-    use GravTrait;
-
     /**
      * Get the groups list
      *
@@ -24,7 +22,7 @@ class Group extends Data
      */
     private static function groups()
     {
-        $groups = self::getGrav()['config']->get('groups');
+        $groups = Grav::instance()['config']->get('groups');
 
         return $groups;
     }
@@ -76,13 +74,13 @@ class Group extends Data
 
         $fields = $blueprint->fields();
 
-        self::getGrav()['config']->set("groups.$this->groupname", []);
+        Grav::instance()['config']->set("groups.$this->groupname", []);
 
         foreach ($fields as $field) {
             if ($field['type'] == 'text') {
                 $value = $field['name'];
                 if (isset($this->items[$value])) {
-                    self::getGrav()['config']->set("groups.$this->groupname.$value", $this->items[$value]);
+                    Grav::instance()['config']->set("groups.$this->groupname.$value", $this->items[$value]);
                 }
             }
             if ($field['type'] == 'array') {
@@ -91,7 +89,7 @@ class Group extends Data
 
                 if ($arrayValues) {
                     foreach ($arrayValues as $arrayIndex => $arrayValue) {
-                        self::getGrav()['config']->set("groups.$this->groupname.$value.$arrayIndex", $arrayValue);
+                        Grav::instance()['config']->set("groups.$this->groupname.$value.$arrayIndex", $arrayValue);
                     }
                 }
             }
@@ -99,8 +97,8 @@ class Group extends Data
 
         $type = 'groups';
         $blueprints = $this->blueprints("config/{$type}");
-        $obj = new Data(self::getGrav()['config']->get($type), $blueprints);
-        $file = CompiledYamlFile::instance(self::getGrav()['locator']->findResource("config://{$type}.yaml"));
+        $obj = new Data(Grav::instance()['config']->get($type), $blueprints);
+        $file = CompiledYamlFile::instance(Grav::instance()['locator']->findResource("config://{$type}.yaml"));
         $obj->file($file);
         $obj->save();
     }
@@ -117,13 +115,13 @@ class Group extends Data
         $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/group');
 
-        $groups = self::getGrav()['config']->get("groups");
+        $groups = Grav::instance()['config']->get("groups");
         unset($groups[$groupname]);
-        self::getGrav()['config']->set("groups", $groups);
+        Grav::instance()['config']->set("groups", $groups);
 
         $type = 'groups';
-        $obj = new Data(self::getGrav()['config']->get($type), $blueprint);
-        $file = CompiledYamlFile::instance(self::getGrav()['locator']->findResource("config://{$type}.yaml"));
+        $obj = new Data(Grav::instance()['config']->get($type), $blueprint);
+        $file = CompiledYamlFile::instance(Grav::instance()['locator']->findResource("config://{$type}.yaml"));
         $obj->file($file);
         $obj->save();
 

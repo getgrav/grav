@@ -32,7 +32,7 @@ class Upgrader
      */
     public function __construct($refresh = false, $callback = null)
     {
-        $this->remote = new Remote\Grav($refresh, $callback);
+        $this->remote = new Remote\GravCore($refresh, $callback);
     }
 
     /**

@@ -2,7 +2,7 @@
 namespace Grav\Common\GPM;
 
 use Grav\Common\Utils;
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 
 /**
  * Class Response
@@ -10,8 +10,6 @@ use Grav\Common\GravTrait;
  */
 class Response
 {
-    use GravTrait;
-
     /**
      * The callback for the progress
      *
@@ -199,7 +197,7 @@ class Response
         $callback = $args[2];
 
         // if proxy set add that
-        $proxy_url = self::getGrav()['config']->get('system.proxy_url');
+        $proxy_url = Grav::instance()['config']->get('system.proxy_url');
         if ($proxy_url) {
             $options['fopen']['proxy'] = $proxy_url;
         }
@@ -267,7 +265,7 @@ class Response
         }
 
         // if proxy set add that
-        $proxy_url = self::getGrav()['config']->get('system.proxy_url');
+        $proxy_url = Grav::instance()['config']->get('system.proxy_url');
         if ($proxy_url) {
             $options['curl'][CURLOPT_PROXY] = $proxy_url;
         }

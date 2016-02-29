@@ -1,13 +1,11 @@
 <?php
 namespace Grav\Common\GPM;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Iterator;
 
-abstract class AbstractCollection extends Iterator {
-
-    use GravTrait;
-
+abstract class AbstractCollection extends Iterator
+{
     public function toJson()
     {
         $items = [];

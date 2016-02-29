@@ -75,6 +75,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('modulus', [$this, 'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
             new \Twig_SimpleFilter('pad', [$this, 'padFilter']),
+            new \Twig_SimpleFilter('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFilter('safe_email', [$this, 'safeEmailFilter']),
             new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils', 'safeTruncate']),
             new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils', 'safeTruncateHTML']),
@@ -105,6 +106,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
+            new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
@@ -753,5 +755,20 @@ class TwigExtension extends \Twig_Extension
         $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) . '" />';
 
         return $string;
+    }
+
+    /**
+     * Twig wrapper for PHP's preg_replace method
+     *
+     * @param mixed $subject    the content to perform the replacement on
+     * @param mixed $pattern    the regex pattern to use for matches
+     * @param mixed $replace    the replacement value either as a string or an array of replacements
+     * @param int   $limit      the maximum possible replacements for each pattern in each subject
+
+     * @return mixed the resulting content
+     */
+    public function regexReplace($subject, $pattern, $replace, $limit = -1)
+    {
+        return preg_replace($pattern, $replace, $subject, $limit);
     }
 }

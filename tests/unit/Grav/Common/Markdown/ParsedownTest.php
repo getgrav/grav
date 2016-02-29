@@ -34,11 +34,10 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
     protected $old_home;
 
-    static $run = false;
-
     protected function _before()
     {
-        $this->grav = Fixtures::get('grav');
+        $grav = Fixtures::get('grav');
+        $this->grav = $grav();
         $this->pages = $this->grav['pages'];
         $this->config = $this->grav['config'];
         $this->uri = $this->grav['uri'];
@@ -51,13 +50,10 @@ class ParsedownTest extends \Codeception\TestCase\Test
         unset($this->grav['language']);
         $this->grav['language'] = new Language($this->grav);
 
-        if (!self::$run) {
-            /** @var UniformResourceLocator $locator */
-            $locator = $this->grav['locator'];
-            $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
-            $this->pages->init();
-            self::$run = true;
-        }
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
+        $this->pages->init();
 
         $defaults = [
             'extra'            => false,
@@ -228,7 +224,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[With Query](?foo=bar)'));
         $this->assertSame('<p><a href="/foo:bar">With Param</a></p>',
             $this->parsedown->text('[With Param](/foo:bar)'));
-        $this->assertSame('<p><a href="/#foo">With Anchor</a></p>',
+        $this->assertSame('<p><a href="#foo">With Anchor</a></p>',
             $this->parsedown->text('[With Anchor](#foo)'));
 
         $this->config->set('system.languages.supported', ['fr','en']);
@@ -244,7 +240,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[With Query](?foo=bar)'));
         $this->assertSame('<p><a href="/fr/foo:bar">With Param</a></p>',
             $this->parsedown->text('[With Param](/foo:bar)'));
-        $this->assertSame('<p><a href="/fr/#foo">With Anchor</a></p>',
+        $this->assertSame('<p><a href="#foo">With Anchor</a></p>',
             $this->parsedown->text('[With Anchor](#foo)'));
     }
 
@@ -256,7 +252,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->grav['language'] = new Language($this->grav);
         $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
 
-        $this->assertSame('<p><a href="/fr/item2/item2-2#foo">Current Anchor</a></p>',
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="/fr/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
@@ -275,12 +271,12 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->grav['language'] = new Language($this->grav);
         $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
 
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/fr/item2/item2-1#foo">Peer Anchor</a></p>',
             $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/fr/item2/item2-1#foo">Peer Anchor 2</a></p>',
             $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-        $this->assertSame('<p><a href="http://testing.dev/fr/item2/item2-2#foo">Current Anchor</a></p>',
-            $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/fr/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
 
@@ -320,7 +316,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
     {
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
-        $this->assertSame('<p><a href="/item2/item2-2#foo">Current Anchor</a></p>',
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
@@ -335,18 +331,15 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->config->set('system.absolute_urls', true);
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
+            $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/item2/item2-1#foo">Peer Anchor</a></p>',
             $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/item2/item2-1#foo">Peer Anchor 2</a></p>',
             $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-        $this->assertSame('<p><a href="http://testing.dev/item2/item2-2#foo">Current Anchor</a></p>',
-            $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
     }
-
-
-
 
     public function testAnchorLinksWithPortAbsoluteUrls()
     {
@@ -357,7 +350,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
         $this->assertSame('<p><a href="http://testing.dev:8080/item2/item2-1#foo">Peer Anchor 2</a></p>',
             $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-        $this->assertSame('<p><a href="http://testing.dev:8080/item2/item2-2#foo">Current Anchor</a></p>',
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://testing.dev:8080/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
@@ -371,7 +364,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
         $this->assertSame('<p><a href="/subdir/item2/item2-1#foo">Peer Anchor 2</a></p>',
             $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-        $this->assertSame('<p><a href="/subdir/item2/item2-2#foo">Current Anchor</a></p>',
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="/subdir/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));
@@ -386,7 +379,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Peer Anchor](../item2-1#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/subdir/item2/item2-1#foo">Peer Anchor 2</a></p>',
             $this->parsedown->text('[Peer Anchor 2](../item2-1/#foo)'));
-        $this->assertSame('<p><a href="http://testing.dev/subdir/item2/item2-2#foo">Current Anchor</a></p>',
+        $this->assertSame('<p><a href="#foo">Current Anchor</a></p>',
             $this->parsedown->text('[Current Anchor](#foo)'));
         $this->assertSame('<p><a href="http://testing.dev/subdir/#foo">Root Anchor</a></p>',
             $this->parsedown->text('[Root Anchor](/#foo)'));

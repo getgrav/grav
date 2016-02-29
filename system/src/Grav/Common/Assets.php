@@ -5,6 +5,7 @@ use Closure;
 use Exception;
 use FilesystemIterator;
 use Grav\Common\Config\Config;
+use Grav\Common\Grav;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
@@ -23,8 +24,6 @@ define('JS_ASSET', false);
  */
 class Assets
 {
-    use GravTrait;
-
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
 
@@ -167,7 +166,7 @@ class Assets
 
         // Set timestamp
         if (isset($config['enable_asset_timestamp']) && $config['enable_asset_timestamp'] === true) {
-            $this->timestamp = '?' . self::getGrav()['cache']->getKey();
+            $this->timestamp = '?' . Grav::instance()['cache']->getKey();
         }
 
         return $this;
@@ -179,12 +178,12 @@ class Assets
     public function init()
     {
         /** @var Config $config */
-        $config = self::getGrav()['config'];
-        $base_url = self::getGrav()['base_url'];
+        $config = Grav::instance()['config'];
+        $base_url = Grav::instance()['base_url'];
         $asset_config = (array)$config->get('system.assets');
 
         /** @var UniformResourceLocator $locator */
-        $locator = self::$grav['locator'];
+        $locator = Grav::instance()['locator'];
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
 
@@ -499,7 +498,7 @@ class Assets
         }
 
         // Sort array by priorities (larger priority first)
-        if (self::getGrav()) {
+        if (Grav::instance()) {
             uasort($this->css, function ($a, $b) {
                 if ($a['priority'] == $b['priority']) {
                     return $b['order'] - $a['order'];
@@ -640,7 +639,7 @@ class Assets
     protected function pipelineCss($group = 'head')
     {
         /** @var Cache $cache */
-        $cache = self::getGrav()['cache'];
+        $cache = Grav::instance()['cache'];
         $key = '?' . $cache->getKey();
 
         // temporary list of assets to pipeline
@@ -711,7 +710,7 @@ class Assets
     protected function pipelineJs($group = 'head')
     {
         /** @var Cache $cache */
-        $cache = self::getGrav()['cache'];
+        $cache = Grav::instance()['cache'];
         $key = '?' . $cache->getKey();
 
         // temporary list of assets to pipeline
@@ -901,7 +900,7 @@ class Assets
 
         // Check if $directory is a stream.
         if (strpos($directory, '://')) {
-            $directory = self::$grav['locator']->findResource($directory, null);
+            $directory = Grav::instance()['locator']->findResource($directory, null);
         }
 
         // Get files
@@ -963,7 +962,7 @@ class Assets
     protected function buildLocalLink($asset)
     {
         try {
-            $asset = self::getGrav()['locator']->findResource($asset, false);
+            $asset = Grav::instance()['locator']->findResource($asset, false);
         } catch (\Exception $e) {
         }
 

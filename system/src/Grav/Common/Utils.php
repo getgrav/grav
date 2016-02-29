@@ -3,6 +3,7 @@ namespace Grav\Common;
 
 use DateTime;
 use DateTimeZone;
+use Grav\Common\Grav;
 use Grav\Common\Helpers\Truncator;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -13,8 +14,6 @@ use RocketTheme\Toolbox\Event\Event;
  */
 abstract class Utils
 {
-    use GravTrait;
-
     protected static $nonces = [];
 
     /**
@@ -126,7 +125,7 @@ abstract class Utils
             'H:i d-m-Y' => 'H:i d-m-Y (e.g. '.$now->format('H:i d-m-Y').')',
             'h:i a m/d/Y' => 'h:i a m/d/Y (e.g. '.$now->format('h:i a m/d/Y').')',
             ];
-        $default_format = self::getGrav()['config']->get('system.pages.dateformat.default');
+        $default_format = Grav::instance()['config']->get('system.pages.dateformat.default');
         if ($default_format) {
             $date_formats = array_merge([$default_format => $default_format.' (e.g. '.$now->format($default_format).')'], $date_formats);
         }
@@ -226,7 +225,7 @@ abstract class Utils
     {
         if (file_exists($file)) {
             // fire download event
-            self::getGrav()->fireEvent('onBeforeDownload', new Event(['file' => $file]));
+            Grav::instance()->fireEvent('onBeforeDownload', new Event(['file' => $file]));
 
             $file_parts = pathinfo($file);
             $filesize = filesize($file);
@@ -285,7 +284,7 @@ abstract class Utils
     public static function getMimeType($extension)
     {
         $extension = strtolower($extension);
-        $config = self::getGrav()['config']->get('media');
+        $config = Grav::instance()['config']->get('media');
 
         if (isset($config[$extension])) {
             return $config[$extension]['mime'];
@@ -402,7 +401,7 @@ abstract class Utils
             return false;
         }
 
-        $languages_enabled = self::getGrav()['config']->get('system.languages.supported', []);
+        $languages_enabled = Grav::instance()['config']->get('system.languages.supported', []);
 
         if ($string[0] == '/' && $string[3] == '/' && in_array(substr($string, 1, 2), $languages_enabled)) {
             return true;
@@ -421,7 +420,7 @@ abstract class Utils
      */
     public static function date2timestamp($date, $format = null)
     {
-        $config = self::getGrav()['config'];
+        $config = Grav::instance()['config'];
         $dateformat = $format ?: $config->get('system.pages.dateformat.default');
 
         // try to use DateTime and default format
@@ -489,8 +488,8 @@ abstract class Utils
     private static function generateNonceString($action, $plusOneTick = false)
     {
         $username = '';
-        if (isset(self::getGrav()['user'])) {
-            $user = self::getGrav()['user'];
+        if (isset(Grav::instance()['user'])) {
+            $user = Grav::instance()['user'];
             $username = $user->username;
         }
 
@@ -501,14 +500,14 @@ abstract class Utils
             $i++;
         }
 
-        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
+        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
     }
 
     //Added in version 1.0.8 to ensure that existing nonces are not broken.
     private static function generateNonceStringOldStyle($action, $plusOneTick = false)
     {
-        if (isset(self::getGrav()['user'])) {
-            $user = self::getGrav()['user'];
+        if (isset(Grav::instance()['user'])) {
+            $user = Grav::instance()['user'];
             $username = $user->username;
             if (isset($_SERVER['REMOTE_ADDR'])) {
                 $username .= $_SERVER['REMOTE_ADDR'];
@@ -522,7 +521,7 @@ abstract class Utils
             $i++;
         }
 
-        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . self::getGrav()['config']->get('security.salt'));
+        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
     }
 
     /**
