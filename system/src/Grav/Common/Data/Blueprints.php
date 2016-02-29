@@ -86,7 +86,7 @@ class Blueprints
     {
         $blueprint = new Blueprint($name);
 
-        if (is_array($this->search)) {
+        if (is_array($this->search) || is_object($this->search)) {
             $blueprint->setOverrides($this->search);
         } else {
             $blueprint->setContext($this->search);

@@ -87,7 +87,7 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
      * @param array $overrides
      * @return $this
      */
-    public function setOverrides(array $overrides)
+    public function setOverrides($overrides)
     {
         $this->overrides = $overrides;
 
