@@ -4,7 +4,7 @@ namespace Grav\Common\Data;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
-use RocketTheme\Toolbox\Blueprints\Blueprints as BaseBlueprints;
+use RocketTheme\Toolbox\Blueprints\BlueprintSchema as BlueprintSchemaBase;
 
 /**
  * Blueprint schema handles the internal logic of blueprints.
@@ -12,7 +12,7 @@ use RocketTheme\Toolbox\Blueprints\Blueprints as BaseBlueprints;
  * @author RocketTheme
  * @license MIT
  */
-class BlueprintSchema extends BaseBlueprints implements ExportInterface
+class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 {
     use Export;
 
