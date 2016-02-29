@@ -389,7 +389,7 @@ abstract class BlueprintForm implements \ArrayAccess, ExportInterface
 
         /** @var BlueprintForm $blueprint */
         $blueprint = new static($files);
-        $blueprint->setContext($this->context)->$blueprint->setOverrides($this->overrides)->load();
+        $blueprint->setContext($this->context)->setOverrides($this->overrides)->load();
 
         $name = implode('/', $path);
 
