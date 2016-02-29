@@ -56,7 +56,7 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         //////////////////////////////////////////////////////////////////////////////////////////
         $this->gpm->data = [
             'admin' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "grav", "version" => ">=1.0.10"],
                     ["name" => "form", "version" => "~2.0"],
                     ["name" => "login", "version" => ">=2.0"],
@@ -65,13 +65,13 @@ class InstallCommandTest extends \Codeception\TestCase\Test
                 ]
             ],
             'test' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                    ["name" => "errors", "version" => ">=1.0"]
                 ]
             ],
             'grav',
             'form' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "errors", "version" => ">=3.2"]
                 ]
             ]
@@ -107,17 +107,17 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->gpm->data = [
 
             'admin' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "errors", "version" => ">=4.0"],
                 ]
             ],
             'test' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "errors", "version" => ">=1.0"]
                 ]
             ],
             'another' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "errors", "version" => ">=3.2"]
                 ]
             ]
@@ -140,13 +140,13 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         //////////////////////////////////////////////////////////////////////////////////////////
         $this->gpm->data = [
             'admin' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "package1", "version" => ">=4.0.0-rc1"],
                     ["name" => "package4", "version" => ">=3.2.0"],
                 ]
             ],
             'test' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "package1", "version" => ">=4.0.0-rc2"],
                     ["name" => "package2", "version" => ">=3.2.0-alpha"],
                     ["name" => "package3", "version" => ">=3.2.0-alpha.2"],
@@ -154,7 +154,7 @@ class InstallCommandTest extends \Codeception\TestCase\Test
                 ]
             ],
             'another' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "package2", "version" => ">=3.2.0-beta.11"],
                     ["name" => "package3", "version" => ">=3.2.0-alpha.1"],
                     ["name" => "package4", "version" => ">=3.2.0-beta"],
@@ -179,12 +179,12 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         $this->gpm->data = [
 
             'admin' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "errors", "version" => ">=4.0"],
                 ]
             ],
             'test' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "errors", "version" => ">="]
                 ]
             ],
@@ -206,12 +206,12 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         //////////////////////////////////////////////////////////////////////////////////////////
         $this->gpm->data = [
                 'admin' => (object)[
-                    'dependencies_versions' => [
+                    'dependencies' => [
                         ["name" => "errors", "version" => "~4.0"],
                     ]
                 ],
                 'test' => (object)[
-                    'dependencies_versions' => [
+                    'dependencies' => [
                         ["name" => "errors", "version" => "~3.0"]
                     ]
                 ],
@@ -232,7 +232,7 @@ class InstallCommandTest extends \Codeception\TestCase\Test
         //////////////////////////////////////////////////////////////////////////////////////////
         $this->gpm->data = [
             'admin' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "grav", "version" => ">=1.0.10"],
                     ["name" => "form", "version" => "~2.0"],
                     ["name" => "login", "version" => ">=2.0"],
@@ -241,13 +241,13 @@ class InstallCommandTest extends \Codeception\TestCase\Test
                 ]
             ],
             'login' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "antimatter", "version" => ">=1.0"]
                 ]
             ],
             'grav',
             'antimatter' => (object)[
-                'dependencies_versions' => [
+                'dependencies' => [
                     ["name" => "something", "version" => ">=3.2"]
                 ]
             ]
