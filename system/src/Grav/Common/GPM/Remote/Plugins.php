@@ -12,7 +12,7 @@ class Plugins extends AbstractPackageCollection
      */
     protected $type = 'plugins';
 
-    protected $repository = 'https://getgrav.org/downloads/plugins.json?v=';
+    protected $repository = 'https://getgrav.org/downloads/plugins.json';
 
     /**
      * Local Plugins Constructor
@@ -21,7 +21,7 @@ class Plugins extends AbstractPackageCollection
      */
     public function __construct($refresh = false, $callback = null)
     {
-        $this->repository .= GRAV_VERSION;
+        $this->repository .= '?v=' . GRAV_VERSION;
 
         parent::__construct($this->repository, $refresh, $callback);
     }
