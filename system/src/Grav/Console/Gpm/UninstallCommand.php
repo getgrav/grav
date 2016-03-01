@@ -59,6 +59,38 @@ class UninstallCommand extends ConsoleCommand
     }
 
     /**
+     * Return the list of packages that have the passed one as dependency
+     *
+     * @param $package_slug The slug name of the package
+     *
+     * @return bool
+     */
+    protected function getPackagesThatDependOnPackage($package_slug)
+    {
+        $plugins = $this->gpm->getInstalledPlugins();
+        $themes = $this->gpm->getInstalledThemes();
+        $packages = array_merge($plugins->toArray(), $themes->toArray());
+
+        $dependent_packages = [];
+
+        foreach($packages as $package_name => $package) {
+            if (isset($package['dependencies'])) {
+                foreach($package['dependencies'] as $dependency) {
+                    if (is_array($dependency)) {
+                        $dependency = array_keys($dependency)[0];
+                    }
+
+                    if ($dependency == $package_slug) {
+                        $dependent_packages[] = $package_name;
+                    }
+                }
+            }
+        }
+
+        return $dependent_packages;
+    }
+
+    /**
      * @return int|null|void
      */
     protected function serve()
@@ -98,7 +130,6 @@ class UninstallCommand extends ConsoleCommand
         foreach ($this->data as $slug => $package) {
             $this->output->writeln("Preparing to uninstall <cyan>" . $package->name . "</cyan> [v" . $package->version . "]");
 
-
             $this->output->write("  |- Checking destination...  ");
             $checks = $this->checkDestination($slug, $package);
 
@@ -117,6 +148,7 @@ class UninstallCommand extends ConsoleCommand
                     $this->output->writeln('');
                 }
             }
+
         }
 
         // clear cache after successful upgrade
@@ -132,6 +164,23 @@ class UninstallCommand extends ConsoleCommand
      */
     private function uninstallPackage($slug, $package)
     {
+        //check if there are packages that have this as a dependency. Abort and show list
+        $dependency_packages = $this->getPackagesThatDependOnPackage($slug);
+        if ($dependency_packages) {
+            $this->output->writeln('');
+            $this->output->writeln('');
+            $this->output->writeln("<red>Uninstallation failed.</red>");
+            $this->output->writeln('');
+            if (count($dependency_packages) > 1) {
+                $this->output->writeln("The installed packages <cyan>" . implode('</cyan>, <cyan>', $dependency_packages) . "</cyan> depend on this package. Please remove those first.");
+            } else {
+                $this->output->writeln("The installed package <cyan>" . implode('</cyan>, <cyan>', $dependency_packages) . "</cyan> depend on this package. Please remove it first.");
+            }
+
+            $this->output->writeln('');
+            exit;
+        }
+
         $path = Grav::instance()['locator']->findResource($package->package_type . '://' .$slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
@@ -148,6 +197,35 @@ class UninstallCommand extends ConsoleCommand
         $this->output->write("\x0D");
         // extra white spaces to clear out the buffer properly
         $this->output->writeln("  |- Uninstalling package...  <green>ok</green>                             ");
+
+
+        if (isset($package->dependencies)) {
+            $questionHelper = $this->getHelper('question');
+
+            foreach($package->dependencies as $dependency) {
+                if (is_array($dependency)) {
+                    $dependency = array_keys($dependency)[0];
+                }
+
+                $dependencyPackage = $this->gpm->findPackage($dependency);
+                $question = new ConfirmationQuestion("  |  '- Delete dependency <cyan>" . $dependency . "</cyan> too? [y|N] ", false);
+                $answer = $questionHelper->ask($this->input, $this->output, $question);
+
+                if ($answer) {
+                    $this->output->writeln("  |     '- <red>You decided to delete " . $dependency . ".</red>");
+
+                    $uninstall = $this->uninstallPackage($dependency, $dependencyPackage);
+
+                    if (!$uninstall) {
+                        $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
+                        $this->output->writeln('');
+                    } else {
+                        $this->output->writeln("  '- <green>Success!</green>  ");
+                        $this->output->writeln('');
+                    }
+                }
+            }
+        }
 
         return true;
     }

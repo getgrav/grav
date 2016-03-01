@@ -3,6 +3,17 @@ namespace Grav\Common\GPM\Common;
 
 use Grav\Common\Data\Data;
 
+/**
+ * @property string name
+ * @property string version
+ * @property string available
+ * @property string package_type
+ * @property string description_plain
+ * @property string slug
+ * @property array author
+ * @property mixed changelog
+ */
+
 class Package {
 
     protected $data;

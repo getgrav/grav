@@ -14,7 +14,10 @@ use Symfony\Component\Console\Input\InputArgument;
  */
 class BackupCommand extends ConsoleCommand
 {
+    /** @var string $source */
     protected $source;
+
+    /** @var ProgressBar $progress */
     protected $progress;
 
     /**

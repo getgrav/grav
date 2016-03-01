@@ -5,12 +5,12 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Yaml\Yaml;
 
 define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
@@ -21,29 +21,29 @@ define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/
  */
 class InstallCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var */
     protected $data;
-    /**
-     * @var
-     */
+
+    /** @var GPM */
     protected $gpm;
-    /**
-     * @var
-     */
+
+    /** @var */
     protected $destination;
-    /**
-     * @var
-     */
+
+    /** @var */
     protected $file;
-    /**
-     * @var
-     */
+
+    /** @var */
     protected $tmp;
 
+    /** @var */
     protected $local_config;
 
+    /** @var bool */
+    protected $use_symlinks;
+
+    /** @var array */
+    protected $demo_processing = [];
 
     /**
      *
@@ -81,7 +81,17 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @return int|null|void
+     * Allows to set the GPM object, used for testing the class
+     *
+     * @param $gpm
+     */
+    public function setGpm($gpm)
+    {
+        $this->gpm = $gpm;
+    }
+
+    /**
+     * @return int|null|void|bool
      */
     protected function serve()
     {
@@ -91,7 +101,7 @@ class InstallCommand extends ConsoleCommand
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
-        if (false === $this->isWindows() && @is_file(getenv("HOME").'/.grav/config')) {
+        if (false === $this->isWindows() && @is_file(getenv("HOME") . '/.grav/config')) {
             $local_config_file = exec('eval echo ~/.grav/config');
             if (file_exists($local_config_file)) {
                 $this->local_config = Yaml::parse($local_config_file);
@@ -122,36 +132,344 @@ class InstallCommand extends ConsoleCommand
         unset($this->data['not_found']);
         unset($this->data['total']);
 
-        foreach ($this->data as $data) {
-            foreach ($data as $package) {
-                //Check for dependencies
-                if (isset($package->dependencies)) {
-                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has ". count($package->dependencies) . " required dependencies that must be installed first...");
-                    $this->output->writeln('');
+        if (isset($this->local_config)) {
+            // Symlinks available, ask if Grav should use them
 
-                    $dependency_data = $this->gpm->findPackages($package->dependencies);
+            $this->use_symlinks = false;
+            $helper = $this->getHelper('question');
+            $question = new ConfirmationQuestion('Should Grav use the symlinks if available? [y|N] ', false);
 
-                    if (!$dependency_data['total']) {
-                        $this->output->writeln("No dependencies found...");
-                        $this->output->writeln('');
-                    } else {
-                        unset($dependency_data['total']);
+            if ($helper->ask($this->input, $this->output, $question)) {
+                $this->use_symlinks = true;
+            }
+        }
 
-                        foreach($dependency_data as $type => $dep_data) {
-                            foreach($dep_data as $name => $dep_package) {
+        $this->output->writeln('');
 
-                                $this->processPackage($dep_package);
-                            }
-                        }
-                    }
+        try {
+            $dependencies = $this->processDependencies($packages);
+        } catch (\Exception $e) {
+            //Error out if there are incompatible packages requirements and tell which ones, and what to do
+            //Error out if there is any error in parsing the dependencies and their versions, and tell which one is broken
+            $this->output->writeln("<red>" . $e->getMessage() . "</red>");
+            return false;
+        }
+
+        if ($dependencies) {
+            //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
+            if (isset($dependencies['grav'])) {
+                if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencies['grav']), GRAV_VERSION) === 1) {
+                    //Needs a Grav update first
+                    $this->output->writeln("<red>One of the package dependencies requires Grav " . $dependencies['grav'] . ". Please update Grav first with `bin/gpm selfupgrade`</red>");
+                    return false;
                 }
+                unset($dependencies['grav']);
+            }
 
-                $this->processPackage($package);
+            try {
+                $this->installDependencies($dependencies, 'install', "The following dependencies need to be installed...");
+                $this->installDependencies($dependencies, 'update',  "The following dependencies need to be updated...");
+                $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...");
+            } catch (\Exception $e) {
+                $this->output->writeln("<red>Installation aborted</red>");
+                return false;
+            }
+        }
+
+        //We're done installing dependencies. Install the actual packages
+        foreach ($this->data as $data) {
+            foreach ($data as $packageName => $package) {
+                if (in_array($packageName, array_keys($dependencies))) {
+                    $this->output->writeln("<green>Package " . $packageName . " already installed as dependency</green>");
+                } else {
+                    $this->processPackage($package);
+                }
+            }
+        }
+
+        if (count($this->demo_processing) > 0) {
+            foreach ($this->demo_processing as $package) {
+                $this->installDemoContent($package);
             }
         }
 
         // clear cache after successful upgrade
         $this->clearCache();
+
+        return true;
+    }
+
+    /**
+     * Given a $dependencies list, filters their type according to $type and
+     * shows $message prior to listing them to the user. Then asks the user a confirmation prior
+     * to installing them.
+     *
+     * @param array $dependencies The dependencies array
+     * @param string $type The type of dependency to show: install, update, ignore
+     * @param string $message A message to be shown prior to listing the dependencies
+     *
+     * @throws \Exception
+     */
+    public function installDependencies($dependencies, $type, $message) {
+        $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
+        if (count($packages) > 0) {
+            $this->output->writeln($message);
+
+            foreach ($packages as $dependencyName => $dependencyVersion) {
+                $this->output->writeln("  |- Package <cyan>" . $dependencyName . "</cyan> requires a newer version");
+            }
+
+            $this->output->writeln("");
+
+            $helper = $this->getHelper('question');
+            $question = new ConfirmationQuestion('Update these packages? [y|N] ', false);
+
+            if ($helper->ask($this->input, $this->output, $question)) {
+                foreach ($packages as $dependencyName => $dependencyVersion) {
+                    $this->processPackage($dependencyName);
+                }
+                $this->output->writeln('');
+            } else {
+                throw new \Exception();
+            }
+        }
+    }
+
+    /**
+     * Fetch the dependencies, check the installed packages and return an array with
+     * the list of packages with associated an information on what to do: install, update or ignore.
+     *
+     * `ignore` means the package is already installed and can be safely left as-is.
+     * `install` means the package is not installed and must be installed.
+     * `update` means the package is already installed and must be updated as a dependency needs a higher version.
+     *
+     * @param array $packages
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function processDependencies($packages) {
+        $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
+
+        foreach ($dependencies as $dependencySlug => $dependencyVersion) {
+            if ($this->gpm->isPluginInstalled($dependencySlug)) {
+                $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersion);
+
+                // check the version, if an update is not strictly required mark as 'ignore'
+                $locator = Grav::instance()['locator'];
+                $blueprints_path = $locator->findResource('plugins://' . $dependencySlug . DS . 'blueprints.yaml');
+                $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+                $currentlyInstalledVersion = $package_yaml['version'];
+
+                //if I already have the latest release, remove the dependency
+                $latestRelease = $this->gpm->getLatestVersionOfPackage($dependencySlug);
+
+                if (version_compare($latestRelease, $dependencyVersion) == -1) {
+                    //throw an exception if a required version cannot be found in the GPM yet
+                    throw new \Exception('Dependency ' . $package_yaml['name'] . ' is required in a version higher than the latest release. Try running `bin/gpm -f index` to force a refresh of the GPM cache', 1);
+                }
+
+                if (version_compare($currentlyInstalledVersion, $dependencyVersion) == -1) {
+                    $dependencies[$dependencySlug] = 'update';
+                } else {
+                    if ($currentlyInstalledVersion == $latestRelease) {
+                        unset($dependencies[$dependencySlug]);
+                    } else {
+                        $dependencies[$dependencySlug] = 'ignore';
+                    }
+                }
+            } else {
+                $dependencies[$dependencySlug] = 'install';
+            }
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Calculates and merges the dependencies of a package
+     *
+     * @param string $packageName  The package information
+     *
+     * @param array $dependencies The dependencies array
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function calculateMergedDependenciesOfPackage($packageName, $dependencies)
+    {
+        $packageData = $this->gpm->findPackage($packageName);
+
+        //Check for dependencies
+        if (isset($packageData->dependencies)) {
+            foreach ($packageData->dependencies as $dependency) {
+                $current_package_name = $dependency['name'];
+                if (isset($dependency['version'])) {
+                    $current_package_version_information = $dependency['version'];
+                }
+
+                if (!isset($dependencies[$current_package_name])) {
+                    // Dependency added for the first time
+
+                    if (!isset($current_package_version_information)) {
+                        $dependencies[$current_package_name] = '*';
+                    } else {
+                        $dependencies[$current_package_name] = $current_package_version_information;
+                    }
+
+                    //Factor in the package dependencies too
+                    $dependencies = $this->calculateMergedDependenciesOfPackage($current_package_name, $dependencies);
+                }
+                else {
+                    // Dependency already added by another package
+                    //if this package requires a version higher than the currently stored one, store this requirement instead
+                    if (isset($current_package_version_information) && $current_package_version_information !== '*') {
+
+                        $currently_stored_version_information = $dependencies[$current_package_name];
+                        $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
+
+                        $currently_stored_version_is_in_next_significant_release_format = false;
+                        if ($this->versionFormatIsNextSignificantRelease($currently_stored_version_information)) {
+                            $currently_stored_version_is_in_next_significant_release_format = true;
+                        }
+
+                        if (!$currently_stored_version_number) {
+                            $currently_stored_version_number = '*';
+                        }
+
+                        $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
+                        if (!$current_package_version_number) {
+                            throw new \Exception('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName, 1);
+                        }
+
+                        $current_package_version_is_in_next_significant_release_format = false;
+                        if ($this->versionFormatIsNextSignificantRelease($current_package_version_information)) {
+                            $current_package_version_is_in_next_significant_release_format = true;
+                        }
+
+                        //If I had stored '*', change right away with the more specific version required
+                        if ($currently_stored_version_number === '*') {
+                            $dependencies[$current_package_name] = $current_package_version_information;
+                        } else {
+                            if (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
+                                //Comparing versions equals or higher, a simple version_compare is enough
+                                if (version_compare($currently_stored_version_number, $current_package_version_number) == -1) { //Current package version is higher
+                                    $dependencies[$current_package_name] = $current_package_version_information;
+                                }
+                            } else {
+                                $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number, $current_package_version_number);
+                                if (!$compatible) {
+                                    throw new \Exception('Dependency ' . $current_package_name . ' is required in two incompatible versions', 2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Calculates and merges the dependencies of the passed packages
+     *
+     * @param array $packages
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function calculateMergedDependenciesOfPackages($packages)
+    {
+        $dependencies = [];
+
+        foreach ($packages as $package) {
+            $dependencies = $this->calculateMergedDependenciesOfPackage($package, $dependencies);
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Returns the actual version from a dependency version string.
+     * Examples:
+     *      $versionInformation == '~2.0' => returns '2.0'
+     *      $versionInformation == '>=2.0.2' => returns '2.0.2'
+     *      $versionInformation == '*' => returns null
+     *      $versionInformation == '' => returns null
+     *
+     * @param $versionInformation
+     *
+     * @return null|string
+     */
+    public function calculateVersionNumberFromDependencyVersion($versionInformation)
+    {
+        if ($this->versionFormatIsNextSignificantRelease($versionInformation)) {
+            return substr($versionInformation, 1);
+        } elseif ($this->versionFormatIsEqualOrHigher($versionInformation)) {
+            return substr($versionInformation, 2);
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if the passed version information contains next significant release (tilde) operator
+     *
+     * Example: returns true for $version: '~2.0'
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public function versionFormatIsNextSignificantRelease($version) {
+        return substr($version, 0, 1) == '~';
+    }
+
+    /**
+     * Check if the passed version information contains equal or higher operator
+     *
+     * Example: returns true for $version: '>=2.0'
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public function versionFormatIsEqualOrHigher($version) {
+        return substr($version, 0, 2) == '>=';
+    }
+
+    /**
+     * Check if two releases are compatible by next significant release
+     *
+     * ~1.2 is equivalent to >=1.2 <2.0.0
+     * ~1.2.3 is equivalent to >=1.2.3 <1.3.0
+     *
+     * In short, allows the last digit specified to go up
+     *
+     * @param string $version1 the version string (e.g. '2.0.0' or '1.0')
+     * @param string $version2 the version string (e.g. '2.0.0' or '1.0')
+     *
+     * @return bool
+     */
+    public function checkNextSignificantReleasesAreCompatible($version1, $version2)
+    {
+        $version1array = explode('.', $version1);
+        $version2array = explode('.', $version2);
+
+        if (count($version1array) > count($version2array)) {
+            list($version1array, $version2array) = [$version2array, $version1array];
+        }
+
+        $i = 0;
+        while ($i < count($version1array) - 1) {
+            if ($version1array[$i] != $version2array[$i]) {
+                return false;
+            }
+            $i++;
+        }
+
+        return true;
     }
 
     /**
@@ -159,78 +477,65 @@ class InstallCommand extends ConsoleCommand
      */
     private function processPackage($package)
     {
-        $install_options = ['GPM'];
-
-        // if no name, not found in GPM
-        if (!isset($package->version)) {
-            unset($install_options[0]);
-        }
-        // if local config found symlink is a valid option
-        if (isset($this->local_config) && $this->getSymlinkSource($package)) {
-            $install_options[] = 'Symlink';
-        }
-        // if override set, can install via git
-        if (isset($package->override_repository)) {
-            $install_options[] = 'Git';
+        $symlink = false;
+        if ($this->use_symlinks) {
+            if ($this->getSymlinkSource($package) || !isset($package->version)) {
+                $symlink = true;
+            }
         }
 
-        // reindex list
-        $install_options = array_values($install_options);
+        $symlink ? $this->processSymlink($package) : $this->processGpm($package);
 
-        if (count($install_options) == 0) {
-            // no valid install options - error and return
-            $this->output->writeln("<red>not valid installation methods found!</red>");
-            return;
-        } elseif (count($install_options) == 1) {
-            // only one option, use it...
-            $method = $install_options[0];
-        } else {
-            $helper = $this->getHelper('question');
-            $question = new ChoiceQuestion(
-                'Please select installation method for <cyan>' . $package->name . '</cyan> (<magenta>'.$install_options[0].' is default</magenta>)', array_values($install_options), 0
-            );
-            $question->setErrorMessage('Method %s is invalid');
-            $method = $helper->ask($this->input, $this->output, $question);
-        }
-
-        $this->output->writeln('');
-
-        $method_name = 'process'.$method;
-        $this->$method_name($package);
-
-        $this->installDemoContent($package);
+        $this->processDemo($package);
     }
 
+    /**
+     * Add package to the queue to process the demo content, if demo content exists
+     *
+     * @param $package
+     */
+    private function processDemo($package)
+    {
+        $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
+        if (file_exists($demo_dir)) {
+            $this->demo_processing[] = $package;
+        }
+    }
 
     /**
+     * Prompt to install the demo content of a package
+     *
      * @param $package
      */
     private function installDemoContent($package)
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
-        $dest_dir = $this->destination . DS . 'user';
-        $pages_dir = $dest_dir . DS . 'pages';
 
         if (file_exists($demo_dir)) {
+            $dest_dir = $this->destination . DS . 'user';
+            $pages_dir = $dest_dir . DS . 'pages';
+
             // Demo content exists, prompt to install it.
-            $this->output->writeln("<white>Attention: </white><cyan>".$package->name . "</cyan> contains demo content");
+            $this->output->writeln("<white>Attention: </white><cyan>" . $package->name . "</cyan> contains demo content");
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Do you wish to install this demo content? [y|N] ', false);
 
             if (!$helper->ask($this->input, $this->output, $question)) {
                 $this->output->writeln("  '- <red>Skipped!</red>  ");
                 $this->output->writeln('');
+
                 return;
             }
 
             // if pages folder exists in demo
             if (file_exists($demo_dir . DS . 'pages')) {
                 $pages_backup = 'pages.' . date('m-d-Y-H-i-s');
-                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/'. $pages_backup. '`, continue? [y|N]', false);
+                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/' . $pages_backup . '`, continue? [y|N]', false);
 
                 if (!$helper->ask($this->input, $this->output, $question)) {
                     $this->output->writeln("  '- <red>Skipped!</red>  ");
                     $this->output->writeln('');
+
                     return;
                 }
 
@@ -259,9 +564,7 @@ class InstallCommand extends ConsoleCommand
      */
     private function getGitRegexMatches($package)
     {
-        if (isset($package->override_repository)) {
-            $repository = $package->override_repository;
-        } elseif (isset($package->repository)) {
+        if (isset($package->repository)) {
             $repository = $package->repository;
         } else {
             return false;
@@ -294,6 +597,7 @@ class InstallCommand extends ConsoleCommand
                 return $from;
             }
         }
+
         return false;
     }
 
@@ -336,6 +640,7 @@ class InstallCommand extends ConsoleCommand
 
 
             }
+
             return;
         }
 
@@ -346,34 +651,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param $package
      */
-    private function processGit($package)
-    {
-        $matches = $this->getGitRegexMatches($package);
-
-        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan> from " . $matches[0]);
-
-        $this->output->write("  |- Checking destination...  ");
-        $checks = $this->checkDestination($package);
-
-        if (!$checks) {
-            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-            $this->output->writeln('');
-        } else {
-            $cmd = 'cd ' . $this->destination . ' && git clone ' . $matches[0] . ' ' . $package->install_path;
-            exec($cmd);
-
-            // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- Cloning package...    <green>ok</green>                             ");
-
-            $this->output->writeln("  '- <green>Success!</green>  ");
-            $this->output->writeln('');
-        }
-    }
-
-    /**
-     * @param $package
-     */
-    private function processGPM($package)
+    private function processGpm($package)
     {
         $version = isset($package->available) ? $package->available : $package->version;
 

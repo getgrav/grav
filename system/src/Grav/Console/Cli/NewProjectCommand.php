@@ -43,17 +43,17 @@ class NewProjectCommand extends ConsoleCommand
         $sandboxCommand = $this->getApplication()->find('sandbox');
         $installCommand = $this->getApplication()->find('install');
 
-        $sandboxArguments = new ArrayInput(array(
+        $sandboxArguments = new ArrayInput([
             'command'     => 'sandbox',
             'destination' => $this->input->getArgument('destination'),
             '-s'          => $this->input->getOption('symlink')
-        ));
+        ]);
 
-        $installArguments = new ArrayInput(array(
+        $installArguments = new ArrayInput([
             'command'     => 'install',
             'destination' => $this->input->getArgument('destination'),
             '-s'          => $this->input->getOption('symlink')
-        ));
+        ]);
 
         $sandboxCommand->run($sandboxArguments, $this->output);
         $installCommand->run($installArguments, $this->output);

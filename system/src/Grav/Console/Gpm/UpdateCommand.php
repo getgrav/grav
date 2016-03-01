@@ -38,7 +38,7 @@ class UpdateCommand extends ConsoleCommand
     /**
      * @var array
      */
-    protected $types = array('plugins', 'themes');
+    protected $types = ['plugins', 'themes'];
     /**
      * @var GPM $gpm
      */
@@ -149,13 +149,13 @@ class UpdateCommand extends ConsoleCommand
         // finally update
         $install_command = $this->getApplication()->find('install');
 
-        $args = new ArrayInput(array(
+        $args = new ArrayInput([
             'command' => 'install',
             'package' => $slugs,
             '-f'      => $this->input->getOption('force'),
             '-d'      => $this->destination,
             '-y'      => true
-        ));
+        ]);
         $command_exec = $install_command->run($args, $this->output);
 
         if ($command_exec != 0) {
