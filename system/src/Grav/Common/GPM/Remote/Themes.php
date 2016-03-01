@@ -12,7 +12,7 @@ class Themes extends AbstractPackageCollection
      */
     protected $type = 'themes';
 
-    protected $repository = 'https://getgrav.org/downloads/themes.json?v=' . GRAV_VERSION;
+    protected $repository = 'https://getgrav.org/downloads/themes.json?v=';
 
     /**
      * Local Themes Constructor
@@ -21,6 +21,8 @@ class Themes extends AbstractPackageCollection
      */
     public function __construct($refresh = false, $callback = null)
     {
+        $this->repository .= GRAV_VERSION;
+
         parent::__construct($this->repository, $refresh, $callback);
     }
 }
