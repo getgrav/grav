@@ -3,6 +3,7 @@ namespace Grav\Console;
 
 use Grav\Common\Grav;
 use Grav\Common\Composer;
+use Grav\Common\GravTrait;
 use Grav\Console\Cli\ClearCacheCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -15,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 trait ConsoleTrait
 {
+    use GravTrait;
+
     /**
      * @var
      */
@@ -105,10 +108,10 @@ trait ConsoleTrait
         $input = new ArrayInput($all);
         return $command->run($input, $this->output);
     }
-    
+
     /**
      * Validate if the system is based on windows or not.
-     * 
+     *
      * @return bool
      */
     public function isWindows()
