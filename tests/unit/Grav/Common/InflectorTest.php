@@ -138,9 +138,9 @@ class InflectorTest extends \Codeception\TestCase\Test
     public function testMonthize()
     {
         $this->assertSame(0,    $this->inflector->monthize(10));
-        $this->assertSame(1,    $this->inflector->monthize(30));
+        $this->assertSame(1,    $this->inflector->monthize(33));
         $this->assertSame(1,    $this->inflector->monthize(41));
-        $this->assertSame(11,   $this->inflector->monthize(365));
+        $this->assertSame(11,   $this->inflector->monthize(364));
     }
 }
 

@@ -12,7 +12,7 @@ class Plugins extends AbstractPackageCollection
      */
     protected $type = 'plugins';
 
-    protected $repository = 'https://getgrav.org/downloads/plugins.json';
+    protected $repository = 'https://getgrav.org/downloads/plugins.json?v=' . GRAV_VERSION;
 
     /**
      * Local Plugins Constructor
