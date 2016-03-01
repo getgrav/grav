@@ -53,7 +53,7 @@ class CompiledBlueprints extends CompiledBase
      */
     protected function getTypes()
     {
-        return Grav::instance()['plugins']->formFieldTypes;
+        return Grav::instance()['plugins']->formFieldTypes ?: [];
     }
 
     /**
