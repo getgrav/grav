@@ -102,7 +102,9 @@ class Blueprint extends BlueprintForm
             $types = Grav::instance()['plugins']->formFieldTypes;
 
             $this->blueprintSchema = new BlueprintSchema;
-            $this->blueprintSchema->setTypes($types);
+            if ($types) {
+                $this->blueprintSchema->setTypes($types);
+            }
             $this->blueprintSchema->embed('', $this->items);
             $this->blueprintSchema->init();
         }
