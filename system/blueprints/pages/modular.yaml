@@ -10,7 +10,7 @@ form:
       active: 1
 
       fields:
-        tab_content:
+        content:
           fields:
 
             header.content.items:

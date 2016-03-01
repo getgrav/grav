@@ -13,7 +13,7 @@ form:
       active: 1
 
       fields:
-        tab_content:
+        content:
           type: tab
           title: PLUGIN_ADMIN.CONTENT
 
@@ -31,7 +31,7 @@ form:
               type: pagemedia
               label: PLUGIN_ADMIN.PAGE_MEDIA
 
-        tab_options:
+        options:
           type: tab
           title: PLUGIN_ADMIN.OPTIONS
 
