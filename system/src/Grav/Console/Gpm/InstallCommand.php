@@ -5,6 +5,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -255,7 +256,7 @@ class InstallCommand extends ConsoleCommand
                 $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersion);
 
                 // check the version, if an update is not strictly required mark as 'ignore'
-                $locator = self::getGrav()['locator'];
+                $locator = Grav::instance()['locator'];
                 $blueprints_path = $locator->findResource('plugins://' . $dependencySlug . DS . 'blueprints.yaml');
                 $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
                 $currentlyInstalledVersion = $package_yaml['version'];
