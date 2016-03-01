@@ -38,6 +38,16 @@ class Grav extends Container
     protected static $instance;
 
     /**
+     * Reset the Grav instance.
+     */
+    public static function resetInstance()
+    {
+        if (self::$instance) {
+            self::$instance = null;
+        }
+    }
+
+    /**
      * Return the Grav instance. Create it if it's not already instanced
      *
      * @param array $values
@@ -48,9 +58,6 @@ class Grav extends Container
     {
         if (!self::$instance) {
             self::$instance = static::load($values);
-
-            GravTrait::setGrav(self::$instance);
-
         } elseif ($values) {
             $instance = self::$instance;
             foreach ($values as $key => $value) {

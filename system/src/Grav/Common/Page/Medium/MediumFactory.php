@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
 
 /**
@@ -14,8 +14,6 @@ use Grav\Common\Data\Blueprint;
  */
 class MediumFactory
 {
-    use GravTrait;
-
     /**
      * Create Medium from a file
      *
@@ -35,7 +33,7 @@ class MediumFactory
         $ext = array_pop($parts);
         $basename = implode('.', $parts);
 
-        $config = self::getGrav()['config'];
+        $config = Grav::instance()['config'];
 
         $media_params = $config->get("media.".strtolower($ext));
         if (!$media_params) {
@@ -59,7 +57,7 @@ class MediumFactory
             'thumbnails' => []
         ];
 
-        $locator = self::getGrav()['locator'];
+        $locator = Grav::instance()['locator'];
 
         $lookup = $locator->findResources('image://');
         foreach ($lookup as $lookupPath) {

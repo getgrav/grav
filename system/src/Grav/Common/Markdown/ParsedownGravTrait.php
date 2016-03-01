@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Markdown;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
@@ -12,8 +12,6 @@ use RocketTheme\Toolbox\Event\Event;
  */
 trait ParsedownGravTrait
 {
-    use GravTrait;
-
     /** @var Page $page */
     protected $page;
 
@@ -39,17 +37,17 @@ trait ParsedownGravTrait
      */
     protected function init($page, $defaults)
     {
-        $grav = self::getGrav();
+        $grav = Grav::instance();
 
         $this->page = $page;
         $this->pages = $grav['pages'];
         $this->uri = $grav['uri'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->pages_dir = self::getGrav()['locator']->findResource('page://');
+        $this->pages_dir = Grav::instance()['locator']->findResource('page://');
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
         if ($defaults === null) {
-            $defaults = self::getGrav()['config']->get('system.pages.markdown');
+            $defaults = Grav::instance()['config']->get('system.pages.markdown');
         }
 
         $this->setBreaksEnabled($defaults['auto_line_breaks']);
@@ -217,7 +215,7 @@ trait ParsedownGravTrait
                     $media = $this->page->media();
                 } else {
                     // see if this is an external page to this one
-                    $base_url = rtrim(self::getGrav()['base_url_relative'] . self::getGrav()['pages']->base(), '/');
+                    $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
                     $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
 
                     $ext_page = $this->pages->dispatch($page_route, true);

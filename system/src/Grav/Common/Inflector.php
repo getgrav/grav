@@ -1,6 +1,8 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Grav;
+
 /**
 * This file was originally part of the Akelos Framework
 */
@@ -20,8 +22,6 @@ namespace Grav\Common;
 
 class Inflector
 {
-    use GravTrait;
-
     protected $plural;
     protected $singular;
     protected $uncountable;
@@ -31,7 +31,7 @@ class Inflector
     public function init()
     {
         if (empty($this->plural)) {
-            $language = self::getGrav()['language'];
+            $language = Grav::instance()['language'];
             $this->plural = $language->translate('INFLECTOR_PLURALS', null, true);
             $this->singular = $language->translate('INFLECTOR_SINGULAR', null, true);
             $this->uncountable = $language->translate('INFLECTOR_UNCOUNTABLE', null, true);

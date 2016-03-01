@@ -4,6 +4,7 @@ namespace Grav\Common;
 use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
@@ -21,8 +22,6 @@ use Grav\Common\Filesystem\Folder;
  */
 class Cache extends Getters
 {
-    use GravTrait;
-
     /**
      * @var string Cache key.
      */
@@ -229,6 +228,32 @@ class Cache extends Getters
     }
 
     /**
+     * Deletes an item in the cache based on the id
+     *
+     * @param $id       the id of the cached data entry
+     * @return bool     true if the item was deleted successfully
+     */
+    public function delete($id)
+    {
+        if ($this->enabled) {
+            return $this->driver->delete($id);
+        }
+    }
+
+    /**
+     * Returns a boolean state of whether or not the item exists in the cache based on id key
+     *
+     * @param $id       the id of the cached data entry
+     * @return bool     true if the cached items exists
+     */
+    public function contains($id)
+    {
+        if ($this->enabled) {
+            return $this->driver->contains(($id));
+        }
+    }
+
+    /**
      * Getter method to get the cache key
      */
     public function getKey()
@@ -245,7 +270,7 @@ class Cache extends Getters
      */
     public static function clearCache($remove = 'standard')
     {
-        $locator = self::getGrav()['locator'];
+        $locator = Grav::instance()['locator'];
         $output = [];
         $user_config = USER_DIR . 'config/system.yaml';
 

@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Console;
 
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Composer;
 use Grav\Console\Cli\ClearCacheCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
@@ -15,8 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 trait ConsoleTrait
 {
-    use GravTrait;
-
     /**
      * @var
      */
@@ -36,8 +34,8 @@ trait ConsoleTrait
      */
     public function setupConsole(InputInterface $input, OutputInterface $output)
     {
-        if (self::getGrav()) {
-            self::getGrav()['config']->set('system.cache.driver', 'default');
+        if (Grav::instance()) {
+            Grav::instance()['config']->set('system.cache.driver', 'default');
         }
 
         $this->argv = $_SERVER['argv'][0];
