@@ -638,12 +638,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "037289e773170e916783e551b20fdd9a7fe3255d"
+                "reference": "f7484acade72c1106874d57cee06d6aa2401a748"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/037289e773170e916783e551b20fdd9a7fe3255d",
-                "reference": "037289e773170e916783e551b20fdd9a7fe3255d",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/f7484acade72c1106874d57cee06d6aa2401a748",
+                "reference": "f7484acade72c1106874d57cee06d6aa2401a748",
                 "shasum": ""
             },
             "require": {
@@ -678,7 +678,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-03-01 17:49:44"
+            "time": "2016-03-02 09:02:09"
         },
         {
             "name": "symfony/console",
