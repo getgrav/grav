@@ -749,7 +749,6 @@ class Uri
         $external          = false;
         $base              = $grav['base_url_relative'];
         $base_url          = rtrim($base . $grav['pages']->base(), '/') . $language_append;
-        // TODO: Add streams support for pages.
         $pages_dir         = $grav['locator']->findResource('page://');
 
         // if absolute and starts with a base_url move on
@@ -940,7 +939,6 @@ class Uri
         if ($type == 'link' && $language->enabled()) {
             $language_append = $language->getLanguageURLPrefix();
         }
-        // TODO: Add streams support for pages.
         $pages_dir = $grav['locator']->findResource('page://');
         if (is_null($relative)) {
             $base = $grav['base_url'];

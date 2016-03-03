@@ -682,7 +682,7 @@ class Pages
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
-        // TODO: Use streams to allow page overrides. Right now only one folder gets looked at.
+
         $pages_dir = $locator->findResource('page://');
 
         if ($config->get('system.cache.enabled')) {
@@ -719,7 +719,6 @@ class Pages
                 $taxonomy->taxonomy($taxonomy_map);
             }
         } else {
-            // TODO: This function needs to be streams safe if we want to allow page overrides.
             $this->recurse($pages_dir);
             $this->buildRoutes();
         }
@@ -760,7 +759,6 @@ class Pages
      */
     protected function recurse($directory, Page &$parent = null)
     {
-        // TODO: Cannot do this with streams.
         $directory = rtrim($directory, DS);
         $page = new Page;
 
@@ -779,7 +777,6 @@ class Pages
             }
         }
 
-        // TODO: Do we want to use real folders or streams as page path?
         $page->path($directory);
         if ($parent) {
             $page->parent($parent);
@@ -799,7 +796,6 @@ class Pages
         }
 
         $content_exists = false;
-        // TODO: Another solution needed for streams support.
         $pages_found = glob($directory . '/*' . CONTENT_EXT);
         $page_extension = '';
 
@@ -830,7 +826,6 @@ class Pages
         // set current modified of page
         $last_modified = $page->modified();
 
-        // TODO: Add iterator from streams.
         $iterator = new \FilesystemIterator($directory);
 
         /** @var \DirectoryIterator $file */
@@ -851,7 +846,6 @@ class Pages
                 }
             } elseif ($file->isDir() && !in_array($file->getFilename(), $this->ignore_folders)) {
                 if (!$page->path()) {
-                    // TODO: Do we want to use real folders or streams as page path?
                     $page->path($file->getPath());
                 }
 
