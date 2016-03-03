@@ -10,8 +10,6 @@ use RocketTheme\Toolbox\File\YamlFile;
  */
 class Theme extends Plugin
 {
-    public $name;
-
     /**
      * Constructor.
      *
@@ -21,8 +19,6 @@ class Theme extends Plugin
      */
     public function __construct(Grav $grav, Config $config, $name)
     {
-        $this->name = $name;
-
         parent::__construct($name, $grav, $config);
     }
 
