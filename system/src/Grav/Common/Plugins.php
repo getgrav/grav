@@ -153,7 +153,6 @@ class Plugins extends Iterator
     {
         $blueprints = new Blueprints('plugins://');
         $blueprint = $blueprints->get("{$name}/blueprints");
-        $blueprint->name = $name;
 
         // Load default configuration.
         $file = CompiledYamlFile::instance("plugins://{$name}/{$name}" . YAML_EXT);

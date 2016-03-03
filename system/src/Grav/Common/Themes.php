@@ -119,7 +119,6 @@ class Themes extends Iterator
 
         $blueprints = new Blueprints('themes://');
         $blueprint = $blueprints->get("{$name}/blueprints");
-        $blueprint->name = $name;
 
         // Load default configuration.
         $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
