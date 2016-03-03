@@ -169,7 +169,7 @@ class InstallCommand extends ConsoleCommand
             try {
                 $this->installDependencies($dependencies, 'install', "The following dependencies need to be installed...");
                 $this->installDependencies($dependencies, 'update',  "The following dependencies need to be updated...");
-                $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...");
+                $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
             } catch (\Exception $e) {
                 $this->output->writeln("<red>Installation aborted</red>");
                 return false;
@@ -204,13 +204,14 @@ class InstallCommand extends ConsoleCommand
      * shows $message prior to listing them to the user. Then asks the user a confirmation prior
      * to installing them.
      *
-     * @param array $dependencies The dependencies array
-     * @param string $type The type of dependency to show: install, update, ignore
-     * @param string $message A message to be shown prior to listing the dependencies
+     * @param array  $dependencies The dependencies array
+     * @param string $type         The type of dependency to show: install, update, ignore
+     * @param string $message      A message to be shown prior to listing the dependencies
+     * @param bool   $required     A flag that determines if the installation is required or optional
      *
      * @throws \Exception
      */
-    public function installDependencies($dependencies, $type, $message) {
+    public function installDependencies($dependencies, $type, $message, $required = true) {
         $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
         if (count($packages) > 0) {
             $this->output->writeln($message);
@@ -226,11 +227,14 @@ class InstallCommand extends ConsoleCommand
 
             if ($helper->ask($this->input, $this->output, $question)) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
-                    $this->processPackage($dependencyName);
+                    $package = $this->gpm->findPackage($dependencyName);
+                    $this->processPackage($package);
                 }
                 $this->output->writeln('');
             } else {
-                throw new \Exception();
+                if ($required) {
+                    throw new \Exception();
+                }
             }
         }
     }
