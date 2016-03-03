@@ -171,7 +171,6 @@ class Plugin implements EventSubscriberInterface
      */
     protected function mergeConfig(Page $page, $deep = false, $params = [])
     {
-        // FIXME: This should be done with Config class; it has configuration merging with blueprints.
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
         $defaults = $this->config->get('plugins.' . $class_name, []);

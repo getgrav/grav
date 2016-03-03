@@ -18,7 +18,6 @@ class Session extends BaseSession
      */
     public function __construct(Grav $grav)
     {
-        // FIXME: We really should have wrapper and not to extend the class!!
         $this->grav = $grav;
     }
 
@@ -48,7 +47,6 @@ class Session extends BaseSession
 
         if ($config->get('system.session.enabled') || $is_admin) {
             // Define session service.
-            // FIXME: NOT LIKE THIS!
             parent::__construct($session_timeout, $session_path);
 
             $domain = $uri->host();
