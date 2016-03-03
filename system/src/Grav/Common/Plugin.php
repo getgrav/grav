@@ -64,10 +64,13 @@ class Plugin implements EventSubscriberInterface
      * @param Grav   $grav
      * @param Config $config
      */
-    public function __construct($name, Grav $grav)
+    public function __construct($name, Grav $grav, Config $config = null)
     {
         $this->name = $name;
         $this->grav = $grav;
+        if ($config) {
+            $this->setConfig($config);
+        }
     }
 
     /**
@@ -168,6 +171,7 @@ class Plugin implements EventSubscriberInterface
      */
     protected function mergeConfig(Page $page, $deep = false, $params = [])
     {
+        // FIXME: This should be done with Config class; it has configuration merging with blueprints.
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
         $defaults = $this->config->get('plugins.' . $class_name, []);
@@ -219,10 +223,11 @@ class Plugin implements EventSubscriberInterface
             return false;
         }
 
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
         $filename = 'config://plugins/' . $plugin_name . '.yaml';
         $file = YamlFile::instance($locator->findResource($filename, true, true));
-        $content = Grav::instance()['config']->get('plugins.' . $plugin_name);
+        $content = $grav['config']->get('plugins.' . $plugin_name);
         $file->save($content);
         $file->free();
 

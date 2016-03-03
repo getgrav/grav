@@ -50,15 +50,15 @@ class Blueprints
         if ($this->types === null) {
             $this->types = array();
 
-            // Check if search is a stream.
-            if (strpos($this->search, '://')) {
-                // Stream: use UniformResourceIterator.
-                $grav = Grav::instance();
-                /** @var UniformResourceLocator $locator */
-                $locator = $grav['locator'];
-                $iterator = $locator->getIterator($this->search, null);
+            $grav = Grav::instance();
+
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+
+            // Get stream / directory iterator.
+            if ($locator->isStream($this->search)) {
+                $iterator = $locator->getIterator($this->search);
             } else {
-                // Not a stream: use DirectoryIterator.
                 $iterator = new \DirectoryIterator($this->search);
             }
 

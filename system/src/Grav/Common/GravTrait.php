@@ -5,6 +5,7 @@ namespace Grav\Common;
  * Class GravTrait
  *
  * @package Grav\Common
+ * @deprecated
  */
 trait GravTrait
 {

@@ -177,13 +177,14 @@ class Assets
      */
     public function init()
     {
+        $grav = Grav::instance();
         /** @var Config $config */
-        $config = Grav::instance()['config'];
-        $base_url = Grav::instance()['base_url'];
+        $config = $grav['config'];
+        $base_url = $grav['base_url'];
         $asset_config = (array)$config->get('system.assets');
 
         /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
+        $locator = $grav['locator'];
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
 

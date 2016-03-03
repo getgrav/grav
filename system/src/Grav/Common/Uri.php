@@ -314,7 +314,7 @@ class Uri
         $valid_page_types = implode('|', $config->get('system.pages.types'));
 
         // Strip the file extension for valid page types
-        if (preg_match("/\.(" . $valid_page_types . ")$/", $parts['basename'])) {
+        if (preg_match('/\.(' . $valid_page_types . ')$/', $parts['basename'])) {
             $uri = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, $parts['dirname']), DS) . '/' . $parts['filename'];
         }
 
@@ -722,7 +722,7 @@ class Uri
      * @param Page   $page         the current page to use as reference
      * @param string $url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
-     * @param null   $absolute     if null, will use system default, if true will use absolute links internally
+     * @param bool   $absolute     if null, will use system default, if true will use absolute links internally
      *
      * @return string the more friendly formatted url
      */
@@ -749,6 +749,7 @@ class Uri
         $external          = false;
         $base              = $grav['base_url_relative'];
         $base_url          = rtrim($base . $grav['pages']->base(), '/') . $language_append;
+        // TODO: Add streams support for pages.
         $pages_dir         = $grav['locator']->findResource('page://');
 
         // if absolute and starts with a base_url move on
@@ -939,7 +940,7 @@ class Uri
         if ($type == 'link' && $language->enabled()) {
             $language_append = $language->getLanguageURLPrefix();
         }
-
+        // TODO: Add streams support for pages.
         $pages_dir = $grav['locator']->findResource('page://');
         if (is_null($relative)) {
             $base = $grav['base_url'];

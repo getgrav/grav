@@ -39,10 +39,11 @@ class Theme extends Plugin
             return false;
         }
 
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
         $filename = 'config://themes/' . $theme_name . '.yaml';
         $file = YamlFile::instance($locator->findResource($filename, true, true));
-        $content = Grav::instance()['config']->get('themes.' . $theme_name);
+        $content = $grav['config']->get('themes.' . $theme_name);
         $file->save($content);
         $file->free();
 

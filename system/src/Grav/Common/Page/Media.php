@@ -87,7 +87,7 @@ class Media extends Getters
                 $medium = MediumFactory::scaledFromMedium($altMedium, $ratio, 1)['file'];
             }
 
-            if (!$medium) {
+            if (empty($medium)) {
                 continue;
             }
 

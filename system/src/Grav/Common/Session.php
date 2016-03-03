@@ -1,10 +1,12 @@
 <?php
 namespace Grav\Common;
 
+use RocketTheme\Toolbox\Session\Session as BaseSession;
+
 /**
  * Wrapper for Session
  */
-class Session extends \RocketTheme\Toolbox\Session\Session
+class Session extends BaseSession
 {
     protected $grav;
     protected $session;
@@ -16,6 +18,7 @@ class Session extends \RocketTheme\Toolbox\Session\Session
      */
     public function __construct(Grav $grav)
     {
+        // FIXME: We really should have wrapper and not to extend the class!!
         $this->grav = $grav;
     }
 
@@ -45,6 +48,7 @@ class Session extends \RocketTheme\Toolbox\Session\Session
 
         if ($config->get('system.session.enabled') || $is_admin) {
             // Define session service.
+            // FIXME: NOT LIKE THIS!
             parent::__construct($session_timeout, $session_path);
 
             $domain = $uri->host();

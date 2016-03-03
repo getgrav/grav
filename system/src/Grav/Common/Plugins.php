@@ -89,11 +89,13 @@ class Plugins extends Iterator
      */
     public function init()
     {
+        $grav = Grav::instance();
+
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = $grav['config'];
 
         /** @var EventDispatcher $events */
-        $events = Grav::instance()['events'];
+        $events = $grav['events'];
 
         foreach ($this->items as $instance) {
             // Register only enabled plugins.
