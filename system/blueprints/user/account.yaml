@@ -6,6 +6,7 @@ form:
         content:
             type: section
             title: PLUGIN_ADMIN.ACCOUNT
+            underline: true
 
             fields:
                 username:
