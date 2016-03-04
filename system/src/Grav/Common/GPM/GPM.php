@@ -423,4 +423,36 @@ class GPM extends Iterator
 
         return $packages;
     }
+
+    /**
+     * Return the list of packages that have the passed one as dependency
+     *
+     * @param $slug The slug name of the package
+     *
+     * @return array
+     */
+    public function getPackagesThatDependOnPackage($slug)
+    {
+        $plugins = $this->getInstalledPlugins();
+        $themes = $this->getInstalledThemes();
+        $packages = array_merge($plugins->toArray(), $themes->toArray());
+
+        $dependent_packages = [];
+
+        foreach($packages as $package_name => $package) {
+            if (isset($package['dependencies'])) {
+                foreach($package['dependencies'] as $dependency) {
+                    if (is_array($dependency)) {
+                        $dependency = array_keys($dependency)[0];
+                    }
+
+                    if ($dependency == $slug) {
+                        $dependent_packages[] = $package_name;
+                    }
+                }
+            }
+        }
+
+        return $dependent_packages;
+    }
 }
