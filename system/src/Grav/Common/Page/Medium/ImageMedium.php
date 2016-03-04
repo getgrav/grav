@@ -118,6 +118,14 @@ class ImageMedium extends Medium
     }
 
     /**
+     * Clear out the alternatives
+     */
+    public function clearAlternatives()
+    {
+        $this->alternatives = [];
+    }
+
+    /**
      * Return PATH to image.
      *
      * @param bool $reset
@@ -278,6 +286,7 @@ class ImageMedium extends Medium
             $this->image->clearOperations(); // Clear previously applied operations
             $this->querystring('');
             $this->filter();
+            $this->clearAlternatives();
         }
 
         $this->format = 'guess';
