@@ -133,8 +133,8 @@ class UninstallCommand extends ConsoleCommand
     private function uninstallPackage($slug, $package)
     {
         //check if there are packages that have this as a dependency. Abort and show list
-        if ($dependency_packages) {
         $dependency_packages = $this->gpm->getPackagesThatDependOnPackage($slug);
+        if (count($dependency_packages) > 0) {
             $this->output->writeln('');
             $this->output->writeln('');
             $this->output->writeln("<red>Uninstallation failed.</red>");
@@ -146,7 +146,7 @@ class UninstallCommand extends ConsoleCommand
             }
 
             $this->output->writeln('');
-            exit;
+            return false;
         }
 
         $path = Grav::instance()['locator']->findResource($package->package_type . '://' .$slug);
