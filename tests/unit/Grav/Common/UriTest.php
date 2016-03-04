@@ -177,6 +177,15 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertSame('yyy', $this->uri->param('test'));
     }
 
+    public function testFragment()
+    {
+        $this->uri->initializeWithURL('http://localhost:8080/a/b/c#my-fragment');
+        $this->assertSame('my-fragment', $this->uri->fragment());
+        $this->uri->initializeWithURL('http://localhost:8080/a/b/c');
+        $this->uri->fragment('something-new');
+        $this->assertSame('something-new', $this->uri->fragment());
+    }
+
     public function testUrl()
     {
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper')->init();

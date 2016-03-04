@@ -28,6 +28,7 @@ class Uri
     protected $scheme;
     protected $port;
     protected $query;
+    protected $fragment;
     protected $root;
     protected $root_path;
     protected $uri;
@@ -196,6 +197,7 @@ class Uri
         $this->host     = [];
         $this->root     = [];
         $this->url      = [];
+        $this->fragment = [];
 
         $grav = Grav::instance();
 
@@ -218,6 +220,10 @@ class Uri
         if (isset($uri_bits['query'])) {
             $this->uri .= '?' . $uri_bits['query'];
             parse_str($uri_bits['query'], $this->query);
+        }
+
+        if (isset($uri_bits['fragment'])) {
+            $this->fragment = $uri_bits['fragment'];
         }
 
         $this->base = $this->buildBaseUrl();
@@ -298,6 +304,11 @@ class Uri
                 $this->query = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
             }
             $uri = $bits['path'];
+        }
+
+        //process fragment
+        if (isset($bits['fragment'])) {
+            $this->fragment = $bits['fragment'];
         }
 
         // remove the extension if there is one set
@@ -462,6 +473,21 @@ class Uri
         } else {
             return false;
         }
+    }
+
+    /**
+     * Gets the Fragment portion of a URI (eg #target)
+     *
+     * @param null $fragment
+     * 
+     * @return null
+     */
+    public function fragment($fragment = null)
+    {
+        if ($fragment !== null) {
+            $this->fragment = $fragment;
+        }
+        return $this->fragment;
     }
 
     /**
