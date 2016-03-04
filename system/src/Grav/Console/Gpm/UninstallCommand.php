@@ -59,38 +59,6 @@ class UninstallCommand extends ConsoleCommand
     }
 
     /**
-     * Return the list of packages that have the passed one as dependency
-     *
-     * @param $package_slug The slug name of the package
-     *
-     * @return bool
-     */
-    protected function getPackagesThatDependOnPackage($package_slug)
-    {
-        $plugins = $this->gpm->getInstalledPlugins();
-        $themes = $this->gpm->getInstalledThemes();
-        $packages = array_merge($plugins->toArray(), $themes->toArray());
-
-        $dependent_packages = [];
-
-        foreach($packages as $package_name => $package) {
-            if (isset($package['dependencies'])) {
-                foreach($package['dependencies'] as $dependency) {
-                    if (is_array($dependency)) {
-                        $dependency = array_keys($dependency)[0];
-                    }
-
-                    if ($dependency == $package_slug) {
-                        $dependent_packages[] = $package_name;
-                    }
-                }
-            }
-        }
-
-        return $dependent_packages;
-    }
-
-    /**
      * @return int|null|void
      */
     protected function serve()
@@ -165,8 +133,8 @@ class UninstallCommand extends ConsoleCommand
     private function uninstallPackage($slug, $package)
     {
         //check if there are packages that have this as a dependency. Abort and show list
-        $dependency_packages = $this->getPackagesThatDependOnPackage($slug);
-        if ($dependency_packages) {
+        $dependency_packages = $this->gpm->getPackagesThatDependOnPackage($slug);
+        if (count($dependency_packages) > 0) {
             $this->output->writeln('');
             $this->output->writeln('');
             $this->output->writeln("<red>Uninstallation failed.</red>");
@@ -178,7 +146,7 @@ class UninstallCommand extends ConsoleCommand
             }
 
             $this->output->writeln('');
-            exit;
+            return false;
         }
 
         $path = Grav::instance()['locator']->findResource($package->package_type . '://' .$slug);
