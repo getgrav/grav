@@ -29,6 +29,7 @@ form:
                 autofocus: true
                 indentWithTabs: false
                 lineNumbers: true
+                styleActiveLine: true
                 gutters: ['CodeMirror-lint-markers']
                 lint: true
 
