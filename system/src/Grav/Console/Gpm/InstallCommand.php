@@ -173,6 +173,9 @@ class InstallCommand extends ConsoleCommand
                 $this->output->writeln("<red>Installation aborted</red>");
                 return false;
             }
+
+            $this->output->writeln("<green>Dependencies are OK</green>");
+            $this->output->writeln("");
         }
 
         //We're done installing dependencies. Install the actual packages
@@ -181,7 +184,18 @@ class InstallCommand extends ConsoleCommand
                 if (in_array($packageName, array_keys($dependencies))) {
                     $this->output->writeln("<green>Package " . $packageName . " already installed as dependency</green>");
                 } else {
-                    $this->processPackage($package);
+                    Installer::isValidDestination($this->destination . DS . $package->install_path);
+
+                    if (Installer::lastErrorCode() == Installer::EXISTS) {
+                        $helper = $this->getHelper('question');
+                        $question = new ConfirmationQuestion("The package <cyan>$packageName</cyan> is already installed, overwrite? [y|N] ", false);
+
+                        if ($helper->ask($this->input, $this->output, $question)) {
+                            $this->processPackage($package, true);
+                        } else {
+                            $this->output->writeln("<yellow>Package " . $packageName . " not overwritten</yellow>");
+                        }
+                    }
                 }
             }
         }
@@ -216,18 +230,31 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln($message);
 
             foreach ($packages as $dependencyName => $dependencyVersion) {
-                $this->output->writeln("  |- Package <cyan>" . $dependencyName . "</cyan> requires a newer version");
+                $this->output->writeln("  |- Package <cyan>" . $dependencyName . "</cyan>");
             }
 
             $this->output->writeln("");
 
             $helper = $this->getHelper('question');
-            $question = new ConfirmationQuestion('Update these packages? [y|N] ', false);
+
+            if ($type == 'install') {
+                $questionAction = 'Install';
+            } else {
+                $questionAction = 'Update';
+            }
+
+            if (count($packages) == 1) {
+                $questionArticle = 'this';
+            } else {
+                $questionArticle = 'these';
+            }
+
+            $question = new ConfirmationQuestion("$questionAction $questionArticle packages? [y|N] ", false);
 
             if ($helper->ask($this->input, $this->output, $question)) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
                     $package = $this->gpm->findPackage($dependencyName);
-                    $this->processPackage($package);
+                    $this->processPackage($package, true);
                 }
                 $this->output->writeln('');
             } else {
@@ -238,21 +265,11 @@ class InstallCommand extends ConsoleCommand
         }
     }
 
-            if (count($packages) == 1) {
-                $questionArticle = 'this';
-            } else {
-            }
-
-
-                }
-                }
-            }
-        }
-    }
-
     /**
+     * @param      $package
+     * @param bool $skip_prompt
      */
-    private function processPackage($package)
+    private function processPackage($package, $skip_prompt = false)
     {
         $symlink = false;
         if ($this->use_symlinks) {
@@ -261,7 +278,7 @@ class InstallCommand extends ConsoleCommand
             }
         }
 
-        $symlink ? $this->processSymlink($package) : $this->processGpm($package);
+        $symlink ? $this->processSymlink($package, $skip_prompt) : $this->processGpm($package, $skip_prompt);
 
         $this->processDemo($package);
     }
@@ -379,9 +396,10 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param      $package
+     * @param bool $skip_prompt
      */
-    private function processSymlink($package)
+    private function processSymlink($package, $skip_prompt = false)
     {
 
         exec('cd ' . $this->destination);
@@ -396,7 +414,7 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln("<green>ok</green>");
 
             $this->output->write("  |- Checking destination...  ");
-            $checks = $this->checkDestination($package);
+            $checks = $this->checkDestination($package, $skip_prompt);
 
             if (!$checks) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
@@ -426,9 +444,10 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param      $package
+     * @param bool $skip_prompt
      */
-    private function processGpm($package)
+    private function processGpm($package, $skip_prompt = false)
     {
         $version = isset($package->available) ? $package->available : $package->version;
 
@@ -438,7 +457,7 @@ class InstallCommand extends ConsoleCommand
         $this->file = $this->downloadPackage($package);
 
         $this->output->write("  |- Checking destination...  ");
-        $checks = $this->checkDestination($package);
+        $checks = $this->checkDestination($package, $skip_prompt);
 
         if (!$checks) {
             $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
@@ -479,14 +498,19 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param      $package
+     *
+     * @param bool $skip_prompt
      *
      * @return bool
      */
-    private function checkDestination($package)
+    private function checkDestination($package, $skip_prompt = false)
     {
         $question_helper = $this->getHelper('question');
-        $skip_prompt = $this->input->getOption('all-yes');
+
+        if (!$skip_prompt) {
+            $skip_prompt = $this->input->getOption('all-yes');
+        }
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
 
@@ -495,7 +519,7 @@ class InstallCommand extends ConsoleCommand
                 $this->output->write("\x0D");
                 $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
 
-                $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ",
+                $question = new ConfirmationQuestion("  |  '- The package is already installed, do you want to overwrite it? [y|N] ",
                     false);
                 $answer = $question_helper->ask($this->input, $this->output, $question);
 
