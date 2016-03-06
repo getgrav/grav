@@ -1,9 +1,11 @@
 <?php
 namespace Grav\Common\GPM;
 
+use Grav\Common\Grav;
 use Grav\Common\Inflector;
 use Grav\Common\Iterator;
 use Grav\Common\Utils;
+use Symfony\Component\Yaml\Yaml;
 
 class GPM extends Iterator
 {
@@ -337,11 +339,14 @@ class GPM extends Iterator
     public function findPackage($search)
     {
         $search = strtolower($search);
-        if ($found = $this->getRepositoryTheme($search)) {
+
+        $found = $this->getRepositoryTheme($search);
+        if ($found) {
             return $found;
         }
 
-        if ($found = $this->getRepositoryPlugin($search)) {
+        $found = $this->getRepositoryPlugin($search);
+        if ($found) {
             return $found;
         }
 
@@ -392,7 +397,8 @@ class GPM extends Iterator
                 $search = $key;
             }
 
-            if ($found = $this->findPackage($search)) {
+            $found = $this->findPackage($search);
+            if ($found) {
                 // set override repository if provided
                 if ($repository) {
                     $found->override_repository = $repository;
@@ -427,11 +433,11 @@ class GPM extends Iterator
     /**
      * Return the list of packages that have the passed one as dependency
      *
-     * @param $slug The slug name of the package
+     * @param string $slug The slug name of the package
      *
      * @return array
      */
-    public function getPackagesThatDependOnPackage($slug)
+    private function getPackagesThatDependOnPackage($slug)
     {
         $plugins = $this->getInstalledPlugins();
         $themes = $this->getInstalledThemes();
@@ -455,4 +461,244 @@ class GPM extends Iterator
 
         return $dependent_packages;
     }
+
+
+    /**
+     * Fetch the dependencies, check the installed packages and return an array with
+     * the list of packages with associated an information on what to do: install, update or ignore.
+     *
+     * `ignore` means the package is already installed and can be safely left as-is.
+     * `install` means the package is not installed and must be installed.
+     * `update` means the package is already installed and must be updated as a dependency needs a higher version.
+     *
+     * @param array $packages
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getDependencies($packages) {
+        $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
+
+        foreach ($dependencies as $dependencySlug => $dependencyVersion) {
+            if ($this->isPluginInstalled($dependencySlug)) {
+                $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersion);
+
+                // check the version, if an update is not strictly required mark as 'ignore'
+                $locator = Grav::instance()['locator'];
+                $blueprints_path = $locator->findResource('plugins://' . $dependencySlug . DS . 'blueprints.yaml');
+                $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+                $currentlyInstalledVersion = $package_yaml['version'];
+
+                //if I already have the latest release, remove the dependency
+                $latestRelease = $this->getLatestVersionOfPackage($dependencySlug);
+
+                if (version_compare($latestRelease, $dependencyVersion) == -1) {
+                    //throw an exception if a required version cannot be found in the GPM yet
+                    throw new \Exception('Dependency ' . $package_yaml['name'] . ' is required in a version higher than the latest release. Try running `bin/gpm -f index` to force a refresh of the GPM cache', 1);
+                }
+
+                if (version_compare($currentlyInstalledVersion, $dependencyVersion) == -1) {
+                    $dependencies[$dependencySlug] = 'update';
+                } else {
+                    if ($currentlyInstalledVersion == $latestRelease) {
+                        unset($dependencies[$dependencySlug]);
+                    } else {
+                        $dependencies[$dependencySlug] = 'ignore';
+                    }
+                }
+            } else {
+                $dependencies[$dependencySlug] = 'install';
+            }
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Calculates and merges the dependencies of a package
+     *
+     * @param string $packageName  The package information
+     *
+     * @param array $dependencies The dependencies array
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function calculateMergedDependenciesOfPackage($packageName, $dependencies)
+    {
+        $packageData = $this->findPackage($packageName);
+
+        //Check for dependencies
+        if (isset($packageData->dependencies)) {
+            foreach ($packageData->dependencies as $dependency) {
+                $current_package_name = $dependency['name'];
+                if (isset($dependency['version'])) {
+                    $current_package_version_information = $dependency['version'];
+                }
+
+                if (!isset($dependencies[$current_package_name])) {
+                    // Dependency added for the first time
+
+                    if (!isset($current_package_version_information)) {
+                        $dependencies[$current_package_name] = '*';
+                    } else {
+                        $dependencies[$current_package_name] = $current_package_version_information;
+                    }
+
+                    //Factor in the package dependencies too
+                    $dependencies = $this->calculateMergedDependenciesOfPackage($current_package_name, $dependencies);
+                }
+                else {
+                    // Dependency already added by another package
+                    //if this package requires a version higher than the currently stored one, store this requirement instead
+                    if (isset($current_package_version_information) && $current_package_version_information !== '*') {
+
+                        $currently_stored_version_information = $dependencies[$current_package_name];
+                        $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
+
+                        $currently_stored_version_is_in_next_significant_release_format = false;
+                        if ($this->versionFormatIsNextSignificantRelease($currently_stored_version_information)) {
+                            $currently_stored_version_is_in_next_significant_release_format = true;
+                        }
+
+                        if (!$currently_stored_version_number) {
+                            $currently_stored_version_number = '*';
+                        }
+
+                        $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
+                        if (!$current_package_version_number) {
+                            throw new \Exception('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName, 1);
+                        }
+
+                        $current_package_version_is_in_next_significant_release_format = false;
+                        if ($this->versionFormatIsNextSignificantRelease($current_package_version_information)) {
+                            $current_package_version_is_in_next_significant_release_format = true;
+                        }
+
+                        //If I had stored '*', change right away with the more specific version required
+                        if ($currently_stored_version_number === '*') {
+                            $dependencies[$current_package_name] = $current_package_version_information;
+                        } else {
+                            if (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
+                                //Comparing versions equals or higher, a simple version_compare is enough
+                                if (version_compare($currently_stored_version_number, $current_package_version_number) == -1) { //Current package version is higher
+                                    $dependencies[$current_package_name] = $current_package_version_information;
+                                }
+                            } else {
+                                $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number, $current_package_version_number);
+                                if (!$compatible) {
+                                    throw new \Exception('Dependency ' . $current_package_name . ' is required in two incompatible versions', 2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Calculates and merges the dependencies of the passed packages
+     *
+     * @param array $packages
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function calculateMergedDependenciesOfPackages($packages)
+    {
+        $dependencies = [];
+
+        foreach ($packages as $package) {
+            $dependencies = $this->calculateMergedDependenciesOfPackage($package, $dependencies);
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Returns the actual version from a dependency version string.
+     * Examples:
+     *      $versionInformation == '~2.0' => returns '2.0'
+     *      $versionInformation == '>=2.0.2' => returns '2.0.2'
+     *      $versionInformation == '*' => returns null
+     *      $versionInformation == '' => returns null
+     *
+     * @param $versionInformation
+     *
+     * @return null|string
+     */
+    public function calculateVersionNumberFromDependencyVersion($versionInformation)
+    {
+        if ($this->versionFormatIsNextSignificantRelease($versionInformation)) {
+            return substr($versionInformation, 1);
+        } elseif ($this->versionFormatIsEqualOrHigher($versionInformation)) {
+            return substr($versionInformation, 2);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Check if the passed version information contains next significant release (tilde) operator
+     *
+     * Example: returns true for $version: '~2.0'
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public function versionFormatIsNextSignificantRelease($version) {
+        return substr($version, 0, 1) == '~';
+    }
+
+    /**
+     * Check if the passed version information contains equal or higher operator
+     *
+     * Example: returns true for $version: '>=2.0'
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public function versionFormatIsEqualOrHigher($version) {
+        return substr($version, 0, 2) == '>=';
+    }
+
+    /**
+     * Check if two releases are compatible by next significant release
+     *
+     * ~1.2 is equivalent to >=1.2 <2.0.0
+     * ~1.2.3 is equivalent to >=1.2.3 <1.3.0
+     *
+     * In short, allows the last digit specified to go up
+     *
+     * @param string $version1 the version string (e.g. '2.0.0' or '1.0')
+     * @param string $version2 the version string (e.g. '2.0.0' or '1.0')
+     *
+     * @return bool
+     */
+    public function checkNextSignificantReleasesAreCompatible($version1, $version2)
+    {
+        $version1array = explode('.', $version1);
+        $version2array = explode('.', $version2);
+
+        if (count($version1array) > count($version2array)) {
+            list($version1array, $version2array) = [$version2array, $version1array];
+        }
+
+        $i = 0;
+        while ($i < count($version1array) - 1) {
+            if ($version1array[$i] != $version2array[$i]) {
+                return false;
+            }
+            $i++;
+        }
+
+        return true;
+    }
+
 }
