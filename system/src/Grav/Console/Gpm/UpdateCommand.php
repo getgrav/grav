@@ -204,6 +204,7 @@ class UpdateCommand extends ConsoleCommand
             }
 
             if (count($ignore)) {
+                $this->output->writeln('');
                 $this->output->writeln("Packages not found or not requiring updates: <red>" . implode('</red>, <red>',
                         $ignore) . "</red>");
             }

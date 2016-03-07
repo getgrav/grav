@@ -184,16 +184,19 @@ class InstallCommand extends ConsoleCommand
                 if (in_array($packageName, array_keys($dependencies))) {
                     $this->output->writeln("<green>Package " . $packageName . " already installed as dependency</green>");
                 } else {
-                    Installer::isValidDestination($this->destination . DS . $package->install_path);
+                    $is_valid_destination = Installer::isValidDestination($this->destination . DS . $package->install_path);
+                    if ($is_valid_destination || Installer::lastErrorCode() == Installer::NOT_FOUND) {
+                        $this->processPackage($package, true);
+                    } else {
+                        if (Installer::lastErrorCode() == Installer::EXISTS) {
+                            $helper = $this->getHelper('question');
+                            $question = new ConfirmationQuestion("The package <cyan>$packageName</cyan> is already installed, overwrite? [y|N] ", false);
 
-                    if (Installer::lastErrorCode() == Installer::EXISTS) {
-                        $helper = $this->getHelper('question');
-                        $question = new ConfirmationQuestion("The package <cyan>$packageName</cyan> is already installed, overwrite? [y|N] ", false);
-
-                        if ($helper->ask($this->input, $this->output, $question)) {
-                            $this->processPackage($package, true);
-                        } else {
-                            $this->output->writeln("<yellow>Package " . $packageName . " not overwritten</yellow>");
+                            if ($helper->ask($this->input, $this->output, $question)) {
+                                $this->processPackage($package, true);
+                            } else {
+                                $this->output->writeln("<yellow>Package " . $packageName . " not overwritten</yellow>");
+                            }
                         }
                     }
                 }
