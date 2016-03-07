@@ -280,6 +280,12 @@ class InstallCommand extends ConsoleCommand
      */
     private function processPackage($package, $skip_prompt = false)
     {
+        if (!$package) {
+            $this->output->writeln("<red>Package not found on the GPM!</red>  ");
+            $this->output->writeln('');
+            return;
+        }
+
         $symlink = false;
         if ($this->use_symlinks) {
             if ($this->getSymlinkSource($package) || !isset($package->version)) {
