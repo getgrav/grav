@@ -240,6 +240,9 @@ abstract class Utils
 
             ignore_user_abort(false);
 
+            // fix corrupted files
+            ob_clean();
+
             if ($force_download) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
