@@ -23,6 +23,16 @@ class Theme extends Plugin
     }
 
     /**
+     * Get configuration of the plugin.
+     *
+     * @return Config
+     */
+    public function config()
+    {
+        return $this->config["themes.{$this->name}"];
+    }
+
+    /**
      * Persists to disk the theme parameters currently stored in the Grav Config object
      *
      * @param string $theme_name The name of the theme whose config it should store.
@@ -44,5 +54,17 @@ class Theme extends Plugin
         $file->free();
 
         return true;
+    }
+
+    /**
+     * Load blueprints.
+     */
+    protected function loadBlueprint()
+    {
+        if (!$this->blueprint) {
+            $grav = Grav::instance();
+            $themes = $grav['themes'];
+            $this->blueprint = $themes->get($this->name)->blueprints();
+        }
     }
 }

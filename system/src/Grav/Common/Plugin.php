@@ -7,6 +7,7 @@ use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
+use Symfony\Component\Console\Exception\LogicException;
 
 /**
  * The Plugin object just holds the id and path to a plugin.
@@ -14,7 +15,7 @@ use RocketTheme\Toolbox\File\YamlFile;
  * @author  RocketTheme
  * @license MIT
  */
-class Plugin implements EventSubscriberInterface
+class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
     /**
      * @var string
@@ -37,6 +38,7 @@ class Plugin implements EventSubscriberInterface
     protected $config;
 
     protected $active = true;
+    protected $blueprint;
 
     /**
      * By default assign all methods as listeners using the default priority.
@@ -82,6 +84,16 @@ class Plugin implements EventSubscriberInterface
         $this->config = $config;
 
         return $this;
+    }
+
+    /**
+     * Get configuration of the plugin.
+     *
+     * @return Config
+     */
+    public function config()
+    {
+        return $this->config["plugins.{$this->name}"];
     }
 
     /**
@@ -136,6 +148,59 @@ class Plugin implements EventSubscriberInterface
                 }
             }
         }
+    }
+
+    /**
+     * Whether or not an offset exists.
+     *
+     * @param mixed $offset  An offset to check for.
+     * @return bool          Returns TRUE on success or FALSE on failure.
+     */
+    public function offsetExists($offset)
+    {
+        $this->loadBlueprint();
+
+        if ($offset === 'title') {
+            $offset = 'name';
+        }
+        return isset($this->blueprint[$offset]);
+    }
+
+    /**
+     * Returns the value at specified offset.
+     *
+     * @param mixed $offset  The offset to retrieve.
+     * @return mixed         Can return all value types.
+     */
+    public function offsetGet($offset)
+    {
+        $this->loadBlueprint();
+
+        if ($offset === 'title') {
+            $offset = 'name';
+        }
+        return isset($this->blueprint[$offset]) ? $this->blueprint[$offset] : null;
+    }
+
+    /**
+     * Assigns a value to the specified offset.
+     *
+     * @param mixed $offset  The offset to assign the value to.
+     * @param mixed $value   The value to set.
+     */
+    public function offsetSet($offset, $value)
+    {
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+    }
+
+    /**
+     * Unsets an offset.
+     *
+     * @param mixed $offset  The offset to unset.
+     */
+    public function offsetUnset($offset)
+    {
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
@@ -231,5 +296,17 @@ class Plugin implements EventSubscriberInterface
         $file->free();
 
         return true;
+    }
+
+    /**
+     * Load blueprints.
+     */
+    protected function loadBlueprint()
+    {
+        if (!$this->blueprint) {
+            $grav = Grav::instance();
+            $plugins = $grav['plugins'];
+            $this->blueprint = $plugins->get($this->name)->blueprints();
+        }
     }
 }
