@@ -17,6 +17,16 @@ use RocketTheme\Toolbox\File\YamlFile;
 class Plugin implements EventSubscriberInterface
 {
     /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var array
+     */
+    public $features = [];
+
+    /**
      * @var Grav
      */
     protected $grav;
@@ -27,10 +37,6 @@ class Plugin implements EventSubscriberInterface
     protected $config;
 
     protected $active = true;
-    /**
-     * @var \Grav\Common\string
-     */
-    protected $name;
 
     /**
      * By default assign all methods as listeners using the default priority.
@@ -58,13 +64,29 @@ class Plugin implements EventSubscriberInterface
      * @param Grav   $grav
      * @param Config $config
      */
-    public function __construct($name, Grav $grav, Config $config)
+    public function __construct($name, Grav $grav, Config $config = null)
     {
-        $this->grav = $grav;
-        $this->config = $config;
         $this->name = $name;
+        $this->grav = $grav;
+        if ($config) {
+            $this->setConfig($config);
+        }
     }
 
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
     public function isAdmin()
     {
         if (isset($this->grav['admin'])) {
@@ -200,10 +222,11 @@ class Plugin implements EventSubscriberInterface
             return false;
         }
 
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
         $filename = 'config://plugins/' . $plugin_name . '.yaml';
         $file = YamlFile::instance($locator->findResource($filename, true, true));
-        $content = Grav::instance()['config']->get('plugins.' . $plugin_name);
+        $content = $grav['config']->get('plugins.' . $plugin_name);
         $file->save($content);
         $file->free();
 

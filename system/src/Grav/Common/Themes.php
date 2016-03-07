@@ -79,24 +79,23 @@ class Themes extends Iterator
     public function all()
     {
         $list = [];
-        $locator = Grav::instance()['locator'];
 
-        $themes = (array)$locator->findResources('themes://', false);
-        foreach ($themes as $path) {
-            $iterator = new \DirectoryIterator($path);
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
 
-            /** @var \DirectoryIterator $directory */
-            foreach ($iterator as $directory) {
-                if (!$directory->isDir() || $directory->isDot()) {
-                    continue;
-                }
+        $iterator = $locator->getIterator('themes://');
 
-                $theme = $directory->getBasename();
-                $result = self::get($theme);
+        /** @var \DirectoryIterator $directory */
+        foreach ($iterator as $directory) {
+            if (!$directory->isDir() || $directory->isDot()) {
+                continue;
+            }
 
-                if ($result) {
-                    $list[$theme] = $result;
-                }
+            $theme = $directory->getBasename();
+            $result = self::get($theme);
+
+            if ($result) {
+                $list[$theme] = $result;
             }
         }
         ksort($list);
@@ -120,7 +119,6 @@ class Themes extends Iterator
 
         $blueprints = new Blueprints('themes://');
         $blueprint = $blueprints->get("{$name}/blueprints");
-        $blueprint->name = $name;
 
         // Load default configuration.
         $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
@@ -141,7 +139,7 @@ class Themes extends Iterator
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $obj->merge($this->grav['config']->get('themes.' . $name) ?: []);
+        $obj->merge($this->config->get('themes.' . $name) ?: []);
 
         // Save configuration always to user/config.
         $file = CompiledYamlFile::instance("config://themes/{$name}" . YAML_EXT);

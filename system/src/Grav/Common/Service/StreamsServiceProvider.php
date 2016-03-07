@@ -34,7 +34,7 @@ class StreamsServiceProvider implements ServiceProviderInterface
             Stream::setLocator($locator);
             ReadOnlyStream::setLocator($locator);
 
-            return new StreamBuilder($setup->getStreams($c));
+            return new StreamBuilder($setup->getStreams());
         };
     }
 }

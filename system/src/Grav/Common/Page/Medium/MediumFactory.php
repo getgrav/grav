@@ -59,12 +59,9 @@ class MediumFactory
 
         $locator = Grav::instance()['locator'];
 
-        $lookup = $locator->findResources('image://');
-        foreach ($lookup as $lookupPath) {
-            if (is_file($lookupPath . '/' . $params['thumb'])) {
-                $params['thumbnails']['default'] = $lookupPath . '/' . $params['thumb'];
-                break;
-            }
+        $file = $locator->findResource("image://{$params['thumb']}");
+        if ($file) {
+            $params['thumbnails']['default'] = $file;
         }
 
         return static::fromArray($params);

@@ -1,10 +1,12 @@
 <?php
 namespace Grav\Common;
 
+use RocketTheme\Toolbox\Session\Session as BaseSession;
+
 /**
  * Wrapper for Session
  */
-class Session extends \RocketTheme\Toolbox\Session\Session
+class Session extends BaseSession
 {
     protected $grav;
     protected $session;

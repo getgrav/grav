@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common\Data;
 
-use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -15,12 +14,12 @@ class Blueprints
 {
     protected $search;
     protected $types;
-    protected $instances = array();
+    protected $instances = [];
 
     /**
      * @param  string|array  $search  Search path.
      */
-    public function __construct($search)
+    public function __construct($search = 'blueprints://')
     {
         $this->search = $search;
     }
@@ -35,73 +34,7 @@ class Blueprints
     public function get($type)
     {
         if (!isset($this->instances[$type])) {
-            $parents = [];
-            if (is_string($this->search)) {
-                $filename = $this->search . $type . YAML_EXT;
-
-                // Check if search is a stream and resolve the path.
-                if (strpos($filename, '://')) {
-                    $grav = Grav::instance();
-                    /** @var UniformResourceLocator $locator */
-                    $locator = $grav['locator'];
-                    $parents = $locator->findResources($filename);
-                    $filename = array_shift($parents);
-                }
-            } else {
-                $filename = isset($this->search[$type]) ? $this->search[$type] : '';
-            }
-
-            if ($filename && is_file($filename)) {
-                $file = CompiledYamlFile::instance($filename);
-                $blueprints = $file->content();
-            } else {
-                $blueprints = [];
-            }
-
-            $blueprint = new Blueprint($type, $blueprints, $this);
-
-            if (isset($blueprints['@extends'])) {
-                // Extend blueprint by other blueprints.
-                $extends = (array) $blueprints['@extends'];
-
-                if (is_string(key($extends))) {
-                    $extends = [ $extends ];
-                }
-
-                foreach ($extends as $extendConfig) {
-                    $extendType = !is_string($extendConfig) ? empty($extendConfig['type']) ? false : $extendConfig['type'] : $extendConfig;
-
-                    if (!$extendType) {
-                        continue;
-                    } elseif ($extendType === '@parent') {
-                        $parentFile = array_shift($parents);
-                        if (!$parentFile || !is_file($parentFile)) {
-                            continue;
-                        }
-                        $blueprints = CompiledYamlFile::instance($parentFile)->content();
-                        $parent = new Blueprint($type.'-parent', $blueprints, $this);
-                        $blueprint->extend($parent);
-                        continue;
-                    }
-
-                    if (is_string($extendConfig) || empty($extendConfig['context'])) {
-                        $context = $this;
-                    } else {
-                        // Load blueprints from external context.
-                        $array = explode('://', $extendConfig['context'], 2);
-                        $scheme = array_shift($array);
-                        $path = array_shift($array);
-                        if ($path) {
-                            $scheme .= '://';
-                            $extendType = $path ? "{$path}/{$extendType}" : $extendType;
-                        }
-                        $context = new self($scheme);
-                    }
-                    $blueprint->extend($context->get($extendType));
-                }
-            }
-
-            $this->instances[$type] = $blueprint;
+            $this->instances[$type] = $this->loadFile($type);
         }
 
         return $this->instances[$type];
@@ -117,15 +50,15 @@ class Blueprints
         if ($this->types === null) {
             $this->types = array();
 
-            // Check if search is a stream.
-            if (strpos($this->search, '://')) {
-                // Stream: use UniformResourceIterator.
-                $grav = Grav::instance();
-                /** @var UniformResourceLocator $locator */
-                $locator = $grav['locator'];
-                $iterator = $locator->getIterator($this->search, null);
+            $grav = Grav::instance();
+
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+
+            // Get stream / directory iterator.
+            if ($locator->isStream($this->search)) {
+                $iterator = $locator->getIterator($this->search);
             } else {
-                // Not a stream: use DirectoryIterator.
                 $iterator = new \DirectoryIterator($this->search);
             }
 
@@ -138,6 +71,27 @@ class Blueprints
                 $this->types[$name] = ucfirst(strtr($name, '_', ' '));
             }
         }
+
         return $this->types;
+    }
+
+
+    /**
+     * Load blueprint file.
+     *
+     * @param  string  $name  Name of the blueprint.
+     * @return Blueprint
+     */
+    protected function loadFile($name)
+    {
+        $blueprint = new Blueprint($name);
+
+        if (is_array($this->search) || is_object($this->search)) {
+            $blueprint->setOverrides($this->search);
+        } else {
+            $blueprint->setContext($this->search);
+        }
+
+        return $blueprint->load()->init();
     }
 }

@@ -40,10 +40,9 @@ class ZipBackup
         if (!$destination) {
             $destination = Grav::instance()['locator']->findResource('backup://', true);
 
-            if (!$destination)
+            if (!$destination) {
                 throw new \RuntimeException('The backup folder is missing.');
-
-            Folder::mkdir($destination);
+            }
         }
 
         $name = Grav::instance()['config']->get('site.title', basename(GRAV_ROOT));

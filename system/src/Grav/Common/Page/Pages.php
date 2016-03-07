@@ -391,7 +391,7 @@ class Pages
             $blueprint = $this->blueprints->get('default');
         }
 
-        if (!$blueprint->initialized) {
+        if (empty($blueprint->initialized)) {
             $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint]));
             $blueprint->initialized = true;
         }
@@ -470,11 +470,10 @@ class Pages
      */
     public static function getTypes()
     {
-        $locator = Grav::instance()['locator'];
         if (!self::$types) {
             self::$types = new Types();
-            file_exists('theme://blueprints/') && self::$types->scanBlueprints($locator->findResources('theme://blueprints/'));
-            file_exists('theme://templates/') && self::$types->scanTemplates($locator->findResources('theme://templates/'));
+            self::$types->scanBlueprints('theme://blueprints/');
+            self::$types->scanTemplates('theme://templates/');
 
             $event = new Event();
             $event->types = self::$types;
@@ -683,6 +682,7 @@ class Pages
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+
         $pages_dir = $locator->findResource('page://');
 
         if ($config->get('system.cache.enabled')) {
@@ -826,8 +826,10 @@ class Pages
         // set current modified of page
         $last_modified = $page->modified();
 
+        $iterator = new \FilesystemIterator($directory);
+
         /** @var \DirectoryIterator $file */
-        foreach (new \FilesystemIterator($directory) as $file) {
+        foreach ($iterator as $file) {
             $name = $file->getFilename();
 
             // Ignore all hidden files if set.

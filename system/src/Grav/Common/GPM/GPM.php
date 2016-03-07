@@ -201,7 +201,7 @@ class GPM extends Iterator
      *
      * @param $package_name
      *
-     * @return string
+     * @return string|null
      */
     public function getLatestVersionOfPackage($package_name)
     {
@@ -216,6 +216,8 @@ class GPM extends Iterator
         if (isset($repository[$package_name])) {
             return $repository[$package_name]->version;
         }
+
+        return null;
     }
 
     /**

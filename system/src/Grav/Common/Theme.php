@@ -10,8 +10,6 @@ use RocketTheme\Toolbox\File\YamlFile;
  */
 class Theme extends Plugin
 {
-    public $name;
-
     /**
      * Constructor.
      *
@@ -21,8 +19,6 @@ class Theme extends Plugin
      */
     public function __construct(Grav $grav, Config $config, $name)
     {
-        $this->name = $name;
-
         parent::__construct($name, $grav, $config);
     }
 
@@ -39,10 +35,11 @@ class Theme extends Plugin
             return false;
         }
 
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
         $filename = 'config://themes/' . $theme_name . '.yaml';
         $file = YamlFile::instance($locator->findResource($filename, true, true));
-        $content = Grav::instance()['config']->get('themes.' . $theme_name);
+        $content = $grav['config']->get('themes.' . $theme_name);
         $file->save($content);
         $file->free();
 

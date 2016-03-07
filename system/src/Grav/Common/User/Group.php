@@ -54,7 +54,7 @@ class Group extends Data
             $content = [];
         }
 
-        $blueprints = new Blueprints('blueprints://');
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/group');
         if (!isset($content['groupname'])) {
             $content['groupname'] = $groupname;
@@ -69,18 +69,21 @@ class Group extends Data
      */
     public function save()
     {
-        $blueprints = new Blueprints('blueprints://');
+        $grav = Grav::instance();
+        $config = $grav['config'];
+
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/group');
 
         $fields = $blueprint->fields();
 
-        Grav::instance()['config']->set("groups.$this->groupname", []);
+        $config->set("groups.$this->groupname", []);
 
         foreach ($fields as $field) {
             if ($field['type'] == 'text') {
                 $value = $field['name'];
                 if (isset($this->items[$value])) {
-                    Grav::instance()['config']->set("groups.$this->groupname.$value", $this->items[$value]);
+                    $config->set("groups.$this->groupname.$value", $this->items[$value]);
                 }
             }
             if ($field['type'] == 'array') {
@@ -89,7 +92,7 @@ class Group extends Data
 
                 if ($arrayValues) {
                     foreach ($arrayValues as $arrayIndex => $arrayValue) {
-                        Grav::instance()['config']->set("groups.$this->groupname.$value.$arrayIndex", $arrayValue);
+                        $config->set("groups.$this->groupname.$value.$arrayIndex", $arrayValue);
                     }
                 }
             }
@@ -97,8 +100,8 @@ class Group extends Data
 
         $type = 'groups';
         $blueprints = $this->blueprints("config/{$type}");
-        $obj = new Data(Grav::instance()['config']->get($type), $blueprints);
-        $file = CompiledYamlFile::instance(Grav::instance()['locator']->findResource("config://{$type}.yaml"));
+        $obj = new Data($config->get($type), $blueprints);
+        $file = CompiledYamlFile::instance($grav['locator']->findResource("config://{$type}.yaml"));
         $obj->file($file);
         $obj->save();
     }
@@ -112,16 +115,18 @@ class Group extends Data
      */
     public static function remove($groupname)
     {
-        $blueprints = new Blueprints('blueprints://');
+        $grav = Grav::instance();
+        $config = $grav['config'];
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/group');
 
-        $groups = Grav::instance()['config']->get("groups");
+        $groups = $config->get("groups");
         unset($groups[$groupname]);
-        Grav::instance()['config']->set("groups", $groups);
+        $config->set("groups", $groups);
 
         $type = 'groups';
-        $obj = new Data(Grav::instance()['config']->get($type), $blueprint);
-        $file = CompiledYamlFile::instance(Grav::instance()['locator']->findResource("config://{$type}.yaml"));
+        $obj = new Data($config->get($type), $blueprint);
+        $file = CompiledYamlFile::instance($grav['locator']->findResource("config://{$type}.yaml"));
         $obj->file($file);
         $obj->save();
 

@@ -100,8 +100,6 @@ class Page
 
     /**
      * Page Object Constructor
-     *
-     * @return $this
      */
     public function __construct()
     {
@@ -111,8 +109,6 @@ class Page
         $this->taxonomy = [];
         $this->process = $config->get('system.pages.process');
         $this->published = true;
-
-        return $this;
     }
 
     /**
@@ -883,12 +879,14 @@ class Page
      */
     public function blueprints()
     {
+        $grav = Grav::instance();
+
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = $grav['pages'];
 
         $blueprint = $pages->blueprints($this->blueprintName());
         $fields = $blueprint->fields();
-        $edit_mode = isset(Grav::instance()['admin']) ? Grav::instance()['config']->get('plugins.admin.edit_mode') : null;
+        $edit_mode = isset($grav['admin']) ? $grav['config']->get('plugins.admin.edit_mode') : null;
 
         // override if you only want 'normal' mode
         if (empty($fields) && ($edit_mode == 'auto' || $edit_mode == 'normal')) {
@@ -1419,17 +1417,19 @@ class Page
      */
     public function url($include_host = false, $canonical = false, $include_lang = true)
     {
+        $grav = Grav::instance();
+
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = $grav['pages'];
 
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = $grav['config'];
 
         /** @var Language $language */
-        $language = Grav::instance()['language'];
+        $language = $grav['language'];
 
         /** @var Uri $uri */
-        $uri = Grav::instance()['uri'];
+        $uri = $grav['uri'];
 
         // get pre-route
         if ($include_lang && $language->enabled()) {
