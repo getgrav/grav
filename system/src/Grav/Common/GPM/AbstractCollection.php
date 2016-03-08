@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common\GPM;
 
-use Grav\Common\Grav;
 use Grav\Common\Iterator;
 
 abstract class AbstractCollection extends Iterator

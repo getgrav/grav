@@ -2,7 +2,6 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Getters;
-use Grav\Common\Grav;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 
