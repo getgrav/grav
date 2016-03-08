@@ -2,7 +2,6 @@
 namespace Grav\Console\Cli\DevTools;
 
 use Grav\Common\Inflector;
-use Grav\Common\GPM\GPM;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,11 +21,6 @@ class NewThemeCommand extends DevToolsCommand
      * @var array
      */
     protected $options = [];
-
-    /**
-     * @var gpm
-     */
-    protected $gpm;
 
     /**
      *
@@ -70,7 +64,6 @@ class NewThemeCommand extends DevToolsCommand
     protected function serve()
     {
         $this->init();
-        $this->gpm = new GPM(true);
 
         /**
          * @var array DevToolsCommand $component
@@ -122,8 +115,13 @@ class NewThemeCommand extends DevToolsCommand
             $this->component['author']['email'] = $helper->ask($this->input, $this->output, $question);
         }
 
-        if ($this->component['template'] == 'blank') {
-            //$themesObject = self::getGrav()['themes'];
+        $question = new ChoiceQuestion(
+            'Please choose a template type',
+            array('bootstrap', 'inheritence')
+        );
+        $this->component['template'] = $helper->ask($this->input, $this->output, $question);
+
+        if ($this->component['template'] == 'inheritence') {
             $themes = $this->gpm->getInstalledThemes();
             $installedThemes = [];
             foreach($themes as $key => $theme) {
@@ -133,11 +131,10 @@ class NewThemeCommand extends DevToolsCommand
                 'Please choose a theme to extend: ',
                 $installedThemes
             );
-            //dump($this->gpm->getInstalledThemes());
             $this->component['extends'] = $helper->ask($this->input, $this->output, $question);
         }
-        //$this->copyComponent();
-        //$this->renameComponent();
+        $this->copyComponent();
+        $this->renameComponent();
     }
 
 }

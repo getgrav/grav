@@ -1,9 +1,11 @@
 <?php
 namespace Grav\Console\Cli\DevTools;
 
+use Grav\Common\Grav;
 use Grav\Common\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\GPM\GPM;
 use Grav\Common\Inflector;
 use Grav\Console\ConsoleCommand;
 
@@ -29,14 +31,31 @@ class DevToolsCommand extends ConsoleCommand
      */
     protected $locator;
 
+    protected $data;
+
+    /**
+     * @var gpm
+     */
+    protected $gpm;
+
 
     /**
      *
      */
     protected function init()
     {
-        $this->inflector    = self::getGrav()['inflector'];
-        $this->locator      = self::getGrav()['locator'];
+        $autoload = require_once GRAV_ROOT . '/vendor/autoload.php';
+        if (!function_exists('curl_version')) {
+            exit('FATAL: CLI requires PHP Curl module to be installed');
+        }
+
+        $grav = Grav::instance(array('loader' => $autoload));
+        $grav['config']->init();
+        $grav['uri']->init();
+        $grav['streams'];
+        $this->inflector    = $grav['inflector'];
+        $this->locator      = $grav['locator'];
+        $this->gpm = new GPM(true);
     }
     /**
      *
@@ -134,7 +153,9 @@ class DevToolsCommand extends ConsoleCommand
                 if ($value == null || trim($value) == '') {
                     throw new \RuntimeException('Plugin Name cannot be empty');
                 }
-                // @todo check for existing plugin/theme
+                if (false != $this->gpm->findPackage($value) || false != $this->gpm->isPluginInstalled($value) || false != $this->gpm->isThemeInstalled($value)) {
+                    throw new \RuntimeException('Package exists (either as theme or plugin)');
+                }
 
                 break;
 
