@@ -2,7 +2,6 @@
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
-use Grav\Common\GravTrait;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 
