@@ -22,6 +22,11 @@ class DevToolsCommand extends ConsoleCommand
     protected $component = [];
 
     /**
+     * @Grav
+     */
+    protected $grav;
+
+    /**
      * @var Inflector
      */
     protected $inflector;
@@ -49,12 +54,12 @@ class DevToolsCommand extends ConsoleCommand
             exit('FATAL: CLI requires PHP Curl module to be installed');
         }
 
-        $grav = Grav::instance(array('loader' => $autoload));
-        $grav['config']->init();
-        $grav['uri']->init();
-        $grav['streams'];
-        $this->inflector    = $grav['inflector'];
-        $this->locator      = $grav['locator'];
+        $this->grav = Grav::instance(array('loader' => $autoload));
+        $this->grav['config']->init();
+        $this->grav['uri']->init();
+        $this->grav['streams'];
+        $this->inflector    = $this->grav['inflector'];
+        $this->locator      = $this->grav['locator'];
         $this->gpm = new GPM(true);
     }
     /**
@@ -114,8 +119,6 @@ class DevToolsCommand extends ConsoleCommand
         //Blueprints File
         $filename = $componentFolder . '/blueprints' . YAML_EXT;
         $file = CompiledYamlFile::instance($filename);
-
-        //dump($file);
 
         $blueprints = new Data\Blueprints($type . 's://');
         $blueprint = $blueprints->get($folderName . '/blueprints');
