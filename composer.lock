@@ -134,12 +134,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/erusev/parsedown.git",
-                "reference": "94688f21cc5d8bc85f1783b4c8b98b3288d712cb"
+                "reference": "490a8f35a4163f59230f53c34f1fbb22a864c01e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/94688f21cc5d8bc85f1783b4c8b98b3288d712cb",
-                "reference": "94688f21cc5d8bc85f1783b4c8b98b3288d712cb",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/490a8f35a4163f59230f53c34f1fbb22a864c01e",
+                "reference": "490a8f35a4163f59230f53c34f1fbb22a864c01e",
                 "shasum": ""
             },
             "require": {
@@ -168,7 +168,7 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2016-01-07 17:36:51"
+            "time": "2016-03-09 17:02:39"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -802,16 +802,16 @@
         },
         {
             "name": "symfony/polyfill-iconv",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-iconv.git",
-                "reference": "be8627f0936f86fed0bec16fe79ebb4337299764"
+                "reference": "08e3b8768d785ba7f271ef94906d50f7efe72ce8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-iconv/zipball/be8627f0936f86fed0bec16fe79ebb4337299764",
-                "reference": "be8627f0936f86fed0bec16fe79ebb4337299764",
+                "url": "https://api.github.com/repos/symfony/polyfill-iconv/zipball/08e3b8768d785ba7f271ef94906d50f7efe72ce8",
+                "reference": "08e3b8768d785ba7f271ef94906d50f7efe72ce8",
                 "shasum": ""
             },
             "require": {
@@ -857,11 +857,11 @@
                 "portable",
                 "shim"
             ],
-            "time": "2016-01-20 09:13:37"
+            "time": "2016-02-26 11:31:02"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -1386,16 +1386,16 @@
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "1.0.3",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea"
+                "reference": "bb9024c526b22f3fe6ae55a561fd70653d470aa8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/b1e1c0d55f8083c71eda2c28c12a228d708294ea",
-                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/bb9024c526b22f3fe6ae55a561fd70653d470aa8",
+                "reference": "bb9024c526b22f3fe6ae55a561fd70653d470aa8",
                 "shasum": ""
             },
             "require": {
@@ -1433,7 +1433,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2015-10-15 22:28:00"
+            "time": "2016-03-08 01:15:46"
         },
         {
             "name": "guzzlehttp/psr7",
