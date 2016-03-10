@@ -241,6 +241,10 @@ abstract class Utils
             ignore_user_abort(false);
 
             // fix corrupted files
+            if (Grav::instance()['config']->get('system.cache.gzip')) {
+                // Flush gzhandler buffer if gzip setting was enabled.
+                ob_end_clean();
+            }
             ob_clean();
 
             if ($force_download) {

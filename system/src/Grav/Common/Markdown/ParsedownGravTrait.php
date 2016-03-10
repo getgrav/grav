@@ -2,8 +2,6 @@
 namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
-use Grav\Common\Page\Page;
-use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\Event\Event;
 

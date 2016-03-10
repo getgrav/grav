@@ -2,7 +2,6 @@
 namespace Grav\Common\Backup;
 
 use Grav\Common\Grav;
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\Inflector;
 
 /**
