@@ -1873,7 +1873,7 @@ class Page
     }
 
     /**
-     * Gets and sets the modular var that helps identify this parent page contains modular pages.
+     * Gets and sets the modular var that helps identify this page is a modular child
      *
      * @param  bool $var true if modular_twig
      *
@@ -1885,7 +1885,7 @@ class Page
     }
 
     /**
-     * Gets and sets the modular_twig var that helps identify this page as a modular page that will need
+     * Gets and sets the modular_twig var that helps identify this page as a modular child page that will need
      * twig processing handled differently from a regular page.
      *
      * @param  bool $var true if modular_twig
