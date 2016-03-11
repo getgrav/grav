@@ -1,0 +1,8 @@
+streams:
+ schemes:
+   theme:
+     type: ReadOnlyStream
+     prefixes:
+       '':
+         - user/themes/{{ component.name|hyphenize }}
+         - user/themes/{{ component.extends }}

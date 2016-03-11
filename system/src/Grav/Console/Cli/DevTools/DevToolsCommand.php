@@ -103,6 +103,10 @@ class DevToolsCommand extends ConsoleCommand
                 $file = File::instance($componentFolder . DS . str_replace('.twig', '', $templateFile));
                 $file->content($content);
                 $file->save();
+
+                //Delete twig template
+                $file = File::instance($componentFolder . DS . $templateFile);
+                $file->delete();
             }
         }
     }
@@ -130,10 +134,10 @@ class DevToolsCommand extends ConsoleCommand
             case 'name':
                 //Check If name
                 if ($value == null || trim($value) == '') {
-                    throw new \RuntimeException('Plugin Name cannot be empty');
+                    throw new \RuntimeException('Name cannot be empty');
                 }
-                if (false != $this->gpm->findPackage($value) || false != $this->gpm->isPluginInstalled($value) || false != $this->gpm->isThemeInstalled($value)) {
-                    throw new \RuntimeException('Package exists (either as theme or plugin)');
+                if (false != $this->gpm->findPackage($value)) {
+                    throw new \RuntimeException('Package name exists in GPM');
                 }
 
                 break;
