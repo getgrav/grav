@@ -3,10 +3,12 @@ namespace Grav\Console\Cli\DevTools;
 
 use Grav\Common\Grav;
 use Grav\Common\Data;
-use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\Inflector;
+use Grav\Common\Twig\Twig;
+use Grav\Common\Utils;
+use RocketTheme\Toolbox\File\File;
 use Grav\Console\ConsoleCommand;
 
 /**
@@ -36,6 +38,11 @@ class DevToolsCommand extends ConsoleCommand
      */
     protected $locator;
 
+    /**
+     * @var Twig
+     */
+    protected $twig;
+
     protected $data;
 
     /**
@@ -51,7 +58,7 @@ class DevToolsCommand extends ConsoleCommand
     {
         $autoload = require_once GRAV_ROOT . '/vendor/autoload.php';
         if (!function_exists('curl_version')) {
-            exit('FATAL: CLI requires PHP Curl module to be installed');
+            exit('FATAL: DEVTOOLS requires PHP Curl module to be installed');
         }
 
         $this->grav = Grav::instance(array('loader' => $autoload));
@@ -60,75 +67,41 @@ class DevToolsCommand extends ConsoleCommand
         $this->grav['streams'];
         $this->inflector    = $this->grav['inflector'];
         $this->locator      = $this->grav['locator'];
-        $this->gpm = new GPM(true);
+        $this->twig         = new Twig($this->grav);
+        $this->gpm          = new GPM(true);
     }
+
     /**
      *
      */
-    protected function copyComponent()
+    protected function createComponent()
     {
         $name       = $this->component['name'];
         $folderName = $this->inflector->hyphenize($name);
         $type       = $this->component['type'];
+
         $template   = $this->component['template'];
-
-
         $templateFolder     = __DIR__ . '/components/' . $type . DS . $template;
         $componentFolder    = $this->locator->findResource($type . 's://') . DS . $folderName;
 
+        //Copy All files to component folder
         Folder::copy($templateFolder, $componentFolder);
-        return;
-    }
 
-    protected function renameComponent()
-    {
-        $name       = $this->component['name'];
-        $className  = $this->inflector->camelize($name);
-        $folderName = $this->inflector->hyphenize($name);
-        $titleName  = $this->inflector->titleize($name);
-        $description = $this->component['description'];
-        $type       = $this->component['type'];
-        $template   = $this->component['template'];
+        //Add Twig vars and templates then initialize
+        $this->twig->twig_vars['component'] = $this->component;
+        $this->twig->twig_paths[] = $templateFolder;
+        $this->twig->init();
 
-        unset($this->component['type']);
-        unset($this->component['template']);
-
-        $componentFolder = $this->locator->findResource($type . 's://') . DS . $folderName;
-
-        rename($componentFolder . '/' . $type . '.php'   , $componentFolder . DS . $folderName . PLUGIN_EXT);
-        rename($componentFolder . '/' . $type . '.yaml'  , $componentFolder . DS . $folderName . YAML_EXT);
-
-        //PHP File
-
-        $data = file_get_contents($componentFolder . DS . $folderName . PLUGIN_EXT);
-
-        $data = str_replace('@@CLASSNAME@@', $className, $data); // @todo dynamic renaming
-        $data = str_replace('@@HYPHENNAME@@', $folderName, $data);
-
-        file_put_contents($componentFolder . DS . $folderName . PLUGIN_EXT, $data);
-
-        //README File
-
-        $data = file_get_contents($componentFolder . DS . 'README.md');
-
-        $data = str_replace('@@NAME@@', $titleName, $data); // @todo dynamic renaming
-        $data = str_replace('@@DESCRIPTION@@', $description, $data);
-
-        file_put_contents($componentFolder . DS . 'README.md', $data);
-
-        //Blueprints File
-        $filename = $componentFolder . '/blueprints' . YAML_EXT;
-        $file = CompiledYamlFile::instance($filename);
-
-        $blueprints = new Data\Blueprints($type . 's://');
-        $blueprint = $blueprints->get($folderName . '/blueprints');
-
-        $obj = new Data\Data([], $blueprint);
-        $obj->merge($this->component);
-        $obj->file($file);
-        $obj->save();
-
-        return;
+        //Get all templates of component then process each with twig and save
+        $templates = Folder::all($componentFolder);
+        foreach($templates as $templateFile) {
+            if (Utils::endsWith($templateFile, '.twig') && !Utils::endsWith($templateFile, '.html.twig')) {
+                $content = $this->twig->processTemplate($templateFile);
+                $file = File::instance($componentFolder . DS . str_replace('.twig', '', $templateFile));
+                $file->content($content);
+                $file->save();
+            }
+        }
     }
 
     /**

@@ -132,8 +132,7 @@ class NewPluginCommand extends DevToolsCommand
 
             $this->component['author']['email'] = $helper->ask($this->input, $this->output, $question);
         }
-        $this->copyComponent();
-        $this->renameComponent();
+        $this->createComponent();
     }
 
 }

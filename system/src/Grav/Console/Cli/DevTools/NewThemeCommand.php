@@ -89,28 +89,36 @@ class NewThemeCommand extends DevToolsCommand
 
         if (!$this->options['name']) {
             $question = new Question('Enter <yellow>Theme Name</yellow>: ');
-            // @todo set validator
+            $question->setValidator(function ($value) {
+                return $this->validate('name', $value);
+            });
 
             $this->component['name'] = $helper->ask($this->input, $this->output, $question);
         }
 
         if (!$this->options['description']) {
             $question = new Question('Enter <yellow>Theme Description</yellow>: ');
-            // @todo set validator
+            $question->setValidator(function ($value) {
+                return $this->validate('description', $value);
+            });
 
             $this->component['description'] = $helper->ask($this->input, $this->output, $question);
         }
 
         if (!$this->options['author']['name']) {
             $question = new Question('Enter <yellow>Developer Name</yellow>: ');
-            // @todo set validator
+            $question->setValidator(function ($value) {
+                return $this->validate('developer', $value);
+            });
 
             $this->component['author']['name'] = $helper->ask($this->input, $this->output, $question);
         }
 
         if (!$this->options['author']['email']) {
             $question = new Question('Enter <yellow>Developer Email</yellow>: ');
-            // @todo set validator
+            $question->setValidator(function ($value) {
+                return $this->validate('email', $value);
+            });
 
             $this->component['author']['email'] = $helper->ask($this->input, $this->output, $question);
         }
@@ -133,8 +141,7 @@ class NewThemeCommand extends DevToolsCommand
             );
             $this->component['extends'] = $helper->ask($this->input, $this->output, $question);
         }
-        $this->copyComponent();
-        $this->renameComponent();
+        $this->createComponent();
     }
 
 }
