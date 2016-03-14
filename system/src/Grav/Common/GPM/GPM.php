@@ -466,6 +466,24 @@ class GPM extends Iterator
 
 
     /**
+     * Get the required version of a dependency of a package
+     *
+     * @param $package_slug
+     * @param $dependency_slug
+     *
+     * @return mixed
+     */
+    public function getVersionOfDependencyRequiredByPackage($package_slug, $dependency_slug)
+    {
+        $dependencies = $this->getInstalledPlugin($package_slug)->dependencies;
+        foreach($dependencies as $dependency) {
+            if (isset($dependency[$dependency_slug])) {
+                return $dependency[$dependency_slug];
+            }
+        }
+    }
+
+    /**
      * Fetch the dependencies, check the installed packages and return an array with
      * the list of packages with associated an information on what to do: install, update or ignore.
      *
@@ -480,13 +498,13 @@ class GPM extends Iterator
      */
     public function getDependencies($packages) {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
-        foreach ($dependencies as $dependencySlug => $dependencyVersionWithOperator) {
-            if ($this->isPluginInstalled($dependencySlug)) {
+        foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
+            if ($this->isPluginInstalled($dependency_slug)) {
                 $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
 
                 // get currently installed version
                 $locator = Grav::instance()['locator'];
-                $blueprints_path = $locator->findResource('plugins://' . $dependencySlug . DS . 'blueprints.yaml');
+                $blueprints_path = $locator->findResource('plugins://' . $dependency_slug . DS . 'blueprints.yaml');
                 $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
                 $currentlyInstalledVersion = $package_yaml['version'];
 
@@ -497,16 +515,37 @@ class GPM extends Iterator
                             $currentlyInstalledVersion);
 
                         if (!$compatible) {
-                            throw new \Exception('Dependency <cyan>' . $dependencySlug . '</cyan> is required in an older version than the one installed. This package must be updated. Please get in touch with its developer.',
+                            throw new \Exception('Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the one installed. This package must be updated. Please get in touch with its developer.',
                                 2);
                         }
                     } else {
-                        //TODO: check if a currently installed package need this in a lower version. In case, abort and tell which one.
+
+                        // check if any of the currently installed package need this in a lower version than the one we need. In case, abort and tell which package
+                        $dependent_packages = $this->getPackagesThatDependOnPackage($dependency_slug);
+
+                        if (count($dependent_packages)) {
+                            foreach($dependent_packages as $dependent_package) {
+
+                                $otherDependencyVersionWithOperator = $this->getVersionOfDependencyRequiredByPackage($dependent_package, $dependency_slug);
+                                $otherDependencyVersion= $this->calculateVersionNumberFromDependencyVersion($otherDependencyVersionWithOperator);
+
+                                // if requirement is next significant release, check it's compatible with the one needed by the current package
+                                if ($this->versionFormatIsNextSignificantRelease($dependencyVersionWithOperator)) {
+                                    $compatible = $this->checkNextSignificantReleasesAreCompatible($dependencyVersion,
+                                        $otherDependencyVersion);
+
+                                    if (!$compatible) {
+                                        throw new \Exception("Dependency <cyan>$dependency_slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$dependency_slug</cyan>.",
+                                            2);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
                 //if I already have the latest release, remove the dependency
-                $latestRelease = $this->getLatestVersionOfPackage($dependencySlug);
+                $latestRelease = $this->getLatestVersionOfPackage($dependency_slug);
 
 
                 if ($this->firstVersionIsLower($latestRelease, $dependencyVersion)) {
@@ -515,13 +554,13 @@ class GPM extends Iterator
                 }
 
                 if ($this->firstVersionIsLower($currentlyInstalledVersion, $dependencyVersion)) {
-                    $dependencies[$dependencySlug] = 'update';
+                    $dependencies[$dependency_slug] = 'update';
                 } else {
                     if ($currentlyInstalledVersion == $latestRelease) {
-                        unset($dependencies[$dependencySlug]);
+                        unset($dependencies[$dependency_slug]);
                     } else {
                         // an update is not strictly required mark as 'ignore'
-                        $dependencies[$dependencySlug] = 'ignore';
+                        $dependencies[$dependency_slug] = 'ignore';
                     }
                 }
             } else {
@@ -529,19 +568,19 @@ class GPM extends Iterator
 
                 // if requirement is next significant release, check is compatible with latest available version, might not be
                 if ($this->versionFormatIsNextSignificantRelease($dependencyVersionWithOperator)) {
-                    $latestVersionOfPackage = $this->getLatestVersionOfPackage($dependencySlug);
+                    $latestVersionOfPackage = $this->getLatestVersionOfPackage($dependency_slug);
                     if ($this->firstVersionIsLower($dependencyVersion, $latestVersionOfPackage)) {
                         $compatible = $this->checkNextSignificantReleasesAreCompatible($dependencyVersion,
                             $latestVersionOfPackage);
 
                         if (!$compatible) {
-                            throw new \Exception('Dependency <cyan>' . $dependencySlug . '</cyan> is required in an older version than the latest release available, and it cannot be installed. This package must be updated. Please get in touch with its developer.',
+                            throw new \Exception('Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the latest release available, and it cannot be installed. This package must be updated. Please get in touch with its developer.',
                                 2);
                         }
                     }
                 }
 
-                $dependencies[$dependencySlug] = 'install';
+                $dependencies[$dependency_slug] = 'install';
             }
         }
 
