@@ -19,10 +19,10 @@ class UninstallCommand extends ConsoleCommand
      * @var
      */
     protected $data;
-    /**
-     * @var
-     */
+
+    /** @var GPM */
     protected $gpm;
+
     /**
      * @var
      */
@@ -130,26 +130,31 @@ class UninstallCommand extends ConsoleCommand
      *
      * @return bool
      */
-    private function uninstallPackage($slug, $package)
+    private function uninstallPackage($slug, $package, $is_dependency = false)
     {
+        if (!$slug) {
+            return false;
+        }
+
         //check if there are packages that have this as a dependency. Abort and show list
-        $dependency_packages = $this->gpm->getPackagesThatDependOnPackage($slug);
-        if (count($dependency_packages) > 0) {
+        $dependent_packages = $this->gpm->getPackagesThatDependOnPackage($slug);
+        if (count($dependent_packages) > ($is_dependency ? 1 : 0)) {
             $this->output->writeln('');
             $this->output->writeln('');
             $this->output->writeln("<red>Uninstallation failed.</red>");
             $this->output->writeln('');
-            if (count($dependency_packages) > 1) {
-                $this->output->writeln("The installed packages <cyan>" . implode('</cyan>, <cyan>', $dependency_packages) . "</cyan> depend on this package. Please remove those first.");
+            if (count($dependent_packages) > ($is_dependency ? 2 : 1)) {
+                $this->output->writeln("The installed packages <cyan>" . implode('</cyan>, <cyan>', $dependent_packages) . "</cyan> depends on this package. Please remove those first.");
             } else {
-                $this->output->writeln("The installed package <cyan>" . implode('</cyan>, <cyan>', $dependency_packages) . "</cyan> depend on this package. Please remove it first.");
+                $this->output->writeln("The installed package <cyan>" . implode('</cyan>, <cyan>', $dependent_packages) . "</cyan> depends on this package. Please remove it first.");
             }
 
             $this->output->writeln('');
             return false;
         }
 
-        $path = Grav::instance()['locator']->findResource($package->package_type . '://' .$slug);
+        $locator = Grav::instance()['locator'];
+        $path = $locator->findResource($package->package_type . '://' . $slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
 
@@ -182,7 +187,7 @@ class UninstallCommand extends ConsoleCommand
                 if ($answer) {
                     $this->output->writeln("  |     '- <red>You decided to delete " . $dependency . ".</red>");
 
-                    $uninstall = $this->uninstallPackage($dependency, $dependencyPackage);
+                    $uninstall = $this->uninstallPackage($dependency, $dependencyPackage, true);
 
                     if (!$uninstall) {
                         $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
