@@ -208,13 +208,13 @@ class GPM extends Iterator
         $repository = $this->repository['plugins'];
 
         if (isset($repository[$package_name])) {
-            return $repository[$package_name]->version;
+            return $repository[$package_name]->available;
         }
 
         //Not a plugin, it's a theme?
         $repository = $this->repository['themes'];
         if (isset($repository[$package_name])) {
-            return $repository[$package_name]->version;
+            return $repository[$package_name]->available;
         }
 
         return null;
@@ -484,6 +484,41 @@ class GPM extends Iterator
     }
 
     /**
+     * Check the package identified by $slug can be updated to the version passed as argument.
+     * Thrown an exception if it cannot be updated because another package installed requires it to be at an older version.
+     *
+     * @param string $slug
+     * @param string $versionWithOperator The new version, with operator e.g. '~2.0' or '>=2.0'
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function checkNoOtherPackageNeedsThisDependencyInALowerVersion($slug, $versionWithOperator) {
+        // check if any of the currently installed package need this in a lower version than the one we need. In case, abort and tell which package
+        $dependent_packages = $this->getPackagesThatDependOnPackage($slug);
+        $version = $this->calculateVersionNumberFromDependencyVersion($versionWithOperator);
+
+        if (count($dependent_packages)) {
+            foreach($dependent_packages as $dependent_package) {
+                $otherDependencyVersionWithOperator = $this->getVersionOfDependencyRequiredByPackage($dependent_package, $slug);
+                $otherDependencyVersion= $this->calculateVersionNumberFromDependencyVersion($otherDependencyVersionWithOperator);
+
+                // check version is compatible with the one needed by the current package
+                if ($this->versionFormatIsNextSignificantRelease($otherDependencyVersionWithOperator)) {
+                    $compatible = $this->checkNextSignificantReleasesAreCompatible($version,
+                        $otherDependencyVersion);
+                    if (!$compatible) {
+                        throw new \Exception("Package <cyan>$slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$slug</cyan>.",
+                            2);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Fetch the dependencies, check the installed packages and return an array with
      * the list of packages with associated an information on what to do: install, update or ignore.
      *
@@ -519,28 +554,7 @@ class GPM extends Iterator
                                 2);
                         }
                     } else {
-
-                        // check if any of the currently installed package need this in a lower version than the one we need. In case, abort and tell which package
-                        $dependent_packages = $this->getPackagesThatDependOnPackage($dependency_slug);
-
-                        if (count($dependent_packages)) {
-                            foreach($dependent_packages as $dependent_package) {
-
-                                $otherDependencyVersionWithOperator = $this->getVersionOfDependencyRequiredByPackage($dependent_package, $dependency_slug);
-                                $otherDependencyVersion= $this->calculateVersionNumberFromDependencyVersion($otherDependencyVersionWithOperator);
-
-                                // if requirement is next significant release, check it's compatible with the one needed by the current package
-                                if ($this->versionFormatIsNextSignificantRelease($dependencyVersionWithOperator)) {
-                                    $compatible = $this->checkNextSignificantReleasesAreCompatible($dependencyVersion,
-                                        $otherDependencyVersion);
-
-                                    if (!$compatible) {
-                                        throw new \Exception("Dependency <cyan>$dependency_slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$dependency_slug</cyan>.",
-                                            2);
-                                    }
-                                }
-                            }
-                        }
+                        $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion($dependency_slug, $dependencyVersionWithOperator);
                     }
                 }
 
@@ -700,24 +714,28 @@ class GPM extends Iterator
      * Examples:
      *      $versionInformation == '~2.0' => returns '2.0'
      *      $versionInformation == '>=2.0.2' => returns '2.0.2'
+     *      $versionInformation == '2.0.2' => returns '2.0.2'
      *      $versionInformation == '*' => returns null
      *      $versionInformation == '' => returns null
      *
-     * @param $versionInformation
+     * @param string $version
      *
      * @return null|string
      */
-    public function calculateVersionNumberFromDependencyVersion($versionInformation)
+    public function calculateVersionNumberFromDependencyVersion($version)
     {
-        if ($this->versionFormatIsNextSignificantRelease($versionInformation)) {
-            return substr($versionInformation, 1);
-        } elseif ($this->versionFormatIsEqualOrHigher($versionInformation)) {
-            return substr($versionInformation, 2);
+        if ($version == '*') {
+            return null;
+        } elseif ($version == '') {
+            return null;
+        } elseif ($this->versionFormatIsNextSignificantRelease($version)) {
+            return substr($version, 1);
+        } elseif ($this->versionFormatIsEqualOrHigher($version)) {
+            return substr($version, 2);
+        } else {
+            return $version;
         }
-
-        return null;
     }
-
 
     /**
      * Check if the passed version information contains next significant release (tilde) operator

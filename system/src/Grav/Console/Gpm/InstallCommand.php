@@ -189,6 +189,14 @@ class InstallCommand extends ConsoleCommand
                         $this->processPackage($package, true);
                     } else {
                         if (Installer::lastErrorCode() == Installer::EXISTS) {
+
+                            try {
+                                $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available);
+                            } catch (\Exception $e) {
+                                $this->output->writeln("<red>" . $e->getMessage() . "</red>");
+                                return false;
+                            }
+
                             $helper = $this->getHelper('question');
                             $question = new ConfirmationQuestion("The package <cyan>$packageName</cyan> is already installed, overwrite? [y|N] ", false);
 

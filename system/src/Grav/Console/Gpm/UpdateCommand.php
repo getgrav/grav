@@ -122,7 +122,7 @@ class UpdateCommand extends ConsoleCommand
                 }
 
                 $this->output->writeln(
-                // index
+                    // index
                     str_pad($index++ + 1, 2, '0', STR_PAD_LEFT) . ". " .
                     // name
                     "<cyan>" . str_pad($package->name, 15) . "</cyan> " .
