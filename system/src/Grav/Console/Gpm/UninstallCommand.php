@@ -177,7 +177,7 @@ class UninstallCommand extends ConsoleCommand
 
             foreach($package->dependencies as $dependency) {
                 if (is_array($dependency)) {
-                    $dependency = array_keys($dependency)[0];
+                    $dependency = $dependency['name'];
                 }
 
                 $dependencyPackage = $this->gpm->findPackage($dependency);
