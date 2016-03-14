@@ -314,6 +314,6 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->assertSame('1', $this->gpm->calculateVersionNumberFromDependencyVersion('~1'));
         $this->assertSame(null, $this->gpm->calculateVersionNumberFromDependencyVersion(''));
         $this->assertSame(null, $this->gpm->calculateVersionNumberFromDependencyVersion('*'));
-        $this->assertSame(null, $this->gpm->calculateVersionNumberFromDependencyVersion('2.0.2'));
+        $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('2.0.2'));
     }
 }
