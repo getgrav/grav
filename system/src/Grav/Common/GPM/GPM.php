@@ -519,6 +519,20 @@ class GPM extends Iterator
     }
 
     /**
+     * Check the passed packages list can be updated
+     *
+     * @param $packages_names_list
+     *
+     * @throws \Exception
+     */
+    public function checkPackagesCanBeInstalled($packages_names_list)
+    {
+        foreach ($packages_names_list as $package_name) {
+            $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package_name, $this->getLatestVersionOfPackage($package_name));
+        }
+    }
+
+    /**
      * Fetch the dependencies, check the installed packages and return an array with
      * the list of packages with associated an information on what to do: install, update or ignore.
      *
