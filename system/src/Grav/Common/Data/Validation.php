@@ -4,6 +4,7 @@ namespace Grav\Common\Data;
 use Grav\Common\Grav;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Data validation.
@@ -622,6 +623,25 @@ class Validation
     protected static function filterList($value, array $params, array $field)
     {
         return (array) $value;
+    }
+
+    public static function typeYaml($value, $params)
+    {
+        try {
+            Yaml::parse($value);
+            return true;
+        } catch (ParseException $e) {
+            return false;
+        }
+    }
+
+    public static function filterYaml($value, $params)
+    {
+        try {
+            return (array) Yaml::parse($value);
+        } catch (ParseException $e) {
+            return null;
+        }
     }
 
     /**
