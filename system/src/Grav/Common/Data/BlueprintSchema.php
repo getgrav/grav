@@ -69,7 +69,6 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
         foreach ($data as $key => $field) {
             $val = isset($rules[$key]) ? $rules[$key] : (isset($rules['*']) ? $rules['*'] : null);
-
             $rule = is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
@@ -97,7 +96,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     {
         $results = array();
         foreach ($data as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : null;
+            $val = isset($rules[$key]) ? $rules[$key] : (isset($rules['*']) ? $rules['*'] : null);
             $rule = is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
