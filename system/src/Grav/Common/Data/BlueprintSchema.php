@@ -69,7 +69,8 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         $messages = $this->checkRequired($data, $rules);
 
         foreach ($data as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : null;
+            $val = isset($rules[$key]) ? $rules[$key] : (isset($rules['*']) ? $rules['*'] : null);
+
             $rule = is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
