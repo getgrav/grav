@@ -180,9 +180,9 @@ class InstallCommand extends ConsoleCommand
 
         //We're done installing dependencies. Install the actual packages
         foreach ($this->data as $data) {
-            foreach ($data as $packageName => $package) {
-                if (in_array($packageName, array_keys($dependencies))) {
-                    $this->output->writeln("<green>Package " . $packageName . " already installed as dependency</green>");
+            foreach ($data as $package_name => $package) {
+                if (in_array($package_name, array_keys($dependencies))) {
+                    $this->output->writeln("<green>Package " . $package_name . " already installed as dependency</green>");
                 } else {
                     $is_valid_destination = Installer::isValidDestination($this->destination . DS . $package->install_path);
                     if ($is_valid_destination || Installer::lastErrorCode() == Installer::NOT_FOUND) {
@@ -191,6 +191,7 @@ class InstallCommand extends ConsoleCommand
                         if (Installer::lastErrorCode() == Installer::EXISTS) {
 
                             try {
+                                $this->askConfirmationIfMajorVersionUpdated($package);
                                 $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available);
                             } catch (\Exception $e) {
                                 $this->output->writeln("<red>" . $e->getMessage() . "</red>");
@@ -198,12 +199,12 @@ class InstallCommand extends ConsoleCommand
                             }
 
                             $helper = $this->getHelper('question');
-                            $question = new ConfirmationQuestion("The package <cyan>$packageName</cyan> is already installed, overwrite? [y|N] ", false);
+                            $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> is already installed, overwrite? [y|N] ", false);
 
                             if ($helper->ask($this->input, $this->output, $question)) {
                                 $this->processPackage($package, true);
                             } else {
-                                $this->output->writeln("<yellow>Package " . $packageName . " not overwritten</yellow>");
+                                $this->output->writeln("<yellow>Package " . $package_name . " not overwritten</yellow>");
                             }
                         }
                     }
@@ -224,6 +225,33 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
+     * If the package is updated from an older major release, show warning and ask confirmation
+     *
+     * @param $package
+     */
+    public function askConfirmationIfMajorVersionUpdated($package)
+    {
+        $helper = $this->getHelper('question');
+        $package_name = $package->name;
+        $new_version = $package->available;
+        $old_version = $package->version;
+
+        $major_version_changed = explode('.', $new_version)[0] !== explode('.', $old_version)[0];
+
+        if ($major_version_changed) {
+            $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>. Be sure to read what changed with the new major release. Continue? [y|N] ", false);
+
+            if ($helper->ask($this->input, $this->output, $question)) {
+                exit();
+                $this->processPackage($package, true);
+            } else {
+                $this->output->writeln("<yellow>Package " . $packageName . " not updated</yellow>");
+                exit;
+            }
+        }
+    }
+
+    /**
      * Given a $dependencies list, filters their type according to $type and
      * shows $message prior to listing them to the user. Then asks the user a confirmation prior
      * to installing them.
@@ -235,7 +263,8 @@ class InstallCommand extends ConsoleCommand
      *
      * @throws \Exception
      */
-    public function installDependencies($dependencies, $type, $message, $required = true) {
+    public function installDependencies($dependencies, $type, $message, $required = true)
+    {
         $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
         if (count($packages) > 0) {
             $this->output->writeln($message);
