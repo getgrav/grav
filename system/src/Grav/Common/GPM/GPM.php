@@ -206,15 +206,14 @@ class GPM extends Iterator
     public function getLatestVersionOfPackage($package_name)
     {
         $repository = $this->repository['plugins'];
-
         if (isset($repository[$package_name])) {
-            return $repository[$package_name]->version;
+            return $repository[$package_name]->available;
         }
 
         //Not a plugin, it's a theme?
         $repository = $this->repository['themes'];
         if (isset($repository[$package_name])) {
-            return $repository[$package_name]->version;
+            return $repository[$package_name]->available;
         }
 
         return null;
