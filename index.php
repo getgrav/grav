@@ -20,7 +20,7 @@ if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
 date_default_timezone_set(@date_default_timezone_get());
 
 // Set internal encoding if mbstring loaded
-if (extension_loaded('mbstring')) {
+if (!extension_loaded('mbstring')) {
     die("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
 }
 mb_internal_encoding('UTF-8');
