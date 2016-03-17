@@ -241,9 +241,7 @@ class InstallCommand extends ConsoleCommand
         if ($major_version_changed) {
             $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>. Be sure to read what changed with the new major release. Continue? [y|N] ", false);
 
-            if ($helper->ask($this->input, $this->output, $question)) {
-                $this->processPackage($package, true);
-            } else {
+            if (!$helper->ask($this->input, $this->output, $question)) {
                 $this->output->writeln("<yellow>Package " . $packageName . " not updated</yellow>");
                 exit;
             }
