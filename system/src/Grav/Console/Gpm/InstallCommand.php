@@ -192,7 +192,7 @@ class InstallCommand extends ConsoleCommand
 
                             try {
                                 $this->askConfirmationIfMajorVersionUpdated($package);
-                                $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available);
+                                $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available, array_keys($data));
                             } catch (\Exception $e) {
                                 $this->output->writeln("<red>" . $e->getMessage() . "</red>");
                                 return false;
