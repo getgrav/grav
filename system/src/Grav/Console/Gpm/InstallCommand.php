@@ -233,7 +233,7 @@ class InstallCommand extends ConsoleCommand
     {
         $helper = $this->getHelper('question');
         $package_name = $package->name;
-        $new_version = $package->available;
+        $new_version = $package->available ? $package->available : $this->gpm->getLatestVersionOfPackage($package->slug);
         $old_version = $package->version;
 
         $major_version_changed = explode('.', $new_version)[0] !== explode('.', $old_version)[0];
