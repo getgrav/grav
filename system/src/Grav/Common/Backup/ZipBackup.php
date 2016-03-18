@@ -23,7 +23,8 @@ class ZipBackup
         '.git',
         '.svn',
         '.hg',
-        '.idea'
+        '.idea',
+        'node_modules'
     ];
 
     /**
