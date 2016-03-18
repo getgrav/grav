@@ -63,6 +63,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('*ize', [$this, 'inflectorFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
+            new \Twig_SimpleFilter('date', [$this, 'dateFilter'], array('needs_environment' => true)),
             new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
             new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
@@ -315,6 +316,67 @@ class TwigExtension extends \Twig_Extension
     public function containsFilter($haystack, $needle)
     {
         return (strpos($haystack, $needle) !== false);
+    }
+
+    /**
+     * Overrides the built-in date filter to output dates in the set locale
+     *
+     * @param TwigEnvironment                               $env      A Twig_Environment instance
+     * @param DateTime|DateTimeInterface|DateInterval|string $date     A date
+     * @param string|null                                    $format   The target format, null to use the default
+     * @param DateTimeZone|string|null|false                 $timezone The target timezone, null to use the default, false to leave unchanged
+     *
+     * @return string The formatted date
+     */
+    function dateFilter(TwigEnvironment $env, $date, $format = null, $timezone = null)
+    {
+        $this->grav->setLocale();
+
+        if (null === $format) {
+            $formats = $env->getExtension('core')->getDateFormat();
+            $format = $date instanceof DateInterval ? $formats[1] : $formats[0];
+        }
+
+        if ($date instanceof DateInterval) {
+            return strftime($this->dateFormatToStrftime($format), $date->getTimestamp());
+        }
+
+        return strftime($this->dateFormatToStrftime($format), \twig_date_converter($env, $date, $timezone)->getTimestamp());
+    }
+
+    /**
+    * Convert a date format to a strftime format
+    *
+    * Timezone conversion is done for unix. Windows users must exchange %z and %Z.
+    *
+    * Unsupported date formats : S, n, t, L, B, G, u, e, I, P, Z, c, r
+    * Unsupported strftime formats : %U, %W, %C, %g, %r, %R, %T, %X, %c, %D, %F, %x
+    *
+    * @param string $dateFormat a date format
+    * @return string
+    *
+    * @author https://secure.php.net/manual/it/function.strftime.php#96424
+    */
+    public function dateFormatToStrftime($dateFormat)
+    {
+        $caracs = array(
+            // Day - no strf eq : S
+            'd' => '%d', 'D' => '%a', 'j' => '%e', 'l' => '%A', 'N' => '%u', 'w' => '%w', 'z' => '%j',
+            // Week - no date eq : %U, %W
+            'W' => '%V',
+            // Month - no strf eq : n, t
+            'F' => '%B', 'm' => '%m', 'M' => '%b',
+            // Year - no strf eq : L; no date eq : %C, %g
+            'o' => '%G', 'Y' => '%Y', 'y' => '%y',
+            // Time - no strf eq : B, G, u; no date eq : %r, %R, %T, %X
+            'a' => '%P', 'A' => '%p', 'g' => '%l', 'h' => '%I', 'H' => '%H', 'i' => '%M', 's' => '%S',
+            // Timezone - no strf eq : e, I, P, Z
+            'O' => '%z', 'T' => '%Z',
+            // Full Date / Time - no strf eq : c, r; no date eq : %c, %D, %F, %x
+            'U' => '%s'
+        );
+
+        return strtr((string)$dateFormat, $caracs);
     }
 
     /**
