@@ -4,7 +4,7 @@ namespace Grav;
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!is_file($autoload)) {
-    throw new \RuntimeException("Please run: <i>bin/grav install</i>");
+    die("Please run: <i>bin/grav install</i>");
 }
 
 use Grav\Common\Grav;
