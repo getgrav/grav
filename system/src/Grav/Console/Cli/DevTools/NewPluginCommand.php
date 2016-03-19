@@ -132,6 +132,13 @@ class NewPluginCommand extends DevToolsCommand
 
             $this->component['author']['email'] = $helper->ask($this->input, $this->output, $question);
         }
+        
+        $question = new ChoiceQuestion(
+            'Please choose a base plugin: ',
+            array('blank', 'random')
+        );
+        $this->component['template'] = $helper->ask($this->input, $this->output, $question);
+        
         $this->createComponent();
     }
 

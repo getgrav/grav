@@ -80,7 +80,7 @@ class DevToolsCommand extends ConsoleCommand
     protected function createComponent()
     {
         $name       = $this->component['name'];
-        $folderName = $this->inflector->hyphenize($name);
+        $folderName = strtolower($this->inflector->hyphenize($name));
         $type       = $this->component['type'];
 
         $template   = $this->component['template'];
@@ -109,6 +109,9 @@ class DevToolsCommand extends ConsoleCommand
                 $file->delete();
             }
         }
+        
+        rename($componentFolder . DS . $type . '.php', $componentFolder . DS . $this->inflector->hyphenize($name) . '.php');
+        rename($componentFolder . DS . $type . '.yaml', $componentFolder . DS . $this->inflector->hyphenize($name) . '.yaml');
     }
 
     /**
