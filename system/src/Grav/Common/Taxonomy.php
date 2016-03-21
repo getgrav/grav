@@ -76,7 +76,7 @@ class Taxonomy
      * particular taxonomy.
      *
      * @param  array  $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
-     * @param  string $operator   can be 'or' or 'and' (defaults to 'or')
+     * @param  string $operator   can be 'or' or 'and' (defaults to 'and')
      *
      * @return Collection       Collection object set to contain matches found in the taxonomy map
      */
