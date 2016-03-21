@@ -224,13 +224,13 @@ class GPM extends Iterator
     {
         $repository = $this->repository['plugins'];
         if (isset($repository[$package_name])) {
-            return $repository[$package_name]->available;
+            return $repository[$package_name]->available ?: $repository[$package_name]->version;
         }
 
         //Not a plugin, it's a theme?
         $repository = $this->repository['themes'];
         if (isset($repository[$package_name])) {
-            return $repository[$package_name]->available;
+            return $repository[$package_name]->available ?: $repository[$package_name]->version;
         }
 
         return null;
