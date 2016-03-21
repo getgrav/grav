@@ -70,6 +70,23 @@ class GPM extends Iterator
     }
 
     /**
+     * Return the instance of a specific Package
+     *
+     * @param  string  $slug The slug of the Package
+     * @return Local\Package The instance of the Package
+     */
+    public function getInstalledPackage($slug)
+    {
+        if (isset($this->installed['plugins'][$slug])) {
+            return $this->installed['plugins'][$slug];
+        }
+
+        if (isset($this->installed['themes'][$slug])) {
+            return $this->installed['themes'][$slug];
+        }
+    }
+
+    /**
      * Return the instance of a specific Plugin
      * @param  string  $slug The slug of the Plugin
      * @return Local\Package The instance of the Plugin
@@ -474,7 +491,7 @@ class GPM extends Iterator
      */
     public function getVersionOfDependencyRequiredByPackage($package_slug, $dependency_slug)
     {
-        $dependencies = $this->getInstalledPlugin($package_slug)->dependencies;
+        $dependencies = $this->getInstalledPackage($package_slug)->dependencies;
         foreach($dependencies as $dependency) {
             if (isset($dependency[$dependency_slug])) {
                 return $dependency[$dependency_slug];
