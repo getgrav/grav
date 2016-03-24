@@ -4,8 +4,6 @@ namespace Grav\Common;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 
-use Grav\Common\Processors\SiteSetupProcessor;
-
 /**
  * Grav
  *
