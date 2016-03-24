@@ -6,7 +6,7 @@ class AssetsProcessor extends ProcessorBase implements ProcessorInterface {
     public $id = 'assets';
     public $title = 'Assets';
 
-    public function process($debugger) {
+    public function process() {
       $this->container['assets']->init();
       $this->container->fireEvent('onAssetsInitialized');
     }

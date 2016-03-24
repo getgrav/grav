@@ -118,8 +118,8 @@ class Grav extends Container
         // process all processors (e.g. config, initialize, assets, ..., render)
         foreach ($this->processors as $processor) {
           $processor = $this[$processor];
-          $this->measureTime($processor->id, $processor->title, function($debugger) use ($processor) {
-            $processor->process($debugger);
+          $this->measureTime($processor->id, $processor->title, function() use ($processor) {
+            $processor->process();
           });
         }
 
@@ -381,7 +381,7 @@ class Grav extends Container
         // then to get it from the container all time.
         $container->measureTime = function($timerId, $timerTitle, $callback) use ($debugger) {
           $debugger->startTimer($timerId, $timerTitle);
-          $callback($debugger);
+          $callback();
           $debugger->stopTimer($timerId);
         };
 

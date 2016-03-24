@@ -6,8 +6,8 @@ class DebuggerInitProcessor extends ProcessorBase implements ProcessorInterface 
     public $id = '_debugger';
     public $title = 'Init Debugger';
 
-    public function process($debugger) {
-      $debugger->init();
+    public function process() {
+      $this->container['debugger']->init();
     }
 
 }

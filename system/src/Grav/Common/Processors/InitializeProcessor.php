@@ -6,7 +6,7 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface {
     public $id = 'init';
     public $title = 'Initialize';
 
-    public function process($debugger) {
+    public function process() {
       $this->container['config']->debug();
 
       // Use output buffering to prevent headers from being sent too early.

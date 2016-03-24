@@ -6,7 +6,7 @@ class TasksProcessor extends ProcessorBase implements ProcessorInterface {
     public $id = 'tasks';
     public $title = 'Tasks';
 
-    public function process($debugger) {
+    public function process() {
       $task = $this->container['task'];
       if ($task) {
           $this->container->fireEvent('onTask.' . $task);

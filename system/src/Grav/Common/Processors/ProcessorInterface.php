@@ -2,5 +2,5 @@
 namespace Grav\Common\Processors;
 
 interface ProcessorInterface {
-  public function process($debugger);
+  public function process();
 }

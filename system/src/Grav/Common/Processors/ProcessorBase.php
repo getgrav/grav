@@ -6,5 +6,5 @@ class ProcessorBase {
   public function __construct($container) {
     $this->container = $container;
   }
-  
+
 }
