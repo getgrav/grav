@@ -568,6 +568,14 @@ class GPM extends Iterator
     public function getDependencies($packages) {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
         foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
+            //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
+            if ($dependency_slug == 'grav') {
+                if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator), GRAV_VERSION) === 1) {
+                    //Needs a Grav update first
+                    throw new \Exception("<red>One of the packages require Grav " . $dependencies['grav'] . ". Please update Grav to the latest release.");
+                }
+            }
+
             if ($this->isPluginInstalled($dependency_slug)) {
                 $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
 
