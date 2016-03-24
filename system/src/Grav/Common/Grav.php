@@ -398,16 +398,14 @@ class Grav extends Container
      * of a Service Provider or a pair of serviceKey => serviceClass that
      * gets directly mapped into the container.
      *
-     * @param  Container $container
-     *
      * @return void
      */
-    protected function registerServices($container) {
+    protected function registerServices() {
       foreach (self::$diMap as $serviceKey => $serviceClass) {
         if (is_int($serviceKey)) {
-          $this->registerServiceProvider($container, $serviceClass);
+          $this->registerServiceProvider($serviceClass);
         } else {
-          $this->registerService($container, $serviceKey, $serviceClass);
+          $this->registerService($serviceKey, $serviceClass);
         }
       }
     }
@@ -415,26 +413,24 @@ class Grav extends Container
     /**
      * Register a service provider with the container.
      *
-     * @param  Container $container
      * @param  string    $serviceClass
      *
      * @return void
      */
-    protected function registerServiceProvider($container, $serviceClass) {
-      $container->register(new $serviceClass);
+    protected function registerServiceProvider($serviceClass) {
+      $this->register(new $serviceClass);
     }
 
     /**
      * Register a service with the container.
      *
-     * @param  Container $container
      * @param  string    $serviceKey
      * @param  string    $serviceClass
      *
      * @return void
      */
-    protected function registerService($container, $serviceKey, $serviceClass) {
-      $container[$serviceKey] = function ($c) use ($serviceClass) {
+    protected function registerService($serviceKey, $serviceClass) {
+      $this[$serviceKey] = function ($c) use ($serviceClass) {
         return new $serviceClass($c);
       };
     }
