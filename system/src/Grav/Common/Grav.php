@@ -386,7 +386,7 @@ class Grav extends Container
         };
 
         $container->measureTime('_services', 'Services', function() use ($container) {
-          self::registerServices($container);
+          $container->registerServices($container);
         });
 
         return $container;
@@ -402,12 +402,12 @@ class Grav extends Container
      *
      * @return void
      */
-    protected static function registerServices($container) {
+    protected function registerServices($container) {
       foreach (self::$diMap as $serviceKey => $serviceClass) {
         if (is_int($serviceKey)) {
-          self::registerServiceProvider($container, $serviceClass);
+          $this->registerServiceProvider($container, $serviceClass);
         } else {
-          self::registerService($container, $serviceKey, $serviceClass);
+          $this->registerService($container, $serviceKey, $serviceClass);
         }
       }
     }
@@ -420,7 +420,7 @@ class Grav extends Container
      *
      * @return void
      */
-    protected static function registerServiceProvider($container, $serviceClass) {
+    protected function registerServiceProvider($container, $serviceClass) {
       $container->register(new $serviceClass);
     }
 
@@ -433,7 +433,7 @@ class Grav extends Container
      *
      * @return void
      */
-    protected static function registerService($container, $serviceKey, $serviceClass) {
+    protected function registerService($container, $serviceKey, $serviceClass) {
       $container[$serviceKey] = function ($c) use ($serviceClass) {
         return new $serviceClass($c);
       };
