@@ -116,12 +116,12 @@ class Grav extends Container
         $debugger = $this['debugger'];
 
         // process all processors (e.g. config, initialize, assets, ..., render)
-        foreach ($this->processors as $processor):
+        foreach ($this->processors as $processor) {
           $processor = $this[$processor];
           $this->measureTime($processor->id, $processor->title, function($debugger) use ($processor) {
             $processor->process($debugger);
           });
-        endforeach;
+        }
 
         // Set the header type
         $this->header();
@@ -403,13 +403,13 @@ class Grav extends Container
      * @return void
      */
     protected static function registerServices($container) {
-      foreach (self::$diMap as $serviceKey => $serviceClass):
-        if (is_int($serviceKey)):
+      foreach (self::$diMap as $serviceKey => $serviceClass) {
+        if (is_int($serviceKey)) {
           self::registerServiceProvider($container, $serviceClass);
-        else:
+        } else {
           self::registerService($container, $serviceKey, $serviceClass);
-        endif;
-      endforeach;
+        }
+      }
     }
 
     /**
