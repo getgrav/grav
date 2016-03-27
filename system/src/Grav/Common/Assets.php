@@ -488,11 +488,12 @@ class Assets
      * Build the CSS link tags.
      *
      * @param  string $group name of the group
+	 * @param  boolean $inline define if it output as inline element
      * @param  array  $attributes
      *
      * @return string
      */
-    public function css($group = 'head', $attributes = [])
+    public function css($group = 'head', $inline = false, $attributes = [])
     {
         if (!$this->css && !$this->inline_css) {
             return null;
@@ -525,9 +526,13 @@ class Assets
         $inline_css = '';
 
         if ($this->css_pipeline) {
-            $pipeline_result = $this->pipelineCss($group);
+            $pipeline_result = $this->pipelineCss($group, $inline);
             if ($pipeline_result) {
-                $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+                if ($inline) {
+                    $output .= '<style' . $attributes . '>' . $pipeline_result . '</style>';
+                } else {
+                    $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+                }
             }
             foreach ($this->css_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
@@ -563,11 +568,12 @@ class Assets
      * Build the JavaScript script tags.
      *
      * @param  string $group name of the group
+	 * @param  boolean $inline define if it output as inline element
      * @param  array  $attributes
      *
      * @return string
      */
-    public function js($group = 'head', $attributes = [])
+    public function js($group = 'head', $inline = false, $attributes = [])
     {
         if (!$this->js && !$this->inline_js) {
             return null;
@@ -599,10 +605,14 @@ class Assets
         $inline_js = '';
 
         if ($this->js_pipeline) {
-            $pipeline_result = $this->pipelineJs($group);
+            $pipeline_result = $this->pipelineJs($group, $inline);
             if ($pipeline_result) {
-                $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
-            }
+                if ($inline) {
+                    $output .= '<script async defer'. $attributes . '>' . $pipeline_result . '</script>';
+                } else {
+                    $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+                }
+			}
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
@@ -637,7 +647,7 @@ class Assets
      *
      * @return bool|string
      */
-    protected function pipelineCss($group = 'head')
+    protected function pipelineCss($group = 'head', $inline = false)
     {
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
@@ -656,6 +666,9 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
+			if($inline) {
+                return file_get_contents($absolute_path);
+            }
             return $relative_path . $key;
         }
 
@@ -695,6 +708,9 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($absolute_path, $buffer);
 
+			if($inline) {
+                return $buffer;
+            }
             return $relative_path . $key;
         } else {
             return false;
@@ -708,7 +724,7 @@ class Assets
      *
      * @return string
      */
-    protected function pipelineJs($group = 'head')
+    protected function pipelineJs($group = 'head', $inline = false)
     {
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
@@ -727,6 +743,9 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
+			if($inline) {
+                return file_get_contents($absolute_path);
+            }
             return $relative_path . $key;
         }
 
@@ -756,6 +775,9 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($absolute_path, $buffer);
 
+			if($inline) {
+                return $buffer;
+            }
             return $relative_path . $key;
         } else {
             return false;
