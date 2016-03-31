@@ -2134,7 +2134,7 @@ class Page
         /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
 
-        return $pages->dispatch($url, $all);
+        return $pages->find($url, $all);
     }
 
     /**
