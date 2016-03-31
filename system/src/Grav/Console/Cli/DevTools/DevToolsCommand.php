@@ -88,7 +88,12 @@ class DevToolsCommand extends ConsoleCommand
         $componentFolder    = $this->locator->findResource($type . 's://') . DS . $folderName;
 
         //Copy All files to component folder
-        Folder::copy($templateFolder, $componentFolder);
+        try {
+            Folder::copy($templateFolder, $componentFolder);
+        } catch (\Exception $e) {
+            $this->output->writeln("<red>" . $e->getMessage() . "</red>");
+            return false;
+        }
 
         //Add Twig vars and templates then initialize
         $this->twig->twig_vars['component'] = $this->component;
@@ -97,17 +102,26 @@ class DevToolsCommand extends ConsoleCommand
 
         //Get all templates of component then process each with twig and save
         $templates = Folder::all($componentFolder);
-        foreach($templates as $templateFile) {
-            if (Utils::endsWith($templateFile, '.twig') && !Utils::endsWith($templateFile, '.html.twig')) {
-                $content = $this->twig->processTemplate($templateFile);
-                $file = File::instance($componentFolder . DS . str_replace('.twig', '', $templateFile));
-                $file->content($content);
-                $file->save();
 
-                //Delete twig template
-                $file = File::instance($componentFolder . DS . $templateFile);
-                $file->delete();
+        try {
+            foreach($templates as $templateFile) {
+                if (Utils::endsWith($templateFile, '.twig') && !Utils::endsWith($templateFile, '.html.twig')) {
+                    $content = $this->twig->processTemplate($templateFile);
+                    $file = File::instance($componentFolder . DS . str_replace('.twig', '', $templateFile));
+                    $file->content($content);
+                    $file->save();
+
+                    //Delete twig template
+                    $file = File::instance($componentFolder . DS . $templateFile);
+                    $file->delete();
+                }
             }
+        } catch (\Exception $e) {
+            $this->output->writeln("<red>" . $e->getMessage() . "</red>");
+            $this->output->writeln("Rolling back...");
+            Folder::delete($componentFolder);
+            $this->output->writeln($type . "creation failed!");
+            return false;
         }
         
         rename($componentFolder . DS . $type . '.php', $componentFolder . DS . $this->inflector->hyphenize($name) . '.php');
