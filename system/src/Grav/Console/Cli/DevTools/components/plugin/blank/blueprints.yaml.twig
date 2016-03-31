@@ -1,0 +1,23 @@
+name: {{ component.name|titleize }}
+version: 0.1.0
+description: {{ component.description }}
+icon: sign-in
+author:
+  name: {{ component.author.name }}
+  email: {{ component.author.email }}
+license: MIT
+
+
+form:
+  validation: strict
+  fields:
+    enabled:
+      type: toggle
+      label: Plugin status
+      highlight: 1
+      default: 0
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool

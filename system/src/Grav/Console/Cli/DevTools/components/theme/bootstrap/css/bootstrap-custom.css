@@ -1,0 +1,103 @@
+/* Constrain the width */
+.container {
+  width: auto;
+  max-width: 960px;
+  padding: 0 15px;
+}
+
+/* Center the footer text */
+.container .text-muted {
+  margin: 20px 0;
+  text-align: center;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+/* Typography */
+
+/* Tables */
+table {
+    width: 100%;
+    border: 1px solid #f0f0f0;
+    margin: 30px 0;
+}
+
+th {
+    font-weight: bold;
+    background: #f9f9f9;
+    padding: 5px;
+}
+
+td {
+    padding: 5px;
+    border: 1px solid #f0f0f0;
+}
+
+/* Notice Styles */
+blockquote {
+    padding: 0 0 0 20px !important;
+    font-size: 16px;
+    color: #666;
+}
+blockquote > blockquote > blockquote {
+    margin: 0;
+}
+
+blockquote > blockquote > blockquote p {
+    padding: 15px;
+    display: block;
+    margin-top: 0rem;
+    margin-bottom: 0rem;
+    border: 1px solid #f0f0f0;
+}
+
+blockquote > blockquote > blockquote > p {
+    /* Yellow */
+    margin-left: -75px;
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+blockquote > blockquote > blockquote > blockquote > p {
+    /* Red */
+    margin-left: -100px;
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+blockquote > blockquote > blockquote > blockquote > blockquote > p {
+    /* Blue */
+    margin-left: -125px;
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+
+blockquote > blockquote > blockquote > blockquote > blockquote > blockquote > p {
+    /* Green */
+    margin-left: -150px;
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
