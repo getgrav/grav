@@ -288,6 +288,19 @@ class Pages
     }
 
     /**
+     * alias method to return find a page.
+     *
+     * @param string $url The relative URL of the page
+     * @param bool   $all
+     *
+     * @return Page|null
+     */
+    public function find($url, $all = false)
+    {
+        return $this->dispatch($url, $all);
+    }
+
+    /**
      * Dispatch URI to a page.
      *
      * @param string $url The relative URL of the page
