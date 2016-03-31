@@ -12,7 +12,6 @@ class LoggerServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['log'] = function ($c) {
-            echo "LOG";
             $log = new Logger('grav');
 
             /** @var UniformResourceLocator $locator */
