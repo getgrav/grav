@@ -112,6 +112,10 @@ class DevToolsCommand extends ConsoleCommand
         
         rename($componentFolder . DS . $type . '.php', $componentFolder . DS . $this->inflector->hyphenize($name) . '.php');
         rename($componentFolder . DS . $type . '.yaml', $componentFolder . DS . $this->inflector->hyphenize($name) . '.yaml');
+
+        $this->output->writeln('<green>SUCCESS</green> ' . $type . ' <magenta>' . $name . '</magenta> -> Created Successfully');
+        $this->output->writeln('Path: <cyan>' . $componentFolder . '</cyan>');
+        $this->output->writeln('');
     }
 
     /**
