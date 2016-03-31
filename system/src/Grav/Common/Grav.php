@@ -84,8 +84,6 @@ class Grav extends Container
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_services', 'Services');
 
-        $container->register(new LoggerServiceProvider);
-
         $container->register(new ErrorServiceProvider);
 
         $container['uri'] = function ($c) {
@@ -199,6 +197,7 @@ class Grav extends Container
 
         $container->register(new StreamsServiceProvider);
         $container->register(new ConfigServiceProvider);
+        $container->register(new LoggerServiceProvider);
 
         $container['inflector'] = new Inflector();
 
