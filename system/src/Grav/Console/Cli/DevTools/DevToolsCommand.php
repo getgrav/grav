@@ -24,7 +24,7 @@ class DevToolsCommand extends ConsoleCommand
     protected $component = [];
 
     /**
-     * @Grav
+     * @var Grav
      */
     protected $grav;
 
@@ -52,7 +52,7 @@ class DevToolsCommand extends ConsoleCommand
 
 
     /**
-     *
+     * Initializes the basic requirements for the developer tools
      */
     protected function init()
     {
@@ -75,7 +75,7 @@ class DevToolsCommand extends ConsoleCommand
     }
 
     /**
-     *
+     * Copies the component type and renames accordingly
      */
     protected function createComponent()
     {
@@ -115,7 +115,7 @@ class DevToolsCommand extends ConsoleCommand
     }
 
     /**
-     *
+     * Iterate through all options and validate
      */
     protected function validateOptions()
     {

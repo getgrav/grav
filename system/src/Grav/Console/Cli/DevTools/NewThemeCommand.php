@@ -69,7 +69,7 @@ class NewThemeCommand extends DevToolsCommand
          * @var array DevToolsCommand $component
          */
         $this->component['type']        = 'theme';
-        $this->component['template']    = 'blank'; // @todo add prompt for template type when more templates are added
+        $this->component['template']    = 'blank';
         $this->component['version']     = '0.1.0'; // @todo add optional non prompting version argument
 
         $this->options = [
