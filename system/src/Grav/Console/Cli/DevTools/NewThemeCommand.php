@@ -123,7 +123,7 @@ class NewThemeCommand extends DevToolsCommand
 
         $question = new ChoiceQuestion(
             'Please choose a template type',
-            array('bootstrap', 'inheritence')
+            array('pure-blank', 'inheritence')
         );
         $this->component['template'] = $helper->ask($this->input, $this->output, $question);
 
