@@ -1,8 +1,6 @@
 <?php
 namespace Grav\Console\Cli\DevTools;
 
-use Grav\Common\Inflector;
-use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;

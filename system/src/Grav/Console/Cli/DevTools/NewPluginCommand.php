@@ -1,8 +1,6 @@
 <?php
 namespace Grav\Console\Cli\DevTools;
 
-use Grav\Common\Inflector;
-use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -122,13 +120,9 @@ class NewPluginCommand extends DevToolsCommand
 
             $this->component['author']['email'] = $helper->ask($this->input, $this->output, $question);
         }
-        
-        $question = new ChoiceQuestion(
-            'Please choose a base plugin: ',
-            array('blank', 'random')
-        );
-        $this->component['template'] = $helper->ask($this->input, $this->output, $question);
-        
+
+        $this->component['template'] = 'blank';
+
         $this->createComponent();
     }
 
