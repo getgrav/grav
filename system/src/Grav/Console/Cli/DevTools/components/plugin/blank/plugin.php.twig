@@ -46,6 +46,8 @@ class {{ component.name|camelize }}Plugin extends Plugin
     /**
      * Do some work for this event, full details of events can be found
      * on the learn site: http://learn.getgrav.org/plugins/event-hooks
+     *
+     * @param Event $e
      */
     public function onPageContentRaw(Event $e)
     {
