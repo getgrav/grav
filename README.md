@@ -53,6 +53,16 @@ $ composer create-project getgrav/grav ~/webroot/grav
 
 Check out the [install procedures](http://learn.getgrav.org/basics/installation) for more information.
 
+### Nitrous Quickstart
+
+You can quickly create a free development environment for this Grav project in the cloud on www.nitrous.io:
+
+<a href="https://www.nitrous.io/quickstart">
+  <img src="https://nitrous-image-icons.s3.amazonaws.com/quickstart.png" alt="Nitrous Quickstart" width=142 height=34>
+</a>
+
+Simply access your site via the `Preview > 3000` link in the IDE.
+
 # Adding Functionality
 
 You can download [plugins](http://getgrav.org/downloads/plugins) or [themes](http://getgrav.org/downloads/themes) manually from the appropriate tab on the [Downloads page on http://getgrav.org](http://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](http://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
