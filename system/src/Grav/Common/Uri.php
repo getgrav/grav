@@ -602,6 +602,27 @@ class Uri
     }
 
     /**
+     * Return the base relative URL including the language prefix
+     * or the base relative url if multilanguage is not enabled
+     *
+     * @return String The base of the URI
+     */
+    public function baseIncludingLanguage()
+    {
+        $grav = Grav::instance();
+
+        // Link processing should prepend language
+        $language = $grav['language'];
+        $language_append = '';
+        if ($language->enabled()) {
+            $language_append = $language->getLanguageURLPrefix();
+        }
+
+        $base = $grav['base_url_relative'];
+        return rtrim($base . $grav['pages']->base(), '/') . $language_append;
+    }
+
+    /**
      * Return root URL to the site.
      *
      * @param  bool $include_host Include hostname.
