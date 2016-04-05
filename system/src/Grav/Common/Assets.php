@@ -1010,10 +1010,11 @@ class Assets
     protected function gatherLinks(array $links, $css = true)
     {
         $buffer = '';
-        $local = true;
+
 
         foreach ($links as $asset) {
             $relative_dir = '';
+            $local = true;
 
             $link = $asset['asset'];
             $relative_path = $link;
