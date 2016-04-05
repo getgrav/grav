@@ -77,6 +77,7 @@ class Assets
     protected $timestamp = '';
     protected $assets_dir;
     protected $assets_url;
+	protected $attributes;
 
     // Default values for pipeline settings
     protected $css_minify = true;
@@ -519,6 +520,7 @@ class Assets
         $this->css = array_reverse($this->css);
         $this->inline_css = array_reverse($this->inline_css);
 
+		$this->attributes = $attributes;
         $attributes = $this->attributes(array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes));
 
         $output = '';
@@ -527,7 +529,11 @@ class Assets
         if ($this->css_pipeline) {
             $pipeline_result = $this->pipelineCss($group);
             if ($pipeline_result) {
-                $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+                if (isset($this->attributes['inline']) && $this->attributes['inline']) {
+                    $output .= '<style' . $attributes . '>' . $pipeline_result . '</style>' . "\n";;
+                } else {
+                    $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+                }
             }
             foreach ($this->css_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
@@ -593,6 +599,7 @@ class Assets
         $this->js = array_reverse($this->js);
         $this->inline_js = array_reverse($this->inline_js);
 
+		$this->attributes = $attributes;
         $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
 
         $output = '';
@@ -601,7 +608,11 @@ class Assets
         if ($this->js_pipeline) {
             $pipeline_result = $this->pipelineJs($group);
             if ($pipeline_result) {
-                $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+                if (isset($this->attributes['inline']) && $this->attributes['inline']) {
+                    $output .= '<script async defer'. $attributes . '>' . $pipeline_result . '</script>' . "\n";
+                } else {
+                    $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+                }
             }
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
@@ -656,6 +667,9 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
+			if(isset($this->attributes['inline']) && $this->attributes['inline']) {
+                return file_get_contents($absolute_path);
+            }
             return $relative_path . $key;
         }
 
@@ -695,6 +709,9 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($absolute_path, $buffer);
 
+			if(isset($this->attributes['inline']) && $this->attributes['inline']) {
+                return $buffer;
+            }
             return $relative_path . $key;
         } else {
             return false;
@@ -727,6 +744,9 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($absolute_path)) {
+			if(isset($this->attributes['inline']) && $this->attributes['inline']) {
+                return file_get_contents($absolute_path);
+            }
             return $relative_path . $key;
         }
 
@@ -756,6 +776,9 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($absolute_path, $buffer);
 
+			if(isset($this->attributes['inline']) && $this->attributes['inline']) {
+                return $buffer;
+            }
             return $relative_path . $key;
         } else {
             return false;
