@@ -649,13 +649,19 @@ class Assets
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
 
-        $file = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group) . '.css';
+        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group);
+        $file =  $uid . '.css';
+        $inline_file = $uid . '-inline.css';
 
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
-        $absolute_path = $this->assets_dir . $file;
+
+        // If inline files exist set them on object
+        if (file_exists($this->assets_dir . $inline_file)) {
+            $this->css_no_pipeline = json_decode(file_get_contents($this->assets_dir . $inline_file), true);
+        }
 
         // If pipeline exist return it
-        if (file_exists($absolute_path)) {
+        if (file_exists($this->assets_dir . $file)) {
             return $relative_path . $key;
         }
 
@@ -675,6 +681,12 @@ class Assets
             return false;
         }
 
+        // Write non-pipeline files out
+        if (!empty($this->css_no_pipeline)) {
+            file_put_contents($this->assets_dir . $inline_file, json_encode($this->css_no_pipeline));
+        }
+
+
         $css_minify = $this->css_minify;
 
         // If this is a Windows server, and minify_windows is false (default value) skip the
@@ -693,7 +705,7 @@ class Assets
 
         // Write file
         if (strlen(trim($buffer)) > 0) {
-            file_put_contents($absolute_path, $buffer);
+            file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $key;
         } else {
@@ -720,13 +732,19 @@ class Assets
         // clear no-pipeline assets lists
         $this->js_no_pipeline = [];
 
-        $file = md5(json_encode($this->js) . $this->js_minify . $group) . '.js';
+        $uid = md5(json_encode($this->js) . $this->js_minify . $group);
+        $file =  $uid . '.js';
+        $inline_file = $uid . '-inline.js';
 
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
-        $absolute_path = $this->assets_dir . $file;
+
+        // If inline files exist set them on object
+        if (file_exists($this->assets_dir . $inline_file)) {
+            $this->js_no_pipeline = json_decode(file_get_contents($this->assets_dir . $inline_file), true);
+        }
 
         // If pipeline exist return it
-        if (file_exists($absolute_path)) {
+        if (file_exists($this->assets_dir . $file)) {
             return $relative_path . $key;
         }
 
@@ -746,6 +764,11 @@ class Assets
             return false;
         }
 
+        // Write non-pipeline files out
+        if (!empty($this->js_no_pipeline)) {
+            file_put_contents($this->assets_dir . $inline_file, json_encode($this->js_no_pipeline));
+        }
+
         // Concatenate files
         $buffer = $this->gatherLinks($temp_js, JS_ASSET);
         if ($this->js_minify) {
@@ -754,7 +777,7 @@ class Assets
 
         // Write file
         if (strlen(trim($buffer)) > 0) {
-            file_put_contents($absolute_path, $buffer);
+            file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $key;
         } else {
