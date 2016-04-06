@@ -160,28 +160,11 @@ class Uri
     /**
      * Return a string with the current environment name.
      *
-     * If the server IP is a local server address (127.0.0.1 or ::1), and/or
-     * the host name is set to 'localhost', returns 'localhost'.
-     *
-     * Otherwise it returns the server name as set by self::buildHostname()
-     *
      * @return string
      */
     private function buildEnvironment()
     {
-        $address = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '::1';
-
-        if ($this->name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            if ($this->name != 'localhost') {
-                $env = $this->name;
-            } else {
-                $env = 'localhost';
-            }
-        } else {
-            $env = $this->name;
-        }
-
-        return $env;
+        return $this->name;
     }
 
     /**
