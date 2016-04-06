@@ -199,7 +199,15 @@ class Response
         // if proxy set add that
         $proxy_url = Grav::instance()['config']->get('system.proxy_url');
         if ($proxy_url) {
-            $options['fopen']['proxy'] = $proxy_url;
+            $parsed_url = parse_url($proxy_url);
+
+            $options['fopen']['proxy'] = ($parsed_url['scheme'] ?: 'http') . '://' . $parsed_url['host'] . (isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '');
+            $options['fopen']['request_fulluri'] = true;
+
+            if (isset($parsed_url['user']) && isset($parsed_url['pass'])) {
+                $auth = base64_encode($parsed_url['user'] . ':' . $parsed_url['pass']);
+                $options['fopen']['header'] = "Proxy-Authorization: Basic $auth";
+            }
         }
 
         if ($callback) {
@@ -267,7 +275,18 @@ class Response
         // if proxy set add that
         $proxy_url = Grav::instance()['config']->get('system.proxy_url');
         if ($proxy_url) {
-            $options['curl'][CURLOPT_PROXY] = $proxy_url;
+            $parsed_url = parse_url($proxy_url);
+
+            $options['curl'][CURLOPT_PROXY] = $parsed_url['host'];
+            $options['curl'][CURLOPT_PROXYTYPE] = 'HTTP';
+
+            if (isset($parsed_url['port'])) {
+                $options['curl'][CURLOPT_PROXYPORT] = $parsed_url['port'];
+            }
+
+            if (isset($parsed_url['user']) && isset($parsed_url['pass'])) {
+                $options['curl'][CURLOPT_PROXYUSERPWD] = $parsed_url['user'] . ':' . $parsed_url['pass'];
+            }
         }
 
         // no open_basedir set, we can proceed normally
@@ -276,7 +295,7 @@ class Response
             return curl_exec($ch);
         }
 
-        $max_redirects                           = isset($options['curl'][CURLOPT_MAXREDIRS]) ? $options['curl'][CURLOPT_MAXREDIRS] : 3;
+        $max_redirects = isset($options['curl'][CURLOPT_MAXREDIRS]) ? $options['curl'][CURLOPT_MAXREDIRS] : 3;
         $options['curl'][CURLOPT_FOLLOWLOCATION] = false;
 
         // open_basedir set but no redirects to follow, we can disable followlocation and proceed normally
