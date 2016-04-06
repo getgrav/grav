@@ -159,17 +159,12 @@ class Uri
 
     private function buildEnvironment()
     {
-        // set hostname
-        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
-
         // check for localhost variations
-        if ($this->name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            $env = 'localhost';
+        if ($this->name == '127.0.0.1' || $this->name== '::1') {
+            return 'localhost';
         } else {
-            $env = $this->name;
+            return $this->name;
         }
-
-        return $env;
     }
 
     /**
@@ -479,7 +474,7 @@ class Uri
      * Gets the Fragment portion of a URI (eg #target)
      *
      * @param null $fragment
-     * 
+     *
      * @return null
      */
     public function fragment($fragment = null)
