@@ -61,7 +61,11 @@ class Assets
 
     // Configuration toggles to enable/disable the pipelining feature
     protected $css_pipeline = false;
+    protected $css_pipeline_include_externals = true;
+    protected $css_pipeline_before_excludes = true;
     protected $js_pipeline = false;
+    protected $js_pipeline_include_externals = true;
+    protected $js_pipeline_before_excludes = true;
 
     // The asset holding arrays
     protected $collections = [];
@@ -120,8 +124,24 @@ class Assets
             $this->css_pipeline = $config['css_pipeline'];
         }
 
+        if (isset($config['css_pipeline_include_externals'])) {
+            $this->css_pipeline_include_externals = $config['css_pipeline_include_externals'];
+        }
+
+        if (isset($config['css_pipeline_before_excludes'])) {
+            $this->css_pipeline_before_excludes = $config['css_pipeline_before_excludes'];
+        }
+
         if (isset($config['js_pipeline'])) {
             $this->js_pipeline = $config['js_pipeline'];
+        }
+
+        if (isset($config['js_pipeline_include_externals'])) {
+            $this->js_pipeline_include_externals = $config['js_pipeline_include_externals'];
+        }
+
+        if (isset($config['js_pipeline_before_excludes'])) {
+            $this->js_pipeline_before_excludes = $config['js_pipeline_before_excludes'];
         }
 
         // Pipeline requires public dir
@@ -526,14 +546,19 @@ class Assets
 
         if ($this->css_pipeline) {
             $pipeline_result = $this->pipelineCss($group);
-            if ($pipeline_result) {
-                $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+            $pipeline_html = '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+
+            if ($this->css_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
             foreach ($this->css_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
                     $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
                 }
+            }
+            if (!$this->css_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
         } else {
             foreach ($this->css as $file) {
@@ -600,13 +625,18 @@ class Assets
 
         if ($this->js_pipeline) {
             $pipeline_result = $this->pipelineJs($group);
-            if ($pipeline_result) {
-                $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+            $pipeline_html = '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+
+            if ($this->js_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
                 }
+            }
+            if (!$this->js_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
         } else {
             foreach ($this->js as $file) {
@@ -668,7 +698,8 @@ class Assets
         // Remove any non-pipeline files
         foreach ($this->css as $id => $asset) {
             if ($asset['group'] == $group) {
-                if (!$asset['pipeline']) {
+                if (!$asset['pipeline'] ||
+                    ($this->isRemoteLink($asset['asset']) && $this->css_pipeline_include_externals === false)) {
                     $this->css_no_pipeline[$id] = $asset;
                 } else {
                     $temp_css[$id] = $asset;
@@ -751,7 +782,8 @@ class Assets
         // Remove any non-pipeline files
         foreach ($this->js as $id => $asset) {
             if ($asset['group'] == $group) {
-                if (!$asset['pipeline']) {
+                if (!$asset['pipeline'] ||
+                    ($this->isRemoteLink($asset['asset']) && $this->js_pipeline_include_externals === false)) {
                     $this->js_no_pipeline[] = $asset;
                 } else {
                     $temp_js[$id] = $asset;
