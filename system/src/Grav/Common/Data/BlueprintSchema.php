@@ -136,7 +136,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 && !isset($data[$name])) {
                 $value = isset($field['label']) ? $field['label'] : $field['name'];
                 $language = Grav::instance()['language'];
-                $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $value);
+                $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $language->translate($value));
                 $messages[$field['name']][] = $message;
             }
         }

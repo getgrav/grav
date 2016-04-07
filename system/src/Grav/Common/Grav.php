@@ -84,8 +84,6 @@ class Grav extends Container
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_services', 'Services');
 
-        $container->register(new LoggerServiceProvider);
-
         $container->register(new ErrorServiceProvider);
 
         $container['uri'] = function ($c) {
@@ -154,18 +152,35 @@ class Grav extends Container
 
             // Redirection tests
             if ($page) {
+                $url = $page->route();
+
+                if ($uri->params()) {
+                    if ($url == '/') { //Avoid double slash
+                        $url = $uri->params();
+                    } else {
+                        $url .= $uri->params();
+                    }
+                }
+                if ($uri->query()) {
+                    $url .= '?' . $uri->query();
+                }
+                if ($uri->fragment()) {
+                    $url .= '#' . $uri->fragment();
+                }
+
                 // Language-specific redirection scenarios
                 if ($language->enabled()) {
                     if ($language->isLanguageInUrl() && !$language->isIncludeDefaultLanguage()) {
-                        $c->redirect($page->route());
+                        $c->redirect($url);
                     }
                     if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
-                        $c->redirectLangSafe($page->route());
+                        $c->redirectLangSafe($url);
                     }
                 }
+
                 // Default route test and redirect
                 if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                    $c->redirectLangSafe($page->route());
+                    $c->redirectLangSafe($url);
                 }
             }
 
@@ -199,6 +214,7 @@ class Grav extends Container
 
         $container->register(new StreamsServiceProvider);
         $container->register(new ConfigServiceProvider);
+        $container->register(new LoggerServiceProvider);
 
         $container['inflector'] = new Inflector();
 

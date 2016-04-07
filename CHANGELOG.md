@@ -1,9 +1,19 @@
+# v1.1.0
+## XX/XX/2016
+
+1. [](#new)
+    *
+1. [](#improved)
+    * Now supporting hostnames with localhost environments for better vhost support/development
+1. [](#bugfix)
+    *
+
 # v1.0.10
 ## 02/11/2016
 
 1. [](#new)
     * Added new `Page::contentMeta()` mechanism to store content-level meta data alongside content
-    * Added Japanese language translation    
+    * Added Japanese language translation
 1. [](#improved)
     * Updated some vendor libraries
 1. [](#bugfix)
@@ -18,7 +28,7 @@
     * New **page-level SSL** functionality when using `absolute_urls`
     * Added `reverse_proxy` config option for issues with non-standard ports
     * Added `proxy_url` config option to support GPM behind proxy servers #639
-    * New `Pages::parentsRawRoutes()` method 
+    * New `Pages::parentsRawRoutes()` method
     * Enhanced `bin/gpm info` CLI command with Changelog support #559
     * Ability to add empty *Folder* via admin plugin
     * Added latest `jQuery 2.2.0` library to core

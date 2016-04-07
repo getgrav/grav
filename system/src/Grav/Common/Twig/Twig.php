@@ -150,6 +150,13 @@ class Twig
             }
             $this->twig->addExtension(new TwigExtension());
 
+            // enable the Intl Twig extension if translations  are enabled
+            if (count($config->get('system.languages.supported', [])) > 0) {
+                if (class_exists('\Twig_Extensions_Extension_Intl')) {
+                    $this->twig->addExtension(new \Twig_Extensions_Extension_Intl());
+                }
+            }
+
             $this->grav->fireEvent('onTwigExtensions');
 
             // Set some standard variables for twig

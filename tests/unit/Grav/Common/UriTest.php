@@ -273,19 +273,16 @@ class UriTest extends \Codeception\TestCase\Test
 
     public function testEnvironment()
     {
-        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
-        if ($this->uri->host() == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            $address = 'localhost';
-        }
-
         $this->uri->initializeWithURL('http://localhost/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('localhost', $this->uri->environment());
+        $this->uri->initializeWithURL('http://127.0.0.1/a-page')->init();
+        $this->assertSame('localhost', $this->uri->environment());
         $this->uri->initializeWithURL('http://localhost:8080/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('localhost', $this->uri->environment());
         $this->uri->initializeWithURL('http://foobar.it:443/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('foobar.it', $this->uri->environment());
         $this->uri->initializeWithURL('https://google.com/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('google.com', $this->uri->environment());
     }
 
     public function testBasename()

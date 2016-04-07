@@ -194,7 +194,7 @@ class GPM extends Iterator
         }
 
         foreach ($this->installed['plugins'] as $slug => $plugin) {
-            if (!isset($repository[$slug]) || $plugin->symlink) {
+            if (!isset($repository[$slug]) || $plugin->symlink || !$plugin->version || $plugin->gpm === false) {
                 continue;
             }
 
@@ -272,7 +272,7 @@ class GPM extends Iterator
         }
 
         foreach ($this->installed['themes'] as $slug => $plugin) {
-            if (!isset($repository[$slug]) || $plugin->symlink) {
+            if (!isset($repository[$slug]) || $plugin->symlink || !$plugin->version || $plugin->gpm === false) {
                 continue;
             }
 

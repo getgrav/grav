@@ -278,15 +278,23 @@ class Themes extends Iterator
         $locator = $this->grav['locator'];
 
         if ($config->get('system.languages.translations', true)) {
-            $languageFiles = array_reverse($locator->findResources("theme://languages" . YAML_EXT));
-
-            $languages = [];
-            foreach ($languageFiles as $language) {
-                $languages[] = CompiledYamlFile::instance($language)->content();
+            $language_file = $locator->findResource("theme://languages" . YAML_EXT);
+            if ($language_file) {
+                $language = CompiledYamlFile::instance($language_file)->content();
+                $this->grav['languages']->mergeRecursive($language);
             }
+            $languages_folder = $locator->findResource("theme://languages/");
+            if (file_exists($languages_folder)) {
+                $languages = [];
+                $iterator = new \DirectoryIterator($languages_folder);
 
-            if ($languages) {
-                $languages = call_user_func_array('array_replace_recursive', $languages);
+                /** @var \DirectoryIterator $directory */
+                foreach ($iterator as $file) {
+                    if ($file->getExtension() != 'yaml') {
+                        continue;
+                    }
+                    $languages[$file->getBasename('.yaml')] = CompiledYamlFile::instance($file->getPathname())->content();
+                }
                 $this->grav['languages']->mergeRecursive($languages);
             }
         }

@@ -63,9 +63,13 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addBlockType($type, $tag, $continuable = false, $completable = false)
+    public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
     {
-        $this->BlockTypes[$type] [] = $tag;
+        if (!isset($index)) {
+            $this->BlockTypes[$type] [] = $tag;
+        } else {
+            array_splice($this->BlockTypes[$type], $index, 0, $tag);
+        }
 
         if ($continuable) {
             $this->continuable_blocks[] = $tag;
@@ -82,10 +86,17 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addInlineType($type, $tag)
+    public function addInlineType($type, $tag, $index = null)
     {
-        $this->InlineTypes[$type] [] = $tag;
-        $this->inlineMarkerList .= $type;
+        if (!isset($index)) {
+            $this->InlineTypes[$type] [] = $tag;
+        } else {
+            array_splice($this->InlineTypes[$type], $index, 0, $tag);
+        }
+        
+        if (strpos($this->inlineMarkerList, $type) === false) {
+            $this->inlineMarkerList .= $type;
+        }
     }
 
     /**
@@ -229,6 +240,7 @@ trait ParsedownGravTrait
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
+                        $url['query'] = htmlspecialchars_decode(urldecode($url['query']));
                         $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
                             $parts = explode('=', $item, 2);
                             $value = isset($parts[1]) ? $parts[1] : null;
