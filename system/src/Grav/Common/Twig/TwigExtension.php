@@ -623,12 +623,17 @@ class TwigExtension extends \Twig_Extension
      * Output a Gist
      *
      * @param  string $id
+     * @param  string $file
      *
      * @return string
      */
-    public function gistFunc($id)
+    public function gistFunc($id, $file = false)
     {
-        return '<script src="https://gist.github.com/' . $id . '.js"></script>';
+        $url = 'https://gist.github.com/' . $id . '.js';
+        if ($file) {
+            $url .= '?file=' . $file;
+        }
+        return '<script src="' . $url . '"></script>';
     }
 
     /**
