@@ -31,6 +31,7 @@
     },
     "require-dev": {
         "codeception/codeception": "^2.1",
+        "phpunit/php-code-coverage": "~2.0",
         "fzaninotto/faker": "^1.5"
     },
     "autoload": {
