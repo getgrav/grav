@@ -146,7 +146,9 @@ class Twig
 
             // enable the Intl Twig extension if translations  are enabled
             if (count($config->get('system.languages.supported', [])) > 0) {
-                $this->twig->addExtension(new \Twig_Extensions_Extension_Intl());
+                if (class_exists('\Twig_Extensions_Extension_Intl')) {
+                    $this->twig->addExtension(new \Twig_Extensions_Extension_Intl());
+                }
             }
 
             $this->grav->fireEvent('onTwigExtensions');
