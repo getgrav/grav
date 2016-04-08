@@ -107,7 +107,8 @@ class Twig
 
             $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
-                $params['cache'] = $locator->findResource('cache://twig', true, true);
+                $cachePath = $locator->findResource('cache://twig', true, true);
+                $params['cache'] = new \Twig_Cache_Filesystem($cachePath, \Twig_Cache_Filesystem::FORCE_BYTECODE_INVALIDATION);
             }
 
             if (!empty($this->autoescape)) {

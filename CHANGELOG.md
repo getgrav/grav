@@ -6,7 +6,7 @@
 1. [](#improved)
     * Now supporting hostnames with localhost environments for better vhost support/development
 1. [](#bugfix)
-    *
+    * Fix Zend Opcache `opcache.validate_timestamps=0` not detecting changes in compiled yaml and twig files 
 
 # v1.0.10
 ## 02/11/2016

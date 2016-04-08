@@ -66,6 +66,17 @@ trait CompiledFile
                 if ($file->locked() !== false) {
                     $file->save($cache);
                     $file->unlock();
+
+                    // Compile cached file into bytecode cache
+                    if (function_exists('opcache_compile_file')) {
+                        opcache_compile_file($file->filename());
+                    } elseif (function_exists('opcache_invalidate')) {
+                        // PHP <5.5.5
+                        opcache_invalidate($file->filename(), true);
+                    } elseif (function_exists('apc_compile_file')) {
+                        // PHP 5.4
+                        apc_compile_file($file->filename());
+                    }
                 }
             }
             $file->free();
