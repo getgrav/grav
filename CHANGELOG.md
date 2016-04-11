@@ -15,32 +15,31 @@
     * **GPM Versioning**: A new feature that we have wanted to add to our GPM package management system is the ability to control dependencies by version. We have opted to use a syntax very similar to the Composer Package Manager that is already familiar to most PHP developers. This new versioning system allows you to define specific minimum version requirements of dependent packages within Grav. This should ensure that we have less (hopefully none!) issues when you update one package that also requires a specific minimum version of another package. The admin plugin for example may have an update that requires a specific version of Grav itself.
     * Added the ability to provide blueprints via a plugin (previously limited to Themes only).
     * Added Developer CLI Tools to easily create a new theme or plugin
-    * Allow authentication for proxies (https://github.com/getgrav/grav/pull/698)
-    * Allow to override the default Parsedown behavior (https://github.com/getgrav/grav/pull/747)
+    * Allow authentication for proxies - [#698](https://github.com/getgrav/grav/pull/698)
+    * Allow to override the default Parsedown behavior - [#747](https://github.com/getgrav/grav/pull/747)
     * Added an option to allow to exclude external files from the pipeline, and to render the pipeline before/after excluded files
     * Added the possibility to store translations of themes in separate files inside the `languages` folder
     * Added a method to the Uri class to return the base relative URL including the language prefix, or the base relative url if multilanguage is not enabled
     * Added a shortcut for pages.find() alias
-
 1. [](#improved)
     * Now supporting hostnames with localhost environments for better vhost support/development
     * Refactor hard-coded paths to use PHP Streams that allow a setup file to configure where certain parts of Grav are stored in the physical filesystem.
     * If multilanguage is active, include the Intl Twig Extension to allow translating dates automatically (http://twig.sensiolabs.org/doc/extensions/intl.html)
-    * Allow having local themes with the same name as GPM themes, by adding `gpm: false` to the theme blueprint (https://github.com/getgrav/grav/pull/767)
+    * Allow having local themes with the same name as GPM themes, by adding `gpm: false` to the theme blueprint - [#767](https://github.com/getgrav/grav/pull/767)
     * Caddyfile and Lighttpd config files updated
     * Removed `node_modules` folder from backups to make them faster
     * Display error when `bin/grav install` hasn't been run instead of throwing exception. Prevents "white page" errors if error display is off
     * Improved command line flow when installing multiple packages: don't reinstall packages if already installed, ask once if should use symlinks if symlinks are found
     * Added more tests to our testing suite
     * Added x-ua-compatible to http_equiv metadata processing
-
 1. [](#bugfix)
     * Fix Zend Opcache `opcache.validate_timestamps=0` not detecting changes in compiled yaml and twig files
-    * Avoid losing params, query and fragment from the URL when auto-redirecting to a language-specific route (https://github.com/getgrav/grav/pull/759)
+    * Avoid losing params, query and fragment from the URL when auto-redirecting to a language-specific route - [#759](https://github.com/getgrav/grav/pull/759)
     * Fix for non-pipeline assets getting lost when pipeline is cached to filesystem
     * Fix for double encoding resulting from Markdown Extra
     * Fix for a remote link breaking all CSS rewrites for pipeline
     * Fix an issue with Retina alternatives not clearing properly between repeat uses
+    * Fix for non standard http/s external markdown links - [#738](https://github.com/getgrav/grav/issues/738)
 
 # v1.0.10
 ## 02/11/2016
