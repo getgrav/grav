@@ -68,8 +68,8 @@ trait CompiledFile
                     $file->unlock();
 
                     // Compile cached file into bytecode cache
-                    if (function_exists('opcache_compile_file')) {
-                        opcache_compile_file($file->filename());
+                    if (function_exists('opcache_invalidate')) {
+                        opcache_invalidate($file->filename(), true);
                     }
                 }
             }
