@@ -586,6 +586,8 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[tel](tel:123-555-12345)'));
         $this->assertSame('<p><a href="sms:123-555-12345">sms</a></p>',
             $this->parsedown->text('[sms](sms:123-555-12345)'));
+        $this->assertSame('<p><a href="rdp://ts.example.com">ts.example.com</a></p>',
+            $this->parsedown->text('[ts.example.com](rdp://ts.example.com)'));
     }
 
     public function testSpecialProtocolsSubDir()
@@ -600,6 +602,8 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[tel](tel:123-555-12345)'));
         $this->assertSame('<p><a href="sms:123-555-12345">sms</a></p>',
             $this->parsedown->text('[sms](sms:123-555-12345)'));
+        $this->assertSame('<p><a href="rdp://ts.example.com">ts.example.com</a></p>',
+            $this->parsedown->text('[ts.example.com](rdp://ts.example.com)'));
     }
 
     public function testSpecialProtocolsSubDirAbsoluteUrl()
@@ -615,6 +619,8 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[tel](tel:123-555-12345)'));
         $this->assertSame('<p><a href="sms:123-555-12345">sms</a></p>',
             $this->parsedown->text('[sms](sms:123-555-12345)'));
+        $this->assertSame('<p><a href="rdp://ts.example.com">ts.example.com</a></p>',
+            $this->parsedown->text('[ts.example.com](rdp://ts.example.com)'));
     }
 
     public function testReferenceLinks()

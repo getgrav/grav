@@ -3,6 +3,7 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 
 /**
@@ -22,7 +23,6 @@ trait ParsedownGravTrait
     protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
-    protected $special_protocols = ['xmpp', 'mailto', 'tel', 'sms'];
 
     public $completable_blocks = [];
     public $continuable_blocks = [];
@@ -93,7 +93,7 @@ trait ParsedownGravTrait
         } else {
             array_splice($this->InlineTypes[$type], $index, 0, $tag);
         }
-        
+
         if (strpos($this->inlineMarkerList, $type) === false) {
             $this->inlineMarkerList .= $type;
         }
@@ -342,7 +342,7 @@ trait ParsedownGravTrait
             }
 
             // if special scheme, just return
-            if(isset($url['scheme']) && in_array($url['scheme'], $this->special_protocols)) {
+            if(isset($url['scheme']) && !Utils::startsWith($url['scheme'], 'http')) {
                 return $excerpt;
             }
 
