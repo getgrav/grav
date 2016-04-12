@@ -57,6 +57,8 @@ class InfoCommand extends ConsoleCommand
     {
         $this->gpm = new GPM($this->input->getOption('force'));
 
+        $this->displayGPMRelease();
+
         $foundPackage = $this->gpm->findPackage($this->input->getArgument('package'));
 
         if (!$foundPackage) {

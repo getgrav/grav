@@ -890,7 +890,16 @@ form:
             underline: true
 
             fields:
-                proxy_url:
+                gpm.releases:
+                    type: toggle
+                    label: PLUGIN_ADMIN.GPM_RELEASES
+                    highlight: stable
+                    help: PLUGIN_ADMIN.GPM_RELEASES_HELP
+                    options:
+                        stable: PLUGIN_ADMIN.STABLE
+                        testing: PLUGIN_ADMIN.TESTING
+
+                gpm.proxy_url:
                     type: text
                     size: medium
                     placeholder: "e.g. 127.0.0.1:3128"
