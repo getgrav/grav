@@ -55,13 +55,12 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
     public function testNicetimeFilter()
     {
         $now = time();
-        $threeSeconds = time() - (3);
         $threeMinutes = time() - (60*3);
         $threeHours   = time() - (60*60*3);
         $threeDays    = time() - (60*60*24*3);
         $threeMonths  = time() - (60*60*24*30*3);
         $threeYears   = time() - (60*60*24*365*3);
-        $measures = ['seconds','minutes','hours','days','months','years'];
+        $measures = ['minutes','hours','days','months','years'];
 
         $this->assertSame('No date provided', $this->twig_ext->nicetimeFilter(null));
 
@@ -69,8 +68,6 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
             $time = 'three' . ucfirst($measures[$i]);
             $this->assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFilter($$time));
         }
-
-        $this->assertSame('3 secs ago', $this->twig_ext->nicetimeFilter($threeSeconds, false));
     }
 
     public function testSafeEmailFilter()
