@@ -72,8 +72,8 @@ class Installer
             return false;
         }
 
-        // Pre install checks
-        static::flightProcessing('pre_install', $install_path);
+        //TODO: Pre install
+
 
         $zip = new \ZipArchive();
         $archive = $zip->open($package);
@@ -112,36 +112,12 @@ class Installer
         Folder::delete($tmp);
         $zip->close();
 
-        // Post install checks
-        static::flightProcessing('post_install', $install_path);
+        //TODO: Post install 
 
         self::$error = self::OK;
 
         return true;
 
-    }
-
-    /**
-     * @param $state
-     * @param $install_path
-     */
-    protected static function flightProcessing($state, $install_path)
-    {
-        $blueprints_path = $install_path . DS . 'blueprints.yaml';
-
-        if (file_exists($blueprints_path)) {
-            $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
-            if (isset($package_yaml['install'][$state]['create'])) {
-                foreach ((array) $package_yaml['install']['pre_install']['create'] as $file) {
-                    Folder::mkdir($install_path . '/' . ltrim($file, '/'));
-                }
-            }
-            if (isset($package_yaml['install'][$state]['remove'])) {
-                foreach ((array) $package_yaml['install']['pre_install']['remove'] as $file) {
-                    Folder::delete($install_path . '/' . ltrim($file, '/'));
-                }
-            }
-        }
     }
 
     /**
