@@ -197,7 +197,8 @@ class Response
         $callback = $args[2];
 
         // if proxy set add that
-        $proxy_url = Grav::instance()['config']->get('system.proxy_url');
+        $config = Grav::instance()['config'];
+        $proxy_url = $config->get('system.gpm.proxy_url', $config->get('system.proxy_url'));
         if ($proxy_url) {
             $parsed_url = parse_url($proxy_url);
 
@@ -273,7 +274,8 @@ class Response
         }
 
         // if proxy set add that
-        $proxy_url = Grav::instance()['config']->get('system.proxy_url');
+        $config = Grav::instance()['config'];
+        $proxy_url = $config->get('system.gpm.proxy_url', $config->get('system.proxy_url'));
         if ($proxy_url) {
             $parsed_url = parse_url($proxy_url);
 
