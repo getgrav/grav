@@ -40,6 +40,7 @@
     * Fix for a remote link breaking all CSS rewrites for pipeline
     * Fix an issue with Retina alternatives not clearing properly between repeat uses
     * Fix for non standard http/s external markdown links - [#738](https://github.com/getgrav/grav/issues/738)
+    * Fix for `find()` calling redirects via `dispatch()` causing infinite loops - [#781](https://github.com/getgrav/grav/issues/781)
 
 # v1.0.10
 ## 02/11/2016
