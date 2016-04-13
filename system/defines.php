@@ -13,9 +13,7 @@ if (!defined('GRAV_ROOT')) {
 define('ROOT_DIR', GRAV_ROOT . '/');
 define('USER_PATH', 'user/');
 define('USER_DIR', ROOT_DIR . USER_PATH);
-define('SYSTEM_DIR', ROOT_DIR .'system/');
 define('CACHE_DIR', ROOT_DIR . 'cache/');
-define('LOG_DIR', ROOT_DIR .'logs/');
 
 // DEPRECATED: Do not use!
 define('ASSETS_DIR', ROOT_DIR . 'assets/');
@@ -23,10 +21,12 @@ define('IMAGES_DIR', ROOT_DIR . 'images/');
 define('ACCOUNTS_DIR', USER_DIR .'accounts/');
 define('PAGES_DIR', USER_DIR .'pages/');
 define('DATA_DIR', USER_DIR .'data/');
+define('SYSTEM_DIR', ROOT_DIR .'system/');
 define('LIB_DIR', SYSTEM_DIR .'src/');
 define('PLUGINS_DIR', USER_DIR .'plugins/');
 define('THEMES_DIR', USER_DIR .'themes/');
 define('VENDOR_DIR', ROOT_DIR .'vendor/');
+define('LOG_DIR', ROOT_DIR .'logs/');
 // END DEPRECATED
 
 // Some extensions

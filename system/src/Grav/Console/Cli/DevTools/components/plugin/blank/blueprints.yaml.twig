@@ -1,0 +1,31 @@
+name: {{ component.name|titleize }}
+version: 0.1.0
+description: {{ component.description }}
+icon: plug
+author:
+  name: {{ component.author.name }}
+  email: {{ component.author.email }}
+homepage: https://github.com/{{ component.author.name|hyphenize }}/grav-plugin-{{ component.name|hyphenize }}
+demo: http://demo.yoursite.com
+keywords: grav, plugin, etc
+bugs: https://github.com/{{ component.author.name|hyphenize }}/grav-plugin-{{ component.name|hyphenize }}/issues
+readme: https://github.com/{{ component.author.name|hyphenize }}/grav-plugin-{{ component.name|hyphenize }}/blob/develop/README.md
+license: MIT
+
+form:
+  validation: strict
+  fields:
+    enabled:
+      type: toggle
+      label: Plugin status
+      highlight: 1
+      default: 0
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
+    text_var:
+      type: text
+      label: Text Variable
+      help: Text to add to the top of a page

@@ -66,6 +66,11 @@ trait CompiledFile
                 if ($file->locked() !== false) {
                     $file->save($cache);
                     $file->unlock();
+
+                    // Compile cached file into bytecode cache
+                    if (function_exists('opcache_invalidate')) {
+                        opcache_invalidate($file->filename(), true);
+                    }
                 }
             }
             $file->free();

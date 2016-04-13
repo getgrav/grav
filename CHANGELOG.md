@@ -1,9 +1,52 @@
+# v1.1.0
+## XX/XX/2016
+
+1. [](#new)
+    * **Blueprint Improvements**: The main improvements to Grav take the form of a major rewrite of our blueprint functionality. Blueprints are an essential piece of functionality within Grav that helps define configuration fields. These allow us to create a definition of a form field that can be rendered in the administrator plugin and allow the input, validation, and storage of values into the various configuration and page files that power Grav. Grav 1.0 had extensive support for building and extending blueprints, but Grav 1.1 takes this even further and adds improvements to our existing system.
+    * **Extending Blueprints**: You could extend forms in Grav 1.0, but now you can use a newer `extends@:` default syntax rather than the previous `'@extends'` string that needed to be quoted in YAML. Also this new format allows for the defining of a `context` which lets you define where to look for the base blueprint. Another new feature is the ability to extend from multiple blueprints.
+    * **Embedding/Importing Blueprints**: One feature that has been requested is the ability to embed or import one blueprint into another blueprint. This allows you to share fields or sub-form between multiple forms. This is accomplished via the `import@` syntax.
+    * **Removing Existing Fields and Properties**: Another new feature is the ability to remove completely existing fields or properties from an extended blueprint. This allows the user a lot more flexibility when creating custom forms by simply using the new `unset@: true` syntax. To remove a field property you would use `unset-<property>@: true` in your extended field definition, for example: `unset-options@: true`.
+    * **Replacing Existing Fields and Properties**: Similar to removing, you can now replace an existing field or property with the `replace@: true` syntax for the whole field, and `replace-<property>@: true` for a specific property.
+    * **Field Ordering**: Probably the most frequently requested blueprint functionality that we have added is the ability to change field ordering. Imagine that you want to extend the default page blueprint but add a new tab. Previously, this meant your tab would be added at the end of the form, but now you can define that you wish the new tab to be added right after the `content` tab. This works for any field too, so you can extend a blueprint and add your own custom fields anywhere you wish! This is accomplished by using the new `ordering@:` syntax with either an existing property name or an integer.
+    * **Configuration Properties**: Another useful new feature is the ability to directly access Grav configuration in blueprints with `config-<property>@` syntax. For example you can set a default for a field via `config-default@: site.author.name` which will use the author.name value from the `site.yaml` file as the `default` value for this field.
+    * **Function Calls**: The ability to call PHP functions for values has been improved in Grav 1.1 to be more powerful. You can use the `data-<property>@` syntax to call static methods to obtain values. For example: `data-default@: '\Grav\Plugin\Admin::route'`. You can now even pass parameters to these methods.
+    * **Validation Rules**: You can now define a custom blueprint-level validation rule and assign this rule to a form field.
+    * **Custom Form Field Types**: This advanced new functionality allows you to create a custom field type via a new plugin event called getFormFieldTypes(). This allows you to provide extra functionality or instructions on how to handle the form form field.
+    * **GPM Versioning**: A new feature that we have wanted to add to our GPM package management system is the ability to control dependencies by version. We have opted to use a syntax very similar to the Composer Package Manager that is already familiar to most PHP developers. This new versioning system allows you to define specific minimum version requirements of dependent packages within Grav. This should ensure that we have less (hopefully none!) issues when you update one package that also requires a specific minimum version of another package. The admin plugin for example may have an update that requires a specific version of Grav itself.
+    * Added the ability to provide blueprints via a plugin (previously limited to Themes only).
+    * Added Developer CLI Tools to easily create a new theme or plugin
+    * Allow authentication for proxies - [#698](https://github.com/getgrav/grav/pull/698)
+    * Allow to override the default Parsedown behavior - [#747](https://github.com/getgrav/grav/pull/747)
+    * Added an option to allow to exclude external files from the pipeline, and to render the pipeline before/after excluded files
+    * Added the possibility to store translations of themes in separate files inside the `languages` folder
+    * Added a method to the Uri class to return the base relative URL including the language prefix, or the base relative url if multilanguage is not enabled
+    * Added a shortcut for pages.find() alias
+1. [](#improved)
+    * Now supporting hostnames with localhost environments for better vhost support/development
+    * Refactor hard-coded paths to use PHP Streams that allow a setup file to configure where certain parts of Grav are stored in the physical filesystem.
+    * If multilanguage is active, include the Intl Twig Extension to allow translating dates automatically (http://twig.sensiolabs.org/doc/extensions/intl.html)
+    * Allow having local themes with the same name as GPM themes, by adding `gpm: false` to the theme blueprint - [#767](https://github.com/getgrav/grav/pull/767)
+    * Caddyfile and Lighttpd config files updated
+    * Removed `node_modules` folder from backups to make them faster
+    * Display error when `bin/grav install` hasn't been run instead of throwing exception. Prevents "white page" errors if error display is off
+    * Improved command line flow when installing multiple packages: don't reinstall packages if already installed, ask once if should use symlinks if symlinks are found
+    * Added more tests to our testing suite
+    * Added x-ua-compatible to http_equiv metadata processing
+1. [](#bugfix)
+    * Fix Zend Opcache `opcache.validate_timestamps=0` not detecting changes in compiled yaml and twig files
+    * Avoid losing params, query and fragment from the URL when auto-redirecting to a language-specific route - [#759](https://github.com/getgrav/grav/pull/759)
+    * Fix for non-pipeline assets getting lost when pipeline is cached to filesystem
+    * Fix for double encoding resulting from Markdown Extra
+    * Fix for a remote link breaking all CSS rewrites for pipeline
+    * Fix an issue with Retina alternatives not clearing properly between repeat uses
+    * Fix for non standard http/s external markdown links - [#738](https://github.com/getgrav/grav/issues/738)
+
 # v1.0.10
 ## 02/11/2016
 
 1. [](#new)
     * Added new `Page::contentMeta()` mechanism to store content-level meta data alongside content
-    * Added Japanese language translation    
+    * Added Japanese language translation
 1. [](#improved)
     * Updated some vendor libraries
 1. [](#bugfix)
@@ -18,7 +61,7 @@
     * New **page-level SSL** functionality when using `absolute_urls`
     * Added `reverse_proxy` config option for issues with non-standard ports
     * Added `proxy_url` config option to support GPM behind proxy servers #639
-    * New `Pages::parentsRawRoutes()` method 
+    * New `Pages::parentsRawRoutes()` method
     * Enhanced `bin/gpm info` CLI command with Changelog support #559
     * Ability to add empty *Folder* via admin plugin
     * Added latest `jQuery 2.2.0` library to core

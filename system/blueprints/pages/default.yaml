@@ -268,12 +268,9 @@ form:
                     type: bool
 
                 header.template:
-                  type: select
+                  type: text
                   toggleable: true
-                  classes: fancy
                   label: PLUGIN_ADMIN.DISPLAY_TEMPLATE
-                  default: default
-                  '@data-options': '\Grav\Common\Page\Pages::types'
 
                 header.append_url_extension:
                   type: text

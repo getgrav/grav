@@ -71,6 +71,12 @@ class AssetsTest extends \Codeception\TestCase\Test
             'group'    => 'head'
         ], reset($array));
 
+        //test addCss() adding asset to a separate group, and with an alternate rel attribute
+        $this->assets->reset();
+        $this->assets->addCSS('test.css', ['group' => 'alternate']);
+        $css = $this->assets->css('alternate', ['rel' => 'alternate']);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="alternate" />' . PHP_EOL, $css);
+
         //test addJs()
         $this->assets->reset();
         $this->assets->addJs('test.js');

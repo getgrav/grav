@@ -155,16 +155,6 @@ class InstallCommand extends ConsoleCommand
         }
 
         if ($dependencies) {
-            //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
-            if (isset($dependencies['grav'])) {
-                if (version_compare($this->gpm->calculateVersionNumberFromDependencyVersion($dependencies['grav']), GRAV_VERSION) === 1) {
-                    //Needs a Grav update first
-                    $this->output->writeln("<red>One of the package dependencies requires Grav " . $dependencies['grav'] . ". Please update Grav first with `bin/gpm selfupgrade`</red>");
-                    return false;
-                }
-                unset($dependencies['grav']);
-            }
-
             try {
                 $this->installDependencies($dependencies, 'install', "The following dependencies need to be installed...");
                 $this->installDependencies($dependencies, 'update',  "The following dependencies need to be updated...");

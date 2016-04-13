@@ -6,6 +6,7 @@ use Grav\Common\GPM\Upgrader;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class VersionCommand
@@ -70,10 +71,26 @@ class VersionCommand extends ConsoleCommand
                 }
 
             } else {
+                // get currently installed version
+                $locator = \Grav\Common\Grav::instance()['locator'];
+                $blueprints_path = $locator->findResource('plugins://' . $package . DS . 'blueprints.yaml');
+                if (!file_exists($blueprints_path)) { // theme?
+                    $blueprints_path = $locator->findResource('themes://' . $package . DS . 'blueprints.yaml');
+                    if (!file_exists($blueprints_path)) {
+                        continue;
+                    }
+                }
+
+                $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+                $currentlyInstalledVersion = $package_yaml['version'];
+
+                if (!$currentlyInstalledVersion) {
+                    continue;
+                }
+
                 $installed = $this->gpm->findPackage($package);
                 if ($installed) {
                     $name = $installed->name;
-                    $version = $installed->version;
 
                     if ($this->gpm->isUpdatable($package)) {
                         $updatable = ' [updatable: v<green>' . $installed->available . '</green>]';
@@ -84,7 +101,7 @@ class VersionCommand extends ConsoleCommand
             $updatable = $updatable ?: '';
 
             if ($installed || $package == 'grav') {
-                $this->output->writeln('You are running <white>' . $name . '</white> v<cyan>' . $version . '</cyan>' . $updatable);
+                $this->output->writeln('You are running <white>' . $name . '</white> v<cyan>' . $currentlyInstalledVersion . '</cyan>' . $updatable);
             } else {
                 $this->output->writeln('Package <red>' . $package . '</red> not found');
             }

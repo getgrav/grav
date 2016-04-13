@@ -61,7 +61,11 @@ class Assets
 
     // Configuration toggles to enable/disable the pipelining feature
     protected $css_pipeline = false;
+    protected $css_pipeline_include_externals = true;
+    protected $css_pipeline_before_excludes = true;
     protected $js_pipeline = false;
+    protected $js_pipeline_include_externals = true;
+    protected $js_pipeline_before_excludes = true;
 
     // The asset holding arrays
     protected $collections = [];
@@ -120,8 +124,24 @@ class Assets
             $this->css_pipeline = $config['css_pipeline'];
         }
 
+        if (isset($config['css_pipeline_include_externals'])) {
+            $this->css_pipeline_include_externals = $config['css_pipeline_include_externals'];
+        }
+
+        if (isset($config['css_pipeline_before_excludes'])) {
+            $this->css_pipeline_before_excludes = $config['css_pipeline_before_excludes'];
+        }
+
         if (isset($config['js_pipeline'])) {
             $this->js_pipeline = $config['js_pipeline'];
+        }
+
+        if (isset($config['js_pipeline_include_externals'])) {
+            $this->js_pipeline_include_externals = $config['js_pipeline_include_externals'];
+        }
+
+        if (isset($config['js_pipeline_before_excludes'])) {
+            $this->js_pipeline_before_excludes = $config['js_pipeline_before_excludes'];
         }
 
         // Pipeline requires public dir
@@ -526,14 +546,19 @@ class Assets
 
         if ($this->css_pipeline) {
             $pipeline_result = $this->pipelineCss($group);
-            if ($pipeline_result) {
-                $output .= '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+            $pipeline_html = '<link href="' . $pipeline_result . '"' . $attributes . ' />' . "\n";
+
+            if ($this->css_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
             foreach ($this->css_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
                     $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
                 }
+            }
+            if (!$this->css_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
         } else {
             foreach ($this->css as $file) {
@@ -600,13 +625,18 @@ class Assets
 
         if ($this->js_pipeline) {
             $pipeline_result = $this->pipelineJs($group);
-            if ($pipeline_result) {
-                $output .= '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+            $pipeline_html = '<script src="' . $pipeline_result . '"' . $attributes . ' ></script>' . "\n";
+
+            if ($this->js_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
                 }
+            }
+            if (!$this->js_pipeline_before_excludes && $pipeline_result) {
+                $output .= $pipeline_html;
             }
         } else {
             foreach ($this->js as $file) {
@@ -649,20 +679,27 @@ class Assets
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
 
-        $file = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group) . '.css';
+        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group);
+        $file =  $uid . '.css';
+        $inline_file = $uid . '-inline.css';
 
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
-        $absolute_path = $this->assets_dir . $file;
+
+        // If inline files exist set them on object
+        if (file_exists($this->assets_dir . $inline_file)) {
+            $this->css_no_pipeline = json_decode(file_get_contents($this->assets_dir . $inline_file), true);
+        }
 
         // If pipeline exist return it
-        if (file_exists($absolute_path)) {
+        if (file_exists($this->assets_dir . $file)) {
             return $relative_path . $key;
         }
 
         // Remove any non-pipeline files
         foreach ($this->css as $id => $asset) {
             if ($asset['group'] == $group) {
-                if (!$asset['pipeline']) {
+                if (!$asset['pipeline'] ||
+                    ($this->isRemoteLink($asset['asset']) && $this->css_pipeline_include_externals === false)) {
                     $this->css_no_pipeline[$id] = $asset;
                 } else {
                     $temp_css[$id] = $asset;
@@ -674,6 +711,12 @@ class Assets
         if (count($temp_css) == 0) {
             return false;
         }
+
+        // Write non-pipeline files out
+        if (!empty($this->css_no_pipeline)) {
+            file_put_contents($this->assets_dir . $inline_file, json_encode($this->css_no_pipeline));
+        }
+
 
         $css_minify = $this->css_minify;
 
@@ -693,7 +736,7 @@ class Assets
 
         // Write file
         if (strlen(trim($buffer)) > 0) {
-            file_put_contents($absolute_path, $buffer);
+            file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $key;
         } else {
@@ -720,20 +763,27 @@ class Assets
         // clear no-pipeline assets lists
         $this->js_no_pipeline = [];
 
-        $file = md5(json_encode($this->js) . $this->js_minify . $group) . '.js';
+        $uid = md5(json_encode($this->js) . $this->js_minify . $group);
+        $file =  $uid . '.js';
+        $inline_file = $uid . '-inline.js';
 
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
-        $absolute_path = $this->assets_dir . $file;
+
+        // If inline files exist set them on object
+        if (file_exists($this->assets_dir . $inline_file)) {
+            $this->js_no_pipeline = json_decode(file_get_contents($this->assets_dir . $inline_file), true);
+        }
 
         // If pipeline exist return it
-        if (file_exists($absolute_path)) {
+        if (file_exists($this->assets_dir . $file)) {
             return $relative_path . $key;
         }
 
         // Remove any non-pipeline files
         foreach ($this->js as $id => $asset) {
             if ($asset['group'] == $group) {
-                if (!$asset['pipeline']) {
+                if (!$asset['pipeline'] ||
+                    ($this->isRemoteLink($asset['asset']) && $this->js_pipeline_include_externals === false)) {
                     $this->js_no_pipeline[] = $asset;
                 } else {
                     $temp_js[$id] = $asset;
@@ -746,6 +796,11 @@ class Assets
             return false;
         }
 
+        // Write non-pipeline files out
+        if (!empty($this->js_no_pipeline)) {
+            file_put_contents($this->assets_dir . $inline_file, json_encode($this->js_no_pipeline));
+        }
+
         // Concatenate files
         $buffer = $this->gatherLinks($temp_js, JS_ASSET);
         if ($this->js_minify) {
@@ -754,7 +809,7 @@ class Assets
 
         // Write file
         if (strlen(trim($buffer)) > 0) {
-            file_put_contents($absolute_path, $buffer);
+            file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $key;
         } else {
@@ -1010,10 +1065,11 @@ class Assets
     protected function gatherLinks(array $links, $css = true)
     {
         $buffer = '';
-        $local = true;
+
 
         foreach ($links as $asset) {
             $relative_dir = '';
+            $local = true;
 
             $link = $asset['asset'];
             $relative_path = $link;

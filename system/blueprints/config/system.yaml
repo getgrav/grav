@@ -567,6 +567,28 @@ form:
                     validate:
                        type: bool
 
+                assets.css_pipeline_include_externals:
+                    type: toggle
+                    label: PLUGIN_ADMIN.CSS_PIPELINE_INCLUDE_EXTERNALS
+                    help: PLUGIN_ADMIN.CSS_PIPELINE_INCLUDE_EXTERNALS_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                       type: bool
+
+                assets.css_pipeline_before_excludes:
+                    type: toggle
+                    label: PLUGIN_ADMIN.CSS_PIPELINE_BEFORE_EXCLUDES
+                    help: PLUGIN_ADMIN.CSS_PIPELINE_BEFORE_EXCLUDES_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                       type: bool
+
                 assets.css_minify:
                     type: toggle
                     label: PLUGIN_ADMIN.CSS_MINIFY
@@ -610,6 +632,28 @@ form:
                         0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
+
+                assets.js_pipeline_include_externals:
+                    type: toggle
+                    label: PLUGIN_ADMIN.JAVASCRIPT_PIPELINE_INCLUDE_EXTERNALS
+                    help: PLUGIN_ADMIN.JAVASCRIPT_PIPELINE_INCLUDE_EXTERNALS_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                       type: bool
+
+                assets.js_pipeline_before_excludes:
+                    type: toggle
+                    label: PLUGIN_ADMIN.JAVASCRIPT_PIPELINE_BEFORE_EXCLUDES
+                    help: PLUGIN_ADMIN.JAVASCRIPT_PIPELINE_BEFORE_EXCLUDES_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                       type: bool
 
                 assets.js_minify:
                     type: toggle

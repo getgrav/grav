@@ -3,6 +3,7 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 
 /**
@@ -22,7 +23,6 @@ trait ParsedownGravTrait
     protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
-    protected $special_protocols = ['xmpp', 'mailto', 'tel', 'sms'];
 
     public $completable_blocks = [];
     public $continuable_blocks = [];
@@ -63,9 +63,13 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addBlockType($type, $tag, $continuable = false, $completable = false)
+    public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
     {
-        $this->BlockTypes[$type] [] = $tag;
+        if (!isset($index)) {
+            $this->BlockTypes[$type] [] = $tag;
+        } else {
+            array_splice($this->BlockTypes[$type], $index, 0, $tag);
+        }
 
         if ($continuable) {
             $this->continuable_blocks[] = $tag;
@@ -82,10 +86,17 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addInlineType($type, $tag)
+    public function addInlineType($type, $tag, $index = null)
     {
-        $this->InlineTypes[$type] [] = $tag;
-        $this->inlineMarkerList .= $type;
+        if (!isset($index)) {
+            $this->InlineTypes[$type] [] = $tag;
+        } else {
+            array_splice($this->InlineTypes[$type], $index, 0, $tag);
+        }
+
+        if (strpos($this->inlineMarkerList, $type) === false) {
+            $this->inlineMarkerList .= $type;
+        }
     }
 
     /**
@@ -229,6 +240,7 @@ trait ParsedownGravTrait
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
+                        $url['query'] = htmlspecialchars_decode(urldecode($url['query']));
                         $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
                             $parts = explode('=', $item, 2);
                             $value = isset($parts[1]) ? $parts[1] : null;
@@ -330,7 +342,7 @@ trait ParsedownGravTrait
             }
 
             // if special scheme, just return
-            if(isset($url['scheme']) && in_array($url['scheme'], $this->special_protocols)) {
+            if(isset($url['scheme']) && !Utils::startsWith($url['scheme'], 'http')) {
                 return $excerpt;
             }
 

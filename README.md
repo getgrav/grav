@@ -1,4 +1,4 @@
-# ![](https://avatars1.githubusercontent.com/u/8237355?v=2&s=50) Grav 
+# ![](https://avatars1.githubusercontent.com/u/8237355?v=2&s=50) Grav
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad/mini.png)](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad) [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/getgrav/grav?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/getgrav/grav.svg?branch=develop)](https://travis-ci.org/getgrav/grav)
 
@@ -29,7 +29,7 @@ These are the options to get Grav:
 
 You can download a **ready-built** package from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads)
 
-### With composer
+### With Composer
 
 You can create a new project with the latest **stable** Grav release with the following command:
 
