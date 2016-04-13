@@ -101,11 +101,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      */
     public function isAdmin()
     {
-        if (isset($this->grav['admin'])) {
-            return true;
-        }
-
-        return false;
+        return Utils::isAdminPlugin();
     }
 
     /**

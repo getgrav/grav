@@ -622,4 +622,18 @@ abstract class Utils
         //Invalid nonce
         return false;
     }
+
+    /**
+     * Simple helper method to get whether or not the admin plugin is active
+     *
+     * @return bool
+     */
+    public static function isAdminPlugin()
+    {
+        if (isset(Grav::instance()['admin'])) {
+            return true;
+        }
+
+        return false;
+    }
 }
