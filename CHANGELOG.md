@@ -33,6 +33,7 @@
     * Improved command line flow when installing multiple packages: don't reinstall packages if already installed, ask once if should use symlinks if symlinks are found
     * Added more tests to our testing suite
     * Added x-ua-compatible to http_equiv metadata processing
+    * Added ability to have a per-page `frontmatter.yaml` file to set header frontmatter defaults. Especially useful for multilang scenarios - [#775](https://github.com/getgrav/grav/pull/775)
 1. [](#bugfix)
     * Fix Zend Opcache `opcache.validate_timestamps=0` not detecting changes in compiled yaml and twig files
     * Avoid losing params, query and fragment from the URL when auto-redirecting to a language-specific route - [#759](https://github.com/getgrav/grav/pull/759)
