@@ -292,10 +292,12 @@ class Page
 
                     // If there's a `frontmatter.yaml` file merge that in with the page header
                     // note page's own frontmatter has precedence and will overwrite any defaults
-                    $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
-                    if (file_exists($frontmatter_file)) {
-                        $frontmatter_data = (array) Yaml::parse(file_get_contents($frontmatter_file));
-                        $this->header = (object)array_replace_recursive($frontmatter_data, (array)$this->header);
+                    if (!Utils::isAdminPlugin()) {
+                        $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
+                        if (file_exists($frontmatter_file)) {
+                            $frontmatter_data = (array)Yaml::parse(file_get_contents($frontmatter_file));
+                            $this->header = (object)array_replace_recursive($frontmatter_data, (array)$this->header);
+                        }
                     }
                 } catch (ParseException $e) {
                     $file->raw(Grav::instance()['language']->translate([
