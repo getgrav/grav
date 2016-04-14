@@ -11,6 +11,11 @@ $grav = function() {
     Grav::resetInstance();
     $grav = Grav::instance();
     $grav['config']->init();
+
+    foreach (array_keys($grav['setup']->getStreams()) as $stream) {
+        @stream_wrapper_unregister($stream);
+    }
+
     $grav['streams'];
     $grav['plugins']->init();
     $grav['themes']->init();
