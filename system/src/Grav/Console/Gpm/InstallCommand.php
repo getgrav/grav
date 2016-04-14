@@ -178,7 +178,7 @@ class InstallCommand extends ConsoleCommand
                 } else {
                     $is_valid_destination = Installer::isValidDestination($this->destination . DS . $package->install_path);
                     if ($is_valid_destination || Installer::lastErrorCode() == Installer::NOT_FOUND) {
-                        $this->processPackage($package, true);
+                        $this->processPackage($package, true, false);
                     } else {
                         if (Installer::lastErrorCode() == Installer::EXISTS) {
 
@@ -194,7 +194,8 @@ class InstallCommand extends ConsoleCommand
                             $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> is already installed, overwrite? [y|N] ", false);
 
                             if ($helper->ask($this->input, $this->output, $question)) {
-                                $this->processPackage($package, true);
+                                $is_update = true;
+                                $this->processPackage($package, true, $is_update);
                             } else {
                                 $this->output->writeln("<yellow>Package " . $package_name . " not overwritten</yellow>");
                             }
@@ -294,7 +295,7 @@ class InstallCommand extends ConsoleCommand
             if ($helper->ask($this->input, $this->output, $question)) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
                     $package = $this->gpm->findPackage($dependencyName);
-                    $this->processPackage($package, true);
+                    $this->processPackage($package, true, ($type == 'update') ? true : false);
                 }
                 $this->output->writeln('');
             } else {
@@ -308,8 +309,9 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param      $package
      * @param bool $skip_prompt
+     * @param bool $update      True if the package is an update
      */
-    private function processPackage($package, $skip_prompt = false)
+    private function processPackage($package, $skip_prompt = false, $is_update = false)
     {
         if (!$package) {
             $this->output->writeln("<red>Package not found on the GPM!</red>  ");
@@ -324,7 +326,7 @@ class InstallCommand extends ConsoleCommand
             }
         }
 
-        $symlink ? $this->processSymlink($package, $skip_prompt) : $this->processGpm($package, $skip_prompt);
+        $symlink ? $this->processSymlink($package, $skip_prompt) : $this->processGpm($package, $skip_prompt, $is_update);
 
         $this->processDemo($package);
     }
@@ -490,7 +492,7 @@ class InstallCommand extends ConsoleCommand
      * @param      $package
      * @param bool $skip_prompt
      */
-    private function processGpm($package, $skip_prompt = false)
+    private function processGpm($package, $skip_prompt = false, $is_update = false)
     {
         $version = isset($package->available) ? $package->available : $package->version;
 
@@ -507,7 +509,7 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln('');
         } else {
             $this->output->write("  |- Installing package...  ");
-            $installation = $this->installPackage($package);
+            $installation = $this->installPackage($package, $is_update);
             if (!$installation) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                 $this->output->writeln('');
@@ -604,15 +606,18 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * Install a package
+     *
+     * @param Package $package
+     * @param bool    $is_update True if it's an update. False if it's an install
      *
      * @return bool
      */
-    private function installPackage($package)
+    private function installPackage($package, $is_update = false)
     {
         $type = $package->package_type;
 
-        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path, 'theme' => (($type == 'themes'))]);
+        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path, 'theme' => (($type == 'themes')), 'is_update' => $is_update]);
         $error_code = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 

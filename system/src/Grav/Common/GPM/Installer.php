@@ -101,16 +101,22 @@ class Installer
         }
 
         $package_folder_name = $zip->getNameIndex(0);
+        $installer_file_folder = $tmp . '/' . $package_folder_name;
 
-        $installer = self::loadInstaller($tmp, $package_folder_name);
+        $installer = self::loadInstaller($installer_file_folder);
 
-        if ($installer && method_exists($installer, 'preInstall')) {
-            $pre_install = $installer::preInstall();
-            if ($pre_install !== true) {
-                self::$error = 'Error installing the plugin';
-                if (is_string($pre_install)) {
-                    var_dump($pre_install); exit();
-                    self::$error = $pre_install;
+        if ($options['is_update'] == true) {
+            $method = 'preUpdate';
+        } else {
+            $method = 'preInstall';
+        }
+
+        if ($installer && method_exists($installer, $method)) {
+            $method_result = $installer::$method();
+            if ($method_result !== true) {
+                self::$error = 'An error occurred';
+                if (is_string($method_result)) {
+                    self::$error = $method_result;
                 }
 
                 return false;
@@ -130,8 +136,15 @@ class Installer
         Folder::delete($tmp);
         $zip->close();
 
-        if ($installer && method_exists($installer, 'postInstall')) {
-            self::$message = $installer::postInstall();
+        if ($options['is_update'] == true) {
+            $method = 'postUpdate';
+        } else {
+            $method = 'postInstall';
+        }
+
+        self::$message = '';
+        if ($installer && method_exists($installer, $method)) {
+            self::$message = $installer::$method();
         }
 
         self::$error = self::OK;
@@ -143,16 +156,15 @@ class Installer
     /**
      * Instantiates and returns the package installer class
      *
-     * @param string $tmp The temp folder path
-     * @param string $package_folder_name The package folder name
+     * @param string $installer_file_folder The folder path that contains install.php
      *
      * @return null|string
      */
-    private static function loadInstaller($tmp, $package_folder_name)
+    private static function loadInstaller($installer_file_folder)
     {
         $installer = null;
 
-        $install_file = $tmp . '/' . $package_folder_name . 'install.php';
+        $install_file = $installer_file_folder . 'install.php';
         if (file_exists($install_file)) {
             require_once($install_file);
         }
