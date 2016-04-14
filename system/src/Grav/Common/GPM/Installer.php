@@ -273,7 +273,29 @@ class Installer
             return false;
         }
 
-        return Folder::delete($path);
+        $installer_file_folder = $path;
+        $installer = self::loadInstaller($installer_file_folder);
+
+        if ($installer && method_exists($installer, 'preUninstall')) {
+            $method_result = $installer::preUninstall();
+            if ($method_result !== true) {
+                self::$error = 'An error occurred';
+                if (is_string($method_result)) {
+                    self::$error = $method_result;
+                }
+
+                return false;
+            }
+        }
+
+        $result = Folder::delete($path);
+
+        self::$message = '';
+        if ($result && $installer && method_exists($installer, 'postUninstall')) {
+            self::$message = $installer::postUninstall();
+        }
+
+        return $result;
     }
 
     /**
