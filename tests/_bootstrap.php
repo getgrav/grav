@@ -10,10 +10,15 @@ ini_set('error_log', __DIR__ . '/error.log');
 $grav = function() {
     Grav::resetInstance();
     $grav = Grav::instance();
+    $grav['config']->init();
+    $grav['streams'];
+    $grav['plugins']->init();
+    $grav['themes']->init();
 
     $grav['uri']->init();
     $grav['debugger']->init();
     $grav['assets']->init();
+
     $grav['config']->set('system.cache.enabled', false);
     $grav['locator']->addPath('tests', '', 'tests', false);
 
