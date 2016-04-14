@@ -5,6 +5,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
+use Grav\Common\GPM\Remote\Package as Package;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -168,6 +169,7 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln("");
         }
 
+
         //We're done installing dependencies. Install the actual packages
         foreach ($this->data as $data) {
             foreach ($data as $package_name => $package) {
@@ -195,6 +197,11 @@ class InstallCommand extends ConsoleCommand
                                 $this->processPackage($package, true);
                             } else {
                                 $this->output->writeln("<yellow>Package " . $package_name . " not overwritten</yellow>");
+                            }
+                        } else {
+                            if (Installer::lastErrorCode() == Installer::IS_LINK) {
+                                $this->output->writeln("<red>Cannot overwrite existing symlink</red>");
+                                return false;
                             }
                         }
                     }
@@ -467,12 +474,9 @@ class InstallCommand extends ConsoleCommand
 
                     // extra white spaces to clear out the buffer properly
                     $this->output->writeln("  |- Symlinking package...    <green>ok</green>                             ");
-
                     $this->output->writeln("  '- <green>Success!</green>  ");
                     $this->output->writeln('');
                 }
-
-
             }
 
             return;
@@ -515,7 +519,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param Package $package
      *
      * @return string
      */
@@ -612,13 +616,20 @@ class InstallCommand extends ConsoleCommand
         $error_code = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
-        if ($error_code & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+        if ($error_code) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing package...    <red>error</red>                             ");
             $this->output->writeln("  |  '- " . Installer::lastErrorMsg());
 
             return false;
+        }
+
+        $message = Installer::getMessage();
+        if ($message) {
+            $this->output->write("\x0D");
+            // extra white spaces to clear out the buffer properly
+            $this->output->writeln("  |- " . $message);
         }
 
         $this->output->write("\x0D");

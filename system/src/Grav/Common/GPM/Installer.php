@@ -2,7 +2,6 @@
 namespace Grav\Common\GPM;
 
 use Grav\Common\Filesystem\Folder;
-use Symfony\Component\Yaml\Yaml;
 
 class Installer
 {
@@ -30,10 +29,14 @@ class Installer
     protected static $target;
 
     /**
-     * Error Code
-     * @var integer
+     * @var integer Error Code
      */
     protected static $error = 0;
+
+    /**
+     * @var string Post install message
+     */
+    protected static $message = '';
 
     /**
      * Default options for the install
@@ -43,7 +46,7 @@ class Installer
         'overwrite'       => true,
         'ignore_symlinks' => true,
         'sophisticated'   => false,
-        'theme'            => false,
+        'theme'           => false,
         'install_path'    => '',
         'exclude_checks'  => [self::EXISTS, self::NOT_FOUND, self::IS_LINK]
     ];
@@ -63,17 +66,17 @@ class Installer
         $options = array_merge(self::$options, $options);
         $install_path = rtrim($destination . DS . ltrim($options['install_path'], DS), DS);
 
-        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path, $options['exclude_checks'])) {
+        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path,
+                $options['exclude_checks'])
+        ) {
             return false;
         }
 
         if (self::lastErrorCode() == self::IS_LINK && $options['ignore_symlinks'] ||
-            self::lastErrorCode() == self::EXISTS && !$options['overwrite']) {
+            self::lastErrorCode() == self::EXISTS && !$options['overwrite']
+        ) {
             return false;
         }
-
-        //TODO: Pre install
-
 
         $zip = new \ZipArchive();
         $archive = $zip->open($package);
@@ -91,13 +94,28 @@ class Installer
 
         if (!$unzip) {
             self::$error = self::ZIP_EXTRACT_ERROR;
-
             $zip->close();
             Folder::delete($tmp);
 
             return false;
         }
 
+        $package_folder_name = $zip->getNameIndex(0);
+
+        $installer = self::loadInstaller($tmp, $package_folder_name);
+
+        if ($installer && method_exists($installer, 'preInstall')) {
+            $pre_install = $installer::preInstall();
+            if ($pre_install !== true) {
+                self::$error = 'Error installing the plugin';
+                if (is_string($pre_install)) {
+                    var_dump($pre_install); exit();
+                    self::$error = $pre_install;
+                }
+
+                return false;
+            }
+        }
 
         if (!$options['sophisticated']) {
             if ($options['theme']) {
@@ -112,12 +130,38 @@ class Installer
         Folder::delete($tmp);
         $zip->close();
 
-        //TODO: Post install 
+        if ($installer && method_exists($installer, 'postInstall')) {
+            self::$message = $installer::postInstall();
+        }
 
         self::$error = self::OK;
 
         return true;
 
+    }
+
+    /**
+     * Instantiates and returns the package installer class
+     *
+     * @param string $tmp The temp folder path
+     * @param string $package_folder_name The package folder name
+     *
+     * @return null|string
+     */
+    private static function loadInstaller($tmp, $package_folder_name)
+    {
+        $installer = null;
+
+        $install_file = $tmp . '/' . $package_folder_name . 'install.php';
+        if (file_exists($install_file)) {
+            require_once($install_file);
+        }
+
+        if (class_exists('PackageInstaller')) {
+            return 'PackageInstaller';
+        }
+
+        return $installer;
     }
 
     /**
@@ -204,8 +248,8 @@ class Installer
     /**
      * Uninstalls one or more given package
      *
-     * @param  string $path     The slug of the package(s)
-     * @param  array  $options     Options to use for uninstalling
+     * @param  string $path    The slug of the package(s)
+     * @param  array  $options Options to use for uninstalling
      *
      * @return boolean True if everything went fine, False otherwise.
      */
@@ -275,6 +319,15 @@ class Installer
     }
 
     /**
+     * Returns the last message added by the installer
+     * @return string The message
+     */
+    public static function getMessage()
+    {
+        return self::$message;
+    }
+
+    /**
      * Returns the last error occurred in a string message format
      * @return string The message of the last error
      */
@@ -336,6 +389,7 @@ class Installer
 
     /**
      * Allows to manually set an error
+     *
      * @param int|string $error the Error code
      */
 
