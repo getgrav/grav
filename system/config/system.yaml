@@ -60,8 +60,8 @@ pages:
   ignore_hidden: true                       # Ignore all Hidden files and folders
   url_taxonomy_filters: true                # Enable auto-magic URL-based taxonomy filters for page collections
   frontmatter:
-    process_twig: true
-    ignore_fields: ['form']
+    process_twig: false                     # Should the frontmatter be processed to replace Twig variables?
+    ignore_fields: ['form']                 # Fields that might contain Twig variables and should not be processed
 
 cache:
   enabled: true                             # Set to true to enable caching

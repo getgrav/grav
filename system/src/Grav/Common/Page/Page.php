@@ -149,17 +149,13 @@ class Page
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
         $this->language($language);
 
-        $this->processFrontmatter();
-
         return $this;
     }
 
     protected function processFrontmatter()
     {
         // Quick check for twig output tags in frontmatter if enabled
-        if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true &&
-            Utils::contains($this->frontmatter, '{{')) {
-            $twig = Grav::instance()['twig'];
+        if (Utils::contains($this->frontmatter, '{{')) {
             $process_fields = $this->file()->header();
             $ignored_fields = [];
             foreach ((array)Grav::instance()['config']->get('system.pages.frontmatter.ignore_fields') as $field) {
@@ -168,13 +164,9 @@ class Page
                     unset($process_fields[$field]);
                 }
             }
-            $text_header = json_encode($process_fields);
-            $text_header = $twig->processString($text_header, ['page'=>$this]);
-            $array_header = json_decode($text_header, true) + $ignored_fields;
-            $this->header((object) $array_header);
-
+            $text_header = Grav::instance()['twig']->processString(json_encode($process_fields), ['page'=>$this]);
+            $this->header((object) (json_decode($text_header, true) + $ignored_fields));
         }
-
     }
 
     /**
@@ -315,7 +307,12 @@ class Page
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
 
-                        // If there's a `frontmatter.yaml` file merge that in with the page header
+                    // Process frontmatter with Twig if enabled
+                    if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
+                        $this->processFrontmatter();
+                    }
+
+                    // If there's a `frontmatter.yaml` file merge that in with the page header
                     // note page's own frontmatter has precedence and will overwrite any defaults
                     if (!Utils::isAdminPlugin()) {
                         $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
