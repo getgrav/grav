@@ -307,14 +307,13 @@ class Page
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
 
-                    // Process frontmatter with Twig if enabled
-                    if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
-                        $this->processFrontmatter();
-                    }
-
-                    // If there's a `frontmatter.yaml` file merge that in with the page header
-                    // note page's own frontmatter has precedence and will overwrite any defaults
                     if (!Utils::isAdminPlugin()) {
+                        // Process frontmatter with Twig if enabled
+                        if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
+                            $this->processFrontmatter();
+                        }
+                        // If there's a `frontmatter.yaml` file merge that in with the page header
+                        // note page's own frontmatter has precedence and will overwrite any defaults
                         $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
                         if (file_exists($frontmatter_file)) {
                             $frontmatter_data = (array)Yaml::parse(file_get_contents($frontmatter_file));
