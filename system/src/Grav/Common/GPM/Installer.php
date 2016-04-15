@@ -164,7 +164,7 @@ class Installer
     {
         $installer = null;
 
-        $install_file = $installer_file_folder . 'install.php';
+        $install_file = rtrim($installer_file_folder, DS) . DS . 'install.php';
         if (file_exists($install_file)) {
             require_once($install_file);
         }
