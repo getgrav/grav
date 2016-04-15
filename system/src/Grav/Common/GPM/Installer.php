@@ -103,7 +103,8 @@ class Installer
         $package_folder_name = $zip->getNameIndex(0);
         $installer_file_folder = $tmp . '/' . $package_folder_name;
 
-        $installer = self::loadInstaller($installer_file_folder);
+        $is_install = true;
+        $installer = self::loadInstaller($installer_file_folder, $is_install);
 
         if ($options['is_update'] == true) {
             $method = 'preUpdate';
@@ -157,20 +158,44 @@ class Installer
      * Instantiates and returns the package installer class
      *
      * @param string $installer_file_folder The folder path that contains install.php
+     * @param bool $is_install True if install, false if removal
      *
      * @return null|string
      */
-    private static function loadInstaller($installer_file_folder)
+    private static function loadInstaller($installer_file_folder, $is_install)
     {
         $installer = null;
 
-        $install_file = rtrim($installer_file_folder, DS) . DS . 'install.php';
+        $installer_file_folder = rtrim($installer_file_folder, DS);
+
+        $install_file = $installer_file_folder . DS . 'install.php';
+
         if (file_exists($install_file)) {
             require_once($install_file);
+        } else {
+            return null;
         }
 
-        if (class_exists('PackageInstaller')) {
-            return 'PackageInstaller';
+        if ($is_install) {
+            $slug = '';
+            if (($pos = strpos($installer_file_folder, 'grav-plugin-')) !== false) {
+                $slug = substr($installer_file_folder, $pos + strlen('grav-plugin-'));
+            } elseif (($pos = strpos($installer_file_folder, 'grav-theme-')) !== false) {
+                $slug = substr($installer_file_folder, $pos + strlen('grav-theme-'));
+            }
+        } else {
+            $path_elements = explode('/', $installer_file_folder);
+            $slug = end($path_elements);
+        }
+
+        if (!$slug) {
+            return null;
+        }
+
+        $class_name = ucfirst($slug) . 'Install';
+
+        if (class_exists($class_name)) {
+            return $class_name;
         }
 
         return $installer;
@@ -274,7 +299,8 @@ class Installer
         }
 
         $installer_file_folder = $path;
-        $installer = self::loadInstaller($installer_file_folder);
+        $is_install = false;
+        $installer = self::loadInstaller($installer_file_folder, $is_install);
 
         if ($installer && method_exists($installer, 'preUninstall')) {
             $method_result = $installer::preUninstall();
