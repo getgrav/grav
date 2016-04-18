@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Page\Medium\ImageMedium;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 
