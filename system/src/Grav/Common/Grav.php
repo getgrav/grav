@@ -440,7 +440,7 @@ class Grav extends Container
      *
      * @param $path
      */
-    protected function fallbackUrl($path)
+    public function fallbackUrl($path)
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
