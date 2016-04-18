@@ -152,6 +152,23 @@ class Page
         return $this;
     }
 
+    protected function processFrontmatter()
+    {
+        // Quick check for twig output tags in frontmatter if enabled
+        if (Utils::contains($this->frontmatter, '{{')) {
+            $process_fields = $this->file()->header();
+            $ignored_fields = [];
+            foreach ((array)Grav::instance()['config']->get('system.pages.frontmatter.ignore_fields') as $field) {
+                if (isset($process_fields[$field])) {
+                    $ignored_fields[$field] = $process_fields[$field];
+                    unset($process_fields[$field]);
+                }
+            }
+            $text_header = Grav::instance()['twig']->processString(json_encode($process_fields), ['page'=>$this]);
+            $this->header((object) (json_decode($text_header, true) + $ignored_fields));
+        }
+    }
+
     /**
      * Return an array with the routes of other translated languages
      * @return array the page translated languages
@@ -289,6 +306,20 @@ class Page
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
+
+                    if (!Utils::isAdminPlugin()) {
+                        // Process frontmatter with Twig if enabled
+                        if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
+                            $this->processFrontmatter();
+                        }
+                        // If there's a `frontmatter.yaml` file merge that in with the page header
+                        // note page's own frontmatter has precedence and will overwrite any defaults
+                        $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
+                        if (file_exists($frontmatter_file)) {
+                            $frontmatter_data = (array)Yaml::parse(file_get_contents($frontmatter_file));
+                            $this->header = (object)array_replace_recursive($frontmatter_data, (array)$this->header);
+                        }
+                    }
                 } catch (ParseException $e) {
                     $file->raw(Grav::instance()['language']->translate([
                         'FRONTMATTER_ERROR_PAGE',
@@ -303,6 +334,8 @@ class Page
                 }
                 $var = true;
             }
+
+
         }
 
         if ($var) {

@@ -13,6 +13,8 @@
     * **Validation Rules**: You can now define a custom blueprint-level validation rule and assign this rule to a form field.
     * **Custom Form Field Types**: This advanced new functionality allows you to create a custom field type via a new plugin event called getFormFieldTypes(). This allows you to provide extra functionality or instructions on how to handle the form form field.
     * **GPM Versioning**: A new feature that we have wanted to add to our GPM package management system is the ability to control dependencies by version. We have opted to use a syntax very similar to the Composer Package Manager that is already familiar to most PHP developers. This new versioning system allows you to define specific minimum version requirements of dependent packages within Grav. This should ensure that we have less (hopefully none!) issues when you update one package that also requires a specific minimum version of another package. The admin plugin for example may have an update that requires a specific version of Grav itself.
+    * Refactor of the process chain breaking out `Processors` into individual classes to allow for easier modification and addition. Thanks to toovy for this work. - [#745](https://github.com/getgrav/grav/pull/745)
+    * Added optional config to allow Twig processing in page frontmatter - [#788](https://github.com/getgrav/grav/pull/788)
     * Added the ability to provide blueprints via a plugin (previously limited to Themes only).
     * Added Developer CLI Tools to easily create a new theme or plugin
     * Allow authentication for proxies - [#698](https://github.com/getgrav/grav/pull/698)
@@ -32,6 +34,7 @@
     * Improved command line flow when installing multiple packages: don't reinstall packages if already installed, ask once if should use symlinks if symlinks are found
     * Added more tests to our testing suite
     * Added x-ua-compatible to http_equiv metadata processing
+    * Added ability to have a per-page `frontmatter.yaml` file to set header frontmatter defaults. Especially useful for multilang scenarios - [#775](https://github.com/getgrav/grav/pull/775)
 1. [](#bugfix)
     * Fix Zend Opcache `opcache.validate_timestamps=0` not detecting changes in compiled yaml and twig files
     * Avoid losing params, query and fragment from the URL when auto-redirecting to a language-specific route - [#759](https://github.com/getgrav/grav/pull/759)
@@ -40,6 +43,7 @@
     * Fix for a remote link breaking all CSS rewrites for pipeline
     * Fix an issue with Retina alternatives not clearing properly between repeat uses
     * Fix for non standard http/s external markdown links - [#738](https://github.com/getgrav/grav/issues/738)
+    * Fix for `find()` calling redirects via `dispatch()` causing infinite loops - [#781](https://github.com/getgrav/grav/issues/781)
 
 # v1.0.10
 ## 02/11/2016

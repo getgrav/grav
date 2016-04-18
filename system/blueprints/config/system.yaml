@@ -234,8 +234,6 @@ form:
                 pages.twig_first:
                     type: toggle
                     label: PLUGIN_ADMIN.TWIG_FIRST
-                    highlight: asc
-                    default: desc
                     help: PLUGIN_ADMIN.TWIG_FIRST_HELP
                     highlight: 0
                     options:
@@ -243,6 +241,27 @@ form:
                         0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
+
+                pages.frontmatter.process_twig:
+                    type: toggle
+                    label: PLUGIN_ADMIN.FRONTMATTER_PROCESS_TWIG
+                    help: PLUGIN_ADMIN.FRONTMATTER_PROCESS_TWIG_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                pages.frontmatter.ignore_fields:
+                    type: selectize
+                    size: large
+                    placeholder: "e.g. forms"
+                    label: PLUGIN_ADMIN.FRONTMATTER_IGNORE_FIELDS
+                    help: PLUGIN_ADMIN.FRONTMATTER_IGNORE_FIELDS_HELP
+                    classes: fancy
+                    validate:
+                        type: commalist
 
         languages:
             type: section
@@ -890,7 +909,16 @@ form:
             underline: true
 
             fields:
-                proxy_url:
+                gpm.releases:
+                    type: toggle
+                    label: PLUGIN_ADMIN.GPM_RELEASES
+                    highlight: stable
+                    help: PLUGIN_ADMIN.GPM_RELEASES_HELP
+                    options:
+                        stable: PLUGIN_ADMIN.STABLE
+                        testing: PLUGIN_ADMIN.TESTING
+
+                gpm.proxy_url:
                     type: text
                     size: medium
                     placeholder: "e.g. 127.0.0.1:3128"

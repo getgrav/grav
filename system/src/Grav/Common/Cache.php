@@ -264,6 +264,15 @@ class Cache extends Getters
     }
 
     /**
+     * Setter method to set key (Advanced)
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+        $this->driver->setNamespace($this->key);
+    }
+
+    /**
      * Helper method to clear all Grav caches
      *
      * @param string $remove standard|all|assets-only|images-only|cache-only

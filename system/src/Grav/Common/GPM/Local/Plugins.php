@@ -19,6 +19,8 @@ class Plugins extends AbstractPackageCollection
      */
     public function __construct()
     {
-        parent::__construct(Grav::instance()['plugins']->all());
+        /** @var \Grav\Common\Plugins $plugins */
+        $plugins = Grav::instance()['plugins'];
+        parent::__construct($plugins->all());
     }
 }

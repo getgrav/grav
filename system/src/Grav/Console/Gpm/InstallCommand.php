@@ -96,6 +96,9 @@ class InstallCommand extends ConsoleCommand
     protected function serve()
     {
         $this->gpm = new GPM($this->input->getOption('force'));
+
+        $this->displayGPMRelease();
+
         $this->destination = realpath($this->input->getOption('destination'));
 
         $packages = array_map('strtolower', $this->input->getArgument('package'));

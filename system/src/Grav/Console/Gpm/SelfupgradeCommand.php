@@ -76,6 +76,8 @@ class SelfupgradeCommand extends ConsoleCommand
     {
         $this->upgrader = new Upgrader($this->input->getOption('force'));
 
+        $this->displayGPMRelease();
+
         $update = $this->upgrader->getAssets()['grav-update'];
 
         $local = $this->upgrader->getLocalVersion();

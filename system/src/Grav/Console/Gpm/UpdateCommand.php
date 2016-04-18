@@ -85,6 +85,9 @@ class UpdateCommand extends ConsoleCommand
     protected function serve()
     {
         $this->gpm = new GPM($this->input->getOption('force'));
+
+        $this->displayGPMRelease();
+
         $this->destination = realpath($this->input->getOption('destination'));
         $skip_prompt = $this->input->getOption('all-yes');
 

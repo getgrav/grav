@@ -297,18 +297,20 @@ class Pages
      */
     public function find($url, $all = false)
     {
-        return $this->dispatch($url, $all);
+        return $this->dispatch($url, $all, false);
     }
 
     /**
      * Dispatch URI to a page.
      *
      * @param string $url The relative URL of the page
-     * @param bool   $all
+     * @param bool $all
      *
+     * @param bool $redirect
      * @return Page|null
+     * @throws \Exception
      */
-    public function dispatch($url, $all = false)
+    public function dispatch($url, $all = false, $redirect = true)
     {
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
@@ -324,7 +326,7 @@ class Pages
         if (!$all && $not_admin && (!$page || ($page && !$page->routable()) || ($page && $page->redirect()))) {
 
             // If the page is a simple redirect, just do it.
-            if ($page && $page->redirect()) {
+            if ($redirect && $page && $page->redirect()) {
                 $this->grav->redirectLangSafe($page->redirect());
             }
 
