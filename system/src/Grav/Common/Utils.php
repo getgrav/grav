@@ -229,6 +229,13 @@ abstract class Utils
 
             $file_parts = pathinfo($file);
             $filesize = filesize($file);
+            $mimetype = Utils::getMimeType($file_parts['extension']);
+
+            $fp     = @fopen($file, 'rb');
+            $size   = filesize($file); // File size
+            $length = $size;           // Content length
+            $start  = 0;               // Start byte
+            $end    = $size - 1;       // End byte
 
             // check if this function is available, if so use it to stop any timeouts
             try {
@@ -247,35 +254,70 @@ abstract class Utils
             }
             ob_clean();
 
-            if ($force_download) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename=' . $file_parts['basename']);
-                header('Content-Transfer-Encoding: binary');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header('Pragma: public');
-            } else {
-                header("Content-Type: " . Utils::getMimeType($file_parts['extension']));
-            }
+            header("Content-Type: " . $mimetype);
+            header('Accept-Ranges: bytes');
             header('Content-Length: ' . $filesize);
 
-            // 8kb chunks for now
-            $chunk = 8 * 1024;
-
-            $fh = fopen($file, "rb");
-
-            if ($fh === false) {
-                return;
+            if ($force_download) {
+                // output the regular HTTP headers
+                header('Content-Disposition: attachment; filename="' . $file_parts['basename'] . '"');
             }
 
-            // Repeat reading until EOF
-            while (!feof($fh)) {
-                echo fread($fh, $chunk);
+            // Handle HTTP_RANGE (streaming video etc)
+            if ( isset($_SERVER['HTTP_RANGE']) ) {
 
-                ob_flush();  // flush output
-                flush();
+                $c_end = $end;
+                list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+                if (strpos($range, ',') !== false) {
+                    header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                    header("Content-Range: bytes $start-$end/$size");
+                    exit;
+                }
+                if ($range == '-') {
+                    $c_start = $size - substr($range, 1);
+                } else {
+                    $range = explode('-', $range);
+                    $c_start = $range[0];
+                    $c_end = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $size;
+                }
+                $c_end = ($c_end > $end) ? $end : $c_end;
+                if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size) {
+                    header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                    header("Content-Range: bytes $start-$end/$size");
+                    exit;
+                }
+                $start = $c_start;
+                $end = $c_end;
+                $length = $end - $start + 1;
+                fseek($fp, $start);
+                header('HTTP/1.1 206 Partial Content');
+                header("Content-Range: bytes $start-$end/$size");
+                header("Content-Length: ".$length);
+                header("Accept-Ranges: 0-$length");
+
+                $buffer = 1024 * 8;
+                while(!feof($fp) && ($p = ftell($fp)) <= $end) {
+                    if ($p + $buffer > $end) {
+                        $buffer = $end - $p + 1;
+                    }
+                    echo fread($fp, $buffer);
+                    ob_flush();
+                    flush();
+                }
+
+            } else {
+                $buffer = 1024 * 8;
+
+                // Repeat reading until EOF
+                while (!feof($fp)) {
+                    echo fread($fp, $buffer);
+
+                    ob_flush();  // flush output
+                    flush();
+                }
             }
+
+            fclose($fp);
 
             exit;
         }
