@@ -30,7 +30,7 @@ gif:
 
 svg:
   type: vector
-  thumb: media/thumb-gif.png
+  thumb: media/thumb.png
   mime: image/svg+xml
 
 mp4:
@@ -53,6 +53,14 @@ flv:
   type: video
   thumb: media/thumb-flv.png
   mime: video/x-flv
+webm:
+  type: video
+  thumb: media/thumb.png
+  mime: video/webm
+ogv:
+  type: video
+  thumb: media/thumb-ogg.png
+  mime: video/ogg
 
 mp3:
   type: audio
