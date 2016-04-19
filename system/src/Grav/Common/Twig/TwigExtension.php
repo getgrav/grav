@@ -581,6 +581,9 @@ class TwigExtension extends \Twig_Extension
      */
     public function evaluateFunc($input)
     {
+        if (!$input) { //prevent an obscure Twig error if $input is not set
+            $input = '""';
+        }
         return $this->grav['twig']->processString("{{ $input }}");
     }
 
