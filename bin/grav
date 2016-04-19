@@ -41,8 +41,5 @@ $app->addCommands(array(
     new \Grav\Console\Cli\ClearCacheCommand(),
     new \Grav\Console\Cli\BackupCommand(),
     new \Grav\Console\Cli\NewProjectCommand(),
-    new \Grav\Console\Cli\NewUserCommand(),
-    new \Grav\Console\Cli\DevTools\NewPluginCommand(),
-    new \Grav\Console\Cli\DevTools\NewThemeCommand(),
 ));
 $app->run();
