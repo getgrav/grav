@@ -347,7 +347,10 @@ class GPM extends Iterator
      */
     public function isTestingRelease($package_name)
     {
-        return $this->getReleaseType($package_name) === 'testing' || $this->getInstalledPackage($package_name)->testing;
+        $hasTesting = isset($this->getInstalledPackage($package_name)->testing);
+        $testing = $hasTesting ? $this->getInstalledPackage($package_name)->testing : false;
+
+        return $this->getReleaseType($package_name) === 'testing' || $testing;
     }
 
     /**
