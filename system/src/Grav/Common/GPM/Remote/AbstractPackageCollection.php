@@ -41,10 +41,11 @@ class AbstractPackageCollection extends BaseCollection
             throw new \RuntimeException("A repository is required to indicate the origin of the remote collection");
         }
 
+        $channel = Grav::instance()['config']->get('system.gpm.releases', 'stable');
         $cache_dir = Grav::instance()['locator']->findResource('cache://gpm', true, true);
         $this->cache = new FilesystemCache($cache_dir);
 
-        $this->repository = $repository . '?v=' . GRAV_VERSION;
+        $this->repository = $repository . '?v=' . GRAV_VERSION . '&' . $channel . '=1';
         $this->raw        = $this->cache->fetch(md5($this->repository));
 
         $this->fetch($refresh, $callback);

@@ -21,8 +21,6 @@ class Themes extends AbstractPackageCollection
      */
     public function __construct($refresh = false, $callback = null)
     {
-        $this->repository .= '?v=' . GRAV_VERSION;
-
         parent::__construct($this->repository, $refresh, $callback);
     }
 }
