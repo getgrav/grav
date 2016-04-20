@@ -204,6 +204,7 @@ class GPM extends Iterator
             if (version_compare($local_version, $remote_version) < 0) {
                 $repository[$slug]->available = $remote_version;
                 $repository[$slug]->version   = $local_version;
+                $repository[$slug]->type      = $repository[$slug]->release_type;
                 $items[$slug]                 = $repository[$slug];
             }
         }
@@ -282,6 +283,7 @@ class GPM extends Iterator
             if (version_compare($local_version, $remote_version) < 0) {
                 $repository[$slug]->available = $remote_version;
                 $repository[$slug]->version   = $local_version;
+                $repository[$slug]->type      = $repository[$slug]->release_type;
                 $items[$slug]                 = $repository[$slug];
             }
         }
@@ -299,6 +301,53 @@ class GPM extends Iterator
     public function isThemeUpdatable($theme)
     {
         return array_key_exists($theme, (array) $this->getUpdatableThemes());
+    }
+
+    /**
+     * Get the release type of a package (stable / testing)
+     *
+     * @param $package_name
+     *
+     * @return string|null
+     */
+    public function getReleaseType($package_name)
+    {
+        $repository = $this->repository['plugins'];
+        if (isset($repository[$package_name])) {
+            return $repository[$package_name]->release_type;
+        }
+
+        //Not a plugin, it's a theme?
+        $repository = $this->repository['themes'];
+        if (isset($repository[$package_name])) {
+            return $repository[$package_name]->release_type;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns true if the package latest release is stable
+     *
+     * @param $package_name
+     *
+     * @return boolean
+     */
+    public function isStableRelease($package_name)
+    {
+        return $this->getReleaseType($package_name) === 'stable';
+    }
+
+    /**
+     * Returns true if the package latest release is testing
+     *
+     * @param $package_name
+     *
+     * @return boolean
+     */
+    public function isTestingRelease($package_name)
+    {
+        return $this->getReleaseType($package_name) === 'testing' || $this->getInstalledPackage($package_name)->testing;
     }
 
     /**
