@@ -1,5 +1,5 @@
-# v1.1.0
-## XX/XX/2016
+# v1.1.0-beta.1
+## 04/20/2016
 
 1. [](#new)
     * **Blueprint Improvements**: The main improvements to Grav take the form of a major rewrite of our blueprint functionality. Blueprints are an essential piece of functionality within Grav that helps define configuration fields. These allow us to create a definition of a form field that can be rendered in the administrator plugin and allow the input, validation, and storage of values into the various configuration and page files that power Grav. Grav 1.0 had extensive support for building and extending blueprints, but Grav 1.1 takes this even further and adds improvements to our existing system.
