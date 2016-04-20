@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Common;
 
+use Grav\Common\Page\Medium\ImageMedium;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -440,7 +441,7 @@ class Grav extends Container
      *
      * @param $path
      */
-    protected function fallbackUrl($path)
+    public function fallbackUrl($path)
     {
         /** @var Uri $uri */
         $uri = $this['uri'];

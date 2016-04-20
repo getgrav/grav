@@ -298,8 +298,12 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.1.10'));
         $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.8'));
         $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0.1', '1.1'));
+        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0.0-beta', '2.0'));
+        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0.0-rc.1', '2.0'));
+        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0', '2.0.0-alpha'));
 
         $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '2.2'));
+        $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('1.0.0-beta.1', '2.0'));
         $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.0'));
         $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10'));
         $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10.2'));

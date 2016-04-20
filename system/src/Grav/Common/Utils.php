@@ -218,63 +218,79 @@ abstract class Utils
     /**
      * Provides the ability to download a file to the browser
      *
-     * @param string $file           the full path to the file to be downloaded
-     * @param bool   $force_download as opposed to letting browser choose if to download or render
+     * @param string $file the full path to the file to be downloaded
+     * @param bool $force_download as opposed to letting browser choose if to download or render
+     * @param int $sec      Throttling, try 0.1 for some speed throttling of downloads
+     * @param int $bytes    Size of chunks to send in bytes. Default is 1024
+     * @throws \Exception
      */
-    public static function download($file, $force_download = true)
+    public static function download($file, $force_download = true, $sec = 0, $bytes = 1024)
     {
         if (file_exists($file)) {
             // fire download event
             Grav::instance()->fireEvent('onBeforeDownload', new Event(['file' => $file]));
 
             $file_parts = pathinfo($file);
-            $filesize = filesize($file);
+            $mimetype = Utils::getMimeType($file_parts['extension']);
+            $size   = filesize($file); // File size
 
-            // check if this function is available, if so use it to stop any timeouts
-            try {
-                if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode') && function_exists('set_time_limit')) {
-                    set_time_limit(0);
-                }
-            } catch (\Exception $e) {
-            }
-
-            ignore_user_abort(false);
-
-            // fix corrupted files
-            if (Grav::instance()['config']->get('system.cache.gzip')) {
-                // Flush gzhandler buffer if gzip setting was enabled.
+            // clean all buffers
+            while (ob_get_level()) {
                 ob_end_clean();
             }
-            ob_clean();
+
+            // required for IE, otherwise Content-Disposition may be ignored
+            if (ini_get('zlib.output_compression')) {
+                ini_set('zlib.output_compression', 'Off');
+            }
+
+            header("Content-Type: " . $mimetype);
+            header('Accept-Ranges: bytes');
 
             if ($force_download) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename=' . $file_parts['basename']);
-                header('Content-Transfer-Encoding: binary');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header('Pragma: public');
+                // output the regular HTTP headers
+                header('Content-Disposition: attachment; filename="' . $file_parts['basename'] . '"');
+            }
+
+            // multipart-download and download resuming support
+            if (isset($_SERVER['HTTP_RANGE'])) {
+                list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
+                list($range) = explode(",", $range, 2);
+                list($range, $range_end) = explode("-", $range);
+                $range = intval($range);
+                if (!$range_end) {
+                    $range_end = $size - 1;
+                } else {
+                    $range_end = intval($range_end);
+                }
+                $new_length = $range_end - $range + 1;
+                header("HTTP/1.1 206 Partial Content");
+                header("Content-Length: $new_length");
+                header("Content-Range: bytes $range-$range_end/$size");
             } else {
-                header("Content-Type: " . Utils::getMimeType($file_parts['extension']));
-            }
-            header('Content-Length: ' . $filesize);
-
-            // 8kb chunks for now
-            $chunk = 8 * 1024;
-
-            $fh = fopen($file, "rb");
-
-            if ($fh === false) {
-                return;
+                $new_length = $size;
+                header("Content-Length: " . $size);
             }
 
-            // Repeat reading until EOF
-            while (!feof($fh)) {
-                echo fread($fh, $chunk);
+            /* output the file itself */
+            $chunksize = $bytes * 8; //you may want to change this
+            $bytes_send = 0;
 
-                ob_flush();  // flush output
-                flush();
+            $fp = @fopen($file, 'r');
+            if ($fp) {
+                if (isset($_SERVER['HTTP_RANGE'])) {
+                    fseek($fp, $range);
+                }
+                while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length) ) {
+                    $buffer = fread($fp, $chunksize);
+                    echo($buffer); //echo($buffer); // is also possible
+                    flush();
+                    usleep($sec * 1000000);
+                    $bytes_send += strlen($buffer);
+                }
+                fclose($fp);
+            } else {
+                throw new \Exception('Error - can not open file.');
             }
 
             exit;
