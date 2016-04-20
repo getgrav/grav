@@ -167,6 +167,13 @@ class UninstallCommand extends ConsoleCommand
             return false;
         }
 
+        $message = Installer::getMessage();
+        if ($message) {
+            $this->output->write("\x0D");
+            // extra white spaces to clear out the buffer properly
+            $this->output->writeln("  |- " . $message);
+        }
+
         $this->output->write("\x0D");
         // extra white spaces to clear out the buffer properly
         $this->output->writeln("  |- Uninstalling package...  <green>ok</green>                             ");
