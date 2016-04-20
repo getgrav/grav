@@ -106,7 +106,7 @@ class Installer
         $is_install = true;
         $installer = self::loadInstaller($installer_file_folder, $is_install);
 
-        if ($options['is_update'] == true) {
+        if (isset($options['is_update']) && $options['is_update'] == true) {
             $method = 'preUpdate';
         } else {
             $method = 'preInstall';
@@ -137,7 +137,7 @@ class Installer
         Folder::delete($tmp);
         $zip->close();
 
-        if ($options['is_update'] == true) {
+        if (isset($options['is_update']) && $options['is_update'] == true) {
             $method = 'postUpdate';
         } else {
             $method = 'postInstall';
