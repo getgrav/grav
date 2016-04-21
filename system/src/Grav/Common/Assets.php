@@ -1004,6 +1004,13 @@ class Assets
      */
     protected function isRemoteLink($link)
     {
+        $base = Grav::instance()['uri']->rootUrl(true);
+        
+        // sanity check for local URLs with absolute URL's enabled
+        if (Utils::startsWith($link, $base)) {
+            return false;
+        }
+
         return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8) || '//' === substr($link, 0,
                 2));
     }

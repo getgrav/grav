@@ -2,7 +2,9 @@
 ## xx/xx/2016
 
 1. [](#improved)
-    * moved to new `data-*@` format in blueprints
+    * Moved to new `data-*@` format in blueprints
+1. [](#bugfix)
+    * Fixed issue with link rewrites and local assets pipeline with `absolute_urls: true`
 
 # v1.1.0-beta.1
 ## 04/20/2016
