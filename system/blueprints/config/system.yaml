@@ -56,7 +56,7 @@ form:
                     size: medium
                     classes: fancy
                     help: PLUGIN_ADMIN.TIMEZONE_HELP
-                    '@data-options': '\Grav\Common\Utils::timezones'
+                    data-options@: '\Grav\Common\Utils::timezones'
                     default: ''
                     options:
                         '': 'Default (Server Timezone)'
@@ -69,7 +69,7 @@ form:
                     label: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT
                     help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
                     placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
-                    '@data-options': '\Grav\Common\Utils::dateFormats'
+                    data-options@: '\Grav\Common\Utils::dateFormats'
                     validate:
                         type: string
 

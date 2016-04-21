@@ -56,7 +56,7 @@ form:
                 label: PLUGIN_ADMIN.LANGUAGE
                 size: medium
                 classes: fancy
-                '@data-options': '\Grav\Plugin\admin::adminLanguages'
+                data-options@: '\Grav\Plugin\admin::adminLanguages'
                 default: 'en'
                 help: PLUGIN_ADMIN.LANGUAGE_HELP
 
@@ -71,7 +71,7 @@ form:
                         type: selectize
                         size: large
                         label: PLUGIN_ADMIN.GROUPS
-                        '@data-options': '\Grav\User\Groups::groups'
+                        data-options@: '\Grav\User\Groups::groups'
                         classes: fancy
                         help: PLUGIN_ADMIN.GROUPS_HELP
                         validate:
