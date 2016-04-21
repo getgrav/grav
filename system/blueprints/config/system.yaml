@@ -529,7 +529,7 @@ form:
                     type: toggle
                     label: PLUGIN_ADMIN.TWIG_DEBUG
                     help: PLUGIN_ADMIN.TWIG_DEBUG_HELP
-                    highlight: 0
+                    highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO

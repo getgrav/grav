@@ -74,7 +74,7 @@ cache:
 
 twig:
   cache: true                               # Set to true to enable twig caching
-  debug: false                              # Enable Twig debug
+  debug: true                               # Enable Twig debug
   auto_reload: true                         # Refresh cache on changes
   autoescape: false                         # Autoescape Twig vars
   undefined_functions: true                 # Allow undefined functions
