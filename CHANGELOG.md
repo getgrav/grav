@@ -1,3 +1,9 @@
+# v1.1.0-beta.2
+## xx/xx/2016
+
+1. [](#improved)
+    * moved to new `data-*@` format in blueprints
+
 # v1.1.0-beta.1
 ## 04/20/2016
 
