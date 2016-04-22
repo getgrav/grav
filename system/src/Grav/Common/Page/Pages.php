@@ -1029,9 +1029,9 @@ class Pages
             $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
-            asort($list, $sort_flags);
+            $col = new \Collator(setlocale(LC_COLLATE, 0)); //`setlocale` with a 0 param returns the current locale set
+            $col->asort($list, $sort_flags);
         }
-
 
         // Move manually ordered items into the beginning of the list. Order of the unlisted items does not change.
         if (is_array($manual) && !empty($manual)) {
