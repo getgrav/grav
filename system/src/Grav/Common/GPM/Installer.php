@@ -2,6 +2,7 @@
 namespace Grav\Common\GPM;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
 
 class Installer
 {
@@ -80,7 +81,8 @@ class Installer
 
         $zip = new \ZipArchive();
         $archive = $zip->open($package);
-        $tmp = CACHE_DIR . 'tmp/Grav-' . uniqid();
+        $cache_dir = Grav::instance()['locator']->findResource('cache://', true);
+        $tmp = $cache_dir . 'tmp/Grav-' . uniqid();
 
         if ($archive !== true) {
             self::$error = self::ZIP_OPEN_ERROR;

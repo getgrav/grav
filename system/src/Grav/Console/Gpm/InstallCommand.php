@@ -6,6 +6,7 @@ use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Remote\Package as Package;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -530,7 +531,8 @@ class InstallCommand extends ConsoleCommand
      */
     private function downloadPackage($package)
     {
-        $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
+        $cache_dir = Grav::instance()['locator']->findResource('cache://', true);
+        $this->tmp = $cache_dir . DS . 'tmp/Grav-' . uniqid();
         $filename = $package->slug . basename($package->zipball_url);
         $output = Response::get($package->zipball_url, [], [$this, 'progress']);
 
