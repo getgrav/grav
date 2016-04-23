@@ -27,54 +27,54 @@ class Grav extends Container
     protected static $diMap = [
         'Grav\Common\Service\LoggerServiceProvider',
         'Grav\Common\Service\ErrorServiceProvider',
-        'uri' => 'Grav\Common\Uri',
-        'events' => 'RocketTheme\Toolbox\Event\EventDispatcher',
-        'cache' => 'Grav\Common\Cache',
-        'session' => 'Grav\Common\Session',
-        'plugins' => 'Grav\Common\Plugins',
-        'themes' => 'Grav\Common\Themes',
-        'twig' => 'Grav\Common\Twig\Twig',
-        'taxonomy' => 'Grav\Common\Taxonomy',
-        'language' => 'Grav\Common\Language\Language',
-        'pages' => 'Grav\Common\Page\Pages',
+        'uri'                     => 'Grav\Common\Uri',
+        'events'                  => 'RocketTheme\Toolbox\Event\EventDispatcher',
+        'cache'                   => 'Grav\Common\Cache',
+        'session'                 => 'Grav\Common\Session',
+        'plugins'                 => 'Grav\Common\Plugins',
+        'themes'                  => 'Grav\Common\Themes',
+        'twig'                    => 'Grav\Common\Twig\Twig',
+        'taxonomy'                => 'Grav\Common\Taxonomy',
+        'language'                => 'Grav\Common\Language\Language',
+        'pages'                   => 'Grav\Common\Page\Pages',
         'Grav\Common\Service\TaskServiceProvider',
         'Grav\Common\Service\AssetsServiceProvider',
         'Grav\Common\Service\PageServiceProvider',
         'Grav\Common\Service\OutputServiceProvider',
-        'browser' => 'Grav\Common\Browser',
+        'browser'                 => 'Grav\Common\Browser',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\ConfigServiceProvider',
-        'inflector' => 'Grav\Common\Inflector',
-        'siteSetupProcessor' => 'Grav\Common\Processors\SiteSetupProcessor',
-        'configurationProcessor' => 'Grav\Common\Processors\ConfigurationProcessor',
-        'errorsProcessor' => 'Grav\Common\Processors\ErrorsProcessor',
-        'debuggerInitProcessor' => 'Grav\Common\Processors\DebuggerInitProcessor',
-        'initializeProcessor' => 'Grav\Common\Processors\InitializeProcessor',
-        'pluginsProcessor' => 'Grav\Common\Processors\PluginsProcessor',
-        'themesProcessor' => 'Grav\Common\Processors\ThemesProcessor',
-        'tasksProcessor' => 'Grav\Common\Processors\TasksProcessor',
-        'assetsProcessor' => 'Grav\Common\Processors\AssetsProcessor',
-        'twigProcessor' => 'Grav\Common\Processors\TwigProcessor',
-        'pagesProcessor' => 'Grav\Common\Processors\PagesProcessor',
+        'inflector'               => 'Grav\Common\Inflector',
+        'siteSetupProcessor'      => 'Grav\Common\Processors\SiteSetupProcessor',
+        'configurationProcessor'  => 'Grav\Common\Processors\ConfigurationProcessor',
+        'errorsProcessor'         => 'Grav\Common\Processors\ErrorsProcessor',
+        'debuggerInitProcessor'   => 'Grav\Common\Processors\DebuggerInitProcessor',
+        'initializeProcessor'     => 'Grav\Common\Processors\InitializeProcessor',
+        'pluginsProcessor'        => 'Grav\Common\Processors\PluginsProcessor',
+        'themesProcessor'         => 'Grav\Common\Processors\ThemesProcessor',
+        'tasksProcessor'          => 'Grav\Common\Processors\TasksProcessor',
+        'assetsProcessor'         => 'Grav\Common\Processors\AssetsProcessor',
+        'twigProcessor'           => 'Grav\Common\Processors\TwigProcessor',
+        'pagesProcessor'          => 'Grav\Common\Processors\PagesProcessor',
         'debuggerAssetsProcessor' => 'Grav\Common\Processors\DebuggerAssetsProcessor',
-        'renderProcessor' => 'Grav\Common\Processors\RenderProcessor',
+        'renderProcessor'         => 'Grav\Common\Processors\RenderProcessor',
     ];
 
     /** @var array All processors that are processed in $this->process() */
     protected $processors = [
-      'siteSetupProcessor',
-      'configurationProcessor',
-      'errorsProcessor',
-      'debuggerInitProcessor',
-      'initializeProcessor',
-      'pluginsProcessor',
-      'themesProcessor',
-      'tasksProcessor',
-      'assetsProcessor',
-      'twigProcessor',
-      'pagesProcessor',
-      'debuggerAssetsProcessor',
-      'renderProcessor',
+        'siteSetupProcessor',
+        'configurationProcessor',
+        'errorsProcessor',
+        'debuggerInitProcessor',
+        'initializeProcessor',
+        'pluginsProcessor',
+        'themesProcessor',
+        'tasksProcessor',
+        'assetsProcessor',
+        'twigProcessor',
+        'pagesProcessor',
+        'debuggerAssetsProcessor',
+        'renderProcessor',
     ];
 
     /**
@@ -118,10 +118,10 @@ class Grav extends Container
 
         // process all processors (e.g. config, initialize, assets, ..., render)
         foreach ($this->processors as $processor) {
-          $processor = $this[$processor];
-          $this->measureTime($processor->id, $processor->title, function() use ($processor) {
-            $processor->process();
-          });
+            $processor = $this[$processor];
+            $this->measureTime($processor->id, $processor->title, function () use ($processor) {
+                $processor->process();
+            });
         }
 
         // Set the header type
@@ -142,7 +142,7 @@ class Grav extends Container
         // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
             $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, count($language < 3) ? ($language . '_' . strtoupper($language)) : $language );
+            setlocale(LC_ALL, count($language < 3) ? ($language . '_' . strtoupper($language)) : $language);
         } elseif ($this['config']->get('system.default_locale')) {
             setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
@@ -380,14 +380,14 @@ class Grav extends Container
         // closure that measures time by wrapping a function into startTimer and stopTimer
         // The debugger can be passed to the closure. Should be more performant
         // then to get it from the container all time.
-        $container->measureTime = function($timerId, $timerTitle, $callback) use ($debugger) {
-          $debugger->startTimer($timerId, $timerTitle);
-          $callback();
-          $debugger->stopTimer($timerId);
+        $container->measureTime = function ($timerId, $timerTitle, $callback) use ($debugger) {
+            $debugger->startTimer($timerId, $timerTitle);
+            $callback();
+            $debugger->stopTimer($timerId);
         };
 
-        $container->measureTime('_services', 'Services', function() use ($container) {
-          $container->registerServices($container);
+        $container->measureTime('_services', 'Services', function () use ($container) {
+            $container->registerServices($container);
         });
 
         return $container;
@@ -401,39 +401,42 @@ class Grav extends Container
      *
      * @return void
      */
-    protected function registerServices() {
-      foreach (self::$diMap as $serviceKey => $serviceClass) {
-        if (is_int($serviceKey)) {
-          $this->registerServiceProvider($serviceClass);
-        } else {
-          $this->registerService($serviceKey, $serviceClass);
+    protected function registerServices()
+    {
+        foreach (self::$diMap as $serviceKey => $serviceClass) {
+            if (is_int($serviceKey)) {
+                $this->registerServiceProvider($serviceClass);
+            } else {
+                $this->registerService($serviceKey, $serviceClass);
+            }
         }
-      }
     }
 
     /**
      * Register a service provider with the container.
      *
-     * @param  string    $serviceClass
+     * @param  string $serviceClass
      *
      * @return void
      */
-    protected function registerServiceProvider($serviceClass) {
-      $this->register(new $serviceClass);
+    protected function registerServiceProvider($serviceClass)
+    {
+        $this->register(new $serviceClass);
     }
 
     /**
      * Register a service with the container.
      *
-     * @param  string    $serviceKey
-     * @param  string    $serviceClass
+     * @param  string $serviceKey
+     * @param  string $serviceClass
      *
      * @return void
      */
-    protected function registerService($serviceKey, $serviceClass) {
-      $this[$serviceKey] = function ($c) use ($serviceClass) {
-        return new $serviceClass($c);
-      };
+    protected function registerService($serviceKey, $serviceClass)
+    {
+        $this[$serviceKey] = function ($c) use ($serviceClass) {
+            return new $serviceClass($c);
+        };
     }
 
     /**
