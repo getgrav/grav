@@ -57,6 +57,19 @@ class Theme extends Plugin
     }
 
     /**
+     * Simpler getter for the theme blueprint
+     *
+     * @return mixed
+     */
+    public function getBlueprint()
+    {
+        if (!$this->blueprint) {
+            $this->loadBlueprint();
+        }
+        return $this->blueprint;
+    }
+
+    /**
      * Load blueprints.
      */
     protected function loadBlueprint()

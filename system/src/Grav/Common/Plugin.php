@@ -295,6 +295,19 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
+     * Simpler getter for the plugin blueprint
+     *
+     * @return mixed
+     */
+    public function getBlueprint()
+    {
+        if (!$this->blueprint) {
+            $this->loadBlueprint();
+        }
+        return $this->blueprint;
+    }
+
+    /**
      * Load blueprints.
      */
     protected function loadBlueprint()

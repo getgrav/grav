@@ -1,6 +1,8 @@
 # v1.1.0-beta.2
 ## xx/xx/2016
 
+1. [](#new)
+    * Added new `Plugin::getBlueprint()` and `Theme::getBlueprint()` method
 1. [](#improved)
     * Moved to new `data-*@` format in blueprints
 1. [](#bugfix)
