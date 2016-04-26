@@ -486,13 +486,44 @@ class Pages
     public static function getTypes()
     {
         if (!self::$types) {
-            self::$types = new Types();
-            self::$types->scanBlueprints('theme://blueprints/');
-            self::$types->scanTemplates('theme://templates/');
 
-            $event = new Event();
-            $event->types = self::$types;
-            Grav::instance()->fireEvent('onGetPageTemplates', $event);
+            $grav = Grav::instance();
+
+            $scanBlueprintsAndTemplates = function () use ($grav) {
+                // Scan blueprints
+                $event = new Event();
+                $event->types = self::$types;
+                $grav->fireEvent('onGetPageBlueprints', $event);
+
+                self::$types->scanBlueprints('theme://blueprints/');
+
+                // Scan templates
+                $event = new Event();
+                $event->types = self::$types;
+                $grav->fireEvent('onGetPageTemplates', $event);
+
+                self::$types->scanTemplates('theme://templates/');
+            };
+
+            if ($grav['config']->get('system.cache.enabled')) {
+                /** @var Cache $cache */
+                $cache = $grav['cache'];
+
+                // Use cached types if possible.
+                $types_cache_id = md5('types');
+                self::$types = $cache->fetch($types_cache_id);
+
+                if (!self::$types) {
+                    self::$types = new Types();
+                    $scanBlueprintsAndTemplates();
+                    $cache->save($types_cache_id, self::$types);
+                }
+
+            } else {
+                self::$types = new Types();
+                $scanBlueprintsAndTemplates();
+            }
+
         }
 
         return self::$types;
