@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ff44cbc35ded0b6491ab74b32f62cd9f",
-    "content-hash": "5d8b4ff937850c8b1cd333f5855369a6",
+    "hash": "6540fe071baeb33887ce471b77536934",
+    "content-hash": "69551d2afa393561987f664319d4e02b",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -639,12 +639,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "410e350ea9feb5f0848d1b48f415c998fbe4e901"
+                "reference": "b3deb8f5c20480f331595a588c4870ea2c3deade"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/410e350ea9feb5f0848d1b48f415c998fbe4e901",
-                "reference": "410e350ea9feb5f0848d1b48f415c998fbe4e901",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/b3deb8f5c20480f331595a588c4870ea2c3deade",
+                "reference": "b3deb8f5c20480f331595a588c4870ea2c3deade",
                 "shasum": ""
             },
             "require": {
@@ -679,7 +679,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-04-12 10:43:28"
+            "time": "2016-04-25 17:32:44"
         },
         {
             "name": "symfony/console",
@@ -1030,58 +1030,6 @@
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
             "time": "2016-03-04 07:54:35"
-        },
-        {
-            "name": "twig/extensions",
-            "version": "v1.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/twigphp/Twig-extensions.git",
-                "reference": "449e3c8a9ffad7c2479c7864557275a32b037499"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig-extensions/zipball/449e3c8a9ffad7c2479c7864557275a32b037499",
-                "reference": "449e3c8a9ffad7c2479c7864557275a32b037499",
-                "shasum": ""
-            },
-            "require": {
-                "twig/twig": "~1.20|~2.0"
-            },
-            "require-dev": {
-                "symfony/translation": "~2.3"
-            },
-            "suggest": {
-                "symfony/translation": "Allow the time_diff output to be translated"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Twig_Extensions_": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                }
-            ],
-            "description": "Common additional features for Twig that do not directly belong in core",
-            "homepage": "http://twig.sensiolabs.org/doc/extensions/index.html",
-            "keywords": [
-                "i18n",
-                "text"
-            ],
-            "time": "2015-08-22 16:38:35"
         },
         {
             "name": "twig/twig",
