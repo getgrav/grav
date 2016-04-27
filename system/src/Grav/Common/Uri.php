@@ -105,7 +105,7 @@ class Uri
     {
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
-        return $uri;
+        return rawurldecode($uri);
     }
 
     private function buildScheme()
