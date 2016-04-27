@@ -1114,7 +1114,8 @@ class Assets
                 $file = $this->cssRewrite($file, $relative_dir);
             }
 
-            $buffer .= $file;
+            $file = rtrim($file) . PHP_EOL;            
+            $buffer .= $file;    
         }
 
         // Pull out @imports and move to top
