@@ -297,8 +297,11 @@ class TwigExtension extends \Twig_Extension
      *
      * @return array
      */
-    public function ksortFilter(array $array)
+    public function ksortFilter($array)
     {
+        if (is_null($array)) {
+            $array = [];
+        }
         ksort($array);
 
         return $array;
