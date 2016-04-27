@@ -3,10 +3,17 @@
 
 1. [](#new)
     * Added new `Plugin::getBlueprint()` and `Theme::getBlueprint()` method
+    * Allow **page blueprints** to be added via Plugins.
 1. [](#improved)
     * Moved to new `data-*@` format in blueprints
+    * Updated composer-based libraries
+    * Moved some hard-coded `CACHEDIR` references to use locator
+    * Set `twig.debug: true` by default
 1. [](#bugfix)
     * Fixed issue with link rewrites and local assets pipeline with `absolute_urls: true`
+    * Allow Cyrillic slugs [#520](https://github.com/getgrav/grav-plugin-admin/issues/520)
+    * Fix ordering issue with accented letters [#784](https://github.com/getgrav/grav/issues/784)
+    * Fix issue with Assets pipeline and missing newlines causing invalid JavaScript
 
 # v1.1.0-beta.1
 ## 04/20/2016
