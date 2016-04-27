@@ -7,6 +7,7 @@
     * Moved to new `data-*@` format in blueprints
 1. [](#bugfix)
     * Fixed issue with link rewrites and local assets pipeline with `absolute_urls: true`
+    * Allow Cyrillic slugs
 
 # v1.1.0-beta.1
 ## 04/20/2016
