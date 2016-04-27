@@ -1,5 +1,5 @@
 # v1.1.0-beta.2
-## xx/xx/2016
+## 04/27/2016
 
 1. [](#new)
     * Added new `Plugin::getBlueprint()` and `Theme::getBlueprint()` method
@@ -7,7 +7,7 @@
 1. [](#improved)
     * Moved to new `data-*@` format in blueprints
     * Updated composer-based libraries
-    * Moved some hard-coded `CACHEDIR` references to use locator
+    * Moved some hard-coded `CACHE_DIR` references to use locator
     * Set `twig.debug: true` by default
 1. [](#bugfix)
     * Fixed issue with link rewrites and local assets pipeline with `absolute_urls: true`
