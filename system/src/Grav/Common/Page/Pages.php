@@ -1060,7 +1060,12 @@ class Pages
             $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
-            asort($list, $sort_flags);
+            if (extension_loaded('intl')) {
+                $col = new \Collator(setlocale(LC_COLLATE, 0)); //`setlocale` with a 0 param returns the current locale set
+                $col->asort($list, $sort_flags);
+            } else {
+                asort($list, $sort_flags);
+            }
         }
 
 
