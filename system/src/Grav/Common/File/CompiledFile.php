@@ -1,7 +1,6 @@
 <?php
 namespace Grav\Common\File;
 
-use Grav\Common\Grav;
 use RocketTheme\Toolbox\File\PhpFile;
 
 /**
