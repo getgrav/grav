@@ -82,9 +82,9 @@ class VersionCommand extends ConsoleCommand
                 }
 
                 $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
-                $currentlyInstalledVersion = $package_yaml['version'];
+                $version = $package_yaml['version'];
 
-                if (!$currentlyInstalledVersion) {
+                if (!$version) {
                     continue;
                 }
 
@@ -101,7 +101,7 @@ class VersionCommand extends ConsoleCommand
             $updatable = $updatable ?: '';
 
             if ($installed || $package == 'grav') {
-                $this->output->writeln('You are running <white>' . $name . '</white> v<cyan>' . $currentlyInstalledVersion . '</cyan>' . $updatable);
+                $this->output->writeln('You are running <white>' . $name . '</white> v<cyan>' . $version . '</cyan>' . $updatable);
             } else {
                 $this->output->writeln('Package <red>' . $package . '</red> not found');
             }
