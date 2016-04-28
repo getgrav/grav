@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed handling of `{'loading':'async'}` with Assets Pipeline
+    * Fix for new modular page modal `Page` field requiring a value [#529](https://github.com/getgrav/grav-plugin-admin/issues/529)
 
 # v1.1.0-beta.2
 ## 04/27/2016

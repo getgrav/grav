@@ -31,8 +31,6 @@ form:
       classes: fancy
       data-options@: '\Grav\Common\Page\Pages::parents'
       data-default@: '\Grav\Plugin\admin::route'
-      options:
-        '': PLUGIN_ADMIN.DEFAULT_OPTION_SELECT
       validate:
         required: true
 
