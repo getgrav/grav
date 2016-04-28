@@ -1005,7 +1005,7 @@ class Assets
     protected function isRemoteLink($link)
     {
         $base = Grav::instance()['uri']->rootUrl(true);
-        
+
         // sanity check for local URLs with absolute URL's enabled
         if (Utils::startsWith($link, $base)) {
             return false;
@@ -1042,6 +1042,7 @@ class Assets
     protected function attributes(array $attributes)
     {
         $html = '';
+        $no_key = ['loading'];
 
         foreach ($attributes as $key => $value) {
             // For numeric keys we will assume that the key and the value are the same
@@ -1054,7 +1055,12 @@ class Assets
                 $value = implode(' ', $value);
             }
 
-            $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
+            if (in_array($key, $no_key)) {
+                $element = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+            } else {
+                $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
+            }
+
             $html .= ' ' . $element;
         }
 
@@ -1114,8 +1120,8 @@ class Assets
                 $file = $this->cssRewrite($file, $relative_dir);
             }
 
-            $file = rtrim($file) . PHP_EOL;            
-            $buffer .= $file;    
+            $file = rtrim($file) . PHP_EOL;
+            $buffer .= $file;
         }
 
         // Pull out @imports and move to top

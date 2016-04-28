@@ -1,3 +1,9 @@
+# v1.1.0-beta.3
+## xx/xx/2016
+
+1. [](#bugfix)
+    * Fixed handling of `{'loading':'async'}` with Assets Pipeline
+
 # v1.1.0-beta.2
 ## 04/27/2016
 
