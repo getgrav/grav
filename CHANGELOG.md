@@ -1,6 +1,8 @@
 # v1.1.0-beta.3
 ## xx/xx/2016
 
+1. [](#improved)
+    * Pass the Page type when calling `onBlueprintCreated`
 1. [](#bugfix)
     * Fixed handling of `{'loading':'async'}` with Assets Pipeline
     * Fix for new modular page modal `Page` field requiring a value [#529](https://github.com/getgrav/grav-plugin-admin/issues/529)
