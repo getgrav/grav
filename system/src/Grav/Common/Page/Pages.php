@@ -407,7 +407,7 @@ class Pages
         }
 
         if (empty($blueprint->initialized)) {
-            $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint]));
+            $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint, 'type' => $type]));
             $blueprint->initialized = true;
         }
 
