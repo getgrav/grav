@@ -625,6 +625,8 @@ class GPM extends Iterator
                 if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator), GRAV_VERSION) === 1) {
                     //Needs a Grav update first
                     throw new \Exception("<red>One of the packages require Grav " . $dependencies['grav'] . ". Please update Grav to the latest release.");
+                } else {
+                    continue;
                 }
             }
 
