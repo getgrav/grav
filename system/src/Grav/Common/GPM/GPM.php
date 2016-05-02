@@ -620,6 +620,11 @@ class GPM extends Iterator
     public function getDependencies($packages) {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
         foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
+            if (in_array($dependency_slug, $packages)) {
+                unset($dependencies[$dependency_slug]);
+                continue;
+            }
+
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
             if ($dependency_slug == 'grav') {
                 if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator), GRAV_VERSION) === 1) {
