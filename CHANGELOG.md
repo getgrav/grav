@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Pass the Page type when calling `onBlueprintCreated`
+    * Changed `Page::cachePageContent()` form **private** to **public** so a page can be recached via plugin
 1. [](#bugfix)
     * Fixed handling of `{'loading':'async'}` with Assets Pipeline
     * Fix for new modular page modal `Page` field requiring a value [#529](https://github.com/getgrav/grav-plugin-admin/issues/529)

@@ -698,7 +698,7 @@ class Page
     /**
      * Fires the onPageContentProcessed event, and caches the page content using a unique ID for the page
      */
-    private function cachePageContent()
+    public function cachePageContent()
     {
         $cache = Grav::instance()['cache'];
         $cache_id = md5('page' . $this->id());
