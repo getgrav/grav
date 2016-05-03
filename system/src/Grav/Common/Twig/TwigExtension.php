@@ -325,7 +325,6 @@ class TwigExtension extends \Twig_Extension
      *
      * @param $date
      * @param $long_strings
-     * @param String
      *
      * @return boolean
      */
