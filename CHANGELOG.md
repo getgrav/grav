@@ -8,6 +8,9 @@
     * Fixed handling of `{'loading':'async'}` with Assets Pipeline
     * Fix for new modular page modal `Page` field requiring a value [#529](https://github.com/getgrav/grav-plugin-admin/issues/529)
     * Fix for broken `bin/gpm version` command
+    * Fix handling "grav" as a dependency
+    * Fix when installing multiple packages and one is the dependency of another, don't try to install it twice
+    * Fix using name instead of the slug to determine a package folder. Broke for packages whose name was 2+ words
 
 # v1.1.0-beta.2
 ## 04/27/2016
