@@ -44,7 +44,7 @@ form:
 
             publishing:
               type: section
-              title: Publishing
+              title: PLUGIN_ADMIN.PUBLISHING
               underline: true
 
               fields:
