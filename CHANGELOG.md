@@ -1,5 +1,5 @@
 # v1.1.0-beta.3
-## xx/xx/2016
+## 05/04/2016
 
 1. [](#improved)
     * Pass the Page type when calling `onBlueprintCreated`
