@@ -125,6 +125,7 @@ form:
                 pages.list.count:
                     type: text
                     size: x-small
+                    append: PLUGIN_ADMIN.PAGES
                     label: PLUGIN_ADMIN.DEFAULT_PAGE_COUNT
                     help: PLUGIN_ADMIN.DEFAULT_PAGE_COUNT_HELP
                     validate:
@@ -356,6 +357,7 @@ form:
                 pages.expires:
                     type: text
                     size: small
+                    append: NICETIME.SECOND_PLURAL
                     label: PLUGIN_ADMIN.EXPIRES
                     help: PLUGIN_ADMIN.EXPIRES_HELP
                     validate:
@@ -491,6 +493,7 @@ form:
                 cache.lifetime:
                     type: text
                     size: small
+                    append: NICETIME.SECOND_PLURAL
                     label: PLUGIN_ADMIN.LIFETIME
                     help: PLUGIN_ADMIN.LIFETIME_HELP
                     validate:
@@ -766,6 +769,7 @@ form:
             fields:
                 images.default_image_quality:
                     type: text
+                    append: '%'
                     label: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY
                     help: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY_HELP
                     classes: x-small
@@ -809,6 +813,7 @@ form:
 
                 media.upload_limit:
                     type: text
+                    append: bytes
                     label: PLUGIN_ADMIN.UPLOAD_LIMIT
                     help: PLUGIN_ADMIN.UPLOAD_LIMIT_HELP
                     classes: small
@@ -867,6 +872,7 @@ form:
                 session.timeout:
                     type: text
                     size: small
+                    append: NICETIME.SECOND_PLURAL
                     label: PLUGIN_ADMIN.TIMEOUT
                     help: PLUGIN_ADMIN.TIMEOUT_HELP
                     validate:
