@@ -115,6 +115,11 @@ class GPM extends Iterator
         return isset($this->installed['plugins'][$slug]);
     }
 
+    public function isPluginInstalledAsSymlink($slug)
+    {
+        return $this->installed['plugins'][$slug]->symlink;
+    }
+
     /**
      * Return the instance of a specific Theme
      * @param  string  $slug The slug of the Theme
@@ -636,6 +641,11 @@ class GPM extends Iterator
             }
 
             if ($this->isPluginInstalled($dependency_slug)) {
+                if ($this->isPluginInstalledAsSymlink($dependency_slug)) {
+                    unset($dependencies[$dependency_slug]);
+                    continue;
+                }
+
                 $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
 
                 // get currently installed version
