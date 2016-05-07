@@ -636,6 +636,7 @@ class GPM extends Iterator
                     //Needs a Grav update first
                     throw new \Exception("<red>One of the packages require Grav " . $dependencies['grav'] . ". Please update Grav to the latest release.");
                 } else {
+                    unset($dependencies[$dependency_slug]);
                     continue;
                 }
             }
