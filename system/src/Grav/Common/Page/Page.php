@@ -500,7 +500,7 @@ class Page
             $size = 300;
         }
 
-        return Utils::truncateHTML($content, $size);
+        return html_entity_decode(Utils::truncateHTML($content, $size));
     }
 
     /**
