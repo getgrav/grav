@@ -1,3 +1,13 @@
+# v1.1.0-beta.4
+## 05/09/2016
+
+1. [](#bugfix)
+    * Drop dependencies calculations if plugin is installed via symlink
+    * Drop Grav from dependencies calculations
+    * Send slug name as part of installed packages
+    * Fix for summary entities not being properly decoded [#825](https://github.com/getgrav/grav/issues/825)
+
+
 # v1.1.0-beta.3
 ## 05/04/2016
 
@@ -11,7 +21,6 @@
     * Fix handling "grav" as a dependency
     * Fix when installing multiple packages and one is the dependency of another, don't try to install it twice
     * Fix using name instead of the slug to determine a package folder. Broke for packages whose name was 2+ words
-    * Fix for summary entities not being properly decoded [#825](https://github.com/getgrav/grav/issues/825)
 
 # v1.1.0-beta.2
 ## 04/27/2016
