@@ -186,6 +186,9 @@ class UninstallCommand extends ConsoleCommand
                 if (is_array($dependency)) {
                     $dependency = $dependency['name'];
                 }
+                if ($dependency === 'grav') {
+                    continue;
+                }
 
                 $dependencyPackage = $this->gpm->findPackage($dependency);
                 $question = new ConfirmationQuestion("  |  '- Delete dependency <cyan>" . $dependency . "</cyan> too? [y|N] ", false);
