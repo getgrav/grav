@@ -130,35 +130,41 @@ class Blueprint extends BlueprintForm
      */
     protected function getFiles($path, $context = null)
     {
-        if (is_string($path) && !strpos($path, '://')) {
-            // Resolve filename.
-            if (isset($this->overrides[$path])) {
-                $path = $this->overrides[$path];
-            } else {
-                if ($context === null) {
-                    $context = $this->context;
-                }
-                if ($context && $context[strlen($context)-1] !== '/') {
-                    $context .= '/';
-                }
-                $path = $context . $path;
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
 
-                if (!preg_match('/\.yaml$/', $path)) {
-                    $path .= '.yaml';
-                }
+        if (is_string($path) && !$locator->isStream($path)) {
+            // Find path overrides.
+            $paths = isset($this->overrides[$path]) ? (array) $this->overrides[$path] : [];
+
+            // Add path pointing to default context.
+            if ($context === null) {
+                $context = $this->context;
+            }
+            if ($context && $context[strlen($context)-1] !== '/') {
+                $context .= '/';
+            }
+            $path = $context . $path;
+
+            if (!preg_match('/\.yaml$/', $path)) {
+                $path .= '.yaml';
+            }
+
+            $paths[] = $path;
+        } else {
+            $paths = (array) $path;
+        }
+
+        $files = [];
+        foreach ($paths as $lookup) {
+            if (is_string($lookup) && strpos($lookup, '://')) {
+                $files = array_merge($files, $locator->findResources($lookup));
+            } else {
+                $files[] = $lookup;
             }
         }
 
-        if (is_string($path) && strpos($path, '://')) {
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-
-            $files = array_unique($locator->findResources($path));
-        } else {
-            $files = (array) $path;
-        }
-
-        return $files;
+        return array_values(array_unique($files));
     }
 
     /**

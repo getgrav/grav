@@ -87,7 +87,9 @@ class Blueprints
         $blueprint = new Blueprint($name);
 
         if (is_array($this->search) || is_object($this->search)) {
+            // Page types.
             $blueprint->setOverrides($this->search);
+            $blueprint->setContext('blueprints://pages');
         } else {
             $blueprint->setContext($this->search);
         }
