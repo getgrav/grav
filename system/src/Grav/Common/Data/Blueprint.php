@@ -153,7 +153,7 @@ class Blueprint extends BlueprintForm
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
 
-            $files = $locator->findResources($path);
+            $files = array_unique($locator->findResources($path));
         } else {
             $files = (array) $path;
         }

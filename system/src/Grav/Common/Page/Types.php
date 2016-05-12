@@ -2,11 +2,13 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Types implements \ArrayAccess, \Iterator, \Countable
 {
@@ -107,6 +109,12 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             'key' => 'SubPathName',
             'value' => 'PathName',
         ];
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($uri)) {
+            $options['value'] = 'Url';
+        }
 
         $list = Folder::all($uri, $options);
 

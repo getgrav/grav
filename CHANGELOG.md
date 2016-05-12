@@ -5,6 +5,7 @@
     * Fixed "Invalid slug set in YAML frontmatter" when setting `Page::slug()` with empty string [#580](https://github.com/getgrav/grav-plugin-admin/issues/580)
     * Only `.gitignore` Grav's vendor folder
     * Fix trying to remove Grav with `GPM uninstall` of a plugin with Grav dependency
+    * Fix Page Type blueprints not being able to extend their parents
 
 # v1.1.0-beta.4
 ## 05/09/2016
