@@ -34,7 +34,7 @@ class Assets
     const JS_REGEX = '/.\.js$/i';
 
     /** @const Regex to match CSS urls */
-    const CSS_URL_REGEX = '{url\([\'\"]?((?!http|//).*?)[\'\"]?\)}';
+    const CSS_URL_REGEX = '{url\([\'\"]?(.*?)[\'\"]?\)}';
 
     /** @const Regex to match CSS sourcemap comments */
     const CSS_SOURCEMAP_REGEX = '{\/\*# (.*) \*\/}';
@@ -1153,6 +1153,11 @@ class Assets
 
             // ensure this is not a data url
             if (strpos($old_url, 'data:') === 0) {
+                return $matches[0];
+            }
+
+            // ensure this is not a remote url
+            if ($this->isRemoteLink($old_url)) {
                 return $matches[0];
             }
 
