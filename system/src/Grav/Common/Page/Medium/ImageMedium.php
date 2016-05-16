@@ -84,6 +84,10 @@ class ImageMedium extends Medium
 
         $config = Grav::instance()['config'];
 
+        if (filesize($this->get('filepath')) === 0) {
+            return;
+        }
+
         $image_info = getimagesize($this->get('filepath'));
         $this->def('width', $image_info[0]);
         $this->def('height', $image_info[1]);
