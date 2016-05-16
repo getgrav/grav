@@ -7,8 +7,8 @@ class SiteSetupProcessor extends ProcessorBase implements ProcessorInterface {
     public $title = 'Site Setup';
 
     public function process() {
-      $this->container['setup']->init();
-      $this->container['streams'];
+      	$this->container['setup']->init();
+      	$this->container['streams'];
     }
 
 }

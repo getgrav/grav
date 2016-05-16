@@ -7,7 +7,7 @@ class ErrorsProcessor extends ProcessorBase implements ProcessorInterface {
     public $title = 'Error Handlers Reset';
 
     public function process() {
-      $this->container['errors']->resetHandlers();
+      	$this->container['errors']->resetHandlers();
     }
 
 }

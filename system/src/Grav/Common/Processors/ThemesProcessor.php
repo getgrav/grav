@@ -7,7 +7,7 @@ class ThemesProcessor extends ProcessorBase implements ProcessorInterface {
     public $title = 'Themes';
 
     public function process() {
-      $this->container['themes']->init();
+      	$this->container['themes']->init();
     }
 
 }

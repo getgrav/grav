@@ -2,5 +2,5 @@
 namespace Grav\Common\Processors;
 
 interface ProcessorInterface {
-  public function process();
+  	public function process();
 }

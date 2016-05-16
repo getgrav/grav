@@ -7,7 +7,7 @@ class TwigProcessor extends ProcessorBase implements ProcessorInterface {
     public $title = 'Twig';
 
     public function process() {
-      $this->container['twig']->init();
+      	$this->container['twig']->init();
     }
 
 }

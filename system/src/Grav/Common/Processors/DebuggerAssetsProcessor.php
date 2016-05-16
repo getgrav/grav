@@ -7,7 +7,7 @@ class DebuggerAssetsProcessor extends ProcessorBase implements ProcessorInterfac
     public $title = 'Debugger Assets';
 
     public function process() {
-      $this->container['debugger']->addAssets();
+      	$this->container['debugger']->addAssets();
     }
 
 }

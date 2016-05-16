@@ -7,8 +7,8 @@ class PluginsProcessor extends ProcessorBase implements ProcessorInterface {
     public $title = 'Plugins';
 
     public function process() {
-      $this->container['plugins']->init();
-      $this->container->fireEvent('onPluginsInitialized');
+      	$this->container['plugins']->init();
+      	$this->container->fireEvent('onPluginsInitialized');
     }
 
 }
