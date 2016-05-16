@@ -34,7 +34,7 @@ class Assets
     const JS_REGEX = '/.\.js$/i';
 
     /** @const Regex to match CSS urls */
-    const CSS_URL_REGEX = '{url\([\'\"]?(.*?)[\'\"]?\)}';
+    const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 
     /** @const Regex to match CSS sourcemap comments */
     const CSS_SOURCEMAP_REGEX = '{\/\*# (.*) \*\/}';
@@ -1149,7 +1149,7 @@ class Assets
         // Then replace the old url with the new one
         $file = preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($relative_path) {
 
-            $old_url = $matches[1];
+            $old_url = $matches[2];
 
             // ensure this is not a data url
             if (strpos($old_url, 'data:') === 0) {
