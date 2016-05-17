@@ -13,7 +13,7 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface {
         ob_start();
         if ($this->container['config']->get('system.cache.gzip')) {
             // Enable zip/deflate with a fallback in case of if browser does not support compressing.
-            if (!ob_start("ob_gzhandler")) {
+            if (!@ob_start("ob_gzhandler")) {
                 ob_start();
             }
         }
