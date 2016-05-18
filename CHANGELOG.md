@@ -1,12 +1,16 @@
 # v1.1.0-beta.5
 ## 05/xx/2016
 
+1. [](#improved)
+    * Updated jQuery from 2.2.0 to 2.2.3
 1. [](#bugfix)
     * Fixed "Invalid slug set in YAML frontmatter" when setting `Page::slug()` with empty string [#580](https://github.com/getgrav/grav-plugin-admin/issues/580)
     * Only `.gitignore` Grav's vendor folder
     * Fix trying to remove Grav with `GPM uninstall` of a plugin with Grav dependency
     * Fix Page Type blueprints not being able to extend their parents
     * `filterFile` validation method always returns an array of files, behaving like `multiple="multiple"`
+    * Fixed [#835](https://github.com/getgrav/grav-plugin-admin/issues/835) check for empty image file first to prevent getimagesize() fatal error
+    * Avoid throwing an error when Grav's Gzip and mod_deflate are enabled at the same time on a non php-fpm setup
 
 # v1.1.0-beta.4
 ## 05/09/2016
