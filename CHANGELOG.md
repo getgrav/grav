@@ -6,6 +6,7 @@
     * Only `.gitignore` Grav's vendor folder
     * Fix trying to remove Grav with `GPM uninstall` of a plugin with Grav dependency
     * Fix Page Type blueprints not being able to extend their parents
+    * `filterFile` validation method always returns an array of files, behaving like `multiple="multiple"`
 
 # v1.1.0-beta.4
 ## 05/09/2016
