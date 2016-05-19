@@ -50,6 +50,11 @@ class AbstractPackageCollection extends BaseCollection
 
         $this->fetch($refresh, $callback);
         foreach (json_decode($this->raw, true) as $slug => $data) {
+            // Temporarily fix for using multisites
+            if (isset($data['install_path'])) {
+                $path = preg_replace('~^user/~i', 'user://', $data['install_path']);
+                $data['install_path'] = Grav::instance()['locator']->findResource($path, false, true);
+            }
             $this->items[$slug] = new Package($data, $this->type);
         }
     }
