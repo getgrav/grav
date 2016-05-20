@@ -24,6 +24,19 @@ class Blueprint extends BlueprintForm
     protected $blueprintSchema;
 
     /**
+     * Set default values for field types.
+     *
+     * @param array $types
+     * @return $this
+     */
+    public function setTypes(array $types)
+    {
+        $this->blueprintSchema->setTypes($types);
+
+        return $this;
+    }
+
+    /**
      * Get nested structure containing default values defined in the blueprints.
      *
      * Fields without default value are ignored in the list.
