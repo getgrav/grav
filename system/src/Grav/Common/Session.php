@@ -65,4 +65,20 @@ class Session extends BaseSession
             setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
         }
     }
+
+    // Store something in session temporarily
+    public function setFlashObject($name, $object)
+    {
+        $this->$name = serialize($object);
+    }
+
+    // Return object and remove it from session
+    public function getFlashObject($name)
+    {
+        $object = unserialize($this->$name);
+
+        $this->$name = null;
+
+        return $object;
+    }
 }

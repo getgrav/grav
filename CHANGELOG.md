@@ -4,6 +4,7 @@
 1. [](#improved)
     * Updated jQuery from 2.2.0 to 2.2.3
     * Set `Uri::ip()` to static by default so it can be used in form fields
+    * Improved `Session` class with flash storage
 1. [](#bugfix)
     * Fixed "Invalid slug set in YAML frontmatter" when setting `Page::slug()` with empty string [#580](https://github.com/getgrav/grav-plugin-admin/issues/580)
     * Only `.gitignore` Grav's vendor folder
