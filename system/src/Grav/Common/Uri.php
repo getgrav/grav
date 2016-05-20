@@ -687,7 +687,7 @@ class Uri
      *
      * @return string ip address
      */
-    public function ip()
+    public static function ip()
     {
         if (getenv('HTTP_CLIENT_IP'))
             $ipaddress = getenv('HTTP_CLIENT_IP');
