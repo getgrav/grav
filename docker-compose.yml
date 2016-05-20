@@ -1,0 +1,13 @@
+symfony:
+    container_name: getgrav
+    build: docker
+    volumes:
+        - .:/var/www/html
+    links:
+        - mailcatcher
+    ports:
+        - 80:80
+
+mailcatcher:
+    container_name: getgrav_mailcatcher
+    image: helder/mailcatcher
