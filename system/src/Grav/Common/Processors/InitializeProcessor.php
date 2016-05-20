@@ -24,8 +24,8 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface {
         }
 
         // Initialize uri, session.
-        $this->container['uri']->init();
         $this->container['session']->init();
+        $this->container['uri']->init();
 
         $this->container->setLocale();
     }
