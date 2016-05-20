@@ -31,6 +31,8 @@ class Blueprint extends BlueprintForm
      */
     public function setTypes(array $types)
     {
+        $this->initInternals();
+
         $this->blueprintSchema->setTypes($types);
 
         return $this;
