@@ -2,7 +2,7 @@ MONTHS_OF_THE_YEAR:
   0: Ianuarie
   1: Februarie
   2: Martie
-  3: Aprilue
+  3: Aprilie
   4: Mai
   5: Iunie
   6: Iulie
@@ -12,7 +12,7 @@ MONTHS_OF_THE_YEAR:
   11: Decembrie
 DAYS_OF_THE_WEEK:
   - Luni
-  - Marti
+  - Marți
   - Miercuri
   - Joi
   - Vineri
