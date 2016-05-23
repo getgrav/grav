@@ -1,5 +1,5 @@
 # v1.1.0-beta.5
-## 05/xx/2016
+## 05/23/2016
 
 1. [](#improved)
     * Updated jQuery from 2.2.0 to 2.2.3
