@@ -7,6 +7,10 @@ git:
         url: https://github.com/getgrav/grav-plugin-error
         path: user/plugins/error
         branch: master
+    markdown-notices:
+        url: https://github.com/getgrav/grav-plugin-markdown-notices
+        path: user/plugins/markdown-notices
+        branch: master
     antimatter:
         url: https://github.com/getgrav/grav-theme-antimatter
         path: user/themes/antimatter
@@ -19,6 +23,10 @@ links:
     error:
         src: grav-plugin-error
         path: user/plugins/error
+        scm: github
+    markdown-notices:
+        src: grav-plugin-markdown-notices
+        path: user/plugins/markdown-notices
         scm: github
     antimatter:
         src: grav-theme-antimatter
