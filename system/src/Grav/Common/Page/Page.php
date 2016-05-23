@@ -639,10 +639,19 @@ class Page
     /**
      * Return the whole contentMeta array as it currently stands
      *
+     * @param null $name
      * @return mixed
      */
-    public function getContentMeta()
+    public function getContentMeta($name = null)
     {
+        if ($name) {
+            if(isset($this->content_meta[$name])) {
+                return $this->content_meta[$name];
+            } else {
+                return null;
+            }
+
+        }
         return $this->content_meta;
     }
 
