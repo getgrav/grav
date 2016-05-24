@@ -322,13 +322,13 @@ class Pages
         // Are we in the admin? this is important!
         $not_admin = !isset($this->grav['admin']);
 
-        // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && $not_admin && (!$page || ($page && !$page->routable()) || ($page && $page->redirect()))) {
+        // If the page is a simple redirect, just do it.
+        if ($redirect && $page && $page->redirect()) {
+            $this->grav->redirectLangSafe($page->redirect());
+        }
 
-            // If the page is a simple redirect, just do it.
-            if ($redirect && $page && $page->redirect()) {
-                $this->grav->redirectLangSafe($page->redirect());
-            }
+        // If the page cannot be reached, look into site wide redirects, routes + wildcards
+        if (!$all && $not_admin && (!$page || ($page && !$page->routable()))) {
 
             /** @var Config $config */
             $config = $this->grav['config'];
