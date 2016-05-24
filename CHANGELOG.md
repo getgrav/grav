@@ -1,3 +1,9 @@
+# v1.1.0-beta.6
+## XX/XX/2016
+
+1. [](#bugfix)
+    * Detect if user really meant to extend parent blueprint, not another one (fixes old page type blueprints)
+
 # v1.1.0-beta.5
 ## 05/23/2016
 
