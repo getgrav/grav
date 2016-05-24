@@ -322,50 +322,53 @@ class Pages
         // Are we in the admin? this is important!
         $not_admin = !isset($this->grav['admin']);
 
-        // If the page is a simple redirect, just do it.
-        if ($redirect && $page && $page->redirect()) {
-            $this->grav->redirectLangSafe($page->redirect());
-        }
-
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && $not_admin && (!$page || ($page && !$page->routable()))) {
+        if (!$all && $not_admin) {
 
-            /** @var Config $config */
-            $config = $this->grav['config'];
+            // If the page is a simple redirect, just do it.
+            if ($redirect && $page && $page->redirect()) {
+                $this->grav->redirectLangSafe($page->redirect());
+            }
 
-            // See if route matches one in the site configuration
-            $route = $config->get("site.routes.{$url}");
-            if ($route) {
-                $page = $this->dispatch($route, $all);
-            } else {
-                // Try Regex style redirects
-                $site_redirects = $config->get("site.redirects");
-                if (is_array($site_redirects)) {
-                    foreach ((array)$site_redirects as $pattern => $replace) {
-                        $pattern = '#' . $pattern . '#';
-                        try {
-                            $found = preg_replace($pattern, $replace, $url);
-                            if ($found != $url) {
-                                $this->grav->redirectLangSafe($found);
+            // fall back and check site based redirects
+            if (!$page || ($page && !$page->routable())) {
+                /** @var Config $config */
+                $config = $this->grav['config'];
+
+                // See if route matches one in the site configuration
+                $route = $config->get("site.routes.{$url}");
+                if ($route) {
+                    $page = $this->dispatch($route, $all);
+                } else {
+                    // Try Regex style redirects
+                    $site_redirects = $config->get("site.redirects");
+                    if (is_array($site_redirects)) {
+                        foreach ((array)$site_redirects as $pattern => $replace) {
+                            $pattern = '#' . $pattern . '#';
+                            try {
+                                $found = preg_replace($pattern, $replace, $url);
+                                if ($found != $url) {
+                                    $this->grav->redirectLangSafe($found);
+                                }
+                            } catch (ErrorException $e) {
+                                $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                             }
-                        } catch (ErrorException $e) {
-                            $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                         }
                     }
-                }
 
-                // Try Regex style routes
-                $site_routes = $config->get("site.routes");
-                if (is_array($site_routes)) {
-                    foreach ((array)$site_routes as $pattern => $replace) {
-                        $pattern = '#' . $pattern . '#';
-                        try {
-                            $found = preg_replace($pattern, $replace, $url);
-                            if ($found != $url) {
-                                $page = $this->dispatch($found, $all);
+                    // Try Regex style routes
+                    $site_routes = $config->get("site.routes");
+                    if (is_array($site_routes)) {
+                        foreach ((array)$site_routes as $pattern => $replace) {
+                            $pattern = '#' . $pattern . '#';
+                            try {
+                                $found = preg_replace($pattern, $replace, $url);
+                                if ($found != $url) {
+                                    $page = $this->dispatch($found, $all);
+                                }
+                            } catch (ErrorException $e) {
+                                $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
                             }
-                        } catch (ErrorException $e) {
-                            $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
                         }
                     }
                 }
