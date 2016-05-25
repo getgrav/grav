@@ -4,6 +4,7 @@
 1. [](#new)
     * Added `Utils::getDotNotation()` and `Utils::setDotNotation()` methods + tests
 1. [](#bugfix)
+    * Fix for corner-case redirect logic causing infinite loops and out-of-memory errors
     * Detect if user really meant to extend parent blueprint, not another one (fixes old page type blueprints)
     * Fixed a bug in `Page::relativePagePath()` when `Page::$name` is not defined
 
