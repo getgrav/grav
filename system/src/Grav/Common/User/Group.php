@@ -88,7 +88,7 @@ class Group extends Data
             }
             if ($field['type'] == 'array') {
                 $value = $field['name'];
-                $arrayValues = Utils::resolve($this->items, $field['name']);
+                $arrayValues = Utils::getDotNotation($this->items, $field['name']);
 
                 if ($arrayValues) {
                     foreach ($arrayValues as $arrayIndex => $arrayValue) {

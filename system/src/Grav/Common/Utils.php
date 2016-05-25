@@ -462,28 +462,12 @@ abstract class Utils
     }
 
     /**
-     * Get value of an array element using dot notation
+     * @deprecated Use getDotNotation() method instead
      *
-     * @param array  $array   the Array to check
-     * @param string $path    the dot notation path to check
-     * @param mixed  $default a value to be returned if $path is not found in $array
-     *
-     * @return mixed the value found
      */
     public static function resolve(array $array, $path, $default = null)
     {
-        $current = $array;
-        $p = strtok($path, '.');
-
-        while ($p !== false) {
-            if (!isset($current[$p])) {
-                return $default;
-            }
-            $current = $current[$p];
-            $p = strtok('.');
-        }
-
-        return $current;
+        return static::getDotNotation($array, $path, $default);
     }
 
     /**
@@ -672,7 +656,7 @@ abstract class Utils
             if ( ! is_array($array) ||
                 ! array_key_exists($segment, $array))
             {
-                return value($default);
+                return $default;
             }
 
             $array = $array[$segment];

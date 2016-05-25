@@ -235,6 +235,22 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('test2Value', Utils::resolve($array, 'test.test2'));
     }
 
+    public function testGetDotNotation()
+    {
+        $array = [
+            'test' => [
+                'test2' => 'test2Value',
+                'test3' => [
+                    'test4' => 'test4Value'
+                ]
+            ]
+        ];
+
+        $this->assertEquals('test2Value', Utils::getDotNotation($array, 'test.test2'));
+        $this->assertEquals('test4Value', Utils::getDotNotation($array, 'test.test3.test4'));
+        $this->assertEquals('defaultValue', Utils::getDotNotation($array, 'test.non_existent', 'defaultValue'));
+    }
+
     public function testIsPositive()
     {
         $this->assertTrue(Utils::isPositive(true));
