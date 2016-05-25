@@ -652,4 +652,64 @@ abstract class Utils
 
         return false;
     }
+
+    /**
+     * Get a portion of an array (passed by reference) with dot-notation key
+     *
+     * @param $array
+     * @param $key
+     * @param null $default
+     * @return mixed
+     */
+    public static function getDotNotation($array, $key, $default = null)
+    {
+        if (is_null($key)) return $array;
+
+        if (isset($array[$key])) return $array[$key];
+
+        foreach (explode('.', $key) as $segment)
+        {
+            if ( ! is_array($array) ||
+                ! array_key_exists($segment, $array))
+            {
+                return value($default);
+            }
+
+            $array = $array[$segment];
+        }
+
+        return $array;
+    }
+
+    /**
+     * Set portion of array (passed by reference) for a dot-notation key
+     * and set the value
+     *
+     * @param $array
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public static function setDotNotation(&$array, $key, $value)
+    {
+        if (is_null($key)) return $array = $value;
+
+        $keys = explode('.', $key);
+
+        while (count($keys) > 1)
+        {
+            $key = array_shift($keys);
+
+            if ( ! isset($array[$key]) || ! is_array($array[$key]))
+            {
+                $array[$key] = array();
+            }
+
+            $array =& $array[$key];
+        }
+
+        $array[array_shift($keys)] = $value;
+
+        return $array;
+    }
 }
