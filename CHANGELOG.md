@@ -1,6 +1,8 @@
 # v1.1.0-beta.6
 ## XX/XX/2016
 
+1. [](#new)
+    * Added `Utils::getDotNotation()` and `Utils::setDotNotation()` methods + tests
 1. [](#bugfix)
     * Detect if user really meant to extend parent blueprint, not another one (fixes old page type blueprints)
 
