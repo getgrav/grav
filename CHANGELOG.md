@@ -5,6 +5,7 @@
     * Added `Utils::getDotNotation()` and `Utils::setDotNotation()` methods + tests
 1. [](#bugfix)
     * Detect if user really meant to extend parent blueprint, not another one (fixes old page type blueprints)
+    * Fixed a bug in `Page::relativePagePath()` when `Page::$name` is not defined
 
 # v1.1.0-beta.5
 ## 05/23/2016
