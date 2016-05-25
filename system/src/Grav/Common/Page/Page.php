@@ -1742,7 +1742,7 @@ class Page
      */
     public function relativePagePath()
     {
-        $path = str_replace('/' . $this->name, '', $this->filePathClean());
+        $path = str_replace('/' . $this->name(), '', $this->filePathClean());
 
         return $path;
     }
