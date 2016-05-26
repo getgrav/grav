@@ -9,12 +9,17 @@ namespace Grav\Common;
  */
 trait GravTrait
 {
+    protected static $grav;
+
     /**
      * @return Grav
      */
     public static function getGrav()
     {
-        return Grav::instance();
+        if (!self::$grav) {
+            self::$grav = Grav::instance();
+        }
+        return self::$grav;
     }
 }
 
