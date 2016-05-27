@@ -377,6 +377,10 @@ class Language
             }
         }
 
+        if (count($args) >= 1) {
+            return vsprintf($lookup, $args);
+        }
+        
         if ($html_out) {
             return '<span class="untranslated">' . $lookup . '</span>';
         } else {
