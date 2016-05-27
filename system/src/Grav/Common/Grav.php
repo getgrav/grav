@@ -128,12 +128,13 @@ class Grav extends Container
         $this->header();
 
         // Compress output manually if zlib enabled
-        if ($this['config']->get('system.zlib-output-compression', false)) {
+        if ($this['config']->get('system.apache_zlib_fix', false)) {
             ob_start();
             echo $this->output;
             $debugger->render();
             $output = ob_get_clean();
             echo gzencode($output, 1, FORCE_GZIP);
+            header("Content-Encoding: gzip");
         } else {
             echo $this->output;
             $debugger->render();
@@ -290,11 +291,6 @@ class Grav extends Container
         if ($this['config']->get('system.pages.vary_accept_encoding', false)) {
             header('Vary: Accept-Encoding');
         }
-
-        // Gzip encoding via zlib.output_compression
-        if ($this['config']->get('system.zlib-output-compression', false)) {
-            header("Content-Encoding: gzip");
-        }
     }
 
     /**
@@ -340,7 +336,7 @@ class Grav extends Container
                 // Unfortunately without FastCGI there is no way to force close the connection. We need to ask browser to
                 // close the connection for us.
 
-                $offset = $this['config']->get('system.zlib-output-compression', false) && !$this['config']->get('system.debugger.enabled', false) ? 0 : 1;
+                $offset = $this['config']->get('system.apache_zlib_fix', false) && !$this['config']->get('system.debugger.enabled', false) ? 0 : 1;
 
                 while (ob_get_level() > $this['output_buffer_level'] + $offset) {
                     ob_end_flush();
@@ -361,8 +357,6 @@ class Grav extends Container
 
         // Run any time consuming tasks.
         $this->fireEvent('onShutdown');
-
-        sleep(3);
     }
 
     /**
