@@ -44,6 +44,6 @@ class Languages extends Data
     
     public function getTranslation($lang, $key, $default = null) 
     {
-        return isset($this->items[$lang][$key]) ? $this->items[$lang][$key] : $default;
+        return isset($this->items[$lang][$key]) ? $this->items[$lang][$key] : $this->get($lang . '.' . $key, $default);
     }
 }
