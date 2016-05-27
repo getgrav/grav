@@ -126,9 +126,19 @@ class Grav extends Container
 
         // Set the header type
         $this->header();
-        echo $this->output;
-        $debugger->render();
 
+        // Compress output manually if zlib enabled
+        if ($this['config']->get('system.zlib-output-compression', false)) {
+            ob_start();
+            echo $this->output;
+            $debugger->render();
+            $output = ob_get_clean();
+            echo gzencode($output, 1, FORCE_GZIP);
+        } else {
+            echo $this->output;
+            $debugger->render();
+
+        }
         $this->fireEvent('onOutputRendered');
 
         register_shutdown_function([$this, 'shutdown']);
@@ -280,6 +290,11 @@ class Grav extends Container
         if ($this['config']->get('system.pages.vary_accept_encoding', false)) {
             header('Vary: Accept-Encoding');
         }
+
+        // Gzip encoding via zlib.output_compression
+        if ($this['config']->get('system.zlib-output-compression', false)) {
+            header("Content-Encoding: gzip");
+        }
     }
 
     /**
@@ -322,25 +337,23 @@ class Grav extends Container
             $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
 
             if (!$success) {
-                // Unfortunately without FastCGI there is no way to close the connection. We need to ask browser to
+                // Unfortunately without FastCGI there is no way to force close the connection. We need to ask browser to
                 // close the connection for us.
 
-                if ($this['config']->get('system.cache.gzip')) {
-                    // Flush gzhandler buffer if gzip setting was enabled.
-                    ob_end_flush();
+                $offset = $this['config']->get('system.zlib-output-compression', false) && !$this['config']->get('system.debugger.enabled', false) ? 0 : 1;
 
-                } else {
-                    // Without gzip we have no other choice than to prevent server from compressing the output.
-                    // This action turns off mod_deflate which would prevent us from closing the connection.
-                    header('Content-Encoding: none');
+                while (ob_get_level() > $this['output_buffer_level'] + $offset) {
+                    ob_end_flush();
                 }
 
                 // Get length and close the connection.
                 header('Content-Length: ' . ob_get_length());
                 header("Connection: close");
 
-                // Finally flush the regular buffer.
+                // Finally flush the regular buffers.
+
                 ob_end_flush();
+
                 @ob_flush();
                 flush();
             }
@@ -348,6 +361,8 @@ class Grav extends Container
 
         // Run any time consuming tasks.
         $this->fireEvent('onShutdown');
+
+        sleep(3);
     }
 
     /**
