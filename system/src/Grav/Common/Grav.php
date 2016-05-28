@@ -133,7 +133,7 @@ class Grav extends Container
             echo $this->output;
             $debugger->render();
             $output = ob_get_clean();
-            echo gzencode($output, 1, FORCE_GZIP);
+            echo gzencode($output, 5, FORCE_GZIP);
             header("Content-Encoding: gzip");
         } else {
             echo $this->output;
