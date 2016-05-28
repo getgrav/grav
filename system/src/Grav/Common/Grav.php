@@ -346,9 +346,8 @@ class Grav extends Container
                 header('Content-Length: ' . ob_get_length());
                 header("Connection: close");
 
-                // Finally flush the regular buffers.
-
-                ob_end_flush();
+                // Finally flush the any buffers left.
+                while (@ob_end_flush());
 
                 @ob_flush();
                 flush();
