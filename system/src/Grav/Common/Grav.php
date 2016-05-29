@@ -333,12 +333,10 @@ class Grav extends Container
             $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
 
             if (!$success) {
-                // Unfortunately without FastCGI there is no way to force close the connection. We need to ask browser to
-                // close the connection for us.
+                // Unfortunately without FastCGI there is no way to force close the connection.
+                // We need to ask browser to close the connection for us.
 
-                $offset = $this['config']->get('system.apache_zlib_fix', false) && !$this['config']->get('system.debugger.enabled', false) ? 0 : 1;
-
-                while (ob_get_level() > $this['output_buffer_level'] + $offset) {
+                while (ob_get_level() > $this['output_buffer_level'] + 1) {
                     ob_end_flush();
                 }
 
