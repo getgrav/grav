@@ -1,4 +1,4 @@
-symfony:
+getgrav:
     container_name: getgrav
     build: docker
     volumes:
