@@ -380,7 +380,7 @@ abstract class Utils
 
             $pretty_offset = "UTC${offset_prefix}${offset_formatted}";
 
-            $timezone_list[$timezone] = "(${pretty_offset}) $timezone";
+            $timezone_list[$timezone] = "(${pretty_offset}) ".str_replace('_', ' ', $timezone);
         }
 
         return $timezone_list;
