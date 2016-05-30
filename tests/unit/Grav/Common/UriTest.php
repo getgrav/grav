@@ -148,6 +148,18 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertSame('/ueper:xxx/test:yyy', $this->uri->params());
         $this->assertSame('/ueper:xxx', $this->uri->params('ueper'));
         $this->assertSame('/test:yyy', $this->uri->params('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy')->init();
+        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy#something')->init();
+        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy?foo=bar')->init();
+        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        $this->assertSame('/test:yyy', $this->uri->params('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
         $this->assertSame(null, $this->uri->params());
         $this->assertSame(null, $this->uri->params('ueper'));
@@ -175,6 +187,10 @@ class UriTest extends \Codeception\TestCase\Test
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
         $this->assertSame('xxx', $this->uri->param('ueper'));
         $this->assertSame('yyy', $this->uri->param('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yy%20y/foo:bar_baz-bank')->init();
+        $this->assertSame('xxx++', $this->uri->param('ueper'));
+        $this->assertSame('yy y', $this->uri->param('test'));
+        $this->assertSame('bar_baz-bank', $this->uri->param('foo'));
     }
 
     public function testFragment()

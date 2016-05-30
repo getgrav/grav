@@ -12,6 +12,7 @@ use Grav\Common\Page\Page;
 class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
+    const PARAMS_REGEX = '/\/([^\:\#\/\?]*:[^\:\#\/\?]*)/';
 
     public $url;
 
@@ -349,22 +350,17 @@ class Uri
     private function processParams($uri, $delimiter = ':')
     {
         if (strpos($uri, $delimiter) !== false) {
-            $bits = explode('/', $uri);
-            $path = [];
-            foreach ($bits as $bit) {
-                if (strpos($bit, $delimiter) !== false) {
-                    $param = explode($delimiter, $bit);
-                    if (count($param) == 2) {
-                        $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
-                        $this->params[$param[0]] = $plain_var;
-                    }
-                } else {
-                    $path[] = $bit;
+            preg_match_all(Uri::PARAMS_REGEX, $uri, $matches, PREG_SET_ORDER);
+
+            foreach ($matches as $match) {
+                $param = explode($delimiter, $match[1]);
+                if (count($param) == 2) {
+                    $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
+                    $this->params[$param[0]] = $plain_var;
+                    $uri = str_replace($match[0], '', $uri);
                 }
             }
-            $uri = '/' . ltrim(implode('/', $path), '/');
         }
-
         return $uri;
     }
 
@@ -941,20 +937,16 @@ class Uri
         $params = [];
 
         if (strpos($uri, $delimiter) !== false) {
-            $bits = explode('/', $uri);
-            $path = [];
-            foreach ($bits as $bit) {
-                if (strpos($bit, $delimiter) !== false) {
-                    $param = explode($delimiter, $bit);
-                    if (count($param) == 2) {
-                        $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
-                        $params[$param[0]] = $plain_var;
-                    }
-                } else {
-                    $path[] = $bit;
+            preg_match_all(Uri::PARAMS_REGEX, $uri, $matches, PREG_SET_ORDER);
+
+            foreach ($matches as $match) {
+                $param = explode($delimiter, $match[1]);
+                if (count($param) == 2) {
+                    $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
+                    $params[$param[0]] = $plain_var;
+                    $uri = str_replace($match[0], '', $uri);
                 }
             }
-            $uri = '/' . ltrim(implode('/', $path), '/');
         }
 
         return [$uri, $params];

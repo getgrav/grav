@@ -10,6 +10,7 @@
     * Fix for saving fields in expert mode that have no `Validation::typeX()` methods [#626](https://github.com/getgrav/grav-plugin-admin/issues/626)
     * Detect if user really meant to extend parent blueprint, not another one (fixes old page type blueprints)
     * Fixed a bug in `Page::relativePagePath()` when `Page::$name` is not defined
+    * Fix for poor handling of params + query element in `Uri::processParams()` [#859](https://github.com/getgrav/grav/issues/859)
 
 # v1.1.0-beta.5
 ## 05/23/2016
