@@ -126,9 +126,20 @@ class Grav extends Container
 
         // Set the header type
         $this->header();
-        echo $this->output;
-        $debugger->render();
 
+        // Compress output manually if zlib fix required
+        if ($this['config']->get('system.apache_zlib_fix', false)) {
+            ob_start();
+            echo $this->output;
+            $debugger->render();
+            $output = ob_get_clean();
+            echo gzencode($output, 5, FORCE_GZIP);
+            header("Content-Encoding: gzip");
+        } else {
+            echo $this->output;
+            $debugger->render();
+
+        }
         $this->fireEvent('onOutputRendered');
 
         register_shutdown_function([$this, 'shutdown']);
@@ -322,25 +333,20 @@ class Grav extends Container
             $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
 
             if (!$success) {
-                // Unfortunately without FastCGI there is no way to close the connection. We need to ask browser to
-                // close the connection for us.
+                // Unfortunately without FastCGI there is no way to force close the connection.
+                // We need to ask browser to close the connection for us.
 
-                if ($this['config']->get('system.cache.gzip')) {
-                    // Flush gzhandler buffer if gzip setting was enabled.
+                while (ob_get_level() > $this['output_buffer_level'] + 1) {
                     ob_end_flush();
-
-                } else {
-                    // Without gzip we have no other choice than to prevent server from compressing the output.
-                    // This action turns off mod_deflate which would prevent us from closing the connection.
-                    header('Content-Encoding: none');
                 }
 
                 // Get length and close the connection.
                 header('Content-Length: ' . ob_get_length());
                 header("Connection: close");
 
-                // Finally flush the regular buffer.
-                ob_end_flush();
+                // Finally flush the any buffers left.
+                while (@ob_end_flush());
+
                 @ob_flush();
                 flush();
             }

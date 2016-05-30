@@ -9,11 +9,23 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface {
     public function process() {
         $this->container['config']->debug();
 
+        $this->container['output_buffer_level'] = ob_get_level();
+
+        // mod_php + zlib.output_compression do sutff differently
+        if (ini_get('zlib.output_compression')) {
+            // disable Grav's gzip option as it conflicts with zlib.output_compression
+            $this->container['config']->set('system.cache.gzip', false);
+            // if apache + close connection + zlib = set zlib fix = true
+            if (php_sapi_name() === 'apache2handler' && $this['config']->get('system.debugger.shutdown.close_connection', true)) {
+                $this->container['config']->set('system.apache_zlib_fix', true);
+            }
+        }
+
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
         if ($this->container['config']->get('system.cache.gzip')) {
             // Enable zip/deflate with a fallback in case of if browser does not support compressing.
-            if (!@ob_start("ob_gzhandler")) {
+            if (!ob_start("ob_gzhandler")) {
                 ob_start();
             }
         }
