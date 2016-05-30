@@ -31,7 +31,7 @@ form:
       type: select
       label: PLUGIN_ADMIN.PARENT_PAGE
       classes: fancy
-      data-options@: '\Grav\Common\Page\Pages::parents'
+      data-options@: '\Grav\Common\Page\Pages::parentsRawRoutes'
       data-default@: '\Grav\Plugin\admin::getLastPageRoute'
       options:
         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
