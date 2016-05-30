@@ -42,7 +42,10 @@ class Session extends BaseSession
             // Uri::route() is not processed yet, let's quickly get what we need
             $current_route = str_replace($base_url, '', parse_url($uri->url(true), PHP_URL_PATH));
             $base = '/' . trim($route, '/');
-            if (substr($current_route, 0, strlen($base)) == $base) {
+
+            if (substr($current_route, 0, strlen($base)) == $base || //handle no language specified
+                substr($current_route, 3, strlen($base)) == $base || //handle language (en)
+                substr($current_route, 6, strlen($base)) == $base) { //handle region specific language prefix (en-US)
                 $session_timeout = $config->get('plugins.admin.session.timeout', 1800);
                 $is_admin = true;
             }
