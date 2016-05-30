@@ -49,16 +49,16 @@ class Validation
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
 
-        if (!method_exists(__CLASS__, $method)) {
-            $method = 'typeText';
-        }
-
         $name = ucfirst(isset($field['label']) ? $field['label'] : $field['name']);
         $message = (string) isset($field['validate']['message'])
             ? $language->translate($field['validate']['message'])
             : $language->translate('FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
-        $success = self::$method($value, $validate, $field);
+        if (method_exists(__CLASS__, $method)) {
+            $success = self::$method($value, $validate, $field);
+        } else {
+            $success = true;
+        }
 
         if (!$success) {
             $messages[$field['name']][] = $message;
@@ -325,7 +325,6 @@ class Validation
      * @param  array  $field   Blueprint for the field.
      * @return bool   True if validation succeeded.
      */
-
     public static function typeNumber($value, array $params, array $field)
     {
         if (!is_numeric($value)) {
