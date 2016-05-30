@@ -127,8 +127,8 @@ class Grav extends Container
         // Set the header type
         $this->header();
 
-        // Compress output manually if zlib enabled and close_connection enabled
-        if ($this['config']->get('system.apache_zlib_fix', false) && $this['config']->get('system.debugger.shutdown.close_connection', true)) {
+        // Compress output manually if zlib fix required
+        if ($this['config']->get('system.apache_zlib_fix', false)) {
             ob_start();
             echo $this->output;
             $debugger->render();
