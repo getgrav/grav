@@ -5,6 +5,7 @@
     * Added `Utils::getDotNotation()` and `Utils::setDotNotation()` methods + tests
     * Added support for `xx-XX` locale language lookups in `LanguageCodes` class [#854](https://github.com/getgrav/grav/issues/854)
 1. [](#bugfix)
+    * Fixes for `zlib.output_compression` as well as `mod_deflate` GZIP compression
     * Fix for corner-case redirect logic causing infinite loops and out-of-memory errors
     * Fix for saving fields in expert mode that have no `Validation::typeX()` methods [#626](https://github.com/getgrav/grav-plugin-admin/issues/626)
     * Detect if user really meant to extend parent blueprint, not another one (fixes old page type blueprints)
