@@ -11,12 +11,12 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface {
 
         $this->container['output_buffer_level'] = ob_get_level();
 
-        // mod_php + zlib.output_compression do sutff differently
+        // mod_php / cgi-fcgi + zlib.output_compression do stuff differently
         if (ini_get('zlib.output_compression')) {
             // disable Grav's gzip option as it conflicts with zlib.output_compression
             $this->container['config']->set('system.cache.gzip', false);
             // if apache + close connection + zlib = set zlib fix = true
-            if (php_sapi_name() === 'apache2handler' && $this->container['config']->get('system.debugger.shutdown.close_connection', true)) {
+            if (in_array(php_sapi_name(), ['apache2handler', 'cgi-fcgi']) && $this->container['config']->get('system.debugger.shutdown.close_connection', true)) {
                 $this->container['config']->set('system.apache_zlib_fix', true);
             }
         }
