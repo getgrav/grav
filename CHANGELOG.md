@@ -4,6 +4,7 @@
 1. [](#new)
     * Added `Utils::getDotNotation()` and `Utils::setDotNotation()` methods + tests
     * Added support for `xx-XX` locale language lookups in `LanguageCodes` class [#854](https://github.com/getgrav/grav/issues/854)
+    * New CSS/JS Minify library that does a more reliable job [#864](https://github.com/getgrav/grav/issues/864)
 1. [](#improved)
     * GPM installation of plugins and themes into correct multisite folders [#841](https://github.com/getgrav/grav/issues/841)
     * Use `Page::rawRoute()` in blueprints for more reliable mulit-language support
