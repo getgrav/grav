@@ -26,18 +26,35 @@ class PageServiceProvider implements ServiceProviderInterface
 
             // Redirection tests
             if ($page) {
+
+                $url = $page->route();
+
+                if ($uri->params()) {
+                    if ($url == '/') { //Avoid double slash
+                        $url = $uri->params();
+                    } else {
+                        $url .= $uri->params();
+                    }
+                }
+                if ($uri->query()) {
+                    $url .= '?' . $uri->query();
+                }
+                if ($uri->fragment()) {
+                    $url .= '#' . $uri->fragment();
+                }
+
                 // Language-specific redirection scenarios
                 if ($language->enabled()) {
                     if ($language->isLanguageInUrl() && !$language->isIncludeDefaultLanguage()) {
-                        $c->redirect($page->route());
+                        $c->redirect($url);
                     }
                     if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
-                        $c->redirectLangSafe($page->route());
+                        $c->redirectLangSafe($url);
                     }
                 }
                 // Default route test and redirect
                 if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                    $c->redirectLangSafe($page->route());
+                    $c->redirectLangSafe($url);
                 }
             }
 
