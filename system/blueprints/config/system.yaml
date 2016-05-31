@@ -622,6 +622,17 @@ form:
                     validate:
                        type: bool
 
+                assets.css_minify_old:
+                    type: toggle
+                    label: PLUGIN_ADMIN.CSS_MINIFY_OLD
+                    help: PLUGIN_ADMIN.CSS_MINIFY_OLD_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                       type: bool
+
                 assets.css_minify_windows:
                     type: toggle
                     label: PLUGIN_ADMIN.CSS_MINIFY_WINDOWS_OVERRIDE
@@ -682,6 +693,17 @@ form:
                     label: PLUGIN_ADMIN.JAVASCRIPT_MINIFY
                     help: PLUGIN_ADMIN.JAVASCRIPT_MINIFY_HELP
                     highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                assets.js_minify_old:
+                    type: toggle
+                    label: PLUGIN_ADMIN.JAVASCRIPT_MINIFY_OLD
+                    help: PLUGIN_ADMIN.JAVASCRIPT_MINIFY_OLD_HELP
+                    highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
