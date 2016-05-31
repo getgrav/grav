@@ -83,11 +83,9 @@ class Assets
 
     // Default values for pipeline settings
     protected $css_minify = true;
-    protected $css_minify_old = false;
     protected $css_minify_windows = false;
     protected $css_rewrite = true;
     protected $js_minify = true;
-    protected $js_minify_old = false;
 
     // Arrays to hold assets that should NOT be pipelined
     protected $css_no_pipeline = [];
@@ -160,11 +158,6 @@ class Assets
             $this->css_minify = $config['css_minify'];
         }
 
-        if (isset($config['css_minify_old'])) {
-            $this->css_minify_old = $config['css_minify_old'];
-        }
-
-
         if (isset($config['css_minify_windows'])) {
             $this->css_minify_windows = $config['css_minify_windows'];
         }
@@ -176,10 +169,6 @@ class Assets
         // Set JS Minify state
         if (isset($config['js_minify'])) {
             $this->js_minify = $config['js_minify'];
-        }
-
-        if (isset($config['js_minify_old'])) {
-            $this->js_minify_old = $config['js_minify_old'];
         }
 
         // Set collections
@@ -740,14 +729,9 @@ class Assets
         // Concatenate files
         $buffer = $this->gatherLinks($temp_css, CSS_ASSET);
         if ($css_minify) {
-            if ($this->css_minify_old) {
-                $min = new \CSSmin();
-                $buffer = $min->run($buffer);
-            } else {
-                $minifier = new \MatthiasMullie\Minify\CSS();
-                $minifier->add($buffer);
-                $buffer = $minifier->minify();
-            }
+            $minifier = new \MatthiasMullie\Minify\CSS();
+            $minifier->add($buffer);
+            $buffer = $minifier->minify();
         }
 
         // Write file
@@ -820,13 +804,9 @@ class Assets
         // Concatenate files
         $buffer = $this->gatherLinks($temp_js, JS_ASSET);
         if ($this->js_minify) {
-            if ($this->js_minify_old) {
-                $buffer = \JSMin::minify($buffer);
-            } else {
-                $minifier = new \MatthiasMullie\Minify\JS();
-                $minifier->add($buffer);
-                $buffer = $minifier->minify();
-            }
+            $minifier = new \MatthiasMullie\Minify\JS();
+            $minifier->add($buffer);
+            $buffer = $minifier->minify();
         }
 
         // Write file
