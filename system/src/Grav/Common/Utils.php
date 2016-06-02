@@ -307,7 +307,7 @@ abstract class Utils
     public static function getMimeType($extension)
     {
         $extension = strtolower($extension);
-        $config = Grav::instance()['config']->get('media');
+        $config = Grav::instance()['config']->get('media.types');
 
         if (isset($config[$extension])) {
             return $config[$extension]['mime'];
