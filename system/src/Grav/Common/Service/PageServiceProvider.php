@@ -20,7 +20,12 @@ class PageServiceProvider implements ServiceProviderInterface
             $uri = $c['uri'];
 
             $path = $uri->path(); // Don't trim to support trailing slash default routes
-            $path = $path ?: '/';
+
+            if ($c['config']->get('system.custom_base_url')) {
+                $path = $path !== '/' ? '/' . $path : '/';
+            } else {
+                $path = $path ?: '/';
+            }
 
             $page = $pages->dispatch($path);
 
