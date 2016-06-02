@@ -35,7 +35,7 @@ class MediumFactory
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get("media.".strtolower($ext));
+        $media_params = $config->get("media.types.".strtolower($ext));
         if (!$media_params) {
             return null;
         }
@@ -43,7 +43,7 @@ class MediumFactory
         $params += $media_params;
 
         // Add default settings for undefined variables.
-        $params += $config->get('media.defaults');
+        $params += $config->get('media.types.defaults');
         $params += [
             'type' => 'file',
             'thumb' => 'media/thumb.png',

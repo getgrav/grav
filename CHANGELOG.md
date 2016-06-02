@@ -1,3 +1,9 @@
+# v1.1.0-rc.2
+## xx/xx/2016
+
+1. [](#improved)
+    * Moved list items in `system/config/media.yaml` config into a `types:` key which allows you delete default items.
+
 # v1.1.0-rc.1
 ## 06/01/2016
 
