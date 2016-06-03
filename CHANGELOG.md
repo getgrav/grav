@@ -5,6 +5,7 @@
     * Added getters and setters for Assets to allow manipulation of CSS/JS/Collection based assets via plugins [#876](https://github.com/getgrav/grav/issues/876)
 1. [](#improved)
     * Moved list items in `system/config/media.yaml` config into a `types:` key which allows you delete default items.
+    * Updated `webserver-configs/nginx.conf` with `try_files` fix from @mrhein and @rondlite [#743](https://github.com/getgrav/grav/pull/743)
 
 # v1.1.0-rc.1
 ## 06/01/2016
