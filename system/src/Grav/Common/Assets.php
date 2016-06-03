@@ -821,22 +821,92 @@ class Assets
 
     /**
      * Return the array of all the registered CSS assets
+     * If a $key is provided, it will try to return only that asset
+     * else it will return null
      *
+     * @param null|string $key the asset key
      * @return array
      */
-    public function getCss()
+    public function getCss($key = null)
     {
+        if (!empty($key)) {
+            $asset_key = md5($key);
+            if (isset($this->css[$asset_key])) {
+                return $this->css[$asset_key];
+            } else {
+                return null;
+            }
+        }
+
         return $this->css;
     }
 
     /**
      * Return the array of all the registered JS assets
+     * If a $key is provided, it will try to return only that asset
+     * else it will return null
      *
+     * @param null|string $key the asset key
      * @return array
      */
-    public function getJs()
+    public function getJs($key = null)
     {
+        if (!empty($key)) {
+            $asset_key = md5($key);
+            if (isset($this->js[$asset_key])) {
+                return $this->js[$asset_key];
+            } else {
+                return null;
+            }
+        }
+
         return $this->js;
+    }
+
+    /**
+     * Set the whole array of CSS assets
+     *
+     * @param $css
+     */
+    public function setCss($css)
+    {
+        $this->css = $css;
+    }
+
+    /**
+     * Set the whole array of JS assets
+     *
+     * @param $js
+     */
+    public function setJs($js)
+    {
+        $this->js = $js;
+    }
+
+    /**
+     * Removes an item from the CSS array if set
+     *
+     * @param $key  the asset key
+     */
+    public function removeCss($key)
+    {
+        $asset_key = md5($key);
+        if (isset($this->css[$asset_key])) {
+            unset($this->css[$asset_key]);
+        }
+    }
+
+    /**
+     * Removes an item from the JS array if set
+     *
+     * @param $key  the asset key
+     */
+    public function removeJs($key)
+    {
+        $asset_key = md5($key);
+        if (isset($this->js[$asset_key])) {
+            unset($this->js[$asset_key]);
+        }
     }
 
     /**
@@ -847,6 +917,16 @@ class Assets
     public function getCollections()
     {
         return $this->collections;
+    }
+
+    /**
+     * Set the array of collections explicitly
+     *
+     * @param $collections
+     */
+    public function setCollection($collections)
+    {
+        $this->collections = $collections;
     }
 
     /**
