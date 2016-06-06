@@ -330,7 +330,7 @@ abstract class Utils
         $segments = explode('/', trim($path, '/'));
         $ret = [];
         foreach ($segments as $segment) {
-            if (($segment == '.') || empty($segment)) {
+            if (($segment == '.') || strlen($segment) == 0) {
                 continue;
             }
             if ($segment == '..') {
