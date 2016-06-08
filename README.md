@@ -10,7 +10,7 @@ The underlying architecture of Grav is designed to use well-established and _bes
 * [Markdown](http://en.wikipedia.org/wiki/Markdown): for easy content creation
 * [YAML](http://yaml.org): for simple configuration
 * [Parsedown](http://parsedown.org/): for fast Markdown and Markdown Extra support
-* [Doctrine Cache](http://docs.doctrine-project.org/en/2.0.x/reference/caching.html): layer for performance
+* [Doctrine Cache](http://doctrine-orm.readthedocs.io/projects/doctrine-orm/en/latest/reference/caching.html): layer for performance
 * [Pimple Dependency Injection Container](http://pimple.sensiolabs.org/): for extensibility and maintainability
 * [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html): for plugin event handling
 * [Symfony Console](http://symfony.com/doc/current/components/console/introduction.html): for CLI interface
