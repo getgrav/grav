@@ -479,9 +479,12 @@ form:
                         auto: Auto detect
                         file: File
                         apc: APC
-                        xcache: XCache
-                        memcache: MemCache
+                        apcu: APCu
+                        xcache: Xcache
+                        memcache: Memcache
+                        memcached: Memcached
                         wincache: WinCache
+                        redis: Redis
 
                 cache.prefix:
                     type: text
@@ -509,7 +512,6 @@ form:
                         0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
-
 
         twig:
             type: section
