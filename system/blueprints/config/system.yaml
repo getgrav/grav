@@ -486,6 +486,48 @@ form:
                         wincache: WinCache
                         redis: Redis
 
+                cache.memcache.server:
+                    type: text
+                    size: medium
+                    label: PLUGIN_ADMIN.MEMCACHE_SERVER
+                    help: PLUGIN_ADMIN.MEMCACHE_SERVER_HELP
+                    placeholder: "localhost"
+
+                cache.memcache.port:
+                    type: text
+                    size: small
+                    label: PLUGIN_ADMIN.MEMCACHE_PORT
+                    help: PLUGIN_ADMIN.MEMCACHE_PORT_HELP
+                    placeholder: "11211"
+
+                cache.memcached.server:
+                    type: text
+                    size: medium
+                    label: PLUGIN_ADMIN.MEMCACHED_SERVER
+                    help: PLUGIN_ADMIN.MEMCACHED_SERVER_HELP
+                    placeholder: "localhost"
+
+                cache.memcached.port:
+                    type: text
+                    size: small
+                    label: PLUGIN_ADMIN.MEMCACHED_PORT
+                    help: PLUGIN_ADMIN.MEMCACHED_PORT_HELP
+                    placeholder: "11211"
+                
+                cache.redis.server:
+                    type: text
+                    size: medium
+                    label: PLUGIN_ADMIN.REDIS_SERVER
+                    help: PLUGIN_ADMIN.REDIS_SERVER_HELP
+                    placeholder: "localhost"
+
+                cache.redis.port:
+                    type: text
+                    size: small
+                    label: PLUGIN_ADMIN.REDIS_PORT
+                    help: PLUGIN_ADMIN.REDIS_PORT_HELP
+                    placeholder: "6379"
+
                 cache.prefix:
                     type: text
                     size: x-small
