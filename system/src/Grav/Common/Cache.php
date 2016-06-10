@@ -177,11 +177,18 @@ class Cache extends Getters
                 $driver->setMemcache($memcache);
                 break;
 
+            case 'memcached':
+                $memcached = new \Memcached();
+                $memcached->connect($this->config->get('system.cache.memcached.server', 'localhost'),
+                    $this->config->get('system.cache.memcached.port', 11211));
+                $driver = new DoctrineCache\MemcachedCache();
+                $driver->setMemcached($memcached);
+                break;
+
             case 'redis':
                 $redis = new \Redis();
                 $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
                     $this->config->get('system.cache.redis.port', 6379));
-
                 $driver = new DoctrineCache\RedisCache();
                 $driver->setRedis($redis);
                 break;
