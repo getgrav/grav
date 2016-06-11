@@ -4,8 +4,14 @@
 1. [](#new)
     * Added getters and setters for Assets to allow manipulation of CSS/JS/Collection based assets via plugins [#876](https://github.com/getgrav/grav/issues/876)
 1. [](#improved)
+    * Pass the exception to the `onFatalException()` event
+    * Updated to latest jQuery 2.2.4 release
     * Moved list items in `system/config/media.yaml` config into a `types:` key which allows you delete default items.
     * Updated `webserver-configs/nginx.conf` with `try_files` fix from @mrhein and @rondlite [#743](https://github.com/getgrav/grav/pull/743)
+    * Updated cache references to include `memecache` and `redis` [#887](https://github.com/getgrav/grav/issues/887)
+    * Updated composer libraries
+1. [](#bugfix)
+    * Fixed `Utils::normalizePath()` that was truncating 0's [#882](https://github.com/getgrav/grav/issues/882)
 
 # v1.1.0-rc.1
 ## 06/01/2016
