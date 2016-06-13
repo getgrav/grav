@@ -1500,9 +1500,6 @@ class Page
             $url = rtrim($url, '/');
         }
 
-        // remove double slashes
-        $url = preg_replace('#/{2,}#', '/', $url);
-
         return $url;
     }
 

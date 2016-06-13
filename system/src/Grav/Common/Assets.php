@@ -208,7 +208,7 @@ class Assets
         $this->assets_url = $locator->findResource('asset://', false);
 
         $this->config($asset_config);
-        $this->base_url = $base_url . '/';
+        $this->base_url = ltrim($base_url, '/') . '/';
 
         // Register any preconfigured collections
         foreach ($config->get('system.assets.collections', []) as $name => $collection) {
