@@ -454,7 +454,7 @@ class Grav extends Container
 
         $uri_extension = $uri->extension();
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
-        $supported_types = $config->get('media');
+        $supported_types = $config->get('media.types');
 
         // Check whitelist first, then ensure extension is a valid media type
         if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {
