@@ -1,5 +1,5 @@
 # v1.1.0-rc.2
-## xx/xx/2016
+## 06/14/2016
 
 1. [](#new)
     * Added getters and setters for Assets to allow manipulation of CSS/JS/Collection based assets via plugins [#876](https://github.com/getgrav/grav/issues/876)
