@@ -280,7 +280,7 @@ class Collection extends Iterator
                 if ($page !== null) {
                     $date = $field ? strtotime($page->value($field)) : $page->date();
 
-                    if ($date > $start && $date < $end) {
+                    if ($date >= $start && $date <= $end) {
                         $date_range[$path] = $slug;
                     }
                 }
@@ -291,7 +291,7 @@ class Collection extends Iterator
                 if ($page !== null) {
                     $date = $field ? strtotime($page->value($field)) : $page->date();
 
-                    if ($date > $start) {
+                    if ($date >= $start) {
                         $date_range[$path] = $slug;
                     }
                 }
