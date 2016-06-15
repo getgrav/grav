@@ -270,17 +270,30 @@ class Collection extends Iterator
     public function dateRange($startDate, $endDate = false, $field = false)
     {
         $start = Utils::date2timestamp($startDate);
-        $end = $endDate ? Utils::date2timestamp($endDate) : strtotime("now +1000 years");
+        $end = $endDate ? Utils::date2timestamp($endDate) : false;
 
         $date_range = [];
 
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null) {
-                $date = $field ? strtotime($page->value($field)) : $page->date();
+        if ($end) {
+            foreach ($this->items as $path => $slug) {
+                $page = $this->pages->get($path);
+                if ($page !== null) {
+                    $date = $field ? strtotime($page->value($field)) : $page->date();
 
-                if ($date > $start && $date < $end) {
-                    $date_range[$path] = $slug;
+                    if ($date > $start && $date < $end) {
+                        $date_range[$path] = $slug;
+                    }
+                }
+            }
+        } else {
+            foreach ($this->items as $path => $slug) {
+                $page = $this->pages->get($path);
+                if ($page !== null) {
+                    $date = $field ? strtotime($page->value($field)) : $page->date();
+
+                    if ($date > $start) {
+                        $date_range[$path] = $slug;
+                    }
                 }
             }
         }
