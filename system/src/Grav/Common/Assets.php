@@ -668,10 +668,6 @@ class Assets
      */
     protected function pipelineCss($group = 'head')
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-        $key = '?' . $cache->getKey();
-
         // temporary list of assets to pipeline
         $temp_css = [];
 
@@ -691,7 +687,7 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($this->assets_dir . $file)) {
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         }
 
         // Remove any non-pipeline files
@@ -738,7 +734,7 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         } else {
             return false;
         }
@@ -753,10 +749,6 @@ class Assets
      */
     protected function pipelineJs($group = 'head')
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-        $key = '?' . $cache->getKey();
-
         // temporary list of assets to pipeline
         $temp_js = [];
 
@@ -776,7 +768,7 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($this->assets_dir . $file)) {
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         }
 
         // Remove any non-pipeline files
@@ -813,7 +805,7 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         } else {
             return false;
         }
