@@ -668,17 +668,14 @@ class Assets
      */
     protected function pipelineCss($group = 'head')
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-        $key = '?' . $cache->getKey();
-
         // temporary list of assets to pipeline
         $temp_css = [];
 
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
 
-        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group);
+        // Compute uid based on assets and timestamp
+        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group . time());
         $file =  $uid . '.css';
         $inline_file = $uid . '-inline.css';
 
@@ -691,7 +688,7 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($this->assets_dir . $file)) {
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         }
 
         // Remove any non-pipeline files
@@ -738,7 +735,7 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         } else {
             return false;
         }
@@ -753,17 +750,14 @@ class Assets
      */
     protected function pipelineJs($group = 'head')
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-        $key = '?' . $cache->getKey();
-
         // temporary list of assets to pipeline
         $temp_js = [];
 
         // clear no-pipeline assets lists
         $this->js_no_pipeline = [];
 
-        $uid = md5(json_encode($this->js) . $this->js_minify . $group);
+        // Compute uid based on assets and timestamp
+        $uid = md5(json_encode($this->js) . $this->js_minify . $group . time());
         $file =  $uid . '.js';
         $inline_file = $uid . '-inline.js';
 
@@ -776,7 +770,7 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($this->assets_dir . $file)) {
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         }
 
         // Remove any non-pipeline files
@@ -813,7 +807,7 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
-            return $relative_path . $key;
+            return $relative_path . $this->timestamp;
         } else {
             return false;
         }
