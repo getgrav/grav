@@ -273,32 +273,18 @@ class Collection extends Iterator
         $end = $endDate ? Utils::date2timestamp($endDate) : false;
 
         $date_range = [];
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page !== null) {
+                $date = $field ? strtotime($page->value($field)) : $page->date();
 
-        if ($end) {
-            foreach ($this->items as $path => $slug) {
-                $page = $this->pages->get($path);
-                if ($page !== null) {
-                    $date = $field ? strtotime($page->value($field)) : $page->date();
-
-                    if ($date >= $start && $date <= $end) {
-                        $date_range[$path] = $slug;
-                    }
-                }
-            }
-        } else {
-            foreach ($this->items as $path => $slug) {
-                $page = $this->pages->get($path);
-                if ($page !== null) {
-                    $date = $field ? strtotime($page->value($field)) : $page->date();
-
-                    if ($date >= $start) {
-                        $date_range[$path] = $slug;
-                    }
+                if ($date >= $start && (!$end || $date <= $end)) {
+                    $date_range[$path] = $slug;
                 }
             }
         }
+        
         $this->items = $date_range;
-
         return $this;
     }
 
