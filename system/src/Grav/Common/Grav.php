@@ -446,6 +446,8 @@ class Grav extends Container
      */
     public function fallbackUrl($path)
     {
+      	$this->fireEvent('onPageFallBackUrl');
+        
         /** @var Uri $uri */
         $uri = $this['uri'];
 
