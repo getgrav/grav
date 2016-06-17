@@ -671,11 +671,14 @@ class Assets
         // temporary list of assets to pipeline
         $temp_css = [];
 
+        /** @var Cache $cache */
+        $cache = Grav::instance()['cache'];
+
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
 
         // Compute uid based on assets and timestamp
-        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group . time());
+        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group . $cache->getKey());
         $file =  $uid . '.css';
         $inline_file = $uid . '-inline.css';
 
@@ -753,11 +756,14 @@ class Assets
         // temporary list of assets to pipeline
         $temp_js = [];
 
+        /** @var Cache $cache */
+        $cache = Grav::instance()['cache'];
+
         // clear no-pipeline assets lists
         $this->js_no_pipeline = [];
 
         // Compute uid based on assets and timestamp
-        $uid = md5(json_encode($this->js) . $this->js_minify . $group . time());
+        $uid = md5(json_encode($this->js) . $this->js_minify . $group . $cache->getKey());
         $file =  $uid . '.js';
         $inline_file = $uid . '-inline.js';
 
