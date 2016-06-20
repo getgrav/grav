@@ -12,7 +12,6 @@ use Grav\Common\Page\Page;
 class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
-    const PARAMS_REGEX = '/\/([^\:\#\/\?]*:[^\:\#\/\?]*)/';
 
     public $url;
 
@@ -71,6 +70,16 @@ class Uri
         $hostname = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
         return $hostname;
+    }
+    
+    /**
+     * Calculate the parameter regex based on the param_sep setting
+     *
+     * @return string
+     */
+    public function paramsRegex() 
+    {
+        return '/\/([^\:\#\/\?]*' . Grav::instance()['config']->get('system.param_sep') . '[^\:\#\/\?]*)/';
     }
 
     /**
@@ -350,7 +359,7 @@ class Uri
     private function processParams($uri, $delimiter = ':')
     {
         if (strpos($uri, $delimiter) !== false) {
-            preg_match_all(Uri::PARAMS_REGEX, $uri, $matches, PREG_SET_ORDER);
+            preg_match_all(Uri::paramsRegex(), $uri, $matches, PREG_SET_ORDER);
 
             foreach ($matches as $match) {
                 $param = explode($delimiter, $match[1]);
@@ -937,7 +946,7 @@ class Uri
         $params = [];
 
         if (strpos($uri, $delimiter) !== false) {
-            preg_match_all(Uri::PARAMS_REGEX, $uri, $matches, PREG_SET_ORDER);
+            preg_match_all(Uri::paramsRegex(), $uri, $matches, PREG_SET_ORDER);
 
             foreach ($matches as $match) {
                 $param = explode($delimiter, $match[1]);
