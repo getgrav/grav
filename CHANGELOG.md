@@ -6,6 +6,7 @@
 1. [](#bugfix)
     * Respect `enable_asset_timestamp` settings for pipelined Assets [#906](https://github.com/getgrav/grav/issues/906)
     * Fixed collections end dates for 32-bit systems [#902](https://github.com/getgrav/grav/issues/902)
+    * Fixed a recent regression (1.1.0-rc1) with parameter separator different than `:`
     
 # v1.1.0-rc.2
 ## 06/14/2016
