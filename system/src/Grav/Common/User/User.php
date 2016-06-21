@@ -29,7 +29,9 @@ class User extends Data
      */
     public static function load($username)
     {
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+        $config = $grav['config'];
 
         // force lowercase of username
         $username = strtolower($username);
@@ -47,6 +49,9 @@ class User extends Data
         }
         $user = new User($content, $blueprint);
         $user->file($file);
+
+        // add user to config
+        $config->set("user", $user);
 
         return $user;
     }
