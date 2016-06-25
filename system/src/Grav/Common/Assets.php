@@ -282,7 +282,9 @@ class Assets
             return $this;
         }
 
+        $modified = 0;
         if (!$this->isRemoteLink($asset)) {
+            $modified = $this->getLastModificationTime($asset);
             $asset = $this->buildLocalLink($asset);
         }
 
@@ -295,8 +297,9 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
-            'pipeline' => (bool)$pipeline,
-            'group'    => $group ?: 'head'
+            'pipeline' => (bool) $pipeline,
+            'group'    => $group ?: 'head',
+            'modified' => $modified
         ];
 
         // check for dynamic array and merge with defaults
@@ -343,7 +346,9 @@ class Assets
             return $this;
         }
 
+        $modified = 0;
         if (!$this->isRemoteLink($asset)) {
+            $modified = $this->getLastModificationTime($asset);
             $asset = $this->buildLocalLink($asset);
         }
 
@@ -358,7 +363,8 @@ class Assets
             'order'    => count($this->js),
             'pipeline' => (bool)$pipeline,
             'loading'  => $loading ?: '',
-            'group'    => $group ?: 'head'
+            'group'    => $group ?: 'head',
+            'modified' => $modified
         ];
 
         // check for dynamic array and merge with defaults
@@ -1100,18 +1106,37 @@ class Assets
     /**
      * Build local links including grav asset shortcodes
      *
-     * @param  string $asset the asset string reference
+     * @param  string $asset    the asset string reference
+     * @param  bool   $absolute build absolute asset link
      *
-     * @return string        the final link url to the asset
+     * @return string           the final link url to the asset
      */
-    protected function buildLocalLink($asset)
+    protected function buildLocalLink($asset, $absolute = false)
     {
         try {
-            $asset = Grav::instance()['locator']->findResource($asset, false);
+            $asset = Grav::instance()['locator']->findResource($asset, $absolute);
         } catch (\Exception $e) {
         }
 
-        return $asset ? $this->base_url . ltrim($asset, '/') : false;
+        $base_url = $absolute ? '/' : $this->base_url;
+        return $asset ? $base_url . ltrim($asset, '/') : false;
+    }
+
+    /**
+     * Get the last modification time of asset
+     *
+     * @param  string $asset    the asset string reference
+     *
+     * @return string           the last modifcation time or false on error
+     */
+    protected function getLastModificationTime($asset)
+    {
+        $file = GRAV_ROOT . $asset;
+        if (Grav::instance()['locator']->isStream($asset)) {
+            $file = $this->buildLocalLink($asset, true);
+        }
+
+        return file_exists($file) ? filemtime($file) : false;
     }
 
     /**
