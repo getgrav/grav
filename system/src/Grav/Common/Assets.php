@@ -361,7 +361,7 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
-            'pipeline' => (bool)$pipeline,
+            'pipeline' => (bool) $pipeline,
             'loading'  => $loading ?: '',
             'group'    => $group ?: 'head',
             'modified' => $modified
@@ -1112,8 +1112,8 @@ class Assets
         } catch (\Exception $e) {
         }
 
-        $base_url = $absolute ? '/' : $this->base_url;
-        return $asset ? $base_url . ltrim($asset, '/') : false;
+        $uri = $absolute ? $asset : $this->base_url . ltrim($asset, '/');
+        return $asset ? $uri : false;
     }
 
     /**
