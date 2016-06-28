@@ -1,3 +1,9 @@
+# v1.1.0-rc.4
+## 06/xx/2016
+
+1. [](#bugfix)
+    * Fix backend validation for file fields marked as required [grav-plugin-form#78](Fixes https://github.com/getgrav/grav-plugin-form/issues/78)
+
 # v1.1.0-rc.3
 ## 06/21/2016
 
