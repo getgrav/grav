@@ -107,10 +107,12 @@ class UpdateCommand extends ConsoleCommand
             $this->output->writeln("<red>ERROR</red>: " . Installer::lastErrorMsg());
             exit;
         }
-        
-        $list_type_update = [];
-        $list_type_update['plugins'] = $this->input->getOption('plugins');
-        $list_type_update['themes'] = $this->input->getOption('themes');
+        if ($this->input->getOption('plugins') === false and $this->input->getOption('themes') === false) {
+            $list_type_update = ['plugins' => true, 'themes' => true];
+        }else {
+            $list_type_update['plugins'] = $this->input->getOption('plugins');
+            $list_type_update['themes'] = $this->input->getOption('themes');
+        }
 
         $this->data = $this->gpm->getUpdatable($list_type_update);
         $only_packages = array_map('strtolower', $this->input->getArgument('package'));

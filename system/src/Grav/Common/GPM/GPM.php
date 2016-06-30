@@ -172,23 +172,16 @@ class GPM extends Iterator
      */
     public function getUpdatable($list_type_update)
     {
-        $total_counts = [];
-        $list_to_update = [];
-        if ($list_type_update['plugins']) {
-            $list_to_update['plugins'] = $this->getUpdatablePlugins();
-            $total_counts[] = count($list_to_update['plugins']);
-        }
-        if ($list_type_update['themes']) {
-            $list_to_update['themes'] = $this->getUpdatableThemes();
-            $total_counts[] = count($list_to_update['themes']);
-        }
-        $items = [
-            'total'   => array_sum($total_counts)
-        ];
-        foreach($list_to_update as $type => $to_update){
-            $items[$type] = $to_update;
-        }
 
+        $items = ['total' => 0];
+        foreach($list_type_update as $type => $type_updatable){
+            if($type_updatable === false)
+                    continue;
+            $methodUpdatableType = 'getUpdatable'.ucfirst($type);
+            $to_update = $this->$methodUpdatableType();
+            $items[$type] = $to_update;
+            $items['total'] += count($to_update);
+        }
         return $items;
     }
 
