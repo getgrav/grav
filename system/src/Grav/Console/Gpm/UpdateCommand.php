@@ -74,13 +74,13 @@ class UpdateCommand extends ConsoleCommand
                 'plugins',
                 'p',
                 InputOption::VALUE_NONE,
-                'updates only plugins'
+                'Update only plugins'
             )
             ->addOption(
                 'themes',
                 't',
                 InputOption::VALUE_NONE,
-                'update only themes'
+                'Update only themes'
             )
             ->addArgument(
                 'package',
