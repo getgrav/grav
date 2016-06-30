@@ -166,19 +166,28 @@ class GPM extends Iterator
     /**
      * Returns an array of Plugins and Themes that can be updated.
      * Plugins and Themes are extended with the `available` property that relies to the remote version
+     * @param $list_type_update specifies what type of package to update
      * @return array Array of updatable Plugins and Themes.
      *               Format: ['total' => int, 'plugins' => array, 'themes' => array]
      */
-    public function getUpdatable()
+    public function getUpdatable($list_type_update)
     {
-        $plugins = $this->getUpdatablePlugins();
-        $themes  = $this->getUpdatableThemes();
-
+        $total_counts = [];
+        $list_to_update = [];
+        if ($list_type_update['plugins']) {
+            $list_to_update['plugins'] = $this->getUpdatablePlugins();
+            $total_counts[] = count($list_to_update['plugins']);
+        }
+        if ($list_type_update['themes']) {
+            $list_to_update['themes'] = $this->getUpdatableThemes();
+            $total_counts[] = count($list_to_update['themes']);
+        }
         $items = [
-            'total'   => count($plugins)+count($themes),
-            'plugins' => $plugins,
-            'themes'  => $themes
+            'total'   => array_sum($total_counts)
         ];
+        foreach($list_to_update as $type => $to_update){
+            $items[$type] = $to_update;
+        }
 
         return $items;
     }
