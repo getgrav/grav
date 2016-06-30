@@ -109,7 +109,7 @@ class UpdateCommand extends ConsoleCommand
         }
         if ($this->input->getOption('plugins') === false and $this->input->getOption('themes') === false) {
             $list_type_update = ['plugins' => true, 'themes' => true];
-        }else {
+        } else {
             $list_type_update['plugins'] = $this->input->getOption('plugins');
             $list_type_update['themes'] = $this->input->getOption('themes');
         }
@@ -143,7 +143,7 @@ class UpdateCommand extends ConsoleCommand
                 }
 
                 $this->output->writeln(
-                    // index
+                // index
                     str_pad($index++ + 1, 2, '0', STR_PAD_LEFT) . ". " .
                     // name
                     "<cyan>" . str_pad($package->name, 15) . "</cyan> " .
@@ -173,9 +173,9 @@ class UpdateCommand extends ConsoleCommand
         $args = new ArrayInput([
             'command' => 'install',
             'package' => $slugs,
-            '-f'      => $this->input->getOption('force'),
-            '-d'      => $this->destination,
-            '-y'      => true
+            '-f' => $this->input->getOption('force'),
+            '-d' => $this->destination,
+            '-y' => true
         ]);
         $command_exec = $install_command->run($args, $this->output);
 
