@@ -174,7 +174,7 @@ class GPM extends Iterator
      * @return array Array of updatable Plugins and Themes.
      *               Format: ['total' => int, 'plugins' => array, 'themes' => array]
      */
-    public function getUpdatable($list_type_update)
+    public function getUpdatable($list_type_update = ['plugins' => true, 'themes' => true])
     {
 
         $items = ['total' => 0];
