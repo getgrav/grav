@@ -124,14 +124,21 @@ class User extends Data
     public function save()
     {
         $file = $this->file();
+
         if ($file) {
+            $username = $this->get('username');
+
+            if (!$file->filename()) {
+                $locator = Grav::instance()['locator'];
+                $file->filename($locator->findResource('account://') . DS . strtolower($username) . YAML_EXT);
+            }
+
             // if plain text password, hash it and remove plain text
             if ($this->password) {
                 $this->hashed_password = Authentication::create($this->password);
                 unset($this->password);
             }
 
-            $username = $this->get('username');
             unset($this->username);
             $file->save($this->items);
             $this->set('username', $username);
