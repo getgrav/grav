@@ -404,7 +404,15 @@ class Validation
      */
     public static function typeEmail($value, array $params, array $field)
     {
-        return self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_EMAIL);
+        $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
+
+        foreach ($values as $value) {
+            if (!(self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_EMAIL))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

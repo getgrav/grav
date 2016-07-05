@@ -1,8 +1,10 @@
 # v1.1.0-rc.4
 ## 06/xx/2016
 
+1. [](#improved)
+    * Added support for validation of multiple email in the `type: email` field [grav-plugin-email#31](https://github.com/getgrav/grav-plugin-email/issues/31)
 1. [](#bugfix)
-    * Fix backend validation for file fields marked as required [grav-plugin-form#78](Fixes https://github.com/getgrav/grav-plugin-form/issues/78)
+    * Fix backend validation for file fields marked as required [grav-plugin-form#78](https://github.com/getgrav/grav-plugin-form/issues/78)
 
 # v1.1.0-rc.3
 ## 06/21/2016
