@@ -11,6 +11,10 @@
 
 1. [](#new)
     * Add a onPageFallBackUrl event when starting the fallbackUrl() method to allow the Login plugin to protect the page media
+    * Conveniently allow ability to retrieve user information via config object [#913](https://github.com/getgrav/grav/pull/913) - @Vivalldi
+    * Grav served images can now use header caching [#905](https://github.com/getgrav/grav/pull/905)
+1. [](#improved)
+    * Take asset modification timestamp into consideration in pipelining [#917](https://github.com/getgrav/grav/pull/917) - @Sommerregen
 1. [](#bugfix)
     * Respect `enable_asset_timestamp` settings for pipelined Assets [#906](https://github.com/getgrav/grav/issues/906)
     * Fixed collections end dates for 32-bit systems [#902](https://github.com/getgrav/grav/issues/902)
