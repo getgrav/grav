@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Added support for validation of multiple email in the `type: email` field [grav-plugin-email#31](https://github.com/getgrav/grav-plugin-email/issues/31)
+    * Unified PHP code header styling
 1. [](#bugfix)
     * Fix backend validation for file fields marked as required [grav-plugin-form#78](https://github.com/getgrav/grav-plugin-form/issues/78)
 

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\Filesystem\Folder;
@@ -11,10 +18,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-/**
- * Class SelfupgradeCommand
- * @package Grav\Console\Gpm
- */
 class SelfupgradeCommand extends ConsoleCommand
 {
     /**

@@ -1,9 +1,13 @@
 <?php
+/**
+ * @package    Grav.Common.Language
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Language;
 
-/**
- * Language and translation functionality for Grav
- */
 class LanguageCodes
 {
     protected static $codes = [

@@ -1,16 +1,17 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
 use Grav\Common\Utils;
 
-/**
- * Collection of Pages.
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Collection extends Iterator
 {
     /**
@@ -283,7 +284,7 @@ class Collection extends Iterator
                 }
             }
         }
-        
+
         $this->items = $date_range;
         return $this;
     }

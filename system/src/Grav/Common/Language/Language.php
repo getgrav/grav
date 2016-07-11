@@ -1,12 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.Language
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Language;
 
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 
-/**
- * Language and translation functionality for Grav
- */
 class Language
 {
     protected $grav;

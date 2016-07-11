@@ -1,14 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Page\Page;
 
-/**
- * The URI object provides information about the current URL
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
@@ -71,13 +72,13 @@ class Uri
 
         return $hostname;
     }
-    
+
     /**
      * Calculate the parameter regex based on the param_sep setting
      *
      * @return string
      */
-    public function paramsRegex() 
+    public function paramsRegex()
     {
         return '/\/([^\:\#\/\?]*' . Grav::instance()['config']->get('system.param_sep') . '[^\:\#\/\?]*)/';
     }

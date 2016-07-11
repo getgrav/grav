@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Closure;
@@ -13,14 +20,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 define('CSS_ASSET', true);
 define('JS_ASSET', false);
 
-/**
- * Handles Asset management (CSS & JS) and also pipelining (combining into a single file for each asset)
- *
- * Based on stolz/assets (https://github.com/Stolz/Assets) package modified for use with Grav
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Assets
 {
     /** @const Regex to match CSS and JavaScript files */

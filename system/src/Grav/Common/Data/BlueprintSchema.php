@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
@@ -6,12 +13,6 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\Blueprints\BlueprintSchema as BlueprintSchemaBase;
 
-/**
- * Blueprint schema handles the internal logic of blueprints.
- *
- * @author RocketTheme
- * @license MIT
- */
 class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 {
     use Export;

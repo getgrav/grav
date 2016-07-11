@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use \Doctrine\Common\Cache as DoctrineCache;
@@ -16,9 +23,6 @@ use Grav\Common\Grav;
  * MemCache
  * MemCacheD
  * FileSystem
- *
- * @author  RocketTheme
- * @license MIT
  */
 class Cache extends Getters
 {

@@ -1,11 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use RocketTheme\Toolbox\Session\Session as BaseSession;
 
-/**
- * Wrapper for Session
- */
 class Session extends BaseSession
 {
     protected $grav;

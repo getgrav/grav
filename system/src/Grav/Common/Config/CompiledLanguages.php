@@ -1,11 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common.Config
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 
-/**
- * The Compiled Languages class.
- */
 class CompiledLanguages extends CompiledBase
 {
     /**

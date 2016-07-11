@@ -1,11 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common.Twig
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
 
-/**
- * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
- */
 trait WriteCacheFileTrait
 {
     protected static $umask;

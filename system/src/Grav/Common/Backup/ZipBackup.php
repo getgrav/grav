@@ -1,15 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.Backup
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Backup;
 
 use Grav\Common\Grav;
 use Grav\Common\Inflector;
 
-/**
- * The ZipBackup class lets you create simple zip-backups of a grav site
- *
- * @author RocketTheme
- * @license MIT
- */
 class ZipBackup
 {
     protected static $ignorePaths = [
