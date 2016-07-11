@@ -282,7 +282,9 @@ class Assets
             return $this;
         }
 
+        $modified = 0;
         if (!$this->isRemoteLink($asset)) {
+            $modified = $this->getLastModificationTime($asset);
             $asset = $this->buildLocalLink($asset);
         }
 
@@ -295,8 +297,9 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
-            'pipeline' => (bool)$pipeline,
-            'group'    => $group ?: 'head'
+            'pipeline' => (bool) $pipeline,
+            'group'    => $group ?: 'head',
+            'modified' => $modified
         ];
 
         // check for dynamic array and merge with defaults
@@ -343,7 +346,9 @@ class Assets
             return $this;
         }
 
+        $modified = 0;
         if (!$this->isRemoteLink($asset)) {
+            $modified = $this->getLastModificationTime($asset);
             $asset = $this->buildLocalLink($asset);
         }
 
@@ -356,9 +361,10 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
-            'pipeline' => (bool)$pipeline,
+            'pipeline' => (bool) $pipeline,
             'loading'  => $loading ?: '',
-            'group'    => $group ?: 'head'
+            'group'    => $group ?: 'head',
+            'modified' => $modified
         ];
 
         // check for dynamic array and merge with defaults
@@ -671,14 +677,11 @@ class Assets
         // temporary list of assets to pipeline
         $temp_css = [];
 
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-
         // clear no-pipeline assets lists
         $this->css_no_pipeline = [];
 
         // Compute uid based on assets and timestamp
-        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group . $cache->getKey());
+        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group);
         $file =  $uid . '.css';
         $inline_file = $uid . '-inline.css';
 
@@ -756,14 +759,11 @@ class Assets
         // temporary list of assets to pipeline
         $temp_js = [];
 
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-
         // clear no-pipeline assets lists
         $this->js_no_pipeline = [];
 
         // Compute uid based on assets and timestamp
-        $uid = md5(json_encode($this->js) . $this->js_minify . $group . $cache->getKey());
+        $uid = md5(json_encode($this->js) . $this->js_minify . $group);
         $file =  $uid . '.js';
         $inline_file = $uid . '-inline.js';
 
@@ -1100,18 +1100,37 @@ class Assets
     /**
      * Build local links including grav asset shortcodes
      *
-     * @param  string $asset the asset string reference
+     * @param  string $asset    the asset string reference
+     * @param  bool   $absolute build absolute asset link
      *
-     * @return string        the final link url to the asset
+     * @return string           the final link url to the asset
      */
-    protected function buildLocalLink($asset)
+    protected function buildLocalLink($asset, $absolute = false)
     {
         try {
-            $asset = Grav::instance()['locator']->findResource($asset, false);
+            $asset = Grav::instance()['locator']->findResource($asset, $absolute);
         } catch (\Exception $e) {
         }
 
-        return $asset ? $this->base_url . ltrim($asset, '/') : false;
+        $uri = $absolute ? $asset : $this->base_url . ltrim($asset, '/');
+        return $asset ? $uri : false;
+    }
+
+    /**
+     * Get the last modification time of asset
+     *
+     * @param  string $asset    the asset string reference
+     *
+     * @return string           the last modifcation time or false on error
+     */
+    protected function getLastModificationTime($asset)
+    {
+        $file = GRAV_ROOT . $asset;
+        if (Grav::instance()['locator']->isStream($asset)) {
+            $file = $this->buildLocalLink($asset, true);
+        }
+
+        return file_exists($file) ? filemtime($file) : false;
     }
 
     /**

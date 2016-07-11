@@ -40,7 +40,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
-            'group'    => 'head'
+            'group'    => 'head',
+            'modified' => false
         ], reset($array));
 
         $this->assets->add('test.js');
@@ -53,7 +54,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
-            'group'    => 'head'
+            'group'    => 'head',
+            'modified' => false
         ], reset($array));
 
         //test addCss(). Test adding asset to a separate group
@@ -68,7 +70,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
-            'group'    => 'head'
+            'group'    => 'head',
+            'modified' => false
         ], reset($array));
 
         //test addCss() adding asset to a separate group, and with an alternate rel attribute
@@ -90,7 +93,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'order'    => 0,
             'pipeline' => true,
             'loading'  => '',
-            'group'    => 'head'
+            'group'    => 'head',
+            'modified' => false
         ], reset($array));
 
         //Test CSS Groups
@@ -107,7 +111,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
-            'group'    => 'footer'
+            'group'    => 'footer',
+            'modified' => false
         ], reset($array));
 
         //Test JS Groups
@@ -125,7 +130,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'order'    => 0,
             'pipeline' => true,
             'loading'  => '',
-            'group'    => 'footer'
+            'group'    => 'footer',
+            'modified' => false
         ], reset($array));
 
         //Test async / defer
@@ -141,7 +147,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'order'    => 0,
             'pipeline' => true,
             'loading'  => 'async',
-            'group'    => 'head'
+            'group'    => 'head',
+            'modified' => false
         ], reset($array));
 
         $this->assets->reset();
@@ -156,7 +163,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'order'    => 0,
             'pipeline' => true,
             'loading'  => 'defer',
-            'group'    => 'head'
+            'group'    => 'head',
+            'modified' => false
         ], reset($array));
 
         //Test adding media queries
