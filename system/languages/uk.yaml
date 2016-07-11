@@ -1,0 +1,66 @@
+INFLECTOR_IRREGULAR:
+  person: люди
+  man: людина
+  child: дитина
+  sex: стать
+  move: рухається
+NICETIME:
+  NO_DATE_PROVIDED: Дата не вказана
+  BAD_DATE: Невірна дата
+  AGO: назад
+  FROM_NOW: тепер
+  SECOND: секунда
+  MINUTE: хвилина
+  HOUR: година
+  DAY: день
+  WEEK: тиждень
+  MONTH: місяць
+  YEAR: рік
+  DECADE: десятиліття
+  SEC: с
+  MIN: хв
+  HR: год
+  WK: тиж
+  MO: міс
+  YR: р.
+  DEC: рр.
+  SECOND_PLURAL: секунди
+  MINUTE_PLURAL: хвилини
+  HOUR_PLURAL: години
+  DAY_PLURAL: дні
+  WEEK_PLURAL: тижні
+  MONTH_PLURAL: місяці
+  YEAR_PLURAL: роки
+  DECADE_PLURAL: десятиліття
+  SEC_PLURAL: с
+  MIN_PLURAL: хв
+  HR_PLURAL: год
+  WK_PLURAL: тиж
+  MO_PLURAL: міс
+  YR_PLURAL: р.
+  DEC_PLURAL: рр.
+FORM:
+  VALIDATION_FAIL: '<b>Перевірка не пройшла:</b>'
+  INVALID_INPUT: Невірне введення у
+  MISSING_REQUIRED_FIELD: 'Відсутнє необхідне поле:'
+MONTHS_OF_THE_YEAR:
+  - Січень
+  - Лютий
+  - Березень
+  - Квітень
+  - Травень
+  - Червень
+  - Липень
+  - Серпень
+  - Вересень
+  - Жовтень
+  - Листопад
+  - Грудень
+DAYS_OF_THE_WEEK:
+  - Понеділок
+  - Вівторок
+  - Середа
+  - Четвер
+  - П’ятниця
+  - Субота
+  - Неділя
