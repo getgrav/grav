@@ -81,6 +81,7 @@ class LanguageCodes
         'ko'         => [ 'name' => 'Korean',                    'nativeName' => '한국어' ],
         'ku'         => [ 'name' => 'Kurdish',                   'nativeName' => 'Kurdî' ],
         'la'         => [ 'name' => 'Latin',                     'nativeName' => 'Latina' ],
+        'lb'         => [ 'name' => 'Luxembourgish',             'nativeName' => 'Lëtzebuergesch' ],
         'lg'         => [ 'name' => 'Luganda',                   'nativeName' => 'Luganda' ],
         'lt'         => [ 'name' => 'Lithuanian',                'nativeName' => 'lietuvių kalba' ],
         'lv'         => [ 'name' => 'Latvian',                   'nativeName' => 'Latviešu' ],
