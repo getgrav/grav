@@ -18,7 +18,8 @@ class UriTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->grav = Fixtures::get('grav');
+        $grav = Fixtures::get('grav');
+        $this->grav = $grav();
         $this->uri = $this->grav['uri'];
     }
 
@@ -147,6 +148,18 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertSame('/ueper:xxx/test:yyy', $this->uri->params());
         $this->assertSame('/ueper:xxx', $this->uri->params('ueper'));
         $this->assertSame('/test:yyy', $this->uri->params('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy')->init();
+        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy#something')->init();
+        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy?foo=bar')->init();
+        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        $this->assertSame('/test:yyy', $this->uri->params('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
         $this->assertSame(null, $this->uri->params());
         $this->assertSame(null, $this->uri->params('ueper'));
@@ -174,6 +187,19 @@ class UriTest extends \Codeception\TestCase\Test
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
         $this->assertSame('xxx', $this->uri->param('ueper'));
         $this->assertSame('yyy', $this->uri->param('test'));
+        $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yy%20y/foo:bar_baz-bank')->init();
+        $this->assertSame('xxx++', $this->uri->param('ueper'));
+        $this->assertSame('yy y', $this->uri->param('test'));
+        $this->assertSame('bar_baz-bank', $this->uri->param('foo'));
+    }
+
+    public function testFragment()
+    {
+        $this->uri->initializeWithURL('http://localhost:8080/a/b/c#my-fragment');
+        $this->assertSame('my-fragment', $this->uri->fragment());
+        $this->uri->initializeWithURL('http://localhost:8080/a/b/c');
+        $this->uri->fragment('something-new');
+        $this->assertSame('something-new', $this->uri->fragment());
     }
 
     public function testUrl()
@@ -263,19 +289,16 @@ class UriTest extends \Codeception\TestCase\Test
 
     public function testEnvironment()
     {
-        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
-        if ($this->uri->host() == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
-            $address = 'localhost';
-        }
-
         $this->uri->initializeWithURL('http://localhost/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('localhost', $this->uri->environment());
+        $this->uri->initializeWithURL('http://127.0.0.1/a-page')->init();
+        $this->assertSame('localhost', $this->uri->environment());
         $this->uri->initializeWithURL('http://localhost:8080/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('localhost', $this->uri->environment());
         $this->uri->initializeWithURL('http://foobar.it:443/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('foobar.it', $this->uri->environment());
         $this->uri->initializeWithURL('https://google.com/a-page')->init();
-        $this->assertSame($address, $this->uri->environment());
+        $this->assertSame('google.com', $this->uri->environment());
     }
 
     public function testBasename()

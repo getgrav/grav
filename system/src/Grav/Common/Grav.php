@@ -1,41 +1,89 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
-use Grav\Common\Config\Config;
-use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
-use Grav\Common\Page\Medium\Medium;
-use Grav\Common\Page\Page;
-use Grav\Common\Page\Pages;
-use Grav\Common\Service\ConfigServiceProvider;
-use Grav\Common\Service\ErrorServiceProvider;
-use Grav\Common\Service\LoggerServiceProvider;
-use Grav\Common\Service\StreamsServiceProvider;
-use Grav\Common\Twig\Twig;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\Event\EventDispatcher;
 
-/**
- * Grav
- *
- * @author  Andy Miller
- * @link    http://www.rockettheme.com
- * @license http://opensource.org/licenses/MIT
- *
- * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
- */
 class Grav extends Container
 {
-    /**
-     * @var string
-     */
-    public $output;
+
+    /** @var static The singleton instance */
+    protected static $instance;
 
     /**
-     * @var static
+     * @var array Contains all Services and ServicesProviders that are mapped
+     *            to the dependency injection container.
      */
-    protected static $instance;
+    protected static $diMap = [
+        'Grav\Common\Service\LoggerServiceProvider',
+        'Grav\Common\Service\ErrorServiceProvider',
+        'uri'                     => 'Grav\Common\Uri',
+        'events'                  => 'RocketTheme\Toolbox\Event\EventDispatcher',
+        'cache'                   => 'Grav\Common\Cache',
+        'session'                 => 'Grav\Common\Session',
+        'plugins'                 => 'Grav\Common\Plugins',
+        'themes'                  => 'Grav\Common\Themes',
+        'twig'                    => 'Grav\Common\Twig\Twig',
+        'taxonomy'                => 'Grav\Common\Taxonomy',
+        'language'                => 'Grav\Common\Language\Language',
+        'pages'                   => 'Grav\Common\Page\Pages',
+        'Grav\Common\Service\TaskServiceProvider',
+        'Grav\Common\Service\AssetsServiceProvider',
+        'Grav\Common\Service\PageServiceProvider',
+        'Grav\Common\Service\OutputServiceProvider',
+        'browser'                 => 'Grav\Common\Browser',
+        'Grav\Common\Service\StreamsServiceProvider',
+        'Grav\Common\Service\ConfigServiceProvider',
+        'inflector'               => 'Grav\Common\Inflector',
+        'siteSetupProcessor'      => 'Grav\Common\Processors\SiteSetupProcessor',
+        'configurationProcessor'  => 'Grav\Common\Processors\ConfigurationProcessor',
+        'errorsProcessor'         => 'Grav\Common\Processors\ErrorsProcessor',
+        'debuggerInitProcessor'   => 'Grav\Common\Processors\DebuggerInitProcessor',
+        'initializeProcessor'     => 'Grav\Common\Processors\InitializeProcessor',
+        'pluginsProcessor'        => 'Grav\Common\Processors\PluginsProcessor',
+        'themesProcessor'         => 'Grav\Common\Processors\ThemesProcessor',
+        'tasksProcessor'          => 'Grav\Common\Processors\TasksProcessor',
+        'assetsProcessor'         => 'Grav\Common\Processors\AssetsProcessor',
+        'twigProcessor'           => 'Grav\Common\Processors\TwigProcessor',
+        'pagesProcessor'          => 'Grav\Common\Processors\PagesProcessor',
+        'debuggerAssetsProcessor' => 'Grav\Common\Processors\DebuggerAssetsProcessor',
+        'renderProcessor'         => 'Grav\Common\Processors\RenderProcessor',
+    ];
+
+    /** @var array All processors that are processed in $this->process() */
+    protected $processors = [
+        'siteSetupProcessor',
+        'configurationProcessor',
+        'errorsProcessor',
+        'debuggerInitProcessor',
+        'initializeProcessor',
+        'pluginsProcessor',
+        'themesProcessor',
+        'tasksProcessor',
+        'assetsProcessor',
+        'twigProcessor',
+        'pagesProcessor',
+        'debuggerAssetsProcessor',
+        'renderProcessor',
+    ];
+
+    /**
+     * Reset the Grav instance.
+     */
+    public static function resetInstance()
+    {
+        if (self::$instance) {
+            self::$instance = null;
+        }
+    }
 
     /**
      * Return the Grav instance. Create it if it's not already instanced
@@ -48,9 +96,6 @@ class Grav extends Container
     {
         if (!self::$instance) {
             self::$instance = static::load($values);
-
-            GravTrait::setGrav(self::$instance);
-
         } elseif ($values) {
             $instance = self::$instance;
             foreach ($values as $key => $value) {
@@ -62,145 +107,6 @@ class Grav extends Container
     }
 
     /**
-     * Initialize and return a Grav instance
-     *
-     * @param array $values
-     *
-     * @return static
-     */
-    protected static function load(array $values)
-    {
-        $container = new static($values);
-
-        $container['grav'] = $container;
-
-        $container['debugger'] = new Debugger();
-        $container['debugger']->startTimer('_services', 'Services');
-
-        $container->register(new LoggerServiceProvider);
-
-        $container->register(new ErrorServiceProvider);
-
-        $container['uri'] = function ($c) {
-            /** @var Grav $c */
-            return new Uri($c);
-        };
-
-        $container['task'] = function ($c) {
-            /** @var Grav $c */
-            return !empty($_POST['task']) ? $_POST['task'] : $c['uri']->param('task');
-        };
-
-        $container['events'] = function () {
-            return new EventDispatcher;
-        };
-        $container['cache'] = function ($c) {
-            /** @var Grav $c */
-            return new Cache($c);
-        };
-        $container['session'] = function ($c) {
-            /** @var Grav $c */
-            return new Session($c);
-        };
-        $container['plugins'] = function () {
-            return new Plugins();
-        };
-        $container['themes'] = function ($c) {
-            /** @var Grav $c */
-            return new Themes($c);
-        };
-        $container['twig'] = function ($c) {
-            /** @var Grav $c */
-            return new Twig($c);
-        };
-        $container['taxonomy'] = function ($c) {
-            /** @var Grav $c */
-            return new Taxonomy($c);
-        };
-        $container['language'] = function ($c) {
-            /** @var Grav $c */
-            return new Language($c);
-        };
-
-        $container['pages'] = function ($c) {
-            /** @var Grav $c */
-            return new Pages($c);
-        };
-
-        $container['assets'] = new Assets();
-
-        $container['page'] = function ($c) {
-            /** @var Grav $c */
-
-            /** @var Pages $pages */
-            $pages = $c['pages'];
-            /** @var Language $language */
-            $language = $c['language'];
-
-            /** @var Uri $uri */
-            $uri = $c['uri'];
-
-            $path = $uri->path(); // Don't trim to support trailing slash default routes
-            $path = $path ?: '/';
-
-            $page = $pages->dispatch($path);
-
-            // Redirection tests
-            if ($page) {
-                // Language-specific redirection scenarios
-                if ($language->enabled()) {
-                    if ($language->isLanguageInUrl() && !$language->isIncludeDefaultLanguage()) {
-                        $c->redirect($page->route());
-                    }
-                    if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
-                        $c->redirectLangSafe($page->route());
-                    }
-                }
-                // Default route test and redirect
-                if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                    $c->redirectLangSafe($page->route());
-                }
-            }
-
-            // if page is not found, try some fallback stuff
-            if (!$page || !$page->routable()) {
-
-                // Try fallback URL stuff...
-                $c->fallbackUrl($path);
-
-                // If no page found, fire event
-                $event = $c->fireEvent('onPageNotFound');
-
-                if (isset($event->page)) {
-                    $page = $event->page;
-                } else {
-                    throw new \RuntimeException('Page Not Found', 404);
-                }
-            }
-
-            return $page;
-        };
-
-        $container['output'] = function ($c) {
-            /** @var Grav $c */
-            return $c['twig']->processSite($c['uri']->extension());
-        };
-
-        $container['browser'] = function () {
-            return new Browser();
-        };
-
-        $container->register(new StreamsServiceProvider);
-        $container->register(new ConfigServiceProvider);
-
-        $container['inflector'] = new Inflector();
-
-        $container['debugger']->stopTimer('_services');
-
-        return $container;
-    }
-
-    /**
      * Process a request
      */
     public function process()
@@ -208,95 +114,37 @@ class Grav extends Container
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
 
-        // Load site setup and initializing streams.
-        $debugger->startTimer('_setup', 'Site Setup');
-        $this['setup']->init();
-        $this['streams'];
-        $debugger->stopTimer('_setup');
-
-        // Initialize configuration.
-        $debugger->startTimer('_config', 'Configuration');
-        $this['config']->init();
-        $debugger->stopTimer('_config');
-
-        // Initialize error handlers.
-        $this['errors']->resetHandlers();
-
-        // Initialize debugger.
-        $debugger->init();
-        $debugger->startTimer('init', 'Initialize');
-        $this['config']->debug();
-
-        // Use output buffering to prevent headers from being sent too early.
-        ob_start();
-        if ($this['config']->get('system.cache.gzip')) {
-            // Enable zip/deflate with a fallback in case of if browser does not support compressing.
-            if (!ob_start("ob_gzhandler")) {
-                ob_start();
-            }
+        // process all processors (e.g. config, initialize, assets, ..., render)
+        foreach ($this->processors as $processor) {
+            $processor = $this[$processor];
+            $this->measureTime($processor->id, $processor->title, function () use ($processor) {
+                $processor->process();
+            });
         }
-
-        // Initialize the timezone.
-        if ($this['config']->get('system.timezone')) {
-            date_default_timezone_set($this['config']->get('system.timezone'));
-        }
-
-        // Initialize uri, session.
-        $this['uri']->init();
-        $this['session']->init();
-
-        // Initialize Locale if set and configured.
-        if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
-            setlocale(LC_ALL, $this['language']->getLanguage());
-        } elseif ($this['config']->get('system.default_locale')) {
-            setlocale(LC_ALL, $this['config']->get('system.default_locale'));
-        }
-
-        $debugger->stopTimer('init');
-
-        $debugger->startTimer('plugins', 'Plugins');
-        $this['plugins']->init();
-        $this->fireEvent('onPluginsInitialized');
-        $debugger->stopTimer('plugins');
-
-        $debugger->startTimer('themes', 'Themes');
-        $this['themes']->init();
-        $debugger->stopTimer('themes');
-
-        $task = $this['task'];
-        if ($task) {
-            $this->fireEvent('onTask.' . $task);
-        }
-
-        $this['assets']->init();
-        $this->fireEvent('onAssetsInitialized');
-
-        $debugger->startTimer('twig', 'Twig');
-        $this['twig']->init();
-        $debugger->stopTimer('twig');
-
-        $debugger->startTimer('pages', 'Pages');
-        $this['pages']->init();
-        $this->fireEvent('onPagesInitialized');
-        $debugger->stopTimer('pages');
-        $this->fireEvent('onPageInitialized');
-
-        $debugger->addAssets();
-
-        // Process whole page as required
-        $debugger->startTimer('render', 'Render');
-        $this->output = $this['output'];
-        $this->fireEvent('onOutputGenerated');
-        $debugger->stopTimer('render');
 
         // Set the header type
         $this->header();
+
         echo $this->output;
         $debugger->render();
 
         $this->fireEvent('onOutputRendered');
 
         register_shutdown_function([$this, 'shutdown']);
+    }
+
+    /**
+     * Set the system locale based on the language and configuration
+     */
+    public function setLocale()
+    {
+        // Initialize Locale if set and configured.
+        if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
+            $language = $this['language']->getLanguage();
+            setlocale(LC_ALL, count($language < 3) ? ($language . '_' . strtoupper($language)) : $language);
+        } elseif ($this['config']->get('system.default_locale')) {
+            setlocale(LC_ALL, $this['config']->get('system.default_locale'));
+        }
     }
 
     /**
@@ -473,9 +321,8 @@ class Grav extends Container
             $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
 
             if (!$success) {
-                // Unfortunately without FastCGI there is no way to close the connection. We need to ask browser to
-                // close the connection for us.
-
+                // Unfortunately without FastCGI there is no way to force close the connection.
+                // We need to ask browser to close the connection for us.
                 if ($this['config']->get('system.cache.gzip')) {
                     // Flush gzhandler buffer if gzip setting was enabled.
                     ob_end_flush();
@@ -486,11 +333,11 @@ class Grav extends Container
                     header('Content-Encoding: none');
                 }
 
+
                 // Get length and close the connection.
                 header('Content-Length: ' . ob_get_length());
                 header("Connection: close");
 
-                // Finally flush the regular buffer.
                 ob_end_flush();
                 @ob_flush();
                 flush();
@@ -502,12 +349,103 @@ class Grav extends Container
     }
 
     /**
+     * Magic Catch All Function
+     * Used to call closures like measureTime on the instance.
+     * Source: http://stackoverflow.com/questions/419804/closures-as-class-members
+     */
+    public function __call($method, $args)
+    {
+        $closure = $this->$method;
+        call_user_func_array($closure, $args);
+    }
+
+    /**
+     * Initialize and return a Grav instance
+     *
+     * @param  array $values
+     *
+     * @return static
+     */
+    protected static function load(array $values)
+    {
+        $container = new static($values);
+
+        $container['grav'] = $container;
+
+        $container['debugger'] = new Debugger();
+        $debugger = $container['debugger'];
+
+        // closure that measures time by wrapping a function into startTimer and stopTimer
+        // The debugger can be passed to the closure. Should be more performant
+        // then to get it from the container all time.
+        $container->measureTime = function ($timerId, $timerTitle, $callback) use ($debugger) {
+            $debugger->startTimer($timerId, $timerTitle);
+            $callback();
+            $debugger->stopTimer($timerId);
+        };
+
+        $container->measureTime('_services', 'Services', function () use ($container) {
+            $container->registerServices($container);
+        });
+
+        return $container;
+    }
+
+    /**
+     * Register all services
+     * Services are defined in the diMap. They can either only the class
+     * of a Service Provider or a pair of serviceKey => serviceClass that
+     * gets directly mapped into the container.
+     *
+     * @return void
+     */
+    protected function registerServices()
+    {
+        foreach (self::$diMap as $serviceKey => $serviceClass) {
+            if (is_int($serviceKey)) {
+                $this->registerServiceProvider($serviceClass);
+            } else {
+                $this->registerService($serviceKey, $serviceClass);
+            }
+        }
+    }
+
+    /**
+     * Register a service provider with the container.
+     *
+     * @param  string $serviceClass
+     *
+     * @return void
+     */
+    protected function registerServiceProvider($serviceClass)
+    {
+        $this->register(new $serviceClass);
+    }
+
+    /**
+     * Register a service with the container.
+     *
+     * @param  string $serviceKey
+     * @param  string $serviceClass
+     *
+     * @return void
+     */
+    protected function registerService($serviceKey, $serviceClass)
+    {
+        $this[$serviceKey] = function ($c) use ($serviceClass) {
+            return new $serviceClass($c);
+        };
+    }
+
+    /**
      * This attempts to find media, other files, and download them
      *
      * @param $path
      */
-    protected function fallbackUrl($path)
+    public function fallbackUrl($path)
     {
+      	$this->fireEvent('onPageFallBackUrl');
+
         /** @var Uri $uri */
         $uri = $this['uri'];
 
@@ -516,7 +454,7 @@ class Grav extends Container
 
         $uri_extension = $uri->extension();
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
-        $supported_types = $config->get('media');
+        $supported_types = $config->get('media.types');
 
         // Check whitelist first, then ensure extension is a valid media type
         if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {

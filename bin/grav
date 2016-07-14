@@ -32,15 +32,14 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
-$app = new Application('Grav CLI Application', '0.1.0');
+$app = new Application('Grav CLI Application', GRAV_VERSION);
 $app->addCommands(array(
-    new Grav\Console\Cli\InstallCommand(),
-    new Grav\Console\Cli\ComposerCommand(),
-    new Grav\Console\Cli\SandboxCommand(),
-    new Grav\Console\Cli\CleanCommand(),
-    new Grav\Console\Cli\ClearCacheCommand(),
-    new Grav\Console\Cli\BackupCommand(),
-    new Grav\Console\Cli\NewProjectCommand(),
-    new Grav\Console\Cli\NewUserCommand(),
+    new \Grav\Console\Cli\InstallCommand(),
+    new \Grav\Console\Cli\ComposerCommand(),
+    new \Grav\Console\Cli\SandboxCommand(),
+    new \Grav\Console\Cli\CleanCommand(),
+    new \Grav\Console\Cli\ClearCacheCommand(),
+    new \Grav\Console\Cli\BackupCommand(),
+    new \Grav\Console\Cli\NewProjectCommand(),
 ));
 $app->run();

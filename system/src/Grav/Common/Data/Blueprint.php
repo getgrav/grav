@@ -1,87 +1,57 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
-use Grav\Common\GravTrait;
-use RocketTheme\Toolbox\ArrayTraits\Export;
-use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
-use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
+use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\Grav;
+use RocketTheme\Toolbox\Blueprints\BlueprintForm;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * Blueprint handles the inside logic of blueprints.
- *
- * @author RocketTheme
- * @license MIT
- */
-class Blueprint implements \ArrayAccess, ExportInterface
+class Blueprint extends BlueprintForm
 {
-    use Export, NestedArrayAccessWithGetters, GravTrait;
-
-    public $name;
-
-    public $initialized = false;
-
-    protected $items;
-    protected $context;
-    protected $fields;
-    protected $rules = array();
-    protected $nested = array();
-    protected $filter = ['validation' => 1];
-
     /**
-     * @param string $name
-     * @param array  $data
-     * @param Blueprints $context
+     * @var string
      */
-    public function __construct($name, array $data = array(), Blueprints $context = null)
-    {
-        $this->name = $name;
-        $this->items = $data;
-        $this->context = $context;
-    }
+    protected $context = 'blueprints://';
 
     /**
-     * Set filter for inherited properties.
+     * @var BlueprintSchema
+     */
+    protected $blueprintSchema;
+
+    /**
+     * Set default values for field types.
      *
-     * @param array $filter     List of field names to be inherited.
+     * @param array $types
+     * @return $this
      */
-    public function setFilter(array $filter)
+    public function setTypes(array $types)
     {
-        $this->filter = array_flip($filter);
+        $this->initInternals();
+
+        $this->blueprintSchema->setTypes($types);
+
+        return $this;
     }
 
     /**
-     * Return all form fields.
+     * Get nested structure containing default values defined in the blueprints.
+     *
+     * Fields without default value are ignored in the list.
      *
      * @return array
      */
-    public function fields()
+    public function getDefaults()
     {
-        if (!isset($this->fields)) {
-            $this->fields = [];
-            $this->embed('', $this->items);
-        }
+        $this->initInternals();
 
-        return $this->fields;
-    }
-
-    /**
-     * Validate data against blueprints.
-     *
-     * @param  array $data
-     * @throws \RuntimeException
-     */
-    public function validate(array $data)
-    {
-        // Initialize data
-        $this->fields();
-
-        try {
-            $this->validateArray($data, $this->nested);
-        } catch (\RuntimeException $e) {
-            $language = self::getGrav()['language'];
-            $message = sprintf($language->translate('FORM.VALIDATION_FAIL', null, true) . ' %s', $e->getMessage());
-            throw new \RuntimeException($message);
-        }
+        return $this->blueprintSchema->getDefaults();
     }
 
     /**
@@ -89,26 +59,15 @@ class Blueprint implements \ArrayAccess, ExportInterface
      *
      * @param  array $data1
      * @param  array $data2
+     * @param  string $name         Optional
+     * @param  string $separator    Optional
      * @return array
      */
-    public function mergeData(array $data1, array $data2)
+    public function mergeData(array $data1, array $data2, $name = null, $separator = '.')
     {
-        // Initialize data
-        $this->fields();
-        return $this->mergeArrays($data1, $data2, $this->nested);
-    }
+        $this->initInternals();
 
-    /**
-     * Filter data by using blueprints.
-     *
-     * @param  array $data
-     * @return array
-     */
-    public function filter(array $data)
-    {
-        // Initialize data
-        $this->fields();
-        return $this->filterArray($data, $this->nested);
+        return $this->blueprintSchema->mergeData($data1, $data2, $name, $separator);
     }
 
     /**
@@ -120,357 +79,164 @@ class Blueprint implements \ArrayAccess, ExportInterface
      */
     public function extra(array $data, $prefix = '')
     {
-        // Initialize data
-        $this->fields();
-        $rules = $this->nested;
+        $this->initInternals();
 
-        // Drill down to prefix level
-        if (!empty($prefix)) {
-            $parts = explode('.', trim($prefix, '.'));
-            foreach ($parts as $part) {
-                $rules = isset($rules[$part]) ? $rules[$part] : [];
-            }
-        }
-
-        return $this->extraArray($data, $rules, $prefix);
+        return $this->blueprintSchema->extra($data, $prefix);
     }
 
     /**
-     * Extend blueprint with another blueprint.
+     * Validate data against blueprints.
      *
-     * @param Blueprint $extends
-     * @param bool $append
-     */
-    public function extend(Blueprint $extends, $append = false)
-    {
-        $blueprints = $append ? $this->items : $extends->toArray();
-        $appended = $append ? $extends->toArray() : $this->items;
-
-        $bref_stack = array(&$blueprints);
-        $head_stack = array($appended);
-
-        do {
-            end($bref_stack);
-
-            $bref = &$bref_stack[key($bref_stack)];
-            $head = array_pop($head_stack);
-
-            unset($bref_stack[key($bref_stack)]);
-
-            foreach (array_keys($head) as $key) {
-                if (isset($key, $bref[$key]) && is_array($bref[$key]) && is_array($head[$key])) {
-                    $bref_stack[] = &$bref[$key];
-                    $head_stack[] = $head[$key];
-                } else {
-                    $bref = array_merge($bref, array($key => $head[$key]));
-                }
-            }
-        } while (count($head_stack));
-
-        $this->items = $blueprints;
-    }
-
-    /**
-     * Convert object into an array.
-     *
-     * @return array
-     */
-    public function getState()
-    {
-        return ['name' => $this->name, 'items' => $this->items, 'rules' => $this->rules, 'nested' => $this->nested];
-    }
-
-    /**
-     * Embed an array to the blueprint.
-     *
-     * @param $name
-     * @param array $value
-     * @param string $separator
-     */
-    public function embed($name, array $value, $separator = '.')
-    {
-
-        if (!isset($value['form']['fields']) || !is_array($value['form']['fields'])) {
-            return;
-        }
-        // Initialize data
-        $this->fields();
-        $prefix = $name ? strtr($name, $separator, '.') . '.' : '';
-        $params = array_intersect_key($this->filter, $value);
-        $this->parseFormFields($value['form']['fields'], $params, $prefix, $this->fields);
-    }
-
-    /**
-     * @param array $data
-     * @param array $rules
+     * @param  array $data
      * @throws \RuntimeException
-     * @internal
      */
-    protected function validateArray(array $data, array $rules)
+    public function validate(array $data)
     {
-        $this->checkRequired($data, $rules);
+        $this->initInternals();
 
-        foreach ($data as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : null;
-            $rule = is_string($val) ? $this->rules[$val] : null;
-
-            if ($rule) {
-                // Item has been defined in blueprints.
-                Validation::validate($field, $rule);
-            } elseif (is_array($field) && is_array($val)) {
-                // Array has been defined in blueprints.
-                $this->validateArray($field, $val);
-            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
-                 // Undefined/extra item.
-                 throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
-            }
-        }
+        $this->blueprintSchema->validate($data);
     }
 
     /**
-     * @param array $data
-     * @param array $rules
-     * @return array
-     * @internal
-     */
-    protected function filterArray(array $data, array $rules)
-    {
-        $results = array();
-        foreach ($data as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : null;
-            $rule = is_string($val) ? $this->rules[$val] : null;
-
-            if ($rule) {
-                // Item has been defined in blueprints.
-                $field = Validation::filter($field, $rule);
-            } elseif (is_array($field) && is_array($val)) {
-                // Array has been defined in blueprints.
-                $field = $this->filterArray($field, $val);
-            } elseif (isset($this->items['form']['validation']) && $this->items['form']['validation'] == 'strict') {
-                $field = null;
-            }
-
-            if (isset($field) && (!is_array($field) || !empty($field))) {
-                $results[$key] = $field;
-            }
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param array $data1
-     * @param array $data2
-     * @param array $rules
-     * @return array
-     * @internal
-     */
-    protected function mergeArrays(array $data1, array $data2, array $rules)
-    {
-        foreach ($data2 as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : null;
-            $rule = is_string($val) ? $this->rules[$val] : null;
-
-            if (!$rule && array_key_exists($key, $data1) && is_array($field) && is_array($val)) {
-                // Array has been defined in blueprints.
-                $data1[$key] = $this->mergeArrays($data1[$key], $field, $val);
-            } else {
-                // Otherwise just take value from the data2.
-                $data1[$key] = $field;
-            }
-        }
-
-        return $data1;
-    }
-
-    /**
-     * @param array $data
-     * @param array $rules
-     * @param string $prefix
-     * @return array
-     * @internal
-     */
-    protected function extraArray(array $data, array $rules, $prefix)
-    {
-        $array = array();
-        foreach ($data as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : null;
-            $rule = is_string($val) ? $this->rules[$val] : null;
-
-            if ($rule) {
-                // Item has been defined in blueprints.
-            } elseif (is_array($field) && is_array($val)) {
-                // Array has been defined in blueprints.
-                $array += $this->ExtraArray($field, $val, $prefix . $key . '.');
-            } else {
-                // Undefined/extra item.
-                $array[$prefix.$key] = $field;
-            }
-        }
-        return $array;
-    }
-
-    /**
-	 * Gets all field definitions from the blueprints.
-	 *
-	 * @param array $fields
-	 * @param array $params
-	 * @param string $prefix
-	 * @param array $current
-	 * @internal
-	 */
-	protected function parseFormFields(array &$fields, $params, $prefix, array &$current)
-	{
-		// Go though all the fields in current level.
-		foreach ($fields as $key => &$field) {
-			$current[$key] = &$field;
-			// Set name from the array key.
-			$field['name'] = $prefix . $key;
-			$field += $params;
-
-			if (isset($field['fields']) && (!isset($field['type']) || $field['type'] !== 'list')) {
-				// Recursively get all the nested fields.
-				$newParams = array_intersect_key($this->filter, $field);
-				$this->parseFormFields($field['fields'], $newParams, $prefix, $current[$key]['fields']);
-			} else if ($field['type'] !== 'ignore') {
-                $this->rules[$prefix . $key] = &$field;
-                $this->addProperty($prefix . $key);
-
-                if ($field['type'] === 'list') {
-                    // we loop through list to get the actual field
-                    if (isset($field['fields']) && $field['fields']) {
-                        foreach($field['fields'] as $subName => &$subField) {
-                            $this->parseFormField($subField);
-                        }
-                    }
-                } else {
-                    $this->parseFormField($field);
-                }
-
-                if (isset($field['validate']['rule']) && $field['type'] !== 'ignore') {
-                    $field['validate'] += $this->getRule($field['validate']['rule']);
-                }
-            }
-		}
-	}
-	/**
-	 * Parses individual field definition
-	 *
-	 * @param array $field
-	 * @internal
-	 */
-	protected function parseFormField(&$field) {
-		foreach ($field as $name => $value) {
-			// Support nested blueprints.
-			if ($this->context && $name == '@import') {
-				$values = (array) $value;
-				if (!isset($field['fields'])) {
-					$field['fields'] = array();
-				}
-				foreach ($values as $bname) {
-					$b = $this->context->get($bname);
-					$field['fields'] = array_merge($field['fields'], $b->fields());
-				}
-			}
-
-			// Support for callable data values.
-			elseif (substr($name, 0, 6) == '@data-') {
-				$property = substr($name, 6);
-				if (is_array($value)) {
-					$func = array_shift($value);
-				} else {
-					$func = $value;
-					$value = array();
-				}
-				list($o, $f) = preg_split('/::/', $func);
-				if (!$f && function_exists($o)) {
-					$data = call_user_func_array($o, $value);
-				} elseif ($f && method_exists($o, $f)) {
-					$data = call_user_func_array(array($o, $f), $value);
-				}
-
-				// If function returns a value,
-				if (isset($data)) {
-					if (isset($field[$property]) && is_array($field[$property]) && is_array($data)) {
-						// Combine field and @data-field together.
-						$field[$property] += $data;
-					} else {
-						// Or create/replace field with @data-field.
-						$field[$property] = $data;
-					}
-				}
-			}
-
-			elseif (substr($name, 0, 8) == '@config-') {
-				$property = substr($name, 8);
-				$default = isset($field[$property]) ? $field[$property] : null;
-				$config = self::getGrav()['config']->get($value, $default);
-
-				if (!is_null($config)) {
-					$field[$property] = $config;
-				}
-			}
-		}
-	}
-
-    /**
-     * Add property to the definition.
+     * Filter data by using blueprints.
      *
-     * @param  string  $path  Comma separated path to the property.
-     * @internal
-     */
-    protected function addProperty($path)
-    {
-        $parts = explode('.', $path);
-        $item = array_pop($parts);
-
-        $nested = &$this->nested;
-        foreach ($parts as $part) {
-            if (!isset($nested[$part])) {
-                $nested[$part] = array();
-            }
-            $nested = &$nested[$part];
-        }
-
-        if (!isset($nested[$item])) {
-            $nested[$item] = $path;
-        }
-    }
-
-    /**
-     * @param $rule
+     * @param  array $data
      * @return array
-     * @internal
      */
-    protected function getRule($rule)
+    public function filter(array $data)
     {
-        if (isset($this->items['rules'][$rule]) && is_array($this->items['rules'][$rule])) {
-            return $this->items['rules'][$rule];
-        }
-        return array();
+        $this->initInternals();
+
+        return $this->blueprintSchema->filter($data);
     }
 
     /**
-     * @param array $data
-     * @param array $fields
-     * @throws \RuntimeException
-     * @internal
+     * Initialize validator.
      */
-    protected function checkRequired(array $data, array $fields)
+    protected function initInternals()
     {
-        foreach ($fields as $name => $field) {
-            if (!is_string($field)) {
-                continue;
+        if (!isset($this->blueprintSchema)) {
+            $types = Grav::instance()['plugins']->formFieldTypes;
+
+            $this->blueprintSchema = new BlueprintSchema;
+            if ($types) {
+                $this->blueprintSchema->setTypes($types);
             }
-            $field = $this->rules[$field];
-            if (isset($field['validate']['required'])
-                && $field['validate']['required'] === true
-                && empty($data[$name])) {
-                $value = isset($field['label']) ? $field['label'] : $field['name'];
-                $language = self::getGrav()['language'];
-                $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $value);
-                throw new \RuntimeException($message);
+            $this->blueprintSchema->embed('', $this->items);
+            $this->blueprintSchema->init();
+        }
+    }
+
+    /**
+     * @param string $filename
+     * @return string
+     */
+    protected function loadFile($filename)
+    {
+        $file = CompiledYamlFile::instance($filename);
+        $content = $file->content();
+        $file->free();
+
+        return $content;
+    }
+
+    /**
+     * @param string|array $path
+     * @param string $context
+     * @return array
+     */
+    protected function getFiles($path, $context = null)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        if (is_string($path) && !$locator->isStream($path)) {
+            // Find path overrides.
+            $paths = isset($this->overrides[$path]) ? (array) $this->overrides[$path] : [];
+
+            // Add path pointing to default context.
+            if ($context === null) {
+                $context = $this->context;
             }
+            if ($context && $context[strlen($context)-1] !== '/') {
+                $context .= '/';
+            }
+            $path = $context . $path;
+
+            if (!preg_match('/\.yaml$/', $path)) {
+                $path .= '.yaml';
+            }
+
+            $paths[] = $path;
+        } else {
+            $paths = (array) $path;
+        }
+
+        $files = [];
+        foreach ($paths as $lookup) {
+            if (is_string($lookup) && strpos($lookup, '://')) {
+                $files = array_merge($files, $locator->findResources($lookup));
+            } else {
+                $files[] = $lookup;
+            }
+        }
+
+        return array_values(array_unique($files));
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicData(array &$field, $property, array &$call)
+    {
+        $params = $call['params'];
+
+        if (is_array($params)) {
+            $function = array_shift($params);
+        } else {
+            $function = $params;
+            $params = [];
+        }
+
+        list($o, $f) = preg_split('/::/', $function, 2);
+        if (!$f) {
+            if (function_exists($o)) {
+                $data = call_user_func_array($o, $params);
+            }
+        } else {
+            if (method_exists($o, $f)) {
+                $data = call_user_func_array(array($o, $f), $params);
+            }
+        }
+
+        // If function returns a value,
+        if (isset($data)) {
+            if (isset($field[$property]) && is_array($field[$property]) && is_array($data)) {
+                // Combine field and @data-field together.
+                $field[$property] += $data;
+            } else {
+                // Or create/replace field with @data-field.
+                $field[$property] = $data;
+            }
+        }
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicConfig(array &$field, $property, array &$call)
+    {
+        $value = $call['params'];
+
+        $default = isset($field[$property]) ? $field[$property] : null;
+        $config = Grav::instance()['config']->get($value, $default);
+
+        if (!is_null($config)) {
+            $field[$property] = $config;
         }
     }
 }

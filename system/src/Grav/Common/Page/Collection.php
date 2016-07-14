@@ -1,16 +1,17 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
 use Grav\Common\Utils;
 
-/**
- * Collection of Pages.
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Collection extends Iterator
 {
     /**
@@ -247,7 +248,7 @@ class Collection extends Iterator
      *
      * @param  string $path the path the item
      *
-     * @return Page    Item in the array the the current position.
+     * @return Integer   the index of the current page.
      */
     public function currentPosition($path)
     {
@@ -270,22 +271,21 @@ class Collection extends Iterator
     public function dateRange($startDate, $endDate = false, $field = false)
     {
         $start = Utils::date2timestamp($startDate);
-        $end = $endDate ? Utils::date2timestamp($endDate) : strtotime("now +1000 years");
+        $end = $endDate ? Utils::date2timestamp($endDate) : false;
 
         $date_range = [];
-
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
             if ($page !== null) {
                 $date = $field ? strtotime($page->value($field)) : $page->date();
 
-                if ($date > $start && $date < $end) {
+                if ($date >= $start && (!$end || $date <= $end)) {
                     $date_range[$path] = $slug;
                 }
             }
         }
-        $this->items = $date_range;
 
+        $this->items = $date_range;
         return $this;
     }
 

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Data\Data;
@@ -7,15 +14,20 @@ use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
+use Symfony\Component\Console\Exception\LogicException;
 
-/**
- * The Plugin object just holds the id and path to a plugin.
- *
- * @author  RocketTheme
- * @license MIT
- */
-class Plugin implements EventSubscriberInterface
+class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var array
+     */
+    public $features = [];
+
     /**
      * @var Grav
      */
@@ -27,10 +39,7 @@ class Plugin implements EventSubscriberInterface
     protected $config;
 
     protected $active = true;
-    /**
-     * @var \Grav\Common\string
-     */
-    protected $name;
+    protected $blueprint;
 
     /**
      * By default assign all methods as listeners using the default priority.
@@ -58,20 +67,42 @@ class Plugin implements EventSubscriberInterface
      * @param Grav   $grav
      * @param Config $config
      */
-    public function __construct($name, Grav $grav, Config $config)
+    public function __construct($name, Grav $grav, Config $config = null)
     {
-        $this->grav = $grav;
-        $this->config = $config;
         $this->name = $name;
+        $this->grav = $grav;
+        if ($config) {
+            $this->setConfig($config);
+        }
     }
 
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * Get configuration of the plugin.
+     *
+     * @return Config
+     */
+    public function config()
+    {
+        return $this->config["plugins.{$this->name}"];
+    }
+
+    /**
+     * @return bool
+     */
     public function isAdmin()
     {
-        if (isset($this->grav['admin'])) {
-            return true;
-        }
-
-        return false;
+        return Utils::isAdminPlugin();
     }
 
     /**
@@ -114,6 +145,59 @@ class Plugin implements EventSubscriberInterface
                 }
             }
         }
+    }
+
+    /**
+     * Whether or not an offset exists.
+     *
+     * @param mixed $offset  An offset to check for.
+     * @return bool          Returns TRUE on success or FALSE on failure.
+     */
+    public function offsetExists($offset)
+    {
+        $this->loadBlueprint();
+
+        if ($offset === 'title') {
+            $offset = 'name';
+        }
+        return isset($this->blueprint[$offset]);
+    }
+
+    /**
+     * Returns the value at specified offset.
+     *
+     * @param mixed $offset  The offset to retrieve.
+     * @return mixed         Can return all value types.
+     */
+    public function offsetGet($offset)
+    {
+        $this->loadBlueprint();
+
+        if ($offset === 'title') {
+            $offset = 'name';
+        }
+        return isset($this->blueprint[$offset]) ? $this->blueprint[$offset] : null;
+    }
+
+    /**
+     * Assigns a value to the specified offset.
+     *
+     * @param mixed $offset  The offset to assign the value to.
+     * @param mixed $value   The value to set.
+     */
+    public function offsetSet($offset, $value)
+    {
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+    }
+
+    /**
+     * Unsets an offset.
+     *
+     * @param mixed $offset  The offset to unset.
+     */
+    public function offsetUnset($offset)
+    {
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
@@ -200,13 +284,39 @@ class Plugin implements EventSubscriberInterface
             return false;
         }
 
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
         $filename = 'config://plugins/' . $plugin_name . '.yaml';
         $file = YamlFile::instance($locator->findResource($filename, true, true));
-        $content = Grav::instance()['config']->get('plugins.' . $plugin_name);
+        $content = $grav['config']->get('plugins.' . $plugin_name);
         $file->save($content);
         $file->free();
 
         return true;
+    }
+
+    /**
+     * Simpler getter for the plugin blueprint
+     *
+     * @return mixed
+     */
+    public function getBlueprint()
+    {
+        if (!$this->blueprint) {
+            $this->loadBlueprint();
+        }
+        return $this->blueprint;
+    }
+
+    /**
+     * Load blueprints.
+     */
+    protected function loadBlueprint()
+    {
+        if (!$this->blueprint) {
+            $grav = Grav::instance();
+            $plugins = $grav['plugins'];
+            $this->blueprint = $plugins->get($this->name)->blueprints();
+        }
     }
 }

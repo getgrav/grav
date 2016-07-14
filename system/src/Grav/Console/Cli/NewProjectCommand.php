@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
@@ -6,10 +13,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * Class NewProjectCommand
- * @package Grav\Console\Cli
- */
 class NewProjectCommand extends ConsoleCommand
 {
     /**
@@ -43,17 +46,17 @@ class NewProjectCommand extends ConsoleCommand
         $sandboxCommand = $this->getApplication()->find('sandbox');
         $installCommand = $this->getApplication()->find('install');
 
-        $sandboxArguments = new ArrayInput(array(
+        $sandboxArguments = new ArrayInput([
             'command'     => 'sandbox',
             'destination' => $this->input->getArgument('destination'),
             '-s'          => $this->input->getOption('symlink')
-        ));
+        ]);
 
-        $installArguments = new ArrayInput(array(
+        $installArguments = new ArrayInput([
             'command'     => 'install',
             'destination' => $this->input->getArgument('destination'),
             '-s'          => $this->input->getOption('symlink')
-        ));
+        ]);
 
         $sandboxCommand->run($sandboxArguments, $this->output);
         $installCommand->run($installArguments, $this->output);

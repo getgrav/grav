@@ -17,19 +17,21 @@
         "symfony/polyfill-iconv": "~1.0",
         "doctrine/cache": "~1.5",
         "filp/whoops": "~2.0",
+        "matthiasmullie/minify": "^1.3",
         "monolog/monolog": "~1.0",
         "gregwar/image": "~2.0",
-        "mrclay/minify": "~2.2",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
-        "rockettheme/toolbox": "~1.2",
+        "rockettheme/toolbox": "dev-develop",
         "maximebf/debugbar": "~1.10",
         "ext-mbstring": "*",
         "ext-openssl": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-zip": "*"
     },
     "require-dev": {
         "codeception/codeception": "^2.1",
+        "phpunit/php-code-coverage": "~2.0",
         "fzaninotto/faker": "^1.5"
     },
     "autoload": {

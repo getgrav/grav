@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use DebugBar\DataCollector\ConfigCollector;
@@ -6,10 +13,6 @@ use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
 
-/**
- * Class Debugger
- * @package Grav\Common
- */
 class Debugger
 {
     /** @var Grav $grav */

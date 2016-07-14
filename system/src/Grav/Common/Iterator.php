@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
@@ -8,10 +15,6 @@ use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\Serializable;
 
-/**
- * Class Iterator
- * @package Grav\Common
- */
 class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
 {
     use Constructor, ArrayAccessWithGetters, ArrayIterator, Countable, Serializable, Export;

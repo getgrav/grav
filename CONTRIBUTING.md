@@ -55,6 +55,8 @@ Guidelines for bug reports:
 6. **Isolate the problem** &mdash; create a [reduced test
    case](http://css-tricks.com/reduced-test-cases/) and provide a step-by-step instruction set on how to recreate the problem. Include code samples, page snippets or yaml configurations if needed.
 
+7. **Check the problem on Grav 1.1** &mdash; if you're using Grav 1.0, latest stable release, please also check if you can replicate the issue on Grav 1.1 RC as many bugs are already solved in the next Grav release.
+
 A good bug report shouldn't leave others needing to chase you up for more
 information. Please try to be as detailed as possible in your report.
 

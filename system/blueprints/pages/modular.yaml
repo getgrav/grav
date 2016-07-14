@@ -18,7 +18,7 @@ form:
               label: PLUGIN_ADMIN.ITEMS
               default: '@self.modular'
               options:
-                '@self.modular': Children
+                '@self.modular': Modular Children
 
             header.content.order.by:
               type: select

@@ -1,27 +1,31 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
+use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-/**
- * Class UninstallCommand
- * @package Grav\Console\Gpm
- */
 class UninstallCommand extends ConsoleCommand
 {
     /**
      * @var
      */
     protected $data;
-    /**
-     * @var
-     */
+
+    /** @var GPM */
     protected $gpm;
+
     /**
      * @var
      */
@@ -97,7 +101,6 @@ class UninstallCommand extends ConsoleCommand
         foreach ($this->data as $slug => $package) {
             $this->output->writeln("Preparing to uninstall <cyan>" . $package->name . "</cyan> [v" . $package->version . "]");
 
-
             $this->output->write("  |- Checking destination...  ");
             $checks = $this->checkDestination($slug, $package);
 
@@ -116,6 +119,7 @@ class UninstallCommand extends ConsoleCommand
                     $this->output->writeln('');
                 }
             }
+
         }
 
         // clear cache after successful upgrade
@@ -129,9 +133,31 @@ class UninstallCommand extends ConsoleCommand
      *
      * @return bool
      */
-    private function uninstallPackage($slug, $package)
+    private function uninstallPackage($slug, $package, $is_dependency = false)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' .$slug);
+        if (!$slug) {
+            return false;
+        }
+
+        //check if there are packages that have this as a dependency. Abort and show list
+        $dependent_packages = $this->gpm->getPackagesThatDependOnPackage($slug);
+        if (count($dependent_packages) > ($is_dependency ? 1 : 0)) {
+            $this->output->writeln('');
+            $this->output->writeln('');
+            $this->output->writeln("<red>Uninstallation failed.</red>");
+            $this->output->writeln('');
+            if (count($dependent_packages) > ($is_dependency ? 2 : 1)) {
+                $this->output->writeln("The installed packages <cyan>" . implode('</cyan>, <cyan>', $dependent_packages) . "</cyan> depends on this package. Please remove those first.");
+            } else {
+                $this->output->writeln("The installed package <cyan>" . implode('</cyan>, <cyan>', $dependent_packages) . "</cyan> depends on this package. Please remove it first.");
+            }
+
+            $this->output->writeln('');
+            return false;
+        }
+
+        $locator = Grav::instance()['locator'];
+        $path = $locator->findResource($package->package_type . '://' . $slug);
         Installer::uninstall($path);
         $errorCode = Installer::lastErrorCode();
 
@@ -144,9 +170,48 @@ class UninstallCommand extends ConsoleCommand
             return false;
         }
 
+        $message = Installer::getMessage();
+        if ($message) {
+            $this->output->write("\x0D");
+            // extra white spaces to clear out the buffer properly
+            $this->output->writeln("  |- " . $message);
+        }
+
         $this->output->write("\x0D");
         // extra white spaces to clear out the buffer properly
         $this->output->writeln("  |- Uninstalling package...  <green>ok</green>                             ");
+
+
+        if (isset($package->dependencies)) {
+            $questionHelper = $this->getHelper('question');
+
+            foreach($package->dependencies as $dependency) {
+                if (is_array($dependency)) {
+                    $dependency = $dependency['name'];
+                }
+                if ($dependency === 'grav') {
+                    continue;
+                }
+
+                $dependencyPackage = $this->gpm->findPackage($dependency);
+                $question = new ConfirmationQuestion("  |  '- Delete dependency <cyan>" . $dependency . "</cyan> too? [y|N] ", false);
+                $answer = $questionHelper->ask($this->input, $this->output, $question);
+
+                if ($answer) {
+                    $this->output->writeln("  |     '- <red>You decided to delete " . $dependency . ".</red>");
+
+                    $uninstall = $this->uninstallPackage($dependency, $dependencyPackage, true);
+
+                    if (!$uninstall) {
+                        $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
+                        $this->output->writeln('');
+                    } else {
+                        $this->output->writeln("  '- <green>Success!</green>  ");
+                        $this->output->writeln('');
+                    }
+                }
+            }
+        }
 
         return true;
     }
@@ -160,7 +225,7 @@ class UninstallCommand extends ConsoleCommand
 
     private function checkDestination($slug, $package)
     {
-        $path = self::getGrav()['locator']->findResource($package->package_type . '://' . $slug);
+        $path = Grav::instance()['locator']->findResource($package->package_type . '://' . $slug);
         $questionHelper = $this->getHelper('question');
         $skipPrompt = $this->input->getOption('all-yes');
 

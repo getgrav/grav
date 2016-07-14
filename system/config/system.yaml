@@ -4,7 +4,7 @@ default_locale:                             # Default locale (defaults to system
 param_sep: ':'                              # Parameter separator, use ';' for Apache on windows
 wrapped_site: false                         # For themes/plugins to know if Grav is wrapped by another platform
 reverse_proxy_setup: false                  # Running in a reverse proxy scenario with different webserver ports than proxy
-proxy_url:                                  # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+
 
 languages:
   supported: []                             # List of languages supported. eg: [en, fr, de]
@@ -59,6 +59,9 @@ pages:
   ignore_folders: [.git, .idea]             # Folders to ignore in Pages
   ignore_hidden: true                       # Ignore all Hidden files and folders
   url_taxonomy_filters: true                # Enable auto-magic URL-based taxonomy filters for page collections
+  frontmatter:
+    process_twig: false                     # Should the frontmatter be processed to replace Twig variables?
+    ignore_fields: ['form']                 # Fields that might contain Twig variables and should not be processed
 
 cache:
   enabled: true                             # Set to true to enable caching
@@ -71,7 +74,7 @@ cache:
 
 twig:
   cache: true                               # Set to true to enable twig caching
-  debug: false                              # Enable Twig debug
+  debug: true                               # Enable Twig debug
   auto_reload: true                         # Refresh cache on changes
   autoescape: false                         # Autoescape Twig vars
   undefined_functions: true                 # Allow undefined functions
@@ -80,10 +83,14 @@ twig:
 
 assets:                                     # Configuration for Assets Manager (JS, CSS)
   css_pipeline: false                       # The CSS pipeline is the unification of multiple CSS resources into one file
+  css_pipeline_include_externals: true      # Include external URLs in the pipeline by default
+  css_pipeline_before_excludes: true        # Render the pipeline before any excluded files
   css_minify: true                          # Minify the CSS during pipelining
   css_minify_windows: false                 # Minify Override for Windows platforms. False by default due to ThreadStackSize
   css_rewrite: true                         # Rewrite any CSS relative URLs during pipelining
   js_pipeline: false                        # The JS pipeline is the unification of multiple JS resources into one file
+  js_pipeline_include_externals: true       # Include external URLs in the pipeline by default
+  js_pipeline_before_excludes: true         # Render the pipeline before any excluded files
   js_minify: true                           # Minify the JS during pipelining
   enable_asset_timestamp: false             # Enable asset timestamps
   collections:
@@ -116,3 +123,7 @@ session:
   name: grav-site                           # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   secure: false                             # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
   httponly: true                            # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
+
+gpm:
+  releases: testing                           # Set to either 'stable' or 'testing'
+  proxy_url:                                  # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)

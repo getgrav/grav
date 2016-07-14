@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Grav\Common\Cache;
@@ -15,12 +22,6 @@ use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
 
-/**
- * Pages is the class that is the entry point into the hierarchy of pages
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Pages
 {
     /**
@@ -288,14 +289,29 @@ class Pages
     }
 
     /**
-     * Dispatch URI to a page.
+     * alias method to return find a page.
      *
      * @param string $url The relative URL of the page
      * @param bool   $all
      *
      * @return Page|null
      */
-    public function dispatch($url, $all = false)
+    public function find($url, $all = false)
+    {
+        return $this->dispatch($url, $all, false);
+    }
+
+    /**
+     * Dispatch URI to a page.
+     *
+     * @param string $url The relative URL of the page
+     * @param bool $all
+     *
+     * @param bool $redirect
+     * @return Page|null
+     * @throws \Exception
+     */
+    public function dispatch($url, $all = false, $redirect = true)
     {
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
@@ -308,49 +324,52 @@ class Pages
         $not_admin = !isset($this->grav['admin']);
 
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && $not_admin && (!$page || ($page && !$page->routable()) || ($page && $page->redirect()))) {
+        if (!$all && $not_admin) {
 
             // If the page is a simple redirect, just do it.
-            if ($page && $page->redirect()) {
+            if ($redirect && $page && $page->redirect()) {
                 $this->grav->redirectLangSafe($page->redirect());
             }
 
-            /** @var Config $config */
-            $config = $this->grav['config'];
+            // fall back and check site based redirects
+            if (!$page || ($page && !$page->routable())) {
+                /** @var Config $config */
+                $config = $this->grav['config'];
 
-            // See if route matches one in the site configuration
-            $route = $config->get("site.routes.{$url}");
-            if ($route) {
-                $page = $this->dispatch($route, $all);
-            } else {
-                // Try Regex style redirects
-                $site_redirects = $config->get("site.redirects");
-                if (is_array($site_redirects)) {
-                    foreach ((array)$site_redirects as $pattern => $replace) {
-                        $pattern = '#' . $pattern . '#';
-                        try {
-                            $found = preg_replace($pattern, $replace, $url);
-                            if ($found != $url) {
-                                $this->grav->redirectLangSafe($found);
+                // See if route matches one in the site configuration
+                $route = $config->get("site.routes.{$url}");
+                if ($route) {
+                    $page = $this->dispatch($route, $all);
+                } else {
+                    // Try Regex style redirects
+                    $site_redirects = $config->get("site.redirects");
+                    if (is_array($site_redirects)) {
+                        foreach ((array)$site_redirects as $pattern => $replace) {
+                            $pattern = '#' . $pattern . '#';
+                            try {
+                                $found = preg_replace($pattern, $replace, $url);
+                                if ($found != $url) {
+                                    $this->grav->redirectLangSafe($found);
+                                }
+                            } catch (ErrorException $e) {
+                                $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                             }
-                        } catch (ErrorException $e) {
-                            $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                         }
                     }
-                }
 
-                // Try Regex style routes
-                $site_routes = $config->get("site.routes");
-                if (is_array($site_routes)) {
-                    foreach ((array)$site_routes as $pattern => $replace) {
-                        $pattern = '#' . $pattern . '#';
-                        try {
-                            $found = preg_replace($pattern, $replace, $url);
-                            if ($found != $url) {
-                                $page = $this->dispatch($found, $all);
+                    // Try Regex style routes
+                    $site_routes = $config->get("site.routes");
+                    if (is_array($site_routes)) {
+                        foreach ((array)$site_routes as $pattern => $replace) {
+                            $pattern = '#' . $pattern . '#';
+                            try {
+                                $found = preg_replace($pattern, $replace, $url);
+                                if ($found != $url) {
+                                    $page = $this->dispatch($found, $all);
+                                }
+                            } catch (ErrorException $e) {
+                                $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
                             }
-                        } catch (ErrorException $e) {
-                            $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
                         }
                     }
                 }
@@ -391,8 +410,8 @@ class Pages
             $blueprint = $this->blueprints->get('default');
         }
 
-        if (!$blueprint->initialized) {
-            $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint]));
+        if (empty($blueprint->initialized)) {
+            $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint, 'type' => $type]));
             $blueprint->initialized = true;
         }
 
@@ -470,15 +489,45 @@ class Pages
      */
     public static function getTypes()
     {
-        $locator = Grav::instance()['locator'];
         if (!self::$types) {
-            self::$types = new Types();
-            file_exists('theme://blueprints/') && self::$types->scanBlueprints($locator->findResources('theme://blueprints/'));
-            file_exists('theme://templates/') && self::$types->scanTemplates($locator->findResources('theme://templates/'));
 
-            $event = new Event();
-            $event->types = self::$types;
-            Grav::instance()->fireEvent('onGetPageTemplates', $event);
+            $grav = Grav::instance();
+
+            $scanBlueprintsAndTemplates = function () use ($grav) {
+                // Scan blueprints
+                $event = new Event();
+                $event->types = self::$types;
+                $grav->fireEvent('onGetPageBlueprints', $event);
+
+                self::$types->scanBlueprints('theme://blueprints/');
+
+                // Scan templates
+                $event = new Event();
+                $event->types = self::$types;
+                $grav->fireEvent('onGetPageTemplates', $event);
+
+                self::$types->scanTemplates('theme://templates/');
+            };
+
+            if ($grav['config']->get('system.cache.enabled')) {
+                /** @var Cache $cache */
+                $cache = $grav['cache'];
+
+                // Use cached types if possible.
+                $types_cache_id = md5('types');
+                self::$types = $cache->fetch($types_cache_id);
+
+                if (!self::$types) {
+                    self::$types = new Types();
+                    $scanBlueprintsAndTemplates();
+                    $cache->save($types_cache_id, self::$types);
+                }
+
+            } else {
+                self::$types = new Types();
+                $scanBlueprintsAndTemplates();
+            }
+
         }
 
         return self::$types;
@@ -683,6 +732,7 @@ class Pages
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+
         $pages_dir = $locator->findResource('page://');
 
         if ($config->get('system.cache.enabled')) {
@@ -704,7 +754,7 @@ class Pages
                     $last_modified = Folder::lastModifiedFile($pages_dir);
             }
 
-            $page_cache_id = md5(USER_DIR . $last_modified . $language->getActive() . $config->checksum());
+            $page_cache_id = md5($pages_dir . $last_modified . $language->getActive() . $config->checksum());
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
@@ -826,8 +876,10 @@ class Pages
         // set current modified of page
         $last_modified = $page->modified();
 
+        $iterator = new \FilesystemIterator($directory);
+
         /** @var \DirectoryIterator $file */
-        foreach (new \FilesystemIterator($directory) as $file) {
+        foreach ($iterator as $file) {
             $name = $file->getFilename();
 
             // Ignore all hidden files if set.
@@ -955,6 +1007,7 @@ class Pages
         $list = [];
         $header_default = null;
         $header_query = null;
+        $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
@@ -976,9 +1029,11 @@ class Pages
                     break;
                 case 'date':
                     $list[$key] = $child->date();
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'modified':
                     $list[$key] = $child->modified();
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'slug':
                     $list[$key] = $child->slug();
@@ -994,11 +1049,13 @@ class Pages
                     } else {
                         $list[$key] = $header_default ?: $key;
                     }
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'manual':
                 case 'default':
                 default:
                     $list[$key] = $key;
+                    $sort_flags = SORT_REGULAR;
             }
         }
 
@@ -1007,7 +1064,12 @@ class Pages
             $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
-            asort($list);
+            if (extension_loaded('intl')) {
+                $col = new \Collator(setlocale(LC_COLLATE, 0)); //`setlocale` with a 0 param returns the current locale set
+                $col->asort($list, $sort_flags);
+            } else {
+                asort($list, $sort_flags);
+            }
         }
 
 

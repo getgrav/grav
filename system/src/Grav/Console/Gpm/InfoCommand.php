@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
@@ -7,10 +14,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-/**
- * Class InfoCommand
- * @package Grav\Console\Gpm
- */
 class InfoCommand extends ConsoleCommand
 {
     /**
@@ -57,6 +60,8 @@ class InfoCommand extends ConsoleCommand
     {
         $this->gpm = new GPM($this->input->getOption('force'));
 
+        $this->displayGPMRelease();
+
         $foundPackage = $this->gpm->findPackage($this->input->getArgument('package'));
 
         if (!$foundPackage) {
@@ -83,7 +88,7 @@ class InfoCommand extends ConsoleCommand
         $this->output->writeln("<green>" . str_pad("Author",
                 12) . ":</green> " . $foundPackage->author['name'] . ' <' . $foundPackage->author['email'] . '> ' . $packageURL);
 
-        foreach (array(
+        foreach ([
                      'version',
                      'keywords',
                      'date',
@@ -95,7 +100,7 @@ class InfoCommand extends ConsoleCommand
                      'bugs',
                      'zipball_url',
                      'license'
-                 ) as $info) {
+                 ] as $info) {
             if (isset($foundPackage->$info)) {
                 $name = ucfirst($info);
                 $data = $foundPackage->$info;

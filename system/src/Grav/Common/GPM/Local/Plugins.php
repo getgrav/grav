@@ -1,10 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common.GPM
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\GPM\Local;
 
-/**
- * Class Plugins
- * @package Grav\Common\GPM\Local
- */
+use Grav\Common\Grav;
+
 class Plugins extends AbstractPackageCollection
 {
     /**
@@ -17,6 +22,8 @@ class Plugins extends AbstractPackageCollection
      */
     public function __construct()
     {
-        parent::__construct(self::getGrav()['plugins']->all());
+        /** @var \Grav\Common\Plugins $plugins */
+        $plugins = Grav::instance()['plugins'];
+        parent::__construct($plugins->all());
     }
 }

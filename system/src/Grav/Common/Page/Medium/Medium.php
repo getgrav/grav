@@ -1,21 +1,20 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\Blueprint;
 
-/**
- * The Medium is a general class for multimedia objects in Grav pages, specific implementations will derive from
- *
- * @author Grav
- * @license MIT
- *
- */
 class Medium extends Data implements RenderableInterface
 {
-    use GravTrait;
     use ParsedownHtmlTrait;
 
     /**
@@ -60,8 +59,8 @@ class Medium extends Data implements RenderableInterface
     {
         parent::__construct($items, $blueprint);
 
-        if (self::getGrav()['config']->get('system.media.enable_media_timestamp', true)) {
-            $this->querystring('&' . self::getGrav()['cache']->getKey());
+        if (Grav::instance()['config']->get('system.media.enable_media_timestamp', true)) {
+            $this->querystring('&' . Grav::instance()['cache']->getKey());
         }
 
         $this->def('mime', 'application/octet-stream');
@@ -143,7 +142,7 @@ class Medium extends Data implements RenderableInterface
             $this->reset();
         }
 
-        return self::$grav['base_url'] . $output . $this->querystring() . $this->urlHash();
+        return Grav::instance()['base_url'] . $output . $this->querystring() . $this->urlHash();
     }
 
     /**

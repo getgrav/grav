@@ -1,18 +1,20 @@
 <?php
+/**
+ * @package    Grav.Common.Config
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Data;
 use Grav\Common\Utils;
+use Pimple\Container;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Config class contains configuration information.
- *
- * @author RocketTheme
- * @license MIT
- */
 class Setup extends Data
 {
     protected $streams = [
@@ -113,12 +115,12 @@ class Setup extends Data
         ],
     ];
 
+    /**
+     * @param Container|array $container
+     */
     public function __construct($container)
     {
-        $environment = $container['uri']->environment();
-        if (!$environment) {
-            $environment = 'localhost';
-        }
+        $environment = $container['uri']->environment() ?: 'localhost';
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.

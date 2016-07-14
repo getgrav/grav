@@ -1,20 +1,23 @@
 <?php
+/**
+ * @package    Grav.Common.Errors
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Errors;
 
 use Grav\Common\Grav;
 use Whoops;
 
-/**
- * Class Debugger
- * @package Grav\Common
- */
 class Errors
 {
     public function resetHandlers()
     {
         $grav = Grav::instance();
         $config = $grav['config']->get('system.errors');
-        $jsonRequest = $_SERVER && $_SERVER['HTTP_ACCEPT'] && $_SERVER['HTTP_ACCEPT'] == 'application/json';
+        $jsonRequest = $_SERVER && isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
 
         // Setup Whoops-based error handler
         $whoops = new \Whoops\Run;

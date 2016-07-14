@@ -1,0 +1,60 @@
+---
+NICETIME:
+  NO_DATE_PROVIDED: Päivämäärää ei annettu
+  BAD_DATE: Virheellinen päivämäärä
+  AGO: sitten
+  FROM_NOW: tästä lähtien
+  SECOND: sekunti
+  MINUTE: minuutti
+  HOUR: tunti
+  DAY: päivä
+  WEEK: viikko
+  MONTH: kuukausi
+  YEAR: vuosi
+  DECADE: vuosikymmen
+  SEC: sek
+  MIN: min
+  HR: h
+  WK: vk
+  MO: kk
+  YR: v
+  DEC: vuosikymmen
+  SECOND_PLURAL: sekuntia
+  MINUTE_PLURAL: minuuttia
+  HOUR_PLURAL: tuntia
+  DAY_PLURAL: päivää
+  WEEK_PLURAL: viikkoa
+  MONTH_PLURAL: kuukautta
+  YEAR_PLURAL: vuotta
+  DECADE_PLURAL: vuosikymmentä
+  SEC_PLURAL: sek
+  MIN_PLURAL: min
+  HR_PLURAL: h
+  WK_PLURAL: v
+  MO_PLURAL: kk
+  YR_PLURAL: v
+  DEC_PLURAL: vuosikymmentä
+FORM:
+  VALIDATION_FAIL: '<b>Vahvistus epäonnistui:</b>'
+  MISSING_REQUIRED_FIELD: 'Puuttuva pakollinen kenttä:'
+MONTHS_OF_THE_YEAR:
+  - Tammikuu
+  - Helmikuu
+  - Maaliskuu
+  - Huhtikuu
+  - Toukokuu
+  - Kesäkuuta
+  - Heinäkuu
+  - Elokuu
+  - Syyskuu
+  - Lokakuu
+  - Marraskuu
+  - Joulukuu
+DAYS_OF_THE_WEEK:
+  - Maanantai
+  - Tiistai
+  - Keskiviikko
+  - Torstai
+  - Perjantai
+  - Lauantai
+  - Sunnuntai

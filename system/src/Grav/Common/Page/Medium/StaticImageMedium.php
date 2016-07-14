@@ -1,13 +1,13 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page\Medium;
 
-/**
- * The Image medium holds information related to an individual image. These are then stored in the Media object.
- *
- * @author Grav
- * @license MIT
- *
- */
 class StaticImageMedium extends Medium
 {
     use StaticResizeTrait;

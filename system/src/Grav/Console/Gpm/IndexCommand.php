@@ -1,15 +1,17 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * Class IndexCommand
- *
- * @package Grav\Console\Gpm
- */
 class IndexCommand extends ConsoleCommand
 {
     /**
@@ -101,9 +103,9 @@ class IndexCommand extends ConsoleCommand
 
         $this->gpm = new GPM($this->options['force']);
 
-        $this->data = $this->gpm->getRepository();
+        $this->displayGPMRelease();
 
-        $this->output->writeln('');
+        $this->data = $this->gpm->getRepository();
 
         $data = $this->filter($this->data);
 

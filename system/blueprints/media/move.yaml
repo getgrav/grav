@@ -5,4 +5,4 @@ form:
       type: select
       label: PLUGIN_ADMIN.PAGE
       classes: fancy
-      '@data-options': '\Grav\Common\Page\Pages::parents'
+      data-options@: '\Grav\Common\Page\Pages::parents'

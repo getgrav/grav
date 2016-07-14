@@ -1,4 +1,4 @@
-# ![](https://avatars1.githubusercontent.com/u/8237355?v=2&s=50) Grav 
+# ![](https://avatars1.githubusercontent.com/u/8237355?v=2&s=50) Grav
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad/mini.png)](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad) [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/getgrav/grav?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/getgrav/grav.svg?branch=develop)](https://travis-ci.org/getgrav/grav)
 
@@ -10,7 +10,7 @@ The underlying architecture of Grav is designed to use well-established and _bes
 * [Markdown](http://en.wikipedia.org/wiki/Markdown): for easy content creation
 * [YAML](http://yaml.org): for simple configuration
 * [Parsedown](http://parsedown.org/): for fast Markdown and Markdown Extra support
-* [Doctrine Cache](http://docs.doctrine-project.org/en/2.0.x/reference/caching.html): layer for performance
+* [Doctrine Cache](http://doctrine-orm.readthedocs.io/projects/doctrine-orm/en/latest/reference/caching.html): layer for performance
 * [Pimple Dependency Injection Container](http://pimple.sensiolabs.org/): for extensibility and maintainability
 * [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html): for plugin event handling
 * [Symfony Console](http://symfony.com/doc/current/components/console/introduction.html): for CLI interface
@@ -29,7 +29,7 @@ These are the options to get Grav:
 
 You can download a **ready-built** package from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads)
 
-### With composer
+### With Composer
 
 You can create a new project with the latest **stable** Grav release with the following command:
 
