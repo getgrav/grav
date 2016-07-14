@@ -1,5 +1,5 @@
 # v1.1.0
-## 06/xx/2016
+## 07/14/2016
 
 1. [](#improved)
     * Added support for validation of multiple email in the `type: email` field [grav-plugin-email#31](https://github.com/getgrav/grav-plugin-email/issues/31)
