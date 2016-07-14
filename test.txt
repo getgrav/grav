@@ -16,3 +16,4 @@
 * Manual build to pick up new admin release
 * tests unexpectedly failed, HHVM fluke?
 * Kick of build to pick up Admin 1.0.10
+* Manual build to test dashes in dependencies
