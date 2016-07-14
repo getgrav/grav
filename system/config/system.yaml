@@ -125,5 +125,5 @@ session:
   httponly: true                            # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
 
 gpm:
-  releases: testing                           # Set to either 'stable' or 'testing'
-  proxy_url:                                  # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+  releases: stable                           # Set to either 'stable' or 'testing'
+  proxy_url:                                 # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
