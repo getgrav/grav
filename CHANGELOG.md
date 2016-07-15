@@ -4,6 +4,7 @@
 1. [](#improved)
     * Made `paramsRegex()` static to allow it to be called statically
 1. [](#bugfix)
+    * Fixed backup when using very long site titles with invalid characters [grav-plugin-admin#701](https://github.com/getgrav/grav-plugin-admin/issues/701)
     * Fixed a typo in the `webserver-configs/nginx.conf` example
 
 # v1.1.0

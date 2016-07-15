@@ -46,7 +46,7 @@ class ZipBackup
             }
         }
 
-        $name = Grav::instance()['config']->get('site.title', basename(GRAV_ROOT));
+        $name = substr(strip_tags(Grav::instance()['config']->get('site.title', basename(GRAV_ROOT))), 0, 20);
 
         $inflector = new Inflector();
 
