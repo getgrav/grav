@@ -19,3 +19,4 @@
 * Manual build to test dashes in dependencies
 * Kick of build with updated plugins/themes
 * Force build for skeletons
+* Rebuilds to pick up admin 1.1.1
