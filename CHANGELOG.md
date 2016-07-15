@@ -1,3 +1,11 @@
+# v1.1.1
+## 07/xx/2016
+
+1. [](#improved)
+    * Made `paramsRegex()` static to allow it to be called statically
+1. [](#bugfix)
+    * Fixed a typo in the `webserver-configs/nginx.conf` example
+
 # v1.1.0
 ## 07/14/2016
 
