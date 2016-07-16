@@ -1,12 +1,12 @@
 ---
 FRONTMATTER_ERROR_PAGE: |
   ---
-  title: %1$s
+  tiêu đề: %1$s
   ---
   
-  # Error: Invalid Frontmatter
+  # Lỗi: Trang không hợp lệ
   
-  Path: `%2$s`
+  Đường dẫn: `%2$s`
   
   **%3$s**
   
@@ -63,7 +63,7 @@ MONTHS_OF_THE_YEAR:
   - Tháng 8
   - Tháng 9
   - Tháng 10
-  - Tháng Mười 11
+  - Tháng 11
   - Tháng 12
 DAYS_OF_THE_WEEK:
   - Thứ 2
