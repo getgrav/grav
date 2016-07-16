@@ -1,5 +1,5 @@
 # v1.1.1
-## 07/xx/2016
+## 07/16/2016
 
 1. [](#improved)
     * Made `paramsRegex()` static to allow it to be called statically
