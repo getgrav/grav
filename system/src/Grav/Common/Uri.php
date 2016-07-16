@@ -78,7 +78,7 @@ class Uri
      *
      * @return string
      */
-    public function paramsRegex()
+    public static function paramsRegex()
     {
         return '/\/([^\:\#\/\?]*' . Grav::instance()['config']->get('system.param_sep') . '[^\:\#\/\?]*)/';
     }
