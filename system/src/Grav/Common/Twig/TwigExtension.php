@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Twig
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
@@ -8,12 +15,6 @@ use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Twig extension adds some filters and functions that are useful for Grav
- *
- * @author  RocketTheme
- * @license MIT
- */
 class TwigExtension extends \Twig_Extension
 {
     protected $grav;

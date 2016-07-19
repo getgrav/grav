@@ -1,5 +1,39 @@
+# v1.1.1
+## 07/16/2016
+
+1. [](#improved)
+    * Made `paramsRegex()` static to allow it to be called statically
+1. [](#bugfix)
+    * Fixed backup when using very long site titles with invalid characters [grav-plugin-admin#701](https://github.com/getgrav/grav-plugin-admin/issues/701)
+    * Fixed a typo in the `webserver-configs/nginx.conf` example
+
+# v1.1.0
+## 07/14/2016
+
+1. [](#improved)
+    * Added support for validation of multiple email in the `type: email` field [grav-plugin-email#31](https://github.com/getgrav/grav-plugin-email/issues/31)
+    * Unified PHP code header styling
+    * Added 6 more languages and updated language codes
+    * set default "releases" option to `stable`
+1. [](#bugfix)
+    * Fix backend validation for file fields marked as required [grav-plugin-form#78](https://github.com/getgrav/grav-plugin-form/issues/78)
+
+# v1.1.0-rc.3
+## 06/21/2016
+
+1. [](#new)
+    * Add a onPageFallBackUrl event when starting the fallbackUrl() method to allow the Login plugin to protect the page media
+    * Conveniently allow ability to retrieve user information via config object [#913](https://github.com/getgrav/grav/pull/913) - @Vivalldi
+    * Grav served images can now use header caching [#905](https://github.com/getgrav/grav/pull/905)
+1. [](#improved)
+    * Take asset modification timestamp into consideration in pipelining [#917](https://github.com/getgrav/grav/pull/917) - @Sommerregen
+1. [](#bugfix)
+    * Respect `enable_asset_timestamp` settings for pipelined Assets [#906](https://github.com/getgrav/grav/issues/906)
+    * Fixed collections end dates for 32-bit systems [#902](https://github.com/getgrav/grav/issues/902)
+    * Fixed a recent regression (1.1.0-rc1) with parameter separator different than `:`
+
 # v1.1.0-rc.2
-## xx/xx/2016
+## 06/14/2016
 
 1. [](#new)
     * Added getters and setters for Assets to allow manipulation of CSS/JS/Collection based assets via plugins [#876](https://github.com/getgrav/grav/issues/876)

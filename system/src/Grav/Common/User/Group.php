@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.User
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\User;
 
 use Grav\Common\Data\Blueprints;
@@ -7,12 +14,6 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 
-/**
- * Group object
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Group extends Data
 {
     /**

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Exception;
@@ -20,15 +27,6 @@ use Symfony\Component\Yaml\Yaml;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
-/**
- * The Page object, or "Page" object is the main powerhouse of Grav.  It contains all the information
- * related to the nested pages structure that represents the content. Each page has several attributes that
- * can be retrieved via public functions. Also each page can potentially contain an array of sub-pages.
- * Recursively traversing the page structure allows Grav to create navigation systems.
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Page
 {
     /**

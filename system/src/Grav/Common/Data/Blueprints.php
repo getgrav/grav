@@ -1,15 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * Blueprints class keeps track on blueprint instances.
- *
- * @author RocketTheme
- * @license MIT
- */
 class Blueprints
 {
     protected $search;

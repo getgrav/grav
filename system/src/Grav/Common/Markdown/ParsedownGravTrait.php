@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Markdown
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
@@ -6,9 +13,6 @@ use Grav\Common\Uri;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 
-/**
- * A trait to add some custom processing to the identifyLink() method in Parsedown and ParsedownExtra
- */
 trait ParsedownGravTrait
 {
     /** @var Page $page */

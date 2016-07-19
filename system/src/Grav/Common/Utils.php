@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use DateTime;
@@ -7,11 +14,6 @@ use Grav\Common\Grav;
 use Grav\Common\Helpers\Truncator;
 use RocketTheme\Toolbox\Event\Event;
 
-/**
- * Misc utilities.
- *
- * @package Grav\Common
- */
 abstract class Utils
 {
     protected static $nonces = [];
@@ -270,6 +272,25 @@ abstract class Utils
             } else {
                 $new_length = $size;
                 header("Content-Length: " . $size);
+
+                if (Grav::instance()['config']->get('system.cache.enabled')) {
+                    $expires = Grav::instance()['config']->get('system.pages.expires');
+                    if ($expires > 0) {
+                        $expires_date = gmdate('D, d M Y H:i:s T', time() + $expires);
+                        header('Cache-Control: max-age=' . $expires);
+                        header('Expires: ' . $expires_date);
+                        header('Pragma: cache');
+                    }
+                    header('Last-Modified: ' . gmdate("D, d M Y H:i:s T", filemtime($file)));
+
+                    // Return 304 Not Modified if the file is already cached in the browser
+                    if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
+                        strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file))
+                    {
+                        header('HTTP/1.1 304 Not Modified');
+                        exit();
+                    }
+                }
             }
 
             /* output the file itself */

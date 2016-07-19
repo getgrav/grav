@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
@@ -6,11 +13,6 @@ use Grav\Common\Grav;
 use RocketTheme\Toolbox\Blueprints\BlueprintForm;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Config class contains configuration information.
- *
- * @author RocketTheme
- */
 class Blueprint extends BlueprintForm
 {
     /**

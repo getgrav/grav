@@ -1,9 +1,13 @@
 <?php
+/**
+ * @package    Grav.Common.Language
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Language;
 
-/**
- * Language and translation functionality for Grav
- */
 class LanguageCodes
 {
     protected static $codes = [
@@ -18,8 +22,8 @@ class LanguageCodes
         'bn-BD'      => [ 'name' => 'Bengali (Bangladesh)',      'nativeName' => 'বাংলা (বাংলাদেশ)' ],
         'bn-IN'      => [ 'name' => 'Bengali (India)',           'nativeName' => 'বাংলা (ভারত)' ],
         'br'         => [ 'name' => 'Breton',                    'nativeName' => 'Brezhoneg' ],
-        'ca'         => [ 'name' => 'Catalan',                   'nativeName' => 'català' ],
-        'ca-valencia'=> [ 'name' => 'Catalan (Valencian)',       'nativeName' => 'català (valencià)' ], // not iso-639-1. a=l10n-drivers
+        'ca'         => [ 'name' => 'Catalan',                   'nativeName' => 'Català' ],
+        'ca-valencia'=> [ 'name' => 'Catalan (Valencian)',       'nativeName' => 'Català (valencià)' ], // not iso-639-1. a=l10n-drivers
         'cs'         => [ 'name' => 'Czech',                     'nativeName' => 'Čeština' ],
         'cy'         => [ 'name' => 'Welsh',                     'nativeName' => 'Cymraeg' ],
         'da'         => [ 'name' => 'Danish',                    'nativeName' => 'Dansk' ],
@@ -45,7 +49,7 @@ class LanguageCodes
         'et'         => [ 'name' => 'Estonian',                  'nativeName' => 'Eesti keel' ],
         'eu'         => [ 'name' => 'Basque',                    'nativeName' => 'Euskara' ],
         'fa'         => [ 'name' => 'Persian',                   'nativeName' => 'فارسی' ],
-        'fi'         => [ 'name' => 'Finnish',                   'nativeName' => 'suomi' ],
+        'fi'         => [ 'name' => 'Finnish',                   'nativeName' => 'Suomi' ],
         'fj-FJ'      => [ 'name' => 'Fijian',                    'nativeName' => 'Vosa vaka-Viti' ],
         'fr'         => [ 'name' => 'French',                    'nativeName' => 'Français' ],
         'fur'        => [ 'name' => 'Friulian',                  'nativeName' => 'Furlan' ],
@@ -77,8 +81,9 @@ class LanguageCodes
         'ko'         => [ 'name' => 'Korean',                    'nativeName' => '한국어' ],
         'ku'         => [ 'name' => 'Kurdish',                   'nativeName' => 'Kurdî' ],
         'la'         => [ 'name' => 'Latin',                     'nativeName' => 'Latina' ],
+        'lb'         => [ 'name' => 'Luxembourgish',             'nativeName' => 'Lëtzebuergesch' ],
         'lg'         => [ 'name' => 'Luganda',                   'nativeName' => 'Luganda' ],
-        'lt'         => [ 'name' => 'Lithuanian',                'nativeName' => 'lietuvių kalba' ],
+        'lt'         => [ 'name' => 'Lithuanian',                'nativeName' => 'Lietuvių kalba' ],
         'lv'         => [ 'name' => 'Latvian',                   'nativeName' => 'Latviešu' ],
         'mai'        => [ 'name' => 'Maithili',                  'nativeName' => 'मैथिली মৈথিলী' ],
         'mg'         => [ 'name' => 'Malagasy',                  'nativeName' => 'Malagasy' ],
@@ -87,14 +92,15 @@ class LanguageCodes
         'ml'         => [ 'name' => 'Malayalam',                 'nativeName' => 'മലയാളം' ],
         'mn'         => [ 'name' => 'Mongolian',                 'nativeName' => 'Монгол' ],
         'mr'         => [ 'name' => 'Marathi',                   'nativeName' => 'मराठी' ],
+        'no'         => [ 'name' => 'Norwegian',                 'nativeName' => 'Norsk' ],
         'nb'         => [ 'name' => 'Norwegian',                 'nativeName' => 'Norsk' ],
         'nb-NO'      => [ 'name' => 'Norwegian (Bokmål)',        'nativeName' => 'Norsk bokmål' ],
         'ne-NP'      => [ 'name' => 'Nepali',                    'nativeName' => 'नेपाली' ],
         'nn-NO'      => [ 'name' => 'Norwegian (Nynorsk)',       'nativeName' => 'Norsk nynorsk' ],
         'nl'         => [ 'name' => 'Dutch',                     'nativeName' => 'Nederlands' ],
-        'nr'         => [ 'name' => 'Ndebele, South',            'nativeName' => 'isiNdebele' ],
+        'nr'         => [ 'name' => 'Ndebele, South',            'nativeName' => 'IsiNdebele' ],
         'nso'        => [ 'name' => 'Northern Sotho',            'nativeName' => 'Sepedi' ],
-        'oc'         => [ 'name' => 'Occitan (Lengadocian)',     'nativeName' => 'occitan (lengadocian)' ],
+        'oc'         => [ 'name' => 'Occitan (Lengadocian)',     'nativeName' => 'Occitan (lengadocian)' ],
         'or'         => [ 'name' => 'Oriya',                     'nativeName' => 'ଓଡ଼ିଆ' ],
         'pa'         => [ 'name' => 'Punjabi',                   'nativeName' => 'ਪੰਜਾਬੀ' ],
         'pa-IN'      => [ 'name' => 'Punjabi',                   'nativeName' => 'ਪੰਜਾਬੀ' ],
@@ -102,13 +108,13 @@ class LanguageCodes
         'pt'         => [ 'name' => 'Portuguese',                'nativeName' => 'Português' ],
         'pt-BR'      => [ 'name' => 'Portuguese (Brazilian)',    'nativeName' => 'Português (do Brasil)' ],
         'pt-PT'      => [ 'name' => 'Portuguese (Portugal)',     'nativeName' => 'Português (Europeu)' ],
-        'ro'         => [ 'name' => 'Romanian',                  'nativeName' => 'română' ],
-        'rm'         => [ 'name' => 'Romansh',                   'nativeName' => 'rumantsch' ],
+        'ro'         => [ 'name' => 'Romanian',                  'nativeName' => 'Română' ],
+        'rm'         => [ 'name' => 'Romansh',                   'nativeName' => 'Rumantsch' ],
         'ru'         => [ 'name' => 'Russian',                   'nativeName' => 'Русский' ],
         'rw'         => [ 'name' => 'Kinyarwanda',               'nativeName' => 'Ikinyarwanda' ],
         'si'         => [ 'name' => 'Sinhala',                   'nativeName' => 'සිංහල' ],
-        'sk'         => [ 'name' => 'Slovak',                    'nativeName' => 'slovenčina' ],
-        'sl'         => [ 'name' => 'Slovenian',                 'nativeName' => 'slovensko' ],
+        'sk'         => [ 'name' => 'Slovak',                    'nativeName' => 'Slovenčina' ],
+        'sl'         => [ 'name' => 'Slovenian',                 'nativeName' => 'Slovensko' ],
         'son'        => [ 'name' => 'Songhai',                   'nativeName' => 'Soŋay' ],
         'sq'         => [ 'name' => 'Albanian',                  'nativeName' => 'Shqip' ],
         'sr'         => [ 'name' => 'Serbian',                   'nativeName' => 'Српски' ],
@@ -122,6 +128,7 @@ class LanguageCodes
         'ta-LK'      => [ 'name' => 'Tamil (Sri Lanka)',         'nativeName' => 'தமிழ் (இலங்கை)' ],
         'te'         => [ 'name' => 'Telugu',                    'nativeName' => 'తెలుగు' ],
         'th'         => [ 'name' => 'Thai',                      'nativeName' => 'ไทย' ],
+        'tlh'        => [ 'name' => 'Klingon',                   'nativeName' => 'Klingon' ],
         'tn'         => [ 'name' => 'Tswana',                    'nativeName' => 'Setswana' ],
         'tr'         => [ 'name' => 'Turkish',                   'nativeName' => 'Türkçe' ],
         'ts'         => [ 'name' => 'Tsonga',                    'nativeName' => 'Xitsonga' ],

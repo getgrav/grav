@@ -1,9 +1,15 @@
 <?php
+/**
+ * @package    Grav.Core
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '1.1.0-rc.1');
-define('GRAV_TESTING', true);
+define('GRAV_VERSION', '1.1.1');
+define('GRAV_TESTING', false);
 define('DS', '/');
 define('GRAV_PHP_MIN', '5.5.9');
 

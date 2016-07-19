@@ -1,19 +1,17 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Page\Medium\ImageMedium;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 
-/**
- * Grav
- *
- * @author  Andy Miller
- * @link    http://www.rockettheme.com
- * @license http://opensource.org/licenses/MIT
- *
- * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
- */
 class Grav extends Container
 {
 
@@ -446,6 +444,8 @@ class Grav extends Container
      */
     public function fallbackUrl($path)
     {
+      	$this->fireEvent('onPageFallBackUrl');
+
         /** @var Uri $uri */
         $uri = $this['uri'];
 
