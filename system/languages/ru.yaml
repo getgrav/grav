@@ -39,14 +39,14 @@ NICETIME:
   MO: мес.
   YR: г.
   DEC: гг.
-  SECOND_PLURAL: секунды
-  MINUTE_PLURAL: минуты
-  HOUR_PLURAL: часы
-  DAY_PLURAL: д
-  WEEK_PLURAL: недели
-  MONTH_PLURAL: месяцы
-  YEAR_PLURAL: годы
-  DECADE_PLURAL: десятилетия
+  SECOND_PLURAL: секунд
+  MINUTE_PLURAL: минут
+  HOUR_PLURAL: часов
+  DAY_PLURAL: дней
+  WEEK_PLURAL: недель
+  MONTH_PLURAL: месяцев
+  YEAR_PLURAL: лет
+  DECADE_PLURAL: десятилетий
   SEC_PLURAL: с
   MIN_PLURAL: мин
   HR_PLURAL: ч
