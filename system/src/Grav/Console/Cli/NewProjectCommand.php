@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
@@ -6,10 +13,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * Class NewProjectCommand
- * @package Grav\Console\Cli
- */
 class NewProjectCommand extends ConsoleCommand
 {
     /**

@@ -1,13 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.GPM
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\GPM;
 
 use Grav\Common\Utils;
 use Grav\Common\Grav;
 
-/**
- * Class Response
- * @package Grav\Common\GPM
- */
 class Response
 {
     /**

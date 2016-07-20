@@ -1,13 +1,13 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page\Medium;
 
-/**
- * Renderable Medium objects can be rendered to HTML markup and Parsedown objects
- *
- * @author Grav
- * @license MIT
- *
- */
 interface RenderableInterface
 {
     /**

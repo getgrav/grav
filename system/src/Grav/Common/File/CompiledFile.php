@@ -1,17 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common.File
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\File;
 
 use RocketTheme\Toolbox\File\PhpFile;
 
-/**
- * Class CompiledFile
- * @package Grav\Common\File
- *
- * @property string $filename
- * @property string $extension
- * @property string $raw
- * @property array|string $content
- */
 trait CompiledFile
 {
     /**

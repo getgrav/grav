@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Data\Data;
@@ -9,12 +16,6 @@ use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Exception\LogicException;
 
-/**
- * The Plugin object just holds the id and path to a plugin.
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
     /**

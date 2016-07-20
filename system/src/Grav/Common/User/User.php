@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.User
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\User;
 
 use Grav\Common\Data\Blueprints;
@@ -7,15 +14,6 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 
-/**
- * User object
- *
- * @property mixed       authenticated
- * @property mixed       password
- * @property bool|string hashed_password
- * @author  RocketTheme
- * @license MIT
- */
 class User extends Data
 {
     /**
@@ -29,7 +27,9 @@ class User extends Data
      */
     public static function load($username)
     {
-        $locator = Grav::instance()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+        $config = $grav['config'];
 
         // force lowercase of username
         $username = strtolower($username);
@@ -47,6 +47,9 @@ class User extends Data
         }
         $user = new User($content, $blueprint);
         $user->file($file);
+
+        // add user to config
+        $config->set("user", $user);
 
         return $user;
     }
@@ -124,14 +127,21 @@ class User extends Data
     public function save()
     {
         $file = $this->file();
+
         if ($file) {
+            $username = $this->get('username');
+
+            if (!$file->filename()) {
+                $locator = Grav::instance()['locator'];
+                $file->filename($locator->findResource('account://') . DS . strtolower($username) . YAML_EXT);
+            }
+
             // if plain text password, hash it and remove plain text
             if ($this->password) {
                 $this->hashed_password = Authentication::create($this->password);
                 unset($this->password);
             }
 
-            $username = $this->get('username');
             unset($this->username);
             $file->save($this->items);
             $this->set('username', $username);

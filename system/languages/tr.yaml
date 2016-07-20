@@ -1,3 +1,4 @@
+---
 NICETIME:
   NO_DATE_PROVIDED: Tarih yok
   BAD_DATE: Yanlış tarih
@@ -33,3 +34,26 @@ NICETIME:
   MO_PLURAL: ay
   YR_PLURAL: yl
   DEC_PLURAL: onyl
+FORM:
+  VALIDATION_FAIL: '<b>Doğrulama başarısız:</b>'
+MONTHS_OF_THE_YEAR:
+  - Ocak
+  - Şubat
+  - Mart
+  - Nisan
+  - Mayıs
+  - Haziran
+  - Temmuz
+  - Ağustos
+  - Eylül
+  - Ekim
+  - Kasım
+  - Aralık
+DAYS_OF_THE_WEEK:
+  - Pazartesi
+  - Salı
+  - Çarşamba
+  - Perşembe
+  - Cuma
+  - Cumartesi
+  - Pazar

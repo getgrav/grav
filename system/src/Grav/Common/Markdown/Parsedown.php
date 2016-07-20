@@ -1,10 +1,13 @@
 <?php
+/**
+ * @package    Grav.Common.Markdown
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Markdown;
 
-/**
- * Class Parsedown
- * @package Grav\Common\Markdown
- */
 class Parsedown extends \Parsedown
 {
     use ParsedownGravTrait;

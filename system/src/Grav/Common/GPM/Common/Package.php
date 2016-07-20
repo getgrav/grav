@@ -1,18 +1,14 @@
 <?php
+/**
+ * @package    Grav.Common.GPM
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\GPM\Common;
 
 use Grav\Common\Data\Data;
-
-/**
- * @property string name
- * @property string version
- * @property string available
- * @property string package_type
- * @property string description_plain
- * @property string slug
- * @property array author
- * @property mixed changelog
- */
 
 class Package {
 

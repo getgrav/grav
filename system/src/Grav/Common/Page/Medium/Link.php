@@ -1,12 +1,13 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Grav;
-
-/**
- * Class Link
- * @package Grav\Common\Page\Medium
- */
 class Link implements RenderableInterface
 {
     use ParsedownHtmlTrait;

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
@@ -8,13 +15,6 @@ use Grav\Common\File\CompiledYamlFile;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Plugins object holds an array of all the plugin objects that
- * Grav knows about
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Plugins extends Iterator
 {
     public $formFieldTypes;

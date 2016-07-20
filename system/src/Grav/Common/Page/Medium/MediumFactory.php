@@ -1,17 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
 
-/**
- * MediumFactory can be used to more easily create various Medium objects from files or arrays, it should
- * contain most logic for instantiating a Medium object.
- *
- * @author Grav
- * @license MIT
- *
- */
 class MediumFactory
 {
     /**

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
@@ -6,12 +13,6 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Data validation.
- *
- * @author RocketTheme
- * @license MIT
- */
 class Validation
 {
     /**
@@ -404,7 +405,15 @@ class Validation
      */
     public static function typeEmail($value, array $params, array $field)
     {
-        return self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_EMAIL);
+        $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
+
+        foreach ($values as $value) {
+            if (!(self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_EMAIL))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

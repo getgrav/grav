@@ -1,17 +1,17 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Grav\Common\Getters;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 
-/**
- * Media is a holder object that contains references to the media of page. This object is created and
- * populated during the getMedia() method in the Pages object
- *
- * @author RocketTheme
- * @license MIT
- */
 class Media extends Getters
 {
     protected $gettersVariable = 'instances';

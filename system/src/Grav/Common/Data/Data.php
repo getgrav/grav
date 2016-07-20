@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
 use RocketTheme\Toolbox\ArrayTraits\Countable;
@@ -8,12 +15,6 @@ use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\FileInterface;
 
-/**
- * Recursive data object
- *
- * @author RocketTheme
- * @license MIT
- */
 class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
 {
     use NestedArrayAccessWithGetters, Countable, Export;

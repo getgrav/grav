@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Grav\Common\Cache;
@@ -15,12 +22,6 @@ use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
 
-/**
- * Pages is the class that is the entry point into the hierarchy of pages
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Pages
 {
     /**

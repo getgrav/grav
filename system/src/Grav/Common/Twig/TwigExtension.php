@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Twig
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
@@ -8,12 +15,6 @@ use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Twig extension adds some filters and functions that are useful for Grav
- *
- * @author  RocketTheme
- * @license MIT
- */
 class TwigExtension extends \Twig_Extension
 {
     protected $grav;
@@ -728,11 +729,15 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
-     * Authorize an action. Returns true if the user is logged in and has the right to execute $action.
+     * Authorize an action. Returns true if the user is logged in and
+     * has the right to execute $action.
      *
-     * @param string $action
-     *
-     * @return bool
+     * @param  string|array $action An action or a list of actions. Each
+     *                              entry can be a string like 'group.action'
+     *                              or without dot notation an associative
+     *                              array.
+     * @return bool                 Returns TRUE if the user is authorized to
+     *                              perform the action, FALSE otherwise.
      */
     public function authorize($action)
     {
@@ -740,11 +745,14 @@ class TwigExtension extends \Twig_Extension
             return false;
         }
 
-        $action = (array)$action;
-
-        foreach ($action as $a) {
-            if ($this->grav['user']->authorize($a)) {
-                return true;
+        $action = (array) $action;
+        foreach ($action as $key => $perms) {
+            $prefix = is_int($key) ? '' : $key . '.';
+            $perms = $prefix ? (array) $perms : [$perms => true];
+            foreach ($perms as $action => $authenticated) {
+                if ($this->grav['user']->authorize($prefix . $action)) {
+                    return $authenticated;
+                }
             }
         }
 

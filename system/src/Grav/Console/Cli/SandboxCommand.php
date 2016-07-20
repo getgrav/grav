@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
@@ -6,10 +13,6 @@ use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * Class SandboxCommand
- * @package Grav\Console\Cli
- */
 class SandboxCommand extends ConsoleCommand
 {
     /**
