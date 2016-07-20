@@ -1,6 +1,8 @@
 # v1.1.2
 ## 07/XX/2016
 
+1. [](#new)
+    * Allow forcing SSL by setting `system.force_ssl` (Force SSL in the Admin System Config) [#899](https://github.com/getgrav/grav/pull/899)
 1. [](#improved)
     * Improved `authorize` Twig extension to accept a nested array of authorizations  [#948](https://github.com/getgrav/grav/issues/948)
 1. [](#bugfix)
