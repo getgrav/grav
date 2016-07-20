@@ -1,8 +1,10 @@
 # v1.1.2
 ## 07/XX/2016
 
+1. [](#improved)
+    * Improved `authorize` Twig extension to accept a nested array of authorizations  [#948](https://github.com/getgrav/grav/issues/948)
 1. [](#bugfix)
-    * Fixed `Folder::delete` method to recursively remove files and folders and causing Upgrade to fail. 
+    * Fixed `Folder::delete` method to recursively remove files and folders and causing Upgrade to fail.
 
 # v1.1.1
 ## 07/16/2016
