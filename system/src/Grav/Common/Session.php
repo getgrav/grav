@@ -67,7 +67,7 @@ class Session extends BaseSession
             $httponly = $config->get('system.session.httponly', true);
 
             $unique_identifier = GRAV_ROOT;
-            $this->setName($config->get('system.session.name', 'grav_site') . '-' . substr(md5($unique_identifier), 0, 7) . ($is_admin ? '-admin' : ''));
+            $this->setName(str_replace(' ', '-', $config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7) . ($is_admin ? '-admin' : ''));
             $this->start();
             setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
         }
