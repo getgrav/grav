@@ -9,6 +9,7 @@
     * Fixed `Folder::delete` method to recursively remove files and folders and causing Upgrade to fail.
     * Fix [#952](https://github.com/getgrav/grav/issues/952) hypenize the session name.
     * If no parent is set and siblings collection is called, return a new and empty collection [grav-plugin-sitemap/issues/22](https://github.com/getgrav/grav-plugin-sitemap/issues/22)
+    * Prevent exception being thrown when calling the Collator constructor failed in a Windows environment with the Intl PHP Extension enabled [#961](https://github.com/getgrav/grav/issues/961)
 
 # v1.1.1
 ## 07/16/2016
