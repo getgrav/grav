@@ -830,7 +830,7 @@
     * Improved query string handling
     * Optimization to image handling supporting URL encoded filenames
     * Use global `composer` when available rather than Grv provided one
-    * Use `PHP_BINARY` contant rather than `php` executable
+    * Use `PHP_BINARY` constant rather than `php` executable
     * Updated Doctrine Cache library
     * Updated Symfony libraries
     * Moved `convertUrl()` method to Uri object
