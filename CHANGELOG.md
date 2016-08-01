@@ -5,6 +5,7 @@
     * Allow forcing SSL by setting `system.force_ssl` (Force SSL in the Admin System Config) [#899](https://github.com/getgrav/grav/pull/899)
 1. [](#improved)
     * Improved `authorize` Twig extension to accept a nested array of authorizations  [#948](https://github.com/getgrav/grav/issues/948)
+    * Don't add timestamps on remote assets as it can cause conflicts
 1. [](#bugfix)
     * Fixed `Folder::delete` method to recursively remove files and folders and causing Upgrade to fail.
     * Fix [#952](https://github.com/getgrav/grav/issues/952) hypenize the session name.
