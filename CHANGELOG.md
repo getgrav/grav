@@ -6,6 +6,7 @@
 1. [](#improved)
     * Improved `authorize` Twig extension to accept a nested array of authorizations  [#948](https://github.com/getgrav/grav/issues/948)
     * Don't add timestamps on remote assets as it can cause conflicts
+    * Grav now looks at types from `media.yaml` when retrieving page mime types [#966](https://github.com/getgrav/grav/issues/966)
 1. [](#bugfix)
     * Fixed `Folder::delete` method to recursively remove files and folders and causing Upgrade to fail.
     * Fix [#952](https://github.com/getgrav/grav/issues/952) hypenize the session name.
