@@ -1,3 +1,20 @@
+# v1.1.2
+## 08/10/2016
+
+1. [](#new)
+    * Allow forcing SSL by setting `system.force_ssl` (Force SSL in the Admin System Config) [#899](https://github.com/getgrav/grav/pull/899)
+1. [](#improved)
+    * Improved `authorize` Twig extension to accept a nested array of authorizations  [#948](https://github.com/getgrav/grav/issues/948)
+    * Don't add timestamps on remote assets as it can cause conflicts
+    * Grav now looks at types from `media.yaml` when retrieving page mime types [#966](https://github.com/getgrav/grav/issues/966)
+    * Added support for dumping exceptions in the Debugger
+1. [](#bugfix)
+    * Fixed `Folder::delete` method to recursively remove files and folders and causing Upgrade to fail.
+    * Fix [#952](https://github.com/getgrav/grav/issues/952) hyphenize the session name.
+    * If no parent is set and siblings collection is called, return a new and empty collection [grav-plugin-sitemap/issues/22](https://github.com/getgrav/grav-plugin-sitemap/issues/22)
+    * Prevent exception being thrown when calling the Collator constructor failed in a Windows environment with the Intl PHP Extension enabled [#961](https://github.com/getgrav/grav/issues/961)
+    * Fix for markdown images not properly rendering `id` attribute [#956](https://github.com/getgrav/grav/issues/956)
+
 # v1.1.1
 ## 07/16/2016
 
@@ -817,7 +834,7 @@
     * Improved query string handling
     * Optimization to image handling supporting URL encoded filenames
     * Use global `composer` when available rather than Grv provided one
-    * Use `PHP_BINARY` contant rather than `php` executable
+    * Use `PHP_BINARY` constant rather than `php` executable
     * Updated Doctrine Cache library
     * Updated Symfony libraries
     * Moved `convertUrl()` method to Uri object

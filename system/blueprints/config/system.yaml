@@ -513,7 +513,7 @@ form:
                     label: PLUGIN_ADMIN.MEMCACHED_PORT
                     help: PLUGIN_ADMIN.MEMCACHED_PORT_HELP
                     placeholder: "11211"
-                
+
                 cache.redis.server:
                     type: text
                     size: medium
@@ -1018,3 +1018,14 @@ form:
                     options:
                         ':': ': (default)'
                         ';': '; (for Apache running on Windows)'
+
+                force_ssl:
+                    type: toggle
+                    label: PLUGIN_ADMIN.FORCE_SSL
+                    highlight: 0
+                    help: PLUGIN_ADMIN.FORCE_SSL_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool

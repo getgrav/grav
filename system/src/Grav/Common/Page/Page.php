@@ -2337,6 +2337,9 @@ class Page
                             $results = $collection->addPage($this->parent());
                             break;
                         case 'siblings':
+                            if (!$this->parent()) {
+                                return new Collection();
+                            }
                             $results = $this->parent()->children()->remove($this->path());
                             break;
                         case 'descendants':

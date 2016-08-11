@@ -1065,8 +1065,13 @@ class Pages
         } else {
             // else just sort the list according to specified key
             if (extension_loaded('intl')) {
-                $col = new \Collator(setlocale(LC_COLLATE, 0)); //`setlocale` with a 0 param returns the current locale set
-                $col->asort($list, $sort_flags);
+                $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set    
+                $col = \Collator::create($locale); 
+                if ($col) {
+                    $col->asort($list, $sort_flags);    
+                } else {
+                    asort($list, $sort_flags);    
+                }
             } else {
                 asort($list, $sort_flags);
             }

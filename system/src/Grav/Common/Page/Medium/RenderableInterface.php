@@ -27,8 +27,9 @@ interface RenderableInterface
      * @param string $title
      * @param string $alt
      * @param string $class
+     * @param string $id
      * @param bool $reset
      * @return string
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true);
+    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true);
 }
