@@ -1,0 +1,48 @@
+server {
+    listen 80;
+    server_name www.domain.tld;
+    return 301 http://domain.tld$request_uri; # redirect to non-www domain
+}
+
+server {
+    listen 80;
+    server_name domain.tld;
+
+    root /var/www/grav; # http://nginx.org/en/docs/http/ngx_http_core_module.html#root
+
+    index index.html index.php;
+
+    # grav rewrite rule to index.php
+    location / {
+        try_files $uri $uri/ /index.php?_url=$uri;
+    }
+    # if you have grav installed in a sub-directory (e.g. domain.tld/my-grav-dir/),
+    # replace the above rule with this one:
+    # location /my-grav-dir {
+    #     try_files $uri $uri/ /my-grav-dir/index.php?_url=$uri;
+    # }
+    
+    # grav-specific deny rules for security
+    # ---
+    # deny all direct access for these folders
+    location ~* /(.git|cache|bin|logs|backups|tests)/.*$ { deny all; }
+    # deny running scripts inside core system folders
+    location ~* /(system|vendor)/.*\.(txt|xml|md|html|yaml|php|pl|py|cgi|twig|sh|bat)$ { deny all; }
+    # deny running scripts inside user folder
+    location ~* /user/.*\.(txt|md|yaml|php|pl|py|cgi|twig|sh|bat)$ { deny all; }
+    # deny access to specific files in the root folder
+    location ~ /(LICENSE.txt|composer.lock|composer.json|nginx.conf|web.config|htaccess.txt|\.htaccess) { deny all; }
+    
+    # deny .ht* files everywhere (e.g. .htaccess, .htpasswd)
+    location ~ /\.ht { deny all; }
+    
+    # pass php scripts to php-fpm via fastcgi
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        include fastcgi.conf;
+        fastcgi_index index.php;
+        fastcgi_pass unix:/var/run/php5-fpm.sock; # pass to php-fpm
+        # you can also pass to a <server>:<port>, e.g.
+        # fastcgi_pass localhost:9000;
+    }
+}
