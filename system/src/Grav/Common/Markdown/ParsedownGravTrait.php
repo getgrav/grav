@@ -212,6 +212,7 @@ trait ParsedownGravTrait
             $alt = $excerpt['element']['attributes']['alt'] ?: '';
             $title = $excerpt['element']['attributes']['title'] ?: '';
             $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
+            $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
 
             //get the url and parse it
             $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
@@ -264,7 +265,7 @@ trait ParsedownGravTrait
                         $medium->urlHash($url['fragment']);
                     }
 
-                    $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, true);
+                    $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, $id, true);
 
                 } else {
                     // not a current page media file, see if it needs converting to relative

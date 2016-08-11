@@ -148,6 +148,27 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('![](/home-missing-image.jpg)'));
     }
 
+    public function testImagesAttributes()
+    {
+        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+
+        $this->assertSame('<p><img title="My Title" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg "My Title")'));
+        $this->assertSame('<p><img class="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?classes=foo)'));
+        $this->assertSame('<p><img class="foo bar" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?classes=foo,bar)'));
+        $this->assertSame('<p><img id="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?id=foo)'));
+        $this->assertSame('<p><img alt="Alt Text" id="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![Alt Text](sample-image.jpg?id=foo)'));
+        $this->assertSame('<p><img alt="Alt Text" class="bar" id="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![Alt Text](sample-image.jpg?class=bar&id=foo)'));
+        $this->assertSame('<p><img title="My Title" alt="Alt Text" class="bar" id="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![Alt Text](sample-image.jpg?class=bar&id=foo "My Title")'));
+    }
+
+
     public function testRootImages()
     {
         $this->uri->initializeWithURL('http://testing.dev/')->init();
