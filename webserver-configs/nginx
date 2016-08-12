@@ -1,14 +1,16 @@
 server {
+    # listen [::]:80; # uncomment to listen on IPv6
     listen 80;
     server_name www.domain.tld;
     return 301 http://domain.tld$request_uri; # redirect to non-www domain
 }
 
 server {
+    # listen [::]:80; # uncomment to listen on IPv6
     listen 80;
     server_name domain.tld;
 
-    root /var/www/grav; # http://nginx.org/en/docs/http/ngx_http_core_module.html#root
+    root /var/www/grav;
 
     index index.html index.php;
 
@@ -36,6 +38,11 @@ server {
     # deny all hidden files (starting with dot, e.g. .htpasswd) except .well-known/
     # https://www.mnot.net/blog/2010/04/07/well-known
     location ~* /\.(?!well-known\/) {
+        deny all;
+    }
+    
+    # protect system files
+    location ~* (?:\.(?:bak|conf|dist|fla|in[ci]|log|psd|sh|sql|sw[op])|~)$ {
         deny all;
     }
     
