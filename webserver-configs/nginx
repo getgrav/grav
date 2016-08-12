@@ -33,8 +33,11 @@ server {
     # deny access to specific files in the root folder
     location ~ /(LICENSE.txt|composer.lock|composer.json|nginx.conf|web.config|htaccess.txt|\.htaccess) { deny all; }
     
-    # deny .ht* files everywhere (e.g. .htaccess, .htpasswd)
-    location ~ /\.ht { deny all; }
+    # deny all hidden files (starting with dot, e.g. .htpasswd) except .well-known/
+    # https://www.mnot.net/blog/2010/04/07/well-known
+    location ~* /\.(?!well-known\/) {
+        deny all;
+    }
     
     # pass php scripts to php-fpm via fastcgi
     location ~ \.php$ {
