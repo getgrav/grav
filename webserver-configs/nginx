@@ -21,7 +21,7 @@ server {
     # if you have grav installed in a sub-directory (e.g. domain.tld/my-grav-dir/),
     # replace the above rule with this one:
     # location /my-grav-dir {
-    #     try_files $uri $uri/ /my-grav-dir/index.php?_url=$uri;
+    #     try_files $uri $uri/ /my-grav-dir/index.php;
     # }
     
     # grav-specific deny rules for security
