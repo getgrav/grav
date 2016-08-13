@@ -16,7 +16,7 @@ server {
 
     # grav rewrite rule to index.php
     location / {
-        try_files $uri $uri/ /index.php?_url=$uri;
+        try_files $uri $uri/ /index.php;
     }
     # if you have grav installed in a sub-directory (e.g. domain.tld/my-grav-dir/),
     # replace the above rule with this one:
