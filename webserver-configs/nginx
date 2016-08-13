@@ -16,12 +16,12 @@ server {
 
     # grav rewrite rule to index.php
     location / {
-        try_files $uri $uri/ /index.php?$args;
+        try_files $uri $uri/ /index.php$is_args$args; # for args variable see http://nginx.org/en/docs/http/ngx_http_core_module.html#variables
     }
     # if you have grav installed in a sub-directory (e.g. domain.tld/my-grav-dir/),
     # replace the above rule with this one:
     # location /my-grav-dir {
-    #     try_files $uri $uri/ /my-grav-dir/index.php?$args;
+    #     try_files $uri $uri/ /my-grav-dir/index.php$is_args$args;
     # }
     
     # grav-specific deny rules for security
