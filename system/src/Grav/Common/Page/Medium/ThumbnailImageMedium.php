@@ -52,12 +52,13 @@ class ThumbnailImageMedium extends ImageMedium
      * @param string $title
      * @param string $alt
      * @param string $class
+     * @param string $id
      * @param bool $reset
      * @return string
      */
-    public function html($title = null, $alt = null, $class = null, $reset = true)
+    public function html($title = null, $alt = null, $class = null, $id = null, $reset = true)
     {
-        return $this->bubble('html', [$title, $alt, $class, $reset]);
+        return $this->bubble('html', [$title, $alt, $class, $id, $reset]);
     }
 
     /**
