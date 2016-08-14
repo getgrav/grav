@@ -1,3 +1,9 @@
+# v1.1.3
+## 08/14/2016
+
+1. [](#bugfix)
+    * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
+
 # v1.1.2
 ## 08/10/2016
 
