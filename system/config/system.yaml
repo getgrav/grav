@@ -61,7 +61,7 @@ pages:
   url_taxonomy_filters: true                # Enable auto-magic URL-based taxonomy filters for page collections
   frontmatter:
     process_twig: false                     # Should the frontmatter be processed to replace Twig variables?
-    ignore_fields: ['form']                 # Fields that might contain Twig variables and should not be processed
+    ignore_fields: ['form','forms']         # Fields that might contain Twig variables and should not be processed
 
 cache:
   enabled: true                             # Set to true to enable caching

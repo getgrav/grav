@@ -1,6 +1,8 @@
 # v1.1.3
 ## 08/14/2016
 
+1. [](#improved)
+    * Added a `Util::arrayFlatten()` static function
 1. [](#bugfix)
     * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
 
