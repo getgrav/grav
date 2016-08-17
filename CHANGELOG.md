@@ -5,6 +5,7 @@
     * Important vendor updates to provide PHP 7.1 beta support!
     * Added a `Util::arrayFlatten()` static function
     * Added support for 'external_url' page header to enable easier external URL based menu items
+    * Improved the UI for CLI GPM Index view to use a table
 1. [](#bugfix)
     * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
 
