@@ -54,6 +54,7 @@ class Page
     protected $routable;
     protected $modified;
     protected $redirect;
+    protected $external_url;
     protected $items;
     protected $header;
     protected $frontmatter;
@@ -363,6 +364,9 @@ class Page
             }
             if (isset($this->header->redirect)) {
                 $this->redirect = trim($this->header->redirect);
+            }
+            if (isset($this->header->external_url)) {
+                $this->external_url = trim($this->header->external_url);
             }
             if (isset($this->header->order_dir)) {
                 $this->order_dir = trim($this->header->order_dir);
@@ -1469,6 +1473,11 @@ class Page
 
         /** @var Uri $uri */
         $uri = $grav['uri'];
+
+        // Override any URL when external_url is set
+        if (isset($this->external_url)) {
+            return $this->external_url;
+        }
 
         // get pre-route
         if ($include_lang && $language->enabled()) {
