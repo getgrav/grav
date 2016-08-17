@@ -27,7 +27,8 @@
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-curl": "*",
-        "ext-zip": "*"
+        "ext-zip": "*",
+        "league/climate": "^3.2"
     },
     "require-dev": {
         "codeception/codeception": "^2.1",
