@@ -2,6 +2,7 @@
 ## 08/14/2016
 
 1. [](#improved)
+    * Important vendor updates to provide PHP 7.1 beta support!
     * Added a `Util::arrayFlatten()` static function
 1. [](#bugfix)
     * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
