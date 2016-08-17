@@ -52,6 +52,8 @@ class Types implements \ArrayAccess, \Iterator, \Countable
 
             // Register default by default.
             $this->register('default');
+
+            $this->register('external');
         }
 
         foreach ($this->findBlueprints($uri) as $type => $blueprint) {
