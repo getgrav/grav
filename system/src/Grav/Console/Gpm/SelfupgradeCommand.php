@@ -99,11 +99,6 @@ class SelfupgradeCommand extends ConsoleCommand
         $remote = $this->upgrader->getRemoteVersion();
         $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
 
-        if ($this->isGravSymlinked()) {
-            $this->output->writeln("<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...");
-            exit;
-        }
-
         if (!$this->upgrader->meetsRequirements()) {
             $this->output->writeln("<red>ATTENTION:</red>");
             $this->output->writeln("   Grav has increased the minimum PHP requirement.");
@@ -117,6 +112,14 @@ class SelfupgradeCommand extends ConsoleCommand
 
         if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
             $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);
+            exit;
+        }
+
+        Installer::isValidDestination(GRAV_ROOT . '/system');
+        if (Installer::IS_LINK === Installer::lastErrorCode()) {
+            $this->output->writeln("<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...");
+            $this->output->writeln('');
+            $this->output->writeln("You are currently running a symbolically linked Grav v" . $local . ". Latest available is v". $remote . ".");
             exit;
         }
 
@@ -255,10 +258,5 @@ class SelfupgradeCommand extends ConsoleCommand
         $suffixes = array('', 'k', 'M', 'G', 'T');
 
         return round(pow(1024, $base - floor($base)), $precision) . $suffixes[(int)floor($base)];
-    }
-
-    private function isGravSymlinked()
-    {
-        return (is_link(GRAV_ROOT . '/system'));
     }
 }
