@@ -61,12 +61,34 @@ class GPM extends Iterator
     }
 
     /**
-     * Returns the Locally installed packages
-     * @return Iterator The installed packages
+     * Return the locally installed packages
+     *
+     * @return Local\Packages
      */
     public function getInstalled()
     {
         return $this->installed;
+    }
+
+    /**
+     * Returns the Locally installable packages
+     *
+     * @param array $list_type_installed
+     * @return Iterator The installed packages
+     */
+    public function getInstallable($list_type_installed = ['plugins' => true, 'themes' => true])
+    {
+        $items = ['total' => 0];
+        foreach ($list_type_installed as $type => $type_installed) {
+            if ($type_installed === false) {
+                continue;
+            }
+            $methodInstallableType = 'getInstalled' . ucfirst($type);
+            $to_install = $this->$methodInstallableType();
+            $items[$type] = $to_install;
+            $items['total'] += count($to_install);
+        }
+        return $items;
     }
 
     /**
