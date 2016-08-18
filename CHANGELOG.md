@@ -6,6 +6,8 @@
     * Added a `Util::arrayFlatten()` static function
     * Added support for 'external_url' page header to enable easier external URL based menu items
     * Improved the UI for CLI GPM Index view to use a table
+    * Added `@page.modular` Collection type [#988](https://github.com/getgrav/grav/issues/988)
+    * Added support for `self@`, `page@`, `taxonomy@`, `root@` Collection syntax for cleaner YAML compatibility
 1. [](#bugfix)
     * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
 

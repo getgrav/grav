@@ -2324,6 +2324,7 @@ class Page
         $results = new Collection();
 
         switch ($current) {
+            case 'self@':
             case '@self':
                 if (!empty($parts)) {
                     switch ($parts[0]) {
@@ -2360,6 +2361,7 @@ class Page
                 $results = $results->published();
                 break;
 
+            case 'page@':
             case '@page':
                 $page = null;
 
@@ -2370,32 +2372,39 @@ class Page
                 // safety check in case page is not found
                 if (!isset($page)) {
                     return $results;
+                    return $results;
                 }
 
                 // Handle a @page.descendants
                 if (!empty($parts)) {
                     switch ($parts[0]) {
+                        case 'modular':
+                            $results = new Collection();
+                            $results = $results->addPage($page)->Modular();
+                            break;
+                        case 'page':
                         case 'self':
                             $results = new Collection();
-                            $results = $results->addPage($page);
+                            $results = $results->addPage($page)->nonModular();
                             break;
 
                         case 'descendants':
-                            $results = $pages->all($page)->remove($page->path());
+                            $results = $pages->all($page)->remove($page->path())->nonModular();
                             break;
 
                         case 'children':
-                            $results = $page->children();
+                            $results = $page->children()->nonModular();
                             break;
                     }
                 } else {
-                    $results = $page->children();
+                    $results = $page->children()->nonModular();
                 }
 
-                $results = $results->nonModular()->published();
+                $results = $results->published();
 
                 break;
 
+            case 'root@':
             case '@root':
                 if (!empty($parts) && $parts[0] == 'descendants') {
                     $results = $pages->all($pages->root())->nonModular()->published();
@@ -2404,7 +2413,7 @@ class Page
                 }
                 break;
 
-
+            case 'taxonomy@':
             case '@taxonomy':
                 // Gets a collection of pages by using one of the following formats:
                 // @taxonomy.category: blog
