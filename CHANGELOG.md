@@ -8,6 +8,7 @@
     * Improved the UI for CLI GPM Index view to use a table
     * Added `@page.modular` Collection type [#988](https://github.com/getgrav/grav/issues/988)
     * Added support for `self@`, `page@`, `taxonomy@`, `root@` Collection syntax for cleaner YAML compatibility
+    * Improved GPM commands to allow for `-y` to automate **yes** responses and `-o` for **update** and **selfupgrade** to overwrite installations [#985](https://github.com/getgrav/grav/issues/985)
 1. [](#bugfix)
     * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
 
