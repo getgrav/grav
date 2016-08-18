@@ -297,7 +297,7 @@ class InstallCommand extends ConsoleCommand
                 $questionNoun = 'packages';
             }
 
-            $question = new ConfirmationQuestion("$questionAction $questionArticle $questionNoun? [y|N] ", false);
+            $question = new ConfirmationQuestion("$questionAction $questionArticle $questionNoun? [Y|n] ", true);
 
             if ($helper->ask($this->input, $this->output, $question)) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
