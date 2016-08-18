@@ -49,6 +49,8 @@ class InstallCommand extends ConsoleCommand
     /** @var array */
     protected $demo_processing = [];
 
+    protected $all_yes;
+
     /**
      *
      */
@@ -101,6 +103,8 @@ class InstallCommand extends ConsoleCommand
     {
         $this->gpm = new GPM($this->input->getOption('force'));
 
+        $this->all_yes = $this->input->getOption('all-yes');
+
         $this->displayGPMRelease();
 
         $this->destination = realpath($this->input->getOption('destination'));
@@ -139,16 +143,22 @@ class InstallCommand extends ConsoleCommand
         unset($this->data['not_found']);
         unset($this->data['total']);
 
+
         if (isset($this->local_config)) {
             // Symlinks available, ask if Grav should use them
 
-            $this->use_symlinks = false;
-            $helper = $this->getHelper('question');
-            $question = new ConfirmationQuestion('Should Grav use the symlinks if available? [y|N] ', false);
+            if ($this->all_yes) {
+                $this->use_symlinks = false;
+            } else {
+                $this->use_symlinks = false;
+                $helper = $this->getHelper('question');
+                $question = new ConfirmationQuestion('Should Grav use the symlinks if available? [y|N] ', false);
 
-            if ($helper->ask($this->input, $this->output, $question)) {
-                $this->use_symlinks = true;
+                if ($helper->ask($this->input, $this->output, $question)) {
+                    $this->use_symlinks = true;
+                }
             }
+
         }
 
         $this->output->writeln('');
@@ -197,10 +207,16 @@ class InstallCommand extends ConsoleCommand
                                 return false;
                             }
 
-                            $helper = $this->getHelper('question');
-                            $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> is already installed, overwrite? [y|N] ", false);
+                            if ($this->all_yes) {
+                                $answer = true;
+                            } else {
+                                $helper = $this->getHelper('question');
+                                $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> is already installed, overwrite? [y|N] ", false);
 
-                            if ($helper->ask($this->input, $this->output, $question)) {
+                                $answer = $helper->ask($this->input, $this->output, $question);
+                            }
+
+                            if ($answer) {
                                 $is_update = true;
                                 $this->processPackage($package, true, $is_update);
                             } else {
@@ -299,7 +315,13 @@ class InstallCommand extends ConsoleCommand
 
             $question = new ConfirmationQuestion("$questionAction $questionArticle $questionNoun? [Y|n] ", true);
 
-            if ($helper->ask($this->input, $this->output, $question)) {
+            if ($this->all_yes) {
+                $answer = true;
+            } else {
+                $answer = $helper->ask($this->input, $this->output, $question);
+            }
+
+            if ($answer) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
                     $package = $this->gpm->findPackage($dependencyName);
                     $this->processPackage($package, true, ($type == 'update') ? true : false);
@@ -560,10 +582,6 @@ class InstallCommand extends ConsoleCommand
     private function checkDestination($package, $skip_prompt = false)
     {
         $question_helper = $this->getHelper('question');
-
-        if (!$skip_prompt) {
-            $skip_prompt = $this->input->getOption('all-yes');
-        }
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
 
