@@ -217,8 +217,8 @@ class InstallCommand extends ConsoleCommand
                             }
                         } else {
                             if (Installer::lastErrorCode() == Installer::IS_LINK) {
-                                $this->output->writeln("<red>Cannot overwrite existing symlink</red>");
-                                return false;
+                                $this->output->writeln("<red>Cannot overwrite existing symlink for </red><cyan>$package_name</cyan>");
+                                $this->output->writeln("");
                             }
                         }
                     }
@@ -575,22 +575,6 @@ class InstallCommand extends ConsoleCommand
         $question_helper = $this->getHelper('question');
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
-
-        if (Installer::lastErrorCode() == Installer::EXISTS) {
-
-            $this->output->write("\x0D");
-            $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
-
-            $question = new ConfirmationQuestion("  |  '- The package is already installed, do you want to overwrite it? [y|N] ",
-                false);
-            $answer = $this->all_yes ? true : $question_helper->ask($this->input, $this->output, $question);
-
-            if (!$answer) {
-                $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
-
-                return false;
-            }
-        }
 
         if (Installer::lastErrorCode() == Installer::IS_LINK) {
             $this->output->write("\x0D");
