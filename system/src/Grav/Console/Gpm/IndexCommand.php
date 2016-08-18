@@ -161,7 +161,7 @@ class IndexCommand extends ConsoleCommand
         }
 
         if ($updatable) {
-            return "v<red>" . $package->version . "</red> <cyan>-></cyan>  v<green>" . $package->available . "</green>";
+            return "v<red>" . $package->version . "</red> <cyan>-></cyan> v<green>" . $package->available . "</green>";
         }
 
         return '';
