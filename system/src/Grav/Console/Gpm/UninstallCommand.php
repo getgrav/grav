@@ -41,6 +41,8 @@ class UninstallCommand extends ConsoleCommand
 
     protected $dependencies= [];
 
+    protected $all_yes;
+
     /**
      *
      */
@@ -69,6 +71,8 @@ class UninstallCommand extends ConsoleCommand
     protected function serve()
     {
         $this->gpm = new GPM();
+
+        $this->all_yes = $this->input->getOption('all-yes');
 
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = ['total' => 0, 'not_found' => []];
@@ -193,7 +197,7 @@ class UninstallCommand extends ConsoleCommand
                     $this->output->writeln("A dependency on <cyan>" . $dependencyPackage->name . "</cyan> [v" . $dependencyPackage->version . "] was found");
 
                     $question = new ConfirmationQuestion("  |- Uninstall <cyan>" . $dependencyPackage->name . "</cyan>? [y|N] ", false);
-                    $answer = $questionHelper->ask($this->input, $this->output, $question);
+                    $answer = $this->all_yes ? true : $questionHelper->ask($this->input, $this->output, $question);
 
                     if ($answer) {
                         $uninstall = $this->uninstallPackage($dependency, $dependencyPackage, true);
@@ -252,7 +256,6 @@ class UninstallCommand extends ConsoleCommand
     private function checkDestination($slug, $package)
     {
         $questionHelper = $this->getHelper('question');
-        $skipPrompt = $this->input->getOption('all-yes');
 
         $exists = $this->packageExists($slug, $package);
 
@@ -260,7 +263,7 @@ class UninstallCommand extends ConsoleCommand
             $this->output->write("\x0D");
             $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
 
-            if ($skipPrompt) {
+            if ($this->all_yes) {
                 $this->output->writeln("  |     '- <yellow>Skipped automatically.</yellow>");
 
                 return false;
@@ -268,7 +271,7 @@ class UninstallCommand extends ConsoleCommand
 
             $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
                 false);
-            $answer = $questionHelper->ask($this->input, $this->output, $question);
+            $answer = $this->all_yes ? true : $questionHelper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
                 $this->output->writeln("  |     '- <red>You decided not to delete the symlink automatically.</red>");
