@@ -50,6 +50,7 @@ class SelfupgradeCommand extends ConsoleCommand
     private $upgrader;
 
     protected $all_yes;
+    protected $overwrite;
 
     /**
      *
@@ -71,6 +72,12 @@ class SelfupgradeCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'Assumes yes (or best approach) instead of prompting'
             )
+            ->addOption(
+                'overwrite',
+                'o',
+                InputOption::VALUE_NONE,
+                'Option to overwrite packages if they already exist'
+            )
             ->setDescription("Detects and performs an update of Grav itself when available")
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
@@ -82,6 +89,7 @@ class SelfupgradeCommand extends ConsoleCommand
     {
         $this->upgrader = new Upgrader($this->input->getOption('force'));
         $this->all_yes = $this->input->getOption('all-yes');
+        $this->overwrite = $this->input->getOption('overwrite');
 
         $this->displayGPMRelease();
 
@@ -91,8 +99,12 @@ class SelfupgradeCommand extends ConsoleCommand
         $remote = $this->upgrader->getRemoteVersion();
         $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
 
+        if ($this->isGravSymlinked()) {
+            $this->output->writeln("<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...");
+            exit;
+        }
+
         if (!$this->upgrader->meetsRequirements()) {
-            $this->output->writeln("");
             $this->output->writeln("<red>ATTENTION:</red>");
             $this->output->writeln("   Grav has increased the minimum PHP requirement.");
             $this->output->writeln("   You are currently running PHP <red>" . PHP_VERSION . "</red>, but PHP <green>" . GRAV_PHP_MIN . "</green> is required.");
@@ -103,7 +115,7 @@ class SelfupgradeCommand extends ConsoleCommand
             exit;
         }
 
-        if (!$this->upgrader->isUpgradable()) {
+        if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
             $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);
             exit;
         }
@@ -243,5 +255,10 @@ class SelfupgradeCommand extends ConsoleCommand
         $suffixes = array('', 'k', 'M', 'G', 'T');
 
         return round(pow(1024, $base - floor($base)), $precision) . $suffixes[(int)floor($base)];
+    }
+
+    private function isGravSymlinked()
+    {
+        return (is_link(GRAV_ROOT . '/system'));
     }
 }
