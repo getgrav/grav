@@ -49,6 +49,8 @@ class SelfupgradeCommand extends ConsoleCommand
      */
     private $upgrader;
 
+    protected $all_yes;
+
     /**
      *
      */
@@ -79,6 +81,7 @@ class SelfupgradeCommand extends ConsoleCommand
     protected function serve()
     {
         $this->upgrader = new Upgrader($this->input->getOption('force'));
+        $this->all_yes = $this->input->getOption('all-yes');
 
         $this->displayGPMRelease();
 
@@ -109,12 +112,12 @@ class SelfupgradeCommand extends ConsoleCommand
         new ArrayInput([]);
 
         $questionHelper = $this->getHelper('question');
-        $skipPrompt = $this->input->getOption('all-yes');
+
 
         $this->output->writeln("Grav v<cyan>$remote</cyan> is now available [release date: $release].");
         $this->output->writeln("You are currently using v<cyan>" . GRAV_VERSION . "</cyan>.");
 
-        if (!$skipPrompt) {
+        if (!$this->all_yes) {
             $question = new ConfirmationQuestion("Would you like to read the changelog before proceeding? [y|N] ",
                 false);
             $answer = $questionHelper->ask($this->input, $this->output, $question);
