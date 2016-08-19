@@ -178,8 +178,9 @@ form:
                     help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
                     options:
                         301: 301 - Permanent
+                        302: 302 - Found
                         303: 303 - Other
-                        307: 307 - Temporary
+                        304: 304 - Not Modified
 
                 pages.redirect_trailing_slash:
                     type: toggle
