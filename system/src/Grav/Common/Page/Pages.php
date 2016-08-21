@@ -851,7 +851,7 @@ class Pages
 
         $page_extension = '';
 
-        if ($pages_found and $pages_found->count() > 0) {
+        if ($pages_found and count($pages_found) > 0) {
 
             $page_extensions = $language->getFallbackPageExtensions();
 
