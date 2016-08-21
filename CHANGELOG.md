@@ -12,6 +12,7 @@
 1. [](#bugfix)
     * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
     * Removed 307 redirect code option as it is not well supported [#743](https://github.com/getgrav/grav-plugin-admin/issues/743)
+    * Fixed issue with folders with name `*.md` are not confused with pages [#995](https://github.com/getgrav/grav/issues/995)
 
 # v1.1.2
 ## 08/10/2016
