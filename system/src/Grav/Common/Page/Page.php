@@ -2235,7 +2235,7 @@ class Page
                             if (empty($page->taxonomy[$taxonomy]) || !in_array(htmlspecialchars_decode($item,
                                     ENT_QUOTES), $page->taxonomy[$taxonomy])
                             ) {
-                                $collection->remove();
+                                $collection->remove($page->path());
                             }
                         }
                     }
