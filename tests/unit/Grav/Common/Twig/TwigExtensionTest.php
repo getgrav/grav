@@ -70,12 +70,6 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
         }
     }
 
-    public function testSafeEmailFilter()
-    {
-        $this->assertSame('&#100;&#101;&#118;&#115;&#64;&#103;&#101;&#116;&#103;&#114;&#97;&#118;&#46;&#111;&#114;&#103;',   $this->twig_ext->safeEmailFilter('devs@getgrav.org'));
-        $this->assertSame('&#115;&#111;&#109;&#101;&#111;&#110;&#101;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;',   $this->twig_ext->safeEmailFilter('someone@example.com'));
-    }
-
     public function testRandomizeFilter()
     {
         $array = [1,2,3,4,5];
