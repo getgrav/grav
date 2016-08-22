@@ -860,7 +860,7 @@ class Pages
                     if ($found->isDir()) {
                         continue;
                     }
-                    $regex = '/' . preg_quote($extension) . '$/';
+                    $regex = '/^[^\.]*' . preg_quote($extension) . '$/';
                     if (preg_match($regex, $found->getFilename())) {
                         $page_found = $found;
                         $page_extension = $extension;
