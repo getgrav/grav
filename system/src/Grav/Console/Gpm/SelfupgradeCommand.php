@@ -195,8 +195,8 @@ class SelfupgradeCommand extends ConsoleCommand
      */
     private function download($package)
     {
-        $cache_dir = Grav::instance()['locator']->findResource('cache://', true);
-        $this->tmp = $cache_dir . DS . 'tmp/Grav-' . uniqid();
+        $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true);
+        $this->tmp = $tmp_dir . '/Grav-' . uniqid();
         $output = Response::get($package['download'], [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
