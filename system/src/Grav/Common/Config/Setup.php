@@ -95,6 +95,12 @@ class Setup extends Data
                 '' => ['backup']
             ]
         ],
+        'tmp' => [
+            'type' => 'Stream',
+            'prefixes' => [
+                '' => ['tmp']
+            ]
+        ],
         'image' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [

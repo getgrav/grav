@@ -65,7 +65,8 @@ class Cache extends Getters
     protected static $all_remove = [
         'cache://',
         'cache://images',
-        'asset://'
+        'asset://',
+        'tmp://'
     ];
 
     protected static $assets_remove = [
@@ -78,6 +79,10 @@ class Cache extends Getters
 
     protected static $cache_remove = [
         'cache://'
+    ];
+
+    protected static $tmp_remove = [
+        'tmp://'
     ];
 
     /**
@@ -308,6 +313,9 @@ class Cache extends Getters
                 break;
             case 'cache-only':
                 $remove_paths = self::$cache_remove;
+                break;
+            case 'tmp-only':
+                $remove_paths = self::$tmp_remove;
                 break;
             default:
                 $remove_paths = self::$standard_remove;
