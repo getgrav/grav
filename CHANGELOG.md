@@ -3,10 +3,7 @@
 
 1. [](#new)
     * Added new `tmp` folder at root. Accessible via stream `tmp://`. Can be cleared with `bin/grav clear --tmp-only` as well as `--all`.
-
-# v1.1.3
-## 08/14/2016
-
+    * Added support for RTL in `LanguageCodes` so you can determine if a language is RTL or not
 1. [](#improved)
     * Important vendor updates to provide PHP 7.1 beta support!
     * Added a `Util::arrayFlatten()` static function
@@ -17,10 +14,15 @@
     * Improved GPM commands to allow for `-y` to automate **yes** responses and `-o` for **update** and **selfupgrade** to overwrite installations [#985](https://github.com/getgrav/grav/issues/985)
     * Added randomization to `safe_email` Twig filter [#998](https://github.com/getgrav/grav/issues/998)
 1. [](#bugfix)
-    * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
     * Removed 307 redirect code option as it is not well supported [#743](https://github.com/getgrav/grav-plugin-admin/issues/743)
     * Fixed issue with folders with name `*.md` are not confused with pages [#995](https://github.com/getgrav/grav/issues/995)
     * Fixed an issue when filtering collections causing null key
+    
+# v1.1.3
+## 08/14/2016
+
+1. [](#bugfix)
+    * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
 
 # v1.1.2
 ## 08/10/2016
