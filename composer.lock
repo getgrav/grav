@@ -750,12 +750,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "7b3a2a78ce11e700d63a1cc4df1fb0cb68445041"
+                "reference": "cf81ba463ab4d86ce09c07d44908a3aea313c765"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/7b3a2a78ce11e700d63a1cc4df1fb0cb68445041",
-                "reference": "7b3a2a78ce11e700d63a1cc4df1fb0cb68445041",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/cf81ba463ab4d86ce09c07d44908a3aea313c765",
+                "reference": "cf81ba463ab4d86ce09c07d44908a3aea313c765",
                 "shasum": ""
             },
             "require": {
@@ -790,7 +790,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-08-01 09:49:45"
+            "time": "2016-08-24 09:40:53"
         },
         {
             "name": "seld/cli-prompt",
@@ -2468,23 +2468,23 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "1.3.7",
+            "version": "1.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "4e8f0da10ac5802913afc151413bc8c53b6c2716"
+                "reference": "be2c607e43ce4c89ecd60e75c6a85c126e754aea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/4e8f0da10ac5802913afc151413bc8c53b6c2716",
-                "reference": "4e8f0da10ac5802913afc151413bc8c53b6c2716",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/be2c607e43ce4c89ecd60e75c6a85c126e754aea",
+                "reference": "be2c607e43ce4c89ecd60e75c6a85c126e754aea",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3"
+                "php": "^5.3.3 || ^7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.4"
+                "phpunit/phpunit": "^4.8 || ^5.0"
             },
             "type": "library",
             "extra": {
@@ -2514,7 +2514,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2016-05-17 03:18:57"
+            "time": "2016-08-18 05:49:44"
         },
         {
             "name": "sebastian/exporter",
