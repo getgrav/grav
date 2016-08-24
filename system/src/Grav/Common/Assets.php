@@ -281,8 +281,9 @@ class Assets
             return $this;
         }
 
-        $modified = 0;
-        if (!$this->isRemoteLink($asset)) {
+        $modified = false;
+        $remote = $this->isRemoteLink($asset);
+        if (!$remote) {
             $modified = $this->getLastModificationTime($asset);
             $asset = $this->buildLocalLink($asset);
         }
@@ -294,6 +295,7 @@ class Assets
 
         $data = [
             'asset'    => $asset,
+            'remote'   => $remote,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->css),
             'pipeline' => (bool) $pipeline,
@@ -345,8 +347,9 @@ class Assets
             return $this;
         }
 
-        $modified = 0;
-        if (!$this->isRemoteLink($asset)) {
+        $modified = false;
+        $remote = $this->isRemoteLink($asset);
+        if (!$remote) {
             $modified = $this->getLastModificationTime($asset);
             $asset = $this->buildLocalLink($asset);
         }
@@ -358,6 +361,7 @@ class Assets
 
         $data = [
             'asset'    => $asset,
+            'remote'   => $remote ,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
             'pipeline' => (bool) $pipeline,
@@ -558,7 +562,7 @@ class Assets
             foreach ($this->css_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
                     $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
-                    $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
+                    $output .= '<link href="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . $media . ' />' . "\n";
                 }
             }
             if (!$this->css_pipeline_before_excludes && $pipeline_result) {
@@ -568,7 +572,7 @@ class Assets
             foreach ($this->css as $file) {
                 if ($group && $file['group'] == $group) {
                     $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
-                    $output .= '<link href="' . $file['asset'] . $this->timestamp . '"' . $attributes . $media . ' />' . "\n";
+                    $output .= '<link href="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . $media . ' />' . "\n";
                 }
             }
         }
@@ -636,7 +640,7 @@ class Assets
             }
             foreach ($this->js_no_pipeline as $file) {
                 if ($group && $file['group'] == $group) {
-                    $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
+                    $output .= '<script src="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
                 }
             }
             if (!$this->js_pipeline_before_excludes && $pipeline_result) {
@@ -645,7 +649,7 @@ class Assets
         } else {
             foreach ($this->js as $file) {
                 if ($group && $file['group'] == $group) {
-                    $output .= '<script src="' . $file['asset'] . $this->timestamp . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
+                    $output .= '<script src="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
                 }
             }
         }
@@ -693,14 +697,14 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($this->assets_dir . $file)) {
-            return $relative_path . $this->timestamp;
+            return $relative_path . $this->getTimestamp();
         }
 
         // Remove any non-pipeline files
         foreach ($this->css as $id => $asset) {
             if ($asset['group'] == $group) {
                 if (!$asset['pipeline'] ||
-                    ($this->isRemoteLink($asset['asset']) && $this->css_pipeline_include_externals === false)) {
+                    ($asset['remote'] && $this->css_pipeline_include_externals === false)) {
                     $this->css_no_pipeline[$id] = $asset;
                 } else {
                     $temp_css[$id] = $asset;
@@ -740,7 +744,7 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
-            return $relative_path . $this->timestamp;
+            return $relative_path . $this->getTimestamp();
         } else {
             return false;
         }
@@ -775,14 +779,14 @@ class Assets
 
         // If pipeline exist return it
         if (file_exists($this->assets_dir . $file)) {
-            return $relative_path . $this->timestamp;
+            return $relative_path . $this->getTimestamp();
         }
 
         // Remove any non-pipeline files
         foreach ($this->js as $id => $asset) {
             if ($asset['group'] == $group) {
                 if (!$asset['pipeline'] ||
-                    ($this->isRemoteLink($asset['asset']) && $this->js_pipeline_include_externals === false)) {
+                    ($asset['remote'] && $this->js_pipeline_include_externals === false)) {
                     $this->js_no_pipeline[] = $asset;
                 } else {
                     $temp_js[$id] = $asset;
@@ -812,7 +816,7 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
-            return $relative_path . $this->timestamp;
+            return $relative_path . $this->getTimestamp();
         } else {
             return false;
         }
@@ -1340,6 +1344,21 @@ class Assets
     public function setTimestamp($value)
     {
         $this->timestamp = '?' . $value;
+    }
+
+    public function getTimestamp($asset = null)
+    {
+        if (is_array($asset)) {
+            if ($asset['remote'] == false) {
+                if (Utils::contains($asset['asset'], '?')) {
+                    return str_replace('?', '&', $this->timestamp);
+                } else {
+                    return $this->timestamp;
+                }
+            }
+        } elseif (empty($asset)) {
+            return $this->timestamp;
+        }
     }
 
     /**

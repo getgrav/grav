@@ -436,22 +436,11 @@ abstract class Folder
             return @unlink($folder);
         }
 
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        /** @var \DirectoryIterator $fileinfo */
-        foreach ($files as $fileinfo) {
-            if ($fileinfo->isDir()) {
-                if (false === @rmdir($fileinfo->getRealPath())) {
-                    return false;
-                }
-            } else {
-                if (false === @unlink($fileinfo->getRealPath())) {
-                    return false;
-                }
-            }
+        // Go through all items in filesystem and recursively remove everything.
+        $files = array_diff(scandir($folder), array('.', '..'));
+        foreach ($files as $file) {
+            $path = "{$folder}/{$file}";
+            (is_dir($path)) ? self::doDelete($path) : @unlink($path);
         }
 
         return $include_target ? @rmdir($folder) : true;

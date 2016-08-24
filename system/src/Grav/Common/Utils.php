@@ -433,6 +433,27 @@ abstract class Utils
     }
 
     /**
+     * Flatten an array
+     *
+     * @param $array
+     * @return array
+     */
+    public static function arrayFlatten($array)
+    {
+        $flatten = array();
+        foreach ($array as $key => $inner){
+            if (is_array($inner)) {
+                foreach ($inner as $inner_key => $value) {
+                    $flatten[$inner_key] = $value;
+                }
+            } else {
+                $flatten[$key] = $inner;
+            }
+        }
+        return $flatten;
+    }
+
+    /**
      * Checks if the passed path contains the language code prefix
      *
      * @param string $string The path

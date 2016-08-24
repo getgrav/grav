@@ -217,4 +217,19 @@ class Debugger
 
         return $this;
     }
+
+    /**
+     * Dump exception into the Messages tab of the Debug Bar
+     *
+     * @param \Exception $e
+     * @return Debugger
+     */
+    public function addException(\Exception $e)
+    {
+        if ($this->enabled()) {
+            $this->debugbar['exceptions']->addException($e);
+        }
+
+        return $this;
+    }
 }

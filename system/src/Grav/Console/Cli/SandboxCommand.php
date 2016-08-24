@@ -19,15 +19,16 @@ class SandboxCommand extends ConsoleCommand
      * @var array
      */
     protected $directories = [
+        '/assets',
         '/backup',
         '/cache',
-        '/logs',
         '/images',
-        '/assets',
+        '/logs',
+        '/tmp',
         '/user/accounts',
         '/user/config',
-        '/user/pages',
         '/user/data',
+        '/user/pages',
         '/user/plugins',
         '/user/themes',
     ];

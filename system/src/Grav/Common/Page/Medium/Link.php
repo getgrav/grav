@@ -36,12 +36,13 @@ class Link implements RenderableInterface
      * @param  string  $title
      * @param  string  $alt
      * @param  string  $class
+     * @param  string  $id
      * @param  boolean $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
+    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
     {
-        $innerElement = $this->source->parsedownElement($title, $alt, $class, $reset);
+        $innerElement = $this->source->parsedownElement($title, $alt, $class, $id, $reset);
 
         return [
             'name' => 'a',

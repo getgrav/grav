@@ -1,3 +1,44 @@
+# v1.1.4
+## XX/XX/2016
+
+1. [](#new)
+    * Added new `tmp` folder at root. Accessible via stream `tmp://`. Can be cleared with `bin/grav clear --tmp-only` as well as `--all`.
+
+# v1.1.3
+## 08/14/2016
+
+1. [](#improved)
+    * Important vendor updates to provide PHP 7.1 beta support!
+    * Added a `Util::arrayFlatten()` static function
+    * Added support for 'external_url' page header to enable easier external URL based menu items
+    * Improved the UI for CLI GPM Index view to use a table
+    * Added `@page.modular` Collection type [#988](https://github.com/getgrav/grav/issues/988)
+    * Added support for `self@`, `page@`, `taxonomy@`, `root@` Collection syntax for cleaner YAML compatibility
+    * Improved GPM commands to allow for `-y` to automate **yes** responses and `-o` for **update** and **selfupgrade** to overwrite installations [#985](https://github.com/getgrav/grav/issues/985)
+    * Added randomization to `safe_email` Twig filter [#998](https://github.com/getgrav/grav/issues/998)
+1. [](#bugfix)
+    * Fix for lightbox media function throwing error [#981](https://github.com/getgrav/grav/issues/981)
+    * Removed 307 redirect code option as it is not well supported [#743](https://github.com/getgrav/grav-plugin-admin/issues/743)
+    * Fixed issue with folders with name `*.md` are not confused with pages [#995](https://github.com/getgrav/grav/issues/995)
+    * Fixed an issue when filtering collections causing null key
+
+# v1.1.2
+## 08/10/2016
+
+1. [](#new)
+    * Allow forcing SSL by setting `system.force_ssl` (Force SSL in the Admin System Config) [#899](https://github.com/getgrav/grav/pull/899)
+1. [](#improved)
+    * Improved `authorize` Twig extension to accept a nested array of authorizations  [#948](https://github.com/getgrav/grav/issues/948)
+    * Don't add timestamps on remote assets as it can cause conflicts
+    * Grav now looks at types from `media.yaml` when retrieving page mime types [#966](https://github.com/getgrav/grav/issues/966)
+    * Added support for dumping exceptions in the Debugger
+1. [](#bugfix)
+    * Fixed `Folder::delete` method to recursively remove files and folders and causing Upgrade to fail.
+    * Fix [#952](https://github.com/getgrav/grav/issues/952) hyphenize the session name.
+    * If no parent is set and siblings collection is called, return a new and empty collection [grav-plugin-sitemap/issues/22](https://github.com/getgrav/grav-plugin-sitemap/issues/22)
+    * Prevent exception being thrown when calling the Collator constructor failed in a Windows environment with the Intl PHP Extension enabled [#961](https://github.com/getgrav/grav/issues/961)
+    * Fix for markdown images not properly rendering `id` attribute [#956](https://github.com/getgrav/grav/issues/956)
+
 # v1.1.1
 ## 07/16/2016
 
@@ -817,7 +858,7 @@
     * Improved query string handling
     * Optimization to image handling supporting URL encoded filenames
     * Use global `composer` when available rather than Grv provided one
-    * Use `PHP_BINARY` contant rather than `php` executable
+    * Use `PHP_BINARY` constant rather than `php` executable
     * Updated Doctrine Cache library
     * Updated Symfony libraries
     * Moved `convertUrl()` method to Uri object

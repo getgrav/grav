@@ -38,6 +38,12 @@ class PageServiceProvider implements ServiceProviderInterface
 
             // Redirection tests
             if ($page) {
+                if ($c['config']->get('system.force_ssl')) {
+                    if (!isset($_SERVER['HTTPS']) || $_SERVER["HTTPS"] != "on") {
+                        $url = "https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+                        $c->redirect($url);
+                    }                    
+                }
 
                 $url = $page->route();
 

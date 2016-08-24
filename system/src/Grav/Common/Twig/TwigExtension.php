@@ -142,12 +142,16 @@ class TwigExtension extends \Twig_Extension
     public function safeEmailFilter($str)
     {
         $email   = '';
-        $str_len = strlen($str);
-        for ($i = 0; $i < $str_len; $i++) {
-            $email .= "&#" . ord($str[$i]) . ";";
+        for ( $i = 0, $len = strlen( $str ); $i < $len; $i++ ) {
+            $j = rand( 0, 1);
+            if ( $j == 0 ) {
+                $email .= '&#' . ord( $str[$i] ) . ';';
+            } elseif ( $j == 1 ) {
+                $email .= $str[$i];
+            }
         }
 
-        return $email;
+        return str_replace( '@', '&#64;', $email );
     }
 
     /**
@@ -729,11 +733,15 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
-     * Authorize an action. Returns true if the user is logged in and has the right to execute $action.
+     * Authorize an action. Returns true if the user is logged in and
+     * has the right to execute $action.
      *
-     * @param string $action
-     *
-     * @return bool
+     * @param  string|array $action An action or a list of actions. Each
+     *                              entry can be a string like 'group.action'
+     *                              or without dot notation an associative
+     *                              array.
+     * @return bool                 Returns TRUE if the user is authorized to
+     *                              perform the action, FALSE otherwise.
      */
     public function authorize($action)
     {
@@ -741,11 +749,14 @@ class TwigExtension extends \Twig_Extension
             return false;
         }
 
-        $action = (array)$action;
-
-        foreach ($action as $a) {
-            if ($this->grav['user']->authorize($a)) {
-                return true;
+        $action = (array) $action;
+        foreach ($action as $key => $perms) {
+            $prefix = is_int($key) ? '' : $key . '.';
+            $perms = $prefix ? (array) $perms : [$perms => true];
+            foreach ($perms as $action => $authenticated) {
+                if ($this->grav['user']->authorize($prefix . $action)) {
+                    return $authenticated;
+                }
             }
         }
 

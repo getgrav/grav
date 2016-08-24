@@ -44,7 +44,7 @@ env:
     # GH_API_USER [for curl]
     - secure: "AQGcX1B2NrI8ajflY4AimZDNcK2kBA3F6mbtEFQ78NkDoWhMipsQHayWXiSTzRc0YJKvQl2Y16MTwQF4VHzjTAiiZFATgA8J88vQUjIPabi/kKjqSmcLFoaAOAxStQbW6e0z2GiQ6KBMcNF1y5iUuI63xVrBvtKrYX/w5y+ako8="
     # Latest Release version
-    - TRAVIS_TAG=$(curl --fail -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4)
+    - TRAVIS_TAG=$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4)
 
 before_install:
   - export TZ=Pacific/Honolulu

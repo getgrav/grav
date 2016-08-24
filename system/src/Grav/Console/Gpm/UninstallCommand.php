@@ -39,6 +39,10 @@ class UninstallCommand extends ConsoleCommand
      */
     protected $tmp;
 
+    protected $dependencies= [];
+
+    protected $all_yes;
+
     /**
      *
      */
@@ -67,6 +71,8 @@ class UninstallCommand extends ConsoleCommand
     protected function serve()
     {
         $this->gpm = new GPM();
+
+        $this->all_yes = $this->input->getOption('all-yes');
 
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = ['total' => 0, 'not_found' => []];
@@ -108,15 +114,12 @@ class UninstallCommand extends ConsoleCommand
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                 $this->output->writeln('');
             } else {
-                $this->output->write("  |- Uninstalling package...  ");
                 $uninstall = $this->uninstallPackage($slug, $package);
 
                 if (!$uninstall) {
                     $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
-                    $this->output->writeln('');
                 } else {
                     $this->output->writeln("  '- <green>Success!</green>  ");
-                    $this->output->writeln('');
                 }
             }
 
@@ -156,36 +159,29 @@ class UninstallCommand extends ConsoleCommand
             return false;
         }
 
-        $locator = Grav::instance()['locator'];
-        $path = $locator->findResource($package->package_type . '://' . $slug);
-        Installer::uninstall($path);
-        $errorCode = Installer::lastErrorCode();
-
-        if ($errorCode && $errorCode !== Installer::IS_LINK && $errorCode !== Installer::EXISTS) {
-            $this->output->write("\x0D");
-            // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- Uninstalling package...  <red>error</red>                             ");
-            $this->output->writeln("  |  '- " . Installer::lastErrorMsg());
-
-            return false;
-        }
-
-        $message = Installer::getMessage();
-        if ($message) {
-            $this->output->write("\x0D");
-            // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- " . $message);
-        }
-
-        $this->output->write("\x0D");
-        // extra white spaces to clear out the buffer properly
-        $this->output->writeln("  |- Uninstalling package...  <green>ok</green>                             ");
-
-
         if (isset($package->dependencies)) {
+
+            $dependencies = $package->dependencies;
+
+            if ($is_dependency) {
+                foreach ($dependencies as $key => $dependency) {
+                    if (in_array($dependency['name'], $this->dependencies)) {
+                        unset($dependencies[$key]);
+                    }
+                }
+            } else {
+                if (count($dependencies) > 0) {
+                    $this->output->writeln('  `- Dependencies found...');
+                    $this->output->writeln('');
+                }
+            }
+
             $questionHelper = $this->getHelper('question');
 
-            foreach($package->dependencies as $dependency) {
+            foreach ($dependencies as $dependency) {
+
+                $this->dependencies[] = $dependency['name'];
+
                 if (is_array($dependency)) {
                     $dependency = $dependency['name'];
                 }
@@ -194,24 +190,58 @@ class UninstallCommand extends ConsoleCommand
                 }
 
                 $dependencyPackage = $this->gpm->findPackage($dependency);
-                $question = new ConfirmationQuestion("  |  '- Delete dependency <cyan>" . $dependency . "</cyan> too? [y|N] ", false);
-                $answer = $questionHelper->ask($this->input, $this->output, $question);
 
-                if ($answer) {
-                    $this->output->writeln("  |     '- <red>You decided to delete " . $dependency . ".</red>");
+                $dependency_exists = $this->packageExists($dependency, $dependencyPackage);
 
-                    $uninstall = $this->uninstallPackage($dependency, $dependencyPackage, true);
+                if ($dependency_exists == Installer::EXISTS) {
+                    $this->output->writeln("A dependency on <cyan>" . $dependencyPackage->name . "</cyan> [v" . $dependencyPackage->version . "] was found");
 
-                    if (!$uninstall) {
-                        $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
+                    $question = new ConfirmationQuestion("  |- Uninstall <cyan>" . $dependencyPackage->name . "</cyan>? [y|N] ", false);
+                    $answer = $this->all_yes ? true : $questionHelper->ask($this->input, $this->output, $question);
+
+                    if ($answer) {
+                        $uninstall = $this->uninstallPackage($dependency, $dependencyPackage, true);
+
+                        if (!$uninstall) {
+                            $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
+                        } else {
+                            $this->output->writeln("  '- <green>Success!</green>  ");
+
+                        }
                         $this->output->writeln('');
                     } else {
-                        $this->output->writeln("  '- <green>Success!</green>  ");
+                        $this->output->writeln("  '- <yellow>You decided not to uninstall " . $dependencyPackage->name . ".</yellow>");
                         $this->output->writeln('');
                     }
                 }
+
             }
         }
+
+
+        $locator = Grav::instance()['locator'];
+        $path = $locator->findResource($package->package_type . '://' . $slug);
+        Installer::uninstall($path);
+        $errorCode = Installer::lastErrorCode();
+
+        if ($errorCode && $errorCode !== Installer::IS_LINK && $errorCode !== Installer::EXISTS) {
+            $this->output->writeln("  |- Uninstalling " . $package->name . " package...  <red>error</red>                             ");
+            $this->output->writeln("  |  '- <yellow>" . Installer::lastErrorMsg()."</yellow>");
+
+            return false;
+        }
+
+        $message = Installer::getMessage();
+        if ($message) {
+            $this->output->writeln("  |- " . $message);
+        }
+
+        if (!$is_dependency && $this->dependencies) {
+            $this->output->writeln("Finishing up uninstalling <cyan>" . $package->name . "</cyan>");
+        }
+        $this->output->writeln("  |- Uninstalling " . $package->name . " package...  <green>ok</green>                             ");
+
+
 
         return true;
     }
@@ -225,17 +255,15 @@ class UninstallCommand extends ConsoleCommand
 
     private function checkDestination($slug, $package)
     {
-        $path = Grav::instance()['locator']->findResource($package->package_type . '://' . $slug);
         $questionHelper = $this->getHelper('question');
-        $skipPrompt = $this->input->getOption('all-yes');
 
-        Installer::isValidDestination($path);
+        $exists = $this->packageExists($slug, $package);
 
-        if (Installer::lastErrorCode() == Installer::IS_LINK) {
+        if ($exists == Installer::IS_LINK) {
             $this->output->write("\x0D");
             $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
 
-            if ($skipPrompt) {
+            if ($this->all_yes) {
                 $this->output->writeln("  |     '- <yellow>Skipped automatically.</yellow>");
 
                 return false;
@@ -243,10 +271,10 @@ class UninstallCommand extends ConsoleCommand
 
             $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
                 false);
-            $answer = $questionHelper->ask($this->input, $this->output, $question);
+            $answer = $this->all_yes ? true : $questionHelper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
-                $this->output->writeln("  |     '- <red>You decided to not delete the symlink automatically.</red>");
+                $this->output->writeln("  |     '- <red>You decided not to delete the symlink automatically.</red>");
 
                 return false;
             }
@@ -256,5 +284,19 @@ class UninstallCommand extends ConsoleCommand
         $this->output->writeln("  |- Checking destination...  <green>ok</green>");
 
         return true;
+    }
+
+    /**
+     * Check if package exists
+     *
+     * @param $slug
+     * @param $package
+     * @return int
+     */
+    private function packageExists($slug, $package)
+    {
+        $path = Grav::instance()['locator']->findResource($package->package_type . '://' . $slug);
+        Installer::isValidDestination($path);
+        return Installer::lastErrorCode();
     }
 }

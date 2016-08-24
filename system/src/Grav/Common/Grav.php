@@ -217,7 +217,10 @@ class Grav extends Container
      */
     public function mime($format)
     {
+        // look for some standard types
         switch ($format) {
+            case null:
+                return 'text/html';
             case 'json':
                 return 'application/json';
             case 'html':
@@ -230,6 +233,16 @@ class Grav extends Container
                 return 'application/xml';
         }
 
+        // Try finding mime type from media
+        $media_types = $this['config']->get('media.types');
+        if (key_exists($format, $media_types)) {
+            $type = $media_types[$format];
+            if (isset($type['mime'])) {
+                return $type['mime'];
+            }
+        }
+
+        // Can't find the mime type, send as HTML
         return 'text/html';
     }
 

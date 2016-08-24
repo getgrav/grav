@@ -178,8 +178,9 @@ form:
                     help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
                     options:
                         301: 301 - Permanent
+                        302: 302 - Found
                         303: 303 - Other
-                        307: 307 - Temporary
+                        304: 304 - Not Modified
 
                 pages.redirect_trailing_slash:
                     type: toggle
@@ -513,7 +514,7 @@ form:
                     label: PLUGIN_ADMIN.MEMCACHED_PORT
                     help: PLUGIN_ADMIN.MEMCACHED_PORT_HELP
                     placeholder: "11211"
-                
+
                 cache.redis.server:
                     type: text
                     size: medium
@@ -1018,3 +1019,14 @@ form:
                     options:
                         ':': ': (default)'
                         ';': '; (for Apache running on Windows)'
+
+                force_ssl:
+                    type: toggle
+                    label: PLUGIN_ADMIN.FORCE_SSL
+                    highlight: 0
+                    help: PLUGIN_ADMIN.FORCE_SSL_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool

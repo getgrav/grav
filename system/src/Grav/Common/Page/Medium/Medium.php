@@ -199,10 +199,11 @@ class Medium extends Data implements RenderableInterface
      * @param  string  $title
      * @param  string  $alt
      * @param  string  $class
+     * @param  string  $id
      * @param  boolean $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true)
+    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
     {
         $attributes = $this->attributes;
 
@@ -238,6 +239,14 @@ class Medium extends Data implements RenderableInterface
                 $attributes['class'] = $class;
             } elseif (!empty($this->items['class'])) {
                 $attributes['class'] = $this->items['class'];
+            }
+        }
+
+        if (empty($attributes['id'])) {
+            if (!empty($id)) {
+                $attributes['id'] = $id;
+            } elseif (!empty($this->items['id'])) {
+                $attributes['id'] = $this->items['id'];
             }
         }
 
@@ -417,6 +426,7 @@ class Medium extends Data implements RenderableInterface
      */
     public function id($id)
     {
+        xdebug_break();
         if (is_string($id)) {
             $this->attributes['id'] = trim($id);
         }

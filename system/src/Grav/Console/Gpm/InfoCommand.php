@@ -25,6 +25,8 @@ class InfoCommand extends ConsoleCommand
      */
     protected $gpm;
 
+    protected $all_yes;
+
     /**
      *
      */
@@ -59,6 +61,8 @@ class InfoCommand extends ConsoleCommand
     protected function serve()
     {
         $this->gpm = new GPM($this->input->getOption('force'));
+
+        $this->all_yes = $this->input->getOption('all-yes');
 
         $this->displayGPMRelease();
 
@@ -133,37 +137,33 @@ class InfoCommand extends ConsoleCommand
 
         // display changelog information
         $questionHelper = $this->getHelper('question');
-        $skipPrompt = $this->input->getOption('all-yes');
+        $question = new ConfirmationQuestion("Would you like to read the changelog? [y|N] ",
+            false);
+        $answer = $this->all_yes ? true : $questionHelper->ask($this->input, $this->output, $question);
 
-        if (!$skipPrompt) {
-            $question = new ConfirmationQuestion("Would you like to read the changelog? [y|N] ",
-                false);
-            $answer = $questionHelper->ask($this->input, $this->output, $question);
+        if ($answer) {
+            $changelog = $foundPackage->changelog;
 
-            if ($answer) {
-                $changelog = $foundPackage->changelog;
+            $this->output->writeln("");
+            foreach ($changelog as $version => $log) {
+                $title = $version . ' [' . $log['date'] . ']';
+                $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
+                    return "\n" . ucfirst($match[1]) . ":";
+                }, $log['content']);
 
+                $this->output->writeln('<cyan>'.$title.'</cyan>');
+                $this->output->writeln(str_repeat('-', strlen($title)));
+                $this->output->writeln($content);
                 $this->output->writeln("");
-                foreach ($changelog as $version => $log) {
-                    $title = $version . ' [' . $log['date'] . ']';
-                    $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
-                        return "\n" . ucfirst($match[1]) . ":";
-                    }, $log['content']);
 
-                    $this->output->writeln('<cyan>'.$title.'</cyan>');
-                    $this->output->writeln(str_repeat('-', strlen($title)));
-                    $this->output->writeln($content);
-                    $this->output->writeln("");
-
-                    $question = new ConfirmationQuestion("Press [ENTER] to continue or [q] to quit ", true);
-                    if (!$questionHelper->ask($this->input, $this->output, $question)) {
-                        break;
-                    }
-                    $this->output->writeln("");
+                $question = new ConfirmationQuestion("Press [ENTER] to continue or [q] to quit ", true);
+                $answer = $this->all_yes ? false : $questionHelper->ask($this->input, $this->output, $question);
+                if (!$answer) {
+                    break;
                 }
+                $this->output->writeln("");
             }
         }
-
 
         $this->output->writeln('');
 
