@@ -37,7 +37,7 @@ class PageServiceProvider implements ServiceProviderInterface
                     if (!isset($_SERVER['HTTPS']) || $_SERVER["HTTPS"] != "on") {
                         $url = "https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
                         $c->redirect($url);
-                    }                    
+                    }
                 }
 
                 $url = $page->route();
