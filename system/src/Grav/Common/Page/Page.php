@@ -2153,7 +2153,9 @@ class Page
      */
     public function home()
     {
-        return $this->find('/') == $this;
+        $home = Grav::instance()['config']->get('system.home.alias');
+        $is_home = ($this->route() == $home || $this->rawRoute() == $home);
+        return $is_home;
     }
 
     /**
