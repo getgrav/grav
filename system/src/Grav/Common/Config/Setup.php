@@ -26,6 +26,7 @@ class Setup extends Data
         ],
         'user' => [
             'type' => 'ReadOnlyStream',
+            'force' => true,
             'prefixes' => [
                 '' => ['user'],
             ]
@@ -78,6 +79,7 @@ class Setup extends Data
         ],
         'cache' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
                 '' => ['cache'],
                 'images' => ['images']
@@ -85,6 +87,7 @@ class Setup extends Data
         ],
         'log' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
                 '' => ['logs']
             ]
