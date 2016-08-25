@@ -8,6 +8,7 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
 
 class Uri
@@ -207,6 +208,7 @@ class Uri
 
         $grav = Grav::instance();
 
+        /** @var Language $language */
         $language = $grav['language'];
 
         $uri_bits = Uri::parseUrl($url);
