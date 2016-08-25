@@ -18,6 +18,7 @@
     * Removed 307 redirect code option as it is not well supported [#743](https://github.com/getgrav/grav-plugin-admin/issues/743)
     * Fixed issue with folders with name `*.md` are not confused with pages [#995](https://github.com/getgrav/grav/issues/995)
     * Fixed an issue when filtering collections causing null key
+    * Fix for invalid HTML when rendering GIF and Vector media [#1001](https://github.com/getgrav/grav/issues/1001)
     
 # v1.1.3
 ## 08/14/2016
