@@ -88,7 +88,7 @@ class Installer
 
         $zip = new \ZipArchive();
         $archive = $zip->open($package);
-        $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true);
+        $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $tmp = $tmp_dir . '/Grav-' . uniqid();
 
         if ($archive !== true) {
