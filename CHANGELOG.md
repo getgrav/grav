@@ -5,6 +5,7 @@
     * Added new `tmp` folder at root. Accessible via stream `tmp://`. Can be cleared with `bin/grav clear --tmp-only` as well as `--all`.
     * Added support for RTL in `LanguageCodes` so you can determine if a language is RTL or not
     * Ability to set `custom_base_url` in system configuration
+    * Added `override` and `force` options for Streams setup
 1. [](#improved)
     * Important vendor updates to provide PHP 7.1 beta support!
     * Added a `Util::arrayFlatten()` static function

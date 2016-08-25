@@ -91,12 +91,14 @@ class Setup extends Data
         ],
         'backup' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
                 '' => ['backup']
             ]
         ],
         'tmp' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
                 '' => ['tmp']
             ]
@@ -200,9 +202,13 @@ class Setup extends Data
             if (isset($config['paths'])) {
                 $locator->addPath($scheme, '', $config['paths']);
             }
+
+            $override = isset($config['override']) ? $config['override'] : false;
+            $force = isset($config['force']) ? $config['force'] : false;
+
             if (isset($config['prefixes'])) {
                 foreach ($config['prefixes'] as $prefix => $paths) {
-                    $locator->addPath($scheme, $prefix, $paths);
+                    $locator->addPath($scheme, $prefix, $paths, $override, $force);
                 }
             }
         }
