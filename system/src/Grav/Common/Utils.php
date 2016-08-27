@@ -711,12 +711,14 @@ abstract class Utils
      * Set portion of array (passed by reference) for a dot-notation key
      * and set the value
      *
-     * @param $array
-     * @param $key
-     * @param $value
+     * @param      $array
+     * @param      $key
+     * @param      $value
+     * @param bool $merge
+     *
      * @return mixed
      */
-    public static function setDotNotation(&$array, $key, $value)
+    public static function setDotNotation(&$array, $key, $value, $merge = false)
     {
         if (is_null($key)) return $array = $value;
 
@@ -734,7 +736,14 @@ abstract class Utils
             $array =& $array[$key];
         }
 
-        $array[array_shift($keys)] = $value;
+        $key = array_shift($keys);
+
+        if (!$merge || !isset($array[$key])) {
+            $array[$key] = $value;
+        } else {
+            $array[$key] = array_merge($array[$key], $value);
+        }
+
 
         return $array;
     }
