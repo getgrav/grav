@@ -2311,11 +2311,6 @@ class Page
             return new Collection($result);
         }
 
-        // We only evaluate commands which start with @
-        if (empty($cmd) || $cmd[0] != '@') {
-            return $value;
-        }
-
         /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
 
