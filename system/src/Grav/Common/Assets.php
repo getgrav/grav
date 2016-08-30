@@ -1349,7 +1349,7 @@ class Assets
     public function getTimestamp($asset = null)
     {
         if (is_array($asset)) {
-            if ($asset['remote'] == false) {
+            if ($asset['remote'] === false) {
                 if (Utils::contains($asset['asset'], '?')) {
                     return str_replace('?', '&', $this->timestamp);
                 } else {

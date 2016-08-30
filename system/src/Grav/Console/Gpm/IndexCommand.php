@@ -176,7 +176,6 @@ class IndexCommand extends ConsoleCommand
     {
         $package   = isset($list[$package->slug]) ? $list[$package->slug] : $package;
         $type      = ucfirst(preg_replace("/s$/", '', $package->package_type));
-        $updatable = $this->gpm->{'is' . $type . 'Updatable'}($package->slug);
         $installed = $this->gpm->{'is' . $type . 'Installed'}($package->slug);
 
         return !$installed ? '<magenta>not installed</magenta>' : '<cyan>installed</cyan>';

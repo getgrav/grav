@@ -2369,7 +2369,6 @@ class Page
                 // safety check in case page is not found
                 if (!isset($page)) {
                     return $results;
-                    return $results;
                 }
 
                 // Handle a @page.descendants

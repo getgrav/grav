@@ -122,7 +122,7 @@ class UpdateCommand extends ConsoleCommand
             $this->output->writeln("<red>ERROR</red>: " . Installer::lastErrorMsg());
             exit;
         }
-        if ($this->input->getOption('plugins') === false and $this->input->getOption('themes') === false) {
+        if ($this->input->getOption('plugins') === false && $this->input->getOption('themes') === false) {
             $list_type = ['plugins' => true, 'themes' => true];
         } else {
             $list_type['plugins'] = $this->input->getOption('plugins');
