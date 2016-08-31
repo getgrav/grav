@@ -118,18 +118,21 @@ class IndexCommand extends ConsoleCommand
             $index    = 0;
             $packages = $this->sort($packages);
 
-            foreach ($packages as $slug => $package) {
-                $row = [
-                    'Count' => $index++ + 1,
-                    'Name' => "<cyan>" . Utils::truncate($package->name, 20, false, ' ', '...') . "</cyan> ",
-                    'Slug' => $slug,
-                    'Version'=> $this->version($package),
-                    'Installed' => $this->installed($package)
-                ];
-                $table[] = $row;
+            if (!empty($packages)) {
+                foreach ($packages as $slug => $package) {
+                    $row = [
+                        'Count' => $index++ + 1,
+                        'Name' => "<cyan>" . Utils::truncate($package->name, 20, false, ' ', '...') . "</cyan> ",
+                        'Slug' => $slug,
+                        'Version'=> $this->version($package),
+                        'Installed' => $this->installed($package)
+                    ];
+                    $table[] = $row;
+                }
+
+                $climate->table($table);
             }
 
-            $climate->table($table);
             $this->output->writeln('');
         }
 
