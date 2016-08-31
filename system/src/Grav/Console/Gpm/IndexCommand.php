@@ -113,12 +113,13 @@ class IndexCommand extends ConsoleCommand
 
         foreach ($data as $type => $packages) {
             $this->output->writeln("<green>" . strtoupper($type) . "</green> [ " . count($packages) . " ]");
-
-            $table = [];
-            $index    = 0;
             $packages = $this->sort($packages);
 
             if (!empty($packages)) {
+
+                $table = [];
+                $index    = 0;
+
                 foreach ($packages as $slug => $package) {
                     $row = [
                         'Count' => $index++ + 1,
