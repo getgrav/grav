@@ -17,6 +17,8 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Setup extends Data
 {
+    public static $environment;
+
     protected $streams = [
         'system' => [
             'type' => 'ReadOnlyStream',
@@ -131,7 +133,7 @@ class Setup extends Data
      */
     public function __construct($container)
     {
-        $environment = $container['uri']->environment() ?: 'localhost';
+        $environment = static::$environment ?: ($container['uri']->environment() ?: 'localhost');
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
