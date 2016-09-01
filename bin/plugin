@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Grav\Common\Grav;
+use Grav\Common\Config\Setup;
 use Grav\Common\Filesystem\Folder;
 
 $autoload = require_once(__DIR__ . '/../vendor/autoload.php');
@@ -36,6 +37,9 @@ if (!ini_get('date.timezone')) {
 if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
+
+// Set up environment.
+Setup::$environment = 'localhost';
 
 $grav = Grav::instance(array('loader' => $autoload));
 $grav['config']->init();
