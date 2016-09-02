@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Grav\Common\Grav;
+use Grav\Common\Config\Setup;
 use Grav\Common\Filesystem\Folder;
 
 $autoload = require_once(__DIR__ . '/../vendor/autoload.php');
@@ -37,11 +38,28 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
+$climate = new League\CLImate\CLImate;
+$climate->arguments->add([
+    'environment' => [
+        'prefix'        => 'e',
+        'longPrefix'    => 'env',
+        'description'   => 'Configuration Environment',
+        'defaultValue'  => 'localhost'
+    ]
+]);
+$climate->arguments->parse();
+$environment = $climate->arguments->get('environment');
+
+// Set up environment based on params.
+Setup::$environment = $environment;
+
 $grav = Grav::instance(array('loader' => $autoload));
+$grav['uri']->init();
 $grav['config']->init();
 $grav['streams'];
 $grav['plugins']->init();
 $grav['themes']->init();
+
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
 $pattern = '([A-Z]\w+Command\.php)';

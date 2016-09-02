@@ -79,16 +79,16 @@
         },
         {
             "name": "donatj/phpuseragentparser",
-            "version": "v0.5.1",
+            "version": "v0.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/donatj/PhpUserAgent.git",
-                "reference": "b00392786281877db6a51d0e48dee7296c7ba4f8"
+                "reference": "d8e7b6a0c83a6e4aa9098360a99c6eeb763c004a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/b00392786281877db6a51d0e48dee7296c7ba4f8",
-                "reference": "b00392786281877db6a51d0e48dee7296c7ba4f8",
+                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/d8e7b6a0c83a6e4aa9098360a99c6eeb763c004a",
+                "reference": "d8e7b6a0c83a6e4aa9098360a99c6eeb763c004a",
                 "shasum": ""
             },
             "require": {
@@ -126,7 +126,7 @@
                 "user agent",
                 "useragent"
             ],
-            "time": "2016-03-07 17:14:32"
+            "time": "2016-09-01 22:33:01"
         },
         {
             "name": "erusev/parsedown",
@@ -1192,16 +1192,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.24.1",
+            "version": "v1.24.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "3566d311a92aae4deec6e48682dc5a4528c4a512"
+                "reference": "33093f6e310e6976baeac7b14f3a6ec02f2d79b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/3566d311a92aae4deec6e48682dc5a4528c4a512",
-                "reference": "3566d311a92aae4deec6e48682dc5a4528c4a512",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/33093f6e310e6976baeac7b14f3a6ec02f2d79b7",
+                "reference": "33093f6e310e6976baeac7b14f3a6ec02f2d79b7",
                 "shasum": ""
             },
             "require": {
@@ -1249,7 +1249,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2016-05-30 09:11:59"
+            "time": "2016-09-01 17:50:53"
         }
     ],
     "packages-dev": [

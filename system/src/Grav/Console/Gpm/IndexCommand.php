@@ -113,23 +113,27 @@ class IndexCommand extends ConsoleCommand
 
         foreach ($data as $type => $packages) {
             $this->output->writeln("<green>" . strtoupper($type) . "</green> [ " . count($packages) . " ]");
-
-            $table = [];
-            $index    = 0;
             $packages = $this->sort($packages);
 
-            foreach ($packages as $slug => $package) {
-                $row = [
-                    'Count' => $index++ + 1,
-                    'Name' => "<cyan>" . Utils::truncate($package->name, 20, false, ' ', '...') . "</cyan> ",
-                    'Slug' => $slug,
-                    'Version'=> $this->version($package),
-                    'Installed' => $this->installed($package)
-                ];
-                $table[] = $row;
+            if (!empty($packages)) {
+
+                $table = [];
+                $index    = 0;
+
+                foreach ($packages as $slug => $package) {
+                    $row = [
+                        'Count' => $index++ + 1,
+                        'Name' => "<cyan>" . Utils::truncate($package->name, 20, false, ' ', '...') . "</cyan> ",
+                        'Slug' => $slug,
+                        'Version'=> $this->version($package),
+                        'Installed' => $this->installed($package)
+                    ];
+                    $table[] = $row;
+                }
+
+                $climate->table($table);
             }
 
-            $climate->table($table);
             $this->output->writeln('');
         }
 

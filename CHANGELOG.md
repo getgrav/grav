@@ -22,6 +22,7 @@
     * Fixed an issue when filtering collections causing null key
     * Fix for invalid HTML when rendering GIF and Vector media [#1001](https://github.com/getgrav/grav/issues/1001)
     * Use pages.markdown.extra in the user's system.yaml [#1007](https://github.com/getgrav/grav/issues/1007)
+    * Fix for `Memcached` connection [#1020](https://github.com/getgrav/grav/issues/1020)
 
 # v1.1.3
 ## 08/14/2016
