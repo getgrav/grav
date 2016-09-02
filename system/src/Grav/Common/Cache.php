@@ -188,7 +188,7 @@ class Cache extends Getters
 
             case 'memcached':
                 $memcached = new \Memcached();
-                $memcached->connect($this->config->get('system.cache.memcached.server', 'localhost'),
+                $memcached->addServer($this->config->get('system.cache.memcached.server', 'localhost'),
                     $this->config->get('system.cache.memcached.port', 11211));
                 $driver = new DoctrineCache\MemcachedCache();
                 $driver->setMemcached($memcached);
