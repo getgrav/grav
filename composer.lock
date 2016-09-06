@@ -4,9 +4,53 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "25e59d23a9af7f43dd9cd9d462057abd",
-    "content-hash": "22973a67f2eae64610e739fa82a3d60b",
+    "hash": "7a8caecbaedbf785d96b7437f296ca66",
+    "content-hash": "2fec25b3b5d627c0896d5ee3030b6bed",
     "packages": [
+        {
+            "name": "antoligy/dom-string-iterators",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antoligy/dom-string-iterators.git",
+                "reference": "9a624b082493fee9b972840dbd677494edb94cf7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antoligy/dom-string-iterators/zipball/9a624b082493fee9b972840dbd677494edb94cf7",
+                "reference": "9a624b082493fee9b972840dbd677494edb94cf7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Public Domain"
+            ],
+            "authors": [
+                {
+                    "name": "Alex Wilson",
+                    "email": "a@ax.gy"
+                },
+                {
+                    "name": "Kornel Lesinski",
+                    "email": "pornel@pornel.net"
+                },
+                {
+                    "name": "Patrick Galbraith",
+                    "email": "patrick.j.galbraith@gmail.com"
+                }
+            ],
+            "description": "Composer package for DOMWordsIterator and DOMLettersIterator",
+            "time": "2015-11-04 17:33:14"
+        },
         {
             "name": "doctrine/cache",
             "version": "v1.6.0",

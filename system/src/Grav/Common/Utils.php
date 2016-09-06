@@ -183,26 +183,28 @@ abstract class Utils
      * Truncate HTML by number of characters. not "word-safe"!
      *
      * @param  string $text
-     * @param  int    $length
+     * @param  int $length in characters
+     * @param  string $ellipsis
      *
      * @return string
      */
-    public static function truncateHtml($text, $length = 100)
+    public static function truncateHtml($text, $length = 100, $ellipsis = '...')
     {
-        return Truncator::truncate($text, $length, ['length_in_chars' => true]);
+        return Truncator::truncateLetters($text, $length, $ellipsis);
     }
 
     /**
      * Truncate HTML by number of characters in a "word-safe" manor.
      *
      * @param  string $text
-     * @param  int    $length
+     * @param  int    $length in words
+     * @param  string $ellipsis
      *
      * @return string
      */
-    public static function safeTruncateHtml($text, $length = 100)
+    public static function safeTruncateHtml($text, $length = 25, $ellipsis = '...')
     {
-        return Truncator::truncate($text, $length, ['length_in_chars' => true, 'word_safe' => true]);
+        return Truncator::truncateWords($text, $length, $ellipsis);
     }
 
     /**

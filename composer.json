@@ -28,7 +28,8 @@
         "ext-openssl": "*",
         "ext-curl": "*",
         "ext-zip": "*",
-        "league/climate": "^3.2"
+        "league/climate": "^3.2",
+        "antoligy/dom-string-iterators": "^1.0"
     },
     "require-dev": {
         "codeception/codeception": "^2.1",
