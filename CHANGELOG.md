@@ -1,5 +1,5 @@
 # v1.1.4
-## XX/XX/2016
+## 09/07/2016
 
 1. [](#new)
     * Added new `tmp` folder at root. Accessible via stream `tmp://`. Can be cleared with `bin/grav clear --tmp-only` as well as `--all`.
