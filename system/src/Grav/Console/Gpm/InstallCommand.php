@@ -254,7 +254,7 @@ class InstallCommand extends ConsoleCommand
 
         if ($major_version_changed) {
             if ($this->all_yes) {
-                $this->output-writeln("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>");
+                $this->output->writeln("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>");
                 return;
             }
 
