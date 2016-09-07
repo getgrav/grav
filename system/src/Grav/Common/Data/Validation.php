@@ -37,12 +37,6 @@ class Validation
             $field['type'] = 'text';
         }
 
-        // Special case for files, value is never empty and errors with code 4 instead.
-        if (empty($validate['required']) && $field['type'] == 'file' && isset($value['error'])
-                && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
-            return $messages;
-        }
-
         // Get language class.
         $language = Grav::instance()['language'];
 
@@ -99,12 +93,6 @@ class Validation
 
         if (!isset($field['type'])) {
             $field['type'] = 'text';
-        }
-
-        // Special case for files, value is never empty and errors with code 4 instead.
-        if (empty($validate['required']) && $field['type'] == 'file' && isset($value['error'])
-            && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
-            return null;
         }
 
         // If this is a YAML field, simply parse it and return the value.

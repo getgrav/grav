@@ -61,7 +61,7 @@ pages:
   url_taxonomy_filters: true                # Enable auto-magic URL-based taxonomy filters for page collections
   frontmatter:
     process_twig: false                     # Should the frontmatter be processed to replace Twig variables?
-    ignore_fields: ['form']                 # Fields that might contain Twig variables and should not be processed
+    ignore_fields: ['form','forms']         # Fields that might contain Twig variables and should not be processed
 
 cache:
   enabled: true                             # Set to true to enable caching
@@ -123,7 +123,10 @@ session:
   name: grav-site                           # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   secure: false                             # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
   httponly: true                            # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
+  path:
 
 gpm:
   releases: stable                           # Set to either 'stable' or 'testing'
   proxy_url:                                 # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+
+custom_base_url: ''

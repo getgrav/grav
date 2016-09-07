@@ -207,7 +207,7 @@ class Assets
         $this->assets_url = $locator->findResource('asset://', false);
 
         $this->config($asset_config);
-        $this->base_url = $base_url . '/';
+        $this->base_url = ($config->get('system.absolute_urls') ? '' : '/') . ltrim(ltrim($base_url, '/') . '/', '/');
 
         // Register any preconfigured collections
         foreach ($config->get('system.assets.collections', []) as $name => $collection) {
@@ -1349,7 +1349,7 @@ class Assets
     public function getTimestamp($asset = null)
     {
         if (is_array($asset)) {
-            if ($asset['remote'] == false) {
+            if ($asset['remote'] === false) {
                 if (Utils::contains($asset['asset'], '?')) {
                     return str_replace('?', '&', $this->timestamp);
                 } else {

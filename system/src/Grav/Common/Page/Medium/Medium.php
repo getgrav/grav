@@ -426,7 +426,6 @@ class Medium extends Data implements RenderableInterface
      */
     public function id($id)
     {
-        xdebug_break();
         if (is_string($id)) {
             $this->attributes['id'] = trim($id);
         }

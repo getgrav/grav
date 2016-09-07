@@ -501,8 +501,6 @@ class ImageMedium extends Medium
             ->setActualCacheDir($cacheDir)
             ->setPrettyName(basename($this->get('basename')));
 
-        $this->filter();
-
         return $this;
     }
 
@@ -516,6 +514,8 @@ class ImageMedium extends Medium
         if (!$this->image) {
             return parent::path(false);
         }
+
+        $this->filter();
 
         if (isset($this->result)) {
             return $this->result;

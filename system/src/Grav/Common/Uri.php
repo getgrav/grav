@@ -8,6 +8,7 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
 
 class Uri
@@ -207,6 +208,7 @@ class Uri
 
         $grav = Grav::instance();
 
+        /** @var Language $language */
         $language = $grav['language'];
 
         $uri_bits = Uri::parseUrl($url);
@@ -275,14 +277,11 @@ class Uri
         }
 
         // Set some defaults
-        $this->root = $this->base . $this->root_path;
+        $this->root = $grav['config']->get('system.custom_base_url') ?: $this->base . $this->root_path;
         $this->url = $this->base . $this->uri;
 
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
-
-        // remove double slashes
-        $uri = preg_replace('#/{2,}#', '/', $uri);
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
@@ -292,7 +291,7 @@ class Uri
 
         // If configured to, redirect trailing slash URI's with a 301 redirect
         if ($config->get('system.pages.redirect_trailing_slash', false) && $uri != '/' && Utils::endsWith($uri, '/')) {
-            $grav->redirect(rtrim($uri, '/'), 301);
+            $grav->redirect(str_replace($this->root, '', rtrim($uri, '/')), 301);
         }
 
         // process params
@@ -344,7 +343,7 @@ class Uri
         }
 
         // Set some Grav stuff
-        $grav['base_url_absolute'] = $this->rootUrl(true);
+        $grav['base_url_absolute'] = $grav['config']->get('system.custom_base_url') ?: $this->rootUrl(true);
         $grav['base_url_relative'] = $this->rootUrl(false);
         $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
     }

@@ -30,7 +30,7 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
         $this->assertSame('camel_cased',                $this->twig_ext->inflectorFilter('underscor',    'CamelCased'));
         $this->assertSame('something-text',             $this->twig_ext->inflectorFilter('hyphen',       'Something Text'));
         $this->assertSame('Something text to read',     $this->twig_ext->inflectorFilter('human',        'something_text_to_read'));
-        $this->assertSame(5,                            $this->twig_ext->inflectorFilter('month',        181));
+        $this->assertSame(6,                            $this->twig_ext->inflectorFilter('month',        181));
         $this->assertSame('10th',                       $this->twig_ext->inflectorFilter('ordinal',      10));
     }
 
@@ -68,12 +68,6 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
             $time = 'three' . ucfirst($measures[$i]);
             $this->assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFilter($$time));
         }
-    }
-
-    public function testSafeEmailFilter()
-    {
-        $this->assertSame('&#100;&#101;&#118;&#115;&#64;&#103;&#101;&#116;&#103;&#114;&#97;&#118;&#46;&#111;&#114;&#103;',   $this->twig_ext->safeEmailFilter('devs@getgrav.org'));
-        $this->assertSame('&#115;&#111;&#109;&#101;&#111;&#110;&#101;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;',   $this->twig_ext->safeEmailFilter('someone@example.com'));
     }
 
     public function testRandomizeFilter()

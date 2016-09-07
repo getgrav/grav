@@ -178,8 +178,9 @@ form:
                     help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
                     options:
                         301: 301 - Permanent
+                        302: 302 - Found
                         303: 303 - Other
-                        307: 307 - Temporary
+                        304: 304 - Not Modified
 
                 pages.redirect_trailing_slash:
                     type: toggle
@@ -953,6 +954,12 @@ form:
                     validate:
                         type: bool
 
+                session.path:
+                    type: text
+                    size: small
+                    label: PLUGIN_ADMIN.SESSION_PATH
+                    help: PLUGIN_ADMIN.SESSION_PATH_HELP
+
         advanced:
             type: section
             title: PLUGIN_ADMIN.ADVANCED
@@ -1029,3 +1036,10 @@ form:
                         0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
+
+                custom_base_url:
+                    type: text
+                    size: medium
+                    placeholder: "e.g. http://localhost:8080"
+                    label: PLUGIN_ADMIN.CUSTOM_BASE_URL
+                    help: PLUGIN_ADMIN.CUSTOM_BASE_URL_HELP

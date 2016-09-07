@@ -1,8 +1,0 @@
-form:
-  validation: loose
-  fields:
-    new_file_name:
-      type: text
-      label: PLUGIN_ADMIN_PRO.NEW_FILE_NAME
-      validate:
-        required: true

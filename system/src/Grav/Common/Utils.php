@@ -183,26 +183,28 @@ abstract class Utils
      * Truncate HTML by number of characters. not "word-safe"!
      *
      * @param  string $text
-     * @param  int    $length
+     * @param  int $length in characters
+     * @param  string $ellipsis
      *
      * @return string
      */
-    public static function truncateHtml($text, $length = 100)
+    public static function truncateHtml($text, $length = 100, $ellipsis = '...')
     {
-        return Truncator::truncate($text, $length, ['length_in_chars' => true]);
+        return Truncator::truncateLetters($text, $length, $ellipsis);
     }
 
     /**
      * Truncate HTML by number of characters in a "word-safe" manor.
      *
      * @param  string $text
-     * @param  int    $length
+     * @param  int    $length in words
+     * @param  string $ellipsis
      *
      * @return string
      */
-    public static function safeTruncateHtml($text, $length = 100)
+    public static function safeTruncateHtml($text, $length = 25, $ellipsis = '...')
     {
-        return Truncator::truncate($text, $length, ['length_in_chars' => true, 'word_safe' => true]);
+        return Truncator::truncateWords($text, $length, $ellipsis);
     }
 
     /**
@@ -430,6 +432,27 @@ abstract class Utils
         }
 
         return $result;
+    }
+
+    /**
+     * Flatten an array
+     *
+     * @param $array
+     * @return array
+     */
+    public static function arrayFlatten($array)
+    {
+        $flatten = array();
+        foreach ($array as $key => $inner){
+            if (is_array($inner)) {
+                foreach ($inner as $inner_key => $value) {
+                    $flatten[$inner_key] = $value;
+                }
+            } else {
+                $flatten[$key] = $inner;
+            }
+        }
+        return $flatten;
     }
 
     /**
@@ -690,12 +713,14 @@ abstract class Utils
      * Set portion of array (passed by reference) for a dot-notation key
      * and set the value
      *
-     * @param $array
-     * @param $key
-     * @param $value
+     * @param      $array
+     * @param      $key
+     * @param      $value
+     * @param bool $merge
+     *
      * @return mixed
      */
-    public static function setDotNotation(&$array, $key, $value)
+    public static function setDotNotation(&$array, $key, $value, $merge = false)
     {
         if (is_null($key)) return $array = $value;
 
@@ -713,7 +738,14 @@ abstract class Utils
             $array =& $array[$key];
         }
 
-        $array[array_shift($keys)] = $value;
+        $key = array_shift($keys);
+
+        if (!$merge || !isset($array[$key])) {
+            $array[$key] = $value;
+        } else {
+            $array[$key] = array_merge($array[$key], $value);
+        }
+
 
         return $array;
     }

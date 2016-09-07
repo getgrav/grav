@@ -49,6 +49,8 @@ class InstallCommand extends ConsoleCommand
     /** @var array */
     protected $demo_processing = [];
 
+    protected $all_yes;
+
     /**
      *
      */
@@ -101,6 +103,8 @@ class InstallCommand extends ConsoleCommand
     {
         $this->gpm = new GPM($this->input->getOption('force'));
 
+        $this->all_yes = $this->input->getOption('all-yes');
+
         $this->displayGPMRelease();
 
         $this->destination = realpath($this->input->getOption('destination'));
@@ -139,16 +143,20 @@ class InstallCommand extends ConsoleCommand
         unset($this->data['not_found']);
         unset($this->data['total']);
 
+
         if (isset($this->local_config)) {
             // Symlinks available, ask if Grav should use them
-
             $this->use_symlinks = false;
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Should Grav use the symlinks if available? [y|N] ', false);
 
-            if ($helper->ask($this->input, $this->output, $question)) {
+            $answer = $this->all_yes ? false : $helper->ask($this->input, $this->output, $question);
+
+            if ($answer) {
                 $this->use_symlinks = true;
             }
+
+
         }
 
         $this->output->writeln('');
@@ -199,8 +207,9 @@ class InstallCommand extends ConsoleCommand
 
                             $helper = $this->getHelper('question');
                             $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> is already installed, overwrite? [y|N] ", false);
+                            $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
 
-                            if ($helper->ask($this->input, $this->output, $question)) {
+                            if ($answer) {
                                 $is_update = true;
                                 $this->processPackage($package, true, $is_update);
                             } else {
@@ -208,8 +217,8 @@ class InstallCommand extends ConsoleCommand
                             }
                         } else {
                             if (Installer::lastErrorCode() == Installer::IS_LINK) {
-                                $this->output->writeln("<red>Cannot overwrite existing symlink</red>");
-                                return false;
+                                $this->output->writeln("<red>Cannot overwrite existing symlink for </red><cyan>$package_name</cyan>");
+                                $this->output->writeln("");
                             }
                         }
                     }
@@ -244,6 +253,11 @@ class InstallCommand extends ConsoleCommand
         $major_version_changed = explode('.', $new_version)[0] !== explode('.', $old_version)[0];
 
         if ($major_version_changed) {
+            if ($this->all_yes) {
+                $this->output->writeln("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>");
+                return;
+            }
+
             $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>. Be sure to read what changed with the new major release. Continue? [y|N] ", false);
 
             if (!$helper->ask($this->input, $this->output, $question)) {
@@ -297,9 +311,10 @@ class InstallCommand extends ConsoleCommand
                 $questionNoun = 'packages';
             }
 
-            $question = new ConfirmationQuestion("$questionAction $questionArticle $questionNoun? [y|N] ", false);
+            $question = new ConfirmationQuestion("$questionAction $questionArticle $questionNoun? [Y|n] ", true);
+            $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
 
-            if ($helper->ask($this->input, $this->output, $question)) {
+            if ($answer) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
                     $package = $this->gpm->findPackage($dependencyName);
                     $this->processPackage($package, true, ($type == 'update') ? true : false);
@@ -315,10 +330,9 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param      $package
-     * @param bool $skip_prompt
-     * @param bool $update      True if the package is an update
+     * @param bool $is_update      True if the package is an update
      */
-    private function processPackage($package, $skip_prompt = false, $is_update = false)
+    private function processPackage($package, $is_update = false)
     {
         if (!$package) {
             $this->output->writeln("<red>Package not found on the GPM!</red>  ");
@@ -333,7 +347,7 @@ class InstallCommand extends ConsoleCommand
             }
         }
 
-        $symlink ? $this->processSymlink($package, $skip_prompt) : $this->processGpm($package, $skip_prompt, $is_update);
+        $symlink ? $this->processSymlink($package) : $this->processGpm($package, $is_update);
 
         $this->processDemo($package);
     }
@@ -369,7 +383,9 @@ class InstallCommand extends ConsoleCommand
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Do you wish to install this demo content? [y|N] ', false);
 
-            if (!$helper->ask($this->input, $this->output, $question)) {
+            $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
+
+            if (!$answer) {
                 $this->output->writeln("  '- <red>Skipped!</red>  ");
                 $this->output->writeln('');
 
@@ -380,8 +396,9 @@ class InstallCommand extends ConsoleCommand
             if (file_exists($demo_dir . DS . 'pages')) {
                 $pages_backup = 'pages.' . date('m-d-Y-H-i-s');
                 $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/' . $pages_backup . '`, continue? [y|N]', false);
+                $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
 
-                if (!$helper->ask($this->input, $this->output, $question)) {
+                if (!$answer) {
                     $this->output->writeln("  '- <red>Skipped!</red>  ");
                     $this->output->writeln('');
 
@@ -452,9 +469,8 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param      $package
-     * @param bool $skip_prompt
      */
-    private function processSymlink($package, $skip_prompt = false)
+    private function processSymlink($package)
     {
 
         exec('cd ' . $this->destination);
@@ -469,7 +485,7 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln("<green>ok</green>");
 
             $this->output->write("  |- Checking destination...  ");
-            $checks = $this->checkDestination($package, $skip_prompt);
+            $checks = $this->checkDestination($package);
 
             if (!$checks) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
@@ -497,9 +513,8 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param      $package
-     * @param bool $skip_prompt
      */
-    private function processGpm($package, $skip_prompt = false, $is_update = false)
+    private function processGpm($package, $is_update = false)
     {
         $version = isset($package->available) ? $package->available : $package->version;
 
@@ -509,7 +524,7 @@ class InstallCommand extends ConsoleCommand
         $this->file = $this->downloadPackage($package);
 
         $this->output->write("  |- Checking destination...  ");
-        $checks = $this->checkDestination($package, $skip_prompt);
+        $checks = $this->checkDestination($package);
 
         if (!$checks) {
             $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
@@ -534,8 +549,8 @@ class InstallCommand extends ConsoleCommand
      */
     private function downloadPackage($package)
     {
-        $cache_dir = Grav::instance()['locator']->findResource('cache://', true);
-        $this->tmp = $cache_dir . DS . 'tmp/Grav-' . uniqid();
+        $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
+        $this->tmp = $tmp_dir . '/Grav-' . uniqid();
         $filename = $package->slug . basename($package->zipball_url);
         $output = Response::get($package->zipball_url, [], [$this, 'progress']);
 
@@ -553,42 +568,19 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param      $package
      *
-     * @param bool $skip_prompt
-     *
      * @return bool
      */
-    private function checkDestination($package, $skip_prompt = false)
+    private function checkDestination($package)
     {
         $question_helper = $this->getHelper('question');
 
-        if (!$skip_prompt) {
-            $skip_prompt = $this->input->getOption('all-yes');
-        }
-
         Installer::isValidDestination($this->destination . DS . $package->install_path);
-
-        if (Installer::lastErrorCode() == Installer::EXISTS) {
-            if (!$skip_prompt) {
-                $this->output->write("\x0D");
-                $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
-
-                $question = new ConfirmationQuestion("  |  '- The package is already installed, do you want to overwrite it? [y|N] ",
-                    false);
-                $answer = $question_helper->ask($this->input, $this->output, $question);
-
-                if (!$answer) {
-                    $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
-
-                    return false;
-                }
-            }
-        }
 
         if (Installer::lastErrorCode() == Installer::IS_LINK) {
             $this->output->write("\x0D");
             $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
 
-            if ($skip_prompt) {
+            if ($this->all_yes) {
                 $this->output->writeln("  |     '- <yellow>Skipped automatically.</yellow>");
 
                 return false;

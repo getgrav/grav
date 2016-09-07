@@ -846,14 +846,22 @@ class Pages
         }
 
         $content_exists = false;
-        $pages_found = glob($directory . '/*' . CONTENT_EXT);
+        $pages_found = new \GlobIterator($directory . '/*' . CONTENT_EXT);
+        $page_found = null;
+
         $page_extension = '';
 
-        if ($pages_found) {
+        if ($pages_found && count($pages_found) > 0) {
+
             $page_extensions = $language->getFallbackPageExtensions();
+
             foreach ($page_extensions as $extension) {
                 foreach ($pages_found as $found) {
-                    if (preg_match('/^.*\/[0-9A-Za-z\-\_]+(' . $extension . ')$/', $found)) {
+                    if ($found->isDir()) {
+                        continue;
+                    }
+                    $regex = '/^[^\.]*' . preg_quote($extension) . '$/';
+                    if (preg_match($regex, $found->getFilename())) {
                         $page_found = $found;
                         $page_extension = $extension;
                         break 2;
@@ -863,8 +871,7 @@ class Pages
         }
 
         if ($parent && !empty($page_found)) {
-            $file = new \SplFileInfo($page_found);
-            $page->init($file, $page_extension);
+            $page->init($page_found, $page_extension);
 
             $content_exists = true;
 
@@ -1065,12 +1072,12 @@ class Pages
         } else {
             // else just sort the list according to specified key
             if (extension_loaded('intl')) {
-                $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set    
-                $col = \Collator::create($locale); 
+                $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set
+                $col = \Collator::create($locale);
                 if ($col) {
-                    $col->asort($list, $sort_flags);    
+                    $col->asort($list, $sort_flags);
                 } else {
-                    asort($list, $sort_flags);    
+                    asort($list, $sort_flags);
                 }
             } else {
                 asort($list, $sort_flags);

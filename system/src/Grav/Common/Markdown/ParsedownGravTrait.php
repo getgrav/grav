@@ -151,7 +151,7 @@ trait ParsedownGravTrait
      *
      * @return $this
      */
-    function setSpecialChars($special_chars)
+    public function setSpecialChars($special_chars)
     {
         $this->special_chars = $special_chars;
 
