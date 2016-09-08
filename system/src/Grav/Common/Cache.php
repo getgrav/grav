@@ -325,10 +325,11 @@ class Cache extends Getters
         foreach ($remove_paths as $stream) {
 
             // Convert stream to a real path
-            $path = $locator->findResource($stream, true, true);
-            // Make sure path exists before proceeding, otherwise we would wipe ROOT_DIR
-            if (!$path) {
-                throw new \RuntimeException("Stream '{$stream}' not found", 500);
+            try {
+                $path = $locator->findResource($stream, true, true);
+            } catch (\Exception $e) {
+                // stream not found..
+                continue;
             }
 
             $anything = false;
