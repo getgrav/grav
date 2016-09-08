@@ -1,6 +1,8 @@
 # v1.1.5
 ## 09/xx/2016
 
+1. [](#improved)
+    * Refactored `onPageNotFound` event to fire after `onPageInitialized`
 1. [](#bugfix)
     * Quietly skip missing streams in `Cache::clearCache()`
 
