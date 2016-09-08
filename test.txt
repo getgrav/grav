@@ -28,3 +28,4 @@
 * Testing again
 * Rebuild packages for forms 2.0.1 release
 * Rebuild packages for admin 1.2.1 (with tmp:// fix)
+* Rebuild with admin 1.2.2
