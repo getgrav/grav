@@ -26,3 +26,4 @@
 * Try again to rebuild
 * Come on Travis!!!
 * Testing again
+* Rebuild packages for forms 2.0.1 release
