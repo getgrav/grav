@@ -1,3 +1,9 @@
+# v1.1.5
+## 09/xx/2016
+
+1. [](#bugfix)
+    * Quietly skip missing streams in `Cache::clearCache()`
+
 # v1.1.4
 ## 09/07/2016
 
