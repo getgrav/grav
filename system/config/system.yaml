@@ -4,7 +4,8 @@ default_locale:                             # Default locale (defaults to system
 param_sep: ':'                              # Parameter separator, use ';' for Apache on windows
 wrapped_site: false                         # For themes/plugins to know if Grav is wrapped by another platform
 reverse_proxy_setup: false                  # Running in a reverse proxy scenario with different webserver ports than proxy
-force_ssl: false                            # If enabled, Grav forces to be accessed via HTTPS
+force_ssl: false                            # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
+custom_base_url: ''                         # Set the base_url manually
 
 languages:
   supported: []                             # List of languages supported. eg: [en, fr, de]
@@ -37,7 +38,7 @@ pages:
   twig_first: false                         # Process Twig before markdown when processing both on a page
   events:
     page: true                              # Enable page level events
-    twig: true                              # Enable twig level events
+    twig: true                              # Enable Twig level events
   markdown:
     extra: false                            # Enable support for Markdown Extra support (GFM by default)
     auto_line_breaks: false                 # Enable automatic line breaks
@@ -73,7 +74,7 @@ cache:
   gzip: false                               # GZip compress the page output
 
 twig:
-  cache: true                               # Set to true to enable twig caching
+  cache: true                               # Set to true to enable Twig caching
   debug: true                               # Enable Twig debug
   auto_reload: true                         # Refresh cache on changes
   autoescape: false                         # Autoescape Twig vars
@@ -128,5 +129,3 @@ session:
 gpm:
   releases: stable                           # Set to either 'stable' or 'testing'
   proxy_url:                                 # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
-
-custom_base_url: ''

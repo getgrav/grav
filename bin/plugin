@@ -88,7 +88,7 @@ if (!$name) {
     $output->writeln('');
     $output->writeln("<red>Example:</red>");
     $output->writeln("  {$bin} error log -l 1 --trace");
-    $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '/\/cli\/' . $pattern . '$/usm']);
+    $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '/\/cli\/' . $pattern . '$/usm', 'levels' => 2]);
 
     if (count($list)) {
         $available = [];
@@ -119,7 +119,7 @@ if ($plugin === null) {
 $path = 'plugins://' . $name . '/cli';
 
 try {
-    $commands = Folder::all($path, ['compare' => 'Filename', 'pattern' => '/' . $pattern . '$/usm']);
+    $commands = Folder::all($path, ['compare' => 'Filename', 'pattern' => '/' . $pattern . '$/usm', 'levels' => 1]);
 } catch (\RuntimeException $e) {
     $output->writeln("<red>No Console Commands for <white>'{$name}'</white> where found in <white>'{$path}'</white></red>");
     exit;

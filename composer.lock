@@ -178,12 +178,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/erusev/parsedown.git",
-                "reference": "f671ae73647b6666c1442cbaac98e5d60208e409"
+                "reference": "a2ed1592bd064cf90661c266f7e89ea88c06b1db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/f671ae73647b6666c1442cbaac98e5d60208e409",
-                "reference": "f671ae73647b6666c1442cbaac98e5d60208e409",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/a2ed1592bd064cf90661c266f7e89ea88c06b1db",
+                "reference": "a2ed1592bd064cf90661c266f7e89ea88c06b1db",
                 "shasum": ""
             },
             "require": {
@@ -212,7 +212,7 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2016-07-27 08:05:24"
+            "time": "2016-09-05 13:55:29"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -794,12 +794,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "327db9748b112c2c2c843f931e1ad88659fc8482"
+                "reference": "352ce81c373ccb9a9c4b1ea5de0c10b95e54d7f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/327db9748b112c2c2c843f931e1ad88659fc8482",
-                "reference": "327db9748b112c2c2c843f931e1ad88659fc8482",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/352ce81c373ccb9a9c4b1ea5de0c10b95e54d7f2",
+                "reference": "352ce81c373ccb9a9c4b1ea5de0c10b95e54d7f2",
                 "shasum": ""
             },
             "require": {
@@ -834,7 +834,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-08-25 23:28:38"
+            "time": "2016-09-09 07:27:11"
         },
         {
             "name": "seld/cli-prompt",
@@ -886,16 +886,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v2.8.10",
+            "version": "v2.8.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "bac1eb5869c1848a173852aee61df960e3a49197"
+                "reference": "3d3e4fa5f0614c8e45220e5de80332322e33bd90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/bac1eb5869c1848a173852aee61df960e3a49197",
-                "reference": "bac1eb5869c1848a173852aee61df960e3a49197",
+                "url": "https://api.github.com/repos/symfony/console/zipball/3d3e4fa5f0614c8e45220e5de80332322e33bd90",
+                "reference": "3d3e4fa5f0614c8e45220e5de80332322e33bd90",
                 "shasum": ""
             },
             "require": {
@@ -942,11 +942,11 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-08-19 06:48:01"
+            "time": "2016-09-06 10:55:00"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.10",
+            "version": "v2.8.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -1124,16 +1124,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v2.8.10",
+            "version": "v2.8.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "43040b1113171ea24a2ae1c4b3d01eda76360a61"
+                "reference": "84d9a8e4605552704672e67065ec397d816a2ad2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/43040b1113171ea24a2ae1c4b3d01eda76360a61",
-                "reference": "43040b1113171ea24a2ae1c4b3d01eda76360a61",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/84d9a8e4605552704672e67065ec397d816a2ad2",
+                "reference": "84d9a8e4605552704672e67065ec397d816a2ad2",
                 "shasum": ""
             },
             "require": {
@@ -1183,11 +1183,11 @@
                 "debug",
                 "dump"
             ],
-            "time": "2016-08-31 09:05:30"
+            "time": "2016-09-06 10:55:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.8.10",
+            "version": "v2.8.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
