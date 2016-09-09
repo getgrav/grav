@@ -5,6 +5,7 @@
     * Refactored `onPageNotFound` event to fire after `onPageInitialized`
     * Follow symlinks in `Folder::all()`
     * Twig variable `base_url` now supports multi-site by path feature
+    * Improved `bin/plugin` to list plugins with commands faster by limiting the depth of recursion
 1. [](#bugfix)
     * Quietly skip missing streams in `Cache::clearCache()`
     * Fix issue in calling page.summary when no content is present in a page
