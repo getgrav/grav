@@ -4,6 +4,7 @@
 1. [](#improved)
     * Refactored `onPageNotFound` event to fire after `onPageInitialized`
     * Follow symlinks in `Folder::all()`
+    * Twig variable `base_url` now supports multi-site by path feature 
 1. [](#bugfix)
     * Quietly skip missing streams in `Cache::clearCache()`
 
