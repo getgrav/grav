@@ -794,12 +794,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "327db9748b112c2c2c843f931e1ad88659fc8482"
+                "reference": "352ce81c373ccb9a9c4b1ea5de0c10b95e54d7f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/327db9748b112c2c2c843f931e1ad88659fc8482",
-                "reference": "327db9748b112c2c2c843f931e1ad88659fc8482",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/352ce81c373ccb9a9c4b1ea5de0c10b95e54d7f2",
+                "reference": "352ce81c373ccb9a9c4b1ea5de0c10b95e54d7f2",
                 "shasum": ""
             },
             "require": {
@@ -834,7 +834,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2016-08-25 23:28:38"
+            "time": "2016-09-09 07:27:11"
         },
         {
             "name": "seld/cli-prompt",

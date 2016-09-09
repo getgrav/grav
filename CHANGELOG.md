@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Refactored `onPageNotFound` event to fire after `onPageInitialized`
+    * Follow symlinks in `Folder::all()`
 1. [](#bugfix)
     * Quietly skip missing streams in `Cache::clearCache()`
 
