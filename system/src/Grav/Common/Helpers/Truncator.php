@@ -123,6 +123,10 @@ class Truncator {
      */
     public static function htmlToDomDocument($html)
     {
+        if (!$html) {
+            $html = '<p></p>';
+        }
+
         // Transform multibyte entities which otherwise display incorrectly.
         $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
 
