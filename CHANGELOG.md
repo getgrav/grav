@@ -1,5 +1,5 @@
 # v1.1.5
-## 09/xx/2016
+## 09/09/2016
 
 1. [](#improved)
     * Refactored `onPageNotFound` event to fire after `onPageInitialized`
