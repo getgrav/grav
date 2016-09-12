@@ -228,7 +228,7 @@ class ImageMedium extends Medium
         // Clear any alternatives that have already been implied by the image's
         // filename (eg. ones that had "@2x" or similar appended to their
         // filenames)
-        $this->clearAlternatives();
+        $this->reset();
 
         while ($width <= $max_width) {
             $ratio = $width / $this->get('width');
