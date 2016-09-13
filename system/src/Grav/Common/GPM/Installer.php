@@ -29,6 +29,8 @@ class Installer
     const ZIP_OPEN_ERROR = 32;
     /** @const Error while trying to extract the ZIP package */
     const ZIP_EXTRACT_ERROR = 64;
+    /** @const Invalid source file */
+    const INVALID_SOURCE = 128;
 
     /**
      * Destination folder on which validation checks are applied
@@ -62,13 +64,13 @@ class Installer
     /**
      * Installs a given package to a given destination.
      *
-     * @param  string $package     The local path to the ZIP package
+     * @param  string $source     The local path to the ZIP package
      * @param  string $destination The local path to the Grav Instance
      * @param  array  $options     Options to use for installing. ie, ['install_path' => 'user/themes/antimatter']
      *
      * @return boolean True if everything went fine, False otherwise.
      */
-    public static function install($package, $destination, $options = [])
+    public static function install($source, $destination, $options = [])
     {
         $destination = rtrim($destination, DS);
         $options = array_merge(self::$options, $options);
@@ -87,30 +89,36 @@ class Installer
         }
 
         $zip = new \ZipArchive();
-        $archive = $zip->open($package);
-        $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
-        $tmp = $tmp_dir . '/Grav-' . uniqid();
+        $archive = $zip->open($source);
 
-        if ($archive !== true) {
-            self::$error = self::ZIP_OPEN_ERROR;
+        if ($archive === true) {
+            $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
+            $tmp = $tmp_dir . '/Grav-' . uniqid();
 
+            Folder::mkdir($tmp);
+
+            $unzip = $zip->extractTo($tmp);
+
+            if (!$unzip) {
+                self::$error = self::ZIP_EXTRACT_ERROR;
+                $zip->close();
+                Folder::delete($tmp);
+
+                return false;
+            }
+
+            $package_folder_name = $zip->getNameIndex(0);
+            $installer_file_folder = $tmp . '/' . $package_folder_name;
+
+        } else {
+            $installer_file_folder = $source;
+        }
+
+        if (!file_exists($installer_file_folder)) {
+            self::$error = self::INVALID_SOURCE;
             return false;
         }
 
-        Folder::mkdir($tmp);
-
-        $unzip = $zip->extractTo($tmp);
-
-        if (!$unzip) {
-            self::$error = self::ZIP_EXTRACT_ERROR;
-            $zip->close();
-            Folder::delete($tmp);
-
-            return false;
-        }
-
-        $package_folder_name = $zip->getNameIndex(0);
-        $installer_file_folder = $tmp . '/' . $package_folder_name;
 
         $is_install = true;
         $installer = self::loadInstaller($installer_file_folder, $is_install);
@@ -162,6 +170,7 @@ class Installer
         return true;
 
     }
+
 
     /**
      * Instantiates and returns the package installer class
@@ -273,17 +282,17 @@ class Installer
                 continue;
             } else {
                 if (is_dir($path)) {
-                    Folder::delete($path);
-                    Folder::move($tmp . DS . $filename, $path);
+//                    Folder::delete($path);
+//                    Folder::move($tmp . DS . $filename, $path);
 
                     if ($fileinfo['basename'] == 'bin') {
                         foreach (glob($path . DS . '*') as $file) {
-                            @chmod($file, 0755);
+//                            @chmod($file, 0755);
                         }
                     }
                 } else {
-                    @unlink($path);
-                    @copy($tmp . DS . $filename, $path);
+//                    @unlink($path);
+//                    @copy($tmp . DS . $filename, $path);
                 }
             }
         }
