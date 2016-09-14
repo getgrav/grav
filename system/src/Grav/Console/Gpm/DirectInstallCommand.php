@@ -16,6 +16,7 @@ use Grav\Common\GPM\Response;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Yaml\Yaml;
 
 class DirectInstallCommand extends ConsoleCommand
 {
@@ -50,7 +51,7 @@ class DirectInstallCommand extends ConsoleCommand
         $answer = $helper->ask($this->input, $this->output, $question);
 
         if (!$answer) {
-            $this->output->writeln("existing...");
+            $this->output->writeln("exiting...");
             $this->output->writeln('');
             exit;
         }
@@ -89,6 +90,32 @@ class DirectInstallCommand extends ConsoleCommand
                 $this->output->writeln("  '- <red>ERROR: Not a valid Grav package</red>");
                 $this->output->writeln('');
                 exit;
+            }
+
+            $blueprint = $this->getBlueprints($extracted);
+            if ($blueprint) {
+                if (isset($blueprint['dependencies'])) {
+                    $depencencies = [];
+                    foreach ($blueprint['dependencies'] as $dependency) {
+                        if (is_array($dependency) && isset($dependency['name'])) {
+                            $depencencies[] = $dependency['name'];
+                        } else {
+                            $depencencies[] = $dependency;
+                        }
+                    }
+                    $this->output->writeln("  |- Dependencies found...    <cyan>[" . implode(',', $depencencies) . "]</cyan>");
+
+
+
+                    $question = new ConfirmationQuestion("  |  '- Dependencies will not be satisfied. Continue ? [y|N] ", false);
+                    $answer = $helper->ask($this->input, $this->output, $question);
+
+                    if (!$answer) {
+                        $this->output->writeln("exiting...");
+                        $this->output->writeln('');
+                        exit;
+                    }
+                }
             }
 
             if ($type == 'grav') {
@@ -224,13 +251,13 @@ class DirectInstallCommand extends ConsoleCommand
     protected function getPackageType($source)
     {
         if (
-            file_exists($source . '/system/defines.php') &&
-            file_exists($source . '/system/config/system.yaml')
+            file_exists($source . 'system/defines.php') &&
+            file_exists($source . 'system/config/system.yaml')
         ) {
             return 'grav';
         } else {
             // must have a blueprint
-            if (!file_exists($source . '/blueprints.yaml')) {
+            if (!file_exists($source . 'blueprints.yaml')) {
                 return false;
             }
 
@@ -269,6 +296,23 @@ class DirectInstallCommand extends ConsoleCommand
         } else {
             return false;
         }
+    }
+
+    /**
+     * Find/Parse the blueprint file
+     *
+     * @param $source
+     * @return array|bool
+     */
+    protected function getBlueprints($source)
+    {
+        $blueprint_file = $source . 'blueprints.yaml';
+        if (!file_exists($blueprint_file)) {
+            return false;
+        }
+
+        $blueprint = (array)Yaml::parse(file_get_contents($blueprint_file));
+        return $blueprint;
     }
 
     /**
