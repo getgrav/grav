@@ -30,3 +30,4 @@
 * Rebuild packages for admin 1.2.1 (with tmp:// fix)
 * Rebuild with admin 1.2.2
 * Rebuild for update package
+* Rebuild for problems update
