@@ -120,6 +120,19 @@ class DirectInstallCommand extends ConsoleCommand
 
             if ($type == 'grav') {
 
+                $this->output->write("  |- Checking destination...  ");
+                Installer::isValidDestination(GRAV_ROOT . '/system');
+                if (Installer::IS_LINK === Installer::lastErrorCode()) {
+                    $this->output->write("\x0D");
+                    $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
+                    $this->output->writeln("  '- <red>ERROR: symlinks found...</red> <yellow>" . GRAV_ROOT."</yellow>");
+                    $this->output->writeln('');
+                    exit;
+                }
+
+                $this->output->write("\x0D");
+                $this->output->writeln("  |- Checking destination...  <green>ok</green>");
+
                 $this->output->write("  |- Installing package...  ");
                 Installer::install($zip, GRAV_ROOT, ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true], $extracted);
             } else {
