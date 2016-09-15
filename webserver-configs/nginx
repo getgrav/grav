@@ -41,11 +41,6 @@ server {
         deny all;
     }
     
-    # protect system files
-    location ~* (?:\.(?:bak|conf|dist|fla|in[ci]|log|psd|sh|sql|sw[op])|~)$ {
-        deny all;
-    }
-    
     # pass php scripts to php-fpm via fastcgi
     location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
