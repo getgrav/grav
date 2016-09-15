@@ -120,19 +120,6 @@ class DirectInstallCommand extends ConsoleCommand
 
             if ($type == 'grav') {
 
-                $this->output->write("  |- Checking destination...  ");
-                if ($this->gravSymlinked()) {
-                    $this->output->write("\x0D");
-                    $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
-                    $this->output->writeln("  '- <red>ERROR: symlinks found...</red> <yellow>" . GRAV_ROOT."</yellow>");
-                    $this->output->writeln('');
-                    exit;
-
-                } else {
-                    $this->output->write("\x0D");
-                    $this->output->writeln("  |- Checking destination...  <green>ok</green>");
-                }
-
                 $this->output->write("  |- Installing package...  ");
                 Installer::install($zip, GRAV_ROOT, ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true], $extracted);
             } else {
@@ -191,18 +178,6 @@ class DirectInstallCommand extends ConsoleCommand
 
         return true;
 
-    }
-
-    /**
-     * Determine if Grav is symlinked (system is all we need to check)
-     *
-     * @return bool
-     */
-    protected function gravSymlinked()
-    {
-        if (is_link(GRAV_ROOT . DS . 'system')) {
-            return true;
-        }
     }
 
     /**
@@ -290,12 +265,7 @@ class DirectInstallCommand extends ConsoleCommand
      */
     protected function isRemote($file)
     {
-        if (filter_var($file, FILTER_VALIDATE_URL))
-        {
-            return true;
-        } else {
-            return false;
-        }
+        return (bool) filter_var($file, FILTER_VALIDATE_URL);
     }
 
     /**
