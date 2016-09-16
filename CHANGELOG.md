@@ -1,3 +1,9 @@
+# v1.1.6
+## XX/XX/2016
+
+1. [](#improved)
+    * Add `batch()` function to Page Collection class
+
 # v1.1.5
 ## 09/09/2016
 
