@@ -982,6 +982,27 @@ form:
                     label: PLUGIN_ADMIN.PROXY_URL
                     help: PLUGIN_ADMIN.PROXY_URL_HELP
 
+                gpm.method:
+                    type: toggle
+                    label: PLUGIN_ADMIN.GPM_METHOD
+                    highlight: auto
+                    help: PLUGIN_ADMIN.GPM_METHOD_HELP
+                    options:
+                        auto: PLUGIN_ADMIN.AUTO
+                        fopen: PLUGIN_ADMIN.FOPEN
+                        curl: PLUGIN_ADMIN.CURL
+
+                gpm.verify_peer:
+                    type: toggle
+                    label: PLUGIN_ADMIN.VERIFY_PEER
+                    highlight: 1
+                    help: PLUGIN_ADMIN.VERIFY_PEER_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 reverse_proxy_setup:
                     type: toggle
                     label: PLUGIN_ADMIN.REVERSE_PROXY
