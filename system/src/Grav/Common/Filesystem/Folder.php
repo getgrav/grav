@@ -179,7 +179,7 @@ abstract class Folder
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
         if ($recursive) {
-            $flags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS 
+            $flags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS
                 + \FilesystemIterator::CURRENT_AS_SELF + \FilesystemIterator::FOLLOW_SYMLINKS;
             if ($locator->isStream($path)) {
                 $directory = $locator->getRecursiveIterator($path, $flags);
@@ -403,10 +403,7 @@ abstract class Folder
 
         // If the destination directory does not exist create it
         if (!is_dir($dest)) {
-            if (!mkdir($dest)) {
-                // If the destination directory could not be created stop processing
-                return false;
-            }
+            Folder::mkdir($dest);
         }
 
         // Open the source directory to read in files
