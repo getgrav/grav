@@ -114,6 +114,9 @@ types:
   xlm:
     type: file
     mime: application/vnd.ms-excel
+  xlsm:
+    type: file
+    mime: application/vnd.ms-excel
   xld:
     type: file
     mime: application/vnd.ms-excel
