@@ -7,6 +7,8 @@
 # v1.1.5
 ## 09/09/2016
 
+1. [](#new)
+    * Added new `bin/gpm direct-install` command to install local and remote zip archives
 1. [](#improved)
     * Refactored `onPageNotFound` event to fire after `onPageInitialized`
     * Follow symlinks in `Folder::all()`
