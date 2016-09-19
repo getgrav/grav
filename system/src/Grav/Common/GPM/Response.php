@@ -41,7 +41,7 @@ class Response
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_TIMEOUT        => 15,
             CURLOPT_HEADER         => false,
-            //CURLOPT_SSL_VERIFYPEER => false, // this is set in the constructor since it's a setting
+            //CURLOPT_SSL_VERIFYPEER => true, // this is set in the constructor since it's a setting
             /**
              * Example of callback parameters from within your own class
              */
@@ -56,8 +56,8 @@ class Response
             'timeout'          => 15,
             /* // this is set in the constructor since it's a setting
             'ssl'              => [
-                'verify_peer'      => false,
-                'verify_peer_name' => false,
+                'verify_peer'      => true,
+                'verify_peer_name' => true,
             ],
             */
             /**
