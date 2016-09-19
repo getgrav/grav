@@ -68,7 +68,7 @@ script:
   - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
         vendor/bin/codecept run;
     fi
-  - echo "Latest Release Tag: ${TRAVIS_TAG}"
+  - echo "Latest Release Tag - ${TRAVIS_TAG}"
   - if [ ! -z "$TRAVIS_TAG" ] && [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
       FILES="$RT_DEVTOOLS/grav-dist/*.zip";
       for file in ${FILES[@]}; do
