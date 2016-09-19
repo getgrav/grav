@@ -196,14 +196,14 @@ class Cache extends Getters
 
             case 'redis':
                 $redis = new \Redis();
-                $socket = $this->config->get('system.cache.redis.socket');
+                $socket = $this->config->get('system.cache.redis.socket', false);
 
-                if (isset($socket)) {
+                if ($socket) {
                     $redis->connect($socket);
                 } else {
                     $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
                     $this->config->get('system.cache.redis.port', 6379));
-                }              
+                }
 
                 $driver = new DoctrineCache\RedisCache();
                 $driver->setRedis($redis);
