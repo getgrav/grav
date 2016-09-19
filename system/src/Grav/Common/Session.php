@@ -64,6 +64,11 @@ class Session extends BaseSession
                 $domain = '';
             }
 
+            // Fix for HUGE session timeouts
+            if ($session_timeout > 99999999999) {
+                $session_timeout = 9999999999;
+            }
+
             // Define session service.
             parent::__construct($session_timeout, $session_path, $domain);
 

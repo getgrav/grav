@@ -15,6 +15,7 @@
 1. [](#bugfix)
     * Quietly skip missing streams in `Cache::clearCache()`
     * Fix issue in calling page.summary when no content is present in a page
+    * Fix for HUGE session timeouts [#1050](https://github.com/getgrav/grav/issues/1050)
 
 # v1.1.4
 ## 09/07/2016
