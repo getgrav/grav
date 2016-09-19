@@ -994,9 +994,9 @@ form:
 
                 gpm.verify_peer:
                     type: toggle
-                    label: PLUGIN_ADMIN.VERIFY_PEER
+                    label: PLUGIN_ADMIN.GPM_VERIFY_PEER
                     highlight: 1
-                    help: PLUGIN_ADMIN.VERIFY_PEER_HELP
+                    help: PLUGIN_ADMIN.GPM_VERIFY_PEER_HELP
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
