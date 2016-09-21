@@ -520,6 +520,7 @@ form:
                     size: medium
                     label: PLUGIN_ADMIN.REDIS_SOCKET
                     help: PLUGIN_ADMIN.REDIS_SOCKET_HELP
+                    placeholder: "/var/run/redis/redis.sock"
 
                 cache.redis.server:
                     type: text
