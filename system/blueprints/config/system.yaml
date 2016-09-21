@@ -515,6 +515,13 @@ form:
                     help: PLUGIN_ADMIN.MEMCACHED_PORT_HELP
                     placeholder: "11211"
 
+                cache.redis.socket:
+                    type: text
+                    size: medium
+                    label: PLUGIN_ADMIN.REDIS_SOCKET
+                    help: PLUGIN_ADMIN.REDIS_SOCKET_HELP
+                    placeholder: "/var/run/redis/redis.sock"
+
                 cache.redis.server:
                     type: text
                     size: medium

@@ -72,6 +72,8 @@ cache:
   prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                               # GZip compress the page output
+  redis:
+    socket: false                           # Path to redis unix socket (e.g. /var/run/redis/redis.sock), false = use server and port to connect
 
 twig:
   cache: true                               # Set to true to enable Twig caching

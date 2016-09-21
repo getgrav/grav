@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Add `batch()` function to Page Collection class
+    * Added new `cache.redis.socket` setting that allow to pass a UNIX socket as redis server
 
 # v1.1.5
 ## 09/09/2016
