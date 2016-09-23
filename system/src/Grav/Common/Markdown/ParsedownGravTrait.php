@@ -69,16 +69,23 @@ trait ParsedownGravTrait
      */
     public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
     {
+        $block = &$this->unmarkedBlockTypes;
+        if ($type) {
+            if (!isset($this->BlockTypes[$type])) {
+                $this->BlockTypes[$type] = [];
+            }
+            $block = &$this->BlockTypes[$type];
+        }
+
         if (!isset($index)) {
-            $this->BlockTypes[$type] [] = $tag;
+            $block[] = $tag;
         } else {
-            array_splice($this->BlockTypes[$type], $index, 0, $tag);
+            array_splice($block, $index, 0, [$tag]);
         }
 
         if ($continuable) {
             $this->continuable_blocks[] = $tag;
         }
-
         if ($completable) {
             $this->completable_blocks[] = $tag;
         }
@@ -92,10 +99,10 @@ trait ParsedownGravTrait
      */
     public function addInlineType($type, $tag, $index = null)
     {
-        if (!isset($index)) {
+        if (!isset($index) || !isset($this->InlineTypes[$type])) {
             $this->InlineTypes[$type] [] = $tag;
         } else {
-            array_splice($this->InlineTypes[$type], $index, 0, $tag);
+            array_splice($this->InlineTypes[$type], $index, 0, [$tag]);
         }
 
         if (strpos($this->inlineMarkerList, $type) === false) {
