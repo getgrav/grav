@@ -276,9 +276,9 @@ class Response
             $code = explode(' ', $http_response_header[0])[1];
             switch ($code) {
                 case '404':
-                    throw new \RuntimeException("Page not found '$uri'");
+                    throw new \RuntimeException("Page not found");
                 case '401':
-                    throw new \RuntimeException("Unauthorized to access '$uri'");
+                    throw new \RuntimeException("Invalid LICENSE");
                 default:
                     throw new \RuntimeException("Error while trying to download '$uri'\n");
             }
@@ -307,8 +307,15 @@ class Response
         $errno = curl_errno($ch);
 
         if ($errno) {
-            $error_message = curl_strerror($errno) . "\n" . curl_error($ch);
-            throw new \RuntimeException("cURL error ({$errno}):\n {$error_message}");
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            switch ($code) {
+                case '404':
+                    throw new \RuntimeException("Page not found");
+                case '401':
+                    throw new \RuntimeException("Invalid LICENSE");
+                default:
+                    throw new \RuntimeException("Error while trying to download '$uri'\nMessage: $error_message");
+            }
         }
 
         curl_close($ch);
