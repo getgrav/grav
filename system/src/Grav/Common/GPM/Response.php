@@ -114,7 +114,7 @@ class Response
         // SSL Verify Peer and Proxy Setting
         $settings = [
             'method'      => $config->get('system.gpm.method', self::$method),
-            'verify_peer' => $config->get('system.gpm.verify_peer', true),
+            'verify_peer' => $config->get('system.gpm.verify_peer'),
             // `system.proxy_url` is for fallback
             // introduced with 1.1.0-beta.1 probably safe to remove at some point
             'proxy_url'   => $config->get('system.gpm.proxy_url', $config->get('system.proxy_url', false)),
@@ -261,7 +261,14 @@ class Response
             $options['fopen']['notification'] = ['self', 'progress'];
         }
 
-        $stream  = stream_context_create(['http' => $options['fopen']], $options['fopen']);
+        $ssl = $options['fopen']['ssl'];
+        unset($options['fopen']['ssl']);
+
+        $stream  = stream_context_create([
+            'http' => $options['fopen'],
+            'ssl' => $ssl
+        ], $options['fopen']);
+
         $content = @file_get_contents($uri, false, $stream);
 
         if ($content === false) {
