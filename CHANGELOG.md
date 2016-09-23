@@ -4,6 +4,11 @@
 1. [](#improved)
     * Add `batch()` function to Page Collection class
     * Added new `cache.redis.socket` setting that allow to pass a UNIX socket as redis server
+    * It is now possible to opt-out of the SSL verification via the new `system.gpm.verify_peer` setting. This is sometimes necessary when receiving a "GPM Unable to Connect" error. More details in ([#1053](https://github.com/getgrav/grav/issues/1053))
+    * It is now possible to force the use of either `curl` or `fopen` as `Response` connection method, via the new `system.gpm.method` setting. By default this is set to 'auto' and gives priority to 'fopen' first, curl otherwise.
+1. [](#bugfix)
+    * Fixed missing `progress` method in the DirectInstall Command
+    * `Response` class now handles better unsuccessful requests such as 404 and 401
 
 # v1.1.5
 ## 09/09/2016
