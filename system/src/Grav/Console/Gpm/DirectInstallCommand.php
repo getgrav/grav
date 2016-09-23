@@ -361,4 +361,14 @@ class DirectInstallCommand extends ConsoleCommand
         return null;
 
     }
+
+    /**
+     * @param $progress
+     */
+    public function progress($progress)
+    {
+        $this->output->write("\x0D");
+        $this->output->write("  |- Downloading package... " . str_pad($progress['percent'], 5, " ",
+                STR_PAD_LEFT) . '%');
+    }
 }
