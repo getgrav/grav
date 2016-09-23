@@ -307,7 +307,7 @@ class Response
         $errno = curl_errno($ch);
 
         if ($errno) {
-            $error_message = curl_strerror($errno);
+            $error_message = curl_strerror($errno) . "\n" . curl_error($ch);
             throw new \RuntimeException("cURL error ({$errno}):\n {$error_message}");
         }
 
