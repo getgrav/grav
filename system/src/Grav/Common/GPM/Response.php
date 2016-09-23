@@ -39,6 +39,7 @@ class Response
             CURLOPT_USERAGENT      => 'Grav GPM',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FAILONERROR    => true,
             CURLOPT_TIMEOUT        => 15,
             CURLOPT_HEADER         => false,
             //CURLOPT_SSL_VERIFYPEER => true, // this is set in the constructor since it's a setting
@@ -272,7 +273,15 @@ class Response
         $content = @file_get_contents($uri, false, $stream);
 
         if ($content === false) {
-            throw new \RuntimeException("Error while trying to download '$uri'");
+            $code = explode(' ', $http_response_header[0])[1];
+            switch ($code) {
+                case '404':
+                    throw new \RuntimeException("Page not found '$uri'");
+                case '401':
+                    throw new \RuntimeException("Unauthorized to access '$uri'");
+                default:
+                    throw new \RuntimeException("Error while trying to download '$uri'\n");
+            }
         }
 
         return $content;
