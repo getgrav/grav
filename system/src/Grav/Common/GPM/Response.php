@@ -308,6 +308,7 @@ class Response
 
         if ($errno) {
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error_message = curl_strerror($errno) . "\n" . curl_error($ch);
             switch ($code) {
                 case '404':
                     throw new \RuntimeException("Page not found");
