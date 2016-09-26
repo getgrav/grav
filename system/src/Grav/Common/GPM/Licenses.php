@@ -8,6 +8,7 @@
 
 namespace Grav\Common\GPM;
 
+use Grav\Common\Grav;
 use RocketTheme\Toolbox\File\YamlFile;
 
 class Licenses
@@ -24,8 +25,7 @@ class Licenses
      */
     public static function set($slug, $license)
     {
-        // TODO: this fails to save due to read-only stream apparently
-        $licenses = YamlFile::instance(self::$licenses);
+        $licenses = YamlFile::instance(self::getLicensePath());
         $data = $licenses->content();
 
         if (!is_string($license)) {
@@ -49,14 +49,23 @@ class Licenses
      */
     public static function get($slug)
     {
-        $licenses = YamlFile::instance(self::$licenses);
+        $licenses = YamlFile::instance(self::getLicensePath());
         $data = $licenses->content();
         $licenses->free();
+
+        if (!$slug) {
+            return $data['licenses'];
+        }
 
         if (!isset($data['licenses']) || !isset($data['licenses'][$slug])) {
             return '';
         }
 
         return $data['licenses'][$slug];
+    }
+
+    protected static function getLicensePath()
+    {
+        return Grav::instance()['locator']->findResource(self::$licenses);
     }
 }
