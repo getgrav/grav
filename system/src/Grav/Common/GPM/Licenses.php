@@ -11,8 +11,21 @@ namespace Grav\Common\GPM;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\File\YamlFile;
 
+/**
+ * Class Licenses
+ *
+ * @package Grav\Common\GPM
+ */
 class Licenses
 {
+
+    /**
+     * Regex to validate the format of a License
+     *
+     * @var string
+     */
+    protected static $regex = '^(?:[A-F0-9]{8}-){3}(?:[A-F0-9]{8}){1}$';
+
     /**
      * Returns the license for a Premium package
      *
@@ -66,6 +79,26 @@ class Licenses
         return $data['licenses'][$slug];
     }
 
+
+    /**
+     * Validates the License format
+     *
+     * @param $license
+     *
+     * @return bool
+     */
+    public static function validate($license = null)
+    {
+        if (!is_string($license)) {
+            return false;
+        }
+
+        return preg_match('#' . self::$regex. '#', $license);
+    }
+
+    /**
+     * @return string
+     */
     protected static function getLicensePath()
     {
         $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';
