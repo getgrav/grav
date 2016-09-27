@@ -116,7 +116,8 @@ class IndexCommand extends ConsoleCommand
             $this->output->writeln('Please try clearing cache and running the <green>bin/gpm index -f</green> command again');
             $this->output->writeln('If this doesn\'t work try tweaking your GPM system settings.');
             $this->output->writeln('');
-            $this->output->writeln('For more help go to: https://learn.getgrav.org/troubleshooting');
+            $this->output->writeln('For more help go to:');
+            $this->output->writeln(' -> <yellow>https://learn.getgrav.org/troubleshooting/common-problems#cannot-connect-to-the-gpm</yellow>');
 
             die;
         }
