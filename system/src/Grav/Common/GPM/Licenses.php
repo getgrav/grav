@@ -41,6 +41,7 @@ class Licenses
     {
         $licenses = self::getLicenseFile();
         $data = $licenses->content();
+        $slug = strtolower($slug);
 
         if ($license && !self::validate($license)) {
             return false;
@@ -74,6 +75,7 @@ class Licenses
         $licenses = self::getLicenseFile();
         $data = $licenses->content();
         $licenses->free();
+        $slug = strtolower($slug);
 
         if (!$slug) {
             return $data['licenses'];
