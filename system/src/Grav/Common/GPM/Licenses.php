@@ -8,8 +8,8 @@
 
 namespace Grav\Common\GPM;
 
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use RocketTheme\Toolbox\File\YamlFile;
 
 /**
  * Class Licenses
@@ -26,6 +26,9 @@ class Licenses
      */
     protected static $regex = '^(?:[A-F0-9]{8}-){3}(?:[A-F0-9]{8}){1}$';
 
+    protected static $file;
+
+
     /**
      * Returns the license for a Premium package
      *
@@ -36,7 +39,7 @@ class Licenses
      */
     public static function set($slug, $license)
     {
-        $licenses = YamlFile::instance(self::getLicensePath());
+        $licenses = self::getLicenseFile();
         $data = $licenses->content();
 
         if ($license && !self::validate($license)) {
@@ -68,7 +71,7 @@ class Licenses
      */
     public static function get($slug = null)
     {
-        $licenses = YamlFile::instance(self::getLicensePath());
+        $licenses = self::getLicenseFile();
         $data = $licenses->content();
         $licenses->free();
 
@@ -101,14 +104,21 @@ class Licenses
     }
 
     /**
-     * @return string
+     * Get's the License File object
+     *
+     * @return \RocketTheme\Toolbox\File\FileInterface
      */
-    protected static function getLicensePath()
+    public static function getLicenseFile()
+
     {
-        $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';
-        if (!file_exists($path)) {
-            touch($path);
+        if (!isset(self::$file)) {
+            $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';;
+            if (!file_exists($path)) {
+                touch($path);
+            }
+            self::$file = CompiledYamlFile::instance($path);
         }
-        return $path;
+
+        return self::$file;
     }
 }
