@@ -273,7 +273,11 @@ class Response
         $content = @file_get_contents($uri, false, $stream);
 
         if ($content === false) {
-            $code = explode(' ', $http_response_header[0])[1];
+            $code = null;
+            if (isset($http_response_header)) {
+                $code = explode(' ', $http_response_header[0])[1];
+            }
+
             switch ($code) {
                 case '404':
                     throw new \RuntimeException("Page not found");
@@ -309,6 +313,7 @@ class Response
         if ($errno) {
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error_message = curl_strerror($errno) . "\n" . curl_error($ch);
+
             switch ($code) {
                 case '404':
                     throw new \RuntimeException("Page not found");
