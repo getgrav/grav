@@ -39,6 +39,10 @@ class Licenses
         $licenses = YamlFile::instance(self::getLicensePath());
         $data = $licenses->content();
 
+        if ($license && !self::validate($license)) {
+            return false;
+        }
+
         if (!is_string($license)) {
             if (isset($data['licenses'][$slug])) {
                 unset($data['licenses'][$slug]);
