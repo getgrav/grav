@@ -13,8 +13,6 @@ use RocketTheme\Toolbox\File\YamlFile;
 
 class Licenses
 {
-    protected static $licenses = 'user://data/licenses.yaml';
-
     /**
      * Returns the license for a Premium package
      *
@@ -29,7 +27,11 @@ class Licenses
         $data = $licenses->content();
 
         if (!is_string($license)) {
-            unset($data['licenses'][$slug]);
+            if (isset($data['licenses'][$slug])) {
+                unset($data['licenses'][$slug]);
+            } else {
+                return false;
+            }
         } else {
             $data['licenses'][$slug] = $license;
         }
@@ -47,7 +49,7 @@ class Licenses
      *
      * @return string
      */
-    public static function get($slug)
+    public static function get($slug = null)
     {
         $licenses = YamlFile::instance(self::getLicensePath());
         $data = $licenses->content();
@@ -66,6 +68,10 @@ class Licenses
 
     protected static function getLicensePath()
     {
-        return Grav::instance()['locator']->findResource(self::$licenses);
+        $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';
+        if (!file_exists($path)) {
+            touch($path);
+        }
+        return $path;
     }
 }
