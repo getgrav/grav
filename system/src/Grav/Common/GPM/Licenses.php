@@ -78,7 +78,7 @@ class Licenses
         $slug = strtolower($slug);
 
         if (!$slug) {
-            return $data['licenses'];
+            return isset($data['licenses']) ? $data['licenses'] : [];
         }
 
         if (!isset($data['licenses']) || !isset($data['licenses'][$slug])) {
