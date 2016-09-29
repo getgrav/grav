@@ -902,6 +902,12 @@ class Pages
                     $last_modified = $modified;
                 }
             } elseif ($file->isDir() && !in_array($file->getFilename(), $this->ignore_folders)) {
+
+                // if folder contains separator, continue
+                if (Utils::contains($file->getFilename(), $config->get('system.param_sep', ':'))) {
+                    continue;
+                }
+
                 if (!$page->path()) {
                     $page->path($file->getPath());
                 }
