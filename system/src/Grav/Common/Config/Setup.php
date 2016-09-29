@@ -133,7 +133,7 @@ class Setup extends Data
      */
     public function __construct($container)
     {
-        $environment = static::$environment ?: ($container['uri']->environment() ?: 'localhost');
+        $environment = isset(static::$environment) ? static::$environment : ($container['uri']->environment() ?: 'localhost');
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
@@ -150,8 +150,8 @@ class Setup extends Data
         parent::__construct($setup);
 
         // Set up environment.
-        $this->def('environment', $environment);
-        $this->def('streams.schemes.environment.prefixes', ['' => ["user://{$this->environment}"]]);
+        $this->def('environment', $environment ?: 'cli');
+        $this->def('streams.schemes.environment.prefixes', ['' => ($environment ? ["user://{$this->environment}"] : [])]);
     }
 
     /**
