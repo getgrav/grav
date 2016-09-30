@@ -166,18 +166,43 @@ abstract class Utils
     }
 
     /**
-     * Truncate text by number of characters in a "word-safe" manor.
+     * Truncate text by number of characters in a "word-safe" manner.
      *
      * @param string $string
      * @param int    $limit
+     * @param string $break
+     * @param string $pad
      *
      * @return string
      */
-    public static function safeTruncate($string, $limit = 150)
+    public static function safeTruncate($string, $limit = 150, $break = " ", $pad = "&hellip;")
     {
-        return static::truncate($string, $limit, true);
+        return static::truncate($string, $limit, true, $break, $pad);
     }
 
+    /**
+     * Word wrap a string at a given column length in a "word-safe" manner.
+     *
+     * @param string $string    The string to be wrapped
+     * @param int    $limit     The maximum width of a given line
+     * @param string $eol       The string you wish to use to separate the lines
+     * @param string $break     The string at which you can break a line
+     * @param string $pad       The string used by the upstream `truncate` function to break a line with
+     *
+     * @return string
+     */
+    public static function wordwrap($string, $limit = 150, $eol = "\n", $break = " ", $pad = '') {
+        $lines = [];
+
+        $working = $string;
+        while (mb_strlen($working) > 0) {
+            $line = static::safeTruncate($working, $limit, $break, $pad);
+            $lines[] = $line;
+            $working = mb_substr($working, mb_strlen($line));
+        }
+
+        return implode($eol, $lines);
+    }
 
     /**
      * Truncate HTML by number of characters. not "word-safe"!
@@ -194,7 +219,7 @@ abstract class Utils
     }
 
     /**
-     * Truncate HTML by number of characters in a "word-safe" manor.
+     * Truncate HTML by number of characters in a "word-safe" manner.
      *
      * @param  string $text
      * @param  int    $length in words
