@@ -251,12 +251,12 @@ class Grav extends Container
      */
     public function header()
     {
-        $extension = $this['uri']->extension();
-
         /** @var Page $page */
         $page = $this['page'];
 
-        header('Content-type: ' . $this->mime($extension));
+        $format = $page->templateFormat();
+
+        header('Content-type: ' . $this->mime($format));
 
         // Calculate Expires Headers if set to > 0
         $expires = $page->expires();
@@ -279,7 +279,7 @@ class Grav extends Container
         }
 
         // Set debugger data in headers
-        if (!($extension === null || $extension == 'html')) {
+        if (!($format === null || $format == 'html')) {
             $this['debugger']->enabled(false);
         }
 

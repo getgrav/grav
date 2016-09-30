@@ -85,6 +85,7 @@ class Page
     protected $home_route;
     protected $hide_home_route;
     protected $ssl;
+    protected $template_format;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -419,6 +420,9 @@ class Page
             }
             if (isset($this->header->ssl)) {
                 $this->ssl = (bool) $this->header->ssl;
+            }
+            if (isset($this->header->template_format)) {
+                $this->template_format = $this->header->template_format;
             }
         }
 
@@ -1100,6 +1104,26 @@ class Page
     }
 
     /**
+     * Allows a page to override the output render format, usually the extension provided
+     * in the URL. (e.g. `html`, `json`, `xml`, etc).
+     *
+     * @param null $var
+     * @return null
+     */
+    public function templateFormat($var = null)
+    {
+        if ($var !== null) {
+            $this->template_format = $var;
+        }
+
+        if (empty($this->template_format)) {
+            $this->template_format =  Grav::instance()['uri']->extension();
+        }
+
+        return $this->template_format;
+    }
+
+    /**
      * Gets and sets the extension field.
      *
      * @param null $var
@@ -1107,16 +1131,16 @@ class Page
      * @return null|string
      */
     public function extension($var = null)
-    {
-        if ($var !== null) {
-            $this->extension = $var;
-        }
-        if (empty($this->extension)) {
-            $this->extension = '.' . pathinfo($this->name(), PATHINFO_EXTENSION);
-        }
-
-        return $this->extension;
+{
+    if ($var !== null) {
+        $this->extension = $var;
     }
+    if (empty($this->extension)) {
+        $this->extension = '.' . pathinfo($this->name(), PATHINFO_EXTENSION);
+    }
+
+    return $this->extension;
+}
 
     /**
      * Returns the page extension, got from the page `url_extension` config and falls back to the
