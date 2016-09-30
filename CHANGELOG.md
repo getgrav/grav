@@ -8,6 +8,7 @@
     * It is now possible to force the use of either `curl` or `fopen` as `Response` connection method, via the new `system.gpm.method` setting. By default this is set to 'auto' and gives priority to 'fopen' first, curl otherwise.
     * InstallCommand can now handle Licenses
     * Added new method `Plugins::isPluginActiveAdmin()` to check if plugin route is active in Admin plugin
+    * Added new `Cache::setEnabled` and `Cache::getEnabled` to enable outside control of cache
 1. [](#bugfix)
     * Fixed missing `progress` method in the DirectInstall Command
     * `Response` class now handles better unsuccessful requests such as 404 and 401

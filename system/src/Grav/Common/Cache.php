@@ -115,7 +115,9 @@ class Cache extends Getters
 
         $prefix = $this->config->get('system.cache.prefix');
 
-        $this->enabled = (bool)$this->config->get('system.cache.enabled');
+        if (is_null($this->enabled)) {
+            $this->enabled = (bool)$this->config->get('system.cache.enabled');
+        }
 
         // Cache key allows us to invalidate all cache on configuration changes.
         $this->key = ($prefix ? $prefix : 'g') . '-' . substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION),
@@ -127,10 +129,36 @@ class Cache extends Getters
 
         // Set the cache namespace to our unique key
         $this->driver->setNamespace($this->key);
+    }
 
-        // Dump Cache state
-        $grav['debugger']->addMessage('Cache: [' . ($this->enabled ? 'true' : 'false') . '] Setting: [' . $this->driver_setting . '] Driver: [' . $this->driver_name . ']');
+    /**
+     * Public accessor to set the enabled state of the cache
+     *
+     * @param $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = (bool) $enabled;
+    }
 
+    /**
+     * Returns the current enabled state
+     *
+     * @return bool
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Get cache state
+     *
+     * @return string
+     */
+    public function getCacheStatus()
+    {
+        return 'Cache: [' . ($this->enabled ? 'true' : 'false') . '] Setting: [' . $this->driver_setting . '] Driver: [' . $this->driver_name . ']';
     }
 
     /**

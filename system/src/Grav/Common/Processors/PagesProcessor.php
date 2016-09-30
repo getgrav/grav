@@ -10,15 +10,20 @@ namespace Grav\Common\Processors;
 
 use Grav\Common\Page\Page;
 
-class PagesProcessor extends ProcessorBase implements ProcessorInterface {
+class PagesProcessor extends ProcessorBase implements ProcessorInterface
+{
 
     public $id = 'pages';
     public $title = 'Pages';
 
-    public function process() {
-      	$this->container['pages']->init();
-      	$this->container->fireEvent('onPagesInitialized');
-      	$this->container->fireEvent('onPageInitialized');
+    public function process()
+    {
+        // Dump Cache state
+        $this->container['debugger']->addMessage($this->container['cache']->getCacheStatus());
+
+        $this->container['pages']->init();
+        $this->container->fireEvent('onPagesInitialized');
+        $this->container->fireEvent('onPageInitialized');
 
         /** @var Page $page */
         $page = $this->container['page'];
