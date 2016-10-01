@@ -12,7 +12,7 @@ use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
-use Grav\Common\Utils\AcceptHeader;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -350,9 +350,9 @@ class Twig
                 $error_msg = $e->getMessage();
             }
         } else {
-            $parser = new AcceptHeader($_SERVER['HTTP_ACCEPT']);
-            for ($i=0; $i<$parser->count(); $i++) {
-                $mimetype = $parser->offsetGet($i)['type'] . '/' . $parser->offsetGet($i)['subtype'];
+            $accepted = Utils::parseAccept();
+            foreach ($accepted as $entry) {
+                $mimetype = $entry['mime'];
                 $format = $this->grav->format($mimetype);
                 if ($format !== null) {
                     $ext = '.' . $format . TWIG_EXT;
