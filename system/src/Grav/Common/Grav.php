@@ -255,6 +255,8 @@ class Grav extends Container
      */
     public function format($mime) {
         switch ($mime) {
+            case '*/*':
+            case 'text/*':
             case 'text/html':
                 return 'html';
             case 'application/json':
@@ -265,8 +267,6 @@ class Grav extends Container
                 return 'rss';
             case 'application/xml':
                 return 'xml';
-            case '*/*':
-                return 'html';
         }
         return null;
     }
