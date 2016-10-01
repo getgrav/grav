@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added ability for Page to override the output format (`html`, `xml`, etc..) [#1067](https://github.com/getgrav/grav/issues/1067)
+    * Added `Utils::getExtensionByMime()` and cleaned up `Utils::getMimeByExtension` + tests
 1. [](#improved)
     * Add `batch()` function to Page Collection class
     * Added new `cache.redis.socket` setting that allow to pass a UNIX socket as redis server
