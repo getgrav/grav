@@ -239,12 +239,20 @@ class ImageMedium extends Medium
             }
 
             $derivative = MediumFactory::fromFile($this->get('filepath'));
-            $derivative_width = $derivative->get('width') * $ratio;
-            $derivative_height = $derivative->get('height') * $ratio;
-            $derivative->resize($derivative_width, $derivative_height);
-            $derivative->set('width', $derivative_width);
-            $derivative->set('height', $derivative_height);
-            $this->addAlternative($ratio, $derivative);
+
+            // It's possible that MediumFactory::fromFile returns null if the
+            // original image file no longer exists and this class instance was
+            // retrieved from the page cache
+            if (isset($derivative)) {
+                $derivative_width = $derivative->get('width') * $ratio;
+                $derivative_height = $derivative->get('height') * $ratio;
+
+                $derivative->resize($derivative_width, $derivative_height);
+                $derivative->set('width', $derivative_width);
+                $derivative->set('height', $derivative_height);
+
+                $this->addAlternative($ratio, $derivative);
+            }
         }
 
         return $this;
