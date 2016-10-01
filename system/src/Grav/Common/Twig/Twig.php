@@ -12,6 +12,7 @@ use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
+use Grav\Common\Utils\AcceptHeader;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -325,7 +326,6 @@ class Twig
         $twig_vars['header'] = $page->header();
         $twig_vars['media'] = $page->media();
         $twig_vars['content'] = $content;
-        $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
 
         // determine if params are set, if so disable twig cache
         $params = $this->grav['uri']->params(null, true);
@@ -333,23 +333,56 @@ class Twig
             $this->twig->setCache(false);
         }
 
-        // Get Twig template layout
-        $template = $this->template($page->template() . $ext);
-
-        try {
-            $output = $this->twig->render($template, $twig_vars);
-        } catch (\Twig_Error_Loader $e) {
-            $error_msg = $e->getMessage();
-            // Try html version of this template if initial template was NOT html
-            if ($ext != '.html' . TWIG_EXT) {
-                try {
-                    $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $twig_vars);
-                } catch (\Twig_Error_Loader $e) {
-                    throw new \RuntimeException($error_msg, 400, $e);
-                }
-            } else {
-                throw new \RuntimeException($error_msg, 400, $e);
+        // Find acceptable and existent twig file
+        // Start with the $format given
+        // If that is null or doesn't exist, go to `Accept` header
+        //   Only some mime types are recognized.
+        $mt2ext = [
+            '*/*' => 'html',
+            'text/html' => 'html',
+            'application/json' => 'json',
+            'text/csv' => 'csv',
+            'application/yaml' => 'yaml',
+            'application/x-yaml' => 'yaml'
+        ];
+        $output = null;
+        $error_msg = null;
+        if (! is_null($format)) {
+            $ext = '.' . $format . TWIG_EXT;
+            $template = $this->template($page->template() . $ext);
+            try {
+               $output = $this->twig->render($template, $twig_vars);
+            } catch (\Twig_Error_Loader $e) {
+                // No fallback code here. This format was specifically requested either
+                // by the agent (by file extension) or by the developer (in the page header).
+                // If there's no matching template, that's your fault. A 406 is imminent.
+                $error_msg = $e->getMessage();
             }
+        } else {
+            $parser = new AcceptHeader($_SERVER['HTTP_ACCEPT']);
+            for ($i=0; $i<$parser->count(); $i++) {
+                $key = implode('/', [$parser->offsetGet($i)['type'], $parser->offsetGet($i)['subtype']]);
+                if (array_key_exists($key, $mt2ext)) {
+                    $ext = '.' . $mt2ext[$key] . TWIG_EXT;
+                    // Get Twig template layout (the template's file name)
+                    $template = $this->template($page->template() . $ext);
+                    // Is it somewhere in the search path?
+                    try {
+                        $output = $this->twig->render($template, $twig_vars);
+                    } catch (\Twig_Error_Loader $e) {
+                        // Couldn't find it. Let's try the next mime type in line.
+                        $error_msg = $e->getMessage();
+                    }
+                    if ($output !== null) {
+                        // The try block worked! Move on.
+                        break;
+                    }
+                }
+            }
+        }
+        // If all else failed (no generated content), emit `406 Not Acceptable`
+        if ($output === null) {
+            throw new \RuntimeException($error_msg, 406, $e);
         }
 
         return $output;
