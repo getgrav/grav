@@ -11,11 +11,13 @@
     * InstallCommand can now handle Licenses
     * Added new method `Plugins::isPluginActiveAdmin()` to check if plugin route is active in Admin plugin
     * Added new `Cache::setEnabled` and `Cache::getEnabled` to enable outside control of cache
+    * Updated vendor libs including Twig `1.25.0`
 1. [](#bugfix)
     * Fixed missing `progress` method in the DirectInstall Command
     * `Response` class now handles better unsuccessful requests such as 404 and 401
     * Fixed saving of `external` page types [admin #789](https://github.com/getgrav/grav-plugin-admin/issues/789)
     * Fixed issue deleting parent folder of folder with `param_sep` in the folder name [admin #796](https://github.com/getgrav/grav-plugin-admin/issues/796)
+    * Fixed an issue with streams in `bin/plugin`
 
 # v1.1.5
 ## 09/09/2016
