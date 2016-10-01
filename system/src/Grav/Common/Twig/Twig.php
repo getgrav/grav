@@ -336,15 +336,6 @@ class Twig
         // Find acceptable and existent twig file
         // Start with the $format given
         // If that is null or doesn't exist, go to `Accept` header
-        //   Only some mime types are recognized.
-        $mt2ext = [
-            '*/*' => 'html',
-            'text/html' => 'html',
-            'application/json' => 'json',
-            'text/csv' => 'csv',
-            'application/yaml' => 'yaml',
-            'application/x-yaml' => 'yaml'
-        ];
         $output = null;
         $error_msg = null;
         if (! is_null($format)) {
