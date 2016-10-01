@@ -361,9 +361,10 @@ class Twig
         } else {
             $parser = new AcceptHeader($_SERVER['HTTP_ACCEPT']);
             for ($i=0; $i<$parser->count(); $i++) {
-                $key = implode('/', [$parser->offsetGet($i)['type'], $parser->offsetGet($i)['subtype']]);
-                if (array_key_exists($key, $mt2ext)) {
-                    $ext = '.' . $mt2ext[$key] . TWIG_EXT;
+                $mimetype = $parser->offsetGet($i)['type'] . '/' . $parser->offsetGet($i)['subtype'];
+                $format = $this->grav->format($mimetype);
+                if ($format !== null) {
+                    $ext = '.' . $format . TWIG_EXT;
                     // Get Twig template layout (the template's file name)
                     $template = $this->template($page->template() . $ext);
                     // Is it somewhere in the search path?
@@ -375,6 +376,7 @@ class Twig
                     }
                     if ($output !== null) {
                         // The try block worked! Move on.
+                        $this->grav['page']->templateFormat($format);
                         break;
                     }
                 }

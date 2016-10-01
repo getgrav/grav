@@ -247,6 +247,31 @@ class Grav extends Container
     }
 
     /**
+     * Returns format (extension) for a recognized mime type
+     *
+     * @param string $mime
+     *
+     * @return string
+     */
+    public function format($mime) {
+        switch ($mime) {
+            case 'text/html':
+                return 'html';
+            case 'application/json':
+                return 'json';
+            case 'application/atom+xml':
+                return 'atom';
+            case 'application/rss+xml':
+                return 'rss';
+            case 'application/xml':
+                return 'xml';
+            case '*/*':
+                return 'html';
+        }
+        return null;
+    }
+
+    /**
      * Set response header.
      */
     public function header()
