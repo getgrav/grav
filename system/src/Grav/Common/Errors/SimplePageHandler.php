@@ -28,28 +28,6 @@ class SimplePageHandler extends Handler
      */
     public function handle()
     {
-        $inspector = $this->getInspector();
-
-        $helper = new TemplateHelper();
-        $templateFile = $this->getResource("layout.html.php");
-        $cssFile      = $this->getResource("error.css");
-
-        $code = $inspector->getException()->getCode();
-        $message = $inspector->getException()->getMessage();
-
-        if ($inspector->getException() instanceof \ErrorException) {
-            $code = Misc::translateErrorCode($code);
-        }
-
-        $vars = array(
-            "stylesheet" => file_get_contents($cssFile),
-            "code"        => $code,
-            "message"     => $message,
-        );
-
-        $helper->setVariables($vars);
-        $helper->render($templateFile);
-
         return Handler::QUIT;
     }
 
