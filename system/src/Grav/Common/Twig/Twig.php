@@ -353,7 +353,7 @@ class Twig
             $accepted = Utils::parseAccept();
             foreach ($accepted as $entry) {
                 $mimetype = $entry['mime'];
-                $format = $this->grav->format($mimetype);
+                $format = Utils::getExtensionByMime($mimetype);
                 if ($format !== null) {
                     $ext = '.' . $format . TWIG_EXT;
                     // Get Twig template layout (the template's file name)

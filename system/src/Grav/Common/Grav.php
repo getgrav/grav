@@ -209,69 +209,6 @@ class Grav extends Container
     }
 
     /**
-     * Returns mime type for the file format.
-     *
-     * @param string $format
-     *
-     * @return string
-     */
-    public function mime($format)
-    {
-        // look for some standard types
-        switch ($format) {
-            case null:
-                return 'text/html';
-            case 'json':
-                return 'application/json';
-            case 'html':
-                return 'text/html';
-            case 'atom':
-                return 'application/atom+xml';
-            case 'rss':
-                return 'application/rss+xml';
-            case 'xml':
-                return 'application/xml';
-        }
-
-        // Try finding mime type from media
-        $media_types = $this['config']->get('media.types');
-        if (key_exists($format, $media_types)) {
-            $type = $media_types[$format];
-            if (isset($type['mime'])) {
-                return $type['mime'];
-            }
-        }
-
-        // Can't find the mime type, send as HTML
-        return 'text/html';
-    }
-
-    /**
-     * Returns format (extension) for a recognized mime type
-     *
-     * @param string $mime
-     *
-     * @return string
-     */
-    public function format($mime) {
-        switch ($mime) {
-            case '*/*':
-            case 'text/*':
-            case 'text/html':
-                return 'html';
-            case 'application/json':
-                return 'json';
-            case 'application/atom+xml':
-                return 'atom';
-            case 'application/rss+xml':
-                return 'rss';
-            case 'application/xml':
-                return 'xml';
-        }
-        return null;
-    }
-
-    /**
      * Set response header.
      */
     public function header()
@@ -281,7 +218,7 @@ class Grav extends Container
 
         $format = $page->templateFormat();
 
-        header('Content-type: ' . $this->mime($format));
+        header('Content-type: ' . Utils::getMimeByExtension($format, 'text/html'));
 
         // Calculate Expires Headers if set to > 0
         $expires = $page->expires();
