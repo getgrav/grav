@@ -22,16 +22,34 @@ class Errors
         // Setup Whoops-based error handler
         $whoops = new \Whoops\Run;
 
-        if (isset($config['display'])) {
-            if ($config['display']) {
+        // Verbosity to eventually replace `display` entirely.
+        // If not set (legacy config) use `display`.
+        // Otherwise set to 0.
+        $verbosity = 0;
+        if (! isset($config['verbosity'])) {
+            if ( (isset($config['display'])) && ($config['display']) ) {
+                $verbosity = 2;
+            } else {
+                $verbosity = 1;
+            }
+        } else {
+            $verbosity = $config['verbosity'];
+        }
+
+        switch ($verbosity) {
+            case 2:
                 $error_page = new Whoops\Handler\PrettyPageHandler;
                 $error_page->setPageTitle('Crikey! There was an error...');
                 $error_page->addResourcePath(GRAV_ROOT . '/system/assets');
                 $error_page->addCustomCss('whoops.css');
                 $whoops->pushHandler($error_page);
-            } else {
+                break;
+            case 1:
                 $whoops->pushHandler(new SimplePageHandler);
-            }
+                break;
+            case 0:
+                $whoops->pushHandler(new BareHandler);
+                break;
         }
 
         if (method_exists('Whoops\Util\Misc', 'isAjaxRequest')) { //Whoops 2.0
