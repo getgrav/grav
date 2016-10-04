@@ -766,9 +766,7 @@ class Page
             return (bool)$this->order();
         }
         if ($name == 'folder') {
-            $regex = '/^[0-9]+\./u';
-
-            return preg_replace($regex, '', $this->folder);
+            return preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
         }
         if ($name == 'name') {
             $language = $this->language() ? '.' . $this->language() : '';
@@ -1233,8 +1231,7 @@ class Page
         if ($this->visible === null) {
             // Set item visibility in menu if folder is different from slug
             // eg folder = 01.Home and slug = Home
-            $regex = '/^[0-9]+\./u';
-            if (preg_match($regex, $this->folder)) {
+            if (preg_match(PAGE_ORDER_PREFIX_REGEX, $this->folder)) {
                 $this->visible = true;
             } else {
                 $this->visible = false;
@@ -1600,8 +1597,7 @@ class Page
         if (empty($this->raw_route)) {
             $baseRoute = $this->parent ? (string)$this->parent()->rawRoute() : null;
 
-            $regex = '/^[0-9]+\./u';
-            $slug = preg_replace($regex, '', $this->folder);
+            $slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
 
             $this->raw_route = isset($baseRoute) ? $baseRoute . '/' . $slug : null;
         }
