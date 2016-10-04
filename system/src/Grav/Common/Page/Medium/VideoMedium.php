@@ -30,6 +30,33 @@ class VideoMedium extends Medium
         ];
     }
 
+
+    /**
+     * Set video autoplay on
+     *
+     * @return $this
+     */
+    public function autoplay()
+    {
+        $this->attributes['autoplay'] = true;
+
+        return $this;
+    }
+
+
+    /**
+     * Set controls visibility off
+     *
+     * @return $this
+     */
+    public function hideControls()
+    {
+        unset($this->attributes['controls']);
+
+        return $this;
+    }
+
+
     /**
      * Reset medium.
      *
