@@ -4,6 +4,7 @@
 1. [](#new)
     * Added ability for Page to override the output format (`html`, `xml`, etc..) [#1067](https://github.com/getgrav/grav/issues/1067)
     * Added `Utils::getExtensionByMime()` and cleaned up `Utils::getMimeByExtension` + tests
+    * Include jQuery 3.x in the Grav assets
 1. [](#improved)
     * Add `batch()` function to Page Collection class
     * Added new `cache.redis.socket` setting that allow to pass a UNIX socket as redis server
@@ -13,6 +14,7 @@
     * Added new method `Plugins::isPluginActiveAdmin()` to check if plugin route is active in Admin plugin
     * Added new `Cache::setEnabled` and `Cache::getEnabled` to enable outside control of cache
     * Updated vendor libs including Twig `1.25.0`
+    * Avoid git ignoring any vendor folder in a Grav site subfolder (but still ignore the main `vendor/` folder)
 1. [](#bugfix)
     * Fixed missing `progress` method in the DirectInstall Command
     * `Response` class now handles better unsuccessful requests such as 404 and 401
