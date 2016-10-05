@@ -101,7 +101,7 @@ class Media extends Getters
                 $alternatives = $types['alternative'];
                 $max = max(array_keys($alternatives));
 
-                for ($i=$max; $i > 0; $i--) {
+                for ($i=$max; $i > 1; $i--) {
                     if (isset($alternatives[$i])) {
                         continue;
                     }
