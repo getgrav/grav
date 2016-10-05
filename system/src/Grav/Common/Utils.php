@@ -12,6 +12,7 @@ use DateTime;
 use DateTimeZone;
 use Grav\Common\Grav;
 use Grav\Common\Helpers\Truncator;
+use Grav\Common\Page\Medium\Medium;
 use RocketTheme\Toolbox\Event\Event;
 
 abstract class Utils
@@ -426,6 +427,64 @@ abstract class Utils
         }
 
         return $root . implode('/', $ret);
+    }
+    
+    public static function processImageUrl($url, $page)
+    {
+        $path_parts = pathinfo($url);
+        $actions = [];
+        $media = null;
+
+        // get the local path to page media if possible
+        if ($path_parts['dirname'] == $page->url(false, false, false)) {
+            // get the media objects for this page
+            $media = $page->media();
+        } else {
+            // see if this is an external page to this one
+            $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
+            $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
+
+            $ext_page = Grav::instance()['pages']->dispatch($page_route, true);
+            if ($ext_page) {
+                $media = $ext_page->media();
+            }
+        }
+
+        // if there is a media file that matches the path referenced..
+        if ($media && isset($media->all()[$path_parts['basename']])) {
+            // get the medium object
+            /** @var Medium $medium */
+            $medium = $media->all()[$path_parts['basename']];
+
+            // if there is a query, then parse it and build action calls
+            if (isset($url['query'])) {
+                $url['query'] = htmlspecialchars_decode(urldecode($url['query']));
+                $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
+                    $parts = explode('=', $item, 2);
+                    $value = isset($parts[1]) ? $parts[1] : null;
+                    $carry[] = ['method' => $parts[0], 'params' => $value];
+
+                    return $carry;
+                }, []);
+            }
+
+            // loop through actions for the image and call them
+            foreach ($actions as $action) {
+                $medium = call_user_func_array([$medium, $action['method']],
+                    explode(',', urldecode($action['params'])));
+            }
+
+            if (isset($url['fragment'])) {
+                $medium->urlHash($url['fragment']);
+            }
+
+            $url = $medium->url();
+
+        } else {
+            // not a current page media file, see if it needs converting to relative
+            $url = Uri::buildUrl($url);
+        }
+        return $url;
     }
 
     /**
