@@ -429,11 +429,57 @@ abstract class Utils
         return $root . implode('/', $ret);
     }
 
+    public static function processImageHtml($html, $page)
+    {
+        $excerpt = static::getExcerptFromHtml($html, 'img');
+
+        $excerpt = static::processImageExcerpt($excerpt, $page);
+
+        $html = static::getHtmlFromExcerpt($excerpt);
+
+        return $html;
+    }
+
+    public static function getExcerptFromHtml($html, $tag)
+    {
+        $doc = new \DOMDocument();
+        $doc->loadHtml($html);
+        $images = $doc->getElementsByTagName($tag);
+        $excerpt = null;
+
+        foreach ($images as $image) {
+            $attributes = [];
+            foreach ($image->attributes as $name => $value) {
+                $attributes[$name] = $value->value;
+            }
+            $excerpt = [
+                'element' => [
+                    'name'       => $image->tagName,
+                    'attributes' => $attributes
+                ]
+            ];
+        }
+
+        return $excerpt;
+    }
+
+    public static function getHtmlFromExcerpt($excerpt)
+    {
+        // needs to be more flexible.. this is a rough pass for testing
+        $html = '<' . $excerpt['element']['name'] . ' ';
+        foreach ($excerpt['element']['attributes'] as $name => $value) {
+            $html .= $name . '="' . $value . '" ';
+        }
+        $html .= '/>';
+
+        return $html;
+    }
+
     public static function processImageExcerpt($excerpt, $page)
     {
         $url = $excerpt['element']['attributes']['src'];
-        $url_parts = parse_url(htmlspecialchars_decode(urldecode($url)));
 
+        $url_parts = parse_url(htmlspecialchars_decode(urldecode($url)));
 
         $this_host = isset($url_parts['host']) && $url_parts['host'] == Grav::instance()['uri']->host();
 
