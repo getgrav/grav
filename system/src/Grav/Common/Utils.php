@@ -432,7 +432,7 @@ abstract class Utils
     /**
      * Process a Grav image media URL from HTML tag
      *
-     * @param $html
+     * @param $html     HTML tag e.g. `<img src="image.jpg" />`
      * @param $page
      * @return string
      */
