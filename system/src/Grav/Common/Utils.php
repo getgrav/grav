@@ -428,63 +428,78 @@ abstract class Utils
 
         return $root . implode('/', $ret);
     }
-    
-    public static function processImageUrl($url, $page)
+
+    public static function processImageExcerpt($excerpt, $page)
     {
-        $path_parts = pathinfo($url);
-        $actions = [];
-        $media = null;
+        $url = $excerpt['element']['attributes']['src'];
+        $url_parts = parse_url(htmlspecialchars_decode(urldecode($url)));
 
-        // get the local path to page media if possible
-        if ($path_parts['dirname'] == $page->url(false, false, false)) {
-            // get the media objects for this page
-            $media = $page->media();
-        } else {
-            // see if this is an external page to this one
-            $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
-            $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
 
-            $ext_page = Grav::instance()['pages']->dispatch($page_route, true);
-            if ($ext_page) {
-                $media = $ext_page->media();
+        $this_host = isset($url_parts['host']) && $url_parts['host'] == Grav::instance()['uri']->host();
+
+        // if there is no host set but there is a path, the file is local
+        if ((!isset($url_parts['host']) || $this_host) && isset($url_parts['path'])) {
+
+            $path_parts = pathinfo($url_parts['path']);
+            $actions = [];
+            $media = null;
+
+            // get the local path to page media if possible
+            if ($path_parts['dirname'] == $page->url(false, false, false)) {
+                // get the media objects for this page
+                $media = $page->media();
+            } else {
+                // see if this is an external page to this one
+                $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
+                $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
+
+                $ext_page = Grav::instance()['pages']->dispatch($page_route, true);
+                if ($ext_page) {
+                    $media = $ext_page->media();
+                }
+            }
+
+            // if there is a media file that matches the path referenced..
+            if ($media && isset($media->all()[$path_parts['basename']])) {
+                // get the medium object
+                /** @var Medium $medium */
+                $medium = $media->all()[$path_parts['basename']];
+
+                // if there is a query, then parse it and build action calls
+                if (isset($url_parts['query'])) {
+                    $actions = array_reduce(explode('&', $url_parts['query']), function ($carry, $item) {
+                        $parts = explode('=', $item, 2);
+                        $value = isset($parts[1]) ? $parts[1] : null;
+                        $carry[] = ['method' => $parts[0], 'params' => $value];
+
+                        return $carry;
+                    }, []);
+                }
+
+                // loop through actions for the image and call them
+                foreach ($actions as $action) {
+                    $medium = call_user_func_array([$medium, $action['method']],
+                        explode(',', $action['params']));
+                }
+
+                if (isset($url_parts['fragment'])) {
+                    $medium->urlHash($url_parts['fragment']);
+                }
+
+                $alt = $excerpt['element']['attributes']['alt'] ?: '';
+                $title = $excerpt['element']['attributes']['title'] ?: '';
+                $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
+                $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
+
+                $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, $id, true);
+
+            } else {
+                // not a current page media file, see if it needs converting to relative
+                $excerpt['element']['attributes']['src'] = Uri::buildUrl($url);
             }
         }
 
-        // if there is a media file that matches the path referenced..
-        if ($media && isset($media->all()[$path_parts['basename']])) {
-            // get the medium object
-            /** @var Medium $medium */
-            $medium = $media->all()[$path_parts['basename']];
-
-            // if there is a query, then parse it and build action calls
-            if (isset($url['query'])) {
-                $url['query'] = htmlspecialchars_decode(urldecode($url['query']));
-                $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
-                    $parts = explode('=', $item, 2);
-                    $value = isset($parts[1]) ? $parts[1] : null;
-                    $carry[] = ['method' => $parts[0], 'params' => $value];
-
-                    return $carry;
-                }, []);
-            }
-
-            // loop through actions for the image and call them
-            foreach ($actions as $action) {
-                $medium = call_user_func_array([$medium, $action['method']],
-                    explode(',', urldecode($action['params'])));
-            }
-
-            if (isset($url['fragment'])) {
-                $medium->urlHash($url['fragment']);
-            }
-
-            $url = $medium->url();
-
-        } else {
-            // not a current page media file, see if it needs converting to relative
-            $url = Uri::buildUrl($url);
-        }
-        return $url;
+        return $excerpt;
     }
 
     /**

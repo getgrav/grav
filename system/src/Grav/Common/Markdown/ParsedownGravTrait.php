@@ -20,12 +20,12 @@ trait ParsedownGravTrait
     protected $page;
 
     /** @var Pages $pages */
-    protected $pages;
+//    protected $pages;
 
     /** @var  Uri $uri */
-    protected $uri;
+//    protected $uri;
 
-    protected $pages_dir;
+//    protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
 
@@ -43,10 +43,10 @@ trait ParsedownGravTrait
         $grav = Grav::instance();
 
         $this->page = $page;
-        $this->pages = $grav['pages'];
-        $this->uri = $grav['uri'];
+//        $this->pages = $grav['pages'];
+//        $this->uri = $grav['uri'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->pages_dir = Grav::instance()['locator']->findResource('page://');
+//        $this->pages_dir = Grav::instance()['locator']->findResource('page://');
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
         if ($defaults === null) {
@@ -204,28 +204,20 @@ trait ParsedownGravTrait
             $excerpt = parent::inlineImage($excerpt);
         }
 
-        // Some stuff we will need
-        $actions = [];
-        $media = null;
-
         // if this is an image
         if (isset($excerpt['element']['attributes']['src'])) {
-            $alt = $excerpt['element']['attributes']['alt'] ?: '';
-            $title = $excerpt['element']['attributes']['title'] ?: '';
-            $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
-            $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
+            $excerpt = Utils::processImageExcerpt($excerpt, $this->page);
 
-            //get the url and parse it
-            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
+//            //get the url and parse it
+//            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
+//
+//            $this_host = isset($url['host']) && $url['host'] == $this->uri->host();
+//
+//            // if there is no host set but there is a path, the file is local
+//            if ((!isset($url['host']) || $this_host) && isset($url['path'])) {
 
-            $this_host = isset($url['host']) && $url['host'] == $this->uri->host();
 
-            // if there is no host set but there is a path, the file is local
-            if ((!isset($url['host']) || $this_host) && isset($url['path'])) {
 
-                $image_url = Utils::processImageUrl($excerpt['element']['attributes']['src'], $this->page);
-
-                $excerpt['element']['attributes']['src'] = $url;
 
 //                $path_parts = pathinfo($url['path']);
 //
@@ -278,7 +270,7 @@ trait ParsedownGravTrait
 //                    // not a current page media file, see if it needs converting to relative
 //                    $excerpt['element']['attributes']['src'] = Uri::buildUrl($url);
 //                }
-            }
+//            }
         }
 
         return $excerpt;
