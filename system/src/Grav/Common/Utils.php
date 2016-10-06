@@ -430,11 +430,11 @@ abstract class Utils
     }
 
     /**
-     * Process a Grav image media URL from HTML tag
+     * Process Grav image media URL from HTML tag
      *
-     * @param $html     HTML tag e.g. `<img src="image.jpg" />`
-     * @param $page
-     * @return string
+     * @param $html         HTML tag e.g. `<img src="image.jpg" />`
+     * @param $page         The current page object
+     * @return string       Returns final HTML string
      */
     public static function processImageHtml($html, $page)
     {
@@ -445,6 +445,13 @@ abstract class Utils
         return $html;
     }
 
+    /**
+     * Get an Excerpt array from a chunk of HTML
+     *
+     * @param $html         Chunk of HTML
+     * @param $tag          a tag, for example `img`
+     * @return array|null   returns nested array excerpt
+     */
     public static function getExcerptFromHtml($html, $tag)
     {
         $doc = new \DOMDocument();
