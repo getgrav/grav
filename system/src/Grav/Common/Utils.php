@@ -428,7 +428,14 @@ abstract class Utils
 
         return $root . implode('/', $ret);
     }
-    
+
+    /**
+     * Process a Grav image media URL
+     *
+     * @param $html
+     * @param $page
+     * @return string
+     */
     public static function processImageHtml($html, $page)
     {
         $excerpt = static::getExcerptFromHtml($html, 'img');
