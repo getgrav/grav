@@ -428,13 +428,11 @@ abstract class Utils
 
         return $root . implode('/', $ret);
     }
-
+    
     public static function processImageHtml($html, $page)
     {
         $excerpt = static::getExcerptFromHtml($html, 'img');
-
         $excerpt = static::processImageExcerpt($excerpt, $page);
-
         $html = static::getHtmlFromExcerpt($excerpt);
 
         return $html;
