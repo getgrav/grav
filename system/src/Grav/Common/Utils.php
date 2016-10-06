@@ -465,12 +465,25 @@ abstract class Utils
 
     public static function getHtmlFromExcerpt($excerpt)
     {
-        // needs to be more flexible.. this is a rough pass for testing
-        $html = '<' . $excerpt['element']['name'] . ' ';
-        foreach ($excerpt['element']['attributes'] as $name => $value) {
-            $html .= $name . '="' . $value . '" ';
+        $element = $excerpt['element'];
+        $html = '<'.$element['name'];
+
+        if (isset($element['attributes'])) {
+            foreach ($element['attributes'] as $name => $value) {
+                if ($value === null) {
+                    continue;
+                }
+                $html .= ' '.$name.'="'.$value.'"';
+            }
         }
-        $html .= '/>';
+
+        if (isset($element['text'])) {
+            $html .= '>';
+            $html .= $element['text'];
+            $html .= '</'.$element['name'].'>';
+        } else {
+            $html .= ' />';
+        }
 
         return $html;
     }
