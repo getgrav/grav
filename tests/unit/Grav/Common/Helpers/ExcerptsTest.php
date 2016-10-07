@@ -76,9 +76,7 @@ class ExcerptsTest extends \Codeception\TestCase\Test
 
     public function testProcessImageHtml()
     {
-
-
-        $this->assertSame('<img src="blah" />',
+        $this->assertRegexp('|<img alt="Sample Image" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?cropZoom=300,300" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image" />', $this->page));
 
     }

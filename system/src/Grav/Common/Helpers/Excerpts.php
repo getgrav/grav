@@ -25,7 +25,19 @@ class Excerpts
     public static function processImageHtml($html, $page)
     {
         $excerpt = static::getExcerptFromHtml($html, 'img');
+
+        $original_src = $excerpt['element']['attributes']['src'];
+        $excerpt['element']['attributes']['href'] = $original_src;
+
+        $excerpt = static::processLinkExcerpt($excerpt, $page, 'image');
+
+        $excerpt['element']['attributes']['src'] = $excerpt['element']['attributes']['href'];
+        unset ($excerpt['element']['attributes']['href']);
+
         $excerpt = static::processImageExcerpt($excerpt, $page);
+
+        $excerpt['element']['attributes']['data-src'] = $original_src;
+
         $html = static::getHtmlFromExcerpt($excerpt);
 
         return $html;
@@ -61,6 +73,12 @@ class Excerpts
         return $excerpt;
     }
 
+    /**
+     * Rebuild HTML tag from an excerpt array
+     *
+     * @param $excerpt
+     * @return string
+     */
     public static function getHtmlFromExcerpt($excerpt)
     {
         $element = $excerpt['element'];
@@ -86,6 +104,14 @@ class Excerpts
         return $html;
     }
 
+    /**
+     * Process a Link excerpt
+     *
+     * @param $excerpt
+     * @param $page
+     * @param string $type
+     * @return mixed
+     */
     public static function processLinkExcerpt($excerpt, $page, $type = 'link')
     {
         $url = $excerpt['element']['attributes']['href'];
@@ -151,6 +177,13 @@ class Excerpts
         return $excerpt;
     }
 
+    /**
+     * Process an image excerpt
+     *
+     * @param $excerpt
+     * @param $page
+     * @return mixed
+     */
     public static function processImageExcerpt($excerpt, $page)
     {
         $url = $excerpt['element']['attributes']['src'];
@@ -208,8 +241,8 @@ class Excerpts
                     $medium->urlHash($url_parts['fragment']);
                 }
 
-                $alt = $excerpt['element']['attributes']['alt'] ?: '';
-                $title = $excerpt['element']['attributes']['title'] ?: '';
+                $alt = isset($excerpt['element']['attributes']['alt']) ? $excerpt['element']['attributes']['alt'] : '';
+                $title = isset($excerpt['element']['attributes']['title']) ? $excerpt['element']['attributes']['title'] : '';
                 $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
                 $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
 
