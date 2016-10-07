@@ -9,7 +9,7 @@
 namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
-use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Helpers\Excerpts;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
@@ -19,13 +19,6 @@ trait ParsedownGravTrait
     /** @var Page $page */
     protected $page;
 
-    /** @var Pages $pages */
-//    protected $pages;
-
-    /** @var  Uri $uri */
-//    protected $uri;
-
-//    protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
 
@@ -43,10 +36,7 @@ trait ParsedownGravTrait
         $grav = Grav::instance();
 
         $this->page = $page;
-//        $this->pages = $grav['pages'];
-//        $this->uri = $grav['uri'];
         $this->BlockTypes['{'] [] = "TwigTag";
-//        $this->pages_dir = Grav::instance()['locator']->findResource('page://');
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
         if ($defaults === null) {
@@ -206,7 +196,7 @@ trait ParsedownGravTrait
 
         // if this is an image process it
         if (isset($excerpt['element']['attributes']['src'])) {
-            $excerpt = Utils::processImageExcerpt($excerpt, $this->page);
+            $excerpt = Excerpts::processImageExcerpt($excerpt, $this->page);
         }
 
         return $excerpt;
@@ -214,12 +204,6 @@ trait ParsedownGravTrait
 
     protected function inlineLink($excerpt)
     {
-        if (isset($excerpt['type'])) {
-            $type = $excerpt['type'];
-        } else {
-            $type = 'link';
-        }
-
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
         if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
@@ -234,63 +218,7 @@ trait ParsedownGravTrait
 
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
-            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
-
-            // if there is a query, then parse it and build action calls
-            if (isset($url['query'])) {
-                $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
-                    $parts = explode('=', $item, 2);
-                    $value = isset($parts[1]) ? rawurldecode($parts[1]) : true;
-                    $carry[$parts[0]] = $value;
-
-                    return $carry;
-                }, []);
-
-                // valid attributes supported
-                $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
-
-                // Unless told to not process, go through actions
-                if (array_key_exists('noprocess', $actions)) {
-                    unset($actions['noprocess']);
-                } else {
-                    // loop through actions for the image and call them
-                    foreach ($actions as $attrib => $value) {
-                        $key = $attrib;
-
-                        if (in_array($attrib, $valid_attributes)) {
-                            // support both class and classes
-                            if ($attrib == 'classes') {
-                                $attrib = 'class';
-                            }
-                            $excerpt['element']['attributes'][$attrib] = str_replace(',', ' ', $value);
-                            unset($actions[$key]);
-                        }
-                    }
-                }
-
-                $url['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
-            }
-
-            // if no query elements left, unset query
-            if (empty($url['query'])) {
-                unset ($url['query']);
-            }
-
-            // set path to / if not set
-            if (empty($url['path'])) {
-                $url['path'] = '';
-            }
-
-            // if special scheme, just return
-            if(isset($url['scheme']) && !Utils::startsWith($url['scheme'], 'http')) {
-                return $excerpt;
-            }
-
-            // handle paths and such
-            $url = Uri::convertUrl($this->page, $url, $type);
-
-            // build the URL from the component parts and set it on the element
-            $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
+            $excerpt = Excerpts::processLinkExcerpt($excerpt, $this->page);
         }
 
         return $excerpt;
