@@ -10,8 +10,6 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
 use Grav\Common\Helpers\Excerpts;
-use Grav\Common\Uri;
-use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 
 trait ParsedownGravTrait
@@ -204,6 +202,12 @@ trait ParsedownGravTrait
 
     protected function inlineLink($excerpt)
     {
+        if (isset($excerpt['type'])) {
+            $type = $excerpt['type'];
+        } else {
+            $type = 'link';
+        }
+
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
         if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
@@ -218,7 +222,7 @@ trait ParsedownGravTrait
 
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
-            $excerpt = Excerpts::processLinkExcerpt($excerpt, $this->page);
+            $excerpt = Excerpts::processLinkExcerpt($excerpt, $this->page, $type);
         }
 
         return $excerpt;

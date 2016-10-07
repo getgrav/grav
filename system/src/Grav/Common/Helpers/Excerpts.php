@@ -86,7 +86,7 @@ class Excerpts
         return $html;
     }
 
-    public static function processLinkExcerpt($excerpt, $page)
+    public static function processLinkExcerpt($excerpt, $page, $type = 'link')
     {
         $url = $excerpt['element']['attributes']['href'];
 
@@ -140,13 +140,6 @@ class Excerpts
         // if special scheme, just return
         if(isset($url_parts['scheme']) && !Utils::startsWith($url_parts['scheme'], 'http')) {
             return $excerpt;
-        }
-
-        // Get Type
-        if (isset($excerpt['type'])) {
-            $type = $excerpt['type'];
-        } else {
-            $type = 'link';
         }
 
         // handle paths and such
