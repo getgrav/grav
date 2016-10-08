@@ -967,6 +967,18 @@ form:
                     label: PLUGIN_ADMIN.SESSION_PATH
                     help: PLUGIN_ADMIN.SESSION_PATH_HELP
 
+                session.split_admin:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_SPLIT
+                    help: PLUGIN_ADMIN.SESSION_SPLIT_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
+
         advanced:
             type: section
             title: PLUGIN_ADMIN.ADVANCED
