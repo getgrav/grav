@@ -45,6 +45,19 @@ class VideoMedium extends Medium
 
 
     /**
+     * Set video loop
+     *
+     * @return $this
+     */
+    public function loop()
+    {
+        $this->attributes['loop'] = true;
+
+        return $this;
+    }
+
+
+    /**
      * Set controls visibility off
      *
      * @return $this
