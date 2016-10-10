@@ -12,7 +12,7 @@ types:
     type: image
     thumb: media/thumb-jpg.png
     mime: image/jpeg
-  jpe:
+  jpeg:
     type: image
     thumb: media/thumb-jpg.png
     mime: image/jpeg

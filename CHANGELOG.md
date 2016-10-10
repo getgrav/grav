@@ -21,6 +21,7 @@
     * Fixed saving of `external` page types [admin #789](https://github.com/getgrav/grav-plugin-admin/issues/789)
     * Fixed issue deleting parent folder of folder with `param_sep` in the folder name [admin #796](https://github.com/getgrav/grav-plugin-admin/issues/796)
     * Fixed an issue with streams in `bin/plugin`
+    * Fixed `jpeg` file format support in Media
 
 # v1.1.5
 ## 09/09/2016
