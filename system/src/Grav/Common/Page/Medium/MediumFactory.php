@@ -135,7 +135,9 @@ class MediumFactory
         $size = filesize($file);
 
         $medium = self::fromFile($file);
-        $medium->set('size', $size);
+        if ($medium) {
+            $medium->set('size', $size);
+        }
 
         return ['file' => $medium, 'size' => $size];
     }
