@@ -9,8 +9,6 @@
 namespace Grav\Common;
 
 use DateTime;
-use DateTimeZone;
-use Grav\Common\Grav;
 use Grav\Common\Helpers\Truncator;
 use RocketTheme\Toolbox\Event\Event;
 

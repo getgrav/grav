@@ -15,6 +15,7 @@
     * Added new `Cache::setEnabled` and `Cache::getEnabled` to enable outside control of cache
     * Updated vendor libs including Twig `1.25.0`
     * Avoid git ignoring any vendor folder in a Grav site subfolder (but still ignore the main `vendor/` folder)
+    * Added an option to get just a route back from `Uri::convertUrl()` function
 1. [](#bugfix)
     * Fixed missing `progress` method in the DirectInstall Command
     * `Response` class now handles better unsuccessful requests such as 404 and 401
