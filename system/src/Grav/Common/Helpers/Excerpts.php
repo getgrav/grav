@@ -12,6 +12,7 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Page\Medium\Medium;
+use RocketTheme\Toolbox\Event\Event;
 
 class Excerpts
 {
@@ -190,13 +191,19 @@ class Excerpts
 
         $url_parts = parse_url(htmlspecialchars_decode(urldecode($url)));
 
+        if (isset($url_parts['scheme']) && !Utils::startsWith($url_parts['scheme'], 'http')) {
+            $stream_path = $url_parts['scheme'] . '://' . $url_parts['host'] . $url_parts['path'];
+            $url_parts['path'] = $stream_path;
+            unset($url_parts['host']);
+            unset($url_parts['scheme']);
+        }
+
         $this_host = isset($url_parts['host']) && $url_parts['host'] == Grav::instance()['uri']->host();
 
         // if there is no host set but there is a path, the file is local
         if ((!isset($url_parts['host']) || $this_host) && isset($url_parts['path'])) {
 
             $path_parts = pathinfo($url_parts['path']);
-            $actions = [];
             $media = null;
 
             // get the local path to page media if possible
@@ -211,6 +218,8 @@ class Excerpts
                 $ext_page = Grav::instance()['pages']->dispatch($page_route, true);
                 if ($ext_page) {
                     $media = $ext_page->media();
+                } else {
+                    Grav::instance()->fireEvent('onMediaLocate', new Event(['route' => $page_route, 'media' => &$media]));
                 }
             }
 
@@ -220,26 +229,8 @@ class Excerpts
                 /** @var Medium $medium */
                 $medium = $media->all()[$path_parts['basename']];
 
-                // if there is a query, then parse it and build action calls
-                if (isset($url_parts['query'])) {
-                    $actions = array_reduce(explode('&', $url_parts['query']), function ($carry, $item) {
-                        $parts = explode('=', $item, 2);
-                        $value = isset($parts[1]) ? $parts[1] : null;
-                        $carry[] = ['method' => $parts[0], 'params' => $value];
-
-                        return $carry;
-                    }, []);
-                }
-
-                // loop through actions for the image and call them
-                foreach ($actions as $action) {
-                    $medium = call_user_func_array([$medium, $action['method']],
-                        explode(',', $action['params']));
-                }
-
-                if (isset($url_parts['fragment'])) {
-                    $medium->urlHash($url_parts['fragment']);
-                }
+                // Process operations
+                $medium = static::processMediaActions($medium, $url_parts);
 
                 $alt = isset($excerpt['element']['attributes']['alt']) ? $excerpt['element']['attributes']['alt'] : '';
                 $title = isset($excerpt['element']['attributes']['title']) ? $excerpt['element']['attributes']['title'] : '';
@@ -255,6 +246,47 @@ class Excerpts
         }
 
         return $excerpt;
+    }
+
+    /**
+     * Process media actions
+     *
+     * @param $medium
+     * @param $url
+     * @return mixed
+     */
+    public static function processMediaActions($medium, $url)
+    {
+        if (!is_array($url)) {
+            $url_parts = parse_url($url);
+        } else {
+            $url_parts = $url;
+        }
+
+        $actions = [];
+
+        // if there is a query, then parse it and build action calls
+        if (isset($url_parts['query'])) {
+            $actions = array_reduce(explode('&', $url_parts['query']), function ($carry, $item) {
+                $parts = explode('=', $item, 2);
+                $value = isset($parts[1]) ? $parts[1] : null;
+                $carry[] = ['method' => $parts[0], 'params' => $value];
+
+                return $carry;
+            }, []);
+        }
+
+        // loop through actions for the image and call them
+        foreach ($actions as $action) {
+            $medium = call_user_func_array([$medium, $action['method']],
+                explode(',', $action['params']));
+        }
+
+        if (isset($url_parts['fragment'])) {
+            $medium->urlHash($url_parts['fragment']);
+        }
+
+        return $medium;
     }
 
 }
