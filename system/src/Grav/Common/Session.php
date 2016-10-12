@@ -77,7 +77,12 @@ class Session extends BaseSession
 
             $unique_identifier = GRAV_ROOT;
             $inflector = new Inflector();
-            $this->setName($inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7) . ($is_admin ? '-admin' : ''));
+            $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7);
+            $split_admin_session = $config->get('system.session.split_admin', true);
+            if ($is_admin && $split_admin_session) {
+              $session_name .= '-admin';
+            }
+            $this->setName($session_name);
             $this->start();
             setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
         }
