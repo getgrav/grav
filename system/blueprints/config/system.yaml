@@ -764,15 +764,16 @@ form:
 
             fields:
                 errors.display:
-                    type: toggle
+                    type: select
                     label: PLUGIN_ADMIN.DISPLAY_ERRORS
                     help: PLUGIN_ADMIN.DISPLAY_ERRORS_HELP
-                    highlight: 0
+                    size: medium
+                    highlight: 1
                     options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
+                        -1: PLUGIN_ADMIN.ERROR_SYSTEM
+                        0: PLUGIN_ADMIN.ERROR_SIMPLE
+                        1: PLUGIN_ADMIN.ERROR_FULL_BACKTRACE
+
 
                 errors.log:
                     type: toggle

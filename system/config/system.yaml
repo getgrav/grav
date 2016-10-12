@@ -100,7 +100,7 @@ assets:                                     # Configuration for Assets Manager (
     jquery: system://assets/jquery/jquery-2.x.min.js
 
 errors:
-  display: false                            # Display full backtrace-style error page
+  display: 0                                # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
   log: true                                 # Log errors to /logs folder
 
 debugger:

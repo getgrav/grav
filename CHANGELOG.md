@@ -17,6 +17,8 @@
     * Updated vendor libs including Twig `1.25.0`
     * Avoid git ignoring any vendor folder in a Grav site subfolder (but still ignore the main `vendor/` folder)
     * Added an option to get just a route back from `Uri::convertUrl()` function
+    * Added option to control split session [#1096](https://github.com/getgrav/grav/pull/1096)
+    * Added new `verbosity` levels to `system.error.display` to allow for system error messages [#1091](https://github.com/getgrav/grav/pull/1091)
 1. [](#bugfix)
     * Fixed missing `progress` method in the DirectInstall Command
     * `Response` class now handles better unsuccessful requests such as 404 and 401
