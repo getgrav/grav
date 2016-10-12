@@ -80,6 +80,34 @@ abstract class Folder
     }
 
     /**
+     * Recursively md5 hash all files in a path
+     *
+     * @param $path
+     * @return string
+     */
+    public static function hashAllFiles($path)
+    {
+        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
+        $files = [];
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($path)) {
+            $directory = $locator->getRecursiveIterator($path, $flags);
+        } else {
+            $directory = new \RecursiveDirectoryIterator($path, $flags);
+        }
+
+        $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+
+        foreach ($iterator as $filepath => $file) {
+            $files[] = $file->getPath() . $file->getMTime();
+        }
+
+        return md5(serialize($files));
+    }
+
+    /**
      * Get relative path between target and base path. If path isn't relative, return full path.
      *
      * @param string       $path

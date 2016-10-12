@@ -67,7 +67,7 @@ pages:
 cache:
   enabled: true                             # Set to true to enable caching
   check:
-    method: file                            # Method to check for updates in pages: file|folder|none
+    method: file                            # Method to check for updates in pages: file|folder|hash|none
   driver: auto                              # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)

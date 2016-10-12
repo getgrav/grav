@@ -4,6 +4,7 @@
 1. [](#new)
     * Added ability for Page to override the output format (`html`, `xml`, etc..) [#1067](https://github.com/getgrav/grav/issues/1067)
     * Added `Utils::getExtensionByMime()` and cleaned up `Utils::getMimeByExtension` + tests
+    * Added a `cache.check.method: 'hash'` option in `system.yaml` that checks all files + dates inclusively
     * Include jQuery 3.x in the Grav assets
 1. [](#improved)
     * Add `batch()` function to Page Collection class
