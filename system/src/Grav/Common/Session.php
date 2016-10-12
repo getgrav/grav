@@ -78,8 +78,8 @@ class Session extends BaseSession
             $unique_identifier = GRAV_ROOT;
             $inflector = new Inflector();
             $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7);
-            $split_admin_session = $config->get('system.session.split_admin', true);
-            if ($is_admin && $split_admin_session) {
+            $split_session = $config->get('system.session.split', true);
+            if ($is_admin && $split_session) {
               $session_name .= '-admin';
             }
             $this->setName($session_name);

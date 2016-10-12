@@ -967,7 +967,7 @@ form:
                     label: PLUGIN_ADMIN.SESSION_PATH
                     help: PLUGIN_ADMIN.SESSION_PATH_HELP
 
-                session.split_admin:
+                session.split:
                     type: toggle
                     label: PLUGIN_ADMIN.SESSION_SPLIT
                     help: PLUGIN_ADMIN.SESSION_SPLIT_HELP
