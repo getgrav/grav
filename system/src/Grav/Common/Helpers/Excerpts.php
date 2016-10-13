@@ -116,8 +116,8 @@ class Excerpts
     public static function processLinkExcerpt($excerpt, $page, $type = 'link')
     {
         $url = $excerpt['element']['attributes']['href'];
+
         $url_parts = parse_url(htmlspecialchars_decode(urldecode($url)));
-        $actions = [];
 
         // if there is a query, then parse it and build action calls
         if (isset($url_parts['query'])) {
@@ -150,10 +150,9 @@ class Excerpts
                     }
                 }
             }
-        }
 
-        $actions['fixOrientation'] = true;
-        $url_parts['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+            $url_parts['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+        }
 
         // if no query elements left, unset query
         if (empty($url_parts['query'])) {
