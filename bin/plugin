@@ -2,10 +2,6 @@
 <?php
 define('GRAV_CLI', true);
 
-if (version_compare($ver = PHP_VERSION, $req = '5.4.0', '<')) {
-    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
-}
-
 if (!file_exists(__DIR__ . '/../vendor')) {
     require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
 }
@@ -25,9 +21,14 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Grav\Common\Grav;
+use Grav\Common\Config\Setup;
 use Grav\Common\Filesystem\Folder;
 
 $autoload = require_once(__DIR__ . '/../vendor/autoload.php');
+
+if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
+    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
+}
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
@@ -37,11 +38,28 @@ if (!file_exists(ROOT_DIR . 'index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
+$climate = new League\CLImate\CLImate;
+$climate->arguments->add([
+    'environment' => [
+        'prefix'        => 'e',
+        'longPrefix'    => 'env',
+        'description'   => 'Configuration Environment',
+        'defaultValue'  => 'localhost'
+    ]
+]);
+$climate->arguments->parse();
+$environment = $climate->arguments->get('environment');
+
+// Set up environment based on params.
+Setup::$environment = $environment;
+
 $grav = Grav::instance(array('loader' => $autoload));
+$grav['uri']->init();
 $grav['config']->init();
 $grav['streams'];
 $grav['plugins']->init();
 $grav['themes']->init();
+
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
 $pattern = '([A-Z]\w+Command\.php)';
@@ -70,7 +88,7 @@ if (!$name) {
     $output->writeln('');
     $output->writeln("<red>Example:</red>");
     $output->writeln("  {$bin} error log -l 1 --trace");
-    $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '/\/cli\/' . $pattern . '$/usm']);
+    $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '/\/cli\/' . $pattern . '$/usm', 'levels' => 2]);
 
     if (count($list)) {
         $available = [];
@@ -101,16 +119,19 @@ if ($plugin === null) {
 $path = 'plugins://' . $name . '/cli';
 
 try {
-    $commands = Folder::all($path, ['compare' => 'Filename', 'pattern' => '/' . $pattern . '$/usm']);
+    $commands = Folder::all($path, ['compare' => 'Filename', 'pattern' => '/' . $pattern . '$/usm', 'levels' => 1]);
 } catch (\RuntimeException $e) {
     $output->writeln("<red>No Console Commands for <white>'{$name}'</white> where found in <white>'{$path}'</white></red>");
     exit;
 }
 
-foreach ($commands as $command) {
-    require_once "plugins://{$name}/cli/{$command}";
-    $command = 'Grav\Plugin\Console\\' . preg_replace('/.php$/', '', $command);
-    $app->add(new $command());
+foreach ($commands as $command_path) {
+    $full_path = $grav['locator']->findResource("plugins://{$name}/cli/{$command_path}");
+    require_once $full_path;
+
+    $command_class = 'Grav\Plugin\Console\\' . preg_replace('/.php$/', '', $command_path);
+    $command = new $command_class();
+    $app->add($command);
 }
 
 $app->run($input);

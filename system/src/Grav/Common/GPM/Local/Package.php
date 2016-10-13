@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.GPM
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Data\Data;
@@ -19,7 +26,7 @@ class Package extends BasePackage
         $this->data->set('slug', $package->slug);
         $this->data->set('description_html', $html_description);
         $this->data->set('description_plain', strip_tags($html_description));
-        $this->data->set('symlink', is_link(USER_DIR . $package_type . DS . $this->name));
+        $this->data->set('symlink', is_link(USER_DIR . $package_type . DS . $this->slug));
     }
 
     /**

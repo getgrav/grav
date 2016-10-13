@@ -1,19 +1,23 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
+use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-/**
- * Class SelfupgradeCommand
- * @package Grav\Console\Gpm
- */
 class SelfupgradeCommand extends ConsoleCommand
 {
     /**
@@ -35,7 +39,7 @@ class SelfupgradeCommand extends ConsoleCommand
     /**
      * @var array
      */
-    protected $types = array('plugins', 'themes');
+    protected $types = ['plugins', 'themes'];
     /**
      * @var
      */
@@ -44,6 +48,9 @@ class SelfupgradeCommand extends ConsoleCommand
      * @var
      */
     private $upgrader;
+
+    protected $all_yes;
+    protected $overwrite;
 
     /**
      *
@@ -65,6 +72,12 @@ class SelfupgradeCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'Assumes yes (or best approach) instead of prompting'
             )
+            ->addOption(
+                'overwrite',
+                'o',
+                InputOption::VALUE_NONE,
+                'Option to overwrite packages if they already exist'
+            )
             ->setDescription("Detects and performs an update of Grav itself when available")
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
@@ -75,6 +88,10 @@ class SelfupgradeCommand extends ConsoleCommand
     protected function serve()
     {
         $this->upgrader = new Upgrader($this->input->getOption('force'));
+        $this->all_yes = $this->input->getOption('all-yes');
+        $this->overwrite = $this->input->getOption('overwrite');
+
+        $this->displayGPMRelease();
 
         $update = $this->upgrader->getAssets()['grav-update'];
 
@@ -83,7 +100,6 @@ class SelfupgradeCommand extends ConsoleCommand
         $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
 
         if (!$this->upgrader->meetsRequirements()) {
-            $this->output->writeln("");
             $this->output->writeln("<red>ATTENTION:</red>");
             $this->output->writeln("   Grav has increased the minimum PHP requirement.");
             $this->output->writeln("   You are currently running PHP <red>" . PHP_VERSION . "</red>, but PHP <green>" . GRAV_PHP_MIN . "</green> is required.");
@@ -94,8 +110,16 @@ class SelfupgradeCommand extends ConsoleCommand
             exit;
         }
 
-        if (!$this->upgrader->isUpgradable()) {
+        if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
             $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);
+            exit;
+        }
+
+        Installer::isValidDestination(GRAV_ROOT . '/system');
+        if (Installer::IS_LINK === Installer::lastErrorCode()) {
+            $this->output->writeln("<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...");
+            $this->output->writeln('');
+            $this->output->writeln("You are currently running a symbolically linked Grav v" . $local . ". Latest available is v". $remote . ".");
             exit;
         }
 
@@ -103,12 +127,12 @@ class SelfupgradeCommand extends ConsoleCommand
         new ArrayInput([]);
 
         $questionHelper = $this->getHelper('question');
-        $skipPrompt = $this->input->getOption('all-yes');
+
 
         $this->output->writeln("Grav v<cyan>$remote</cyan> is now available [release date: $release].");
         $this->output->writeln("You are currently using v<cyan>" . GRAV_VERSION . "</cyan>.");
 
-        if (!$skipPrompt) {
+        if (!$this->all_yes) {
             $question = new ConfirmationQuestion("Would you like to read the changelog before proceeding? [y|N] ",
                 false);
             $answer = $questionHelper->ask($this->input, $this->output, $question);
@@ -171,7 +195,8 @@ class SelfupgradeCommand extends ConsoleCommand
      */
     private function download($package)
     {
-        $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
+        $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
+        $this->tmp = $tmp_dir . '/Grav-' . uniqid();
         $output = Response::get($package['download'], [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);

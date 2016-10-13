@@ -1,6 +1,7 @@
 # Composer
 .composer
-vendor/
+vendor/*
+!*/vendor/*
 
 # Sass
 .sass-cache
@@ -35,3 +36,9 @@ Thumbs.db
 
 # phpstorm
 .idea/*
+user/config/security.yaml
+
+tests/_output/*
+tests/_support/_generated/*
+tests/cache/*
+tests/error.log

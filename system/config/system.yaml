@@ -3,6 +3,9 @@ timezone: ''                                # Valid values: http://php.net/manua
 default_locale:                             # Default locale (defaults to system)
 param_sep: ':'                              # Parameter separator, use ';' for Apache on windows
 wrapped_site: false                         # For themes/plugins to know if Grav is wrapped by another platform
+reverse_proxy_setup: false                  # Running in a reverse proxy scenario with different webserver ports than proxy
+force_ssl: false                            # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
+custom_base_url: ''                         # Set the base_url manually
 
 languages:
   supported: []                             # List of languages supported. eg: [en, fr, de]
@@ -15,6 +18,7 @@ languages:
 
 home:
   alias: '/home'                            # Default path for home, ie /
+  hide_in_urls: false                       # Hide the home route in URLs
 
 pages:
   theme: antimatter                         # Default theme (defaults to "antimatter" theme)
@@ -31,9 +35,10 @@ pages:
   process:
     markdown: true                          # Process Markdown
     twig: false                             # Process Twig
+  twig_first: false                         # Process Twig before markdown when processing both on a page
   events:
     page: true                              # Enable page level events
-    twig: true                              # Enable twig level events
+    twig: true                              # Enable Twig level events
   markdown:
     extra: false                            # Enable support for Markdown Extra support (GFM by default)
     auto_line_breaks: false                 # Enable automatic line breaks
@@ -55,19 +60,24 @@ pages:
   ignore_folders: [.git, .idea]             # Folders to ignore in Pages
   ignore_hidden: true                       # Ignore all Hidden files and folders
   url_taxonomy_filters: true                # Enable auto-magic URL-based taxonomy filters for page collections
+  frontmatter:
+    process_twig: false                     # Should the frontmatter be processed to replace Twig variables?
+    ignore_fields: ['form','forms']         # Fields that might contain Twig variables and should not be processed
 
 cache:
   enabled: true                             # Set to true to enable caching
   check:
-    method: file                            # Method to check for updates in pages: file|folder|none
+    method: file                            # Method to check for updates in pages: file|folder|hash|none
   driver: auto                              # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                               # GZip compress the page output
+  redis:
+    socket: false                           # Path to redis unix socket (e.g. /var/run/redis/redis.sock), false = use server and port to connect
 
 twig:
-  cache: true                               # Set to true to enable twig caching
-  debug: false                              # Enable Twig debug
+  cache: true                               # Set to true to enable Twig caching
+  debug: true                               # Enable Twig debug
   auto_reload: true                         # Refresh cache on changes
   autoescape: false                         # Autoescape Twig vars
   undefined_functions: true                 # Allow undefined functions
@@ -76,17 +86,21 @@ twig:
 
 assets:                                     # Configuration for Assets Manager (JS, CSS)
   css_pipeline: false                       # The CSS pipeline is the unification of multiple CSS resources into one file
+  css_pipeline_include_externals: true      # Include external URLs in the pipeline by default
+  css_pipeline_before_excludes: true        # Render the pipeline before any excluded files
   css_minify: true                          # Minify the CSS during pipelining
   css_minify_windows: false                 # Minify Override for Windows platforms. False by default due to ThreadStackSize
   css_rewrite: true                         # Rewrite any CSS relative URLs during pipelining
   js_pipeline: false                        # The JS pipeline is the unification of multiple JS resources into one file
+  js_pipeline_include_externals: true       # Include external URLs in the pipeline by default
+  js_pipeline_before_excludes: true         # Render the pipeline before any excluded files
   js_minify: true                           # Minify the JS during pipelining
   enable_asset_timestamp: false             # Enable asset timestamps
   collections:
-    jquery: system://assets/jquery/jquery-2.1.4.min.js
+    jquery: system://assets/jquery/jquery-2.x.min.js
 
 errors:
-  display: false                            # Display full backtrace-style error page
+  display: 0                                # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
   log: true                                 # Log errors to /logs folder
 
 debugger:
@@ -110,5 +124,13 @@ session:
   enabled: true                             # Enable Session support
   timeout: 1800                             # Timeout in seconds
   name: grav-site                           # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
+  secure: false                             # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
+  httponly: true                            # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
+  split: true                               # Sessions should be independent between site and plugins (such as admin)
+  path:
 
-
+gpm:
+  releases: stable                           # Set to either 'stable' or 'testing'
+  proxy_url:                                 # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+  method: 'auto'                             # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
+  verify_peer: true                          # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.

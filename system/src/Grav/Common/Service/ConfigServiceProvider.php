@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Service
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\CompiledBlueprints;
@@ -11,18 +18,12 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Config class contains configuration information.
- *
- * @author RocketTheme
- * @license MIT
- */
 class ConfigServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
         $container['setup'] = function ($c) {
-            return static::setup($c)->init();
+            return static::setup($c);
         };
 
         $container['blueprints'] = function ($c) {
@@ -90,7 +91,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public static function languages(Container $container)
     {
-        /** Setup $setup */
+        /** @var Setup $setup */
         $setup = $container['setup'];
 
         /** @var Config $config */

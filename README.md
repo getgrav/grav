@@ -1,6 +1,6 @@
 # ![](https://avatars1.githubusercontent.com/u/8237355?v=2&s=50) Grav
 
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad/mini.png)](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad) [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/getgrav/grav?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad/mini.png)](https://insight.sensiolabs.com/projects/cfd20465-d0f8-4a0a-8444-467f5b5f16ad) [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/getgrav/grav?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/getgrav/grav.svg?branch=develop)](https://travis-ci.org/getgrav/grav)
 
 Grav is a **Fast**, **Simple**, and **Flexible**, file-based Web-platform.  There is **Zero** installation required.  Just extract the ZIP archive, and you are already up and running.  It follows similar principles to other flat-file CMS platforms, but has a different design philosophy than most. Grav comes with a powerful **Package Management System** to allow for simple installation and upgrading of plugins and themes, as well as simple updating of Grav itself.
 
@@ -10,7 +10,7 @@ The underlying architecture of Grav is designed to use well-established and _bes
 * [Markdown](http://en.wikipedia.org/wiki/Markdown): for easy content creation
 * [YAML](http://yaml.org): for simple configuration
 * [Parsedown](http://parsedown.org/): for fast Markdown and Markdown Extra support
-* [Doctrine Cache](http://docs.doctrine-project.org/en/2.0.x/reference/caching.html): layer for performance
+* [Doctrine Cache](http://doctrine-orm.readthedocs.io/projects/doctrine-orm/en/latest/reference/caching.html): layer for performance
 * [Pimple Dependency Injection Container](http://pimple.sensiolabs.org/): for extensibility and maintainability
 * [Symfony Event Dispatcher](http://symfony.com/doc/current/components/event_dispatcher/introduction.html): for plugin event handling
 * [Symfony Console](http://symfony.com/doc/current/components/console/introduction.html): for CLI interface
@@ -18,16 +18,24 @@ The underlying architecture of Grav is designed to use well-established and _bes
 
 # Requirements
 
-- PHP 5.4 or higher. Check the [required modules list](http://learn.getgrav.org/basics/requirements#php-requirements)
+- PHP 5.5.9 or higher. Check the [required modules list](http://learn.getgrav.org/basics/requirements#php-requirements)
 - Check the [Apache](http://learn.getgrav.org/basics/requirements#apache-requirements) or [IIS](http://learn.getgrav.org/basics/requirements#iis-requirements) requirements
 
 # QuickStart
 
-You have two options to get Grav:
+These are the options to get Grav:
 
 ### Downloading a Grav Package
 
 You can download a **ready-built** package from the [Downloads page on http://getgrav.org](http://getgrav.org/downloads)
+
+### With Composer
+
+You can create a new project with the latest **stable** Grav release with the following command:
+
+```
+$ composer create-project getgrav/grav ~/webroot/grav
+```
 
 ### From GitHub
 
@@ -92,11 +100,11 @@ What you mainly want to know is that:
 * [What is Grav?](http://learn.getgrav.org/basics/what-is-grav)
 * [Install](http://learn.getgrav.org/basics/installation) Grav in few seconds
 * Understand the [Configuration](http://learn.getgrav.org/basics/grav-configuration)
-* Take a peek at our available free [Skeletons](http://getgrav.org/downloads/skeletons#extras)
-* If you have questions, check out `#grav` on irc.freenode.net
+* Take a peek at our available free [Skeletons](http://getgrav.org/downloads/skeletons)
+* If you have questions, jump on our [Gitter Room](https://gitter.im/getgrav/grav)!
 * Have fun!
 
-# Exploring more
+# Exploring More
 
 * Have a look at our [Basic Tutorial](http://learn.getgrav.org/basics/basic-tutorial)
 * Dive into more [advanced](http://learn.getgrav.org/advanced) functions
@@ -108,3 +116,10 @@ See [LICENSE](LICENSE.txt)
 
 [gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gitflow-extensions]: https://github.com/nvie/gitflow
+
+# Running Tests
+
+First install the dev dependencies by running `composer update` from the Grav root.
+Then `composer test` will run the Unit Tests, which should be always executed successfully on any site.
+
+You can also run a single unit test file, e.g. `composer test tests/unit/Grav/Common/AssetsTest.php`

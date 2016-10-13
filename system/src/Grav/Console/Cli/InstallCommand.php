@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
@@ -6,10 +13,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class InstallCommand
- * @package Grav\Console\Cli
- */
 class InstallCommand extends ConsoleCommand
 {
     /**
@@ -109,10 +112,18 @@ class InstallCommand extends ConsoleCommand
         $this->output->writeln('');
 
         foreach ($this->config['git'] as $repo => $data) {
+            $this->destination = rtrim($this->destination, DS);
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
-                exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
-                $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
+                exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path'], $output, $return);
+
+                if (!$return) {
+                    $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
+                } else {
+                    $this->output->writeln('<red>ERROR</red> cloning <magenta>' . $data['url']);
+
+                }
+
                 $this->output->writeln('');
             } else {
                 $this->output->writeln('<red>' . $path . ' already exists, skipping...</red>');

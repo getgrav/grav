@@ -1,18 +1,20 @@
 <?php
+/**
+ * @package    Grav.Common.User
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\User;
 
-/**
- * User authentication
- *
- * @author RocketTheme
- * @license MIT
- */
 abstract class Authentication
 {
     /**
      * Create password hash from plaintext password.
      *
-     * @param string $password  Plaintext password.
+     * @param string $password Plaintext password.
+     *
      * @throws \RuntimeException
      * @return string|bool
      */
@@ -34,8 +36,9 @@ abstract class Authentication
     /**
      * Verifies that a password matches a hash.
      *
-     * @param string $password  Plaintext password.
-     * @param string $hash      Hash to verify against.
+     * @param string $password Plaintext password.
+     * @param string $hash     Hash to verify against.
+     *
      * @return int              Returns 0 if the check fails, 1 if password matches, 2 if hash needs to be updated.
      */
     public static function verify($password, $hash)

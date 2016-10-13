@@ -1,41 +1,40 @@
 <?php
+/**
+ * @package    Grav.Common.User
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\User;
 
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\GravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 
-/**
- * User object
- *
- * @property mixed authenticated
- * @property mixed password
- * @property bool|string hashed_password
- * @author RocketTheme
- * @license MIT
- */
 class User extends Data
 {
-    use GravTrait;
-
     /**
      * Load user account.
      *
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
+     *
      * @return User
      */
     public static function load($username)
     {
-        $locator = self::getGrav()['locator'];
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+        $config = $grav['config'];
 
         // force lowercase of username
         $username = strtolower($username);
 
-        $blueprints = new Blueprints('blueprints://');
+        $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
         $file = CompiledYamlFile::instance($file_path);
@@ -49,6 +48,9 @@ class User extends Data
         $user = new User($content, $blueprint);
         $user->file($file);
 
+        // add user to config
+        $config->set("user", $user);
+
         return $user;
     }
 
@@ -56,11 +58,12 @@ class User extends Data
      * Remove user account.
      *
      * @param string $username
+     *
      * @return bool True if the action was performed
      */
     public static function remove($username)
     {
-        $file_path = self::getGrav()['locator']->findResource('account://' . $username . YAML_EXT);
+        $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
         if (file_exists($file_path) && unlink($file_path)) {
             return true;
         }
@@ -73,7 +76,8 @@ class User extends Data
      *
      * If user password needs to be updated, new information will be saved.
      *
-     * @param string $password  Plaintext password.
+     * @param string $password Plaintext password.
+     *
      * @return bool
      */
     public function authenticate($password)
@@ -88,8 +92,9 @@ class User extends Data
                 // the result
                 Authentication::verify(
                     $password,
-                    self::getGrav()['config']->get('system.security.default_hash', '$2y$10$kwsyMVwM8/7j0K/6LHT.g.Fs49xOCTp2b8hh/S5.dPJuJcJB6T.UK')
+                    Grav::instance()['config']->get('system.security.default_hash')
                 );
+
                 return false;
             } else {
                 // Plain-text does match, we can update the hash and proceed
@@ -113,7 +118,7 @@ class User extends Data
             $this->save();
         }
 
-        return (bool) $result;
+        return (bool)$result;
     }
 
     /**
@@ -122,14 +127,21 @@ class User extends Data
     public function save()
     {
         $file = $this->file();
+
         if ($file) {
+            $username = $this->get('username');
+
+            if (!$file->filename()) {
+                $locator = Grav::instance()['locator'];
+                $file->filename($locator->findResource('account://') . DS . strtolower($username) . YAML_EXT);
+            }
+
             // if plain text password, hash it and remove plain text
             if ($this->password) {
                 $this->hashed_password = Authentication::create($this->password);
                 unset($this->password);
             }
 
-            $username = $this->get('username');
             unset($this->username);
             $file->save($this->items);
             $this->set('username', $username);
@@ -139,7 +151,8 @@ class User extends Data
     /**
      * Checks user authorization to the action.
      *
-     * @param  string  $action
+     * @param  string $action
+     *
      * @return bool
      */
     public function authorize($action)
@@ -156,21 +169,22 @@ class User extends Data
 
         //Check group access level
         $groups = $this->get('groups');
-        if ($groups) foreach($groups as $group) {
-            $permission = self::getGrav()['config']->get("groups.{$group}.access.{$action}");
-            if (Utils::isPositive($permission)) {
-                $return = true;
+        if ($groups) {
+            foreach ((array)$groups as $group) {
+                $permission = Grav::instance()['config']->get("groups.{$group}.access.{$action}");
+                $return = Utils::isPositive($permission);
+                if ($return === true) {
+                    break;
+                }
             }
         }
 
         //Check user access level
-        if (!$this->get('access')) {
-            return false;
-        }
-
-        if (Utils::resolve($this->get('access'), $action) !== null) {
-            $permission = $this->get("access.{$action}");
-            $return = Utils::isPositive($permission);
+        if ($this->get('access')) {
+            if (Utils::getDotNotation($this->get('access'), $action) !== null) {
+                $permission = $this->get("access.{$action}");
+                $return = Utils::isPositive($permission);
+            }
         }
 
         return $return;
@@ -181,6 +195,7 @@ class User extends Data
      * Ensures backwards compatibility
      *
      * @param  string $action
+     *
      * @deprecated use authorize()
      * @return bool
      */

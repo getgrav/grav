@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
@@ -9,12 +16,6 @@ use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Themes object holds an array of all the theme objects that Grav knows about.
- *
- * @author RocketTheme
- * @license MIT
- */
 class Themes extends Iterator
 {
     /** @var Grav */
@@ -23,6 +24,11 @@ class Themes extends Iterator
     /** @var Config */
     protected $config;
 
+    /**
+     * Themes constructor.
+     *
+     * @param Grav $grav
+     */
     public function __construct(Grav $grav)
     {
         parent::__construct();
@@ -51,7 +57,7 @@ class Themes extends Iterator
         try {
             $instance = $themes->load();
         } catch (\InvalidArgumentException $e) {
-            throw new \RuntimeException($this->current(). ' theme could not be found');
+            throw new \RuntimeException($this->current() . ' theme could not be found');
         }
 
         if ($instance instanceof EventSubscriberInterface) {
@@ -73,25 +79,24 @@ class Themes extends Iterator
      */
     public function all()
     {
-        $list = array();
-        $locator = Grav::instance()['locator'];
+        $list = [];
 
-        $themes = (array) $locator->findResources('themes://', false);
-        foreach ($themes as $path) {
-            $iterator = new \DirectoryIterator($path);
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
 
-            /** @var \DirectoryIterator $directory */
-            foreach ($iterator as $directory) {
-                if (!$directory->isDir() || $directory->isDot()) {
-                    continue;
-                }
+        $iterator = $locator->getIterator('themes://');
 
-                $theme = $directory->getBasename();
-                $result = self::get($theme);
+        /** @var \DirectoryIterator $directory */
+        foreach ($iterator as $directory) {
+            if (!$directory->isDir() || $directory->isDot()) {
+                continue;
+            }
 
-                if ($result) {
-                    $list[$theme] = $result;
-                }
+            $theme = $directory->getBasename();
+            $result = self::get($theme);
+
+            if ($result) {
+                $list[$theme] = $result;
             }
         }
         ksort($list);
@@ -102,7 +107,8 @@ class Themes extends Iterator
     /**
      * Get theme configuration or throw exception if it cannot be found.
      *
-     * @param  string            $name
+     * @param  string $name
+     *
      * @return Data
      * @throws \RuntimeException
      */
@@ -114,7 +120,6 @@ class Themes extends Iterator
 
         $blueprints = new Blueprints('themes://');
         $blueprint = $blueprints->get("{$name}/blueprints");
-        $blueprint->name = $name;
 
         // Load default configuration.
         $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
@@ -126,14 +131,16 @@ class Themes extends Iterator
 
         // Find thumbnail.
         $thumb = "themes://{$name}/thumbnail.jpg";
-        if ($path = $this->grav['locator']->findResource($thumb, false)) {
+        $path = $this->grav['locator']->findResource($thumb, false);
+
+        if ($path) {
             $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $obj->merge($this->grav['config']->get('themes.' . $name) ?: []);
+        $obj->merge($this->config->get('themes.' . $name) ?: []);
 
         // Save configuration always to user/config.
         $file = CompiledYamlFile::instance("config://themes/{$name}" . YAML_EXT);
@@ -149,7 +156,7 @@ class Themes extends Iterator
      */
     public function current()
     {
-        return (string) $this->config->get('system.pages.theme');
+        return (string)$this->config->get('system.pages.theme');
     }
 
     /**
@@ -176,10 +183,9 @@ class Themes extends Iterator
 
             if (!is_object($class)) {
                 $themeClassFormat = [
-                    'Grav\\Theme\\'.ucfirst($name),
-                    'Grav\\Theme\\'.$inflector->camelize($name)
+                    'Grav\\Theme\\' . ucfirst($name),
+                    'Grav\\Theme\\' . $inflector->camelize($name)
                 ];
-                $themeClassName = false;
 
                 foreach ($themeClassFormat as $themeClass) {
                     if (class_exists($themeClass)) {
@@ -253,8 +259,8 @@ class Themes extends Iterator
     /**
      * Load theme configuration.
      *
-     * @param string  $name    Theme name
-     * @param Config  $config  Configuration class
+     * @param string $name   Theme name
+     * @param Config $config Configuration class
      */
     protected function loadConfiguration($name, Config $config)
     {
@@ -265,7 +271,7 @@ class Themes extends Iterator
     /**
      * Load theme languages.
      *
-     * @param Config  $config  Configuration class
+     * @param Config $config Configuration class
      */
     protected function loadLanguages(Config $config)
     {
@@ -273,16 +279,24 @@ class Themes extends Iterator
         $locator = $this->grav['locator'];
 
         if ($config->get('system.languages.translations', true)) {
-            $languageFiles = array_reverse($locator->findResources("theme://languages" . YAML_EXT));
-
-            $languages = [];
-            foreach ($languageFiles as $language) {
-                $languages[] = CompiledYamlFile::instance($language)->content();
+            $language_file = $locator->findResource("theme://languages" . YAML_EXT);
+            if ($language_file) {
+                $language = CompiledYamlFile::instance($language_file)->content();
+                $this->grav['languages']->mergeRecursive($language);
             }
+            $languages_folder = $locator->findResource("theme://languages/");
+            if (file_exists($languages_folder)) {
+                $languages = [];
+                $iterator = new \DirectoryIterator($languages_folder);
 
-            if ($languages) {
-                $languages = call_user_func_array('array_replace_recursive', $languages);
-                $config->getLanguages()->mergeRecursive($languages);
+                /** @var \DirectoryIterator $directory */
+                foreach ($iterator as $file) {
+                    if ($file->getExtension() != 'yaml') {
+                        continue;
+                    }
+                    $languages[$file->getBasename('.yaml')] = CompiledYamlFile::instance($file->getPathname())->content();
+                }
+                $this->grav['languages']->mergeRecursive($languages);
             }
         }
     }
@@ -311,7 +325,7 @@ class Themes extends Iterator
 
             // Load class
             if (file_exists($file)) {
-              return include_once($file);
+                return include_once($file);
             }
         }
 
