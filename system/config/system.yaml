@@ -113,6 +113,7 @@ images:
   cache_all: false                          # Cache all image by default
   cache_perms: '0755'                       # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
   debug: false                              # Show an overlay over images indicating the pixel depth of the image when working with retina for example
+  auto_fix_orientation: false               # Automatically fix the image orientation based on the Exif data
 
 media:
   enable_media_timestamp: false             # Enable media timetsamps
