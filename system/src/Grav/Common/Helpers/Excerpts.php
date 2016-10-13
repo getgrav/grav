@@ -150,11 +150,9 @@ class Excerpts
                     }
                 }
             }
+
+            $url_parts['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
         }
-
-        $actions['fixOrientation'] = true;
-        $url_parts['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
-
 
         // if no query elements left, unset query
         if (empty($url_parts['query'])) {
