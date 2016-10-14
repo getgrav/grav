@@ -224,6 +224,19 @@ class ImageMedium extends Medium
     }
 
     /**
+     * Allows the ability to override the Inmage's Pretty name stored in cache
+     *
+     * @param $name
+     */
+    public function setImagePrettyName($name)
+    {
+        $this->set('basename', $name);
+        if ($this->image) {
+            $this->image->setPrettyName($name);
+        }
+    }
+
+    /**
      * Generate derivatives
      *
      * @param  int $min_width

@@ -122,15 +122,17 @@ class MediumFactory
         $width = (int) ($medium->get('width') * $ratio);
         $height = (int) ($medium->get('height') * $ratio);
 
-        $basename = $medium->get('basename');
-        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $basename);
+        $prev_basename = $medium->get('basename');
+        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $prev_basename);
 
         $debug = $medium->get('debug');
         $medium->set('debug', false);
+        $medium->setImagePrettyName($basename);
 
         $file = $medium->resize($width, $height)->path();
 
         $medium->set('debug', $debug);
+        $medium->setImagePrettyName($prev_basename);
 
         $size = filesize($file);
 
