@@ -12,6 +12,7 @@
     * It is now possible to opt-out of the SSL verification via the new `system.gpm.verify_peer` setting. This is sometimes necessary when receiving a "GPM Unable to Connect" error. More details in ([#1053](https://github.com/getgrav/grav/issues/1053))
     * It is now possible to force the use of either `curl` or `fopen` as `Response` connection method, via the new `system.gpm.method` setting. By default this is set to 'auto' and gives priority to 'fopen' first, curl otherwise.
     * InstallCommand can now handle Licenses
+    * Uses more helpful `1x`, `2x`, `3x`, etc names in the Retina derivatives cache files.
     * Added new method `Plugins::isPluginActiveAdmin()` to check if plugin route is active in Admin plugin
     * Added new `Cache::setEnabled` and `Cache::getEnabled` to enable outside control of cache
     * Updated vendor libs including Twig `1.25.0`
