@@ -77,6 +77,11 @@ class Media extends Getters
             if (empty($types['base'])) {
                 $max = max(array_keys($types['alternative']));
                 $medium = $types['alternative'][$max]['file'];
+
+                // We do fill in missing alternatives later, but when the base
+                // medium is actually the biggest alternative, we need to also
+                // construct what would have been the "@1x", ie. the base medium
+                $types['alternative'][1] = MediumFactory::scaledFromMedium($medium, $max, 1);
             } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
                 $medium && $medium->set('size', $types['base']['size']);
