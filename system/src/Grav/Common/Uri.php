@@ -766,14 +766,14 @@ class Uri
     /**
      * Converts links from absolute '/' or relative (../..) to a Grav friendly format
      *
-     * @param Page   $page         the current page to use as reference
+     * @param Page $page the current page to use as reference
      * @param string $url the URL as it was written in the markdown
-     * @param string $type         the type of URL, image | link
-     * @param bool   $absolute     if null, will use system default, if true will use absolute links internally
-     *
+     * @param string $type the type of URL, image | link
+     * @param bool $absolute if null, will use system default, if true will use absolute links internally
+     * @param bool $route_only only return the route, not full URL path
      * @return string the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $url, $type = 'link', $absolute = false)
+    public static function convertUrl(Page $page, $url, $type = 'link', $absolute = false, $route_only = false)
     {
         $grav = Grav::instance();
 
@@ -920,6 +920,10 @@ class Uri
             $url['path'] = $url_path;
         } else {
             $url = $url_path;
+        }
+
+        if ($route_only) {
+            $url = str_replace($base_url, '', $url);
         }
 
         return $url;

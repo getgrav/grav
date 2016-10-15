@@ -64,6 +64,11 @@ class Session extends BaseSession
                 $domain = '';
             }
 
+            // Fix for HUGE session timeouts
+            if ($session_timeout > 99999999999) {
+                $session_timeout = 9999999999;
+            }
+
             // Define session service.
             parent::__construct($session_timeout, $session_path, $domain);
 
@@ -72,7 +77,12 @@ class Session extends BaseSession
 
             $unique_identifier = GRAV_ROOT;
             $inflector = new Inflector();
-            $this->setName($inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7) . ($is_admin ? '-admin' : ''));
+            $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7);
+            $split_session = $config->get('system.session.split', true);
+            if ($is_admin && $split_session) {
+              $session_name .= '-admin';
+            }
+            $this->setName($session_name);
             $this->start();
             setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
         }

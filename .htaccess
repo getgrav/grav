@@ -13,6 +13,16 @@ RewriteEngine On
 
 ## End - RewriteBase
 
+## Begin - X-Forwarded-Proto
+# In some hosted or load balanced environments, SSL negotiation happens upstream.
+# In order for Grav to recognize the connection as secure, you need to uncomment
+# the following lines.
+#
+# RewriteCond %{HTTP:X-Forwarded-Proto} https
+# RewriteRule .* - [E=HTTPS:on]
+#
+## End - X-Forwarded-Proto
+
 ## Begin - Exploits
 # If you experience problems on your site block out the operations listed below
 # This attempts to block the most common type of exploit `attempts` to Grav

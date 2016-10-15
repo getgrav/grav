@@ -209,54 +209,16 @@ class Grav extends Container
     }
 
     /**
-     * Returns mime type for the file format.
-     *
-     * @param string $format
-     *
-     * @return string
-     */
-    public function mime($format)
-    {
-        // look for some standard types
-        switch ($format) {
-            case null:
-                return 'text/html';
-            case 'json':
-                return 'application/json';
-            case 'html':
-                return 'text/html';
-            case 'atom':
-                return 'application/atom+xml';
-            case 'rss':
-                return 'application/rss+xml';
-            case 'xml':
-                return 'application/xml';
-        }
-
-        // Try finding mime type from media
-        $media_types = $this['config']->get('media.types');
-        if (key_exists($format, $media_types)) {
-            $type = $media_types[$format];
-            if (isset($type['mime'])) {
-                return $type['mime'];
-            }
-        }
-
-        // Can't find the mime type, send as HTML
-        return 'text/html';
-    }
-
-    /**
      * Set response header.
      */
     public function header()
     {
-        $extension = $this['uri']->extension();
-
         /** @var Page $page */
         $page = $this['page'];
 
-        header('Content-type: ' . $this->mime($extension));
+        $format = $page->templateFormat();
+
+        header('Content-type: ' . Utils::getMimeByExtension($format, 'text/html'));
 
         // Calculate Expires Headers if set to > 0
         $expires = $page->expires();
@@ -279,7 +241,7 @@ class Grav extends Container
         }
 
         // Set debugger data in headers
-        if (!($extension === null || $extension == 'html')) {
+        if (!($format === null || $format == 'html')) {
             $this['debugger']->enabled(false);
         }
 

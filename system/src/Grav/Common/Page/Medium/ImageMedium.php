@@ -17,7 +17,7 @@ class ImageMedium extends Medium
     /**
      * @var array
      */
-    protected $thumbnailTypes = [ 'page', 'media', 'default' ];
+    protected $thumbnailTypes = ['page', 'media', 'default'];
 
     /**
      * @var ImageFile
@@ -58,11 +58,11 @@ class ImageMedium extends Medium
      * @var array
      */
     public static $magic_resize_actions = [
-        'resize' => [ 0, 1 ],
-        'forceResize' => [ 0, 1 ],
-        'cropResize' => [ 0, 1 ],
-        'crop' => [ 0, 1, 2, 3 ],
-        'zoomCrop' => [ 0, 1 ]
+        'resize' => [0, 1],
+        'forceResize' => [0, 1],
+        'cropResize' => [0, 1],
+        'crop' => [0, 1, 2, 3],
+        'zoomCrop' => [0, 1]
     ];
 
     /**
@@ -207,6 +207,32 @@ class ImageMedium extends Medium
         $srcset[] = $this->url($reset) . ' ' . $this->get('width') . 'w';
 
         return implode(', ', $srcset);
+    }
+
+    /**
+     * Allows the ability to override the Inmage's Pretty name stored in cache
+     *
+     * @param $name
+     */
+    public function setImagePrettyName($name)
+    {
+        $this->set('prettyname', $name);
+        if ($this->image) {
+            $this->image->setPrettyName($name);
+        }
+    }
+
+    public function getImagePrettyName()
+    {
+        if ($this->get('prettyname')) {
+            return $this->get('prettyname');
+        } else {
+            $basename = $this->get('basename');
+            if (preg_match('/[a-z0-9]{40}-(.*)/', $basename, $matches)) {
+                $basename = $matches[1];
+            }
+            return $basename;
+        }
     }
 
     /**
@@ -502,7 +528,7 @@ class ImageMedium extends Medium
         $this->image = ImageFile::open($file)
             ->setCacheDir($cacheDir)
             ->setActualCacheDir($cacheDir)
-            ->setPrettyName(basename($this->get('basename')));
+            ->setPrettyName($this->getImagePrettyName());
 
         return $this;
     }

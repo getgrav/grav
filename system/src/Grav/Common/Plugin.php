@@ -98,11 +98,34 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
+     * Determine if this is running under the admin
+     *
      * @return bool
      */
     public function isAdmin()
     {
         return Utils::isAdminPlugin();
+    }
+
+    /**
+     * Determine if this route is in Admin and active for the plugin
+     *
+     * @param $plugin_route
+     * @return bool
+     */
+    protected function isPluginActiveAdmin($plugin_route)
+    {
+        $should_run = false;
+
+        $uri = $this->grav['uri'];
+
+        if (strpos($uri->path(), $this->config->get('plugins.admin.route') . '/' . $plugin_route) === false) {
+            $should_run = false;
+        } elseif (isset($uri->paths()[1]) && $uri->paths()[1] == $plugin_route) {
+            $should_run = true;
+        }
+
+        return $should_run;
     }
 
     /**
