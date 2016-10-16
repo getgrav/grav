@@ -244,38 +244,37 @@ class ImageMedium extends Medium
      * @return $this
      */
     public function derivatives($min_width, $max_width, $step = 200) {
-        $width = $min_width;
-
-        // Do not upscale images.
-        if ($max_width > $this->get('width')) {
-            $max_width = $this->get('width');
+        if (!empty($this->alternatives)) {
+            $max = max(array_keys($this->alternatives));
+            $base = $this->alternatives[$max];
+        } else {
+            $base = $this;
         }
 
-        // Clear any alternatives that have already been implied by the image's
-        // filename (eg. ones that had "@2x" or similar appended to their
-        // filenames)
-        $this->reset();
+        // Do not upscale images.
+        $max_width = min($max_width, $base->get('width'));
 
-        while ($width <= $max_width) {
-            $ratio = $width / $this->get('width');
-            $width += $step;
-
-            if ($ratio == 1) {
+        for ($width = $min_width; $width < $max_width; $width = $width + $step) {
+            // Only generate image alternatives that don't already exist
+            if (array_key_exists((int) $width, $this->alternatives)) {
                 continue;
             }
 
-            $derivative = MediumFactory::fromFile($this->get('filepath'));
+            $derivative = MediumFactory::fromFile($base->get('filepath'));
 
             // It's possible that MediumFactory::fromFile returns null if the
             // original image file no longer exists and this class instance was
             // retrieved from the page cache
             if (isset($derivative)) {
-                $derivative_width = $derivative->get('width') * $ratio;
-                $derivative_height = $derivative->get('height') * $ratio;
+                $ratio = $base->get('width') / $width;
+                $height = $derivative->get('height') / $ratio;
 
-                $derivative->resize($derivative_width, $derivative_height);
-                $derivative->set('width', $derivative_width);
-                $derivative->set('height', $derivative_height);
+                $basename = preg_replace('/(@\d+x)*$/', "@{$ratio}x", $base->get('basename'), 1);
+                $derivative->setImagePrettyName($basename);
+
+                $derivative->resize($width, $height);
+                $derivative->set('width', $width);
+                $derivative->set('height', $height);
 
                 $this->addAlternative($ratio, $derivative);
             }
