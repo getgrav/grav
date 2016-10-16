@@ -266,11 +266,21 @@ class ImageMedium extends Medium
             // original image file no longer exists and this class instance was
             // retrieved from the page cache
             if (isset($derivative)) {
+                $index = 2;
+                $widths = array_keys($this->alternatives);
+                sort($widths);
+
+                foreach ($widths as $i => $key) {
+                    if ($width > $key) {
+                        $index += max($i, 1);
+                    }
+                }
+
+                $basename = preg_replace('/(@\d+x)*$/', "@{$index}x", $base->get('basename'), 1);
+                $derivative->setImagePrettyName($basename);
+
                 $ratio = $base->get('width') / $width;
                 $height = $derivative->get('height') / $ratio;
-
-                $basename = preg_replace('/(@\d+x)*$/', "@{$ratio}x", $base->get('basename'), 1);
-                $derivative->setImagePrettyName($basename);
 
                 $derivative->resize($width, $height);
                 $derivative->set('width', $width);
