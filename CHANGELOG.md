@@ -1,5 +1,5 @@
 # v1.1.6
-## XX/XX/2016
+## 10/19/2016
 
 1. [](#new)
     * Added ability for Page to override the output format (`html`, `xml`, etc..) [#1067](https://github.com/getgrav/grav/issues/1067)
