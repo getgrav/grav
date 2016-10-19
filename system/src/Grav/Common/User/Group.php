@@ -83,13 +83,13 @@ class Group extends Data
         foreach ($fields as $field) {
             if ($field['type'] == 'text') {
                 $value = $field['name'];
-                if (isset($this->items[$value])) {
-                    $config->set("groups.$this->groupname.$value", $this->items[$value]);
+                if (isset($this->items['data'][$value])) {
+                    $config->set("groups.$this->groupname.$value", $this->items['data'][$value]);
                 }
             }
             if ($field['type'] == 'array') {
                 $value = $field['name'];
-                $arrayValues = Utils::getDotNotation($this->items, $field['name']);
+                $arrayValues = Utils::getDotNotation($this->items['data'], $field['name']);
 
                 if ($arrayValues) {
                     foreach ($arrayValues as $arrayIndex => $arrayValue) {

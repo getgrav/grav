@@ -80,6 +80,34 @@ abstract class Folder
     }
 
     /**
+     * Recursively md5 hash all files in a path
+     *
+     * @param $path
+     * @return string
+     */
+    public static function hashAllFiles($path)
+    {
+        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
+        $files = [];
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($path)) {
+            $directory = $locator->getRecursiveIterator($path, $flags);
+        } else {
+            $directory = new \RecursiveDirectoryIterator($path, $flags);
+        }
+
+        $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+
+        foreach ($iterator as $filepath => $file) {
+            $files[] = $file->getPath() . $file->getMTime();
+        }
+
+        return md5(serialize($files));
+    }
+
+    /**
      * Get relative path between target and base path. If path isn't relative, return full path.
      *
      * @param string       $path
@@ -179,7 +207,7 @@ abstract class Folder
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
         if ($recursive) {
-            $flags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS 
+            $flags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS
                 + \FilesystemIterator::CURRENT_AS_SELF + \FilesystemIterator::FOLLOW_SYMLINKS;
             if ($locator->isStream($path)) {
                 $directory = $locator->getRecursiveIterator($path, $flags);
@@ -403,10 +431,7 @@ abstract class Folder
 
         // If the destination directory does not exist create it
         if (!is_dir($dest)) {
-            if (!mkdir($dest)) {
-                // If the destination directory could not be created stop processing
-                return false;
-            }
+            Folder::mkdir($dest);
         }
 
         // Open the source directory to read in files

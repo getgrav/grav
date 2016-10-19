@@ -39,8 +39,10 @@ class Response
             CURLOPT_USERAGENT      => 'Grav GPM',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_FAILONERROR    => true,
             CURLOPT_TIMEOUT        => 15,
             CURLOPT_HEADER         => false,
+            //CURLOPT_SSL_VERIFYPEER => true, // this is set in the constructor since it's a setting
             /**
              * Example of callback parameters from within your own class
              */
@@ -48,11 +50,17 @@ class Response
             //CURLOPT_PROGRESSFUNCTION => [$this, 'progress']
         ],
         'fopen' => [
-            'method'          => 'GET',
-            'user_agent'      => 'Grav GPM',
-            'max_redirects'   => 5,
-            'follow_location' => 1,
-            'timeout'         => 15,
+            'method'           => 'GET',
+            'user_agent'       => 'Grav GPM',
+            'max_redirects'    => 5,
+            'follow_location'  => 1,
+            'timeout'          => 15,
+            /* // this is set in the constructor since it's a setting
+            'ssl'              => [
+                'verify_peer'      => true,
+                'verify_peer_name' => true,
+            ],
+            */
             /**
              * Example of callback parameters from within your own class
              */
@@ -101,8 +109,59 @@ class Response
         } catch (\Exception $e) {
         }
 
-        $options = array_replace_recursive(self::$defaults, $options);
-        $method  = 'get' . ucfirst(strtolower(self::$method));
+        $config = Grav::instance()['config'];
+        $overrides = [];
+
+        // SSL Verify Peer and Proxy Setting
+        $settings = [
+            'method'      => $config->get('system.gpm.method', self::$method),
+            'verify_peer' => $config->get('system.gpm.verify_peer'),
+            // `system.proxy_url` is for fallback
+            // introduced with 1.1.0-beta.1 probably safe to remove at some point
+            'proxy_url'   => $config->get('system.gpm.proxy_url', $config->get('system.proxy_url', false)),
+        ];
+
+        $overrides = array_replace_recursive([], $overrides, [
+            'curl' => [
+                CURLOPT_SSL_VERIFYPEER => $settings['verify_peer']
+            ],
+            'fopen' => [
+                'ssl' => [
+                    'verify_peer' => $settings['verify_peer'],
+                    'verify_peer_name' => $settings['verify_peer'],
+                ]
+            ]
+        ]);
+
+        // Proxy Setting
+        if ($settings['proxy_url']) {
+            $proxy = parse_url($settings['proxy_url']);
+            $fopen_proxy = ($proxy['scheme'] ?: 'http') . '://' . $proxy['host'] . (isset($proxy['port']) ? ':' . $proxy['port'] : '');
+
+            $overrides = array_replace_recursive([], $overrides, [
+                'curl' => [
+                    CURLOPT_PROXY => $proxy['host'],
+                    CURLOPT_PROXYTYPE => 'HTTP'
+                ],
+                'fopen' => [
+                    'proxy'           => $fopen_proxy,
+                    'request_fulluri' => true
+                ]
+            ]);
+
+            if (isset($proxy['port'])) {
+                $overrides['curl'][CURLOPT_PROXYPORT] = $proxy['port'];
+            }
+
+            if (isset($proxy['user']) && isset($proxy['pass'])) {
+                $fopen_auth = $auth = base64_encode($proxy['user'] . ':' . $proxy['pass']);
+                $overrides['curl'][CURLOPT_PROXYUSERPWD] = $proxy['user'] . ':' . $proxy['pass'];
+                $overrides['fopen']['header'] = "Proxy-Authorization: Basic $fopen_auth";
+            }
+        }
+
+        $options = array_replace_recursive(self::$defaults, $options, $overrides);
+        $method  = 'get' . ucfirst(strtolower($settings['method']));
 
         self::$callback = $callback;
         return static::$method($uri, $options, $callback);
@@ -199,30 +258,34 @@ class Response
         $options  = $args[1];
         $callback = $args[2];
 
-        // if proxy set add that
-        $config = Grav::instance()['config'];
-        $proxy_url = $config->get('system.gpm.proxy_url', $config->get('system.proxy_url'));
-        if ($proxy_url) {
-            $parsed_url = parse_url($proxy_url);
-
-            $options['fopen']['proxy'] = ($parsed_url['scheme'] ?: 'http') . '://' . $parsed_url['host'] . (isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '');
-            $options['fopen']['request_fulluri'] = true;
-
-            if (isset($parsed_url['user']) && isset($parsed_url['pass'])) {
-                $auth = base64_encode($parsed_url['user'] . ':' . $parsed_url['pass']);
-                $options['fopen']['header'] = "Proxy-Authorization: Basic $auth";
-            }
-        }
-
         if ($callback) {
             $options['fopen']['notification'] = ['self', 'progress'];
         }
 
-        $stream  = stream_context_create(['http' => $options['fopen']], $options['fopen']);
+        $ssl = $options['fopen']['ssl'];
+        unset($options['fopen']['ssl']);
+
+        $stream  = stream_context_create([
+            'http' => $options['fopen'],
+            'ssl' => $ssl
+        ], $options['fopen']);
+
         $content = @file_get_contents($uri, false, $stream);
 
         if ($content === false) {
-            throw new \RuntimeException("Error while trying to download '$uri'");
+            $code = null;
+            if (isset($http_response_header)) {
+                $code = explode(' ', $http_response_header[0])[1];
+            }
+
+            switch ($code) {
+                case '404':
+                    throw new \RuntimeException("Page not found");
+                case '401':
+                    throw new \RuntimeException("Invalid LICENSE");
+                default:
+                    throw new \RuntimeException("Error while trying to download '$uri'\n");
+            }
         }
 
         return $content;
@@ -248,8 +311,17 @@ class Response
         $errno = curl_errno($ch);
 
         if ($errno) {
-            $error_message = curl_strerror($errno);
-            throw new \RuntimeException("cURL error ({$errno}):\n {$error_message}");
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error_message = curl_strerror($errno) . "\n" . curl_error($ch);
+
+            switch ($code) {
+                case '404':
+                    throw new \RuntimeException("Page not found");
+                case '401':
+                    throw new \RuntimeException("Invalid LICENSE");
+                default:
+                    throw new \RuntimeException("Error while trying to download '$uri'\nMessage: $error_message");
+            }
         }
 
         curl_close($ch);
@@ -274,24 +346,6 @@ class Response
                     CURLOPT_PROGRESSFUNCTION => ['self', 'progress']
                 ]
             );
-        }
-
-        // if proxy set add that
-        $config = Grav::instance()['config'];
-        $proxy_url = $config->get('system.gpm.proxy_url', $config->get('system.proxy_url'));
-        if ($proxy_url) {
-            $parsed_url = parse_url($proxy_url);
-
-            $options['curl'][CURLOPT_PROXY] = $parsed_url['host'];
-            $options['curl'][CURLOPT_PROXYTYPE] = 'HTTP';
-
-            if (isset($parsed_url['port'])) {
-                $options['curl'][CURLOPT_PROXYPORT] = $parsed_url['port'];
-            }
-
-            if (isset($parsed_url['user']) && isset($parsed_url['pass'])) {
-                $options['curl'][CURLOPT_PROXYUSERPWD] = $parsed_url['user'] . ':' . $parsed_url['pass'];
-            }
         }
 
         // no open_basedir set, we can proceed normally

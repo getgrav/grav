@@ -9,8 +9,6 @@
 namespace Grav\Common;
 
 use DateTime;
-use DateTimeZone;
-use Grav\Common\Grav;
 use Grav\Common\Helpers\Truncator;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -235,7 +233,7 @@ abstract class Utils
             Grav::instance()->fireEvent('onBeforeDownload', new Event(['file' => $file]));
 
             $file_parts = pathinfo($file);
-            $mimetype = Utils::getMimeType($file_parts['extension']);
+            $mimetype = Utils::getMimeByExtension($file_parts['extension']);
             $size   = filesize($file); // File size
 
             // clean all buffers
@@ -321,22 +319,84 @@ abstract class Utils
     }
 
     /**
-     * Return the mimetype based on filename
+     * Return the mimetype based on filename extension
      *
      * @param string $extension Extension of file (eg "txt")
+     * @param string $default
      *
      * @return string
      */
-    public static function getMimeType($extension)
+    public static function getMimeByExtension($extension, $default = 'application/octet-stream')
     {
         $extension = strtolower($extension);
-        $config = Grav::instance()['config']->get('media.types');
 
-        if (isset($config[$extension])) {
-            return $config[$extension]['mime'];
+        // look for some standard types
+        switch ($extension) {
+            case null:
+                return $default;
+            case 'json':
+                return 'application/json';
+            case 'html':
+                return 'text/html';
+            case 'atom':
+                return 'application/atom+xml';
+            case 'rss':
+                return 'application/rss+xml';
+            case 'xml':
+                return 'application/xml';
         }
 
-        return 'application/octet-stream';
+        $media_types = Grav::instance()['config']->get('media.types');
+
+        if (isset($media_types[$extension])) {
+            if (isset($media_types[$extension]['mime'])) {
+                return $media_types[$extension]['mime'];
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Return the mimetype based on filename extension
+     *
+     * @param string $mime mime type (eg "text/html")
+     * @param string $default default value
+     *
+     * @return string
+     */
+    public static function getExtensionByMime($mime, $default = 'html')
+    {
+        $mime = strtolower($mime);
+
+        // look for some standard mime types
+        switch ($mime) {
+            case '*/*':
+            case 'text/*':
+            case 'text/html':
+                return 'html';
+            case 'application/json':
+                return 'json';
+            case 'application/atom+xml':
+                return 'atom';
+            case 'application/rss+xml':
+                return 'rss';
+            case 'application/xml':
+                return 'xml';
+        }
+
+        $media_types = Grav::instance()['config']->get('media.types');
+
+        foreach ($media_types as $extension => $type) {
+            if ($extension == 'defaults') {
+                continue;
+            }
+            if (isset($type['mime']) && $type['mime'] == $mime) {
+                return $extension;
+            }
+        }
+
+        return $default;
     }
 
     /**

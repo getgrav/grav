@@ -125,6 +125,24 @@ class Collection extends Iterator
     }
 
     /**
+     * Split collection into array of smaller collections.
+     *
+     * @param $size
+     * @return array|Collection[]
+     */
+    public function batch($size)
+    {
+        $chunks = array_chunk($this->items, $size, true);
+
+        $list = [];
+        foreach ($chunks as $chunk) {
+            $list[] = new static($chunk, $this->params, $this->pages);
+        }
+
+        return $list;
+    }
+
+    /**
      * Remove item from the list.
      *
      * @param Page|string|null $key

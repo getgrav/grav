@@ -9,8 +9,7 @@
 namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
-use Grav\Common\Uri;
-use Grav\Common\Utils;
+use Grav\Common\Helpers\Excerpts;
 use RocketTheme\Toolbox\Event\Event;
 
 trait ParsedownGravTrait
@@ -18,13 +17,6 @@ trait ParsedownGravTrait
     /** @var Page $page */
     protected $page;
 
-    /** @var Pages $pages */
-    protected $pages;
-
-    /** @var  Uri $uri */
-    protected $uri;
-
-    protected $pages_dir;
     protected $special_chars;
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
 
@@ -42,10 +34,7 @@ trait ParsedownGravTrait
         $grav = Grav::instance();
 
         $this->page = $page;
-        $this->pages = $grav['pages'];
-        $this->uri = $grav['uri'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->pages_dir = Grav::instance()['locator']->findResource('page://');
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
         if ($defaults === null) {
@@ -69,16 +58,23 @@ trait ParsedownGravTrait
      */
     public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
     {
+        $block = &$this->unmarkedBlockTypes;
+        if ($type) {
+            if (!isset($this->BlockTypes[$type])) {
+                $this->BlockTypes[$type] = [];
+            }
+            $block = &$this->BlockTypes[$type];
+        }
+
         if (!isset($index)) {
-            $this->BlockTypes[$type] [] = $tag;
+            $block[] = $tag;
         } else {
-            array_splice($this->BlockTypes[$type], $index, 0, $tag);
+            array_splice($block, $index, 0, [$tag]);
         }
 
         if ($continuable) {
             $this->continuable_blocks[] = $tag;
         }
-
         if ($completable) {
             $this->completable_blocks[] = $tag;
         }
@@ -92,10 +88,10 @@ trait ParsedownGravTrait
      */
     public function addInlineType($type, $tag, $index = null)
     {
-        if (!isset($index)) {
+        if (!isset($index) || !isset($this->InlineTypes[$type])) {
             $this->InlineTypes[$type] [] = $tag;
         } else {
-            array_splice($this->InlineTypes[$type], $index, 0, $tag);
+            array_splice($this->InlineTypes[$type], $index, 0, [$tag]);
         }
 
         if (strpos($this->inlineMarkerList, $type) === false) {
@@ -203,75 +199,9 @@ trait ParsedownGravTrait
             $excerpt = parent::inlineImage($excerpt);
         }
 
-        // Some stuff we will need
-        $actions = [];
-        $media = null;
-
-        // if this is an image
+        // if this is an image process it
         if (isset($excerpt['element']['attributes']['src'])) {
-            $alt = $excerpt['element']['attributes']['alt'] ?: '';
-            $title = $excerpt['element']['attributes']['title'] ?: '';
-            $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
-            $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
-
-            //get the url and parse it
-            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['src']));
-
-            $this_host = isset($url['host']) && $url['host'] == $this->uri->host();
-
-            // if there is no host set but there is a path, the file is local
-            if ((!isset($url['host']) || $this_host) && isset($url['path'])) {
-                $path_parts = pathinfo($url['path']);
-
-                // get the local path to page media if possible
-                if ($path_parts['dirname'] == $this->page->url(false, false, false)) {
-                    // get the media objects for this page
-                    $media = $this->page->media();
-                } else {
-                    // see if this is an external page to this one
-                    $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
-                    $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
-
-                    $ext_page = $this->pages->dispatch($page_route, true);
-                    if ($ext_page) {
-                        $media = $ext_page->media();
-                    }
-                }
-
-                // if there is a media file that matches the path referenced..
-                if ($media && isset($media->all()[$path_parts['basename']])) {
-                    // get the medium object
-                    $medium = $media->all()[$path_parts['basename']];
-
-                    // if there is a query, then parse it and build action calls
-                    if (isset($url['query'])) {
-                        $url['query'] = htmlspecialchars_decode(urldecode($url['query']));
-                        $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
-                            $parts = explode('=', $item, 2);
-                            $value = isset($parts[1]) ? $parts[1] : null;
-                            $carry[] = ['method' => $parts[0], 'params' => $value];
-
-                            return $carry;
-                        }, []);
-                    }
-
-                    // loop through actions for the image and call them
-                    foreach ($actions as $action) {
-                        $medium = call_user_func_array([$medium, $action['method']],
-                            explode(',', urldecode($action['params'])));
-                    }
-
-                    if (isset($url['fragment'])) {
-                        $medium->urlHash($url['fragment']);
-                    }
-
-                    $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, $id, true);
-
-                } else {
-                    // not a current page media file, see if it needs converting to relative
-                    $excerpt['element']['attributes']['src'] = Uri::buildUrl($url);
-                }
-            }
+            $excerpt = Excerpts::processImageExcerpt($excerpt, $this->page);
         }
 
         return $excerpt;
@@ -299,63 +229,7 @@ trait ParsedownGravTrait
 
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
-            $url = parse_url(htmlspecialchars_decode($excerpt['element']['attributes']['href']));
-
-            // if there is a query, then parse it and build action calls
-            if (isset($url['query'])) {
-                $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
-                    $parts = explode('=', $item, 2);
-                    $value = isset($parts[1]) ? rawurldecode($parts[1]) : true;
-                    $carry[$parts[0]] = $value;
-
-                    return $carry;
-                }, []);
-
-                // valid attributes supported
-                $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
-
-                // Unless told to not process, go through actions
-                if (array_key_exists('noprocess', $actions)) {
-                    unset($actions['noprocess']);
-                } else {
-                    // loop through actions for the image and call them
-                    foreach ($actions as $attrib => $value) {
-                        $key = $attrib;
-
-                        if (in_array($attrib, $valid_attributes)) {
-                            // support both class and classes
-                            if ($attrib == 'classes') {
-                                $attrib = 'class';
-                            }
-                            $excerpt['element']['attributes'][$attrib] = str_replace(',', ' ', $value);
-                            unset($actions[$key]);
-                        }
-                    }
-                }
-
-                $url['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
-            }
-
-            // if no query elements left, unset query
-            if (empty($url['query'])) {
-                unset ($url['query']);
-            }
-
-            // set path to / if not set
-            if (empty($url['path'])) {
-                $url['path'] = '';
-            }
-
-            // if special scheme, just return
-            if(isset($url['scheme']) && !Utils::startsWith($url['scheme'], 'http')) {
-                return $excerpt;
-            }
-
-            // handle paths and such
-            $url = Uri::convertUrl($this->page, $url, $type);
-
-            // build the URL from the component parts and set it on the element
-            $excerpt['element']['attributes']['href'] = Uri::buildUrl($url);
+            $excerpt = Excerpts::processLinkExcerpt($excerpt, $this->page, $type);
         }
 
         return $excerpt;

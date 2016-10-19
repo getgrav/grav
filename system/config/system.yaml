@@ -67,11 +67,13 @@ pages:
 cache:
   enabled: true                             # Set to true to enable caching
   check:
-    method: file                            # Method to check for updates in pages: file|folder|none
+    method: file                            # Method to check for updates in pages: file|folder|hash|none
   driver: auto                              # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                               # GZip compress the page output
+  redis:
+    socket: false                           # Path to redis unix socket (e.g. /var/run/redis/redis.sock), false = use server and port to connect
 
 twig:
   cache: true                               # Set to true to enable Twig caching
@@ -98,7 +100,7 @@ assets:                                     # Configuration for Assets Manager (
     jquery: system://assets/jquery/jquery-2.x.min.js
 
 errors:
-  display: false                            # Display full backtrace-style error page
+  display: 0                                # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
   log: true                                 # Log errors to /logs folder
 
 debugger:
@@ -111,6 +113,7 @@ images:
   cache_all: false                          # Cache all image by default
   cache_perms: '0755'                       # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
   debug: false                              # Show an overlay over images indicating the pixel depth of the image when working with retina for example
+  auto_fix_orientation: false               # Automatically fix the image orientation based on the Exif data
 
 media:
   enable_media_timestamp: false             # Enable media timetsamps
@@ -124,8 +127,11 @@ session:
   name: grav-site                           # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   secure: false                             # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
   httponly: true                            # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
+  split: true                               # Sessions should be independent between site and plugins (such as admin)
   path:
 
 gpm:
   releases: stable                           # Set to either 'stable' or 'testing'
   proxy_url:                                 # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+  method: 'auto'                             # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
+  verify_peer: true                          # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.

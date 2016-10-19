@@ -43,8 +43,6 @@ env:
     - secure: "einUtSEkUWy2IrqLXyVjwUU+mwaaoiOXRRVdLBpA3Zye6bZx8cm5h/5AplkPWhM/NmCJoW/MwNZHHkFhlr3mDRov5iOxVmTTYfnXB+I5lxYTSgduOLLErS7mU8hfADpVDU8bHNU44fNGD3UEiG1PD4qQBX4DMlqIFmR20mjs81k="
     # GH_API_USER [for curl]
     - secure: "AQGcX1B2NrI8ajflY4AimZDNcK2kBA3F6mbtEFQ78NkDoWhMipsQHayWXiSTzRc0YJKvQl2Y16MTwQF4VHzjTAiiZFATgA8J88vQUjIPabi/kKjqSmcLFoaAOAxStQbW6e0z2GiQ6KBMcNF1y5iUuI63xVrBvtKrYX/w5y+ako8="
-    # Latest Release version
-    - TRAVIS_TAG=$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4)
 
 before_install:
   - export TZ=Pacific/Honolulu
@@ -56,6 +54,7 @@ before_install:
         composer install --dev --prefer-dist;
     fi
   - if [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+        export TRAVIS_TAG=$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
         go get github.com/aktau/github-release;
         git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;
         if [ ! -z "$TRAVIS_TAG" ]; then
@@ -69,7 +68,7 @@ script:
   - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
         vendor/bin/codecept run;
     fi
-  - echo $TRAVIS_TAG
+  - echo "Latest Release Tag - ${TRAVIS_TAG}"
   - if [ ! -z "$TRAVIS_TAG" ] && [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
       FILES="$RT_DEVTOOLS/grav-dist/*.zip";
       for file in ${FILES[@]}; do
