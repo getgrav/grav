@@ -6,6 +6,7 @@
     * Added `Utils::getExtensionByMime()` and cleaned up `Utils::getMimeByExtension` + tests
     * Added a `cache.check.method: 'hash'` option in `system.yaml` that checks all files + dates inclusively
     * Include jQuery 3.x in the Grav assets
+    * Added the option to automatically fix orientation on images based on their Exif data, by enabling `system.images.auto_fix_orientation`.
 1. [](#improved)
     * Add `batch()` function to Page Collection class
     * Added new `cache.redis.socket` setting that allow to pass a UNIX socket as redis server

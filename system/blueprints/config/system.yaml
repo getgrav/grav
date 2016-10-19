@@ -852,11 +852,21 @@ form:
                         '0755': '0755'
                         '0775': '0775'
 
-
                 images.debug:
                     type: toggle
                     label: PLUGIN_ADMIN.IMAGES_DEBUG
                     help: PLUGIN_ADMIN.IMAGES_DEBUG_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                images.auto_fix_orientation:
+                    type: toggle
+                    label: PLUGIN_ADMIN.IMAGES_AUTO_FIX_ORIENTATION
+                    help: PLUGIN_ADMIN.IMAGES_AUTO_FIX_ORIENTATION_HELP
                     highlight: 0
                     options:
                         1: PLUGIN_ADMIN.YES

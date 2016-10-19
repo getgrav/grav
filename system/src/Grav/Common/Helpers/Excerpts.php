@@ -276,6 +276,10 @@ class Excerpts
             }, []);
         }
 
+        if (Grav::instance()['config']->get('system.images.auto_fix_orientation')) {
+            $actions[] = ['method' => 'fixOrientation', 'params' => ''];
+        }
+
         // loop through actions for the image and call them
         foreach ($actions as $action) {
             $medium = call_user_func_array([$medium, $action['method']],
