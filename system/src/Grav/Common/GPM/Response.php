@@ -115,7 +115,7 @@ class Response
         // SSL Verify Peer and Proxy Setting
         $settings = [
             'method'      => $config->get('system.gpm.method', self::$method),
-            'verify_peer' => $config->get('system.gpm.verify_peer'),
+            'verify_peer' => $config->get('system.gpm.verify_peer', true),
             // `system.proxy_url` is for fallback
             // introduced with 1.1.0-beta.1 probably safe to remove at some point
             'proxy_url'   => $config->get('system.gpm.proxy_url', $config->get('system.proxy_url', false)),
