@@ -40,3 +40,5 @@ debugger:
   twig: true
   shutdown:
     close_connection: true
+gpm:
+  verify_peer: false

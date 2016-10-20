@@ -1,3 +1,9 @@
+# v1.1.7
+## XX/XX/2016
+
+1. [](#bugfix)
+    * Only pass verify_peer settings to cURL and fopen if the setting is disabled
+
 # v1.1.6
 ## 10/19/2016
 

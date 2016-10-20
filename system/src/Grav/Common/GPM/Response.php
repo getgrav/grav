@@ -121,17 +121,19 @@ class Response
             'proxy_url'   => $config->get('system.gpm.proxy_url', $config->get('system.proxy_url', false)),
         ];
 
-        $overrides = array_replace_recursive([], $overrides, [
-            'curl' => [
-                CURLOPT_SSL_VERIFYPEER => $settings['verify_peer']
-            ],
-            'fopen' => [
-                'ssl' => [
-                    'verify_peer' => $settings['verify_peer'],
-                    'verify_peer_name' => $settings['verify_peer'],
+        if (!$settings['verify_peer']) {
+            $overrides = array_replace_recursive([], $overrides, [
+                'curl' => [
+                    CURLOPT_SSL_VERIFYPEER => $settings['verify_peer']
+                ],
+                'fopen' => [
+                    'ssl' => [
+                        'verify_peer' => $settings['verify_peer'],
+                        'verify_peer_name' => $settings['verify_peer'],
+                    ]
                 ]
-            ]
-        ]);
+            ]);
+        }
 
         // Proxy Setting
         if ($settings['proxy_url']) {
