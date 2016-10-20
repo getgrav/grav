@@ -506,8 +506,7 @@ class Page
             $size = 300;
         }
 
-        $summary = Utils::truncateHTML($content, $size);
-
+        $summary = ((strlen($content) < $size) ? $content : Utils::truncateHTML($content, $size));
         return html_entity_decode($summary);
     }
 
