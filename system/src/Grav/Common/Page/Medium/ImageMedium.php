@@ -276,7 +276,7 @@ class ImageMedium extends Medium
                     }
                 }
 
-                $basename = preg_replace('/(@\d+x)*$/', "@{$index}x", $base->get('basename'), 1);
+                $basename = preg_replace('/(@\d+x){0,1}$/', "@{$width}w", $base->get('basename'), 1);
                 $derivative->setImagePrettyName($basename);
 
                 $ratio = $base->get('width') / $width;
