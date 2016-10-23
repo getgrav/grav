@@ -123,6 +123,18 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
 
     }
 
+    public function testWordwrapFilter() {
+        $teststr = 'Lorem ipsum dolor sit amet, solet recusabo concludaturque eu duo, ei posse error albucius eum. Sit no quas populo accusamus.';
+        $results80 = "Lorem ipsum dolor sit amet, solet recusabo concludaturque eu duo, ei posse error\nalbucius eum. Sit no quas populo accusamus.";
+        $results40 = "Lorem ipsum dolor sit amet, solet\nrecusabo concludaturque eu duo, ei posse\nerror albucius eum. Sit no quas populo\naccusamus.";
+        $results39 = "Lorem ipsum dolor sit amet, solet\nrecusabo concludaturque eu duo, ei\nposse error albucius eum. Sit no quas\npopulo accusamus.";
+        $results10 = "Lorem\nipsum\ndolor sit\namet,\nsolet\nrecusabo\nconcludaturque\neu duo, ei\nposse\nerror\nalbucius\neum. Sit\nno quas\npopulo\naccusamus.";
+        $this->assertSame($results80,   $this->twig_ext->wordwrap($teststr, 80));
+        $this->assertSame($results40,   $this->twig_ext->wordwrap($teststr, 40));
+        $this->assertSame($results39,   $this->twig_ext->wordwrap($teststr, 39));
+        $this->assertSame($results10,   $this->twig_ext->wordwrap($teststr, 10));
+    }
+
     public function testRepeatFunc()
     {
 
