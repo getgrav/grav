@@ -74,16 +74,13 @@ class Media extends Getters
             }
 
             // Create the base medium
-            if (!empty($types['base'])) {
+            if (empty($types['base'])) {
+                $max = max(array_keys($types['alternative']));
+                $medium = $types['alternative'][$max]['file'];
+                $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
+            } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
                 $medium && $medium->set('size', $types['base']['size']);
-            } else if (!empty($types['alternative'])) {
-                $altMedium = reset($types['alternative']);
-                $ratio = key($types['alternative']);
-
-                $altMedium = $altMedium['file'];
-
-                $medium = MediumFactory::scaledFromMedium($altMedium, $ratio, 1)['file'];
             }
 
             if (empty($medium)) {
@@ -103,10 +100,9 @@ class Media extends Getters
             // Build missing alternatives
             if (!empty($types['alternative'])) {
                 $alternatives = $types['alternative'];
-
                 $max = max(array_keys($alternatives));
 
-                for ($i=2; $i < $max; $i++) {
+                for ($i=$max; $i > 1; $i--) {
                     if (isset($alternatives[$i])) {
                         continue;
                     }
@@ -115,7 +111,9 @@ class Media extends Getters
                 }
 
                 foreach ($types['alternative'] as $ratio => $altMedium) {
-                    $medium->addAlternative($ratio, $altMedium['file']);
+                    if ($altMedium['file'] != $medium) {
+                        $medium->addAlternative($ratio, $altMedium['file']);
+                    }
                 }
             }
 

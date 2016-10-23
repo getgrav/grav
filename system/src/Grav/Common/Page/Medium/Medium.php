@@ -100,7 +100,9 @@ class Medium extends Data implements RenderableInterface
         }
 
         $alternative->set('ratio', $ratio);
-        $this->alternatives[(float) $ratio] = $alternative;
+        $width = $alternative->get('width');
+
+        $this->alternatives[$width] = $alternative;
     }
 
     /**
