@@ -823,7 +823,7 @@ class TwigExtension extends \Twig_Extension
     }
     
     /**
-     * Used to retrieve a cookie value
+     * redirect browser from twig
      *
      * @param string $url          the url to redirect to
      * @param string $statusCode   statuscode, default 303
