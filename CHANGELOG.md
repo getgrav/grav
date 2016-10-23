@@ -1,3 +1,11 @@
+# v1.1.7
+## 10/22/2016
+
+1. [](#improved)
+    * Improved the capabilities of Image derivatives [#1107](https://github.com/getgrav/grav/pull/1107)
+1. [](#bugfix)
+    * Only pass verify_peer settings to cURL and fopen if the setting is disabled [#1120](https://github.com/getgrav/grav/issues/1120)
+
 # v1.1.6
 ## 10/19/2016
 

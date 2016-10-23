@@ -66,11 +66,6 @@ class ImageMedium extends Medium
     ];
 
     /**
-     * @var array
-     */
-    protected $derivatives = [];
-
-    /**
      * @var string
      */
     protected $sizes = '100vw';
@@ -197,27 +192,19 @@ class ImageMedium extends Medium
      */
     public function srcset($reset = true)
     {
-        if (empty($this->alternatives) && empty($this->derivatives)) {
+        if (empty($this->alternatives)) {
             if ($reset) {
                 $this->reset();
             }
+
             return '';
         }
 
-        if (!empty($this->derivatives)) {
-            asort($this->derivatives);
-
-            foreach ($this->derivatives as $url => $width) {
-                $srcset[] = $url . ' ' . $width . 'w';
-            }
-
-            $srcset[] = $this->url($reset) . ' ' . $this->get('width') . 'w';
-        } else {
-            $srcset = [$this->url($reset) . ' ' . $this->get('width') . 'w'];
-            foreach ($this->alternatives as $ratio => $medium) {
-                $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
-            }
+        $srcset = [];
+        foreach ($this->alternatives as $ratio => $medium) {
+            $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
         }
+        $srcset[] = $this->url($reset) . ' ' . $this->get('width') . 'w';
 
         return implode(', ', $srcset);
     }
@@ -257,31 +244,53 @@ class ImageMedium extends Medium
      * @return $this
      */
     public function derivatives($min_width, $max_width, $step = 200) {
-      $width = $min_width;
-
-      // Do not upscale images.
-      if ($max_width > $this->get('width')) {
-        $max_width = $this->get('width');
-      }
-
-      while ($width <= $max_width) {
-        $ratio = $width / $this->get('width');
-        $derivative = MediumFactory::scaledFromMedium($this, 1, $ratio);
-        if (is_array($derivative)) {
-          $this->addDerivative($derivative['file']);
+        if (!empty($this->alternatives)) {
+            $max = max(array_keys($this->alternatives));
+            $base = $this->alternatives[$max];
+        } else {
+            $base = $this;
         }
-        $width += $step;
-      }
-      return $this;
-    }
 
-    /**
-     * Add a derivative
-     *
-     * @param  ImageMedium $image
-     */
-    public function addDerivative(ImageMedium $image) {
-      $this->derivatives[$image->url()] = $image->get('width');
+        // Do not upscale images.
+        $max_width = min($max_width, $base->get('width'));
+
+        for ($width = $min_width; $width < $max_width; $width = $width + $step) {
+            // Only generate image alternatives that don't already exist
+            if (array_key_exists((int) $width, $this->alternatives)) {
+                continue;
+            }
+
+            $derivative = MediumFactory::fromFile($base->get('filepath'));
+
+            // It's possible that MediumFactory::fromFile returns null if the
+            // original image file no longer exists and this class instance was
+            // retrieved from the page cache
+            if (isset($derivative)) {
+                $index = 2;
+                $widths = array_keys($this->alternatives);
+                sort($widths);
+
+                foreach ($widths as $i => $key) {
+                    if ($width > $key) {
+                        $index += max($i, 1);
+                    }
+                }
+
+                $basename = preg_replace('/(@\d+x){0,1}$/', "@{$width}w", $base->get('basename'), 1);
+                $derivative->setImagePrettyName($basename);
+
+                $ratio = $base->get('width') / $width;
+                $height = $derivative->get('height') / $ratio;
+
+                $derivative->resize($width, $height);
+                $derivative->set('width', $width);
+                $derivative->set('height', $height);
+
+                $this->addAlternative($ratio, $derivative);
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -489,6 +498,10 @@ class ImageMedium extends Medium
             call_user_func_array([$this->image, $method], $args);
 
             foreach ($this->alternatives as $ratio => $medium) {
+                if (!$medium->image) {
+                    $medium->image();
+                }
+
                 $args_copy = $args;
 
                 // regular image: resize 400x400 -> 200x200

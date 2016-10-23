@@ -95,7 +95,10 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('![](missing-image.jpg)'));
         $this->assertSame('<p><img src="/home-missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](/home-missing-image.jpg)'));
-
+        $this->assertSame('<p><img src="/home-missing-image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](/home-missing-image.jpg)'));
+        $this->assertSame('<p><img src="https://getgrav-grav.netdna-ssl.com/user/pages/media/grav-logo.svg" alt="" /></p>',
+            $this->parsedown->text('![](https://getgrav-grav.netdna-ssl.com/user/pages/media/grav-logo.svg)'));
 
    }
 
