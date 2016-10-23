@@ -1,3 +1,9 @@
+# v1.1.8
+## 10/22/2016
+
+1. [](#bugfix)
+    * Fixed warning with unset `ssl` option when using GPM [#1132](https://github.com/getgrav/grav/issues/1132)
+
 # v1.1.7
 ## 10/22/2016
 
