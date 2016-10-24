@@ -79,7 +79,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFilter('safe_email', [$this, 'safeEmailFilter']),
             new \Twig_SimpleFilter('safe_truncate', ['\Grav\Common\Utils', 'safeTruncate']),
-            new \Twig_SimpleFilter('wordwrap', 'wordwrap'),
+            new \Twig_SimpleFilter('wordwrap', ['\Grav\Common\Utils', 'wordwrap']),
             new \Twig_SimpleFilter('safe_truncate_html', ['\Grav\Common\Utils', 'safeTruncateHTML']),
             new \Twig_SimpleFilter('sort_by_key', [$this, 'sortByKeyFilter']),
             new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
