@@ -116,14 +116,15 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testWordwrap() {
         $teststr = 'Lorem ipsum dolor sit amet, solet recusabo concludaturque eu duo, ei posse error albucius eum. Sit no quas populo accusamus.';
-        $mb_teststr = 'Лорем ипсум долор сит амет, цум еа иллуд платонем инцидеринт, еу хис феугиат сцаевола! Фацилис диссентиет яуо еи, еум ет.';
         $r80 = "Lorem ipsum dolor sit amet, solet recusabo concludaturque eu duo, ei posse error\nalbucius eum. Sit no quas populo accusamus.";
-        $mb_r80 = "Лорем ипсум долор сит амет, цум еа иллуд платонем инцидеринт, еу хис феугиат\nсцаевола! Фацилис диссентиет яуо еи, еум ет.";
         $r40 = "Lorem ipsum dolor sit amet, solet\nrecusabo concludaturque eu duo, ei posse\nerror albucius eum. Sit no quas populo\naccusamus.";
-        $mb_r40 = "Лорем ипсум долор сит амет, цум еа иллуд\nплатонем инцидеринт, еу хис феугиат\nсцаевола! Фацилис диссентиет яуо еи, еум\nет.";
         $r39 = "Lorem ipsum dolor sit amet, solet\nrecusabo concludaturque eu duo, ei\nposse error albucius eum. Sit no quas\npopulo accusamus.";
-        $mb_r39 = "Лорем ипсум долор сит амет, цум еа\nиллуд платонем инцидеринт, еу хис\nфеугиат сцаевола! Фацилис диссентиет\nяуо еи, еум ет.";
         $r10 = "Lorem\nipsum\ndolor sit\namet,\nsolet\nrecusabo\nconcludaturque\neu duo, ei\nposse\nerror\nalbucius\neum. Sit\nno quas\npopulo\naccusamus.";
+
+        $mb_teststr = 'Лорем ипсум долор сит амет, цум еа иллуд платонем инцидеринт, еу хис феугиат сцаевола! Фацилис диссентиет яуо еи, еум ет.';
+        $mb_r80 = "Лорем ипсум долор сит амет, цум еа иллуд платонем инцидеринт, еу хис феугиат\nсцаевола! Фацилис диссентиет яуо еи, еум ет.";
+        $mb_r40 = "Лорем ипсум долор сит амет, цум еа иллуд\nплатонем инцидеринт, еу хис феугиат\nсцаевола! Фацилис диссентиет яуо еи, еум\nет.";
+        $mb_r39 = "Лорем ипсум долор сит амет, цум еа\nиллуд платонем инцидеринт, еу хис\nфеугиат сцаевола! Фацилис диссентиет\nяуо еи, еум ет.";
         $mb_r10 = "Лорем\nипсум\nдолор сит\nамет, цум\nеа иллуд\nплатонем\nинцидеринт,\nеу хис\nфеугиат\nсцаевола!\nФацилис\nдиссентиет\nяуо еи,\nеум ет.";
 
         $this->assertEquals($r80, Utils::wordwrap($teststr, 80));
