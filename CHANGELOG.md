@@ -1,3 +1,9 @@
+# v1.1.9
+## xx/xx/2016
+
+1. [](#bugfix)
+    * Fixed an issue with site redirects/routes, not processing with extension (.html, .json, etc.)
+
 # v1.1.8
 ## 10/22/2016
 
