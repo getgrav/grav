@@ -507,7 +507,7 @@ class Page
         }
 
         $summary = Utils::truncateHTML($content, $size);
-
+		
         return html_entity_decode($summary);
     }
 
