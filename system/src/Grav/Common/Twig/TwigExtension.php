@@ -115,6 +115,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFunction('get_cookie', [$this, 'getCookie']),
+            new \Twig_SimpleFunction('redirect_me', [$this, 'redirectFunc']),
         ];
     }
 
@@ -819,5 +820,19 @@ class TwigExtension extends \Twig_Extension
     public function regexReplace($subject, $pattern, $replace, $limit = -1)
     {
         return preg_replace($pattern, $replace, $subject, $limit);
+    }
+    
+    /**
+     * redirect browser from twig
+     *
+     * @param string $url          the url to redirect to
+     * @param string $statusCode   statuscode, default 303
+     *
+     * @return none
+     */
+    public function redirectFunc($url, $statusCode = 303)
+    {
+        header('Location: ' . $url, true, $statusCode);
+        die();
     }
 }

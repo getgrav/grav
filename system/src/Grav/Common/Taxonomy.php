@@ -126,4 +126,20 @@ class Taxonomy
 
         return $this->taxonomy_map;
     }
+    
+    /**
+     * Gets item keys per taxonomy
+     *
+     * @param  string $taxonomy       taxonomy name
+     *
+     * @return array                  keys of this taxonomy
+     */
+    public function getTaxonomyItemKeys($taxonomy) {
+        if (isset($this->taxonomy_map[$taxonomy])) {
+
+            $results = array_keys($this->taxonomy_map[$taxonomy]);
+
+            return $results;
+        }
+    }
 }
