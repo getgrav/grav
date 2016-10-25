@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed an issue with site redirects/routes, not processing with extension (.html, .json, etc.)
+    * Don't truncate HTML if content length is less than summary size [#1125](https://github.com/getgrav/grav/issues/1125)
 
 # v1.1.8
 ## 10/22/2016
