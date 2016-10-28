@@ -1,6 +1,8 @@
 # v1.1.9
 ## xx/xx/2016
 
+1. [](#new)
+    * Added a `CompiledJsonFile` object to better handle Json files.
 1. [](#improved)
     * Added `getTaxonomyItemKeys` to the Taxonomy object [#1124](https://github.com/getgrav/grav/issues/1124)
     * Added a `redirect_me` Twig function [#1124](https://github.com/getgrav/grav/issues/1124)
