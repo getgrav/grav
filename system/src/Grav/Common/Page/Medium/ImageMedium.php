@@ -497,7 +497,7 @@ class ImageMedium extends Medium
         try {
             call_user_func_array([$this->image, $method], $args);
 
-            foreach ($this->alternatives as $ratio => $medium) {
+            foreach ($this->alternatives as $medium) {
                 if (!$medium->image) {
                     $medium->image();
                 }
@@ -509,7 +509,7 @@ class ImageMedium extends Medium
                 if (isset(self::$magic_resize_actions[$method])) {
                     foreach (self::$magic_resize_actions[$method] as $param) {
                         if (isset($args_copy[$param])) {
-                            $args_copy[$param] = (int) $args_copy[$param] * $ratio;
+                            $args_copy[$param] *= $medium->get('ratio');
                         }
                     }
                 }
