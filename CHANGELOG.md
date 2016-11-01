@@ -11,6 +11,7 @@
     * Fixed an issue with site redirects/routes, not processing with extension (.html, .json, etc.)
     * Don't truncate HTML if content length is less than summary size [#1125](https://github.com/getgrav/grav/issues/1125)
     * Return max available number when calling random() on a collection passing an int > available items [#1135](https://github.com/getgrav/grav/issues/1135)
+    * Use correct ratio when applying image filters to image alternatives [#1147](https://github.com/getgrav/grav/issues/1147)
 
 # v1.1.8
 ## 10/22/2016
