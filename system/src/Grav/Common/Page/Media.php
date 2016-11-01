@@ -110,8 +110,9 @@ class Media extends Getters
                     $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
                 }
 
-                foreach ($types['alternative'] as $ratio => $altMedium) {
+                foreach ($types['alternative'] as $altMedium) {
                     if ($altMedium['file'] != $medium) {
+                        $ratio = $altMedium['file']->get('width') / $medium->get('width');
                         $medium->addAlternative($ratio, $altMedium['file']);
                     }
                 }
