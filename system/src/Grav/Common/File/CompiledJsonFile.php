@@ -14,19 +14,15 @@ class CompiledJsonFile extends JsonFile
 {
     use CompiledFile;
 
-    public function content($var = null, $assoc = false)
+    /**
+     * Decode RAW string into contents.
+     *
+     * @param string $var
+     * @param bool $assoc
+     * @return array mixed
+     */
+    protected function decode($var, $assoc = true)
     {
-        if ($var !== null) {
-            $this->content = $this->check($var);
-
-            // Update RAW, too.
-            $this->raw = $this->encode($this->content);
-
-        } elseif ($this->content === null) {
-            // Decode RAW file.
-            $this->content = $this->decode($this->raw(), $assoc);
-        }
-
-        return $this->content;
+        return (array) json_decode($var, $assoc);
     }
 }
