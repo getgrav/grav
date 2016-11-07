@@ -31,3 +31,4 @@
 * Rebuild with admin 1.2.2
 * Rebuild for update package
 * Rebuild for problems update
+* Rebuild for Deliver skeleton update
