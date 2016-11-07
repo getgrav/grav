@@ -12,6 +12,7 @@
     * Don't truncate HTML if content length is less than summary size [#1125](https://github.com/getgrav/grav/issues/1125)
     * Return max available number when calling random() on a collection passing an int > available items [#1135](https://github.com/getgrav/grav/issues/1135)
     * Use correct ratio when applying image filters to image alternatives [#1147](https://github.com/getgrav/grav/issues/1147)
+    * Fixed URI path in multi-site when query parameters were used in front page 
 
 # v1.1.8
 ## 10/22/2016
