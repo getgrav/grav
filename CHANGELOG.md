@@ -4,6 +4,7 @@
 1. [](#new)
     * Added a `CompiledJsonFile` object to better handle Json files.
     * Added Base32 encode/decode class
+    * Added a new `User::find()` method
 1. [](#improved)
     * Added `getTaxonomyItemKeys` to the Taxonomy object [#1124](https://github.com/getgrav/grav/issues/1124)
     * Added a `redirect_me` Twig function [#1124](https://github.com/getgrav/grav/issues/1124)
