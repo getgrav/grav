@@ -1,5 +1,5 @@
-# v1.1.9
-## xx/xx/2016
+# v1.1.9-rc.1
+## 11/09/2016
 
 1. [](#new)
     * Added a `CompiledJsonFile` object to better handle Json files.
