@@ -84,7 +84,6 @@ class Collection extends Iterator
     public function setParams(array $params)
     {
         $this->params = array_merge($this->params, $params);
-
         return $this;
     }
 
@@ -172,12 +171,13 @@ class Collection extends Iterator
      * @param string $by
      * @param string $dir
      * @param array  $manual
+     * @param string $sort_flags
      *
      * @return $this
      */
-    public function order($by, $dir = 'asc', $manual = null)
+    public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
     {
-        $this->items = $this->pages->sortCollection($this, $by, $dir, $manual);
+        $this->items = $this->pages->sortCollection($this, $by, $dir, $manual, $sort_flags);
 
         return $this;
     }

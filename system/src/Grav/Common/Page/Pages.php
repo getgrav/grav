@@ -21,6 +21,7 @@ use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
+use Collator as Collator;
 
 class Pages
 {
@@ -197,7 +198,7 @@ class Pages
      *
      * @return array
      */
-    public function sort(Page $page, $order_by = null, $order_dir = null)
+    public function sort(Page $page, $order_by = null, $order_dir = null, $sort_flags = null)
     {
         if ($order_by === null) {
             $order_by = $page->orderBy();
@@ -214,7 +215,7 @@ class Pages
         }
 
         if (!isset($this->sort[$path][$order_by])) {
-            $this->buildSort($path, $children, $order_by, $page->orderManual());
+            $this->buildSort($path, $children, $order_by, $page->orderManual(), $sort_flags);
         }
 
         $sort = $this->sort[$path][$order_by];
@@ -235,7 +236,7 @@ class Pages
      * @return array
      * @internal
      */
-    public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null)
+    public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null, $sort_flags = null)
     {
         $items = $collection->toArray();
         if (!$items) {
@@ -244,7 +245,7 @@ class Pages
 
         $lookup = md5(json_encode($items) . json_encode($orderManual) . $orderBy . $orderDir);
         if (!isset($this->sort[$lookup][$orderBy])) {
-            $this->buildSort($lookup, $items, $orderBy, $orderManual);
+            $this->buildSort($lookup, $items, $orderBy, $orderManual, $sort_flags);
         }
 
         $sort = $this->sort[$lookup][$orderBy];
@@ -1023,12 +1024,11 @@ class Pages
      * @throws \RuntimeException
      * @internal
      */
-    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null)
+    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null, $sort_flags = null)
     {
         $list = [];
         $header_default = null;
         $header_query = null;
-        $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
@@ -1070,14 +1070,18 @@ class Pages
                     } else {
                         $list[$key] = $header_default ?: $key;
                     }
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = $sort_flags ?: SORT_REGULAR;
                     break;
                 case 'manual':
                 case 'default':
                 default:
                     $list[$key] = $key;
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = $sort_flags ?: SORT_REGULAR;
             }
+        }
+
+        if (!$sort_flags) {
+            $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
         }
 
         // handle special case when order_by is random
@@ -1087,7 +1091,7 @@ class Pages
             // else just sort the list according to specified key
             if (extension_loaded('intl')) {
                 $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set
-                $col = \Collator::create($locale);
+                $col = Collator::create($locale);
                 if ($col) {
                     $col->asort($list, $sort_flags);
                 } else {

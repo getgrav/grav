@@ -2291,7 +2291,14 @@ class Page
             $by = isset($params['order']['by']) ? $params['order']['by'] : 'default';
             $dir = isset($params['order']['dir']) ? $params['order']['dir'] : 'asc';
             $custom = isset($params['order']['custom']) ? $params['order']['custom'] : null;
-            $collection->order($by, $dir, $custom);
+            $sort_flags = isset($params['order']['sort_flags']) ? $params['order']['sort_flags'] : null;
+
+            if (is_array($sort_flags)) {
+                $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
+                $sort_flags = array_reduce($sort_flags, function($a, $b) { return $a | $b; }, 0); //merge constant values using bit or
+            }
+
+            $collection->order($by, $dir, $custom, $sort_flags);
         }
 
         /** @var Grav $grav */
