@@ -532,7 +532,9 @@ class ImageMedium extends Medium
         $locator = Grav::instance()['locator'];
 
         $file = $this->get('filepath');
-        $cacheDir = $locator->findResource('cache://images', true);
+
+        // Use existing cache folder or if it doesn't exist, create it.
+        $cacheDir = $locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true);
 
         $this->image = ImageFile::open($file)
             ->setCacheDir($cacheDir)
