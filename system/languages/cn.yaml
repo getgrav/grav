@@ -1,0 +1,43 @@
+NICETIME:
+    NO_DATE_PROVIDED: 没有提供日期
+    BAD_DATE: 日期错误
+    AGO: 之前
+    FROM_NOW: 距现在
+    SECOND: 秒
+    MINUTE: 分钟
+    HOUR: 小时时
+    DAY: 天
+    WEEK: 星期
+    MONTH: 月
+    YEAR: 年
+    DECADE: 十年
+    SEC: 秒
+    MIN: 分
+    HR: 时
+    DAY: 天
+    WK: 周
+    MO: 月
+    YR: 年
+    DEC: 十年
+    SECOND_PLURAL: 次
+    MINUTE_PLURAL: 分
+    HOUR_PLURAL: 时
+    DAY_PLURAL: 天
+    WEEK_PLURAL: 周
+    MONTH_PLURAL: 月
+    YEAR_PLURAL: 年
+    DECADE_PLURAL: 十年
+    SEC_PLURAL: 秒
+    MIN_PLURAL: 分
+    HR_PLURAL: 时
+    DAY_PLURAL: 天
+    WK_PLURAL: 周
+    MO_PLURAL: 月
+    YR_PLURAL: 年
+    DEC_PLURAL: 十年
+FORM:
+    VALIDATION_FAIL: <b>验证失败：</b>
+    INVALID_INPUT: 非法输入
+    MISSING_REQUIRED_FIELD: 缺少必填字段
+MONTHS_OF_THE_YEAR: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+DAYS_OF_THE_WEEK: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
