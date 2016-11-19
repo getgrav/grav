@@ -10,12 +10,13 @@
     * Added `getTaxonomyItemKeys` to the Taxonomy object [#1124](https://github.com/getgrav/grav/issues/1124)
     * Added a `redirect_me` Twig function [#1124](https://github.com/getgrav/grav/issues/1124)
     * Added a Caddyfile for newer Caddy versions [#1115](https://github.com/getgrav/grav/issues/1115)
+    * Allow to override sorting flags for page header-based or default ordering. If the `intl` PHP extension is loaded, only these flags are available: https://secure.php.net/manual/en/collator.asort.php. Otherwise, you can use the PHP standard sorting flags (https://secure.php.net/manual/en/array.constants.php) [#1169](https://github.com/getgrav/grav/issues/1169)
 1. [](#bugfix)
     * Fixed an issue with site redirects/routes, not processing with extension (.html, .json, etc.)
     * Don't truncate HTML if content length is less than summary size [#1125](https://github.com/getgrav/grav/issues/1125)
     * Return max available number when calling random() on a collection passing an int > available items [#1135](https://github.com/getgrav/grav/issues/1135)
     * Use correct ratio when applying image filters to image alternatives [#1147](https://github.com/getgrav/grav/issues/1147)
-    * Fixed URI path in multi-site when query parameters were used in front page 
+    * Fixed URI path in multi-site when query parameters were used in front page
 
 # v1.1.8
 ## 10/22/2016
