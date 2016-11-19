@@ -2269,6 +2269,7 @@ class Page
                             continue;
                         }
                         foreach ($items as $item) {
+                            $item = rawurldecode($item);
                             if (empty($page->taxonomy[$taxonomy]) || !in_array(htmlspecialchars_decode($item,
                                     ENT_QUOTES), $page->taxonomy[$taxonomy])
                             ) {
