@@ -1,3 +1,12 @@
+# v1.1.x
+## 11/xx/2016
+
+1. [](#improved)
+    * Multisite: Create image cache folder if it doesn't exist
+    * Add 2 new language values for French [#1174](https://github.com/getgrav/grav/issues/1174)
+1. [](#bugfix)
+    * Fixed issue when we have a meta file without corresponding media [#1179](https://github.com/getgrav/grav/issues/1179)
+
 # v1.1.9-rc.1
 ## 11/09/2016
 

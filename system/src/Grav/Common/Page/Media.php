@@ -75,6 +75,9 @@ class Media extends Getters
 
             // Create the base medium
             if (empty($types['base'])) {
+                if (!isset($types['alternative'])) {
+                    continue;
+                }
                 $max = max(array_keys($types['alternative']));
                 $medium = $types['alternative'][$max]['file'];
                 $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
