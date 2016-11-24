@@ -25,7 +25,7 @@ form:
       label: PLUGIN_ADMIN.PARENT_PAGE
       classes: fancy
       data-options@: '\Grav\Common\Page\Pages::parentsRawRoutes'
-      data-default@: '\Grav\Plugin\admin::getLastPageRoute'
+      data-default@: '\Grav\Plugin\Admin\Admin::getLastPageRoute'
       options:
         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
       validate:

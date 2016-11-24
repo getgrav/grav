@@ -1,4 +1,4 @@
-title: Site
+title: Account
 form:
     validation: loose
 
@@ -56,7 +56,7 @@ form:
                 label: PLUGIN_ADMIN.LANGUAGE
                 size: medium
                 classes: fancy
-                data-options@: '\Grav\Plugin\admin::adminLanguages'
+                data-options@: '\Grav\Plugin\Admin\Admin::adminLanguages'
                 default: 'en'
                 help: PLUGIN_ADMIN.LANGUAGE_HELP
 
