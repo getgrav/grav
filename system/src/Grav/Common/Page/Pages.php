@@ -1056,6 +1056,14 @@ class Pages
                     $list[$key] = $child->modified();
                     $sort_flags = SORT_REGULAR;
                     break;
+                case 'publish_date':
+                    $list[$key] = $child->publish_date();
+                    $sort_flags = SORT_REGULAR;
+                    break;
+                case 'unpublish_date':
+                    $list[$key] = $child->unpublish_date();
+                    $sort_flags = SORT_REGULAR;
+                    break;
                 case 'slug':
                     $list[$key] = $child->slug();
                     break;

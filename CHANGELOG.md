@@ -1,6 +1,8 @@
 # v1.1.x
 ## 11/xx/2016
 
+1. [](#new)
+    * Added two new sort order options for pages: `publish_date` and `unpublish_date`
 1. [](#improved)
     * Multisite: Create image cache folder if it doesn't exist
     * Add 2 new language values for French [#1174](https://github.com/getgrav/grav/issues/1174)
