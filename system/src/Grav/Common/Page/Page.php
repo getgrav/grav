@@ -1980,7 +1980,9 @@ class Page
         if ($var !== null) {
             $this->modular_twig = (bool)$var;
             if ($var) {
-                $this->process['twig'] = true;
+                if (!isset(self::getGrav()['admin'])) {
+                    $this->process['twig'] = true;
+                }
                 $this->visible(false);
                 // some routable logic
                 if (empty($this->header->routable)) {
