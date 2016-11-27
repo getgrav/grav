@@ -1,5 +1,5 @@
-# v1.1.x
-## 11/xx/2016
+# v1.1.9-rc.2
+## 11/26/2016
 
 1. [](#new)
     * Added two new sort order options for pages: `publish_date` and `unpublish_date`
