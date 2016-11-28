@@ -1,9 +1,11 @@
 # v1.1.9-rc.X
 ## 11/xx/2016
 
+1. [](#new)
+    * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
+    * Use new `permissions` field in user account
 1. [](#improved)
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
-    * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
 
 # v1.1.9-rc.2
 ## 11/26/2016
