@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
+    * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
 
 # v1.1.9-rc.2
 ## 11/26/2016
