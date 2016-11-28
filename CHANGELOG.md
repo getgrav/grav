@@ -1,3 +1,9 @@
+# v1.1.9-rc.X
+## 11/xx/2016
+
+1. [](#improved)
+    * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
+
 # v1.1.9-rc.2
 ## 11/26/2016
 

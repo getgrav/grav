@@ -59,7 +59,7 @@ class SelfupgradeCommand extends ConsoleCommand
     {
         $this
             ->setName("self-upgrade")
-            ->setAliases(['selfupgrade'])
+            ->setAliases(['selfupgrade', 'selfupdate'])
             ->addOption(
                 'force',
                 'f',
