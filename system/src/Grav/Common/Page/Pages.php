@@ -1057,11 +1057,11 @@ class Pages
                     $sort_flags = SORT_REGULAR;
                     break;
                 case 'publish_date':
-                    $list[$key] = $child->publish_date();
+                    $list[$key] = $child->publishDate();
                     $sort_flags = SORT_REGULAR;
                     break;
                 case 'unpublish_date':
-                    $list[$key] = $child->unpublish_date();
+                    $list[$key] = $child->unpublishDate();
                     $sort_flags = SORT_REGULAR;
                     break;
                 case 'slug':
