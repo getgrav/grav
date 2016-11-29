@@ -6,6 +6,7 @@
     * Use new `permissions` field in user account
 1. [](#improved)
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
+    * Synced `webserver-configs/htaccess.txt` with `.htaccess`
 
 # v1.1.9-rc.2
 ## 11/26/2016
