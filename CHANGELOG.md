@@ -4,6 +4,7 @@
 1. [](#new)
     * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
     * Use new `permissions` field in user account
+    * Add `range(int min, int max, int step)` twig function to generate an array of numbers between min and max, inclusive
 1. [](#improved)
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
     * Synced `webserver-configs/htaccess.txt` with `.htaccess`

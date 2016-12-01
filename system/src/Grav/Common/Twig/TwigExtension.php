@@ -116,6 +116,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFunction('get_cookie', [$this, 'getCookie']),
             new \Twig_SimpleFunction('redirect_me', [$this, 'redirectFunc']),
+            new \Twig_SimpleFunction('range', [$this, 'rangeFunc']),
         ];
     }
 
@@ -821,18 +822,30 @@ class TwigExtension extends \Twig_Extension
     {
         return preg_replace($pattern, $replace, $subject, $limit);
     }
-    
+
     /**
      * redirect browser from twig
      *
      * @param string $url          the url to redirect to
-     * @param string $statusCode   statuscode, default 303
-     *
-     * @return none
+     * @param int $statusCode      statusCode, default 303
      */
     public function redirectFunc($url, $statusCode = 303)
     {
         header('Location: ' . $url, true, $statusCode);
         die();
+    }
+
+    /**
+     * Generates an array containing a range of elements, optionally stepped
+     *
+     * @param int $start      Minimum number, default 0
+     * @param int $end        Maximum number, default `getrandmax()`
+     * @param int $step       Increment between elements in the sequence, default 1
+     *
+     * @return array
+     */
+    public function rangeFunc($start = 0, $end = 100, $step = 1)
+    {
+        return range($start, $end, $step);
     }
 }
