@@ -5,15 +5,18 @@
     * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
     * Use new `permissions` field in user account
     * Add `range(int start, int end, int step)` twig function to generate an array of numbers between start and end, inclusive
+    * New retina Media image derivatives array support (`![](image.jpg?derivatives=[640,1024,1440]`) [#1147](https://github.com/getgrav/grav/pull/1147)
 1. [](#improved)
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
     * Synced `webserver-configs/htaccess.txt` with `.htaccess`
+ 1. [](#bugfix)
+    * Fix page collections problem with `@page.modular` [#1178](https://github.com/getgrav/grav/pull/1178)
 
 # v1.1.9-rc.2
 ## 11/26/2016
 
 1. [](#new)
-    * Added two new sort order options for pages: `publish_date` and `unpublish_date`
+    * Added two new sort order options for pages: `publish_date` and `unpublish_date` [#1173](https://github.com/getgrav/grav/pull/1173))
 1. [](#improved)
     * Multisite: Create image cache folder if it doesn't exist
     * Add 2 new language values for French [#1174](https://github.com/getgrav/grav/issues/1174)
