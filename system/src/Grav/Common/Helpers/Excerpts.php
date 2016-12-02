@@ -282,8 +282,15 @@ class Excerpts
 
         // loop through actions for the image and call them
         foreach ($actions as $action) {
-            $medium = call_user_func_array([$medium, $action['method']],
-                explode(',', $action['params']));
+            $matches = [];
+
+            if (preg_match('/\[(.*)\]/', $action['params'], $matches)) {
+                $args = [explode(',', $matches[1])];
+            } else {
+                $args = explode(',', $action['params']);
+            }
+
+            $medium = call_user_func_array([$medium, $action['method']], $args);
         }
 
         if (isset($url_parts['fragment'])) {

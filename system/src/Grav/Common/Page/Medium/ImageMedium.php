@@ -236,14 +236,16 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Generate derivatives
+     * Generate alternative image widths, using either an array of integers, or
+     * a min width, a max width, and a step parameter to fill out the necessary
+     * widths. Existing image alternatives won't be overwritten.
      *
-     * @param  int $min_width
-     * @param  int $max_width
-     * @param  int $step
+     * @param  int|int[] $min_width
+     * @param  int       [$max_width=2500]
+     * @param  int       [$step=200]
      * @return $this
      */
-    public function derivatives($min_width, $max_width, $step = 200) {
+    public function derivatives($min_width, $max_width = 2500, $step = 200) {
         if (!empty($this->alternatives)) {
             $max = max(array_keys($this->alternatives));
             $base = $this->alternatives[$max];
@@ -251,10 +253,23 @@ class ImageMedium extends Medium
             $base = $this;
         }
 
-        // Do not upscale images.
-        $max_width = min($max_width, $base->get('width'));
+        $widths = [];
 
-        for ($width = $min_width; $width < $max_width; $width = $width + $step) {
+        if (func_num_args() === 1) {
+            foreach ((array) func_get_arg(0) as $width) {
+                if ($width < $base->get('width')) {
+                    $widths[] = $width;
+                }
+            }
+        } else {
+            $max_width = min($max_width, $base->get('width'));
+
+            for ($width = $min_width; $width < $max_width; $width = $width + $step) {
+                $widths[] = $width;
+            }
+        }
+
+        foreach ($widths as $width) {
             // Only generate image alternatives that don't already exist
             if (array_key_exists((int) $width, $this->alternatives)) {
                 continue;
@@ -267,10 +282,10 @@ class ImageMedium extends Medium
             // retrieved from the page cache
             if (isset($derivative)) {
                 $index = 2;
-                $widths = array_keys($this->alternatives);
-                sort($widths);
+                $alt_widths = array_keys($this->alternatives);
+                sort($alt_widths);
 
-                foreach ($widths as $i => $key) {
+                foreach ($alt_widths as $i => $key) {
                     if ($width > $key) {
                         $index += max($i, 1);
                     }
