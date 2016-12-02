@@ -507,7 +507,7 @@ class Page
         }
 
         $summary = Utils::truncateHTML($content, $size);
-		
+
         return html_entity_decode($summary);
     }
 
@@ -2419,7 +2419,10 @@ class Page
                     switch ($parts[0]) {
                         case 'modular':
                             $results = new Collection();
-                            $results = $results->addPage($page)->Modular();
+                            foreach ($page->children() as $child) {
+                              $results = $results->addPage($child);
+                            }
+                            $results->modular();
                             break;
                         case 'page':
                         case 'self':
