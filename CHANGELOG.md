@@ -5,7 +5,9 @@
     * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
     * Use new `permissions` field in user account
     * Add `range(int start, int end, int step)` twig function to generate an array of numbers between start and end, inclusive
-    * New retina Media image derivatives array support (`![](image.jpg?derivatives=[640,1024,1440]`) [#1147](https://github.com/getgrav/grav/pull/1147)
+    * New retina Media image derivatives array support (`![](image.jpg?derivatives=[640,1024,1440])`) [#1147](https://github.com/getgrav/grav/pull/1147)
+    * Added stream support for images (`![Sepia Image](image://image.jpg?sepia)`)
+    * Added stream support for links (`[Download PDF](user://data/pdf/my.pdf)`)
 1. [](#improved)
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
     * Synced `webserver-configs/htaccess.txt` with `.htaccess`

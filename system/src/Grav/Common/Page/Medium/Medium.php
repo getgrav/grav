@@ -150,8 +150,8 @@ class Medium extends Data implements RenderableInterface
     /**
      * Get/set querystring for the file's url
      *
-     * @param  string  $hash
-     * @param  boolean $withHash
+     * @param  string  $querystring
+     * @param  boolean $withQuestionmark
      * @return string
      */
     public function querystring($querystring = null, $withQuestionmark = true)
