@@ -8,11 +8,13 @@
     * New retina Media image derivatives array support (`![](image.jpg?derivatives=[640,1024,1440])`) [#1147](https://github.com/getgrav/grav/pull/1147)
     * Added stream support for images (`![Sepia Image](image://image.jpg?sepia)`)
     * Added stream support for links (`[Download PDF](user://data/pdf/my.pdf)`)
+    * Added new `onBeforeCacheClear` event to add custom paths to cache clearing process
 1. [](#improved)
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
     * Synced `webserver-configs/htaccess.txt` with `.htaccess`
     * Use permissions field in group details.
     * Updated vendor libraries
+    * Added a warning on GPM update to update Grav first if needed [#1194](https://github.com/getgrav/grav/pull/1194)
  1. [](#bugfix)
     * Fix page collections problem with `@page.modular` [#1178](https://github.com/getgrav/grav/pull/1178)
     * Fix issue with using a multiple taxonomy filter of which one had no results, thanks to @hughbris [#1184](https://github.com/getgrav/grav/issues/1184)

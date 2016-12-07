@@ -11,7 +11,7 @@ namespace Grav\Common;
 use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
-use Grav\Common\Grav;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
@@ -356,6 +356,8 @@ class Cache extends Getters
                 $remove_paths = self::$standard_remove;
         }
 
+        // Clearing cache event to add paths to clear
+        Grav::instance()->fireEvent('onBeforeCacheClear', new Event(['paths' => &$remove_paths]));
 
         foreach ($remove_paths as $stream) {
 
