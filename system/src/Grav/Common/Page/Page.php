@@ -902,6 +902,8 @@ class Page
             $this->route(Grav::instance()['pages']->root()->route() . '/' . $this->slug());
         }
 
+        $this->raw_route = null;
+
         return $this;
     }
 

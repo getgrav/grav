@@ -17,6 +17,7 @@
     * Fix page collections problem with `@page.modular` [#1178](https://github.com/getgrav/grav/pull/1178)
     * Fix issue with using a multiple taxonomy filter of which one had no results, thanks to @hughbris [#1184](https://github.com/getgrav/grav/issues/1184)
     * Fix saving permissions in group
+    * Fixed issue with redirect of a page getting moved to a different location
 
 # v1.1.9-rc.2
 ## 11/26/2016
