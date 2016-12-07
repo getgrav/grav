@@ -12,6 +12,7 @@
     * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
     * Synced `webserver-configs/htaccess.txt` with `.htaccess`
     * Use permissions field in group details.
+    * Updated vendor libraries
  1. [](#bugfix)
     * Fix page collections problem with `@page.modular` [#1178](https://github.com/getgrav/grav/pull/1178)
     * Fix issue with using a multiple taxonomy filter of which one had no results, thanks to @hughbris [#1184](https://github.com/getgrav/grav/issues/1184)
