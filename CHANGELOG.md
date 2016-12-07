@@ -1,5 +1,5 @@
-# v1.1.9-rc.X
-## 11/xx/2016
+# v1.1.9-rc.3
+## 12/07/2016
 
 1. [](#new)
     * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
