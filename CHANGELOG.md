@@ -5,6 +5,7 @@
     * Better error handling in cache clear
 1. [](#bugfix)
     * Added new parameter `remove` for `onBeforeCacheClear` event
+    * YAML syntax fixes
  
 # v1.1.9-rc.3
 ## 12/07/2016
