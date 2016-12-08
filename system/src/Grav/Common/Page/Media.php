@@ -11,14 +11,13 @@ namespace Grav\Common\Page;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Media extends AbstractMedia
 {
     protected static $global;
 
     protected $path;
-    
+
     /**
      * @param $path
      */

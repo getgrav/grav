@@ -9,7 +9,6 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Getters;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class AbstractMedia extends Getters
 {
