@@ -33,11 +33,12 @@ class Base32 {
     public static function encode( $bytes ) {
         $i = 0; $index = 0; $digit = 0;
         $base32 = "";
-        while( $i < strlen($bytes) ) {
+        $bytes_len = strlen($bytes);
+        while( $i < $bytes_len ) {
             $currByte = ord($bytes{$i});
             /* Is the current digit going to span a byte boundary? */
             if( $index > 3 ) {
-                if( ($i + 1) < strlen($bytes) ) {
+                if( ($i + 1) < $bytes_len ) {
                     $nextByte = ord($bytes{$i+1});
                 } else {
                     $nextByte = 0;
@@ -65,10 +66,11 @@ class Base32 {
      */
     public static function decode( $base32 ) {
         $bytes = array();
-        for( $i=strlen($base32)*5/8-1; $i>=0; --$i ) {
+        $base32_len = strlen($base32);
+        for( $i=$base32_len*5/8-1; $i>=0; --$i ) {
             $bytes[] = 0;
         }
-        for( $i = 0, $index = 0, $offset = 0; $i < strlen($base32); $i++ ) {
+        for( $i = 0, $index = 0, $offset = 0; $i < $base32_len; $i++ ) {
             $lookup = ord($base32{$i}) - ord('0');
             /* Skip chars outside the lookup table */
             if( $lookup < 0 || $lookup >= count(self::$base32Lookup) ) {
