@@ -6,7 +6,8 @@
 1. [](#bugfix)
     * Added new parameter `remove` for `onBeforeCacheClear` event
     * YAML syntax fixes
- 
+    * Added checks before accessing admin reference during `Page::blueprints()` call. Allows to access `page.blueprints` from Twig in the frontend
+
 # v1.1.9-rc.3
 ## 12/07/2016
 

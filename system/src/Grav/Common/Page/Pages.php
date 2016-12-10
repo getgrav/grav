@@ -571,17 +571,21 @@ class Pages
      */
     public static function pageTypes()
     {
-        /** @var Admin $admin */
-        $admin = Grav::instance()['admin'];
+        if (isset(Grav::instance()['admin'])) {
+            /** @var Admin $admin */
+            $admin = Grav::instance()['admin'];
 
-        /** @var Page $page */
-        $page = $admin->getPage($admin->route);
+            /** @var Page $page */
+            $page = $admin->getPage($admin->route);
 
-        if ($page && $page->modular()) {
-            return static::modularTypes();
+            if ($page && $page->modular()) {
+                return static::modularTypes();
+            }
+
+            return static::types();
         }
 
-        return static::types();
+        return [];
     }
 
     /**
@@ -654,11 +658,12 @@ class Pages
 
         $parents = $pages->getList(null, 0, $rawRoutes);
 
-        /** @var Admin $admin */
-        $admin = $grav['admin'];
+        if (isset($grav['admin'])) {
+            // Remove current route from parents
 
-        // Remove current route from parents
-        if (isset($admin)) {
+            /** @var Admin $admin */
+            $admin = $grav['admin'];
+
             $page = $admin->getPage($admin->route);
             $page_route = $page->route();
             if (isset($parents[$page_route])) {
