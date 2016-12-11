@@ -113,11 +113,10 @@ class InstallCommand extends ConsoleCommand
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
 
-        if (false === $this->isWindows() && @is_file(getenv("HOME") . '/.grav/config')) {
-            $local_config_file = exec('eval echo ~/.grav/config');
-            if (file_exists($local_config_file)) {
-                $this->local_config = Yaml::parse($local_config_file);
-            }
+        $home_folder = getenv('HOME') ?: getenv('HOMEDRIVE') . getenv('HOMEPATH');
+        $local_config_file = $home_folder . '/.grav/config';
+        if (file_exists($local_config_file)) {
+            $this->local_config = Yaml::parse($local_config_file);
         }
 
         if (

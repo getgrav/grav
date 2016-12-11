@@ -66,12 +66,11 @@ class InstallCommand extends ConsoleCommand
         $this->destination = rtrim($this->destination, DS) . DS;
         $this->user_path = $this->destination . USER_PATH;
 
-        if (false === $this->isWindows()) {
-            $local_config_file = exec('eval echo ~/.grav/config');
-            if (file_exists($local_config_file)) {
-                $this->local_config = Yaml::parse($local_config_file);
-                $this->output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
-            }
+        $home_folder = getenv('HOME') ?: getenv('HOMEDRIVE') . getenv('HOMEPATH');
+        $local_config_file = $home_folder . '/.grav/config';
+        if (file_exists($local_config_file)) {
+            $this->local_config = Yaml::parse($local_config_file);
+            $this->output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
         }
 
         // Look for dependencies file in ROOT and USER dir
