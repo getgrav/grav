@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Better error handling in cache clear
+    * Add support for calling Media object as function to get medium by filename
 1. [](#bugfix)
     * Added new parameter `remove` for `onBeforeCacheClear` event
     * YAML syntax fixes
