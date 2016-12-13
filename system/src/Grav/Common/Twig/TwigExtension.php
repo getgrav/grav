@@ -841,7 +841,7 @@ class TwigExtension extends \Twig_Extension
     /**
      * detect (in)humane agent
      *
-     * @return 
+     * @return true if human, false if bot
      */
     public function isHuman()
     {
