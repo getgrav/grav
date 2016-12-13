@@ -1,6 +1,8 @@
-# v1.1.9-rc.4
-## XX/XX/2016
+# v1.1.9
+## 12/13/2016
 
+1. [](#new)
+    * RC released as stable
 1. [](#improved)
     * Better error handling in cache clear
     * YAML syntax fixes for the future compatibility
