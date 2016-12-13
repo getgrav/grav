@@ -183,4 +183,26 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
     {
 
     }
+
+    public function testRangeFunc()
+    {
+        $hundred = [];
+        for($i = 0; $i <= 100; $i++) { $hundred[] = $i; }
+
+
+        $this->assertSame([0], $this->twig_ext->rangeFunc(0, 0));
+        $this->assertSame([0, 1, 2], $this->twig_ext->rangeFunc(0, 2));
+
+        $this->assertSame([0, 5, 10, 15], $this->twig_ext->rangeFunc(0, 16, 5));
+
+        // default (min 0, max 100, step 1)
+        $this->assertSame($hundred, $this->twig_ext->rangeFunc());
+
+        // 95 items, starting from 5, (min 5, max 100, step 1)
+        $this->assertSame(array_slice($hundred, 5), $this->twig_ext->rangeFunc(5));
+
+        // reversed range
+        $this->assertSame(array_reverse($hundred), $this->twig_ext->rangeFunc(100, 0));
+        $this->assertSame([4, 2, 0], $this->twig_ext->rangeFunc(4, 0, 2));
+    }
 }

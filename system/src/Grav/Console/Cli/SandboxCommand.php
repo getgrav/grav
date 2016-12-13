@@ -47,7 +47,6 @@ class SandboxCommand extends ConsoleCommand
      * @var array
      */
     protected $mappings = [
-        '/.editorconfig'        => '/.editorconfig',
         '/.gitignore'           => '/.gitignore',
         '/CHANGELOG.md'         => '/CHANGELOG.md',
         '/LICENSE.txt'          => '/LICENSE.txt',
@@ -59,7 +58,6 @@ class SandboxCommand extends ConsoleCommand
         '/system'               => '/system',
         '/vendor'               => '/vendor',
         '/webserver-configs'    => '/webserver-configs',
-        '/codeception.yml'      => '/codeception.yml',
     ];
 
     /**

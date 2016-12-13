@@ -1,3 +1,71 @@
+# v1.1.9
+## 12/13/2016
+
+1. [](#new)
+    * RC released as stable
+1. [](#improved)
+    * Better error handling in cache clear
+    * YAML syntax fixes for the future compatibility
+    * Added new parameter `remove` for `onBeforeCacheClear` event
+    * Add support for calling Media object as function to get medium by filename
+1. [](#bugfix)
+    * Added checks before accessing admin reference during `Page::blueprints()` call. Allows to access `page.blueprints` from Twig in the frontend
+
+# v1.1.9-rc.3
+## 12/07/2016
+
+1. [](#new)
+    * Add `ignore_empty` property to be used on array fields, if positive only save options with a value
+    * Use new `permissions` field in user account
+    * Add `range(int start, int end, int step)` twig function to generate an array of numbers between start and end, inclusive
+    * New retina Media image derivatives array support (`![](image.jpg?derivatives=[640,1024,1440])`) [#1147](https://github.com/getgrav/grav/pull/1147)
+    * Added stream support for images (`![Sepia Image](image://image.jpg?sepia)`)
+    * Added stream support for links (`[Download PDF](user://data/pdf/my.pdf)`)
+    * Added new `onBeforeCacheClear` event to add custom paths to cache clearing process
+1. [](#improved)
+    * Added alias `selfupdate` to the `self-upgrade` `bin/gpm` CLI command
+    * Synced `webserver-configs/htaccess.txt` with `.htaccess`
+    * Use permissions field in group details.
+    * Updated vendor libraries
+    * Added a warning on GPM update to update Grav first if needed [#1194](https://github.com/getgrav/grav/pull/1194)
+ 1. [](#bugfix)
+    * Fix page collections problem with `@page.modular` [#1178](https://github.com/getgrav/grav/pull/1178)
+    * Fix issue with using a multiple taxonomy filter of which one had no results, thanks to @hughbris [#1184](https://github.com/getgrav/grav/issues/1184)
+    * Fix saving permissions in group
+    * Fixed issue with redirect of a page getting moved to a different location
+
+# v1.1.9-rc.2
+## 11/26/2016
+
+1. [](#new)
+    * Added two new sort order options for pages: `publish_date` and `unpublish_date` [#1173](https://github.com/getgrav/grav/pull/1173))
+1. [](#improved)
+    * Multisite: Create image cache folder if it doesn't exist
+    * Add 2 new language values for French [#1174](https://github.com/getgrav/grav/issues/1174)
+1. [](#bugfix)
+    * Fixed issue when we have a meta file without corresponding media [#1179](https://github.com/getgrav/grav/issues/1179)
+    * Update class namespace for Admin class [#874](https://github.com/getgrav/grav-plugin-admin/issues/874)
+
+# v1.1.9-rc.1
+## 11/09/2016
+
+1. [](#new)
+    * Added a `CompiledJsonFile` object to better handle Json files.
+    * Added Base32 encode/decode class
+    * Added a new `User::find()` method
+1. [](#improved)
+    * Moved `messages` object into core Grav from login plugin
+    * Added `getTaxonomyItemKeys` to the Taxonomy object [#1124](https://github.com/getgrav/grav/issues/1124)
+    * Added a `redirect_me` Twig function [#1124](https://github.com/getgrav/grav/issues/1124)
+    * Added a Caddyfile for newer Caddy versions [#1115](https://github.com/getgrav/grav/issues/1115)
+    * Allow to override sorting flags for page header-based or default ordering. If the `intl` PHP extension is loaded, only these flags are available: https://secure.php.net/manual/en/collator.asort.php. Otherwise, you can use the PHP standard sorting flags (https://secure.php.net/manual/en/array.constants.php) [#1169](https://github.com/getgrav/grav/issues/1169)
+1. [](#bugfix)
+    * Fixed an issue with site redirects/routes, not processing with extension (.html, .json, etc.)
+    * Don't truncate HTML if content length is less than summary size [#1125](https://github.com/getgrav/grav/issues/1125)
+    * Return max available number when calling random() on a collection passing an int > available items [#1135](https://github.com/getgrav/grav/issues/1135)
+    * Use correct ratio when applying image filters to image alternatives [#1147](https://github.com/getgrav/grav/issues/1147)
+    * Fixed URI path in multi-site when query parameters were used in front page
+
 # v1.1.8
 ## 10/22/2016
 

@@ -11,7 +11,7 @@ namespace Grav\Common;
 use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
-use Grav\Common\Grav;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
@@ -356,36 +356,38 @@ class Cache extends Getters
                 $remove_paths = self::$standard_remove;
         }
 
+        // Clearing cache event to add paths to clear
+        Grav::instance()->fireEvent('onBeforeCacheClear', new Event(['remove' => $remove, 'paths' => &$remove_paths]));
 
         foreach ($remove_paths as $stream) {
 
             // Convert stream to a real path
             try {
                 $path = $locator->findResource($stream, true, true);
-            } catch (\Exception $e) {
-                // stream not found..
-                continue;
-            }
 
-            $anything = false;
-            $files = glob($path . '/*');
+                $anything = false;
+                $files = glob($path . '/*');
 
-            if (is_array($files)) {
-                foreach ($files as $file) {
-                    if (is_file($file)) {
-                        if (@unlink($file)) {
-                            $anything = true;
-                        }
-                    } elseif (is_dir($file)) {
-                        if (Folder::delete($file)) {
-                            $anything = true;
+                if (is_array($files)) {
+                    foreach ($files as $file) {
+                        if (is_file($file)) {
+                            if (@unlink($file)) {
+                                $anything = true;
+                            }
+                        } elseif (is_dir($file)) {
+                            if (Folder::delete($file)) {
+                                $anything = true;
+                            }
                         }
                     }
                 }
-            }
 
-            if ($anything) {
-                $output[] = '<red>Cleared:  </red>' . $path . '/*';
+                if ($anything) {
+                    $output[] = '<red>Cleared:  </red>' . $path . '/*';
+                }
+            } catch (\Exception $e) {
+                // stream not found or another error while deleting files.
+                $output[] = '<red>ERROR: </red>' . $e->getMessage();
             }
         }
 
