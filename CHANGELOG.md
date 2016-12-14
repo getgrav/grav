@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed case where extracting a package would cause an error during rename
+    * Fixed [#635](https://github.com/getgrav/grav/issues/635) use mv instead of rename as that does not support cross volume operations
 
 # v1.1.9
 ## 12/13/2016

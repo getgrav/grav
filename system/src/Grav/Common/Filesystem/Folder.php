@@ -340,11 +340,13 @@ abstract class Folder
         // Make sure that path to the target exists before moving.
         self::create(dirname($target));
 
-        // Just rename the directory.
-        $success = @rename($source, $target);
+        error_clear_last();
 
-        if (!$success) {
-            $error = error_get_last();
+        // Just rename the directory.
+        exec("mv $source $target");
+
+        $error = error_get_last();
+        if ($error) {
             throw new \RuntimeException($error['message']);
         }
 
