@@ -16,6 +16,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 trait ConsoleTrait
 {
@@ -110,5 +111,23 @@ trait ConsoleTrait
         $command = new ClearCacheCommand();
         $input = new ArrayInput($all);
         return $command->run($input, $this->output);
+    }
+
+    /**
+     * Load the local config file
+     *
+     * @return mixed string the local config file name. false if local config does not exist
+     */
+    public function loadLocalConfig()
+    {
+        $home_folder = getenv('HOME') ?: getenv('HOMEDRIVE') . getenv('HOMEPATH');
+        $local_config_file = $home_folder . '/.grav/config';
+
+        if (file_exists($local_config_file)) {
+            $this->local_config = Yaml::parse($local_config_file);
+            return $local_config_file;
+        }
+
+        return false;
     }
 }

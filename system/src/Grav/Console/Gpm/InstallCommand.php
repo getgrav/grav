@@ -20,7 +20,6 @@ use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Yaml\Yaml;
 
 define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
 
@@ -112,12 +111,7 @@ class InstallCommand extends ConsoleCommand
 
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
-
-        $home_folder = getenv('HOME') ?: getenv('HOMEDRIVE') . getenv('HOMEPATH');
-        $local_config_file = $home_folder . '/.grav/config';
-        if (file_exists($local_config_file)) {
-            $this->local_config = Yaml::parse($local_config_file);
-        }
+        $this->loadLocalConfig();
 
         if (
             !Installer::isGravInstance($this->destination) ||
