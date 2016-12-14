@@ -341,11 +341,10 @@ abstract class Folder
         self::create(dirname($target));
 
         // Just rename the directory.
-        $success = @rename($source, $target);
+        exec("mv $source $target", $output, $return_val);
 
-        if (!$success) {
-            $error = error_get_last();
-            throw new \RuntimeException($error['message']);
+        if ($return_val !== 0) {
+           throw new \RuntimeException($error['message']);
         }
 
         // Make sure that the change will be detected when caching.
