@@ -32,6 +32,17 @@ abstract class AbstractMedia extends Getters
     }
 
     /**
+     * Call object as function to get medium by filename.
+     *
+     * @param string $filename
+     * @return mixed
+     */
+    public function __invoke($filename)
+    {
+        return $this->offsetGet($filename);
+    }
+
+    /**
      * Get a list of all media.
      *
      * @return array|Medium[]

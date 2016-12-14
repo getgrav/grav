@@ -1,11 +1,21 @@
-# v1.1.9-rc.4
+# v1.1.10
 ## XX/XX/2016
 
+1. [](#bugfix)
+    * Fixed case where extracting a package would cause an error during rename
+    * Fixed [#635](https://github.com/getgrav/grav/issues/635) use mv instead of rename as that does not support cross volume operations
+
+# v1.1.9
+## 12/13/2016
+
+1. [](#new)
+    * RC released as stable
 1. [](#improved)
     * Better error handling in cache clear
-1. [](#bugfix)
+    * YAML syntax fixes for the future compatibility
     * Added new parameter `remove` for `onBeforeCacheClear` event
-    * YAML syntax fixes
+    * Add support for calling Media object as function to get medium by filename
+1. [](#bugfix)
     * Added checks before accessing admin reference during `Page::blueprints()` call. Allows to access `page.blueprints` from Twig in the frontend
 
 # v1.1.9-rc.3
