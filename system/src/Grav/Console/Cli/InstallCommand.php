@@ -71,9 +71,9 @@ class InstallCommand extends ConsoleCommand
 
         // Look for dependencies file in ROOT and USER dir
         if (file_exists($this->user_path . $dependencies_file)) {
-            $this->config = Yaml::parse($this->user_path . $dependencies_file);
+            $this->config = Yaml::parse(file_get_contents($this->user_path . $dependencies_file));
         } elseif (file_exists($this->destination . $dependencies_file)) {
-            $this->config = Yaml::parse($this->destination . $dependencies_file);
+            $this->config = Yaml::parse(file_get_contents($this->destination . $dependencies_file));
         } else {
             $this->output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
         }

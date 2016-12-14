@@ -124,7 +124,7 @@ trait ConsoleTrait
         $local_config_file = $home_folder . '/.grav/config';
 
         if (file_exists($local_config_file)) {
-            $this->local_config = Yaml::parse($local_config_file);
+            $this->local_config = Yaml::parse(file_get_contents($local_config_file));
             return $local_config_file;
         }
 
