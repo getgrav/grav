@@ -1,3 +1,9 @@
+# v1.1.10
+## XX/XX/2016
+
+1. [](#bugfix)
+    * Fixed case where extracting a package would cause an error during rename
+
 # v1.1.9
 ## 12/13/2016
 
