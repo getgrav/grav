@@ -813,4 +813,13 @@ abstract class Utils
 
         return $array;
     }
+
+    /**
+     * Utility method to determine if the current OS is Windows
+     *
+     * @return bool
+     */
+    public static function isWindows() {
+        return strncasecmp(PHP_OS, 'WIN', 3) == 0;
+    }
 }

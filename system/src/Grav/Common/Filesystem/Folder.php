@@ -9,6 +9,7 @@
 namespace Grav\Common\Filesystem;
 
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class Folder
@@ -341,7 +342,7 @@ abstract class Folder
         self::create(dirname($target));
 
         // Just rename the directory.
-        if (self::execIsDisabled() || self::isWindows()) {
+        if (self::execIsDisabled() || Utils::isWindows()) {
             // exec disabled, or windows. Cannot use mv. Fallback to rename() although
             // not working cross volumes
             $success = @rename($source, $target);
@@ -360,15 +361,6 @@ abstract class Folder
         // Make sure that the change will be detected when caching.
         @touch(dirname($source));
         @touch(dirname($target));
-    }
-
-    /**
-     * Utility method to determine if the current OS is Windows
-     *
-     * @return bool
-     */
-    private static function isWindows() {
-        return strncasecmp(PHP_OS, 'WIN', 3) == 0;
     }
 
     /**
