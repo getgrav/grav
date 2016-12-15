@@ -341,15 +341,35 @@ abstract class Folder
         self::create(dirname($target));
 
         // Just rename the directory.
-        exec("mv $source $target", $output, $return_val);
+        if (self::execIsDisabled()) {
+            // exec disabled. Cannot use mv. Fallback to rename() although
+            // not working cross volumes
+            $success = @rename($source, $target);
+            if (!$success) {
+                $error = error_get_last();
+                throw new \RuntimeException($error['message']);
+            }
+        } else {
+            exec("mv $source $target", $output, $return_val);
 
-        if ($return_val !== 0) {
-           throw new \RuntimeException($error['message']);
+            if ($return_val !== 0) {
+               throw new \RuntimeException($output);
+            }
         }
 
         // Make sure that the change will be detected when caching.
         @touch(dirname($source));
         @touch(dirname($target));
+    }
+
+    /**
+     * Utility method to check if `exec` is disabled in the PHP disabled functioons
+     *
+     * @return bool
+     */
+    private static function execIsDisabled() {
+        $disabled = explode(',', ini_get('disable_functions'));
+        return in_array('exec', $disabled);
     }
 
     /**
