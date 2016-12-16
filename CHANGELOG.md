@@ -1,8 +1,11 @@
 # v1.1.10
 ## XX/XX/2016
 
+1. [](#improved)
+    * Improve detection of home path. Also allow ~/.grav on Windows, drop ConsoleTrait::isWindows() method, used only for that [#1204](https://github.com/getgrav/grav/pull/1204)
 1. [](#bugfix)
     * Fixed case where extracting a package would cause an error during rename
+    * Fix issue with using Yaml::parse direcly on a filename, now deprecated
 
 # v1.1.9
 ## 12/13/2016
