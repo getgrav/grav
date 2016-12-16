@@ -2,7 +2,7 @@ title: PLUGIN_ADMIN.DEFAULT
 
 rules:
   slug:
-    pattern: "[a-zа-я][a-zа-я0-9_\-]+"
+    pattern: '[a-zа-я][a-zа-я0-9_\-]+'
     min: 2
     max: 80
 
@@ -139,7 +139,7 @@ form:
                       label: PLUGIN_ADMIN.PARENT
                       classes: fancy
                       data-options@: '\Grav\Common\Page\Pages::parentsRawRoutes'
-                      data-default@: '\Grav\Plugin\admin::rawRoute'
+                      data-default@: '\Grav\Plugin\Admin\Admin::rawRoute'
                       options:
                         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
 

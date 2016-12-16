@@ -55,6 +55,42 @@ class User extends Data
     }
 
     /**
+     * Find a user by username, email, etc
+     *
+     * @param $query        the query to search for
+     * @param array $fields the fields to search
+     * @return User
+     */
+    public static function find($query, $fields = ['username', 'email'])
+    {
+        $account_dir = Grav::instance()['locator']->findResource('account://');
+        $files = array_diff(scandir($account_dir), ['.', '..']);
+
+        // Try with username first, you never know!
+        if (in_array('username', $fields)) {
+            $user = User::load($query);
+            unset($fields[array_search('username', $fields)]);
+        } else {
+            $user = User::load('');
+        }
+
+        // If not found, try the fields
+        if (!$user->exists()) {
+            foreach ($files as $file) {
+                if (Utils::endsWith($file, YAML_EXT)) {
+                    $find_user = User::load(trim(pathinfo($file, PATHINFO_FILENAME)));
+                    foreach ($fields as $field) {
+                        if ($find_user[$field] == $query) {
+                            return $find_user;
+                        }
+                    }
+                }
+            }
+        }
+        return $user;
+    }
+
+    /**
      * Remove user account.
      *
      * @param string $username

@@ -181,7 +181,7 @@ class Installer
                 return false;
             }
 
-            $package_folder_name = $zip->getNameIndex(0);
+            $package_folder_name = preg_replace('#\./$#', '', $zip->getNameIndex(0));
             $zip->close();
             $extracted_folder = $destination . '/' . $package_folder_name;
 
