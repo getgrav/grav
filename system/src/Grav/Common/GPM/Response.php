@@ -264,13 +264,18 @@ class Response
             $options['fopen']['notification'] = ['self', 'progress'];
         }
 
-        $ssl = $options['fopen']['ssl'];
-        unset($options['fopen']['ssl']);
+        if (isset($options['fopen']['ssl'])) {
+            $ssl = $options['fopen']['ssl'];
+            unset($options['fopen']['ssl']);
 
-        $stream  = stream_context_create([
-            'http' => $options['fopen'],
-            'ssl' => $ssl
-        ], $options['fopen']);
+            $stream  = stream_context_create([
+                'http' => $options['fopen'],
+                'ssl' => $ssl
+            ], $options['fopen']);
+        } else {
+            $stream  = stream_context_create(['http' => $options['fopen']], $options['fopen']);
+        }
+
 
         $content = @file_get_contents($uri, false, $stream);
 

@@ -52,6 +52,8 @@ class LanguageCodes
         'fi'         => [ 'name' => 'Finnish',                   'nativeName' => 'Suomi' ],
         'fj-FJ'      => [ 'name' => 'Fijian',                    'nativeName' => 'Vosa vaka-Viti' ],
         'fr'         => [ 'name' => 'French',                    'nativeName' => 'Français' ],
+        'fr-CA'      => [ 'name' => 'French (Canada)',           'nativeName' => 'Français (Canada)' ],
+        'fr-FR'      => [ 'name' => 'French (France)',           'nativeName' => 'Français (France)' ],
         'fur'        => [ 'name' => 'Friulian',                  'nativeName' => 'Furlan' ],
         'fur-IT'     => [ 'name' => 'Friulian',                  'nativeName' => 'Furlan' ],
         'fy'         => [ 'name' => 'Frisian',                   'nativeName' => 'Frysk' ],

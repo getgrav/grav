@@ -10,9 +10,9 @@ namespace Grav\Common\Helpers;
 
 use Grav\Common\Grav;
 use Grav\Common\Uri;
-use Grav\Common\Utils;
 use Grav\Common\Page\Medium\Medium;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Excerpts
 {
@@ -115,11 +115,11 @@ class Excerpts
      */
     public static function processLinkExcerpt($excerpt, $page, $type = 'link')
     {
-        $url = $excerpt['element']['attributes']['href'];
+        $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['href']));
 
-        $url_parts = parse_url(htmlspecialchars_decode(urldecode($url)));
+        $url_parts = static::parseUrl($url);
 
-        // if there is a query, then parse it and build action calls
+        // If there is a query, then parse it and build action calls.
         if (isset($url_parts['query'])) {
             $actions = array_reduce(explode('&', $url_parts['query']), function ($carry, $item) {
                 $parts = explode('=', $item, 2);
@@ -129,19 +129,19 @@ class Excerpts
                 return $carry;
             }, []);
 
-            // valid attributes supported
+            // Valid attributes supported.
             $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
 
-            // Unless told to not process, go through actions
+            // Unless told to not process, go through actions.
             if (array_key_exists('noprocess', $actions)) {
                 unset($actions['noprocess']);
             } else {
-                // loop through actions for the image and call them
+                // Loop through actions for the image and call them.
                 foreach ($actions as $attrib => $value) {
                     $key = $attrib;
 
                     if (in_array($attrib, $valid_attributes)) {
-                        // support both class and classes
+                        // support both class and classes.
                         if ($attrib == 'classes') {
                             $attrib = 'class';
                         }
@@ -154,25 +154,33 @@ class Excerpts
             $url_parts['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
         }
 
-        // if no query elements left, unset query
+        // If no query elements left, unset query.
         if (empty($url_parts['query'])) {
             unset ($url_parts['query']);
         }
 
-        // set path to / if not set
+        // Set path to / if not set.
         if (empty($url_parts['path'])) {
             $url_parts['path'] = '';
         }
 
-        // if special scheme, just return
-        if(isset($url_parts['scheme']) && !Utils::startsWith($url_parts['scheme'], 'http')) {
+        // If scheme isn't http(s)..
+        if (!empty($url_parts['scheme']) && !in_array($url_parts['scheme'], ['http', 'https'])) {
+            // Handle custom streams.
+            if ($type !== 'image' && !empty($url_parts['stream']) && !empty($url_parts['path'])) {
+                $url_parts['path'] = Grav::instance()['base_url_relative'] . '/' . static::resolveStream("{$url_parts['scheme']}://{$url_parts['path']}");
+                unset($url_parts['stream'], $url_parts['scheme']);
+
+                $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
+            }
+
             return $excerpt;
         }
 
-        // handle paths and such
+        // Handle paths and such.
         $url_parts = Uri::convertUrl($page, $url_parts, $type);
 
-        // build the URL from the component parts and set it on the element
+        // Build the URL from the component parts and set it on the element.
         $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
 
         return $excerpt;
@@ -187,62 +195,65 @@ class Excerpts
      */
     public static function processImageExcerpt($excerpt, $page)
     {
-        $url = $excerpt['element']['attributes']['src'];
+        $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']));
+        $url_parts = static::parseUrl($url);
 
-        $url_parts = parse_url(htmlspecialchars_decode(urldecode($url)));
+        $media = null;
+        $filename = null;
 
-        if (isset($url_parts['scheme']) && !Utils::startsWith($url_parts['scheme'], 'http')) {
-            $stream_path = $url_parts['scheme'] . '://' . $url_parts['host'] . $url_parts['path'];
-            $url_parts['path'] = $stream_path;
-            unset($url_parts['host']);
-            unset($url_parts['scheme']);
-        }
+        if (!empty($url_parts['stream'])) {
+            $filename = $url_parts['scheme'] . '://' . (isset($url_parts['path']) ? $url_parts['path'] : '');
 
-        $this_host = isset($url_parts['host']) && $url_parts['host'] == Grav::instance()['uri']->host();
+            $media = $page->media();
 
-        // if there is no host set but there is a path, the file is local
-        if ((!isset($url_parts['host']) || $this_host) && isset($url_parts['path'])) {
+        } else {
+            // File is also local if scheme is http(s) and host matches.
+            $local_file = isset($url_parts['path'])
+                && (empty($url_parts['scheme']) || in_array($url_parts['scheme'], ['http', 'https']))
+                && (empty($url_parts['host']) || $url_parts['host'] == Grav::instance()['uri']->host());
 
-            $path_parts = pathinfo($url_parts['path']);
-            $media = null;
+            if ($local_file) {
+                $filename = basename($url_parts['path']);
+                $folder = dirname($url_parts['path']);
 
-            // get the local path to page media if possible
-            if ($path_parts['dirname'] == $page->url(false, false, false)) {
-                // get the media objects for this page
-                $media = $page->media();
-            } else {
-                // see if this is an external page to this one
-                $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
-                $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
-
-                $ext_page = Grav::instance()['pages']->dispatch($page_route, true);
-                if ($ext_page) {
-                    $media = $ext_page->media();
+                // Get the local path to page media if possible.
+                if ($folder === $page->url(false, false, false)) {
+                    // Get the media objects for this page.
+                    $media = $page->media();
                 } else {
-                    Grav::instance()->fireEvent('onMediaLocate', new Event(['route' => $page_route, 'media' => &$media]));
+                    // see if this is an external page to this one
+                    $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
+                    $page_route = '/' . ltrim(str_replace($base_url, '', $folder), '/');
+
+                    $ext_page = Grav::instance()['pages']->dispatch($page_route, true);
+                    if ($ext_page) {
+                        $media = $ext_page->media();
+                    } else {
+                        Grav::instance()->fireEvent('onMediaLocate', new Event(['route' => $page_route, 'media' => &$media]));
+                    }
                 }
             }
+        }
 
-            // if there is a media file that matches the path referenced..
-            if ($media && isset($media->all()[$path_parts['basename']])) {
-                // get the medium object
-                /** @var Medium $medium */
-                $medium = $media->all()[$path_parts['basename']];
+        // If there is a media file that matches the path referenced..
+        if ($media && $filename && isset($media[$filename])) {
+            // Get the medium object.
+            /** @var Medium $medium */
+            $medium = $media[$filename];
 
-                // Process operations
-                $medium = static::processMediaActions($medium, $url_parts);
+            // Process operations
+            $medium = static::processMediaActions($medium, $url_parts);
 
-                $alt = isset($excerpt['element']['attributes']['alt']) ? $excerpt['element']['attributes']['alt'] : '';
-                $title = isset($excerpt['element']['attributes']['title']) ? $excerpt['element']['attributes']['title'] : '';
-                $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
-                $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
+            $alt = isset($excerpt['element']['attributes']['alt']) ? $excerpt['element']['attributes']['alt'] : '';
+            $title = isset($excerpt['element']['attributes']['title']) ? $excerpt['element']['attributes']['title'] : '';
+            $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
+            $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
 
-                $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, $id, true);
+            $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, $id, true);
 
-            } else {
-                // not a current page media file, see if it needs converting to relative
-                $excerpt['element']['attributes']['src'] = Uri::buildUrl($url_parts);
-            }
+        } else {
+            // Not a current page media file, see if it needs converting to relative.
+            $excerpt['element']['attributes']['src'] = Uri::buildUrl($url_parts);
         }
 
         return $excerpt;
@@ -282,8 +293,15 @@ class Excerpts
 
         // loop through actions for the image and call them
         foreach ($actions as $action) {
-            $medium = call_user_func_array([$medium, $action['method']],
-                explode(',', $action['params']));
+            $matches = [];
+
+            if (preg_match('/\[(.*)\]/', $action['params'], $matches)) {
+                $args = [explode(',', $matches[1])];
+            } else {
+                $args = explode(',', $action['params']);
+            }
+
+            $medium = call_user_func_array([$medium, $action['method']], $args);
         }
 
         if (isset($url_parts['fragment'])) {
@@ -293,4 +311,40 @@ class Excerpts
         return $medium;
     }
 
+    /**
+     * Variation of parse_url() which works also with local streams.
+     *
+     * @param string $url
+     * @return array|bool
+     */
+    protected static function parseUrl($url)
+    {
+        $url_parts = parse_url($url);
+
+        if (isset($url_parts['scheme'])) {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+
+            // Special handling for the streams.
+            if ($locator->schemeExists($url_parts['scheme'])) {
+                if (isset($url_parts['host'])) {
+                    // Merge host and path into a path.
+                    $url_parts['path'] = $url_parts['host'] . (isset($url_parts['path']) ? '/' . $url_parts['path'] : '');
+                    unset($url_parts['host']);
+                }
+
+                $url_parts['stream'] = true;
+            }
+        }
+
+        return $url_parts;
+    }
+
+    protected static function resolveStream($url)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        return $locator->isStream($url) ? ($locator->findResource($url, false) ?: $locator->findResource($url, false, true)) : $url;
+    }
 }

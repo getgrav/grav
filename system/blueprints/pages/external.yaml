@@ -5,7 +5,7 @@ title: PLUGIN_ADMIN:EXTERNAL
 
 rules:
   slug:
-    pattern: "[a-zа-я][a-zа-я0-9_\-]+"
+    pattern: '[a-zа-я][a-zа-я0-9_\-]+'
     min: 2
     max: 80
 

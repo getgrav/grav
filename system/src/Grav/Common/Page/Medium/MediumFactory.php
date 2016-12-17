@@ -119,8 +119,8 @@ class MediumFactory
         }
 
         $ratio = $to / $from;
-        $width = (int) ($medium->get('width') * $ratio);
-        $height = (int) ($medium->get('height') * $ratio);
+        $width = $medium->get('width') * $ratio;
+        $height = $medium->get('height') * $ratio;
 
         $prev_basename = $medium->get('basename');
         $basename = str_replace('@'.$from.'x', '@'.$to.'x', $prev_basename);
