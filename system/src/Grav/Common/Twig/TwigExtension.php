@@ -830,8 +830,6 @@ class TwigExtension extends \Twig_Extension
      *
      * @param string $url          the url to redirect to
      * @param int $statusCode      statusCode, default 303
-     *
-     * @return none
      */
     public function redirectFunc($url, $statusCode = 303)
     {
