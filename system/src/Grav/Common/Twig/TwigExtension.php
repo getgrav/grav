@@ -832,7 +832,7 @@ class TwigExtension extends \Twig_Extension
      * redirect browser from twig
      *
      * @param string $url          the url to redirect to
-     * @param int $statusCode   statuscode, default 303
+     * @param int $statusCode      statuscode, default 303
      *
      * @return none
      */
