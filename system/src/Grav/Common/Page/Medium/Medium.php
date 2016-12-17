@@ -100,9 +100,7 @@ class Medium extends Data implements RenderableInterface
         }
 
         $alternative->set('ratio', $ratio);
-        $width = $alternative->get('width');
-
-        $this->alternatives[$width] = $alternative;
+        $this->alternatives[(float) $ratio] = $alternative;
     }
 
     /**
@@ -150,8 +148,8 @@ class Medium extends Data implements RenderableInterface
     /**
      * Get/set querystring for the file's url
      *
-     * @param  string  $querystring
-     * @param  boolean $withQuestionmark
+     * @param  string  $hash
+     * @param  boolean $withHash
      * @return string
      */
     public function querystring($querystring = null, $withQuestionmark = true)

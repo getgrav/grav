@@ -386,6 +386,7 @@ abstract class Folder
     /**
      * @param  string  $folder
      * @throws \RuntimeException
+     * @internal
      */
     public static function mkdir($folder)
     {
@@ -395,6 +396,7 @@ abstract class Folder
     /**
      * @param  string  $folder
      * @throws \RuntimeException
+     * @internal
      */
     public static function create($folder)
     {

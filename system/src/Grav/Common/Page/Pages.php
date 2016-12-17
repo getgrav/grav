@@ -21,7 +21,6 @@ use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
-use Collator as Collator;
 
 class Pages
 {
@@ -198,7 +197,7 @@ class Pages
      *
      * @return array
      */
-    public function sort(Page $page, $order_by = null, $order_dir = null, $sort_flags = null)
+    public function sort(Page $page, $order_by = null, $order_dir = null)
     {
         if ($order_by === null) {
             $order_by = $page->orderBy();
@@ -215,7 +214,7 @@ class Pages
         }
 
         if (!isset($this->sort[$path][$order_by])) {
-            $this->buildSort($path, $children, $order_by, $page->orderManual(), $sort_flags);
+            $this->buildSort($path, $children, $order_by, $page->orderManual());
         }
 
         $sort = $this->sort[$path][$order_by];
@@ -236,7 +235,7 @@ class Pages
      * @return array
      * @internal
      */
-    public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null, $sort_flags = null)
+    public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null)
     {
         $items = $collection->toArray();
         if (!$items) {
@@ -245,7 +244,7 @@ class Pages
 
         $lookup = md5(json_encode($items) . json_encode($orderManual) . $orderBy . $orderDir);
         if (!isset($this->sort[$lookup][$orderBy])) {
-            $this->buildSort($lookup, $items, $orderBy, $orderManual, $sort_flags);
+            $this->buildSort($lookup, $items, $orderBy, $orderManual);
         }
 
         $sort = $this->sort[$lookup][$orderBy];
@@ -343,19 +342,13 @@ class Pages
                     $page = $this->dispatch($route, $all);
                 } else {
                     // Try Regex style redirects
-                    $source_url = $url;
-                    $extension = $this->grav['uri']->extension();
-                    if (isset($extension)) {
-                        $source_url.= '.' . $extension;
-                    }
-
                     $site_redirects = $config->get("site.redirects");
                     if (is_array($site_redirects)) {
                         foreach ((array)$site_redirects as $pattern => $replace) {
                             $pattern = '#' . $pattern . '#';
                             try {
-                                $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found != $source_url) {
+                                $found = preg_replace($pattern, $replace, $url);
+                                if ($found != $url) {
                                     $this->grav->redirectLangSafe($found);
                                 }
                             } catch (ErrorException $e) {
@@ -370,8 +363,8 @@ class Pages
                         foreach ((array)$site_routes as $pattern => $replace) {
                             $pattern = '#' . $pattern . '#';
                             try {
-                                $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found != $source_url) {
+                                $found = preg_replace($pattern, $replace, $url);
+                                if ($found != $url) {
                                     $page = $this->dispatch($found, $all);
                                 }
                             } catch (ErrorException $e) {
@@ -571,21 +564,17 @@ class Pages
      */
     public static function pageTypes()
     {
-        if (isset(Grav::instance()['admin'])) {
-            /** @var Admin $admin */
-            $admin = Grav::instance()['admin'];
+        /** @var Admin $admin */
+        $admin = Grav::instance()['admin'];
 
-            /** @var Page $page */
-            $page = $admin->getPage($admin->route);
+        /** @var Page $page */
+        $page = $admin->getPage($admin->route);
 
-            if ($page && $page->modular()) {
-                return static::modularTypes();
-            }
-
-            return static::types();
+        if ($page && $page->modular()) {
+            return static::modularTypes();
         }
 
-        return [];
+        return static::types();
     }
 
     /**
@@ -658,12 +647,11 @@ class Pages
 
         $parents = $pages->getList(null, 0, $rawRoutes);
 
-        if (isset($grav['admin'])) {
-            // Remove current route from parents
+        /** @var Admin $admin */
+        $admin = $grav['admin'];
 
-            /** @var Admin $admin */
-            $admin = $grav['admin'];
-
+        // Remove current route from parents
+        if (isset($admin)) {
             $page = $admin->getPage($admin->route);
             $page_route = $page->route();
             if (isset($parents[$page_route])) {
@@ -1029,11 +1017,12 @@ class Pages
      * @throws \RuntimeException
      * @internal
      */
-    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null, $sort_flags = null)
+    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null)
     {
         $list = [];
         $header_default = null;
         $header_query = null;
+        $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
@@ -1061,14 +1050,6 @@ class Pages
                     $list[$key] = $child->modified();
                     $sort_flags = SORT_REGULAR;
                     break;
-                case 'publish_date':
-                    $list[$key] = $child->publishDate();
-                    $sort_flags = SORT_REGULAR;
-                    break;
-                case 'unpublish_date':
-                    $list[$key] = $child->unpublishDate();
-                    $sort_flags = SORT_REGULAR;
-                    break;
                 case 'slug':
                     $list[$key] = $child->slug();
                     break;
@@ -1083,18 +1064,14 @@ class Pages
                     } else {
                         $list[$key] = $header_default ?: $key;
                     }
-                    $sort_flags = $sort_flags ?: SORT_REGULAR;
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'manual':
                 case 'default':
                 default:
                     $list[$key] = $key;
-                    $sort_flags = $sort_flags ?: SORT_REGULAR;
+                    $sort_flags = SORT_REGULAR;
             }
-        }
-
-        if (!$sort_flags) {
-            $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
         }
 
         // handle special case when order_by is random
@@ -1104,7 +1081,7 @@ class Pages
             // else just sort the list according to specified key
             if (extension_loaded('intl')) {
                 $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set
-                $col = Collator::create($locale);
+                $col = \Collator::create($locale);
                 if ($col) {
                     $col->asort($list, $sort_flags);
                 } else {

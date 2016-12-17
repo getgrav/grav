@@ -29,7 +29,6 @@ class Grav extends Container
         'events'                  => 'RocketTheme\Toolbox\Event\EventDispatcher',
         'cache'                   => 'Grav\Common\Cache',
         'session'                 => 'Grav\Common\Session',
-        'Grav\Common\Service\MessagesServiceProvider',
         'plugins'                 => 'Grav\Common\Plugins',
         'themes'                  => 'Grav\Common\Themes',
         'twig'                    => 'Grav\Common\Twig\Twig',

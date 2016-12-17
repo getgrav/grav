@@ -1,4 +1,4 @@
-title: Account
+title: Site
 form:
     validation: loose
 
@@ -56,7 +56,7 @@ form:
                 label: PLUGIN_ADMIN.LANGUAGE
                 size: medium
                 classes: fancy
-                data-options@: '\Grav\Plugin\Admin\Admin::adminLanguages'
+                data-options@: '\Grav\Plugin\admin::adminLanguages'
                 default: 'en'
                 help: PLUGIN_ADMIN.LANGUAGE_HELP
 
@@ -77,9 +77,16 @@ form:
                         validate:
                             type: commalist
 
-                    access:
-                        type: permissions
-                        label: PLUGIN_ADMIN.PERMISSIONS
-                        ignore_empty: true
+                    access.admin:
+                        type: array
+                        label: PLUGIN_ADMIN.ADMIN_ACCESS
+                        multiple: false
+                        validate:
+                            type: array
+
+                    access.site:
+                        type: array
+                        label: PLUGIN_ADMIN.SITE_ACCESS
+                        multiple: false
                         validate:
                             type: array

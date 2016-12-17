@@ -87,7 +87,7 @@ class Group extends Data
                     $config->set("groups.$this->groupname.$value", $this->items['data'][$value]);
                 }
             }
-            if ($field['type'] == 'array' || $field['type'] == 'permissions') {
+            if ($field['type'] == 'array') {
                 $value = $field['name'];
                 $arrayValues = Utils::getDotNotation($this->items['data'], $field['name']);
 

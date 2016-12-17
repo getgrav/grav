@@ -65,15 +65,20 @@ class InstallCommand extends ConsoleCommand
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
         $this->user_path = $this->destination . USER_PATH;
-        if ($local_config_file = $this->loadLocalConfig()) {
-            $this->output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
+
+        if (false === $this->isWindows()) {
+            $local_config_file = exec('eval echo ~/.grav/config');
+            if (file_exists($local_config_file)) {
+                $this->local_config = Yaml::parse($local_config_file);
+                $this->output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
+            }
         }
 
         // Look for dependencies file in ROOT and USER dir
         if (file_exists($this->user_path . $dependencies_file)) {
-            $this->config = Yaml::parse(file_get_contents($this->user_path . $dependencies_file));
+            $this->config = Yaml::parse($this->user_path . $dependencies_file);
         } elseif (file_exists($this->destination . $dependencies_file)) {
-            $this->config = Yaml::parse(file_get_contents($this->destination . $dependencies_file));
+            $this->config = Yaml::parse($this->destination . $dependencies_file);
         } else {
             $this->output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
         }

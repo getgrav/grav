@@ -11,7 +11,6 @@ namespace Grav\Console\Gpm;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Console\ConsoleCommand;
-use Grav\Common\GPM\Upgrader;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -110,22 +109,6 @@ class UpdateCommand extends ConsoleCommand
      */
     protected function serve()
     {
-        $this->upgrader = new Upgrader($this->input->getOption('force'));
-        $local = $this->upgrader->getLocalVersion();
-        $remote = $this->upgrader->getRemoteVersion();
-        if ($local !== $remote) {
-            $this->output->writeln("<yellow>WARNING</yellow>: A new version of Grav is available. You should update Grav before updating plugins and themes. If you continue without updating Grav, some plugins or themes may stop working.");
-            $this->output->writeln("");
-            $questionHelper = $this->getHelper('question');
-            $question = new ConfirmationQuestion("Continue with the update process? [Y|n] ", true);
-            $answer = $questionHelper->ask($this->input, $this->output, $question);
-
-            if (!$answer) {
-                $this->output->writeln("<red>Update aborted. Exiting...</red>");
-                exit;
-            }
-        }
-
         $this->gpm = new GPM($this->input->getOption('force'));
 
         $this->all_yes = $this->input->getOption('all-yes');

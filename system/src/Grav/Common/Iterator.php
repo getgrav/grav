@@ -189,10 +189,6 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      */
     public function random($num = 1)
     {
-        if ($num > count($this->items)) {
-            $num = count($this->items);
-        }
-
         $this->items = array_intersect_key($this->items, array_flip((array)array_rand($this->items, $num)));
 
         return $this;

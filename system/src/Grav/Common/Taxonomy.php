@@ -93,8 +93,6 @@ class Taxonomy
             foreach ((array)$items as $item) {
                 if (isset($this->taxonomy_map[$taxonomy][$item])) {
                     $matches[] = $this->taxonomy_map[$taxonomy][$item];
-                } else {
-                    $matches[] = [];
                 }
             }
         }
@@ -128,11 +126,7 @@ class Taxonomy
 
         return $this->taxonomy_map;
     }
-<<<<<<< HEAD
     
-=======
-
->>>>>>> origin/develop
     /**
      * Gets item keys per taxonomy
      *

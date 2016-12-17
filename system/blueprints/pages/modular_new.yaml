@@ -1,6 +1,6 @@
 rules:
   slug:
-    pattern: '[a-z][a-z0-9_\-]+'
+    pattern: "[a-z][a-z0-9_\-]+"
     min: 2
     max: 80
 
@@ -30,7 +30,7 @@ form:
       label: PLUGIN_ADMIN.PAGE
       classes: fancy
       data-options@: '\Grav\Common\Page\Pages::parentsRawRoutes'
-      data-default@: '\Grav\Plugin\Admin\Admin::rawRoute'
+      data-default@: '\Grav\Plugin\admin::rawRoute'
       validate:
         required: true
 

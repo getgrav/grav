@@ -129,7 +129,6 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('<p>This is a string to truncate</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 100));
         $this->assertEquals('<input type="file" id="file" multiple>', Utils::truncateHtml('<input type="file" id="file" multiple />', 6));
         $this->assertEquals('<ol><li>item 1 <i>so...</i></li></ol>', Utils::truncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 10));
-		$this->assertEquals("<p>This is a string.</p>\n<p>It splits two lines.</p>", Utils::truncateHtml("<p>This is a string.</p>\n<p>It splits two lines.</p>", 100));
     }
 
     public function testSafeTruncateHtml()
