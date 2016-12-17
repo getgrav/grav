@@ -128,11 +128,7 @@ class Taxonomy
 
         return $this->taxonomy_map;
     }
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> origin/develop
     /**
      * Gets item keys per taxonomy
      *
