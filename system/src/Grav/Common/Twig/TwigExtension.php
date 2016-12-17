@@ -824,9 +824,6 @@ class TwigExtension extends \Twig_Extension
     {
         return preg_replace($pattern, $replace, $subject, $limit);
     }
-<<<<<<< HEAD
-
-=======
 
     /**
      * redirect browser from twig
