@@ -8,6 +8,7 @@
     * Fixed case where extracting a package would cause an error during rename
     * Fix issue with using Yaml::parse direcly on a filename, now deprecated
     * Fix [#891](https://github.com/getgrav/grav-plugin-admin/issues/891) Add pattern for frontend validation of folder slugs
+    * Fix issue with Inflector when translation is disabled [https://github.com/getgrav/grav-plugin-simplesearch/issues/87](https://github.com/getgrav/grav-plugin-simplesearch/issues/87)
 
 # v1.1.9
 ## 12/13/2016
