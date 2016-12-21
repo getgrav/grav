@@ -84,6 +84,7 @@ class DirectInstallCommand extends ConsoleCommand
             $this->output->write("\x0D");
             $this->output->writeln("  |- Extracting package...    <green>ok</green>");
 
+
             $type = $this->getPackageType($extracted);
 
             if (!$type) {
@@ -238,6 +239,9 @@ class DirectInstallCommand extends ConsoleCommand
      */
     protected function getPackageType($source)
     {
+        $plugin_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Plugin/m';
+        $theme_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Theme/m';
+
         if (
             file_exists($source . 'system/defines.php') &&
             file_exists($source . 'system/config/system.yaml')
@@ -258,9 +262,9 @@ class DirectInstallCommand extends ConsoleCommand
             }
             foreach (glob($source . "*.php") as $filename) {
                 $contents = file_get_contents($filename);
-                if (Utils::contains($contents, 'Grav\Common\Theme')) {
+                if (preg_match($theme_regex, $contents)) {
                     return 'theme';
-                } elseif (Utils::contains($contents, 'Grav\Common\Plugin')) {
+                } elseif (preg_match($plugin_regex, $contents)) {
                     return 'plugin';
                 }
             }

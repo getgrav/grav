@@ -4,6 +4,7 @@
 1. [](#improved)
     * Improve detection of home path. Also allow ~/.grav on Windows, drop ConsoleTrait::isWindows() method, used only for that [#1204](https://github.com/getgrav/grav/pull/1204)
     * Reworked PHP CLI router [#1219](https://github.com/getgrav/grav/pull/1219)
+    * More robust theme/plugin logic in `bin/gpm direct-install`
 1. [](#bugfix)
     * Fixed case where extracting a package would cause an error during rename
     * Fix issue with using Yaml::parse direcly on a filename, now deprecated
