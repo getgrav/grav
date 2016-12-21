@@ -1,5 +1,5 @@
 # v1.1.10
-## XX/XX/2016
+## 12/21/2016
 
 1. [](#improved)
     * Improve detection of home path. Also allow `~/.grav` on Windows, drop `ConsoleTrait::isWindows()` method, used only for that [#1204](https://github.com/getgrav/grav/pull/1204)
