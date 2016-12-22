@@ -1,3 +1,11 @@
+# v1.1.11
+## 12/22/2016
+
+1. [](#improved)
+    * Fall back properly to HTML if template type not found
+1. [](#bugfix)
+    * Fix issue with modular pages folders validation [#900](https://github.com/getgrav/grav/issues/900)
+
 # v1.1.10
 ## 12/21/2016
 
