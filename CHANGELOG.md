@@ -1,5 +1,5 @@
 # v1.1.11
-## xx/xx/2016
+## 12/22/2016
 
 1. [](#improved)
     * Fall back properly to HTML if template type not found
