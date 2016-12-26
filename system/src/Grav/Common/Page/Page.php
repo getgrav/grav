@@ -1123,7 +1123,7 @@ class Page
         }
 
         if (empty($this->template_format)) {
-            $this->template_format = Grav::instance()['uri']->extension();
+            $this->template_format = Grav::instance()['uri']->extension('html');
         }
 
         return $this->template_format;

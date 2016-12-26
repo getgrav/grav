@@ -1,3 +1,9 @@
+# v1.1.12
+## 12/26/2016
+
+1. [](#bugfix)
+    * Fixed issue with JSON calls throwing errors due to debugger enabled [#1227](https://github.com/getgrav/grav/issues/1227)
+
 # v1.1.11
 ## 12/22/2016
 
