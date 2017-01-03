@@ -26,6 +26,7 @@ form:
       validate:
         type: slug
         required: true
+        pattern: '[a-zа-я0-9_\-]+'
 
     route:
       type: select

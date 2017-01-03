@@ -87,6 +87,14 @@ class Debugger
     public function addAssets()
     {
         if ($this->enabled()) {
+
+            // Only add assets if Page is HTML
+            $page = $this->grav['page'];
+            if ($page->templateFormat() != 'html') {
+                $this->enabled = false;
+                return;
+            }
+
             /** @var Assets $assets */
             $assets = $this->grav['assets'];
 

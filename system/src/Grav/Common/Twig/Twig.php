@@ -343,6 +343,7 @@ class Twig
             // Try html version of this template if initial template was NOT html
             if ($ext != '.html' . TWIG_EXT) {
                 try {
+                    $page->templateFormat('html');
                     $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $twig_vars);
                 } catch (\Twig_Error_Loader $e) {
                     throw new \RuntimeException($error_msg, 400, $e);

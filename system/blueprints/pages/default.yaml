@@ -133,6 +133,7 @@ form:
                       label: PLUGIN_ADMIN.FOLDER_NAME
                       validate:
                         type: slug
+                        pattern: '[a-zа-я0-9_\-]+'
 
                     route:
                       type: select

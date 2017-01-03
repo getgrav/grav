@@ -582,9 +582,10 @@ class Validation
             foreach ($values as $key => $value) {
                 if (is_array($value)) {
                     $value = implode(',', $value);
-                }
-
-                $values[$key] =  array_map('trim', explode(',', $value));
+                    $values[$key] =  array_map('trim', explode(',', $value));
+                } else {
+                    $values[$key] =  trim($value);
+                }                
             }
         }
 

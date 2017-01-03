@@ -1,12 +1,36 @@
-# v1.1.10
-## XX/XX/2016
+# v1.1.13
+## xx/xx/201x
+
+1. [](#bugfix)
+    * Fixed [#635](https://github.com/getgrav/grav/issues/635) use mv instead of rename as that does not support cross volume operations
+
+# v1.1.12
+## 12/26/2016
+
+1. [](#bugfix)
+    * Fixed issue with JSON calls throwing errors due to debugger enabled [#1227](https://github.com/getgrav/grav/issues/1227)
+
+# v1.1.11
+## 12/22/2016
 
 1. [](#improved)
-    * Improve detection of home path. Also allow ~/.grav on Windows, drop ConsoleTrait::isWindows() method, used only for that [#1204](https://github.com/getgrav/grav/pull/1204)
+    * Fall back properly to HTML if template type not found
+1. [](#bugfix)
+    * Fix issue with modular pages folders validation [#900](https://github.com/getgrav/grav-plugin-admin/issues/900)
+
+# v1.1.10
+## 12/21/2016
+
+1. [](#improved)
+    * Improve detection of home path. Also allow `~/.grav` on Windows, drop `ConsoleTrait::isWindows()` method, used only for that [#1204](https://github.com/getgrav/grav/pull/1204)
+    * Reworked PHP CLI router [#1219](https://github.com/getgrav/grav/pull/1219)
+    * More robust theme/plugin logic in `bin/gpm direct-install`
 1. [](#bugfix)
     * Fixed case where extracting a package would cause an error during rename
-    * Fixed [#635](https://github.com/getgrav/grav/issues/635) use mv instead of rename as that does not support cross volume operations
-    * Fix issue with using Yaml::parse direcly on a filename, now deprecated
+    * Fix issue with using `Yaml::parse` direcly on a filename, now deprecated
+    * Add pattern for frontend validation of folder slugs [#891](https://github.com/getgrav/grav-plugin-admin/issues/891)
+    * Fix issue with Inflector when translation is disabled [https://github.com/getgrav/grav-plugin-simplesearch/issues/87](https://github.com/getgrav/grav-plugin-simplesearch/issues/87)
+    * Explicitly expose `array_unique` Twig filter [https://github.com/getgrav/grav-plugin-admin/issues/897](https://github.com/getgrav/grav-plugin-admin/issues/897)
 
 # v1.1.9
 ## 12/13/2016
