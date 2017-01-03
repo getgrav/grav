@@ -9,7 +9,6 @@
 namespace Grav\Common\Filesystem;
 
 use Grav\Common\Grav;
-use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class Folder
@@ -341,36 +340,12 @@ abstract class Folder
         // Make sure that path to the target exists before moving.
         self::create(dirname($target));
 
-        // Just rename the directory.
-        if (self::execIsDisabled() || Utils::isWindows()) {
-            // exec disabled, or windows. Cannot use mv. Fallback to rename() although
-            // not working cross volumes
-            $success = @rename($source, $target);
-            if (!$success) {
-                $error = error_get_last();
-                throw new \RuntimeException($error['message']);
-            }
-        } else {
-            exec("mv $source $target", $output, $return_val);
-
-            if ($return_val !== 0) {
-               throw new \RuntimeException($output);
-            }
-        }
+        self::copy($source, $target);
+        self::delete($source);
 
         // Make sure that the change will be detected when caching.
         @touch(dirname($source));
         @touch(dirname($target));
-    }
-
-    /**
-     * Utility method to check if `exec` is disabled in the PHP disabled functioons
-     *
-     * @return bool
-     */
-    private static function execIsDisabled() {
-        $disabled = explode(',', ini_get('disable_functions'));
-        return in_array('exec', $disabled);
     }
 
     /**

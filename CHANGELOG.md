@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed [#635](https://github.com/getgrav/grav/issues/635) use mv instead of rename as that does not support cross volume operations
+    * Add a better fix for [#635](https://github.com/getgrav/grav/issues/635), thanks @mahagr for the hint. Overwrites [#1214](https://github.com/getgrav/grav/pull/1214)
 
 # v1.1.12
 ## 12/26/2016
