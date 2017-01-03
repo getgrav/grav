@@ -1,3 +1,9 @@
+# v1.1.13
+## xx/xx/201x
+
+1. [](#bugfix)
+    * Fixed [#635](https://github.com/getgrav/grav/issues/635) use mv instead of rename as that does not support cross volume operations
+
 # v1.1.12
 ## 12/26/2016
 
