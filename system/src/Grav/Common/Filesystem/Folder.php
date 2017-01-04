@@ -340,8 +340,11 @@ abstract class Folder
         // Make sure that path to the target exists before moving.
         self::create(dirname($target));
 
-        self::copy($source, $target);
-        self::delete($source);
+        $success = @rename($source, $target);
+        if (!$success) {
+            self::copy($source, $target);
+            self::delete($source);
+        }
 
         // Make sure that the change will be detected when caching.
         @touch(dirname($source));
