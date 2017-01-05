@@ -949,7 +949,7 @@
     * Added new `onImageMediumSaved()` event (useful for post-image processing)
     * Added `Vary: Accept-Encoding` option
 2. [](#improved)
-    * Multilang-safe delimeter position
+    * Multilang-safe delimiter position
     * Refactored Twig classes and added optional umask setting
     * Removed `pageinit()` timing
     * `Page->routable()` now takes `published()` state into account
