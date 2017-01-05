@@ -2628,7 +2628,7 @@ class Page
 
     protected function setPublishState()
     {
-        // Handle publishing dates if no explict published option set
+        // Handle publishing dates if no explicit published option set
         if (Grav::instance()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
             // unpublish if required, if not clear cache right before page should be unpublished
             if ($this->unpublishDate()) {
