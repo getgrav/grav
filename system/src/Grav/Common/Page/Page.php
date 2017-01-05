@@ -2301,7 +2301,9 @@ class Page
 
             if (is_array($sort_flags)) {
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
-                $sort_flags = array_reduce($sort_flags, function($a, $b) { return $a | $b; }, 0); //merge constant values using bit or
+                $sort_flags = array_reduce($sort_flags, function ($a, $b) {
+                    return $a | $b;
+                }, 0); //merge constant values using bit or
             }
 
             $collection->order($by, $dir, $custom, $sort_flags);
@@ -2425,7 +2427,7 @@ class Page
                         case 'modular':
                             $results = new Collection();
                             foreach ($page->children() as $child) {
-                              $results = $results->addPage($child);
+                                $results = $results->addPage($child);
                             }
                             $results->modular();
                             break;
