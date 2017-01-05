@@ -1,6 +1,8 @@
 # v1.1.13
 ## xx/xx/201x
 
+1. [](#improved)
+    * Several improvements to aid theme development [#232](https://github.com/getgrav/grav/pull/1232)
 1. [](#bugfix)
     * Fixed cross volume file system operations [#635](https://github.com/getgrav/grav/issues/635)
     * Fix issue with pages folders validation not accepting uppercase letters
