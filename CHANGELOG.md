@@ -5,6 +5,7 @@
     * Fixed cross volume file system operations [#635](https://github.com/getgrav/grav/issues/635)
     * Fix issue with pages folders validation not accepting uppercase letters
     * Fix renaming the folder name if the page, in the default language, had a custom slug set in its header
+    * Fixed issue with `Content-Encoding: none`. It should really be `Content-Encoding: identity` instead
 
 # v1.1.12
 ## 12/26/2016
