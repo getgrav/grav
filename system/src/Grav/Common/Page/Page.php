@@ -1469,15 +1469,6 @@ class Page
     }
 
     /**
-     * Gets the URL with host information, aka Permalink.
-     * @return string The permalink.
-     */
-    public function permalink()
-    {
-        return $this->url(true);
-    }
-
-    /**
      * Gets the URL for a page - alias of url().
      *
      * @param bool $include_host
@@ -1490,15 +1481,35 @@ class Page
     }
 
     /**
+     * Gets the URL with host information, aka Permalink.
+     * @return string The permalink.
+     */
+    public function permalink()
+    {
+        return $this->url(true, false, true, true);
+    }
+
+    /**
+     * Returns the canonical URL for a page
+     *
+     * @param bool $include_lang
+     * @return string
+     */
+    public function canonical($include_lang = true)
+    {
+        return $this->url(true, true, $include_lang);
+    }
+
+    /**
      * Gets the url for the Page.
      *
      * @param bool $include_host Defaults false, but true would include http://yourhost.com
-     * @param bool $canonical    true to return the canonical URL
+     * @param bool $canonical true to return the canonical URL
      * @param bool $include_lang
-     *
+     * @param bool $raw_route
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_lang = true)
+    public function url($include_host = false, $canonical = false, $include_lang = true, $raw_route = false)
     {
         $grav = Grav::instance();
 
@@ -1534,6 +1545,8 @@ class Page
         // get canonical route if requested
         if ($canonical) {
             $route = $pre_route . $this->routeCanonical();
+        } elseif ($raw_route) {
+            $route = $pre_route . $this->rawRoute();
         } else {
             $route = $pre_route . $this->route();
         }
