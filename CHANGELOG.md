@@ -8,6 +8,7 @@
     * Fix issue with pages folders validation not accepting uppercase letters
     * Fix renaming the folder name if the page, in the default language, had a custom slug set in its header
     * Fixed issue with `Content-Encoding: none`. It should really be `Content-Encoding: identity` instead
+    * Fixed broken `hash` method on page modifications detection
 
 # v1.1.12
 ## 12/26/2016
