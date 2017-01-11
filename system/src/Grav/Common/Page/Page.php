@@ -1687,7 +1687,10 @@ class Page
     public function id($var = null)
     {
         if ($var !== null) {
-            $this->id = $var;
+            // store unique per language
+            $active_lang = Grav::instance()['language']->getLanguage() ?: '';
+            $id = $active_lang . $var;
+            $this->id = $id;
         }
 
         return $this->id;

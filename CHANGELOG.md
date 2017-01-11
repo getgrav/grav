@@ -9,6 +9,7 @@
     * Fix renaming the folder name if the page, in the default language, had a custom slug set in its header
     * Fixed issue with `Content-Encoding: none`. It should really be `Content-Encoding: identity` instead
     * Fixed broken `hash` method on page modifications detection
+    * Fixed issue with multi-lang pages not caching independently without unique `.md` file [#1211](https://github.com/getgrav/grav/issues/1211)
 
 # v1.1.12
 ## 12/26/2016
