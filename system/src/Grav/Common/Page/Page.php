@@ -572,16 +572,16 @@ class Page
             $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first',
                 true);
 
+            // never cache twig means it's always run after content
+            $never_cache_twig = isset($this->header->never_cache_twig) ? $this->header->never_cache_twig : $config->get('system.pages.never_cache_twig',
+                false);
 
             // if no cached-content run everything
-            if ($this->content === false || $cache_enable === false) {
-                $this->content = $this->raw_content;
-                Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+            if ($never_cache_twig) {
+                if ($this->content === false || $cache_enable === false) {
+                    $this->content = $this->raw_content;
+                    Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
-                if ($twig_first) {
-                    if ($process_twig) {
-                        $this->processTwig();
-                    }
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
@@ -589,21 +589,47 @@ class Page
                     // Content Processed but not cached yet
                     Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
-                } else {
-                    if ($process_markdown) {
-                        $this->processMarkdown();
-                    }
-
-                    // Content Processed but not cached yet
-                    Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-
-                    if ($process_twig) {
-                        $this->processTwig();
+                    if ($cache_enable) {
+                        $this->cachePageContent();
                     }
                 }
 
-                if ($cache_enable) {
-                    $this->cachePageContent();
+                if ($process_twig) {
+                    $this->processTwig();
+                }
+
+            } else {
+                if ($this->content === false || $cache_enable === false) {
+                    $this->content = $this->raw_content;
+                    Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+
+                    if ($twig_first) {
+                        if ($process_twig) {
+                            $this->processTwig();
+                        }
+                        if ($process_markdown) {
+                            $this->processMarkdown();
+                        }
+
+                        // Content Processed but not cached yet
+                        Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
+                    } else {
+                        if ($process_markdown) {
+                            $this->processMarkdown();
+                        }
+
+                        // Content Processed but not cached yet
+                        Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
+                        if ($process_twig) {
+                            $this->processTwig();
+                        }
+                    }
+
+                    if ($cache_enable) {
+                        $this->cachePageContent();
+                    }
                 }
             }
 

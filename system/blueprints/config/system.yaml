@@ -244,6 +244,17 @@ form:
                     validate:
                         type: bool
 
+                pages.never_cache_twig:
+                    type: toggle
+                    label: PLUGIN_ADMIN.NEVER_CACHE_TWIG
+                    help: PLUGIN_ADMIN.NEVER_CACHE_TWIG_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 pages.frontmatter.process_twig:
                     type: toggle
                     label: PLUGIN_ADMIN.FRONTMATTER_PROCESS_TWIG

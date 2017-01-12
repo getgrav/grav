@@ -36,6 +36,7 @@ pages:
     markdown: true                          # Process Markdown
     twig: false                             # Process Twig
   twig_first: false                         # Process Twig before markdown when processing both on a page
+  never_cache_twig: false                   # Only cache content, never cache twig processed in content (incompatible with `twig_first: true`)
   events:
     page: true                              # Enable page level events
     twig: true                              # Enable Twig level events
