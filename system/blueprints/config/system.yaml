@@ -466,7 +466,7 @@ form:
                     label: PLUGIN_ADMIN.CACHE_CHECK_METHOD
                     help: PLUGIN_ADMIN.CACHE_CHECK_METHOD_HELP
                     options:
-                        file: Markdown file + media timestamps
+                        file: Markdown + Yaml file timestamps
                         folder: Folder timestamps
                         hash: All files timestamps
                         none: No timestamp checking
