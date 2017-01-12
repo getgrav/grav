@@ -1,6 +1,8 @@
 # v1.1.13
 ## xx/xx/201x
 
+1. [](#new)
+    * Added new `never_cache_twig` page option in `system.yaml` and frontmatter. Allows dynamic Twig logic in regular and modular Twig templates [#1244](https://github.com/getgrav/grav/pull/1244)
 1. [](#improved)
     * Several improvements to aid theme development [#232](https://github.com/getgrav/grav/pull/1232)
     * Added `hash` cache check option and made dropdown more descriptive [Admin #923](https://github.com/getgrav/grav-plugin-admin/issues/923) 
