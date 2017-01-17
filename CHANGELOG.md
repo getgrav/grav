@@ -5,7 +5,7 @@
     * Added new `never_cache_twig` page option in `system.yaml` and frontmatter. Allows dynamic Twig logic in regular and modular Twig templates [#1244](https://github.com/getgrav/grav/pull/1244)
 1. [](#improved)
     * Several improvements to aid theme development [#232](https://github.com/getgrav/grav/pull/1232)
-    * Added `hash` cache check option and made dropdown more descriptive [Admin #923](https://github.com/getgrav/grav-plugin-admin/issues/923) 
+    * Added `hash` cache check option and made dropdown more descriptive [Admin #923](https://github.com/getgrav/grav-plugin-admin/issues/923)
 1. [](#bugfix)
     * Fixed cross volume file system operations [#635](https://github.com/getgrav/grav/issues/635)
     * Fix issue with pages folders validation not accepting uppercase letters
@@ -14,6 +14,7 @@
     * Fixed broken `hash` method on page modifications detection
     * Fixed issue with multi-lang pages not caching independently without unique `.md` file [#1211](https://github.com/getgrav/grav/issues/1211)
     * Fixed all `$_GET` parameters missing in Nginx (please update your nginx.conf) [#1245](https://github.com/getgrav/grav/issues/1245)
+    * Fixed issue in trying to process broken symlink [#1254](https://github.com/getgrav/grav/issues/1254)
 
 # v1.1.12
 ## 12/26/2016
