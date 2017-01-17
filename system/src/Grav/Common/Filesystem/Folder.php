@@ -70,9 +70,13 @@ abstract class Folder
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $filepath => $file) {
-            $file_modified = $file->getMTime();
-            if ($file_modified > $last_modified) {
-                $last_modified = $file_modified;
+            try {
+                $file_modified = $file->getMTime();
+                if ($file_modified > $last_modified) {
+                    $last_modified = $file_modified;
+                }
+            } catch (\Exception $e) {
+                Grav::instance()['log']->error('Could not process file: ' . $e->getMessage());
             }
         }
 
@@ -340,12 +344,10 @@ abstract class Folder
         // Make sure that path to the target exists before moving.
         self::create(dirname($target));
 
-        // Just rename the directory.
         $success = @rename($source, $target);
-
         if (!$success) {
-            $error = error_get_last();
-            throw new \RuntimeException($error['message']);
+            self::copy($source, $target);
+            self::delete($source);
         }
 
         // Make sure that the change will be detected when caching.

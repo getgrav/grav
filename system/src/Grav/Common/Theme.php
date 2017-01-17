@@ -8,6 +8,7 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Page\Page;
 use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\File\YamlFile;
 
@@ -57,6 +58,13 @@ class Theme extends Plugin
         $file->free();
 
         return true;
+    }
+
+    /**
+     * Override the mergeConfig method to work for themes
+     */
+    protected function mergeConfig(Page $page, $deep = 'merge', $params = [], $type = 'themes') {
+        return parent::mergeConfig($page, $deep, $params, $type);
     }
 
     /**

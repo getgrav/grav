@@ -572,16 +572,16 @@ class Page
             $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first',
                 true);
 
+            // never cache twig means it's always run after content
+            $never_cache_twig = isset($this->header->never_cache_twig) ? $this->header->never_cache_twig : $config->get('system.pages.never_cache_twig',
+                false);
 
             // if no cached-content run everything
-            if ($this->content === false || $cache_enable === false) {
-                $this->content = $this->raw_content;
-                Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+            if ($never_cache_twig) {
+                if ($this->content === false || $cache_enable === false) {
+                    $this->content = $this->raw_content;
+                    Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
-                if ($twig_first) {
-                    if ($process_twig) {
-                        $this->processTwig();
-                    }
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
@@ -589,21 +589,47 @@ class Page
                     // Content Processed but not cached yet
                     Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
-                } else {
-                    if ($process_markdown) {
-                        $this->processMarkdown();
-                    }
-
-                    // Content Processed but not cached yet
-                    Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-
-                    if ($process_twig) {
-                        $this->processTwig();
+                    if ($cache_enable) {
+                        $this->cachePageContent();
                     }
                 }
 
-                if ($cache_enable) {
-                    $this->cachePageContent();
+                if ($process_twig) {
+                    $this->processTwig();
+                }
+
+            } else {
+                if ($this->content === false || $cache_enable === false) {
+                    $this->content = $this->raw_content;
+                    Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+
+                    if ($twig_first) {
+                        if ($process_twig) {
+                            $this->processTwig();
+                        }
+                        if ($process_markdown) {
+                            $this->processMarkdown();
+                        }
+
+                        // Content Processed but not cached yet
+                        Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
+                    } else {
+                        if ($process_markdown) {
+                            $this->processMarkdown();
+                        }
+
+                        // Content Processed but not cached yet
+                        Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
+                        if ($process_twig) {
+                            $this->processTwig();
+                        }
+                    }
+
+                    if ($cache_enable) {
+                        $this->cachePageContent();
+                    }
                 }
             }
 
@@ -1458,20 +1484,14 @@ class Page
     {
         if ($var !== null) {
             $order = !empty($var) ? sprintf('%02d.', (int)$var) : '';
-            $this->folder($order . $this->slug());
+            $this->folder($order . preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
+
+            return $order;
         }
+
         preg_match(PAGE_ORDER_PREFIX_REGEX, $this->folder, $order);
 
         return isset($order[0]) ? $order[0] : false;
-    }
-
-    /**
-     * Gets the URL with host information, aka Permalink.
-     * @return string The permalink.
-     */
-    public function permalink()
-    {
-        return $this->url(true);
     }
 
     /**
@@ -1487,15 +1507,35 @@ class Page
     }
 
     /**
+     * Gets the URL with host information, aka Permalink.
+     * @return string The permalink.
+     */
+    public function permalink()
+    {
+        return $this->url(true, false, true, true);
+    }
+
+    /**
+     * Returns the canonical URL for a page
+     *
+     * @param bool $include_lang
+     * @return string
+     */
+    public function canonical($include_lang = true)
+    {
+        return $this->url(true, true, $include_lang);
+    }
+
+    /**
      * Gets the url for the Page.
      *
      * @param bool $include_host Defaults false, but true would include http://yourhost.com
-     * @param bool $canonical    true to return the canonical URL
+     * @param bool $canonical true to return the canonical URL
      * @param bool $include_lang
-     *
+     * @param bool $raw_route
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_lang = true)
+    public function url($include_host = false, $canonical = false, $include_lang = true, $raw_route = false)
     {
         $grav = Grav::instance();
 
@@ -1531,6 +1571,8 @@ class Page
         // get canonical route if requested
         if ($canonical) {
             $route = $pre_route . $this->routeCanonical();
+        } elseif ($raw_route) {
+            $route = $pre_route . $this->rawRoute();
         } else {
             $route = $pre_route . $this->route();
         }
@@ -1671,7 +1713,10 @@ class Page
     public function id($var = null)
     {
         if ($var !== null) {
-            $this->id = $var;
+            // store unique per language
+            $active_lang = Grav::instance()['language']->getLanguage() ?: '';
+            $id = $active_lang . $var;
+            $this->id = $id;
         }
 
         return $this->id;
@@ -2298,7 +2343,9 @@ class Page
 
             if (is_array($sort_flags)) {
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
-                $sort_flags = array_reduce($sort_flags, function($a, $b) { return $a | $b; }, 0); //merge constant values using bit or
+                $sort_flags = array_reduce($sort_flags, function ($a, $b) {
+                    return $a | $b;
+                }, 0); //merge constant values using bit or
             }
 
             $collection->order($by, $dir, $custom, $sort_flags);
@@ -2422,7 +2469,7 @@ class Page
                         case 'modular':
                             $results = new Collection();
                             foreach ($page->children() as $child) {
-                              $results = $results->addPage($child);
+                                $results = $results->addPage($child);
                             }
                             $results->modular();
                             break;
@@ -2610,7 +2657,7 @@ class Page
 
     protected function setPublishState()
     {
-        // Handle publishing dates if no explict published option set
+        // Handle publishing dates if no explicit published option set
         if (Grav::instance()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
             // unpublish if required, if not clear cache right before page should be unpublished
             if ($this->unpublishDate()) {

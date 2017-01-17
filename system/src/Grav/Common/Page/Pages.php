@@ -764,6 +764,7 @@ class Pages
                     break;
                 case 'hash':
                     $hash = Folder::hashAllFiles($pages_dir);
+                    break;
                 default:
                     $hash = Folder::lastModifiedFile($pages_dir);
             }

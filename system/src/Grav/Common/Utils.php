@@ -110,6 +110,26 @@ abstract class Utils
     }
 
     /**
+     * Recursive Merge with uniqueness
+     *
+     * @param $array1
+     * @param $array2
+     * @return mixed
+     */
+    public static function arrayMergeRecursiveUnique($array1, $array2)
+    {
+        if (empty($array1)) return $array2; //optimize the base case
+
+        foreach ($array2 as $key => $value) {
+            if (is_array($value) && is_array(@$array1[$key])) {
+                $value = static::arrayMergeRecursiveUnique($array1[$key], $value);
+            }
+            $array1[$key] = $value;
+        }
+        return $array1;
+    }
+
+    /**
      * Return the Grav date formats allowed
      *
      * @return array
@@ -812,5 +832,14 @@ abstract class Utils
 
 
         return $array;
+    }
+
+    /**
+     * Utility method to determine if the current OS is Windows
+     *
+     * @return bool
+     */
+    public static function isWindows() {
+        return strncasecmp(PHP_OS, 'WIN', 3) == 0;
     }
 }

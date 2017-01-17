@@ -133,7 +133,7 @@ form:
                       label: PLUGIN_ADMIN.FOLDER_NAME
                       validate:
                         type: slug
-                        pattern: '[a-zа-я0-9_\-]+'
+                        pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
 
                     route:
                       type: select
@@ -224,6 +224,30 @@ form:
                     markdown: Markdown
                     twig: Twig
                   use: keys
+
+                header.twig_first:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.TWIG_FIRST
+                  help: PLUGIN_ADMIN.TWIG_FIRST_HELP
+                  highlight: 0
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
+
+                header.never_cache_twig:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.NEVER_CACHE_TWIG
+                  help: PLUGIN_ADMIN.NEVER_CACHE_TWIG_HELP
+                  highlight: 0
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
 
                 header.child_type:
                   type: select
