@@ -1,5 +1,5 @@
 # v1.1.13
-## xx/xx/201x
+## 01/17/2017
 
 1. [](#new)
     * Added new `never_cache_twig` page option in `system.yaml` and frontmatter. Allows dynamic Twig logic in regular and modular Twig templates [#1244](https://github.com/getgrav/grav/pull/1244)
