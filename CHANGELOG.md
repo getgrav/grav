@@ -1,3 +1,9 @@
+# v1.1.14
+## XX/XX/2017
+
+1. [](#bugfix)
+    * Fixed `page.collection()` returning array and not Collection object when header variable did not exist
+
 # v1.1.13
 ## 01/17/2017
 
