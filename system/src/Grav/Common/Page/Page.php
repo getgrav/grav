@@ -2288,7 +2288,7 @@ class Page
         }
 
         if (!isset($params['items'])) {
-            return [];
+            return new Collection();
         }
 
         $collection = $this->evaluate($params['items']);
