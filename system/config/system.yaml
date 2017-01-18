@@ -73,6 +73,7 @@ cache:
   prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
   lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                               # GZip compress the page output
+  allow_webserver_gzip: false               # If true, `content-encoding: identity` but connection isn't closed before `onShutDown()` event
   redis:
     socket: false                           # Path to redis unix socket (e.g. /var/run/redis/redis.sock), false = use server and port to connect
 

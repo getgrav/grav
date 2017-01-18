@@ -575,6 +575,17 @@ form:
                     validate:
                         type: bool
 
+                cache.allow_webserver_gzip:
+                    type: toggle
+                    label: PLUGIN_ADMIN.ALLOW_WEBSERVER_GZIP
+                    help: PLUGIN_ADMIN.ALLOW_WEBSERVER_GZIP_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
         twig:
             type: section
             title: PLUGIN_ADMIN.TWIG_TEMPLATING
