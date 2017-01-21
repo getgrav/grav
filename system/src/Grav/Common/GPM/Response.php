@@ -361,7 +361,7 @@ class Response
             return curl_exec($ch);
         }
 
-        $max_redirects = isset($options['curl'][CURLOPT_MAXREDIRS]) ? $options['curl'][CURLOPT_MAXREDIRS] : 3;
+        $max_redirects = isset($options['curl'][CURLOPT_MAXREDIRS]) ? $options['curl'][CURLOPT_MAXREDIRS] : 5;
         $options['curl'][CURLOPT_FOLLOWLOCATION] = false;
 
         // open_basedir set but no redirects to follow, we can disable followlocation and proceed normally
@@ -386,7 +386,7 @@ class Response
                 $code = 0;
             } else {
                 $code = curl_getinfo($rch, CURLINFO_HTTP_CODE);
-                if ($code == 301 || $code == 302) {
+                if ($code == 301 || $code == 302 || $code == 303) {
                     preg_match('/Location:(.*?)\n/', $header, $matches);
                     $uri = trim(array_pop($matches));
                 } else {
