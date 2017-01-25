@@ -370,7 +370,9 @@ class Cache extends Getters
 
                 if (is_array($files)) {
                     foreach ($files as $file) {
-                        if (is_file($file)) {
+                        if (is_link($file)) {
+                            $output[] = '<yellow>Skipping symlink:  </yellow>' . $file;
+                        } elseif (is_file($file)) {
                             if (@unlink($file)) {
                                 $anything = true;
                             }
