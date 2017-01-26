@@ -126,9 +126,9 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
         $this->assertSame('<p><img alt="" src="http://testing.dev/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-cache-image.jpe?g" alt="" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/images\/.*-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cache)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-home-cache-image.jpe?g" alt="" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
         $this->assertSame('<p><img src="http://testing.dev/item2/item2-2/missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](missing-image.jpg)'));
