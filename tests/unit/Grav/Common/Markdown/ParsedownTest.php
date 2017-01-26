@@ -78,18 +78,18 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->grav['language'] = new Language($this->grav);
         $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
 
-        $this->assertSame('<p><img src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cropResize=200,200&foo)'));
 
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
-        $this->assertSame('<p><img src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="\/images\/.*-cache-image.jpe?g\?foo=1" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cropResize=200,200&foo)'));
-        $this->assertRegexp('|<p><img src="\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
         $this->assertSame('<p><img src="/item2/item2-2/missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](missing-image.jpg)'));
@@ -106,11 +106,11 @@ class ParsedownTest extends \Codeception\TestCase\Test
     {
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
 
-        $this->assertRegexp('|<p><img src="\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
-        $this->assertSame('<p><img src="/subdir/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="/subdir/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cache)'));
         $this->assertSame('<p><img src="/subdir/item2/item2-2/missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](missing-image.jpg)'));
@@ -124,11 +124,11 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->config->set('system.absolute_urls', true);
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
-        $this->assertSame('<p><img src="http://testing.dev/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="http://testing.dev/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/images\/.*-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cache)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cache)'));
         $this->assertSame('<p><img src="http://testing.dev/item2/item2-2/missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](missing-image.jpg)'));
@@ -141,11 +141,11 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->config->set('system.absolute_urls', true);
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
 
-        $this->assertSame('<p><img src="http://testing.dev/subdir/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="http://testing.dev/subdir/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cache)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cropResize=200,200)'));
         $this->assertSame('<p><img src="http://testing.dev/subdir/item2/item2-2/missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](missing-image.jpg)'));
@@ -157,13 +157,13 @@ class ParsedownTest extends \Codeception\TestCase\Test
     {
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
-        $this->assertSame('<p><img title="My Title" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img title="My Title" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg "My Title")'));
-        $this->assertSame('<p><img class="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" class="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg?classes=foo)'));
-        $this->assertSame('<p><img class="foo bar" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" class="foo bar" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg?classes=foo,bar)'));
-        $this->assertSame('<p><img id="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" id="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg?id=foo)'));
         $this->assertSame('<p><img alt="Alt Text" id="foo" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![Alt Text](sample-image.jpg?id=foo)'));
@@ -188,11 +188,11 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $page = $this->pages->dispatch('/');
         $this->parsedown = new Parsedown($page, $defaults);
 
-        $this->assertSame('<p><img src="/tests/fake/nested-site/user/pages/01.item1/home-sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="/tests/fake/nested-site/user/pages/01.item1/home-sample-image.jpg" /></p>',
             $this->parsedown->text('![](home-sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](home-cache-image.jpg?cache)'));
-        $this->assertRegexp('|<p><img src="\/images\/.*-home-cache-image.jpe?g\?foo=1" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="\/images\/.*-home-cache-image.jpe?g\?foo=1" \/><\/p>|',
             $this->parsedown->text('![](home-cache-image.jpg?cropResize=200,200&foo)'));
         $this->assertSame('<p><img src="/home-missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](/home-missing-image.jpg)'));
@@ -202,7 +202,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->grav['language'] = new Language($this->grav);
         $this->uri->initializeWithURL('http://testing.dev/fr/item2/item2-2')->init();
 
-        $this->assertSame('<p><img src="/tests/fake/nested-site/user/pages/01.item1/home-sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="/tests/fake/nested-site/user/pages/01.item1/home-sample-image.jpg" /></p>',
             $this->parsedown->text('![](home-sample-image.jpg)'));
 
 
@@ -213,11 +213,11 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->config->set('system.absolute_urls', true);
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
 
-        $this->assertSame('<p><img src="http://testing.dev/subdir/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+        $this->assertSame('<p><img alt="" src="http://testing.dev/subdir/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/subdir\/images\/.*-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](cache-image.jpg?cache)'));
-        $this->assertRegexp('|<p><img src="http:\/\/testing.dev\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
+        $this->assertRegexp('|<p><img alt="" src="http:\/\/testing.dev\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
             $this->parsedown->text('![](/home-cache-image.jpg?cropResize=200,200)'));
         $this->assertSame('<p><img src="http://testing.dev/subdir/item2/item2-2/missing-image.jpg" alt="" /></p>',
             $this->parsedown->text('![](missing-image.jpg)'));
