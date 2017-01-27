@@ -5,7 +5,7 @@ wrapped_site: false                         # For themes/plugins to know if Grav
 reverse_proxy_setup: false                  # Running in a reverse proxy scenario with different webserver ports than proxy
 force_ssl: false                            # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
 custom_base_url: ''                         # Set the base_url manually
-param_sep:                                  # Automatically is selected based on PATH_SEPERATOR, but can be manually chosen. Use ';' for Apache on windows
+param_sep: ':'                              # Will automatically set correctly for windows
 
 languages:
   supported: []                             # List of languages supported. eg: [en, fr, de]

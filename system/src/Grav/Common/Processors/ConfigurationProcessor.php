@@ -8,6 +8,8 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Utils;
+
 class ConfigurationProcessor extends ProcessorBase implements ProcessorInterface {
 
     public $id = '_config';
@@ -17,7 +19,8 @@ class ConfigurationProcessor extends ProcessorBase implements ProcessorInterface
       	$this->container['config']->init();
 
       	// Set param_sep based on system level PATH_SEPARATOR if not already set
-      	if (!$this->container['config']->get('system.param_sep')) {
+        $param_sep = $this->container['config']->get('system.param_sep');
+      	if  ($param_sep !== PATH_SEPARATOR && Utils::isWindows()) {
       	    $this->container['config']->set('system.param_sep', PATH_SEPARATOR);
         }
 
