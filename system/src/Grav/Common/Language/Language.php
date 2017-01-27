@@ -294,6 +294,21 @@ class Language
     }
 
     /**
+     * Resets the page_extensions value.
+     *
+     * Useful to re-initialize the pages and change site language at runtime, example:
+     *
+     * ```
+     * $this->grav['language']->setActive('it');
+     * $this->grav['language']->resetFallbackPageExtensions();
+     * $this->grav['pages']->init();
+     * ```
+     */
+    public function resetFallbackPageExtensions() {
+        $this->page_extensions = null;
+    }
+
+    /**
      * Gets an array of languages with active first, then fallback languages
      *
      * @return array
