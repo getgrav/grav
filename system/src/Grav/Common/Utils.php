@@ -842,4 +842,13 @@ abstract class Utils
     public static function isWindows() {
         return strncasecmp(PHP_OS, 'WIN', 3) == 0;
     }
+
+    /**
+     * Utility to determine if the server running PHP is Apache
+     *
+     * @return bool
+     */
+    public static function isApache() {
+        return strpos($_SERVER["SERVER_SOFTWARE"], 'Apache') !== false;
+    }
 }

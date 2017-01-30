@@ -20,9 +20,8 @@ class ConfigurationProcessor extends ProcessorBase implements ProcessorInterface
     {
         $this->container['config']->init();
 
-        // Set param_sep based on system level PATH_SEPARATOR if on windows
-        $param_sep = $this->container['config']->get('system.param_sep');
-        if ($param_sep !== PATH_SEPARATOR && Utils::isWindows()) {
+        // Set param_sep based on system level PATH_SEPARATOR if on windows + apache
+        if ($this->container['config']->get('system.param_sep') !== PATH_SEPARATOR && Utils::isWindows() && Utils::isApache()) {
             $this->container['config']->set('system.param_sep', PATH_SEPARATOR);
         }
 
