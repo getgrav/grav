@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added a new `Collection::merge()` method to allow merging of multiple collections [#1258](https://github.com/getgrav/grav/pull/1258)
+    * Added [OpenCollective](https://opencollective.com/grav) backer/sponsor info to `README.md`
 1. [](#improved)
     * Add an additional parameter to GPM::findPackage to avoid throwing an exception, for use in Twig [#1008](https://github.com/getgrav/grav/issues/1008)
     * Skip symlinks if found while clearing cache [#1269](https://github.com/getgrav/grav/issues/1269)
