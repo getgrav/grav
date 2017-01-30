@@ -1,5 +1,5 @@
 # v1.1.15
-## xx/xx/2017
+## 01/30/2017
 
 1. [](#new)
     * Added a new `Collection::merge()` method to allow merging of multiple collections [#1258](https://github.com/getgrav/grav/pull/1258)
