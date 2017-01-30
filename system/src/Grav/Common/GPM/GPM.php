@@ -446,9 +446,10 @@ class GPM extends Iterator
     /**
      * Searches for a Package in the repository
      * @param  string $search Can be either the slug or the name
+     * @param  bool $ignore_exception True if should not fire an exception (for use in Twig)
      * @return Remote\Package Package if found, FALSE if not
      */
-    public function findPackage($search)
+    public function findPackage($search, $ignore_exception = false)
     {
         $search = strtolower($search);
 
@@ -468,6 +469,10 @@ class GPM extends Iterator
         if (!$themes && !$plugins) {
             if (!is_writable(ROOT_DIR . '/cache/gpm')) {
                 throw new \RuntimeException("The cache/gpm folder is not writable. Please check the folder permissions.");
+            }
+
+            if ($ignore_exception) {
+                return false;
             }
 
             throw new \RuntimeException("GPM not reachable. Please check your internet connection or check the Grav site is reachable");

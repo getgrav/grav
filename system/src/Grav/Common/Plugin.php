@@ -301,7 +301,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     {
         if ($deep == 'merge') {
             return Utils::arrayMergeRecursiveUnique($array1, $array2);
-        } elseif ($deep == true) {
+        } elseif ($deep === true) {
             return array_replace_recursive($array1, $array2);
         } else {
             return array_merge($array1, $array2);
