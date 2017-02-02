@@ -291,7 +291,7 @@ class Response
                 case '401':
                     throw new \RuntimeException("Invalid LICENSE");
                 default:
-                    throw new \RuntimeException("Error while trying to download '$uri'\n");
+                    throw new \RuntimeException("Error while trying to download (code: $code): $uri \n");
             }
         }
 
@@ -327,7 +327,7 @@ class Response
                 case '401':
                     throw new \RuntimeException("Invalid LICENSE");
                 default:
-                    throw new \RuntimeException("Error while trying to download '$uri'\nMessage: $error_message");
+                    throw new \RuntimeException("Error while trying to download (code: $code): $uri \nMessage: $error_message");
             }
         }
 
