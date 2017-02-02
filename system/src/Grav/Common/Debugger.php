@@ -104,17 +104,14 @@ class Debugger
             $this->renderer = $this->debugbar->getJavascriptRenderer();
             $this->renderer->setIncludeVendors(false);
 
-            // Get the required CSS files
-            list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
+            // Get the required CSS files and handle via Assets
+            $css_files = $this->renderer->getAssets('css', JavascriptRenderer::RELATIVE_URL);
             foreach ($css_files as $css) {
                 $assets->addCss($css);
             }
 
             $assets->addCss('/system/assets/debugger.css');
 
-            foreach ($js_files as $js) {
-                $assets->addJs($js);
-            }
         }
 
         return $this;
@@ -156,6 +153,13 @@ class Debugger
     public function render()
     {
         if ($this->enabled()) {
+
+            $base_url = $this->grav['base_url'] == '/' ? '' : $this->grav['base_url'];
+            $js_files = $this->renderer->getAssets('js', JavascriptRenderer::RELATIVE_URL);
+            foreach ($js_files as $js) {
+                echo "<script type=\"text/javascript\" src=\"{$base_url}{$js}\"></script>\n";
+            }
+
             echo $this->renderer->render();
         }
 
