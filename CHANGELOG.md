@@ -1,3 +1,9 @@
+# v1.1.xx
+## xx/xx/2017
+
+1. [](#bugfix)
+    * Fix blueprints slug validation [https://github.com/getgrav/grav-plugin-admin/issues/955](https://github.com/getgrav/grav-plugin-admin/issues/955)
+
 # v1.1.15
 ## 01/30/2017
 
