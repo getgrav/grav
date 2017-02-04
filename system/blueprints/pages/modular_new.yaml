@@ -2,7 +2,7 @@ rules:
   slug:
     pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
     min: 1
-    max: 255
+    max: 200
 
 form:
   validation: loose
