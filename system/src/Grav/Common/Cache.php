@@ -437,4 +437,24 @@ class Cache extends Getters
 
         return $this->lifetime;
     }
+
+    /**
+     * Returns the current driver name
+     *
+     * @return mixed
+     */
+    public function getDriverName()
+    {
+        return $this->driver_name;
+    }
+
+    /**
+     * Returns the current driver setting
+     *
+     * @return mixed
+     */
+    public function getDriverSetting()
+    {
+        return $this->driver_setting;
+    }
 }

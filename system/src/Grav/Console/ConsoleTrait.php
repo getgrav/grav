@@ -41,8 +41,11 @@ trait ConsoleTrait
      */
     public function setupConsole(InputInterface $input, OutputInterface $output)
     {
-        if (Grav::instance()) {
-            Grav::instance()['config']->set('system.cache.driver', 'default');
+        $cache = Grav::instance()['cache'];
+
+        if (in_array($cache->getDriverName(), ['apc','apcu','xcache','wincache'])) {
+            Grav::instance()['config']->set('system.cache.driver', 'file');
+            $cache->init(Grav::instance());
         }
 
         $this->argv = $_SERVER['argv'][0];

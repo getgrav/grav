@@ -1,3 +1,9 @@
+# v1.1.16
+## xx/xx/2017
+
+1. [](#improved)
+    * Allowed CLI to use non-volatile cache drivers for better integration with CLI and Web caches
+
 # v1.1.15
 ## 01/30/2017
 
