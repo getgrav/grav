@@ -174,7 +174,8 @@ class Cache extends Getters
         $driver_name = 'file';
 
         // CLI compatibility requires a non-volatile cache driver
-        if ($this->config->get('system.cache.cli_compatibility') && $setting == 'auto') {
+        if ($this->config->get('system.cache.cli_compatibility') && (
+            $setting == 'auto' || $this->isVolatileDriver($setting))) {
             $setting = $driver_name;
         }
 
@@ -461,5 +462,20 @@ class Cache extends Getters
     public function getDriverSetting()
     {
         return $this->driver_setting;
+    }
+
+    /**
+     * is this driver a volatile driver in that it resides in PHP process memory
+     *
+     * @param $setting
+     * @return bool
+     */
+    public function isVolatileDriver($setting)
+    {
+        if (in_array($setting, ['apc', 'apcu', 'xcache', 'wincache'])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
