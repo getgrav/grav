@@ -1114,6 +1114,6 @@ form:
                 custom_base_url:
                     type: text
                     size: medium
-                    placeholder: "e.g. http://localhost:8080"
+                    placeholder: "e.g. http://yoursite.com/yourpath"
                     label: PLUGIN_ADMIN.CUSTOM_BASE_URL
                     help: PLUGIN_ADMIN.CUSTOM_BASE_URL_HELP

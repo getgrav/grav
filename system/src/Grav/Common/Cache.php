@@ -173,6 +173,11 @@ class Cache extends Getters
         $setting = $this->driver_setting;
         $driver_name = 'file';
 
+        // CLI compatibility requires a non-volatile cache driver
+        if ($this->config->get('system.cache.cli_compatibility') && $setting == 'auto') {
+            $setting = $driver_name;
+        }
+
         if (!$setting || $setting == 'auto') {
             if (extension_loaded('apcu')) {
                 $driver_name = 'apcu';
