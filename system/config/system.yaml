@@ -5,7 +5,7 @@ param_sep: ':'                              # Parameter separator, use ';' for A
 wrapped_site: false                         # For themes/plugins to know if Grav is wrapped by another platform
 reverse_proxy_setup: false                  # Running in a reverse proxy scenario with different webserver ports than proxy
 force_ssl: false                            # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
-custom_base_url: ''                         # Set the base_url manually
+custom_base_url: ''                         # Set the base_url manually, e.g. http://yoursite.com/yourpath
 
 languages:
   supported: []                             # List of languages supported. eg: [en, fr, de]
@@ -71,6 +71,7 @@ cache:
     method: file                            # Method to check for updates in pages: file|folder|hash|none
   driver: auto                              # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
+  cli_compatibility: false                  # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
   lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                               # GZip compress the page output
   allow_webserver_gzip: false               # If true, `content-encoding: identity` but connection isn't closed before `onShutDown()` event
