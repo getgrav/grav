@@ -97,7 +97,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @return int|null|void|bool
+     * @return bool
      */
     protected function serve()
     {
@@ -420,7 +420,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param $package
      *
-     * @return array
+     * @return array|bool
      */
     private function getGitRegexMatches($package)
     {
@@ -543,8 +543,12 @@ class InstallCommand extends ConsoleCommand
             } else {
                 $this->output->writeln("  '- <green>Success!</green>  ");
                 $this->output->writeln('');
+
+                return true;
             }
         }
+
+        return false;
     }
 
     /**

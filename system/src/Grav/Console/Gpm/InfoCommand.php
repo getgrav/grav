@@ -147,7 +147,7 @@ class InfoCommand extends ConsoleCommand
             $this->output->writeln("");
             foreach ($changelog as $version => $log) {
                 $title = $version . ' [' . $log['date'] . ']';
-                $content = preg_replace_callback("/\d\.\s\[\]\(#(.*)\)/", function ($match) {
+                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', function ($match) {
                     return "\n" . ucfirst($match[1]) . ":";
                 }, $log['content']);
 

@@ -92,7 +92,7 @@ class Debugger
             $page = $this->grav['page'];
             if ($page->templateFormat() != 'html') {
                 $this->enabled = false;
-                return;
+                return $this;
             }
 
             /** @var Assets $assets */
