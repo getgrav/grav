@@ -10,6 +10,8 @@ namespace Grav\Common\Helpers;
 
 use DOMText;
 use DOMDocument;
+use DOMElement;
+use DOMNode;
 use DOMWordsIterator;
 use DOMLettersIterator;
 
@@ -118,7 +120,7 @@ class Truncator {
 
     /**
      * Builds a DOMDocument object from a string containing HTML.
-     * @param string HTML to load
+     * @param string $html HTML to load
      * @returns DOMDocument Returns a DOMDocument object.
      */
     public static function htmlToDomDocument($html)

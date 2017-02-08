@@ -154,7 +154,7 @@ class Pages
     /**
      * Returns a list of all pages.
      *
-     * @return Page
+     * @return array|Page[]
      */
     public function instances()
     {

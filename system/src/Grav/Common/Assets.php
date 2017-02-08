@@ -889,7 +889,7 @@ class Assets
     /**
      * Removes an item from the CSS array if set
      *
-     * @param $key  the asset key
+     * @param string $key  The asset key
      */
     public function removeCss($key)
     {
@@ -902,7 +902,7 @@ class Assets
     /**
      * Removes an item from the JS array if set
      *
-     * @param $key  the asset key
+     * @param string $key  The asset key
      */
     public function removeJs($key)
     {

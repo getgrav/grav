@@ -256,7 +256,7 @@ class Cache extends Getters
      *
      * @param  string $id the id of the cached entry
      *
-     * @return object     returns the cached entry, can be any type, or false if doesn't exist
+     * @return object|bool     returns the cached entry, can be any type, or false if doesn't exist
      */
     public function fetch($id)
     {

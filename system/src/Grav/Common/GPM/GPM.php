@@ -74,7 +74,7 @@ class GPM extends Iterator
      * Returns the Locally installable packages
      *
      * @param array $list_type_installed
-     * @return Iterator The installed packages
+     * @return array The installed packages
      */
     public function getInstallable($list_type_installed = ['plugins' => true, 'themes' => true])
     {
@@ -117,6 +117,8 @@ class GPM extends Iterator
         if (isset($this->installed['themes'][$slug])) {
             return $this->installed['themes'][$slug];
         }
+
+        return null;
     }
 
     /**
@@ -199,7 +201,7 @@ class GPM extends Iterator
     /**
      * Returns an array of Plugins and Themes that can be updated.
      * Plugins and Themes are extended with the `available` property that relies to the remote version
-     * @param $list_type_update specifies what type of package to update
+     * @param array $list_type_update specifies what type of package to update
      * @return array Array of updatable Plugins and Themes.
      *               Format: ['total' => int, 'plugins' => array, 'themes' => array]
      */
@@ -222,7 +224,7 @@ class GPM extends Iterator
     /**
      * Returns an array of Plugins that can be updated.
      * The Plugins are extended with the `available` property that relies to the remote version
-     * @return Iterator Array of updatable Plugins
+     * @return array Array of updatable Plugins
      */
     public function getUpdatablePlugins()
     {
@@ -302,7 +304,7 @@ class GPM extends Iterator
     /**
      * Returns an array of Themes that can be updated.
      * The Themes are extended with the `available` property that relies to the remote version
-     * @return Iterator Array of updatable Themes
+     * @return array Array of updatable Themes
      */
     public function getUpdatableThemes()
     {
@@ -435,7 +437,7 @@ class GPM extends Iterator
 
     /**
      * Returns the list of Plugins and Themes available in the repository
-     * @return array Array of available Plugins and Themes
+     * @return Remote\Packages Available Plugins and Themes
      *               Format: ['plugins' => array, 'themes' => array]
      */
     public function getRepository()
@@ -447,7 +449,7 @@ class GPM extends Iterator
      * Searches for a Package in the repository
      * @param  string $search Can be either the slug or the name
      * @param  bool $ignore_exception True if should not fire an exception (for use in Twig)
-     * @return Remote\Package Package if found, FALSE if not
+     * @return Remote\Package|bool Package if found, FALSE if not
      */
     public function findPackage($search, $ignore_exception = false)
     {
@@ -600,6 +602,8 @@ class GPM extends Iterator
                 return $dependency[$dependency_slug];
             }
         }
+
+        return null;
     }
 
     /**
