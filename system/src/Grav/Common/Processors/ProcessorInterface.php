@@ -8,6 +8,7 @@
 
 namespace Grav\Common\Processors;
 
-interface ProcessorInterface {
-  	public function process();
+interface ProcessorInterface
+{
+    public function process();
 }

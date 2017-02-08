@@ -15,7 +15,7 @@ trait StaticResizeTrait
      *
      * @param  int $width
      * @param  int $height
-     * @return Medium
+     * @return $this
      */
     public function resize($width = null, $height = null)
     {

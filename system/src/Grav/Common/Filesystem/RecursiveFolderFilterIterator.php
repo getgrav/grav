@@ -17,7 +17,7 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
     /**
      * Create a RecursiveFilterIterator from a RecursiveIterator
      *
-     * @param RecursiveIterator $iterator
+     * @param \RecursiveIterator $iterator
      */
     public function __construct(\RecursiveIterator $iterator)
     {

@@ -191,10 +191,7 @@ class Response
 
     /**
      * Progress normalized for cURL and Fopen
-     * Accepts a vsariable length of arguments passed in by stream method
-     *
-     * @return array Normalized array with useful data.
-     *               Format: ['code' => int|false, 'filesize' => bytes, 'transferred' => bytes, 'percent' => int]
+     * Accepts a variable length of arguments passed in by stream method
      */
     public static function progress()
     {
@@ -243,6 +240,8 @@ class Response
         if (self::isCurlAvailable()) {
             return self::getCurl(func_get_args());
         }
+
+        return null;
     }
 
     /**

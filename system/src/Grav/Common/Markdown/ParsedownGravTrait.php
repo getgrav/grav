@@ -10,6 +10,7 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
 use Grav\Common\Helpers\Excerpts;
+use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\Event\Event;
 
 trait ParsedownGravTrait
@@ -166,6 +167,8 @@ trait ParsedownGravTrait
 
             return $Block;
         }
+
+        return null;
     }
 
     protected function inlineSpecialCharacter($Excerpt)
@@ -183,6 +186,8 @@ trait ParsedownGravTrait
                 'extent' => 1,
             ];
         }
+
+        return null;
     }
 
     protected function inlineImage($excerpt)
@@ -243,5 +248,7 @@ trait ParsedownGravTrait
 
             return call_user_func_array($func, $args);
         }
+
+        return null;
     }
 }

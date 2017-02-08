@@ -39,7 +39,7 @@ class DirectInstallCommand extends ConsoleCommand
     }
 
     /**
-     * @return int|null|void
+     * @return bool
      */
     protected function serve()
     {
