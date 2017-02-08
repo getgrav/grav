@@ -1,6 +1,8 @@
 # v1.1.16
 ## xx/xx/2017
 
+1. [](#new)
+    * Exposed the Pages cache ID for use by plugins (e.g. Form) via `Pages::getPagesCacheId()`
 1. [](#improved)
     * Allowed CLI to use non-volatile cache drivers for better integration with CLI and Web caches
 
