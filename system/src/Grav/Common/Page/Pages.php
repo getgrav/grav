@@ -90,6 +90,8 @@ class Pages
      */
     static protected $home_route;
 
+    protected $pages_cache_id;
+
     /**
      * Constructor
      *
@@ -154,7 +156,7 @@ class Pages
     /**
      * Returns a list of all pages.
      *
-     * @return Page
+     * @return array|Page[]
      */
     public function instances()
     {
@@ -769,14 +771,14 @@ class Pages
                     $hash = Folder::lastModifiedFile($pages_dir);
             }
 
-            $page_cache_id = md5($pages_dir . $hash . $language->getActive() . $config->checksum());
+            $this->pages_cache_id = md5($pages_dir . $hash . $language->getActive() . $config->checksum());
 
-            list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
+            list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($this->pages_cache_id);
             if (!$this->instances) {
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
 
                 // recurse pages and cache result
-                $this->resetPages($pages_dir, $page_cache_id);
+                $this->resetPages($pages_dir, $this->pages_cache_id);
 
             } else {
                 // If pages was found in cache, set the taxonomy
@@ -793,9 +795,8 @@ class Pages
      * Accessible method to manually reset the pages cache
      *
      * @param $pages_dir
-     * @param $page_cache_id
      */
-    public function resetPages($pages_dir, $page_cache_id)
+    public function resetPages($pages_dir)
     {
         $this->recurse($pages_dir);
         $this->buildRoutes();
@@ -808,7 +809,7 @@ class Pages
             $taxonomy = $this->grav['taxonomy'];
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->save($page_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
+            $cache->save($this->pages_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
         }
     }
 
@@ -1163,5 +1164,18 @@ class Pages
         }
 
         return $new;
+    }
+
+    /**
+     * Get the Pages cache ID
+     *
+     * this is particularly useful to know if pages have changed and you want
+     * to sync another cache with pages cache - works best in `onPagesInitialized()`
+     *
+     * @return mixed
+     */
+    public function getPagesCacheId()
+    {
+        return $this->pages_cache_id;
     }
 }

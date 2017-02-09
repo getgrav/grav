@@ -8,21 +8,23 @@
 
 namespace Grav\Common\Service;
 
+use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
+use Grav\Common\Uri;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
 class PageServiceProvider implements ServiceProviderInterface
 {
-    public function register(Container $container) {
-
+    public function register(Container $container)
+    {
         $container['page'] = function ($c) {
             /** @var Grav $c */
 
             /** @var Pages $pages */
             $pages = $c['pages'];
-            /** @var Language $language */
-            $language = $c['language'];
 
             /** @var Uri $uri */
             $uri = $c['uri'];
@@ -34,6 +36,9 @@ class PageServiceProvider implements ServiceProviderInterface
 
             // Redirection tests
             if ($page) {
+                /** @var Language $language */
+                $language = $c['language'];
+
                 if ($c['config']->get('system.force_ssl')) {
                     if (!isset($_SERVER['HTTPS']) || $_SERVER["HTTPS"] != "on") {
                         $url = "https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];

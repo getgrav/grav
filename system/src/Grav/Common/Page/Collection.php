@@ -161,7 +161,7 @@ class Collection extends Iterator
      *
      * @param Page|string|null $key
      *
-     * @return $this|void
+     * @return $this
      * @throws \InvalidArgumentException
      */
     public function remove($key = null)

@@ -41,12 +41,11 @@ trait ConsoleTrait
      */
     public function setupConsole(InputInterface $input, OutputInterface $output)
     {
-        if (Grav::instance()) {
-            Grav::instance()['config']->set('system.cache.driver', 'default');
-        }
+        // Initialize cache with CLI compatibility
+        Grav::instance()['config']->set('system.cache.cli_compatibility', true);
+        Grav::instance()['cache'];
 
         $this->argv = $_SERVER['argv'][0];
-
         $this->input  = $input;
         $this->output = $output;
 
