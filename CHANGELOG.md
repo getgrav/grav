@@ -5,6 +5,8 @@
     * Exposed the Pages cache ID for use by plugins (e.g. Form) via `Pages::getPagesCacheId()`
 1. [](#improved)
     * Allowed CLI to use non-volatile cache drivers for better integration with CLI and Web caches
+1. [](#bugfix)
+    * Fix blueprints slug validation [https://github.com/getgrav/grav-plugin-admin/issues/955](https://github.com/getgrav/grav-plugin-admin/issues/955)
 
 # v1.1.15
 ## 01/30/2017

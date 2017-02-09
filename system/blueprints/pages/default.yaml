@@ -2,9 +2,9 @@ title: PLUGIN_ADMIN.DEFAULT
 
 rules:
   slug:
-    pattern: '[a-zа-я][a-zа-я0-9_\-]+'
-    min: 2
-    max: 80
+    pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
+    min: 1
+    max: 200
 
 form:
   validation: loose
@@ -132,8 +132,7 @@ form:
                       type: text
                       label: PLUGIN_ADMIN.FOLDER_NAME
                       validate:
-                        type: slug
-                        pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
+                        rule: slug
 
                     route:
                       type: select
