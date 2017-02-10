@@ -143,5 +143,7 @@ class Taxonomy
 
             return $results;
         }
+
+        return [];
     }
 }
