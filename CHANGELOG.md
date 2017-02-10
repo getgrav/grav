@@ -1,3 +1,17 @@
+# v1.1.16
+## 02/10/2017
+
+1. [](#new)
+    * Exposed the Pages cache ID for use by plugins (e.g. Form) via `Pages::getPagesCacheId()`
+    * Added `Languages::resetFallbackPageExtensions()` regarding [#1276](https://github.com/getgrav/grav/pull/1276)
+1. [](#improved)
+    * Allowed CLI to use non-volatile cache drivers for better integration with CLI and Web caches
+    * Added Gantry5-compatible query information to Caddy configuration
+    * Added some missing docblocks and type-hints
+    * Various code cleanups (return types, missing variables in doclbocks, etc.)
+1. [](#bugfix)
+    * Fix blueprints slug validation [https://github.com/getgrav/grav-plugin-admin/issues/955](https://github.com/getgrav/grav-plugin-admin/issues/955)
+
 # v1.1.15
 ## 01/30/2017
 

@@ -3,12 +3,6 @@ title: PLUGIN_ADMIN:EXTERNAL
     type: default
     context: blueprints://pages
 
-rules:
-  slug:
-    pattern: '[a-zа-я][a-zа-я0-9_\-]+'
-    min: 2
-    max: 80
-
 form:
   validation: loose
   fields:

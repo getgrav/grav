@@ -8,6 +8,8 @@
 
 namespace Grav\Common\GPM;
 
+use Grav\Common\GPM\Remote\GravCore;
+
 /**
  * Class Upgrader
  *
@@ -18,16 +20,9 @@ class Upgrader
     /**
      * Remote details about latest Grav version
      *
-     * @var Packages
+     * @var GravCore
      */
     private $remote;
-
-    /**
-     * Internal cache
-     *
-     * @var Iterator
-     */
-    protected $cache;
 
     /**
      * Creates a new GPM instance with Local and Remote packages available

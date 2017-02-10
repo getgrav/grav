@@ -224,7 +224,7 @@ class Page
      *
      * @param  string $var Raw content string
      *
-     * @return Object      Raw content string
+     * @return string      Raw content string
      */
     public function raw($var = null)
     {
@@ -1743,7 +1743,7 @@ class Page
      *
      * @param  string $var redirect url
      *
-     * @return array
+     * @return string
      */
     public function redirect($var = null)
     {
@@ -2166,7 +2166,7 @@ class Page
      *
      * @param  integer $direction either -1 or +1
      *
-     * @return Page             the sibling page
+     * @return Page|bool             the sibling page
      */
     public function adjacentSibling($direction = 1)
     {

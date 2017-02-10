@@ -12,7 +12,6 @@ use Grav\Common\Page\Page;
 
 class PagesProcessor extends ProcessorBase implements ProcessorInterface
 {
-
     public $id = 'pages';
     public $title = 'Pages';
 
@@ -41,5 +40,4 @@ class PagesProcessor extends ProcessorBase implements ProcessorInterface
         }
 
     }
-
 }

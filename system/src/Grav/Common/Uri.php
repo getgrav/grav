@@ -277,7 +277,13 @@ class Uri
         }
 
         // Set some defaults
-        $this->root = $grav['config']->get('system.custom_base_url') ?: $this->base . $this->root_path;
+        if ($grav['config']->get('system.custom_base_url')) {
+            $this->root_path = parse_url($grav['config']->get('system.custom_base_url'), PHP_URL_PATH);
+            $this->root = $grav['config']->get('system.custom_base_url');
+        } else {
+            $this->root = $this->base . $this->root_path;
+        }
+
         $this->url = $this->base . $this->uri;
 
         // get any params and remove them

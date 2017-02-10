@@ -5,7 +5,7 @@ param_sep: ':'                              # Parameter separator, use ';' for A
 wrapped_site: false                         # For themes/plugins to know if Grav is wrapped by another platform
 reverse_proxy_setup: false                  # Running in a reverse proxy scenario with different webserver ports than proxy
 force_ssl: false                            # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
-custom_base_url: ''                         # Set the base_url manually
+custom_base_url: ''                         # Set the base_url manually, e.g. http://yoursite.com/yourpath
 
 languages:
   supported: []                             # List of languages supported. eg: [en, fr, de]
@@ -51,7 +51,7 @@ pages:
   types: [txt,xml,html,htm,json,rss,atom]   # list of valid page types
   append_url_extension: ''                  # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                           # Page expires time in seconds (604800 seconds = 7 days)
-  last_modified: false                      # Set the last modified date header based on file modifcation timestamp
+  last_modified: false                      # Set the last modified date header based on file modification timestamp
   etag: false                               # Set the etag header tag
   vary_accept_encoding: false               # Add `Vary: Accept-Encoding` header
   redirect_default_route: false             # Automatically redirect to a page's default route
@@ -71,6 +71,7 @@ cache:
     method: file                            # Method to check for updates in pages: file|folder|hash|none
   driver: auto                              # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                               # Cache prefix string (prevents cache conflicts)
+  cli_compatibility: false                  # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
   lifetime: 604800                          # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                               # GZip compress the page output
   allow_webserver_gzip: false               # If true, `content-encoding: identity` but connection isn't closed before `onShutDown()` event
