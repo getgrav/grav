@@ -1,5 +1,5 @@
 # v1.1.16
-## xx/xx/2017
+## 02/10/2017
 
 1. [](#new)
     * Exposed the Pages cache ID for use by plugins (e.g. Form) via `Pages::getPagesCacheId()`
