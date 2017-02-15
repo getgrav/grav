@@ -27,4 +27,15 @@ class Collection extends ArrayCollection implements CollectionInterface
 
         return $this->createFrom(array_replace(array_flip($keys), $this->toArray()));
     }
+
+    /**
+     * Implementes JsonSerializable interface.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
 }

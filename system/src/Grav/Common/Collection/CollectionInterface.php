@@ -3,7 +3,7 @@ namespace Grav\Common\Collection;
 
 use Doctrine\Common\Collections\Collection;
 
-interface CollectionInterface extends Collection
+interface CollectionInterface extends Collection, \JsonSerializable
 {
     /**
      * Reverse the order of the items.
