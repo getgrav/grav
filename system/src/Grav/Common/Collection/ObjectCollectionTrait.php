@@ -1,62 +1,33 @@
 <?php
 namespace Grav\Common\Collection;
 
-use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
-
 trait ObjectCollectionTrait
 {
-    use ArrayAccess;
-
     /**
-     * @var string
-     */
-    protected $keyProperty = null;
-
-    /**
-     * Add item to the list.
+     * Create a copy from this collection by cloning all objects in the collection.
      *
-     * @param object $object
-     * @param string $key
-     * @return $this
+     * @return static
      */
-    public function add($object, $key = null)
+    public function copy()
     {
-        $objKey = $key ?: $this->getObjectKey($object);
-        $this->offsetSet(is_null($objKey) ? $key : $objKey, $object);
-
-        return $this;
-    }
-
-    /**
-     * Remove item from the list.
-     *
-     * @param string|object $key
-     * @return $this
-     */
-    public function remove($key)
-    {
-        if (is_object($key)) {
-            $key = $this->getObjectKey($key);
-            if (is_null($key)) {
-                return $this;
-            }
+        $list = [];
+        foreach ($this as $key => $value) {
+            $list[$key] = is_object($value) ? clone $value : $value;
         }
-        $this->offsetUnset($key);
 
-        return $this;
+        return $this->createFrom($list);
     }
 
     /**
      * @param string $property      Object property to be fetched.
-     * @return array                Values of the property.
+     * @return array                Key/Value pairs of the properties.
      */
-    public function get($property)
+    public function getProperty($property)
     {
         $list = [];
 
-        foreach ($this as $id => $object) {
-            $key = $this->getObjectKey($object);
-            $list[is_null($key) ? $id : $key] = $this->getObjectValue($object, $property);
+        foreach ($this as $id => $element) {
+            $list[$id] = isset($element->{$property}) ? $element->{$property} : null;
         }
 
         return $list;
@@ -65,63 +36,27 @@ trait ObjectCollectionTrait
     /**
      * @param string $property  Object property to be updated.
      * @param string $value     New value.
-     * @return $this
      */
-    public function set($property, $value)
+    public function setProperty($property, $value)
     {
-        foreach ($this as $object) {
-            $object->{$property} = $value;
+        foreach ($this as $element) {
+            $element->{$property} = $value;
         }
-
-        return $this;
     }
 
     /**
-     * @param string $name          Method name.
+     * @param string $method        Method name.
      * @param array  $arguments     List of arguments passed to the function.
      * @return array                Return values.
      */
-    public function __call($name, array $arguments)
+    public function call($method, array $arguments)
     {
         $list = [];
 
-        foreach ($this as $id => $object) {
-            $key = $this->getObjectKey($object);
-            $list[is_null($key) ? $id : $key] = $this->getObjectCallResult($object, $name, $arguments);
+        foreach ($this as $id => $element) {
+            $list[$id] = method_exists($element, $method) ? call_user_func_array([$element, $method], $arguments) : null;
         }
 
         return $list;
-    }
-
-    /**
-     * @param object $object
-     * @return string|null
-     */
-    protected function getObjectKey($object)
-    {
-        $keyProperty = $this->keyProperty;
-
-        return $keyProperty && isset($object->{$keyProperty}) ? (string) $object->{$keyProperty} : null;
-    }
-
-    /**
-     * @param object $object
-     * @param string $property
-     * @return mixed
-     */
-    protected function getObjectValue($object, $property)
-    {
-        return isset($object->{$property}) ? $object->{$property} : null;
-    }
-
-    /**
-     * @param object $object
-     * @param string $name;
-     * @param array  $arguments
-     * @return mixed
-     */
-    protected function getObjectCallResult($object, $name, $arguments)
-    {
-        return method_exists($object, $name) ? call_user_func_array([$object, $name], $arguments) : null;
     }
 }

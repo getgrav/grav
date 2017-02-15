@@ -13,7 +13,7 @@ interface StorageInterface
 
     /**
      * @param AbstractObject $object
-     * @return string|int Id
+     * @return string Id
      */
     public function save(AbstractObject $object);
 
@@ -24,7 +24,7 @@ interface StorageInterface
     public function delete(AbstractObject $object);
 
     /**
-     * @param array|int[]|string[] $list
+     * @param array|string[] $list
      * @return array
      */
     public function loadList(array $list);
@@ -37,7 +37,9 @@ interface StorageInterface
 
     /**
      * @param array $query
-     * @return array|int[]|string[]
+     * @param int   $start
+     * @param int   $limit
+     * @return array|string[]
      */
-    public function find(array $query);
+    public function find(array $query, $start, $limit);
 }

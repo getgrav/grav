@@ -27,6 +27,12 @@ abstract class AbstractObject implements ObjectInterface
     static protected $storage;
 
     /**
+     * If you don't have global storage, override this in extending class.
+     * @var ObjectFinderInterface
+     */
+    static protected $finder;
+
+    /**
      * Default properties for the object.
      * @var array
      */
@@ -60,6 +66,22 @@ abstract class AbstractObject implements ObjectInterface
      */
     protected $initialized = false;
 
+
+    /**
+     * @param StorageInterface $storage
+     */
+    static public function setStorage(StorageInterface $storage)
+    {
+        static::$storage = $storage;
+    }
+
+    /**
+     * @param ObjectFinderInterface $finder
+     */
+    static public function setFinder(ObjectFinderInterface $finder)
+    {
+        static::$finder = $finder;
+    }
 
     /**
      * Returns the global instance to the object.
@@ -146,6 +168,14 @@ abstract class AbstractObject implements ObjectInterface
         }
 
         return new $collectionClass($results);
+    }
+
+    /**
+     * @return ObjectFinderInterface
+     */
+    static public function search()
+    {
+        return static::$finder;
     }
 
     /**

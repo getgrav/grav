@@ -1,21 +1,21 @@
 <?php
 namespace Grav\Common\Collection;
 
-interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countable
+use Doctrine\Common\Collections\Collection;
+
+interface CollectionInterface extends Collection
 {
     /**
-     * Add item to the list.
+     * Reverse the order of the items.
      *
-     * @param mixed $item
-     * @param string $key
-     * @return $this
+     * @return static
      */
-    public function add($item, $key = null);
+    public function reverse();
 
     /**
-     * Remove item from the list.
+     * Shuffle items.
      *
-     * @param $key
+     * @return static
      */
-    public function remove($key);
+    public function shuffle();
 }

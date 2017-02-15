@@ -90,8 +90,6 @@ abstract class AbstractObjectFinder implements ObjectFinderInterface
     /**
      * Set limit to the query.
      *
-     * If this function isn't used, RokClub will use threads per page configuration setting.
-     *
      * @param int   $limit
      *
      * @return $this
@@ -130,7 +128,7 @@ abstract class AbstractObjectFinder implements ObjectFinderInterface
         }
 
         if ($direction) {
-            $this->query[] = ['order', $field, (int)$direction];
+            $this->query['order'][] = [$field, (int)$direction];
         }
 
         return $this;
@@ -160,17 +158,17 @@ abstract class AbstractObjectFinder implements ObjectFinderInterface
             case '<':
             case '<=':
                 $this->checkOperator($value);
-                $this->query[] = ['where', $field, $operation, $value];
+                $this->query['where'][] = [$field, $operation, $value];
                 break;
             case '==':
             case '!=':
                 $this->checkEqOperator($value);
-                $this->query[] = ['where', $field, $operation, $value];
+                $this->query['where'][] = [$field, $operation, $value];
                 break;
             case 'BETWEEN':
             case 'NOT BETWEEN':
                 $this->checkBetweenOperator($value);
-                $this->query[] = ['where', $field, $operation, array_values($value)];
+                $this->query['where'][] = [$field, $operation, array_values($value)];
                 break;
             case 'IN':
                 if (is_null($value) || (is_array($value) && empty($value))) {
@@ -178,7 +176,7 @@ abstract class AbstractObjectFinder implements ObjectFinderInterface
                     $this->skip = true;
                 } else {
                     $this->checkInOperator($value);
-                    $this->query[] = ['where', $field, $operation, array_values((array)$value)];
+                    $this->query['where'][] = [$field, $operation, array_values((array)$value)];
                 }
                 break;
             case 'NOT IN':
@@ -186,7 +184,7 @@ abstract class AbstractObjectFinder implements ObjectFinderInterface
                     // NOT IN (nothing): optimized away.
                 } else {
                     $this->checkInOperator($value);
-                    $this->query[] = ['where', $field, $operation, array_values((array)$value)];
+                    $this->query['where'][] = [$field, $operation, array_values((array)$value)];
                 }
                 break;
             default:
@@ -216,7 +214,7 @@ abstract class AbstractObjectFinder implements ObjectFinderInterface
         $this->start($start)->limit($limit);
         $this->prepare();
 
-        $results = (array) $this->storage->find($this->query);
+        $results = (array) $this->storage->find($this->query, $this->start, $this->limit);
 
         $this->query = $query;
 
