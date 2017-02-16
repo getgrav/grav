@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fix for double extensions getting added during some redirects [#1307](https://github.com/getgrav/grav/issues/1307)
+    * Fix syntax error in PHP 5.3. Move the version check before requiring the autoloaded deps
 
 # v1.1.16
 ## 02/10/2017
@@ -17,7 +18,7 @@
     * Various code cleanups (return types, missing variables in doclbocks, etc.)
 1. [](#bugfix)
     * Fix blueprints slug validation [https://github.com/getgrav/grav-plugin-admin/issues/955](https://github.com/getgrav/grav-plugin-admin/issues/955)
-    
+
 # v1.1.15
 ## 01/30/2017
 
