@@ -1,5 +1,5 @@
 # v1.1.17
-## xx/xx/2017
+## 02/17/2017
 
 1. [](#bugfix)
     * Fix for double extensions getting added during some redirects [#1307](https://github.com/getgrav/grav/issues/1307)
