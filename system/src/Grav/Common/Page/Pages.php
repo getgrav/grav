@@ -345,9 +345,10 @@ class Pages
                     $page = $this->dispatch($route, $all);
                 } else {
                     // Try Regex style redirects
+                    $uri = $this->grav['uri'];
                     $source_url = $url;
-                    $extension = $this->grav['uri']->extension();
-                    if (isset($extension)) {
+                    $extension = $uri->extension();
+                    if (isset($extension) && !Utils::endsWith($uri->url(), $extension)) {
                         $source_url.= '.' . $extension;
                     }
 

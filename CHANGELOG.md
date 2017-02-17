@@ -1,3 +1,11 @@
+# v1.1.17
+## 02/17/2017
+
+1. [](#bugfix)
+    * Fix for double extensions getting added during some redirects [#1307](https://github.com/getgrav/grav/issues/1307)
+    * Fix syntax error in PHP 5.3. Move the version check before requiring the autoloaded deps
+    * Fix Whoops displaying error page if there is PHP core warning or error [Admin #980](https://github.com/getgrav/grav-plugin-admin/issues/980)
+
 # v1.1.16
 ## 02/10/2017
 
