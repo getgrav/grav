@@ -20,7 +20,8 @@ class Errors
         $jsonRequest = $_SERVER && isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
 
         // Setup Whoops-based error handler
-        $whoops = new \Whoops\Run;
+        $system = new SystemFacade;
+        $whoops = new \Whoops\Run($system);
 
         $verbosity = 1;
 
