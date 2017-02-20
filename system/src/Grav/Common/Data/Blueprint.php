@@ -213,14 +213,10 @@ class Blueprint extends BlueprintForm
         }
 
         list($o, $f) = preg_split('/::/', $function, 2);
-        if (!$f) {
-            if (function_exists($o)) {
-                $data = call_user_func_array($o, $params);
-            }
-        } else {
-            if (method_exists($o, $f)) {
-                $data = call_user_func_array(array($o, $f), $params);
-            }
+        if (!$f and function_exists($o)) {
+            $data = call_user_func_array($o, $params);
+        } elseif (method_exists($o, $f)) {
+            $data = call_user_func_array(array($o, $f), $params);
         }
 
         // If function returns a value,

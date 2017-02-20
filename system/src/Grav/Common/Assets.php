@@ -1346,15 +1346,19 @@ class Assets
         $this->timestamp = '?' . $value;
     }
 
+    /**
+     * @param null $asset
+     * @return mixed|string
+     */
     public function getTimestamp($asset = null)
     {
         if (is_array($asset)) {
             if ($asset['remote'] === false) {
                 if (Utils::contains($asset['asset'], '?')) {
                     return str_replace('?', '&', $this->timestamp);
-                } else {
-                    return $this->timestamp;
                 }
+
+                return $this->timestamp;
             }
         } elseif (empty($asset)) {
             return $this->timestamp;
