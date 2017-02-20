@@ -366,6 +366,12 @@ class Validation
         return self::typeNumber($value, $params, $field);
     }
 
+    /**
+     * @param $value
+     * @param array $params
+     * @param array $field
+     * @return int
+     */
     protected static function filterRange($value, array $params, array $field)
     {
         return self::filterNumber($value, $params, $field);
@@ -560,6 +566,12 @@ class Validation
         return true;
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @param $field
+     * @return array|null
+     */
     protected static function filterArray($value, $params, $field)
     {
         $values = (array) $value;
@@ -660,85 +672,160 @@ class Validation
         return true;
     }
 
+    /**
+     * @param $value
+     * @param array $params
+     * @param array $field
+     * @return mixed
+     */
     public static function filterIgnore($value, array $params, array $field)
     {
         return $value;
     }
 
-    // HTML5 attributes (min, max and range are handled inside the types)
-
+    /**
+     * HTML5 attributes (min, max and range are handled inside the types)
+     *
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateRequired($value, $params)
     {
         if (is_scalar($value)) {
             return (bool) $params !== true || $value !== '';
-        } else {
-            return (bool) $params !== true || !empty($value);
         }
+
+        return (bool) $params !== true || !empty($value);
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validatePattern($value, $params)
     {
         return (bool) preg_match("`^{$params}$`u", $value);
     }
 
-
-    // Internal types
-
+    /**
+     * Internal types
+     *
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateAlpha($value, $params)
     {
         return ctype_alpha($value);
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateAlnum($value, $params)
     {
         return ctype_alnum($value);
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function typeBool($value, $params)
     {
         return is_bool($value) || $value == 1 || $value == 0;
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateBool($value, $params)
     {
         return is_bool($value) || $value == 1 || $value == 0;
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     protected static function filterBool($value, $params)
     {
         return (bool) $value;
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateDigit($value, $params)
     {
         return ctype_digit($value);
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateFloat($value, $params)
     {
         return is_float(filter_var($value, FILTER_VALIDATE_FLOAT));
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return float
+     */
     protected static function filterFloat($value, $params)
     {
         return (float) $value;
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateHex($value, $params)
     {
         return ctype_xdigit($value);
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateInt($value, $params)
     {
         return is_numeric($value) && (int) $value == $value;
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return int
+     */
     protected static function filterInt($value, $params)
     {
         return (int) $value;
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateArray($value, $params)
     {
         return is_array($value)
@@ -747,6 +834,11 @@ class Validation
             && $value instanceof \Countable);
     }
 
+    /**
+     * @param $value
+     * @param $params
+     * @return bool
+     */
     public static function validateJson($value, $params)
     {
         return (bool) (@json_decode($value));

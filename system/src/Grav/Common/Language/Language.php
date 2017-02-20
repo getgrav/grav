@@ -241,9 +241,9 @@ class Language
 
         if ($this->default == $lang && $this->config->get('system.languages.include_default_lang') === false) {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -386,21 +386,19 @@ class Language
             foreach ((array)$languages as $lang) {
                 $translation = $this->getTranslation($lang, $lookup, $array_support);
 
-                if ($translation) {
-                    if (count($args) >= 1) {
-                        return vsprintf($translation, $args);
-                    } else {
-                        return $translation;
-                    }
+                if ($translation and count($args) >= 1) {
+                    return vsprintf($translation, $args);
                 }
+
+                return $translation;
             }
         }
 
         if ($html_out) {
             return '<span class="untranslated">' . $lookup . '</span>';
-        } else {
-            return $lookup;
         }
+
+        return $lookup;
     }
 
     /**

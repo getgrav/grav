@@ -836,9 +836,8 @@ class Assets
             $asset_key = md5($key);
             if (isset($this->css[$asset_key])) {
                 return $this->css[$asset_key];
-            } else {
-                return null;
             }
+            return null;
         }
 
         return $this->css;

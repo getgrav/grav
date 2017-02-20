@@ -623,9 +623,9 @@ class ImageMedium extends Medium
             }
 
             return $max;
-        } else {
-            return $this;
         }
+
+        return $this;
     }
 
 }

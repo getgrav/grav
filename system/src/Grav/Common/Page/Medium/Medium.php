@@ -168,9 +168,9 @@ class Medium extends Data implements RenderableInterface
 
         if ($withQuestionmark && !empty($querystring)) {
             return '?' . $querystring;
-        } else {
-            return $querystring;
         }
+
+        return $querystring;
     }
 
     /**
@@ -190,9 +190,9 @@ class Medium extends Data implements RenderableInterface
 
         if ($withHash && !empty($hash)) {
             return '#' . $hash;
-        } else {
-            return $hash;
         }
+
+        return $hash;
     }
 
     /**
