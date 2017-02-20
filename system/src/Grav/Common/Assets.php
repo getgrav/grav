@@ -745,9 +745,9 @@ class Assets
             file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $this->getTimestamp();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -817,9 +817,9 @@ class Assets
             file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $this->getTimestamp();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -858,9 +858,9 @@ class Assets
             $asset_key = md5($key);
             if (isset($this->js[$asset_key])) {
                 return $this->js[$asset_key];
-            } else {
-                return null;
             }
+
+            return null;
         }
 
         return $this->js;
@@ -943,9 +943,9 @@ class Assets
     {
         if (isset($this->collections[$asset]) || isset($this->css[$asset]) || isset($this->js[$asset])) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**

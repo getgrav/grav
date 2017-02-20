@@ -262,9 +262,9 @@ class Cache extends Getters
     {
         if ($this->enabled) {
             return $this->driver->fetch($id);
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -474,8 +474,8 @@ class Cache extends Getters
     {
         if (in_array($setting, ['apc', 'apcu', 'xcache', 'wincache'])) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

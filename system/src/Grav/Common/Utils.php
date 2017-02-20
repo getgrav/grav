@@ -210,9 +210,9 @@ abstract class Utils
     {
         if (mb_strlen($text) <= $length) {
             return $text;
-        } else {
-        	return Truncator::truncateLetters($text, $length, $ellipsis);
         }
+
+        return Truncator::truncateLetters($text, $length, $ellipsis);
     }
 
     /**

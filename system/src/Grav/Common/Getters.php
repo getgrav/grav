@@ -73,9 +73,9 @@ abstract class Getters implements \ArrayAccess, \Countable
             $var = $this->gettersVariable;
 
             return isset($this->{$var}[$offset]);
-        } else {
-            return isset($this->{$offset});
         }
+
+        return isset($this->{$offset});
     }
 
     /**
@@ -89,9 +89,9 @@ abstract class Getters implements \ArrayAccess, \Countable
             $var = $this->gettersVariable;
 
             return isset($this->{$var}[$offset]) ? $this->{$var}[$offset] : null;
-        } else {
-            return isset($this->{$offset}) ? $this->{$offset} : null;
         }
+
+        return isset($this->{$offset}) ? $this->{$offset} : null;
     }
 
     /**
@@ -145,16 +145,16 @@ abstract class Getters implements \ArrayAccess, \Countable
             $var = $this->gettersVariable;
 
             return $this->{$var};
-        } else {
-            $properties = (array)$this;
-            $list = [];
-            foreach ($properties as $property => $value) {
-                if ($property[0] != "\0") {
-                    $list[$property] = $value;
-                }
-            }
-
-            return $list;
         }
+
+        $properties = (array)$this;
+        $list = [];
+        foreach ($properties as $property => $value) {
+            if ($property[0] != "\0") {
+                $list[$property] = $value;
+            }
+        }
+
+        return $list;
     }
 }
