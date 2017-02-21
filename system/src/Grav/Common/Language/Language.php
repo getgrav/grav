@@ -386,7 +386,7 @@ class Language
             foreach ((array)$languages as $lang) {
                 $translation = $this->getTranslation($lang, $lookup, $array_support);
 
-                if ($translation and count($args) >= 1) {
+                if ($translation && count($args) >= 1) {
                     return vsprintf($translation, $args);
                 }
 

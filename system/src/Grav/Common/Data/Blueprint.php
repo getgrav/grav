@@ -213,7 +213,7 @@ class Blueprint extends BlueprintForm
         }
 
         list($o, $f) = preg_split('/::/', $function, 2);
-        if (!$f and function_exists($o)) {
+        if (!$f && function_exists($o)) {
             $data = call_user_func_array($o, $params);
         } elseif (method_exists($o, $f)) {
             $data = call_user_func_array(array($o, $f), $params);
