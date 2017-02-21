@@ -390,7 +390,9 @@ class Language
                     return vsprintf($translation, $args);
                 }
 
-                return $translation;
+                if($translation) {
+                    return $translation;
+                }
             }
         }
 
