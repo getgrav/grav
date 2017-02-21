@@ -8,8 +8,8 @@
 
 namespace Grav\Common\Language;
 
-use Grav\Common\Grav;
 use Grav\Common\Config\Config;
+use Grav\Common\Grav;
 
 class Language
 {
@@ -390,7 +390,7 @@ class Language
                     return vsprintf($translation, $args);
                 }
 
-                if($translation) {
+                if ($translation) {
                     return $translation;
                 }
             }
