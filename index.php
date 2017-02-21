@@ -15,7 +15,7 @@ if (!is_file($autoload)) {
     die("Please run: <i>bin/grav install</i>");
 }
 
-if (PHP_SAPI == 'cli-server' and !isset($_SERVER['PHP_CLI_ROUTER'])) {
+if (PHP_SAPI == 'cli-server' && !isset($_SERVER['PHP_CLI_ROUTER'])) {
     die(sprintf('PHP webserver requires a router to run Grav, please use: <pre>php -S %s:%s system/router.php</pre>',$_SERVER["SERVER_NAME"], $_SERVER["SERVER_PORT"]));
 }
 
