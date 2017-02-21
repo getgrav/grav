@@ -190,6 +190,17 @@ class Response
     }
 
     /**
+     * Is this a remote file or not
+     *
+     * @param $file
+     * @return bool
+     */
+    public static function isRemote($file)
+    {
+        return (bool) filter_var($file, FILTER_VALIDATE_URL);
+    }
+
+    /**
      * Progress normalized for cURL and Fopen
      * Accepts a variable length of arguments passed in by stream method
      */
