@@ -438,9 +438,9 @@ class Language
 
         if ($html_out) {
             return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
-        } else {
-            return $key . '[' . $index . ']';
         }
+
+        return $key . '[' . $index . ']';
     }
 
     /**
@@ -472,11 +472,12 @@ class Language
     public function getBrowserLanguages($accept_langs = [])
     {
         if (empty($this->http_accept_language)) {
-            if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-                $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-            } else {
+
+            if (empty($accept_langs) == false && isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) == false) {
                 return $accept_langs;
             }
+
+            $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 
             foreach (explode(',', $accept_langs) as $k => $pref) {
                 // split $pref again by ';q='
