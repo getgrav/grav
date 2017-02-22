@@ -727,7 +727,7 @@ class Uri
      *
      * @return boolean      is eternal state
      */
-    public function isExternal($url)
+    public static function isExternal($url)
     {
         if (Utils::startsWith($url, 'http')) {
             return true;
@@ -1085,5 +1085,21 @@ class Uri
         $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . Utils::getNonce($action);
 
         return $urlWithNonce;
+    }
+
+    /**
+     * Is the passed in URL a valid URL?
+     *
+     * @param $url
+     * @return bool
+     */
+    public static function isValidUrl($url)
+    {
+        $regex = '/^(?:(https?|ftp|telnet):)?\/\/((?:[a-z0-9@:.-]|%[0-9A-F]{2}){3,})(?::(\d+))?((?:\/(?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\@]|%[0-9A-F]{2})*)*)(?:\?((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?(?:#((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?/';
+        if (preg_match($regex, $url)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
