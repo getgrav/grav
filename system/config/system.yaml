@@ -138,3 +138,4 @@ gpm:
   proxy_url:                                 # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
   method: 'auto'                             # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
   verify_peer: true                          # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
+  official_gpm_only: true                    # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security

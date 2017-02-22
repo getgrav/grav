@@ -64,7 +64,15 @@ class DirectInstallCommand extends ConsoleCommand
 
         if (Response::isRemote($package_file)) {
             $this->output->write("  |- Downloading package...     0%");
-            $zip = GPM::downloadPackage($package_file, $tmp_zip);
+            try {
+                $zip = GPM::downloadPackage($package_file, $tmp_zip);
+            } catch (\RuntimeException $e) {
+                $this->output->writeln('');
+                $this->output->writeln("  `- <red>ERROR: " . $e->getMessage() . "</red>");
+                $this->output->writeln('');
+                exit;
+            }
+            
             if ($zip) {
                 $this->output->write("\x0D");
                 $this->output->write("  |- Downloading package...   100%");

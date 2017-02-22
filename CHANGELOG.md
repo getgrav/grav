@@ -1,3 +1,12 @@
+# v1.1.18
+## 02/xx/2017
+
+1. [](#new)
+    * Added default setting to only allow `direct-installs` from official GPM.  Can be configured in `system.yaml`
+    * Added a new `Utils::isValidUrl()` method
+1. [](#improved)
+    * Genericized `direct-install` so it can be called via Admin plugin
+
 # v1.1.17
 ## 02/17/2017
 

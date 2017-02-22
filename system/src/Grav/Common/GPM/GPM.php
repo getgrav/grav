@@ -511,6 +511,11 @@ class GPM extends Iterator
     {
         $package = parse_url($package_file);
         $filename = basename($package['path']);
+
+        if (Grav::instance()['config']->get('system.gpm.official_gpm_only') && $package['host'] !== 'getgrav.org') {
+            throw new \RuntimeException("Only offical GPM URLs are allowed.  You can modify this behavior in the System configuration.");
+        }
+
         $output = Response::get($package_file, []);
 
         if ($output) {
