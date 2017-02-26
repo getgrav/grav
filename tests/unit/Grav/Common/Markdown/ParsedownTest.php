@@ -675,6 +675,8 @@ class ParsedownTest extends \Codeception\TestCase\Test
     {
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
+        $this->assertSame('<p><a href="#something" class="button">Anchor Class</a></p>',
+            $this->parsedown->text('[Anchor Class](?classes=button#something)'));
         $this->assertSame('<p><a href="/item2/item2-3" class="button">Relative Class</a></p>',
             $this->parsedown->text('[Relative Class](../item2-3?classes=button)'));
         $this->assertSame('<p><a href="/item2/item2-3" id="unique">Relative ID</a></p>',
