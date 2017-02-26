@@ -339,7 +339,7 @@ class Validation
 
     protected static function filterNumber($value, array $params, array $field)
     {
-        return (int) $value;
+        return self::validateFloat($value, $params) ? (float) $value : (int) $value;
     }
 
     protected static function filterDateTime($value, array $params, array $field)
@@ -585,7 +585,7 @@ class Validation
                     $values[$key] =  array_map('trim', explode(',', $value));
                 } else {
                     $values[$key] =  trim($value);
-                }                
+                }
             }
         }
 
