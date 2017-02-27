@@ -332,7 +332,7 @@ abstract class Folder
      */
     public static function move($source, $target)
     {
-        if (!file_exists($target) || !is_dir($source)) {
+        if (!file_exists($source) || !is_dir($source)) {
             // Rename fails if source folder does not exist.
             throw new \RuntimeException('Cannot move non-existing folder.');
         }
