@@ -7,7 +7,8 @@
 1. [](#improved)
     * Genericized `direct-install` so it can be called via Admin plugin
 1. [](#bugfix)
-    * Fix a minor bug in Number validation [#1329](https://github.com/getgrav/grav/issues/1329)
+    * Fixed a minor bug in Number validation [#1329](https://github.com/getgrav/grav/issues/1329)
+    * Fixed exception when trying to find user account and there is no `user://accounts` folder
 
 # v1.1.17
 ## 02/17/2017
