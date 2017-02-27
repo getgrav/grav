@@ -9,6 +9,7 @@
 namespace Grav\Common\GPM;
 
 use Grav\Common\Grav;
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Inflector;
 use Grav\Common\Iterator;
 use Grav\Common\Utils;
@@ -497,6 +498,151 @@ class GPM extends Iterator
         }
 
         return false;
+    }
+
+    /**
+     * Download the zip package via the URL
+     *
+     * @param $package_file
+     * @param $tmp
+     * @return null|string
+     */
+    public static function downloadPackage($package_file, $tmp)
+    {
+        $package = parse_url($package_file);
+        $filename = basename($package['path']);
+
+        if (Grav::instance()['config']->get('system.gpm.official_gpm_only') && $package['host'] !== 'getgrav.org') {
+            throw new \RuntimeException("Only offical GPM URLs are allowed.  You can modify this behavior in the System configuration.");
+        }
+
+        $output = Response::get($package_file, []);
+
+        if ($output) {
+            Folder::mkdir($tmp);
+            file_put_contents($tmp . DS . $filename, $output);
+            return $tmp . DS . $filename;
+        }
+
+        return null;
+    }
+
+    /**
+     * Copy the local zip package to tmp
+     *
+     * @param $package_file
+     * @param $tmp
+     * @return null|string
+     */
+    public static function copyPackage($package_file, $tmp)
+    {
+        $package_file = realpath($package_file);
+
+        if (file_exists($package_file)) {
+            $filename = basename($package_file);
+            Folder::mkdir($tmp);
+            copy(realpath($package_file), $tmp . DS . $filename);
+            return $tmp . DS . $filename;
+        }
+
+        return null;
+    }
+
+    /**
+     * Try to guess the package type from the source files
+     *
+     * @param $source
+     * @return bool|string
+     */
+    public static function getPackageType($source)
+    {
+        $plugin_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Plugin/m';
+        $theme_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Theme/m';
+
+        if (
+            file_exists($source . 'system/defines.php') &&
+            file_exists($source . 'system/config/system.yaml')
+        ) {
+            return 'grav';
+        } else {
+            // must have a blueprint
+            if (!file_exists($source . 'blueprints.yaml')) {
+                return false;
+            }
+
+            // either theme or plugin
+            $name = basename($source);
+            if (Utils::contains($name, 'theme')) {
+                return 'theme';
+            } elseif (Utils::contains($name, 'plugin')) {
+                return 'plugin';
+            }
+            foreach (glob($source . "*.php") as $filename) {
+                $contents = file_get_contents($filename);
+                if (preg_match($theme_regex, $contents)) {
+                    return 'theme';
+                } elseif (preg_match($plugin_regex, $contents)) {
+                    return 'plugin';
+                }
+            }
+
+            // Assume it's a theme
+            return 'theme';
+        }
+    }
+
+    /**
+     * Try to guess the package name from the source files
+     *
+     * @param $source
+     * @return bool|string
+     */
+    public static function getPackageName($source)
+    {
+        foreach (glob($source . "*.yaml") as $filename) {
+            $name = strtolower(basename($filename, '.yaml'));
+            if ($name == 'blueprints') {
+                continue;
+            }
+            return $name;
+        }
+        return false;
+    }
+
+    /**
+     * Find/Parse the blueprint file
+     *
+     * @param $source
+     * @return array|bool
+     */
+    public static function getBlueprints($source)
+    {
+        $blueprint_file = $source . 'blueprints.yaml';
+        if (!file_exists($blueprint_file)) {
+            return false;
+        }
+
+        $blueprint = (array)Yaml::parse(file_get_contents($blueprint_file));
+        return $blueprint;
+    }
+
+    /**
+     * Get the install path for a name and a particular type of package
+     *
+     * @param $type
+     * @param $name
+     * @return string
+     */
+    public static function getInstallPath($type, $name)
+    {
+        $locator = Grav::instance()['locator'];
+
+        if ($type == 'theme') {
+            $install_path = $locator->findResource('themes://', false) . DS . $name;
+        } else {
+            $install_path = $locator->findResource('plugins://', false) . DS . $name;
+        }
+        return $install_path;
     }
 
     /**

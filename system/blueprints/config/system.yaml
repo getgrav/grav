@@ -1057,6 +1057,19 @@ form:
                         fopen: PLUGIN_ADMIN.FOPEN
                         curl: PLUGIN_ADMIN.CURL
 
+                gpm.official_gpm_only:
+                    type: toggle
+                    label: PLUGIN_ADMIN.GPM_OFFICIAL_ONLY
+                    highlight: auto
+                    help: PLUGIN_ADMIN.GPM_OFFICIAL_ONLY_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
+
                 gpm.verify_peer:
                     type: toggle
                     label: PLUGIN_ADMIN.GPM_VERIFY_PEER
