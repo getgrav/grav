@@ -1,7 +1,7 @@
 <?php
 namespace Grav\Common\Object;
 
-interface ObjectInterface extends \ArrayAccess
+interface ObjectInterface extends \ArrayAccess, \JsonSerializable
 {
     /**
      * Returns the global instance to the object.
