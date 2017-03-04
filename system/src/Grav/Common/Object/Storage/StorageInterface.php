@@ -1,30 +1,29 @@
 <?php
 namespace Grav\Common\Object\Storage;
 
-use Grav\Common\Object\AbstractObject;
-
 interface StorageInterface
 {
     /**
-     * @param array $keys
+     * @param string $key
      * @return array
      */
-    public function load(array $keys);
+    public function load($key);
 
     /**
-     * @param AbstractObject $object
-     * @return string Id
+     * @param string $key
+     * @param array $data
+     * @return mixed
      */
-    public function save(AbstractObject $object);
+    public function save($key, array $data);
 
     /**
-     * @param AbstractObject $object
+     * @param string $key
      * @return bool
      */
-    public function delete(AbstractObject $object);
+    public function delete($key);
 
     /**
-     * @param array|string[] $list
+     * @param string[] $list
      * @return array
      */
     public function loadList(array $list);
@@ -39,7 +38,7 @@ interface StorageInterface
      * @param array $query
      * @param int   $start
      * @param int   $limit
-     * @return array|string[]
+     * @return string[]
      */
-    public function find(array $query, $start, $limit);
+    public function find(array $query, $start = 0, $limit = 0);
 }

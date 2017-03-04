@@ -256,20 +256,31 @@ abstract class AbstractObject implements ObjectInterface
      *
      * @param   mixed    $keys   An optional primary key value to load the object by, or an array of fields to match. If not
      *                           set the instance key value is used.
+     * @param   bool     $getKey Internal parameter, please do not use.
      *
      * @return  boolean  True on success, false if the object doesn't exist.
      */
-    public function load($keys = null)
+    public function load($keys = null, $getKey = true)
     {
-        if (is_scalar($keys)) {
-            $keys = ['id' => (string) $keys];
+        if ($getKey) {
+            if (is_scalar($keys)) {
+                $keys = ['id' => (string) $keys];
+            }
+
+            // Fetch internal key.
+            $key = $this->getStorageKey($keys);
+
+        } else {
+            // Internal key was passed.
+            $key = $keys;
+            $keys = [];
         }
 
         // Get storage.
         $storage = $this->getStorage();
 
         // Load the object based on the keys.
-        $this->items = $storage->load($keys);
+        $this->items = $storage->load($key);
         $this->exists = !empty($this->items);
 
         // Append the keys and defaults if they were not set by load().
@@ -293,25 +304,38 @@ abstract class AbstractObject implements ObjectInterface
      *
      * @return  boolean  True on success.
      */
-    public function save()
+    public function save($includeChildren = false)
     {
         // Check the object.
-        if ($this->readonly || !$this->check() || !$this->onBeforeSave()) {
+        if ($this->readonly || !$this->check($includeChildren) || !$this->onBeforeSave()) {
             return false;
         }
 
-        // Get storage.
-        $storage = $this->getStorage();
+        try {
+            // Get storage.
+            $storage = $this->getStorage();
+            $key = $this->getStorageKey();
 
-        // Save the object.
-        $id = $storage->save($this);
+            // Get data to be saved.
+            $data = $this->prepareSave($this->toArray());
+
+            // Save the object.
+            $id = $storage->save($key, $data);
+        } catch (\Exception $e) {
+            return false;
+        }
+
         if (!$id) {
             return false;
         }
 
         // If item was created, load the object.
         if (!$this->exists) {
-            $this->load($id);
+            $this->load($id, false);
+        }
+
+        if ($includeChildren) {
+            $this->saveChildren();
         }
 
         $this->onAfterSave();
@@ -322,18 +346,23 @@ abstract class AbstractObject implements ObjectInterface
     /**
      * Method to delete the object from the database.
      *
+     * @param bool $includeChildren
      * @return boolean True on success.
      */
-    public function delete()
+    public function delete($includeChildren = false)
     {
         if ($this->readonly || !$this->exists || !$this->onBeforeDelete()) {
             return false;
         }
 
+        if ($includeChildren) {
+            $this->deleteChildren();
+        }
+
         // Get storage.
         $storage = $this->getStorage();
 
-        if (!$storage->delete($this)) {
+        if (!$storage->delete($this->getStorageKey())) {
             return false;
         }
 
@@ -352,9 +381,29 @@ abstract class AbstractObject implements ObjectInterface
      *
      * @return  boolean  True if the instance is sane and able to be stored in the storage.
      */
-    public function check()
+    public function check($includeChildren = false)
     {
-        return !empty($this->id);
+        $result = true;
+
+        if ($includeChildren) {
+            foreach ($this->items as $field => $value) {
+                if (is_object($value) && method_exists($value, 'check')) {
+                    $result = $result && $value->check();
+                }
+            }
+        }
+
+        return $result && !empty($this->items['id']);
+    }
+
+    /**
+     * Implementes JsonSerializable interface.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 
     // Internal functions
@@ -371,7 +420,7 @@ abstract class AbstractObject implements ObjectInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     protected function onBeforeSave()
     {
@@ -383,7 +432,7 @@ abstract class AbstractObject implements ObjectInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     protected function onBeforeDelete()
     {
@@ -393,6 +442,43 @@ abstract class AbstractObject implements ObjectInterface
     protected function onAfterDelete()
     {
     }
+
+    protected function saveChildren()
+    {
+        foreach ($this->items as $field => $value) {
+            if (is_object($value) && method_exists($value, 'save')) {
+                $value->save(true);
+            }
+        }
+    }
+
+    protected function deleteChildren()
+    {
+        foreach ($this->items as $field => $value) {
+            if (is_object($value) && method_exists($value, 'delete')) {
+                $value->delete(true);
+            }
+        }
+    }
+
+    protected function prepareSave(array $data)
+    {
+        foreach ($data as $field => $value) {
+            if (is_object($value) && method_exists($value, 'save')) {
+                unset($data[$field]);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Method to get the storage key for the object.
+     *
+     * @param array
+     * @return string
+     */
+    abstract protected function getStorageKey(array $keys = null);
 
     /**
      * @return StorageInterface
