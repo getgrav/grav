@@ -432,9 +432,10 @@ class TwigExtension extends \Twig_Extension
     /**
      * @param $string
      *
+     * @param bool $block  Block or Line processing
      * @return mixed|string
      */
-    public function markdownFilter($string)
+    public function markdownFilter($string, $block = true)
     {
         $page     = $this->grav['page'];
         $defaults = $this->config->get('system.pages.markdown');
@@ -446,7 +447,12 @@ class TwigExtension extends \Twig_Extension
             $parsedown = new Parsedown($page, $defaults);
         }
 
-        $string = $parsedown->text($string);
+        if ($block) {
+            $string = $parsedown->text($string);
+        } else {
+            $string = $parsedown->line($string);
+        }
+
 
         return $string;
     }

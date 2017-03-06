@@ -4,6 +4,7 @@
 1. [](#new)
     * Added default setting to only allow `direct-installs` from official GPM.  Can be configured in `system.yaml`
     * Added a new `Utils::isValidUrl()` method
+    * Added optional parameter to `|markdown(false)` filter to toggle block/line processing (default|true = `block`)
 1. [](#improved)
     * Genericized `direct-install` so it can be called via Admin plugin
 1. [](#bugfix)
