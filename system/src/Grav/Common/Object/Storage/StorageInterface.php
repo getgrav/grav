@@ -5,6 +5,12 @@ interface StorageInterface
 {
     /**
      * @param string $key
+     * @return bool
+     */
+    public function exists($key);
+
+    /**
+     * @param string $key
      * @return array
      */
     public function load($key);

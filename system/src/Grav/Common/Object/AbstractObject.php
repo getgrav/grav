@@ -99,7 +99,10 @@ abstract class AbstractObject implements ObjectInterface
         // If we are creating or loading a new item or we load instance by alternative keys, we need to create a new object.
         if (!$keys || is_array($keys) || (is_scalar($keys) && !isset(static::$instances[$keys]))) {
             $c = get_called_class();
-            $instance = new $c($keys);
+
+            /** @var ObjectStorageTrait $instance */
+            $instance = new $c();
+            $instance->load($keys);
 
             /** @var Object $instance */
             if (!$instance->exists()) return $instance;
@@ -258,7 +261,7 @@ abstract class AbstractObject implements ObjectInterface
      *                           set the instance key value is used.
      * @param   bool     $getKey Internal parameter, please do not use.
      *
-     * @return  boolean  True on success, false if the object doesn't exist.
+     * @return  bool     True on success, false if the object doesn't exist.
      */
     public function load($keys = null, $getKey = true)
     {
@@ -302,7 +305,8 @@ abstract class AbstractObject implements ObjectInterface
      *
      * Before saving the object, this method checks if object can be safely saved.
      *
-     * @return  boolean  True on success.
+     * @params  bool    $includeChildren
+     * @return  bool    True on success.
      */
     public function save($includeChildren = false)
     {
@@ -346,8 +350,8 @@ abstract class AbstractObject implements ObjectInterface
     /**
      * Method to delete the object from the database.
      *
-     * @param bool $includeChildren
-     * @return boolean True on success.
+     * @param bool  $includeChildren
+     * @return bool True on success.
      */
     public function delete($includeChildren = false)
     {
@@ -379,7 +383,7 @@ abstract class AbstractObject implements ObjectInterface
      * Child classes should override this method to make sure the data they are storing in the storage is safe and as
      * expected before saving the object.
      *
-     * @return  boolean  True if the instance is sane and able to be stored in the storage.
+     * @return  bool  True if the instance is sane and able to be stored in the storage.
      */
     public function check($includeChildren = false)
     {
@@ -478,7 +482,7 @@ abstract class AbstractObject implements ObjectInterface
      * @param array
      * @return string
      */
-    abstract protected function getStorageKey(array $keys = null);
+    abstract public function getStorageKey(array $keys = []);
 
     /**
      * @return StorageInterface

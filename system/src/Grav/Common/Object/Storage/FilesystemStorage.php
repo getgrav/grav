@@ -36,6 +36,21 @@ class FilesystemStorage implements StorageInterface
 
     /**
      * @param string $key
+     * @return bool
+     */
+    public function exists($key)
+    {
+        if ($key === null) {
+            return false;
+        }
+
+        $file = $this->getFile($key);
+
+        return $file->exists();
+    }
+
+    /**
+     * @param string $key
      * @return array
      */
     public function load($key)
@@ -104,6 +119,8 @@ class FilesystemStorage implements StorageInterface
 
     /**
      * @param array $query
+     * @param int $start
+     * @param int $limit
      * @return string[]
      */
     public function find(array $query, $start = 0, $limit = 0)
