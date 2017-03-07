@@ -55,8 +55,13 @@ trait ObjectStorageTrait
      */
     static public function instance($keys = null, $reload = false)
     {
+        if (is_scalar($keys)) {
+            $keys = ['id' => (string) $keys];
+        }
+        $id = $keys ? static::getInstanceId($keys) : null;
+
         // If we are creating or loading a new item or we load instance by alternative keys, we need to create a new object.
-        if (!$keys || is_array($keys) || (is_scalar($keys) && !isset(static::$instances[$keys]))) {
+        if (!$id || !isset(static::$instances[$id])) {
             $c = get_called_class();
 
             /** @var ObjectStorageTrait|ObjectInterface $instance */
@@ -66,12 +71,12 @@ trait ObjectStorageTrait
             }
 
             // Instance exists in storage: make sure that we return the global instance.
-            $keys = $instance->getInstanceId();
+            $id = $instance->getId();
             $reload = false;
         }
 
         // Return global instance from the identifier.
-        $instance = static::$instances[$keys];
+        $instance = static::$instances[$id];
 
         if ($reload) {
             $instance->load();
@@ -151,7 +156,7 @@ trait ObjectStorageTrait
             }
 
             // Fetch internal key.
-            $key = $this->getStorageKey($keys);
+            $key = $keys ? $this->getStorageKey($keys) : null;
 
         } else {
             // Internal key was passed.
@@ -159,15 +164,10 @@ trait ObjectStorageTrait
             $keys = [];
         }
 
-        // Get storage.
-        $storage = $this->getStorage();
-
-        // Load the object based on the keys.
-        $this->items = $storage->load($key);
-
+        $this->doLoad($this->getStorage()->load($key), $keys);
         $this->initialize();
 
-        $id = $this->getInstanceId();
+        $id = $this->getId();
         if ($id) {
             if (!isset(static::$instances[$id])) {
                 static::$instances[$id] = $this;
@@ -195,12 +195,12 @@ trait ObjectStorageTrait
         // Get storage.
         $storage = $this->getStorage();
         $key = $this->getStorageKey();
-        $exists = $this->getStorage()->exists($key);
 
         // Get data to be saved.
         $data = $this->prepareSave();
 
         // Save the object.
+        $exists = $storage->exists($key);
         $id = $storage->save($key, $data);
 
         if (!$id) {
@@ -262,7 +262,7 @@ trait ObjectStorageTrait
         $result = true;
 
         if ($includeChildren) {
-            foreach ($this as $field => $value) {
+            foreach ($this->toArray() as $field => $value) {
                 if (is_object($value) && method_exists($value, 'check')) {
                     $result = $result && $value->check();
                 }
@@ -273,6 +273,8 @@ trait ObjectStorageTrait
     }
 
     // Internal functions
+
+    abstract protected function doLoad(array $items, array $keys = []);
 
     /**
      * @return bool
@@ -300,7 +302,7 @@ trait ObjectStorageTrait
 
     protected function saveChildren()
     {
-        foreach ($this as $field => $value) {
+        foreach ($this->toArray() as $field => $value) {
             if (is_object($value) && method_exists($value, 'save')) {
                 $value->save(true);
             }
@@ -309,7 +311,7 @@ trait ObjectStorageTrait
 
     protected function deleteChildren()
     {
-        foreach ($this as $field => $value) {
+        foreach ($this->toArray() as $field => $value) {
             if (is_object($value) && method_exists($value, 'delete')) {
                 $value->delete(true);
             }
@@ -339,10 +341,23 @@ trait ObjectStorageTrait
      */
     abstract public function getStorageKey(array $keys = []);
 
-    public function getInstanceId(array $keys = [])
+    /**
+     * @param array $keys
+     * @return string
+     */
+    public function getInstanceId(array $keys)
     {
         return $this->getStorageKey($keys);
     }
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->getStorageKey();
+    }
+
 
     //abstract public function setStorageKey(array $keys = []);
 

@@ -19,7 +19,7 @@ interface ObjectInterface extends \ArrayAccess, \JsonSerializable
     /**
      * @param array $ids List of primary Ids or null to return everything that has been loaded.
      * @param bool $readonly
-     * @return ObjectCollection
+     * @return AbstractObjectCollection
      */
     static public function instances(array $ids = null, $readonly = true);
 
@@ -47,13 +47,11 @@ interface ObjectInterface extends \ArrayAccess, \JsonSerializable
     public function readonly();
 
     /**
-     * Returns true if the object exists.
-     *
-     * @param   boolean $exists Internal parameter to change state.
+     * Returns true if the object exists in the storage.
      *
      * @return  boolean  True if object exists.
      */
-    public function exists($exists = null);
+    public function isSaved();
 
     /**
      * Method to load object from the storage.
