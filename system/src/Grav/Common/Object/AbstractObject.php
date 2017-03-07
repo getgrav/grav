@@ -199,18 +199,6 @@ abstract class AbstractObject implements ObjectInterface
     }
 
     /**
-     * Class constructor, overridden in descendant classes.
-     *
-     * @param string|array  $identifier     Identifier.
-     */
-    public function __construct($identifier = null)
-    {
-        if ($identifier) {
-            $this->load($identifier);
-        }
-    }
-
-    /**
      * Override this function if you need to initialize object right after creating it.
      *
      * Can be used for example if the fields need to be converted from json strings to array.
@@ -283,11 +271,11 @@ abstract class AbstractObject implements ObjectInterface
         $storage = $this->getStorage();
 
         // Load the object based on the keys.
-        $this->items = $storage->load($key);
-        $this->exists = !empty($this->items);
+        $items = $storage->load($key);
+        $this->exists = !empty($items);
 
-        // Append the keys and defaults if they were not set by load().
-        $this->items += $keys + static::$defaults;
+        // Append the defaults and keys if they were not set by load().
+        $this->items = array_merge(static::$defaults, $keys, $this->items, $items);
 
         $this->initialize();
 
@@ -315,22 +303,18 @@ abstract class AbstractObject implements ObjectInterface
             return false;
         }
 
-        try {
-            // Get storage.
-            $storage = $this->getStorage();
-            $key = $this->getStorageKey();
+        // Get storage.
+        $storage = $this->getStorage();
+        $key = $this->getStorageKey();
 
-            // Get data to be saved.
-            $data = $this->prepareSave($this->toArray());
+        // Get data to be saved.
+        $data = $this->prepareSave($this->toArray());
 
-            // Save the object.
-            $id = $storage->save($key, $data);
-        } catch (\Exception $e) {
-            return false;
-        }
+        // Save the object.
+        $id = $storage->save($key, $data);
 
         if (!$id) {
-            return false;
+            throw new \LogicException('No id specified');
         }
 
         // If item was created, load the object.
@@ -449,7 +433,7 @@ abstract class AbstractObject implements ObjectInterface
 
     protected function saveChildren()
     {
-        foreach ($this->items as $field => $value) {
+        foreach ($this->toArray() as $field => $value) {
             if (is_object($value) && method_exists($value, 'save')) {
                 $value->save(true);
             }
@@ -458,7 +442,7 @@ abstract class AbstractObject implements ObjectInterface
 
     protected function deleteChildren()
     {
-        foreach ($this->items as $field => $value) {
+        foreach ($this->toArray() as $field => $value) {
             if (is_object($value) && method_exists($value, 'delete')) {
                 $value->delete(true);
             }
@@ -487,8 +471,17 @@ abstract class AbstractObject implements ObjectInterface
     /**
      * @return StorageInterface
      */
-    static protected function getStorage()
+    protected static function getStorage()
     {
+        if (!static::$storage) {
+            static::loadStorage();
+        }
+
         return static::$storage;
+    }
+
+    protected static function loadStorage()
+    {
+        throw new \RuntimeException('Storage has not been set.');
     }
 }

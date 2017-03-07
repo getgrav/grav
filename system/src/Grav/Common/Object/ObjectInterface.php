@@ -31,13 +31,6 @@ interface ObjectInterface extends \ArrayAccess, \JsonSerializable
     static public function freeInstances($ids = null);
 
     /**
-     * Class constructor, overridden in descendant classes.
-     *
-     * @param string|array $identifier Identifier.
-     */
-    public function __construct($identifier = null);
-
-    /**
      * Override this function if you need to initialize object right after creating it.
      *
      * Can be used for example if the fields need to be converted from json strings to array.

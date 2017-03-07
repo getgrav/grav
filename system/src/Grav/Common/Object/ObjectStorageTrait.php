@@ -192,23 +192,19 @@ trait ObjectStorageTrait
             return false;
         }
 
-        try {
-            // Get storage.
-            $storage = $this->getStorage();
-            $key = $this->getStorageKey();
-            $exists = $this->getStorage()->exists($key);
+        // Get storage.
+        $storage = $this->getStorage();
+        $key = $this->getStorageKey();
+        $exists = $this->getStorage()->exists($key);
 
-            // Get data to be saved.
-            $data = $this->prepareSave();
+        // Get data to be saved.
+        $data = $this->prepareSave();
 
-            // Save the object.
-            $id = $storage->save($key, $data);
-        } catch (\Exception $e) {
-            return false;
-        }
+        // Save the object.
+        $id = $storage->save($key, $data);
 
         if (!$id) {
-            return false;
+            throw new \LogicException('No id specified');
         }
 
         // If item was created, load the object (making sure it has been properly initialized).
@@ -353,8 +349,17 @@ trait ObjectStorageTrait
     /**
      * @return StorageInterface
      */
-    protected function getStorage()
+    protected static function getStorage()
     {
+        if (!static::$storage) {
+            static::loadStorage();
+        }
+
         return static::$storage;
+    }
+
+    protected static function loadStorage()
+    {
+        throw new \RuntimeException('Storage has not been set.');
     }
 }
