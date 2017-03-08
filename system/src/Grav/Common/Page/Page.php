@@ -1208,7 +1208,7 @@ class Page
             $this->expires = $var;
         }
 
-        return empty($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
+        return !isset($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
     }
 
     /**
