@@ -11,6 +11,7 @@
 1. [](#bugfix)
     * Fixed a minor bug in Number validation [#1329](https://github.com/getgrav/grav/issues/1329)
     * Fixed exception when trying to find user account and there is no `user://accounts` folder
+    * Fixed issue when setting `Page::expires(0)` [Admin #1009](https://github.com/getgrav/grav-plugin-admin/issues/1009)
 
 # v1.1.17
 ## 02/17/2017
