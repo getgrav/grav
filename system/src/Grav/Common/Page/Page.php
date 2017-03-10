@@ -2561,6 +2561,16 @@ class Page
     }
 
     /**
+     * Returns whether or not the current folder exists
+     *
+     * @return bool
+     */
+    public function folderExists()
+    {
+        return file_exists($this->path());
+    }
+
+    /**
      * Cleans the path.
      *
      * @param  string $path the path
