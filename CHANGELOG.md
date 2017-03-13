@@ -7,6 +7,7 @@
     * Added optional parameter to `|markdown(false)` filter to toggle block/line processing (default|true = `block`)
     * Added new `Page::folderExists()` method
 1. [](#improved)
+    * `Twig::evaluate()` now takes current environment and context into account
     * Genericized `direct-install` so it can be called via Admin plugin
 1. [](#bugfix)
     * Fixed a minor bug in Number validation [#1329](https://github.com/getgrav/grav/issues/1329)
