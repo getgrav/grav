@@ -1,5 +1,5 @@
-# v1.1.18
-## 02/xx/2017
+# v1.2.0-rc.1
+## 03/13/2017
 
 1. [](#new)
     * Added default setting to only allow `direct-installs` from official GPM.  Can be configured in `system.yaml`
