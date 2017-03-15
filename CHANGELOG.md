@@ -1,3 +1,9 @@
+# v1.2.0-rc.2
+## 03/xx/2017
+
+1. [](#bugfix)
+    * Fixed an issue with theme inheritance and hyphenated base themes [#1353](https://github.com/getgrav/grav/issues/1353)
+
 # v1.2.0-rc.1
 ## 03/13/2017
 
