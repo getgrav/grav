@@ -37,5 +37,4 @@ class Collection extends ArrayCollection implements CollectionInterface
     {
         return $this->toArray();
     }
-
 }

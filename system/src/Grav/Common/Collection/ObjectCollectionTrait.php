@@ -59,4 +59,21 @@ trait ObjectCollectionTrait
 
         return $list;
     }
+
+
+    /**
+     * Group items in the collection by a field.
+     *
+     * @param string $property
+     * @return array
+     */
+    public function group($property)
+    {
+        $list = [];
+        foreach ($this as $element) {
+            $list[$element->{$property}][] = $element;
+        }
+
+        return $list;
+    }
 }
