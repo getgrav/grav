@@ -291,6 +291,18 @@ form:
                   validate:
                     type: bool
 
+                header.debugger:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.DEBUGGER
+                  help: PLUGIN_ADMIN.DEBUGGER_HELP
+                  highlight: 1
+                  options:
+                    1: PLUGIN_ADMIN.ENABLED
+                    0: PLUGIN_ADMIN.DISABLED
+                  validate:
+                    type: bool
+
                 header.template:
                   type: text
                   toggleable: true

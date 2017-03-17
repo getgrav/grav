@@ -86,6 +86,7 @@ class Page
     protected $hide_home_route;
     protected $ssl;
     protected $template_format;
+    protected $debugger;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -143,6 +144,11 @@ class Page
             $this->extension('.' . $file->getExtension());
         } else {
             $this->extension($extension);
+        }
+
+        // some debugger logic
+        if (isset($this->debugger) && $this->debugger == false) {
+            Grav::instance()['debugger']->enabled(false);
         }
 
         // extract page language from page extension
@@ -423,6 +429,9 @@ class Page
             }
             if (isset($this->header->template_format)) {
                 $this->template_format = $this->header->template_format;
+            }
+            if (isset($this->header->debugger)) {
+                $this->debugger = (bool)$this->header->debugger;
             }
         }
 

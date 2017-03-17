@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Updated vendor libraries to latest
+    * Added the ability to disable debugger on a per-page basis with `debugger: false` in page frontmatter
 1. [](#bugfix)
     * Fixed an issue with theme inheritance and hyphenated base themes [#1353](https://github.com/getgrav/grav/issues/1353)
     * Fixed an issue when trying to use an `@2x` derivative on a non-image media file [#1341](https://github.com/getgrav/grav/issues/1341)
