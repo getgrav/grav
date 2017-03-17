@@ -1208,7 +1208,7 @@ class Page
             $this->expires = $var;
         }
 
-        return empty($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
+        return !isset($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
     }
 
     /**
@@ -2558,6 +2558,16 @@ class Page
         $file = $this->file();
 
         return $file && $file->exists();
+    }
+
+    /**
+     * Returns whether or not the current folder exists
+     *
+     * @return bool
+     */
+    public function folderExists()
+    {
+        return file_exists($this->path());
     }
 
     /**

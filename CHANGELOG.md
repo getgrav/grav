@@ -5,11 +5,14 @@
     * Added default setting to only allow `direct-installs` from official GPM.  Can be configured in `system.yaml`
     * Added a new `Utils::isValidUrl()` method
     * Added optional parameter to `|markdown(false)` filter to toggle block/line processing (default|true = `block`)
+    * Added new `Page::folderExists()` method
 1. [](#improved)
     * Genericized `direct-install` so it can be called via Admin plugin
 1. [](#bugfix)
     * Fixed a minor bug in Number validation [#1329](https://github.com/getgrav/grav/issues/1329)
     * Fixed exception when trying to find user account and there is no `user://accounts` folder
+    * Fixed issue when setting `Page::expires(0)` [Admin #1009](https://github.com/getgrav/grav-plugin-admin/issues/1009)
+    * Removed ID from `nonce_field()` Twig function causing validation errors [Form #115](https://github.com/getgrav/grav-plugin-form/issues/115)
 
 # v1.1.17
 ## 02/17/2017
