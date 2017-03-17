@@ -1,5 +1,5 @@
 # v1.2.0-rc.2
-## 03/xx/2017
+## 03/17/2017
 
 1. [](#improved)
     * Updated vendor libraries to latest
