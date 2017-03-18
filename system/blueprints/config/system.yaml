@@ -856,13 +856,12 @@ form:
 
             fields:
                 images.default_image_quality:
-                    type: text
+                    type: range
                     append: '%'
                     label: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY
                     help: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY_HELP
                     classes: x-small
                     validate:
-                        type: number
                         min: 1
                         max: 100
 
