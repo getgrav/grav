@@ -563,6 +563,10 @@ class InstallCommand extends ConsoleCommand
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $this->tmp = $tmp_dir . '/Grav-' . uniqid();
         $filename = $package->slug . basename($package->zipball_url);
+        $illegal = array_merge(
+                   array_map('chr', range(0,31)),
+                   array("<", ">", ":", '"', "/", "\\", "|", "?", "*"));
+        $filename = str_replace($illegal, "_", $filename);
         $query = '';
 
         if ($package->premium) {
