@@ -2264,6 +2264,47 @@ class Page
     }
 
     /**
+     * Helper method to return an ancestor page.
+     *
+     * @param string $url The url of the page
+     * @param bool   $lookup Name of the parent folder
+     *
+     * @return \Grav\Common\Page\Page page you were looking for if it exists
+     */
+    public function ancestor($url, $lookup = null)
+    {
+        /** @var Pages $pages */
+        $pages = Grav::instance()['pages'];
+
+        return $pages->ancestor($url, $lookup);
+    }
+
+    /**
+     * Helper method to return an ancestor field to inherit from. The first
+     * occurrence of an ancestor field will be returned if at all.
+     *
+     * @param string $url The url of the page
+     * @param bool   $field Name of the parent folder
+     *
+     * @return array
+     */
+    public function inherited($url, $field)
+    {
+        /** @var Pages $pages */
+        $pages = Grav::instance()['pages'];
+
+        $inheritedParams = $pages->inherited($url, $field);
+
+        $currentParams = (array) $this->value('header.' . $field);
+
+        if($inheritedParams && is_array($inheritedParams)) {
+            $currentParams = array_replace_recursive($inheritedParams, $currentParams);
+        }
+
+        return $currentParams;
+    }
+
+    /**
      * Helper method to return a page.
      *
      * @param string $url the url of the page

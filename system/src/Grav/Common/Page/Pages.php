@@ -292,6 +292,69 @@ class Pages
     }
 
     /**
+     * Get a page ancestor.
+     *
+     * @param  string $url The relative URL of the page
+     * @param  string $path The relative path of the ancestor folder
+     *
+     * @return Page|null
+     */
+    public function ancestor($url, $path = null)
+    {
+        if (!is_null($path)) {
+
+            // Fetch page if there's a defined route to it.
+            $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
+
+            // Try without trailing slash
+            if (!$page && Utils::endsWith($url, '/')) {
+                $page = isset($this->routes[rtrim($url, '/')]) ? $this->get($this->routes[rtrim($url, '/')]) : null;
+            }
+
+            if ($page->path() == $path) {
+                return $page;
+            } elseif (!$page->parent()->root()) {
+                return $this->ancestor($page->parent()->url(), $path);
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Get a page ancestor trait.
+     *
+     * @param  string $url The relative URL of the page
+     * @param  string $field The field name of the ancestor to query for
+     *
+     * @return array|null
+     */
+    public function inherited($url, $field = null)
+    {
+        if (!is_null($field)) {
+
+            // Fetch page if there's a defined route to it.
+            $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
+
+            // Try without trailing slash
+            if (!$page && Utils::endsWith($url, '/')) {
+                $page = isset($this->routes[rtrim($url, '/')]) ? $this->get($this->routes[rtrim($url, '/')]) : null;
+            }
+
+            $ancestorField = $page->parent()->value('header.' . $field);
+
+            if ($ancestorField != null) {
+                return $ancestorField;
+            } elseif (!$page->parent()->root()) {
+                return $this->inherited($page->parent()->url(), $field);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * alias method to return find a page.
      *
      * @param string $url The relative URL of the page
