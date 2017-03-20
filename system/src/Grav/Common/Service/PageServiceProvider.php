@@ -34,6 +34,11 @@ class PageServiceProvider implements ServiceProviderInterface
 
             $page = $pages->dispatch($path);
 
+            // some debugger override logic
+            if ($page->debugger() == false) {
+                Grav::instance()['debugger']->enabled(false);
+            }
+
             // Redirection tests
             if ($page) {
                 /** @var Language $language */

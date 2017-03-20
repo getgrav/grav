@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Simplified modular/twig processing logic and fixed an issue with system process config [#1351](https://github.com/getgrav/grav/issues/1351)
+    * Fix for page-level debugger override changing the option site-wide
 
 # v1.2.0-rc.2
 ## 03/17/2017

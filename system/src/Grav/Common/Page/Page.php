@@ -146,11 +146,6 @@ class Page
             $this->extension($extension);
         }
 
-        // some debugger logic
-        if (isset($this->debugger) && $this->debugger == false) {
-            Grav::instance()['debugger']->enabled(false);
-        }
-
         // extract page language from page extension
         $language = trim(basename($this->extension(), 'md'), '.') ?: null;
         $this->language($language);
@@ -1381,6 +1376,20 @@ class Page
         }
 
         return $this->process;
+    }
+
+    /**
+     * Returns the state of the debugger override etting for this page
+     *
+     * @return mixed
+     */
+    public function debugger()
+    {
+        if (isset($this->debugger) && $this->debugger == false) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
