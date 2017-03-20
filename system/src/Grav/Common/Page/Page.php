@@ -575,7 +575,8 @@ class Page
 
 
             $process_markdown = $this->shouldProcess('markdown');
-            $process_twig = $this->shouldProcess('twig');
+            $process_twig = $this->shouldProcess('twig') || $this->modularTwig() ;
+
             $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled',
                 true);
             $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first',
@@ -2036,7 +2037,6 @@ class Page
         if ($var !== null) {
             $this->modular_twig = (bool)$var;
             if ($var) {
-                $this->process['twig'] = true;
                 $this->visible(false);
                 // some routable logic
                 if (empty($this->header->routable)) {

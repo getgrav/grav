@@ -1,3 +1,9 @@
+# v1.2.0-rc.3
+## 03/xx/2017
+
+1. [](#bugfix)
+    * Simplified modular/twig processing logic and fixed an issue with system process config [#1351](https://github.com/getgrav/grav/issues/1351)
+
 # v1.2.0-rc.2
 ## 03/17/2017
 
