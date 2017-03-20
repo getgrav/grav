@@ -11,6 +11,7 @@ namespace Grav\Common\Twig;
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
+use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
@@ -173,7 +174,7 @@ class Twig
                     'theme_dir'         => $locator->findResource('theme://'),
                     'theme_url'         => $this->grav['base_url'] . '/' . $locator->findResource('theme://', false),
                     'html_lang'         => $this->grav['language']->getActive() ?: $config->get('site.default_lang', 'en'),
-
+                    'language_codes'    => new LanguageCodes,
                 ];
         }
     }
