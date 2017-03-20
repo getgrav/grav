@@ -34,15 +34,15 @@ class PageServiceProvider implements ServiceProviderInterface
 
             $page = $pages->dispatch($path);
 
-            // some debugger override logic
-            if ($page->debugger() == false) {
-                Grav::instance()['debugger']->enabled(false);
-            }
-
             // Redirection tests
             if ($page) {
                 /** @var Language $language */
                 $language = $c['language'];
+
+                // some debugger override logic
+                if ($page->debugger() == false) {
+                    Grav::instance()['debugger']->enabled(false);
+                }
 
                 if ($c['config']->get('system.force_ssl')) {
                     if (!isset($_SERVER['HTTPS']) || $_SERVER["HTTPS"] != "on") {
