@@ -2280,21 +2280,50 @@ class Page
     }
 
     /**
-     * Helper method to return an ancestor field to inherit from. The first
-     * occurrence of an ancestor field will be returned if at all.
+     * Helper method to return an ancestor page to inherit from. The current
+     * page object is returned.
      *
      * @param string $url The url of the page
      * @param bool   $field Name of the parent folder
      *
-     * @return array
+     * @return Page
      */
     public function inherited($url, $field)
     {
         /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
 
-        $inheritedParams = $pages->inherited($url, $field);
+        $inherited = $pages->inherited($url, $field);
 
+        $inheritedParams = (array) $inherited->value('header.' . $field);
+        $currentParams = (array) $this->value('header.' . $field);
+
+        if($inheritedParams && is_array($inheritedParams)) {
+            $currentParams = array_replace_recursive($inheritedParams, $currentParams);
+        }
+
+        $this->modifyHeader($field, $currentParams);
+
+        return $inherited;
+    }
+
+    /**
+     * Helper method to return an ancestor field only to inherit from. The
+     * first occurrence of an ancestor field will be returned if at all.
+     *
+     * @param string $url The url of the page
+     * @param bool   $field Name of the parent folder
+     *
+     * @return array
+     */
+    public function inheritedField($url, $field)
+    {
+        /** @var Pages $pages */
+        $pages = Grav::instance()['pages'];
+
+        $inherited = $pages->inherited($url, $field);
+
+        $inheritedParams = (array) $inherited->value('header.' . $field);
         $currentParams = (array) $this->value('header.' . $field);
 
         if($inheritedParams && is_array($inheritedParams)) {

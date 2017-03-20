@@ -321,14 +321,13 @@ class Pages
         return null;
     }
 
-
     /**
      * Get a page ancestor trait.
      *
      * @param  string $url The relative URL of the page
      * @param  string $field The field name of the ancestor to query for
      *
-     * @return array|null
+     * @return Page|null
      */
     public function inherited($url, $field = null)
     {
@@ -345,7 +344,7 @@ class Pages
             $ancestorField = $page->parent()->value('header.' . $field);
 
             if ($ancestorField != null) {
-                return $ancestorField;
+                return $page->parent();
             } elseif (!$page->parent()->root()) {
                 return $this->inherited($page->parent()->url(), $field);
             }
