@@ -887,12 +887,12 @@ class Page
     /**
      * Save page if there's a file assigned to it.
      *
-     * @param bool $reorder Internal use.
+     * @param bool|mixed $reorder Internal use.
      */
     public function save($reorder = true)
     {
-        // Perform move, copy or reordering if needed.
-        $this->doRelocation($reorder);
+        // Perform move, copy [or reordering] if needed.
+        $this->doRelocation();
 
         $file = $this->file();
         if ($file) {
@@ -901,6 +901,13 @@ class Page
             $file->markdown($this->raw_content);
             $file->save();
         }
+
+        // Perform reorder if required
+        if ($reorder && is_array($reorder)) {
+            $this->doReorder($reorder);
+        }
+
+        $this->_original = null;
     }
 
     /**
@@ -2605,6 +2612,46 @@ class Page
         return $path;
     }
 
+    protected function doReorder($new_order)
+    {
+        if (!$this->_original) {
+            return;
+        }
+
+        $siblings = $this->parent()->children();
+        $siblings->order('slug', 'asc', $new_order);
+
+        $counter = 1;
+
+        // Reorder all moved pages.
+        foreach ($siblings as $slug => $page) {
+            $order = intval(trim($page->order(),'.'));
+
+            if ($order) {
+
+                if ($page->path() == $this->path()) {
+                    // Handle current page; we do want to change ordering number, but nothing else.
+                    $this->order($counter++);
+                    $this->save(false);
+                } else {
+                    // Handle all the other pages.
+                    $page = Grav::instance()['pages']->get($page->path());
+
+                    if ($page && $page->exists() && !$page->_action) {
+
+                        $page = $page->move($this->parent());
+                        $page->order($counter++);
+                        $page->save(false);
+
+                    }
+                }
+
+
+            }
+
+        }
+    }
+
     /**
      * Moves or copies the page in filesystem.
      *
@@ -2614,7 +2661,7 @@ class Page
      *
      * @throws Exception
      */
-    protected function doRelocation($reorder)
+    protected function doRelocation($reorder = false)
     {
         if (!$this->_original) {
             return;
@@ -2680,7 +2727,6 @@ class Page
             }
         }
 
-        $this->_original = null;
     }
 
     protected function setPublishState()

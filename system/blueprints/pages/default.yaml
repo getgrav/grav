@@ -117,17 +117,6 @@ form:
                       title: PLUGIN_ADMIN.SETTINGS
                       underline: true
 
-                    ordering:
-                      type: toggle
-                      label: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX
-                      help: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX_HELP
-                      highlight: 1
-                      options:
-                        1: PLUGIN_ADMIN.ENABLED
-                        0: PLUGIN_ADMIN.DISABLED
-                      validate:
-                        type: bool
-
                     folder:
                       type: text
                       label: PLUGIN_ADMIN.FOLDER_NAME
@@ -164,6 +153,17 @@ form:
                       type: section
                       title: PLUGIN_ADMIN.ORDERING
                       underline: true
+
+                    ordering:
+                      type: toggle
+                      label: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX
+                      help: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX_HELP
+                      highlight: 1
+                      options:
+                        1: PLUGIN_ADMIN.ENABLED
+                        0: PLUGIN_ADMIN.DISABLED
+                      validate:
+                        type: bool
 
                     order:
                       type: order
