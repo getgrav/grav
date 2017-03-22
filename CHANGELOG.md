@@ -1,5 +1,5 @@
 # v1.2.0-rc.3
-## 03/xx/2017
+## 03/22/2017
 
 1. [](#new)
     * Refactored Page re-ordering to handle all siblings at once
@@ -7,6 +7,7 @@
 1. [](#improved)
     * Added an _Admin Overrides_ section with option to choose the order of children in Pages Management
 1. [](#bugfix)
+    * Fixed loading issues with improperly named themes (use old broken method first) [#1373](https://github.com/getgrav/grav/issues/1373)
     * Simplified modular/twig processing logic and fixed an issue with system process config [#1351](https://github.com/getgrav/grav/issues/1351)
     * Cleanup package files via GPM install to make them more windows-friendly [#1361](https://github.com/getgrav/grav/pull/1361)
     * Fix for page-level debugger override changing the option site-wide
