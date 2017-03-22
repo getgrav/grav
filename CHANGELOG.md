@@ -7,6 +7,7 @@
     * Simplified modular/twig processing logic and fixed an issue with system process config [#1351](https://github.com/getgrav/grav/issues/1351)
     * Cleanup package files via GPM install to make them more windows-friendly [#1361](https://github.com/getgrav/grav/pull/1361)
     * Fix for page-level debugger override changing the option site-wide
+    * Allow `url()` twig function to pass-through external links
 
 # v1.2.0-rc.2
 ## 03/17/2017
