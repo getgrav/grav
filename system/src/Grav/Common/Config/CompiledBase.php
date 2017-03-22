@@ -1,11 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common.Config
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Config;
 
 use RocketTheme\Toolbox\File\PhpFile;
 
-/**
- * The Compiled base class.
- */
 abstract class CompiledBase
 {
     /**
@@ -192,9 +196,9 @@ abstract class CompiledBase
         }
 
         $this->createObject($cache['data']);
-        
+
         $this->finalizeObject();
-        
+
         return true;
     }
 

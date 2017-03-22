@@ -1,12 +1,20 @@
 <?php
+/**
+ * @package    Grav.Common.Processors
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Processors;
 
-class InitializeProcessor extends ProcessorBase implements ProcessorInterface {
-
+class InitializeProcessor extends ProcessorBase implements ProcessorInterface
+{
     public $id = 'init';
     public $title = 'Initialize';
 
-    public function process() {
+    public function process()
+    {
         $this->container['config']->debug();
 
         // Use output buffering to prevent headers from being sent too early.
@@ -29,5 +37,4 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface {
 
         $this->container->setLocale();
     }
-
 }

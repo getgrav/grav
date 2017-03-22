@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Grav\Common\Filesystem\Folder;
@@ -45,6 +52,8 @@ class Types implements \ArrayAccess, \Iterator, \Countable
 
             // Register default by default.
             $this->register('default');
+
+            $this->register('external');
         }
 
         foreach ($this->findBlueprints($uri) as $type => $blueprint) {
@@ -73,8 +82,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
 
         $modular_uri = rtrim($uri, '/') . '/modular';
-        foreach (Folder::all($modular_uri, $options) as $type) {
-            $this->register('modular/' . $type);
+        if (is_dir($modular_uri)) {
+            foreach (Folder::all($modular_uri, $options) as $type) {
+                $this->register('modular/' . $type);
+            }
         }
     }
 

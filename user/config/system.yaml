@@ -5,7 +5,8 @@ home:
 
 pages:
   theme: antimatter
-  markdown_extra: false
+  markdown:
+    extra: false
   process:
     markdown: true
     twig: false
@@ -39,3 +40,5 @@ debugger:
   twig: true
   shutdown:
     close_connection: true
+gpm:
+  verify_peer: true

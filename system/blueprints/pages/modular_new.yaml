@@ -1,8 +1,8 @@
 rules:
   slug:
-    pattern: "[a-z][a-z0-9_\-]+"
-    min: 2
-    max: 80
+    pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
+    min: 1
+    max: 200
 
 form:
   validation: loose
@@ -22,15 +22,15 @@ form:
       type: text
       label: PLUGIN_ADMIN.FOLDER_NAME
       validate:
-        type: slug
+        rule: slug
         required: true
 
     route:
       type: select
       label: PLUGIN_ADMIN.PAGE
       classes: fancy
-      data-options@: '\Grav\Common\Page\Pages::parents'
-      data-default@: '\Grav\Plugin\admin::route'
+      data-options@: '\Grav\Common\Page\Pages::parentsRawRoutes'
+      data-default@: '\Grav\Plugin\Admin\Admin::rawRoute'
       validate:
         required: true
 

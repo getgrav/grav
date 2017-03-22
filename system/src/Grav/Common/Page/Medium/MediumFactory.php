@@ -1,17 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
 
-/**
- * MediumFactory can be used to more easily create various Medium objects from files or arrays, it should
- * contain most logic for instantiating a Medium object.
- *
- * @author Grav
- * @license MIT
- *
- */
 class MediumFactory
 {
     /**
@@ -35,7 +34,7 @@ class MediumFactory
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get("media.".strtolower($ext));
+        $media_params = $config->get("media.types.".strtolower($ext));
         if (!$media_params) {
             return null;
         }
@@ -43,7 +42,7 @@ class MediumFactory
         $params += $media_params;
 
         // Add default settings for undefined variables.
-        $params += $config->get('media.defaults');
+        $params += $config->get('media.types.defaults');
         $params += [
             'type' => 'file',
             'thumb' => 'media/thumb.png',
@@ -120,23 +119,27 @@ class MediumFactory
         }
 
         $ratio = $to / $from;
-        $width = (int) ($medium->get('width') * $ratio);
-        $height = (int) ($medium->get('height') * $ratio);
+        $width = $medium->get('width') * $ratio;
+        $height = $medium->get('height') * $ratio;
 
-        $basename = $medium->get('basename');
-        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $basename);
+        $prev_basename = $medium->get('basename');
+        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $prev_basename);
 
         $debug = $medium->get('debug');
         $medium->set('debug', false);
+        $medium->setImagePrettyName($basename);
 
         $file = $medium->resize($width, $height)->path();
 
         $medium->set('debug', $debug);
+        $medium->setImagePrettyName($prev_basename);
 
         $size = filesize($file);
 
         $medium = self::fromFile($file);
-        $medium->set('size', $size);
+        if ($medium) {
+            $medium->set('size', $size);
+        }
 
         return ['file' => $medium, 'size' => $size];
     }

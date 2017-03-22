@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Errors
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Errors;
 
 use Whoops\Handler\Handler;

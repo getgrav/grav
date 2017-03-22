@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Twig
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
@@ -8,12 +15,6 @@ use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Twig extension adds some filters and functions that are useful for Grav
- *
- * @author  RocketTheme
- * @license MIT
- */
 class TwigExtension extends \Twig_Extension
 {
     protected $grav;
@@ -86,6 +87,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('truncate', ['\Grav\Common\Utils', 'truncate']),
             new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils', 'truncateHTML']),
             new \Twig_SimpleFilter('json_decode', [$this, 'jsonDecodeFilter']),
+            new \Twig_SimpleFilter('array_unique', 'array_unique'),
         ];
     }
 
@@ -102,7 +104,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
-            new \Twig_SimpleFunction('evaluate', [$this, 'evaluateFunc']),
+            new \Twig_SimpleFunction('evaluate', [$this, 'evaluateStringFunc'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('evaluate_twig', [$this, 'evaluateTwigFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
             new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
@@ -114,6 +117,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFunction('get_cookie', [$this, 'getCookie']),
+            new \Twig_SimpleFunction('redirect_me', [$this, 'redirectFunc']),
+            new \Twig_SimpleFunction('range', [$this, 'rangeFunc']),
         ];
     }
 
@@ -141,12 +146,16 @@ class TwigExtension extends \Twig_Extension
     public function safeEmailFilter($str)
     {
         $email   = '';
-        $str_len = strlen($str);
-        for ($i = 0; $i < $str_len; $i++) {
-            $email .= "&#" . ord($str[$i]) . ";";
+        for ( $i = 0, $len = strlen( $str ); $i < $len; $i++ ) {
+            $j = rand( 0, 1);
+            if ( $j == 0 ) {
+                $email .= '&#' . ord( $str[$i] ) . ';';
+            } elseif ( $j == 1 ) {
+                $email .= $str[$i];
+            }
         }
 
-        return $email;
+        return str_replace( '@', '&#64;', $email );
     }
 
     /**
@@ -424,9 +433,10 @@ class TwigExtension extends \Twig_Extension
     /**
      * @param $string
      *
+     * @param bool $block  Block or Line processing
      * @return mixed|string
      */
-    public function markdownFilter($string)
+    public function markdownFilter($string, $block = true)
     {
         $page     = $this->grav['page'];
         $defaults = $this->config->get('system.pages.markdown');
@@ -438,7 +448,12 @@ class TwigExtension extends \Twig_Extension
             $parsedown = new Parsedown($page, $defaults);
         }
 
-        $string = $parsedown->text($string);
+        if ($block) {
+            $string = $parsedown->text($string);
+        } else {
+            $string = $parsedown->line($string);
+        }
+
 
         return $string;
     }
@@ -555,15 +570,22 @@ class TwigExtension extends \Twig_Extension
             $domain = true;
         }
 
+        if (Grav::instance()['uri']->isExternal($input)) {
+            return $input;
+        }
 
-        if (strpos((string)$input, '://')) {
+        $input = ltrim((string)$input, '/');
+
+        if (Utils::contains((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
 
+
+
             // Get relative path to the resource (or false if not found).
-            $resource = $locator->findResource((string)$input, false);
+            $resource = $locator->findResource($input, false);
         } else {
-            $resource = (string)$input;
+            $resource = $input;
         }
 
         /** @var Uri $uri */
@@ -573,21 +595,50 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
-     * Evaluate a string
+     * This function will evaluate Twig $twig through the $environment, and return its results.
      *
-     * @example {{ evaluate('grav.language.getLanguage') }}
-     *
-     * @param  string $input String to be evaluated
-     *
-     * @return string           Returns the evaluated string
+     * @param \Twig_Environment $environment
+     * @param array $context
+     * @param string $twig
+     * @return mixed
      */
-    public function evaluateFunc($input)
-    {
-        if (!$input) { //prevent an obscure Twig error if $input is not set
-            $input = '""';
-        }
-        return $this->grav['twig']->processString("{{ $input }}");
+    public function evaluateTwigFunc( \Twig_Environment $environment, $context, $twig ) {
+        $loader = $environment->getLoader( );
+
+        $parsed = $this->parseString( $environment, $context, $twig );
+
+        $environment->setLoader( $loader );
+        return $parsed;
     }
+
+    /**
+     * This function will evaluate a $string through the $environment, and return its results.
+     *
+     * @param \Twig_Environment $environment
+     * @param $context
+     * @param $string
+     * @return mixed
+     */
+    public function evaluateStringFunc(\Twig_Environment $environment, $context, $string )
+    {
+        $parsed = $this->evaluateTwigFunc($environment, $context, "{{ $string }}");
+        return $parsed;
+    }
+
+    /**
+     * Sets the parser for the environment to Twig_Loader_String, and parsed the string $string.
+     *
+     * @param \Twig_Environment $environment
+     * @param array $context
+     * @param string $string
+     * @return string
+     */
+    protected function parseString( \Twig_Environment $environment, $context, $string ) {
+        $environment->setLoader( new \Twig_Loader_String( ) );
+        return $environment->render( $string, $context );
+    }
+
+
 
     /**
      * Based on Twig_Extension_Debug / twig_var_dump
@@ -728,11 +779,15 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
-     * Authorize an action. Returns true if the user is logged in and has the right to execute $action.
+     * Authorize an action. Returns true if the user is logged in and
+     * has the right to execute $action.
      *
-     * @param string $action
-     *
-     * @return bool
+     * @param  string|array $action An action or a list of actions. Each
+     *                              entry can be a string like 'group.action'
+     *                              or without dot notation an associative
+     *                              array.
+     * @return bool                 Returns TRUE if the user is authorized to
+     *                              perform the action, FALSE otherwise.
      */
     public function authorize($action)
     {
@@ -740,11 +795,14 @@ class TwigExtension extends \Twig_Extension
             return false;
         }
 
-        $action = (array)$action;
-
-        foreach ($action as $a) {
-            if ($this->grav['user']->authorize($a)) {
-                return true;
+        $action = (array) $action;
+        foreach ($action as $key => $perms) {
+            $prefix = is_int($key) ? '' : $key . '.';
+            $perms = $prefix ? (array) $perms : [$perms => true];
+            foreach ($perms as $action => $authenticated) {
+                if ($this->grav['user']->authorize($prefix . $action)) {
+                    return $authenticated;
+                }
             }
         }
 
@@ -763,7 +821,7 @@ class TwigExtension extends \Twig_Extension
      */
     public function nonceFieldFunc($action, $nonceParamName = 'nonce')
     {
-        $string = '<input type="hidden" id="' . $nonceParamName . '" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) . '" />';
+        $string = '<input type="hidden" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) . '" />';
 
         return $string;
     }
@@ -807,5 +865,31 @@ class TwigExtension extends \Twig_Extension
     public function regexReplace($subject, $pattern, $replace, $limit = -1)
     {
         return preg_replace($pattern, $replace, $subject, $limit);
+    }
+
+    /**
+     * redirect browser from twig
+     *
+     * @param string $url          the url to redirect to
+     * @param int $statusCode      statusCode, default 303
+     */
+    public function redirectFunc($url, $statusCode = 303)
+    {
+        header('Location: ' . $url, true, $statusCode);
+        die();
+    }
+
+    /**
+     * Generates an array containing a range of elements, optionally stepped
+     *
+     * @param int $start      Minimum number, default 0
+     * @param int $end        Maximum number, default `getrandmax()`
+     * @param int $step       Increment between elements in the sequence, default 1
+     *
+     * @return array
+     */
+    public function rangeFunc($start = 0, $end = 100, $step = 1)
+    {
+        return range($start, $end, $step);
     }
 }

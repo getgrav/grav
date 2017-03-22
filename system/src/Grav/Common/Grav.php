@@ -1,19 +1,21 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
+use Grav\Common\Config\Config;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 
-/**
- * Grav
- *
- * @author  Andy Miller
- * @link    http://www.rockettheme.com
- * @license http://opensource.org/licenses/MIT
- *
- * Influenced by Pico, Stacey, Kirby, PieCrust and other great platforms...
- */
 class Grav extends Container
 {
 
@@ -31,6 +33,7 @@ class Grav extends Container
         'events'                  => 'RocketTheme\Toolbox\Event\EventDispatcher',
         'cache'                   => 'Grav\Common\Cache',
         'session'                 => 'Grav\Common\Session',
+        'Grav\Common\Service\MessagesServiceProvider',
         'plugins'                 => 'Grav\Common\Plugins',
         'themes'                  => 'Grav\Common\Themes',
         'twig'                    => 'Grav\Common\Twig\Twig',
@@ -126,6 +129,7 @@ class Grav extends Container
 
         // Set the header type
         $this->header();
+
         echo $this->output;
         $debugger->render();
 
@@ -210,41 +214,16 @@ class Grav extends Container
     }
 
     /**
-     * Returns mime type for the file format.
-     *
-     * @param string $format
-     *
-     * @return string
-     */
-    public function mime($format)
-    {
-        switch ($format) {
-            case 'json':
-                return 'application/json';
-            case 'html':
-                return 'text/html';
-            case 'atom':
-                return 'application/atom+xml';
-            case 'rss':
-                return 'application/rss+xml';
-            case 'xml':
-                return 'application/xml';
-        }
-
-        return 'text/html';
-    }
-
-    /**
      * Set response header.
      */
     public function header()
     {
-        $extension = $this['uri']->extension();
-
         /** @var Page $page */
         $page = $this['page'];
 
-        header('Content-type: ' . $this->mime($extension));
+        $format = $page->templateFormat();
+
+        header('Content-type: ' . Utils::getMimeByExtension($format, 'text/html'));
 
         // Calculate Expires Headers if set to > 0
         $expires = $page->expires();
@@ -267,7 +246,7 @@ class Grav extends Container
         }
 
         // Set debugger data in headers
-        if (!($extension === null || $extension == 'html')) {
+        if (!($format === null || $format == 'html')) {
             $this['debugger']->enabled(false);
         }
 
@@ -322,9 +301,8 @@ class Grav extends Container
             $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
 
             if (!$success) {
-                // Unfortunately without FastCGI there is no way to close the connection. We need to ask browser to
-                // close the connection for us.
-
+                // Unfortunately without FastCGI there is no way to force close the connection.
+                // We need to ask browser to close the connection for us.
                 if ($this['config']->get('system.cache.gzip')) {
                     // Flush gzhandler buffer if gzip setting was enabled.
                     ob_end_flush();
@@ -332,14 +310,19 @@ class Grav extends Container
                 } else {
                     // Without gzip we have no other choice than to prevent server from compressing the output.
                     // This action turns off mod_deflate which would prevent us from closing the connection.
-                    header('Content-Encoding: none');
+                    if ($this['config']->get('system.cache.allow_webserver_gzip')) {
+                        header('Content-Encoding: identity');
+                    } else {
+                        header('Content-Encoding: none');
+                    }
+
                 }
+
 
                 // Get length and close the connection.
                 header('Content-Length: ' . ob_get_length());
                 header("Connection: close");
 
-                // Finally flush the regular buffer.
                 ob_end_flush();
                 @ob_flush();
                 flush();
@@ -446,6 +429,8 @@ class Grav extends Container
      */
     public function fallbackUrl($path)
     {
+      	$this->fireEvent('onPageFallBackUrl');
+
         /** @var Uri $uri */
         $uri = $this['uri'];
 
@@ -454,7 +439,7 @@ class Grav extends Container
 
         $uri_extension = $uri->extension();
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
-        $supported_types = $config->get('media');
+        $supported_types = $config->get('media.types');
 
         // Check whitelist first, then ensure extension is a valid media type
         if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {

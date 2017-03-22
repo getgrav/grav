@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
@@ -6,25 +13,22 @@ use Grav\Common\Filesystem\Folder;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * Class SandboxCommand
- * @package Grav\Console\Cli
- */
 class SandboxCommand extends ConsoleCommand
 {
     /**
      * @var array
      */
     protected $directories = [
+        '/assets',
         '/backup',
         '/cache',
-        '/logs',
         '/images',
-        '/assets',
+        '/logs',
+        '/tmp',
         '/user/accounts',
         '/user/config',
-        '/user/pages',
         '/user/data',
+        '/user/pages',
         '/user/plugins',
         '/user/themes',
     ];
@@ -43,7 +47,6 @@ class SandboxCommand extends ConsoleCommand
      * @var array
      */
     protected $mappings = [
-        '/.editorconfig'        => '/.editorconfig',
         '/.gitignore'           => '/.gitignore',
         '/CHANGELOG.md'         => '/CHANGELOG.md',
         '/LICENSE.txt'          => '/LICENSE.txt',
@@ -55,7 +58,6 @@ class SandboxCommand extends ConsoleCommand
         '/system'               => '/system',
         '/vendor'               => '/vendor',
         '/webserver-configs'    => '/webserver-configs',
-        '/codeception.yml'      => '/codeception.yml',
     ];
 
     /**

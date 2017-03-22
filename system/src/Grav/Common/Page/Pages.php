@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
 use Grav\Common\Cache;
@@ -14,13 +21,8 @@ use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
+use Collator as Collator;
 
-/**
- * Pages is the class that is the entry point into the hierarchy of pages
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Pages
 {
     /**
@@ -88,6 +90,8 @@ class Pages
      */
     static protected $home_route;
 
+    protected $pages_cache_id;
+
     /**
      * Constructor
      *
@@ -152,7 +156,7 @@ class Pages
     /**
      * Returns a list of all pages.
      *
-     * @return Page
+     * @return array|Page[]
      */
     public function instances()
     {
@@ -196,7 +200,7 @@ class Pages
      *
      * @return array
      */
-    public function sort(Page $page, $order_by = null, $order_dir = null)
+    public function sort(Page $page, $order_by = null, $order_dir = null, $sort_flags = null)
     {
         if ($order_by === null) {
             $order_by = $page->orderBy();
@@ -213,7 +217,7 @@ class Pages
         }
 
         if (!isset($this->sort[$path][$order_by])) {
-            $this->buildSort($path, $children, $order_by, $page->orderManual());
+            $this->buildSort($path, $children, $order_by, $page->orderManual(), $sort_flags);
         }
 
         $sort = $this->sort[$path][$order_by];
@@ -234,7 +238,7 @@ class Pages
      * @return array
      * @internal
      */
-    public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null)
+    public function sortCollection(Collection $collection, $orderBy, $orderDir = 'asc', $orderManual = null, $sort_flags = null)
     {
         $items = $collection->toArray();
         if (!$items) {
@@ -243,7 +247,7 @@ class Pages
 
         $lookup = md5(json_encode($items) . json_encode($orderManual) . $orderBy . $orderDir);
         if (!isset($this->sort[$lookup][$orderBy])) {
-            $this->buildSort($lookup, $items, $orderBy, $orderManual);
+            $this->buildSort($lookup, $items, $orderBy, $orderManual, $sort_flags);
         }
 
         $sort = $this->sort[$lookup][$orderBy];
@@ -323,49 +327,59 @@ class Pages
         $not_admin = !isset($this->grav['admin']);
 
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && $not_admin && (!$page || ($page && !$page->routable()) || ($page && $page->redirect()))) {
+        if (!$all && $not_admin) {
 
             // If the page is a simple redirect, just do it.
             if ($redirect && $page && $page->redirect()) {
                 $this->grav->redirectLangSafe($page->redirect());
             }
 
-            /** @var Config $config */
-            $config = $this->grav['config'];
+            // fall back and check site based redirects
+            if (!$page || ($page && !$page->routable())) {
+                /** @var Config $config */
+                $config = $this->grav['config'];
 
-            // See if route matches one in the site configuration
-            $route = $config->get("site.routes.{$url}");
-            if ($route) {
-                $page = $this->dispatch($route, $all);
-            } else {
-                // Try Regex style redirects
-                $site_redirects = $config->get("site.redirects");
-                if (is_array($site_redirects)) {
-                    foreach ((array)$site_redirects as $pattern => $replace) {
-                        $pattern = '#' . $pattern . '#';
-                        try {
-                            $found = preg_replace($pattern, $replace, $url);
-                            if ($found != $url) {
-                                $this->grav->redirectLangSafe($found);
+                // See if route matches one in the site configuration
+                $route = $config->get("site.routes.{$url}");
+                if ($route) {
+                    $page = $this->dispatch($route, $all);
+                } else {
+                    // Try Regex style redirects
+                    $uri = $this->grav['uri'];
+                    $source_url = $url;
+                    $extension = $uri->extension();
+                    if (isset($extension) && !Utils::endsWith($uri->url(), $extension)) {
+                        $source_url.= '.' . $extension;
+                    }
+
+                    $site_redirects = $config->get("site.redirects");
+                    if (is_array($site_redirects)) {
+                        foreach ((array)$site_redirects as $pattern => $replace) {
+                            $pattern = '#' . $pattern . '#';
+                            try {
+                                $found = preg_replace($pattern, $replace, $source_url);
+                                if ($found != $source_url) {
+                                    $this->grav->redirectLangSafe($found);
+                                }
+                            } catch (ErrorException $e) {
+                                $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                             }
-                        } catch (ErrorException $e) {
-                            $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                         }
                     }
-                }
 
-                // Try Regex style routes
-                $site_routes = $config->get("site.routes");
-                if (is_array($site_routes)) {
-                    foreach ((array)$site_routes as $pattern => $replace) {
-                        $pattern = '#' . $pattern . '#';
-                        try {
-                            $found = preg_replace($pattern, $replace, $url);
-                            if ($found != $url) {
-                                $page = $this->dispatch($found, $all);
+                    // Try Regex style routes
+                    $site_routes = $config->get("site.routes");
+                    if (is_array($site_routes)) {
+                        foreach ((array)$site_routes as $pattern => $replace) {
+                            $pattern = '#' . $pattern . '#';
+                            try {
+                                $found = preg_replace($pattern, $replace, $source_url);
+                                if ($found != $source_url) {
+                                    $page = $this->dispatch($found, $all);
+                                }
+                            } catch (ErrorException $e) {
+                                $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
                             }
-                        } catch (ErrorException $e) {
-                            $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
                         }
                     }
                 }
@@ -560,17 +574,21 @@ class Pages
      */
     public static function pageTypes()
     {
-        /** @var Admin $admin */
-        $admin = Grav::instance()['admin'];
+        if (isset(Grav::instance()['admin'])) {
+            /** @var Admin $admin */
+            $admin = Grav::instance()['admin'];
 
-        /** @var Page $page */
-        $page = $admin->getPage($admin->route);
+            /** @var Page $page */
+            $page = $admin->getPage($admin->route);
 
-        if ($page && $page->modular()) {
-            return static::modularTypes();
+            if ($page && $page->modular()) {
+                return static::modularTypes();
+            }
+
+            return static::types();
         }
 
-        return static::types();
+        return [];
     }
 
     /**
@@ -643,11 +661,12 @@ class Pages
 
         $parents = $pages->getList(null, 0, $rawRoutes);
 
-        /** @var Admin $admin */
-        $admin = $grav['admin'];
+        if (isset($grav['admin'])) {
+            // Remove current route from parents
 
-        // Remove current route from parents
-        if (isset($admin)) {
+            /** @var Admin $admin */
+            $admin = $grav['admin'];
+
             $page = $admin->getPage($admin->route);
             $page_route = $page->route();
             if (isset($parents[$page_route])) {
@@ -741,23 +760,26 @@ class Pages
             switch (strtolower($config->get('system.cache.check.method', 'file'))) {
                 case 'none':
                 case 'off':
-                    $last_modified = 0;
+                    $hash = 0;
                     break;
                 case 'folder':
-                    $last_modified = Folder::lastModifiedFolder($pages_dir);
+                    $hash = Folder::lastModifiedFolder($pages_dir);
+                    break;
+                case 'hash':
+                    $hash = Folder::hashAllFiles($pages_dir);
                     break;
                 default:
-                    $last_modified = Folder::lastModifiedFile($pages_dir);
+                    $hash = Folder::lastModifiedFile($pages_dir);
             }
 
-            $page_cache_id = md5($pages_dir . $last_modified . $language->getActive() . $config->checksum());
+            $this->pages_cache_id = md5($pages_dir . $hash . $language->getActive() . $config->checksum());
 
-            list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
+            list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($this->pages_cache_id);
             if (!$this->instances) {
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
 
                 // recurse pages and cache result
-                $this->resetPages($pages_dir, $page_cache_id);
+                $this->resetPages($pages_dir, $this->pages_cache_id);
 
             } else {
                 // If pages was found in cache, set the taxonomy
@@ -774,9 +796,8 @@ class Pages
      * Accessible method to manually reset the pages cache
      *
      * @param $pages_dir
-     * @param $page_cache_id
      */
-    public function resetPages($pages_dir, $page_cache_id)
+    public function resetPages($pages_dir)
     {
         $this->recurse($pages_dir);
         $this->buildRoutes();
@@ -789,7 +810,7 @@ class Pages
             $taxonomy = $this->grav['taxonomy'];
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->save($page_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
+            $cache->save($this->pages_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
         }
     }
 
@@ -842,14 +863,22 @@ class Pages
         }
 
         $content_exists = false;
-        $pages_found = glob($directory . '/*' . CONTENT_EXT);
+        $pages_found = new \GlobIterator($directory . '/*' . CONTENT_EXT);
+        $page_found = null;
+
         $page_extension = '';
 
-        if ($pages_found) {
+        if ($pages_found && count($pages_found) > 0) {
+
             $page_extensions = $language->getFallbackPageExtensions();
+
             foreach ($page_extensions as $extension) {
                 foreach ($pages_found as $found) {
-                    if (preg_match('/^.*\/[0-9A-Za-z\-\_]+(' . $extension . ')$/', $found)) {
+                    if ($found->isDir()) {
+                        continue;
+                    }
+                    $regex = '/^[^\.]*' . preg_quote($extension) . '$/';
+                    if (preg_match($regex, $found->getFilename())) {
                         $page_found = $found;
                         $page_extension = $extension;
                         break 2;
@@ -859,8 +888,7 @@ class Pages
         }
 
         if ($parent && !empty($page_found)) {
-            $file = new \SplFileInfo($page_found);
-            $page->init($file, $page_extension);
+            $page->init($page_found, $page_extension);
 
             $content_exists = true;
 
@@ -891,6 +919,12 @@ class Pages
                     $last_modified = $modified;
                 }
             } elseif ($file->isDir() && !in_array($file->getFilename(), $this->ignore_folders)) {
+
+                // if folder contains separator, continue
+                if (Utils::contains($file->getFilename(), $config->get('system.param_sep', ':'))) {
+                    continue;
+                }
+
                 if (!$page->path()) {
                     $page->path($file->getPath());
                 }
@@ -998,12 +1032,11 @@ class Pages
      * @throws \RuntimeException
      * @internal
      */
-    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null)
+    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null, $sort_flags = null)
     {
         $list = [];
         $header_default = null;
         $header_query = null;
-        $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
@@ -1031,6 +1064,14 @@ class Pages
                     $list[$key] = $child->modified();
                     $sort_flags = SORT_REGULAR;
                     break;
+                case 'publish_date':
+                    $list[$key] = $child->publishDate();
+                    $sort_flags = SORT_REGULAR;
+                    break;
+                case 'unpublish_date':
+                    $list[$key] = $child->unpublishDate();
+                    $sort_flags = SORT_REGULAR;
+                    break;
                 case 'slug':
                     $list[$key] = $child->slug();
                     break;
@@ -1040,19 +1081,25 @@ class Pages
                 case (is_string($header_query[0])):
                     $child_header = new Header((array)$child->header());
                     $header_value = $child_header->get($header_query[0]);
-                    if ($header_value) {
+                    if (is_array($header_value)) {
+                        $list[$key] = implode(',',$header_value);
+                    } elseif ($header_value) {
                         $list[$key] = $header_value;
                     } else {
                         $list[$key] = $header_default ?: $key;
                     }
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = $sort_flags ?: SORT_REGULAR;
                     break;
                 case 'manual':
                 case 'default':
                 default:
                     $list[$key] = $key;
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = $sort_flags ?: SORT_REGULAR;
             }
+        }
+
+        if (!$sort_flags) {
+            $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
         }
 
         // handle special case when order_by is random
@@ -1061,8 +1108,13 @@ class Pages
         } else {
             // else just sort the list according to specified key
             if (extension_loaded('intl')) {
-                $col = new \Collator(setlocale(LC_COLLATE, 0)); //`setlocale` with a 0 param returns the current locale set
-                $col->asort($list, $sort_flags);
+                $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set
+                $col = Collator::create($locale);
+                if ($col) {
+                    $col->asort($list, $sort_flags);
+                } else {
+                    asort($list, $sort_flags);
+                }
             } else {
                 asort($list, $sort_flags);
             }
@@ -1113,5 +1165,18 @@ class Pages
         }
 
         return $new;
+    }
+
+    /**
+     * Get the Pages cache ID
+     *
+     * this is particularly useful to know if pages have changed and you want
+     * to sync another cache with pages cache - works best in `onPagesInitialized()`
+     *
+     * @return mixed
+     */
+    public function getPagesCacheId()
+    {
+        return $this->pages_cache_id;
     }
 }

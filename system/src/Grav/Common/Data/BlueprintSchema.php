@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
@@ -6,12 +13,6 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\Blueprints\BlueprintSchema as BlueprintSchemaBase;
 
-/**
- * Blueprint schema handles the internal logic of blueprints.
- *
- * @author RocketTheme
- * @license MIT
- */
 class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 {
     use Export;
@@ -132,8 +133,15 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             }
             $field = $this->items[$field];
             if (isset($field['validate']['required'])
-                && $field['validate']['required'] === true
-                && !isset($data[$name])) {
+                && $field['validate']['required'] === true) {
+
+                if (isset($data[$name])) {
+                    continue;
+                }
+                if ($field['type'] == 'file' && isset($data['data']['name'][$name])) { //handle case of file input fields required
+                    continue;
+                }
+
                 $value = isset($field['label']) ? $field['label'] : $field['name'];
                 $language = Grav::instance()['language'];
                 $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $language->translate($value));

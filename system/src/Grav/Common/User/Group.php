@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.User
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\User;
 
 use Grav\Common\Data\Blueprints;
@@ -7,12 +14,6 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 
-/**
- * Group object
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Group extends Data
 {
     /**
@@ -82,13 +83,13 @@ class Group extends Data
         foreach ($fields as $field) {
             if ($field['type'] == 'text') {
                 $value = $field['name'];
-                if (isset($this->items[$value])) {
-                    $config->set("groups.$this->groupname.$value", $this->items[$value]);
+                if (isset($this->items['data'][$value])) {
+                    $config->set("groups.$this->groupname.$value", $this->items['data'][$value]);
                 }
             }
-            if ($field['type'] == 'array') {
+            if ($field['type'] == 'array' || $field['type'] == 'permissions') {
                 $value = $field['name'];
-                $arrayValues = Utils::resolve($this->items, $field['name']);
+                $arrayValues = Utils::getDotNotation($this->items['data'], $field['name']);
 
                 if ($arrayValues) {
                     foreach ($arrayValues as $arrayIndex => $arrayValue) {

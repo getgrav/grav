@@ -1,6 +1,7 @@
 # Composer
 .composer
-/vendor
+vendor/*
+!*/vendor/*
 
 # Sass
 .sass-cache
@@ -25,6 +26,7 @@ user/plugins/*
 user/themes/*
 !user/themes/.*
 user/localhost/config/security.yaml
+user/config/security.yaml
 
 # OS Generated
 .DS_Store*

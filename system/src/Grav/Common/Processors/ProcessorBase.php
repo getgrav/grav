@@ -1,10 +1,25 @@
 <?php
+/**
+ * @package    Grav.Common.Processors
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Processors;
 
-class ProcessorBase {
+use Grav\Common\Grav;
 
-  	public function __construct($container) {
-    	$this->container = $container;
-  	}
+class ProcessorBase
+{
+    /**
+     * @var Grav
+     */
+    protected $container;
+
+    public function __construct(Grav $container)
+    {
+        $this->container = $container;
+    }
 
 }

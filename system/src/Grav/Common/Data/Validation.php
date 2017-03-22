@@ -1,17 +1,19 @@
 <?php
+/**
+ * @package    Grav.Common.Data
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Data validation.
- *
- * @author RocketTheme
- * @license MIT
- */
 class Validation
 {
     /**
@@ -36,12 +38,6 @@ class Validation
             $field['type'] = 'text';
         }
 
-        // Special case for files, value is never empty and errors with code 4 instead.
-        if (empty($validate['required']) && $field['type'] == 'file' && isset($value['error'])
-                && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
-            return $messages;
-        }
-
         // Get language class.
         $language = Grav::instance()['language'];
 
@@ -49,16 +45,16 @@ class Validation
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'type'.strtr($type, '-', '_');
 
-        if (!method_exists(__CLASS__, $method)) {
-            $method = 'typeText';
-        }
-
         $name = ucfirst(isset($field['label']) ? $field['label'] : $field['name']);
         $message = (string) isset($field['validate']['message'])
             ? $language->translate($field['validate']['message'])
             : $language->translate('FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
-        $success = self::$method($value, $validate, $field);
+        if (method_exists(__CLASS__, $method)) {
+            $success = self::$method($value, $validate, $field);
+        } else {
+            $success = true;
+        }
 
         if (!$success) {
             $messages[$field['name']][] = $message;
@@ -98,12 +94,6 @@ class Validation
 
         if (!isset($field['type'])) {
             $field['type'] = 'text';
-        }
-
-        // Special case for files, value is never empty and errors with code 4 instead.
-        if (empty($validate['required']) && $field['type'] == 'file' && isset($value['error'])
-            && ($value['error'] == UPLOAD_ERR_NO_FILE || in_array(UPLOAD_ERR_NO_FILE, $value['error']))) {
-            return null;
         }
 
         // If this is a YAML field, simply parse it and return the value.
@@ -325,7 +315,6 @@ class Validation
      * @param  array  $field   Blueprint for the field.
      * @return bool   True if validation succeeded.
      */
-
     public static function typeNumber($value, array $params, array $field)
     {
         if (!is_numeric($value)) {
@@ -350,7 +339,7 @@ class Validation
 
     protected static function filterNumber($value, array $params, array $field)
     {
-        return (int) $value;
+        return (string)(int)$value !== (string)(float)$value ? (float) $value : (int) $value;
     }
 
     protected static function filterDateTime($value, array $params, array $field)
@@ -405,7 +394,15 @@ class Validation
      */
     public static function typeEmail($value, array $params, array $field)
     {
-        return self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_EMAIL);
+        $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
+
+        foreach ($values as $value) {
+            if (!(self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_EMAIL))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -573,6 +570,7 @@ class Validation
             return null;
         }
 
+
         if ($options) {
             $useKey = isset($field['use']) && $field['use'] == 'keys';
             foreach ($values as $key => $value) {
@@ -584,9 +582,22 @@ class Validation
             foreach ($values as $key => $value) {
                 if (is_array($value)) {
                     $value = implode(',', $value);
+                    $values[$key] =  array_map('trim', explode(',', $value));
+                } else {
+                    $values[$key] =  trim($value);
+                }
+            }
+        }
+
+        if (isset($field['ignore_empty']) && Utils::isPositive($field['ignore_empty'])) {
+            foreach ($values as $key => $value) {
+                foreach ($value as $inner_key => $inner_value) {
+                    if ($inner_value == '') {
+                        unset($value[$inner_key]);
+                    }
                 }
 
-                $values[$key] =  array_map('trim', explode(',', $value));
+                $values[$key] = $value;
             }
         }
 

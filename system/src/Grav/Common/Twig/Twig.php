@@ -1,21 +1,21 @@
 <?php
+/**
+ * @package    Grav.Common.Twig
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
+use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
 
-/**
- * The Twig object handles all the Twig template rendering for Grav. It's a singleton object
- * that is optimized so that it only needs to be initialized once and can be reused for individual
- * page template rendering as well as the main site template rendering.
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Twig
 {
     /**
@@ -84,9 +84,9 @@ class Twig
 
             $active_language = $language->getActive();
 
-            $language_append = '';
+            $path_append = rtrim($this->grav['pages']->base(), '/');
             if ($language->getDefault() != $active_language || $config->get('system.languages.include_default_lang') === true) {
-                $language_append = $active_language ? '/' . $active_language : '';
+                $path_append .= $active_language ? '/' . $active_language : '';
             }
 
             // handle language templates if available
@@ -153,21 +153,28 @@ class Twig
 
             $this->grav->fireEvent('onTwigExtensions');
 
+            $base_url = $this->grav['base_url'] . $path_append;
+
             // Set some standard variables for twig
             $this->twig_vars = $this->twig_vars + [
                     'config'            => $config,
-                    'uri'               => $this->grav['uri'],
-                    'base_dir'          => rtrim(ROOT_DIR, '/'),
-                    'base_url'          => $this->grav['base_url'] . $language_append,
-                    'base_url_simple'   => $this->grav['base_url'],
-                    'base_url_absolute' => $this->grav['base_url_absolute'] . $language_append,
-                    'base_url_relative' => $this->grav['base_url_relative'] . $language_append,
-                    'theme_dir'         => $locator->findResource('theme://'),
-                    'theme_url'         => $this->grav['base_url'] . '/' . $locator->findResource('theme://', false),
+                    'system'            => $config->get('system'),
+                    'theme'             => $config->get('theme'),
                     'site'              => $config->get('site'),
+                    'uri'               => $this->grav['uri'],
                     'assets'            => $this->grav['assets'],
                     'taxonomy'          => $this->grav['taxonomy'],
                     'browser'           => $this->grav['browser'],
+                    'base_dir'          => rtrim(ROOT_DIR, '/'),
+                    'base_url'          => $base_url,
+                    'base_url_simple'   => $this->grav['base_url'],
+                    'base_url_absolute' => $this->grav['base_url_absolute'] . $path_append,
+                    'base_url_relative' => $this->grav['base_url_relative'] . $path_append,
+                    'home_url'          => $base_url == '' ?  '/' : $base_url,
+                    'theme_dir'         => $locator->findResource('theme://'),
+                    'theme_url'         => $this->grav['base_url'] . '/' . $locator->findResource('theme://', false),
+                    'html_lang'         => $this->grav['language']->getActive() ?: $config->get('site.default_lang', 'en'),
+                    'language_codes'    => new LanguageCodes,
                 ];
         }
     }
@@ -223,25 +230,22 @@ class Twig
         $twig_vars['header'] = $item->header();
 
         $local_twig = clone($this->twig);
-        $modular_twig = $item->modularTwig();
-        $process_twig = isset($item->header()->process['twig']) ? $item->header()->process['twig'] : false;
-
-        $output = '';
 
         try {
             // Process Modular Twig
-            if ($modular_twig) {
+            if ($item->modularTwig()) {
                 $twig_vars['content'] = $content;
                 $template = $item->template() . TEMPLATE_EXT;
                 $output = $content = $local_twig->render($template, $twig_vars);
             }
 
             // Process in-page Twig
-            if (!$modular_twig || ($modular_twig && $process_twig)) {
+            if ($item->shouldProcess('twig')) {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
                 $output = $local_twig->render($name, $twig_vars);
             }
+
         } catch (\Twig_Error_Loader $e) {
             throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
@@ -321,6 +325,7 @@ class Twig
 
         $twig_vars = $this->twig_vars;
 
+        $twig_vars['theme'] = $this->grav['config']->get('theme');
         $twig_vars['pages'] = $pages->root();
         $twig_vars['page'] = $page;
         $twig_vars['header'] = $page->header();
@@ -344,6 +349,7 @@ class Twig
             // Try html version of this template if initial template was NOT html
             if ($ext != '.html' . TWIG_EXT) {
                 try {
+                    $page->templateFormat('html');
                     $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $twig_vars);
                 } catch (\Twig_Error_Loader $e) {
                     throw new \RuntimeException($error_msg, 400, $e);

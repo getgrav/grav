@@ -2,9 +2,9 @@ title: PLUGIN_ADMIN.DEFAULT
 
 rules:
   slug:
-    pattern: "[a-zа-я][a-zа-я0-9_\-]+"
-    min: 2
-    max: 80
+    pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
+    min: 1
+    max: 200
 
 form:
   validation: loose
@@ -117,29 +117,18 @@ form:
                       title: PLUGIN_ADMIN.SETTINGS
                       underline: true
 
-                    ordering:
-                      type: toggle
-                      label: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX
-                      help: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX_HELP
-                      highlight: 1
-                      options:
-                        1: PLUGIN_ADMIN.ENABLED
-                        0: PLUGIN_ADMIN.DISABLED
-                      validate:
-                        type: bool
-
                     folder:
                       type: text
                       label: PLUGIN_ADMIN.FOLDER_NAME
                       validate:
-                        type: slug
+                        rule: slug
 
                     route:
                       type: select
                       label: PLUGIN_ADMIN.PARENT
                       classes: fancy
                       data-options@: '\Grav\Common\Page\Pages::parentsRawRoutes'
-                      data-default@: '\Grav\Plugin\admin::route'
+                      data-default@: '\Grav\Plugin\Admin\Admin::rawRoute'
                       options:
                         '/': PLUGIN_ADMIN.DEFAULT_OPTION_ROOT
 
@@ -164,6 +153,17 @@ form:
                       type: section
                       title: PLUGIN_ADMIN.ORDERING
                       underline: true
+
+                    ordering:
+                      type: toggle
+                      label: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX
+                      help: PLUGIN_ADMIN.FOLDER_NUMERIC_PREFIX_HELP
+                      highlight: 1
+                      options:
+                        1: PLUGIN_ADMIN.ENABLED
+                        0: PLUGIN_ADMIN.DISABLED
+                      validate:
+                        type: bool
 
                     order:
                       type: order
@@ -224,6 +224,30 @@ form:
                     twig: Twig
                   use: keys
 
+                header.twig_first:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.TWIG_FIRST
+                  help: PLUGIN_ADMIN.TWIG_FIRST_HELP
+                  highlight: 0
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
+
+                header.never_cache_twig:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.NEVER_CACHE_TWIG
+                  help: PLUGIN_ADMIN.NEVER_CACHE_TWIG_HELP
+                  highlight: 0
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
+
                 header.child_type:
                   type: select
                   toggleable: true
@@ -260,6 +284,18 @@ form:
                   toggleable: true
                   label: PLUGIN_ADMIN.VISIBLE
                   help: PLUGIN_ADMIN.VISIBLE_HELP
+                  highlight: 1
+                  options:
+                    1: PLUGIN_ADMIN.ENABLED
+                    0: PLUGIN_ADMIN.DISABLED
+                  validate:
+                    type: bool
+
+                header.debugger:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.DEBUGGER
+                  help: PLUGIN_ADMIN.DEBUGGER_HELP
                   highlight: 1
                   options:
                     1: PLUGIN_ADMIN.ENABLED

@@ -1,12 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.Language
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Language;
 
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 
-/**
- * Language and translation functionality for Grav
- */
 class Language
 {
     protected $grav;
@@ -287,6 +291,21 @@ class Language
         }
 
         return $this->page_extensions;
+    }
+
+    /**
+     * Resets the page_extensions value.
+     *
+     * Useful to re-initialize the pages and change site language at runtime, example:
+     *
+     * ```
+     * $this->grav['language']->setActive('it');
+     * $this->grav['language']->resetFallbackPageExtensions();
+     * $this->grav['pages']->init();
+     * ```
+     */
+    public function resetFallbackPageExtensions() {
+        $this->page_extensions = null;
     }
 
     /**

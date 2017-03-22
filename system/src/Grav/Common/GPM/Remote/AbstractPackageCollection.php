@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common.GPM
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\GPM\Remote;
 
 use Grav\Common\Grav;
@@ -6,10 +13,6 @@ use Grav\Common\GPM\Common\AbstractPackageCollection as BaseCollection;
 use Grav\Common\GPM\Response;
 use \Doctrine\Common\Cache\FilesystemCache;
 
-/**
- * Class AbstractPackageCollection
- * @package Grav\Common\GPM\Remote
- */
 class AbstractPackageCollection extends BaseCollection
 {
     /**
@@ -50,6 +53,11 @@ class AbstractPackageCollection extends BaseCollection
 
         $this->fetch($refresh, $callback);
         foreach (json_decode($this->raw, true) as $slug => $data) {
+            // Temporarily fix for using multisites
+            if (isset($data['install_path'])) {
+                $path = preg_replace('~^user/~i', 'user://', $data['install_path']);
+                $data['install_path'] = Grav::instance()['locator']->findResource($path, false, true);
+            }
             $this->items[$slug] = new Package($data, $this->type);
         }
     }

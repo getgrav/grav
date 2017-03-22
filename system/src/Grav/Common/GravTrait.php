@@ -1,20 +1,26 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
-/**
- * Class GravTrait
- *
- * @package Grav\Common
- * @deprecated
- */
 trait GravTrait
 {
+    protected static $grav;
+
     /**
      * @return Grav
      */
     public static function getGrav()
     {
-        return Grav::instance();
+        if (!self::$grav) {
+            self::$grav = Grav::instance();
+        }
+        return self::$grav;
     }
 }
 

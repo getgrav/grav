@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Data\Data;
@@ -9,12 +16,6 @@ use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Exception\LogicException;
 
-/**
- * The Plugin object just holds the id and path to a plugin.
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
     /**
@@ -97,11 +98,34 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
+     * Determine if this is running under the admin
+     *
      * @return bool
      */
     public function isAdmin()
     {
         return Utils::isAdminPlugin();
+    }
+
+    /**
+     * Determine if this route is in Admin and active for the plugin
+     *
+     * @param $plugin_route
+     * @return bool
+     */
+    protected function isPluginActiveAdmin($plugin_route)
+    {
+        $should_run = false;
+
+        $uri = $this->grav['uri'];
+
+        if (strpos($uri->path(), $this->config->get('plugins.admin.route') . '/' . $plugin_route) === false) {
+            $should_run = false;
+        } elseif (isset($uri->paths()[1]) && $uri->paths()[1] == $plugin_route) {
+            $should_run = true;
+        }
+
+        return $should_run;
     }
 
     /**
@@ -222,21 +246,23 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Merge global and page configurations.
      *
-     * @param Page  $page    The page to merge the configurations with the
+     * @param Page $page The page to merge the configurations with the
      *                       plugin settings.
-     * @param bool  $deep    Should you use deep or shallow merging
-     * @param array $params  Array of additional configuration options to
+     * @param mixed $deep false = shallow|true = recursive|merge = recursive+unique
+     * @param array $params Array of additional configuration options to
      *                       merge with the plugin settings.
+     * @param string $type Is this 'plugins' or 'themes'
      *
-     * @return \Grav\Common\Data\Data
+     * @return Data
      */
-    protected function mergeConfig(Page $page, $deep = false, $params = [])
+    protected function mergeConfig(Page $page, $deep = false, $params = [], $type = 'plugins')
     {
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
-        $defaults = $this->config->get('plugins.' . $class_name, []);
+        $defaults = $this->config->get($type . '.' . $class_name, []);
         $page_header = $page->header();
         $header = [];
+
         if (!isset($page_header->$class_name_merged) && isset($page_header->$class_name)) {
             // Get default plugin configurations and retrieve page header configuration
             $config = $page_header->$class_name;
@@ -245,11 +271,8 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
                 $config = ['enabled' => $config];
             }
             // Merge page header settings using deep or shallow merging technique
-            if ($deep) {
-                $header = array_replace_recursive($defaults, $config);
-            } else {
-                $header = array_merge($defaults, $config);
-            }
+            $header = $this->mergeArrays($deep, $defaults, $config);
+
             // Create new config object and set it on the page object so it's cached for next time
             $page->modifyHeader($class_name_merged, new Data($header));
         } else if (isset($page_header->$class_name_merged)) {
@@ -260,14 +283,29 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
             $header = $defaults;
         }
         // Merge additional parameter with configuration options
-        if ($deep) {
-            $header = array_replace_recursive($header, $params);
-        } else {
-            $header = array_merge($header, $params);
-        }
+        $header = $this->mergeArrays($deep, $header, $params);
 
         // Return configurations as a new data config class
         return new Data($header);
+    }
+
+    /**
+     * Merge arrays based on deepness
+     *
+     * @param bool $deep
+     * @param $array1
+     * @param $array2
+     * @return array|mixed
+     */
+    private function mergeArrays($deep = false, $array1, $array2)
+    {
+        if ($deep == 'merge') {
+            return Utils::arrayMergeRecursiveUnique($array1, $array2);
+        } elseif ($deep === true) {
+            return array_replace_recursive($array1, $array2);
+        } else {
+            return array_merge($array1, $array2);
+        }
     }
 
     /**

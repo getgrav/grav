@@ -1,3 +1,18 @@
+---
+FRONTMATTER_ERROR_PAGE: |
+  ---
+  title: %1$s
+  ---
+  
+  # Error: Frontmatter Inválido
+  
+  Ruta: `%2$s`
+  
+  **%3$s**
+  
+  ```
+  %4$s
+  ```
 INFLECTOR_UNCOUNTABLE:
   0: equipo
   1: información

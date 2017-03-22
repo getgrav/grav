@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
@@ -7,10 +14,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
-/**
- * Class CleanCommand
- * @package Grav\Console\Cli
- */
 class CleanCommand extends Command
 {
     /* @var InputInterface $output */
@@ -91,6 +94,11 @@ class CleanCommand extends Command
         'vendor/ircmaxell/password-compat/version-test.php',
         'vendor/ircmaxell/password-compat/.travis.yml',
         'vendor/ircmaxell/password-compat/test',
+        'vendor/league/climate/composer.json',
+        'vendor/matthiasmullie/minify/bin',
+        'vendor/matthiasmullie/minify/composer.json',
+        'vendor/matthiasmullie/minify/CONTRIBUTING.md',
+        'vendor/matthiasmullie/path-converter/composer.json',
         'vendor/maximebf/debugbar/bower.json',
         'vendor/maximebf/debugbar/composer.json',
         'vendor/maximebf/debugbar/.bowerrc',
@@ -103,21 +111,6 @@ class CleanCommand extends Command
         'vendor/monolog/monolog/doc',
         'vendor/monolog/monolog/phpunit.xml.dist',
         'vendor/monolog/monolog/tests',
-        'vendor/mrclay/minify/.editorconfig',
-        'vendor/mrclay/minify/.git',
-        'vendor/mrclay/minify/.gitignore',
-        'vendor/mrclay/minify/composer.json',
-        'vendor/mrclay/minify/min_extras',
-        'vendor/mrclay/minify/min_unit_tests',
-        'vendor/mrclay/minify/min/.htaccess',
-        'vendor/mrclay/minify/min/builder',
-        'vendor/mrclay/minify/min/config-test.php',
-        'vendor/mrclay/minify/min/config.php',
-        'vendor/mrclay/minify/min/groupsConfig.php',
-        'vendor/mrclay/minify/min/index.php',
-        'vendor/mrclay/minify/min/quick-test.css',
-        'vendor/mrclay/minify/min/quick-test.js',
-        'vendor/mrclay/minify/min/utils.php',
         'vendor/pimple/pimple/.gitignore',
         'vendor/pimple/pimple/.travis.yml',
         'vendor/pimple/pimple/composer.json',
@@ -132,6 +125,7 @@ class CleanCommand extends Command
         'vendor/rockettheme/toolbox/.travis.yml',
         'vendor/rockettheme/toolbox/composer.json',
         'vendor/rockettheme/toolbox/phpunit.xml',
+        'vendor/seld/cli-prompt/composer.json',
         'vendor/symfony/console/composer.json',
         'vendor/symfony/console/phpunit.xml.dist',
         'vendor/symfony/console/.gitignore',

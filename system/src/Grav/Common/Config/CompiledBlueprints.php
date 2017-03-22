@@ -1,13 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.Config
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
 namespace Grav\Common\Config;
 
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\BlueprintSchema;
 use Grav\Common\Grav;
 
-/**
- * The Compiled Blueprints class.
- */
 class CompiledBlueprints extends CompiledBase
 {
     /**

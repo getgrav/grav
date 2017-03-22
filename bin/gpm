@@ -7,6 +7,7 @@ if (!file_exists(__DIR__ . '/../vendor')){
 }
 
 use Grav\Common\Composer;
+use Grav\Common\Config\Setup;
 
 if (!file_exists(__DIR__ . '/../vendor')){
     // Before we can even start, we need to run composer first
@@ -37,9 +38,24 @@ if (!function_exists('curl_version')) {
     exit('FATAL: GPM requires PHP Curl module to be installed');
 }
 
+$climate = new League\CLImate\CLImate;
+$climate->arguments->add([
+    'environment' => [
+        'prefix'        => 'e',
+        'longPrefix'    => 'env',
+        'description'   => 'Configuration Environment',
+        'defaultValue'  => 'localhost'
+    ]
+]);
+$climate->arguments->parse();
+$environment = $climate->arguments->get('environment');
+
+// Set up environment based on params.
+Setup::$environment = $environment;
+
 $grav = Grav::instance(array('loader' => $autoload));
-$grav['config']->init();
 $grav['uri']->init();
+$grav['config']->init();
 $grav['streams'];
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);
@@ -51,7 +67,7 @@ $app->addCommands(array(
     new \Grav\Console\Gpm\UninstallCommand(),
     new \Grav\Console\Gpm\UpdateCommand(),
     new \Grav\Console\Gpm\SelfupgradeCommand(),
+    new \Grav\Console\Gpm\DirectInstallCommand(),
 ));
 
-$app->setDefaultCommand('index');
 $app->run();

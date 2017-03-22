@@ -123,16 +123,23 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testTruncateHtml()
     {
-        $this->assertEquals('<p>T…</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 1));
-        $this->assertEquals('<p>This…</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
-        $this->assertEquals('', Utils::truncateHtml('<input type="file" id="file" multiple />', 6, true));
-
+        $this->assertEquals('<p>T...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 1));
+        $this->assertEquals('<p>This...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
+        $this->assertEquals('<p>This is a...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 10));
+        $this->assertEquals('<p>This is a string to truncate</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 100));
+        $this->assertEquals('<input type="file" id="file" multiple>', Utils::truncateHtml('<input type="file" id="file" multiple />', 6));
+        $this->assertEquals('<ol><li>item 1 <i>so...</i></li></ol>', Utils::truncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 10));
+		$this->assertEquals("<p>This is a string.</p>\n<p>It splits two lines.</p>", Utils::truncateHtml("<p>This is a string.</p>\n<p>It splits two lines.</p>", 100));
     }
 
     public function testSafeTruncateHtml()
     {
-        $this->assertEquals('<p>This…</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1));
-        $this->assertEquals('<p>This…</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 4));
+        $this->assertEquals('<p>This...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1));
+        $this->assertEquals('<p>This is...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 2));
+        $this->assertEquals('<p>This is a string to...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 5));
+        $this->assertEquals('<p>This is a string to truncate</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 20));
+        $this->assertEquals('<input type="file" id="file" multiple>', Utils::safeTruncateHtml('<input type="file" id="file" multiple />', 6));
+        $this->assertEquals('<ol><li>item 1 <i>something</i></li><li>item 2...</li></ol>', Utils::safeTruncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 5));
     }
 
     public function testGenerateRandomString()
@@ -146,13 +153,36 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     }
 
-    public function testGetMimeType()
+    public function testGetMimeByExtension()
     {
-        $this->assertEquals('application/octet-stream', Utils::getMimeType(''));
-        $this->assertEquals('image/jpeg', Utils::getMimeType('jpg'));
-        $this->assertEquals('image/png', Utils::getMimeType('png'));
-        $this->assertEquals('text/plain', Utils::getMimeType('txt'));
-        $this->assertEquals('application/msword', Utils::getMimeType('doc'));
+        $this->assertEquals('application/octet-stream', Utils::getMimeByExtension(''));
+        $this->assertEquals('text/html', Utils::getMimeByExtension('html'));
+        $this->assertEquals('application/json', Utils::getMimeByExtension('json'));
+        $this->assertEquals('application/atom+xml', Utils::getMimeByExtension('atom'));
+        $this->assertEquals('application/rss+xml', Utils::getMimeByExtension('rss'));
+        $this->assertEquals('image/jpeg', Utils::getMimeByExtension('jpg'));
+        $this->assertEquals('image/png', Utils::getMimeByExtension('png'));
+        $this->assertEquals('text/plain', Utils::getMimeByExtension('txt'));
+        $this->assertEquals('application/msword', Utils::getMimeByExtension('doc'));
+        $this->assertEquals('application/octet-stream', Utils::getMimeByExtension('foo'));
+        $this->assertEquals('foo/bar', Utils::getMimeByExtension('foo', 'foo/bar'));
+        $this->assertEquals('text/html', Utils::getMimeByExtension('foo', 'text/html'));
+    }
+
+    public function testGetExtensionByMime()
+    {
+        $this->assertEquals('html', Utils::getExtensionByMime('*/*'));
+        $this->assertEquals('html', Utils::getExtensionByMime('text/*'));
+        $this->assertEquals('html', Utils::getExtensionByMime('text/html'));
+        $this->assertEquals('json', Utils::getExtensionByMime('application/json'));
+        $this->assertEquals('atom', Utils::getExtensionByMime('application/atom+xml'));
+        $this->assertEquals('rss', Utils::getExtensionByMime('application/rss+xml'));
+        $this->assertEquals('jpg', Utils::getExtensionByMime('image/jpeg'));
+        $this->assertEquals('png', Utils::getExtensionByMime('image/png'));
+        $this->assertEquals('txt', Utils::getExtensionByMime('text/plain'));
+        $this->assertEquals('doc', Utils::getExtensionByMime('application/msword'));
+        $this->assertEquals('html', Utils::getExtensionByMime('foo/bar'));
+        $this->assertEquals('baz', Utils::getExtensionByMime('foo/bar', 'baz'));
     }
 
     public function testNormalizePath()
@@ -233,6 +263,41 @@ class UtilsTest extends \Codeception\TestCase\Test
         ];
 
         $this->assertEquals('test2Value', Utils::resolve($array, 'test.test2'));
+    }
+
+    public function testGetDotNotation()
+    {
+        $array = [
+            'test' => [
+                'test2' => 'test2Value',
+                'test3' => [
+                    'test4' => 'test4Value'
+                ]
+            ]
+        ];
+
+        $this->assertEquals('test2Value', Utils::getDotNotation($array, 'test.test2'));
+        $this->assertEquals('test4Value', Utils::getDotNotation($array, 'test.test3.test4'));
+        $this->assertEquals('defaultValue', Utils::getDotNotation($array, 'test.non_existent', 'defaultValue'));
+    }
+
+    public function testSetDotNotation()
+    {
+        $array = [
+            'test' => [
+                'test2' => 'test2Value',
+                'test3' => [
+                    'test4' => 'test4Value'
+                ]
+            ]
+        ];
+
+        $new = [
+            'test1' => 'test1Value'
+        ];
+
+        Utils::setDotNotation($array, 'test.test3.test4' , $new);
+        $this->assertEquals('test1Value', $array['test']['test3']['test4']['test1']);
     }
 
     public function testIsPositive()

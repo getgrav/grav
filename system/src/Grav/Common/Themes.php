@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
@@ -9,12 +16,6 @@ use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-/**
- * The Themes object holds an array of all the theme objects that Grav knows about.
- *
- * @author  RocketTheme
- * @license MIT
- */
 class Themes extends Iterator
 {
     /** @var Grav */
@@ -310,17 +311,14 @@ class Themes extends Iterator
      */
     protected function autoloadTheme($class)
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-
         $prefix = "Grav\\Theme";
         if (false !== strpos($class, $prefix)) {
             // Remove prefix from class
             $class = substr($class, strlen($prefix));
 
             // Replace namespace tokens to directory separators
-            $path = strtolower(ltrim(preg_replace('#\\\|_(?!.+\\\)#', '/', $class), '/'));
-            $file = $locator->findResource("themes://{$path}/{$path}.php");
+            $path = $this->grav['inflector']->hyphenize(ltrim($class,"\\"));
+            $file = $this->grav['locator']->findResource("themes://{$path}/{$path}.php");
 
             // Load class
             if (file_exists($file)) {
