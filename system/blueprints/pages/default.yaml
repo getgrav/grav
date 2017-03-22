@@ -167,7 +167,7 @@ form:
 
                     order:
                       type: order
-                      label: PLUGIN_ADMIN.PAGE_ORDER
+                      label: PLUGIN_ADMIN.SORTABLE_PAGES
                       sitemap:
 
             overrides:
@@ -313,6 +313,25 @@ form:
                   label: PLUGIN_ADMIN.APPEND_URL_EXT
                   toggleable: true
                   help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
+
+            admin_only:
+              type: section
+              title: PLUGIN_ADMIN.ADMIN_SPECIFIC_OVERRIDES
+              underline: true
+
+              fields:
+
+                header.admin.children_display_order:
+                  type: select
+                  label: PLUGIN_ADMIN.ADMIN_CHILDREN_DISPLAY_ORDER
+                  help: PLUGIN_ADMIN.ADMIN_CHILDREN_DISPLAY_ORDER_HELP
+                  toggleable: true
+                  classes: fancy
+                  default: 'collection'
+                  options:
+                    'default': 'Ordered by Folder name (default)'
+                    'collection': 'Ordered by Collection definition'
+
 
                 header.order_by:
                   type: hidden

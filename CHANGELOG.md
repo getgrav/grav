@@ -4,6 +4,8 @@
 1. [](#new)
     * Refactored Page re-ordering to handle all siblings at once
     * Added `language_codes` to Twig init to allow for easy language name/code/native-name lookup
+1. [](#improved)
+    * Added an _Admin Overrides_ section with option to choose the order of children in Pages Management
 1. [](#bugfix)
     * Simplified modular/twig processing logic and fixed an issue with system process config [#1351](https://github.com/getgrav/grav/issues/1351)
     * Cleanup package files via GPM install to make them more windows-friendly [#1361](https://github.com/getgrav/grav/pull/1361)
