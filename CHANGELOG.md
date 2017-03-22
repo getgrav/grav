@@ -2,6 +2,7 @@
 ## 03/xx/2017
 
 1. [](#new)
+    * Refactored Page re-ordering to handle all siblings at once
     * Added `language_codes` to Twig init to allow for easy language name/code/native-name lookup
 1. [](#bugfix)
     * Simplified modular/twig processing logic and fixed an issue with system process config [#1351](https://github.com/getgrav/grav/issues/1351)
