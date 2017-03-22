@@ -804,6 +804,9 @@ class Page
         if ($name == 'folder') {
             return preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
         }
+        if ($name == 'slug') {
+            return $this->slug();
+        }
         if ($name == 'name') {
             $language = $this->language() ? '.' . $this->language() : '';
             $name_val = str_replace($language . '.md', '', $this->name());
@@ -2612,43 +2615,47 @@ class Page
         return $path;
     }
 
+    /**
+     * Reorders all siblings according to a defined order
+     *
+     * @param $new_order
+     */
     protected function doReorder($new_order)
     {
         if (!$this->_original) {
             return;
         }
 
+        $pages = Grav::instance()['pages'];
+        $pages->init();
+
+        $this->_original->path($this->path());
+
         $siblings = $this->parent()->children();
         $siblings->order('slug', 'asc', $new_order);
 
-        $counter = 1;
+        $counter = 0;
 
         // Reorder all moved pages.
         foreach ($siblings as $slug => $page) {
             $order = intval(trim($page->order(),'.'));
+            $counter++;
 
             if ($order) {
-
-                if ($page->path() == $this->path()) {
+                if ($page->path() == $this->path() && $this->folderExists()) {
                     // Handle current page; we do want to change ordering number, but nothing else.
-                    $this->order($counter++);
+                    $this->order($counter);
                     $this->save(false);
                 } else {
                     // Handle all the other pages.
-                    $page = Grav::instance()['pages']->get($page->path());
-
-                    if ($page && $page->exists() && !$page->_action) {
-
+                    $page = $pages->get($page->path());
+                    if ($page && $page->folderExists() && !$page->_action) {
                         $page = $page->move($this->parent());
-                        $page->order($counter++);
+                        $page->order($counter);
                         $page->save(false);
-
                     }
                 }
-
-
             }
-
         }
     }
 
@@ -2657,61 +2664,14 @@ class Page
      *
      * @internal
      *
-     * @param bool $reorder
-     *
      * @throws Exception
      */
-    protected function doRelocation($reorder = false)
+    protected function doRelocation()
     {
         if (!$this->_original) {
             return;
         }
 
-        // Do reordering.
-        if ($reorder && $this->order() != $this->_original->order()) {
-            /** @var Pages $pages */
-            $pages = Grav::instance()['pages'];
-
-            $parent = $this->parent();
-
-            // Extract visible children from the parent page.
-            $list = [];
-            /** @var Page $page */
-            foreach ($parent->children()->visible() as $page) {
-                if ($page->order()) {
-                    $list[$page->slug] = $page->path();
-                }
-            }
-
-            // If page was moved, take it out of the list.
-            if ($this->_action == 'move') {
-                unset($list[$this->slug()]);
-            }
-
-            $list = array_values($list);
-
-            // Then add it back to the new location (if needed).
-            if ($this->order()) {
-                array_splice($list, min($this->order() - 1, count($list)), 0, [$this->path()]);
-            }
-
-            // Reorder all moved pages.
-            foreach ($list as $order => $path) {
-                if ($path == $this->path()) {
-                    // Handle current page; we do want to change ordering number, but nothing else.
-                    $this->order($order + 1);
-                } else {
-                    // Handle all the other pages.
-                    $page = $pages->get($path);
-
-                    if ($page && $page->exists() && !$page->_action && $page->order() != $order + 1) {
-                        $page = $page->move($parent);
-                        $page->order($order + 1);
-                        $page->save(false);
-                    }
-                }
-            }
-        }
         if (is_dir($this->_original->path())) {
             if ($this->_action == 'move') {
                 Folder::move($this->_original->path(), $this->path());
