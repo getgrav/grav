@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e5b9333d3ac2de823c68c9c8e0f2017",
+    "content-hash": "a81345ff6d6bffba8747f6c7c5a5c7d6",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -368,12 +368,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Gregwar/Image.git",
-                "reference": "72568cfbeb77515278f2ccb386fc344e874b7ae8"
+                "reference": "a53c77a0449eb9ee3e9cbcabcedfeb8637457670"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Gregwar/Image/zipball/72568cfbeb77515278f2ccb386fc344e874b7ae8",
-                "reference": "72568cfbeb77515278f2ccb386fc344e874b7ae8",
+                "url": "https://api.github.com/repos/Gregwar/Image/zipball/a53c77a0449eb9ee3e9cbcabcedfeb8637457670",
+                "reference": "a53c77a0449eb9ee3e9cbcabcedfeb8637457670",
                 "shasum": ""
             },
             "require": {
@@ -411,7 +411,7 @@
                 "gd",
                 "image"
             ],
-            "time": "2016-07-12 17:02:18"
+            "time": "2017-03-07 18:31:22"
         },
         {
             "name": "league/climate",
@@ -466,16 +466,16 @@
         },
         {
             "name": "matthiasmullie/minify",
-            "version": "1.3.43",
+            "version": "1.3.44",
             "source": {
                 "type": "git",
                 "url": "https://github.com/matthiasmullie/minify.git",
-                "reference": "aa50b2dab6fa7bfd402d334fe51005d6f2526ad7"
+                "reference": "a7fc4a98ef8f2cf38bba701b51f1a84a1d67bc5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/matthiasmullie/minify/zipball/aa50b2dab6fa7bfd402d334fe51005d6f2526ad7",
-                "reference": "aa50b2dab6fa7bfd402d334fe51005d6f2526ad7",
+                "url": "https://api.github.com/repos/matthiasmullie/minify/zipball/a7fc4a98ef8f2cf38bba701b51f1a84a1d67bc5c",
+                "reference": "a7fc4a98ef8f2cf38bba701b51f1a84a1d67bc5c",
                 "shasum": ""
             },
             "require": {
@@ -519,7 +519,7 @@
                 "minifier",
                 "minify"
             ],
-            "time": "2017-01-26T15:48:07+00:00"
+            "time": "2017-03-16T16:42:50+00:00"
         },
         {
             "name": "matthiasmullie/path-converter",
@@ -852,16 +852,16 @@
         },
         {
             "name": "seld/cli-prompt",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/cli-prompt.git",
-                "reference": "8cbe10923cae5bcd7c5a713f6703fc4727c8c1b4"
+                "reference": "a19a7376a4689d4d94cab66ab4f3c816019ba8dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/cli-prompt/zipball/8cbe10923cae5bcd7c5a713f6703fc4727c8c1b4",
-                "reference": "8cbe10923cae5bcd7c5a713f6703fc4727c8c1b4",
+                "url": "https://api.github.com/repos/Seldaek/cli-prompt/zipball/a19a7376a4689d4d94cab66ab4f3c816019ba8dd",
+                "reference": "a19a7376a4689d4d94cab66ab4f3c816019ba8dd",
                 "shasum": ""
             },
             "require": {
@@ -896,7 +896,7 @@
                 "input",
                 "prompt"
             ],
-            "time": "2016-04-18T09:31:41+00:00"
+            "time": "2017-03-18T11:32:45+00:00"
         },
         {
             "name": "symfony/console",
@@ -1790,16 +1790,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.4.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "0d6c7ca039329247e4f0f8f8f6506810e8248855"
+                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/0d6c7ca039329247e4f0f8f8f6506810e8248855",
-                "reference": "0d6c7ca039329247e4f0f8f8f6506810e8248855",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
+                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
                 "shasum": ""
             },
             "require": {
@@ -1851,7 +1851,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2017-02-27T10:51:17+00:00"
+            "time": "2017-03-20T17:10:46+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",

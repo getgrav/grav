@@ -570,15 +570,22 @@ class TwigExtension extends \Twig_Extension
             $domain = true;
         }
 
+        if (Grav::instance()['uri']->isExternal($input)) {
+            return $input;
+        }
 
-        if (strpos((string)$input, '://')) {
+        $input = ltrim((string)$input, '/');
+
+        if (Utils::contains((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
 
+
+
             // Get relative path to the resource (or false if not found).
-            $resource = $locator->findResource((string)$input, false);
+            $resource = $locator->findResource($input, false);
         } else {
-            $resource = (string)$input;
+            $resource = $input;
         }
 
         /** @var Uri $uri */
