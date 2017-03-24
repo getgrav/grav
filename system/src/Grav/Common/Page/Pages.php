@@ -294,27 +294,27 @@ class Pages
     /**
      * Get a page ancestor.
      *
-     * @param  string $url The relative URL of the page
+     * @param  string $route The relative URL of the page
      * @param  string $path The relative path of the ancestor folder
      *
      * @return Page|null
      */
-    public function ancestor($url, $path = null)
+    public function ancestor($route, $path = null)
     {
         if (!is_null($path)) {
 
             // Fetch page if there's a defined route to it.
-            $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
+            $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
 
             // Try without trailing slash
-            if (!$page && Utils::endsWith($url, '/')) {
-                $page = isset($this->routes[rtrim($url, '/')]) ? $this->get($this->routes[rtrim($url, '/')]) : null;
+            if (!$page && Utils::endsWith($route, '/')) {
+                $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
             }
 
             if ($page->path() == $path) {
                 return $page;
             } elseif (!$page->parent()->root()) {
-                return $this->ancestor($page->parent()->url(), $path);
+                return $this->ancestor($page->parent()->route(), $path);
             }
         }
 
@@ -324,21 +324,21 @@ class Pages
     /**
      * Get a page ancestor trait.
      *
-     * @param  string $url The relative URL of the page
+     * @param  string $route The relative route of the page
      * @param  string $field The field name of the ancestor to query for
      *
      * @return Page|null
      */
-    public function inherited($url, $field = null)
+    public function inherited($route, $field = null)
     {
         if (!is_null($field)) {
 
             // Fetch page if there's a defined route to it.
-            $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
+            $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
 
             // Try without trailing slash
-            if (!$page && Utils::endsWith($url, '/')) {
-                $page = isset($this->routes[rtrim($url, '/')]) ? $this->get($this->routes[rtrim($url, '/')]) : null;
+            if (!$page && Utils::endsWith($route, '/')) {
+                $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
             }
 
             $ancestorField = $page->parent()->value('header.' . $field);
@@ -346,7 +346,7 @@ class Pages
             if ($ancestorField != null) {
                 return $page->parent();
             } elseif (!$page->parent()->root()) {
-                return $this->inherited($page->parent()->url(), $field);
+                return $this->inherited($page->parent()->route(), $field);
             }
         }
 
