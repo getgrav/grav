@@ -303,13 +303,7 @@ class Pages
     {
         if (!is_null($path)) {
 
-            // Fetch page if there's a defined route to it.
-            $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
-
-            // Try without trailing slash
-            if (!$page && Utils::endsWith($route, '/')) {
-                $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
-            }
+            $page = $this->getPage($route);
 
             if ($page->path() == $path) {
                 return $page;
@@ -333,13 +327,7 @@ class Pages
     {
         if (!is_null($field)) {
 
-            // Fetch page if there's a defined route to it.
-            $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
-
-            // Try without trailing slash
-            if (!$page && Utils::endsWith($route, '/')) {
-                $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
-            }
+            $page = $this->getPage($route);
 
             $ancestorField = $page->parent()->value('header.' . $field);
 
@@ -356,34 +344,29 @@ class Pages
     /**
      * alias method to return find a page.
      *
-     * @param string $url The relative URL of the page
+     * @param string $route The relative URL of the page
      * @param bool   $all
      *
      * @return Page|null
      */
-    public function find($url, $all = false)
+    public function find($route, $all = false)
     {
-        return $this->dispatch($url, $all, false);
+        return $this->dispatch($route, $all, false);
     }
 
     /**
      * Dispatch URI to a page.
      *
-     * @param string $url The relative URL of the page
+     * @param string $route The relative URL of the page
      * @param bool $all
      *
      * @param bool $redirect
      * @return Page|null
      * @throws \Exception
      */
-    public function dispatch($url, $all = false, $redirect = true)
+    public function dispatch($route, $all = false, $redirect = true)
     {
-        // Fetch page if there's a defined route to it.
-        $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
-        // Try without trailing slash
-        if (!$page && Utils::endsWith($url, '/')) {
-            $page = isset($this->routes[rtrim($url, '/')]) ? $this->get($this->routes[rtrim($url, '/')]) : null;
-        }
+        $page = $this->getPage($route);
 
         // Are we in the admin? this is important!
         $not_admin = !isset($this->grav['admin']);
@@ -402,13 +385,13 @@ class Pages
                 $config = $this->grav['config'];
 
                 // See if route matches one in the site configuration
-                $route = $config->get("site.routes.{$url}");
+                $route = $config->get("site.routes.{$route}");
                 if ($route) {
                     $page = $this->dispatch($route, $all);
                 } else {
                     // Try Regex style redirects
                     $uri = $this->grav['uri'];
-                    $source_url = $url;
+                    $source_url = $route;
                     $extension = $uri->extension();
                     if (isset($extension) && !Utils::endsWith($uri->url(), $extension)) {
                         $source_url.= '.' . $extension;
@@ -446,6 +429,22 @@ class Pages
                     }
                 }
             }
+        }
+
+        return $page;
+    }
+
+    /**
+     * Retrieve page instance based on the route
+     *
+     * @return Page
+     */
+    protected function getPage($route) {
+        // Fetch page if there's a defined route to it.
+        $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
+        // Try without trailing slash
+        if (!$page && Utils::endsWith($route, '/')) {
+            $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
         }
 
         return $page;
