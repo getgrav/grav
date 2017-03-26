@@ -1255,6 +1255,11 @@ class Assets
 
             $old_url = $matches[2];
 
+            // ensure link is not rooted to webserver
+            if (strpos($old_url, '/') === 0) {
+                return $matches[0];
+            }
+
             // ensure this is not a data url
             if (strpos($old_url, 'data:') === 0) {
                 return $matches[0];
