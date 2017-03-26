@@ -31,7 +31,7 @@ class DirectInstallCommand extends ConsoleCommand
             ->addArgument(
                 'package-file',
                 InputArgument::REQUIRED,
-                'The local location or remote URL to an installable package file'
+                'Installable package local <path> or remote <URL>. Can install specific version'
             )
             ->setDescription("Installs Grav, plugin, or theme directly from a file or a URL")
             ->setHelp('The <info>direct-install</info> command installs Grav, plugin, or theme directly from a file or a URL');
