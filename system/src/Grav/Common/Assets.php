@@ -1255,13 +1255,8 @@ class Assets
 
             $old_url = $matches[2];
 
-            // ensure this is not a data url
-            if (strpos($old_url, 'data:') === 0) {
-                return $matches[0];
-            }
-
-            // ensure this is not a remote url
-            if ($this->isRemoteLink($old_url)) {
+            // Ensure link is not rooted to webserver, a data URL, or to a remote host
+            if (Utils::startsWith($old_url, '/') || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
                 return $matches[0];
             }
 
