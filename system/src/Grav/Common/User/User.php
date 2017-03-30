@@ -239,4 +239,20 @@ class User extends Data
     {
         return $this->authorize($action);
     }
+
+    /**
+     * Return the User's avatar URL
+     * 
+     * @return string
+     */
+    public function avatarUrl()
+    {
+        if ($this->avatar) {
+            $avatar = $this->avatar;
+            $avatar = array_shift($avatar);
+            return Grav::instance()['base_url'] . '/' . $avatar['path'];
+        } else {
+            return 'https://www.gravatar.com/avatar/' . md5($this->email);
+        }
+    }
 }
