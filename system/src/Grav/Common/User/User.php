@@ -57,14 +57,14 @@ class User extends Data
     /**
      * Find a user by username, email, etc
      *
-     * @param $query        the query to search for
+     * @param string $query the query to search for
      * @param array $fields the fields to search
      * @return User
      */
     public static function find($query, $fields = ['username', 'email'])
     {
         $account_dir = Grav::instance()['locator']->findResource('account://');
-        $files = array_diff(scandir($account_dir), ['.', '..']);
+        $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
 
         // Try with username first, you never know!
         if (in_array('username', $fields)) {
@@ -100,7 +100,7 @@ class User extends Data
     public static function remove($username)
     {
         $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
-        if (file_exists($file_path) && unlink($file_path)) {
+        if ($file_path && unlink($file_path)) {
             return true;
         }
 
@@ -238,5 +238,21 @@ class User extends Data
     public function authorise($action)
     {
         return $this->authorize($action);
+    }
+
+    /**
+     * Return the User's avatar URL
+     * 
+     * @return string
+     */
+    public function avatarUrl()
+    {
+        if ($this->avatar) {
+            $avatar = $this->avatar;
+            $avatar = array_shift($avatar);
+            return Grav::instance()['base_url'] . '/' . $avatar['path'];
+        } else {
+            return 'https://www.gravatar.com/avatar/' . md5($this->email);
+        }
     }
 }

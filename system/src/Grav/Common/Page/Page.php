@@ -86,6 +86,7 @@ class Page
     protected $hide_home_route;
     protected $ssl;
     protected $template_format;
+    protected $debugger;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -424,6 +425,9 @@ class Page
             if (isset($this->header->template_format)) {
                 $this->template_format = $this->header->template_format;
             }
+            if (isset($this->header->debugger)) {
+                $this->debugger = (bool)$this->header->debugger;
+            }
         }
 
         return $this->header;
@@ -566,7 +570,8 @@ class Page
 
 
             $process_markdown = $this->shouldProcess('markdown');
-            $process_twig = $this->shouldProcess('twig');
+            $process_twig = $this->shouldProcess('twig') || $this->modularTwig() ;
+
             $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled',
                 true);
             $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first',
@@ -799,6 +804,9 @@ class Page
         if ($name == 'folder') {
             return preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
         }
+        if ($name == 'slug') {
+            return $this->slug();
+        }
         if ($name == 'name') {
             $language = $this->language() ? '.' . $this->language() : '';
             $name_val = str_replace($language . '.md', '', $this->name());
@@ -882,12 +890,12 @@ class Page
     /**
      * Save page if there's a file assigned to it.
      *
-     * @param bool $reorder Internal use.
+     * @param bool|mixed $reorder Internal use.
      */
     public function save($reorder = true)
     {
-        // Perform move, copy or reordering if needed.
-        $this->doRelocation($reorder);
+        // Perform move, copy [or reordering] if needed.
+        $this->doRelocation();
 
         $file = $this->file();
         if ($file) {
@@ -896,6 +904,13 @@ class Page
             $file->markdown($this->raw_content);
             $file->save();
         }
+
+        // Perform reorder if required
+        if ($reorder && is_array($reorder)) {
+            $this->doReorder($reorder);
+        }
+
+        $this->_original = null;
     }
 
     /**
@@ -1208,7 +1223,7 @@ class Page
             $this->expires = $var;
         }
 
-        return empty($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
+        return !isset($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
     }
 
     /**
@@ -1371,6 +1386,20 @@ class Page
         }
 
         return $this->process;
+    }
+
+    /**
+     * Returns the state of the debugger override etting for this page
+     *
+     * @return mixed
+     */
+    public function debugger()
+    {
+        if (isset($this->debugger) && $this->debugger === false) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -2027,7 +2056,6 @@ class Page
         if ($var !== null) {
             $this->modular_twig = (bool)$var;
             if ($var) {
-                $this->process['twig'] = true;
                 $this->visible(false);
                 // some routable logic
                 if (empty($this->header->routable)) {
@@ -2561,6 +2589,16 @@ class Page
     }
 
     /**
+     * Returns whether or not the current folder exists
+     *
+     * @return bool
+     */
+    public function folderExists()
+    {
+        return file_exists($this->path());
+    }
+
+    /**
      * Cleans the path.
      *
      * @param  string $path the path
@@ -2578,65 +2616,62 @@ class Page
     }
 
     /**
-     * Moves or copies the page in filesystem.
+     * Reorders all siblings according to a defined order
      *
-     * @internal
-     *
-     * @param bool $reorder
-     *
-     * @throws Exception
+     * @param $new_order
      */
-    protected function doRelocation($reorder)
+    protected function doReorder($new_order)
     {
         if (!$this->_original) {
             return;
         }
 
-        // Do reordering.
-        if ($reorder && $this->order() != $this->_original->order()) {
-            /** @var Pages $pages */
-            $pages = Grav::instance()['pages'];
+        $pages = Grav::instance()['pages'];
+        $pages->init();
 
-            $parent = $this->parent();
+        $this->_original->path($this->path());
 
-            // Extract visible children from the parent page.
-            $list = [];
-            /** @var Page $page */
-            foreach ($parent->children()->visible() as $page) {
-                if ($page->order()) {
-                    $list[$page->slug] = $page->path();
-                }
-            }
+        $siblings = $this->parent()->children();
+        $siblings->order('slug', 'asc', $new_order);
 
-            // If page was moved, take it out of the list.
-            if ($this->_action == 'move') {
-                unset($list[$this->slug()]);
-            }
+        $counter = 0;
 
-            $list = array_values($list);
+        // Reorder all moved pages.
+        foreach ($siblings as $slug => $page) {
+            $order = intval(trim($page->order(),'.'));
+            $counter++;
 
-            // Then add it back to the new location (if needed).
-            if ($this->order()) {
-                array_splice($list, min($this->order() - 1, count($list)), 0, [$this->path()]);
-            }
-
-            // Reorder all moved pages.
-            foreach ($list as $order => $path) {
-                if ($path == $this->path()) {
+            if ($order) {
+                if ($page->path() == $this->path() && $this->folderExists()) {
                     // Handle current page; we do want to change ordering number, but nothing else.
-                    $this->order($order + 1);
+                    $this->order($counter);
+                    $this->save(false);
                 } else {
                     // Handle all the other pages.
-                    $page = $pages->get($path);
-
-                    if ($page && $page->exists() && !$page->_action && $page->order() != $order + 1) {
-                        $page = $page->move($parent);
-                        $page->order($order + 1);
+                    $page = $pages->get($page->path());
+                    if ($page && $page->folderExists() && !$page->_action) {
+                        $page = $page->move($this->parent());
+                        $page->order($counter);
                         $page->save(false);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Moves or copies the page in filesystem.
+     *
+     * @internal
+     *
+     * @throws Exception
+     */
+    protected function doRelocation()
+    {
+        if (!$this->_original) {
+            return;
+        }
+
         if (is_dir($this->_original->path())) {
             if ($this->_action == 'move') {
                 Folder::move($this->_original->path(), $this->path());
@@ -2652,7 +2687,6 @@ class Page
             }
         }
 
-        $this->_original = null;
     }
 
     protected function setPublishState()

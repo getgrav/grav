@@ -141,8 +141,12 @@ class Media extends AbstractMedia
 
                 foreach ($types['alternative'] as $altMedium) {
                     if ($altMedium['file'] != $medium) {
-                        $ratio = $altMedium['file']->get('width') / $medium->get('width');
-                        $medium->addAlternative($ratio, $altMedium['file']);
+                        $altWidth = $altMedium['file']->get('width');
+                        $medWidth = $medium->get('width');
+                        if ($altWidth && $medWidth) {
+                            $ratio = $altWidth / $medWidth;
+                            $medium->addAlternative($ratio, $altMedium['file']);
+                        }
                     }
                 }
             }

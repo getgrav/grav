@@ -39,6 +39,11 @@ class PageServiceProvider implements ServiceProviderInterface
                 /** @var Language $language */
                 $language = $c['language'];
 
+                // some debugger override logic
+                if ($page->debugger() === false) {
+                    Grav::instance()['debugger']->enabled(false);
+                }
+
                 if ($c['config']->get('system.force_ssl')) {
                     if (!isset($_SERVER['HTTPS']) || $_SERVER["HTTPS"] != "on") {
                         $url = "https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];

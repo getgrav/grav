@@ -9,14 +9,13 @@
 namespace Grav\Console\Gpm;
 
 use Grav\Common\Grav;
-use Grav\Common\Utils;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Yaml\Yaml;
 
 class DirectInstallCommand extends ConsoleCommand
 {
@@ -32,7 +31,7 @@ class DirectInstallCommand extends ConsoleCommand
             ->addArgument(
                 'package-file',
                 InputArgument::REQUIRED,
-                'The local location or remote URL to an installable package file'
+                'Installable package local <path> or remote <URL>. Can install specific version'
             )
             ->setDescription("Installs Grav, plugin, or theme directly from a file or a URL")
             ->setHelp('The <info>direct-install</info> command installs Grav, plugin, or theme directly from a file or a URL');
@@ -63,10 +62,30 @@ class DirectInstallCommand extends ConsoleCommand
         $this->output->writeln("Preparing to install <cyan>" . $package_file . "</cyan>");
 
 
-        if ($this->isRemote($package_file)) {
-            $zip = $this->downloadPackage($package_file, $tmp_zip);
+        if (Response::isRemote($package_file)) {
+            $this->output->write("  |- Downloading package...     0%");
+            try {
+                $zip = GPM::downloadPackage($package_file, $tmp_zip);
+            } catch (\RuntimeException $e) {
+                $this->output->writeln('');
+                $this->output->writeln("  `- <red>ERROR: " . $e->getMessage() . "</red>");
+                $this->output->writeln('');
+                exit;
+            }
+            
+            if ($zip) {
+                $this->output->write("\x0D");
+                $this->output->write("  |- Downloading package...   100%");
+                $this->output->writeln('');
+            }
         } else {
-            $zip = $this->copyPackage($package_file, $tmp_zip);
+            $this->output->write("  |- Copying package...         0%");
+            $zip = GPM::copyPackage($package_file, $tmp_zip);
+            if ($zip) {
+                $this->output->write("\x0D");
+                $this->output->write("  |- Copying package...       100%");
+                $this->output->writeln('');
+            }
         }
 
         if (file_exists($zip)) {
@@ -85,7 +104,7 @@ class DirectInstallCommand extends ConsoleCommand
             $this->output->writeln("  |- Extracting package...    <green>ok</green>");
 
 
-            $type = $this->getPackageType($extracted);
+            $type = GPM::getPackageType($extracted);
 
             if (!$type) {
                 $this->output->writeln("  '- <red>ERROR: Not a valid Grav package</red>");
@@ -93,7 +112,7 @@ class DirectInstallCommand extends ConsoleCommand
                 exit;
             }
 
-            $blueprint = $this->getBlueprints($extracted);
+            $blueprint = GPM::getBlueprints($extracted);
             if ($blueprint) {
                 if (isset($blueprint['dependencies'])) {
                     $depencencies = [];
@@ -137,7 +156,7 @@ class DirectInstallCommand extends ConsoleCommand
                 $this->output->write("  |- Installing package...  ");
                 Installer::install($zip, GRAV_ROOT, ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true], $extracted);
             } else {
-                $name = $this->getPackageName($extracted);
+                $name = GPM::getPackageName($extracted);
 
                 if (!$name) {
                     $this->output->writeln("<red>ERROR: Name could not be determined.</red> Please specify with --name|-n");
@@ -145,7 +164,7 @@ class DirectInstallCommand extends ConsoleCommand
                     exit;
                 }
 
-                $install_path = $this->getInstallPath($type, $name);
+                $install_path = GPM::getInstallPath($type, $name);
                 $is_update = file_exists($install_path);
 
                 $this->output->write("  |- Checking destination...  ");
@@ -173,7 +192,7 @@ class DirectInstallCommand extends ConsoleCommand
             $this->output->write("\x0D");
 
             if(Installer::lastErrorCode()) {
-                $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+                $this->output->writeln("  '- <red>" . Installer::lastErrorMsg() . "</red>");
                 $this->output->writeln('');
             } else {
                 $this->output->writeln("  |- Installing package...    <green>ok</green>");
@@ -192,187 +211,5 @@ class DirectInstallCommand extends ConsoleCommand
 
         return true;
 
-    }
-
-    /**
-     * Get the install path for a name and a particular type of package
-     *
-     * @param $type
-     * @param $name
-     * @return string
-     */
-    protected function getInstallPath($type, $name)
-    {
-        $locator = Grav::instance()['locator'];
-
-        if ($type == 'theme') {
-            $install_path = $locator->findResource('themes://', false) . DS . $name;
-        } else {
-            $install_path = $locator->findResource('plugins://', false) . DS . $name;
-        }
-        return $install_path;
-    }
-
-    /**
-     * Try to guess the package name from the source files
-     *
-     * @param $source
-     * @return bool|string
-     */
-    protected function getPackageName($source)
-    {
-        foreach (glob($source . "*.yaml") as $filename) {
-            $name = strtolower(basename($filename, '.yaml'));
-            if ($name == 'blueprints') {
-                continue;
-            }
-            return $name;
-        }
-        return false;
-    }
-
-    /**
-     * Try to guess the package type from the source files
-     *
-     * @param $source
-     * @return bool|string
-     */
-    protected function getPackageType($source)
-    {
-        $plugin_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Plugin/m';
-        $theme_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Theme/m';
-
-        if (
-            file_exists($source . 'system/defines.php') &&
-            file_exists($source . 'system/config/system.yaml')
-        ) {
-            return 'grav';
-        } else {
-            // must have a blueprint
-            if (!file_exists($source . 'blueprints.yaml')) {
-                return false;
-            }
-
-            // either theme or plugin
-            $name = basename($source);
-            if (Utils::contains($name, 'theme')) {
-                return 'theme';
-            } elseif (Utils::contains($name, 'plugin')) {
-                return 'plugin';
-            }
-            foreach (glob($source . "*.php") as $filename) {
-                $contents = file_get_contents($filename);
-                if (preg_match($theme_regex, $contents)) {
-                    return 'theme';
-                } elseif (preg_match($plugin_regex, $contents)) {
-                    return 'plugin';
-                }
-            }
-
-            // Assume it's a theme
-            return 'theme';
-        }
-    }
-
-    /**
-     * Determine if this is a local or a remote file
-     *
-     * @param $file
-     * @return bool
-     */
-    protected function isRemote($file)
-    {
-        return (bool) filter_var($file, FILTER_VALIDATE_URL);
-    }
-
-    /**
-     * Find/Parse the blueprint file
-     *
-     * @param $source
-     * @return array|bool
-     */
-    protected function getBlueprints($source)
-    {
-        $blueprint_file = $source . 'blueprints.yaml';
-        if (!file_exists($blueprint_file)) {
-            return false;
-        }
-
-        $blueprint = (array)Yaml::parse(file_get_contents($blueprint_file));
-        return $blueprint;
-    }
-
-    /**
-     * Download the zip package via the URL
-     *
-     * @param $package_file
-     * @param $tmp
-     * @return null|string
-     */
-    private function downloadPackage($package_file, $tmp)
-    {
-        $this->output->write("  |- Downloading package...     0%");
-
-        $package = parse_url($package_file);
-
-
-        $filename = basename($package['path']);
-        $output = Response::get($package_file, [], [$this, 'progress']);
-
-        if ($output) {
-            Folder::mkdir($tmp);
-
-            $this->output->write("\x0D");
-            $this->output->write("  |- Downloading package...   100%");
-            $this->output->writeln('');
-
-            file_put_contents($tmp . DS . $filename, $output);
-
-            return $tmp . DS . $filename;
-        }
-
-        return null;
-
-    }
-
-    /**
-     * Copy the local zip package to tmp
-     *
-     * @param $package_file
-     * @param $tmp
-     * @return null|string
-     */
-    private function copyPackage($package_file, $tmp)
-    {
-        $this->output->write("  |- Copying package...         0%");
-
-        $package_file = realpath($package_file);
-
-        if (file_exists($package_file)) {
-            $filename = basename($package_file);
-
-            Folder::mkdir($tmp);
-
-            $this->output->write("\x0D");
-            $this->output->write("  |- Copying package...       100%");
-            $this->output->writeln('');
-
-            copy(realpath($package_file), $tmp . DS . $filename);
-
-            return $tmp . DS . $filename;
-        }
-
-        return null;
-
-    }
-
-    /**
-     * @param $progress
-     */
-    public function progress($progress)
-    {
-        $this->output->write("\x0D");
-        $this->output->write("  |- Downloading package... " . str_pad($progress['percent'], 5, " ",
-                STR_PAD_LEFT) . '%');
     }
 }
