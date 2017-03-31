@@ -1,3 +1,12 @@
+# v1.2.0
+## 03/xx/2017
+
+1. [](#new)
+    * Added file upload for user avatar in user/admin blueprint
+1. [](#improved)
+    * Analysis fixes
+    * Switched to stable composer lib versions
+
 # v1.2.0-rc.3
 ## 03/22/2017
 
