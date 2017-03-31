@@ -37,3 +37,4 @@
 * Force rebuild for Grav 1.1.17
 * FOrce rebuild for admin 1.2.14
 * Rebuild for Grav 1.2.0-rc.1 release
+* Force reubuild for Grav 1.2.0
