@@ -1,3 +1,9 @@
+# v1.2.1
+## xx/xx/2017
+
+1. [](#bugfix)
+    * Fixed a bad method signature causing warning when running tests on `GPMTest` object
+
 # v1.2.0
 ## 03/31/2017
 
