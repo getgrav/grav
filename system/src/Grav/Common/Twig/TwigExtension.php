@@ -119,6 +119,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('get_cookie', [$this, 'getCookie']),
             new \Twig_SimpleFunction('redirect_me', [$this, 'redirectFunc']),
             new \Twig_SimpleFunction('range', [$this, 'rangeFunc']),
+            new \Twig_SimpleFunction('isajaxrequest', [$this, 'isAjaxFunc']),
         ];
     }
 
@@ -891,5 +892,18 @@ class TwigExtension extends \Twig_Extension
     public function rangeFunc($start = 0, $end = 100, $step = 1)
     {
         return range($start, $end, $step);
+    }
+
+    /**
+     * Check if HTTP_X_REQUESTED_WITH has been set to xmlhttprequest,
+     * in which case we may unsafely assume ajax. Non critical use only.
+     *
+     * @return true if HTTP_X_REQUESTED_WITH exists and has been set to xmlhttprequest
+     */
+    public function isAjaxFunc()
+    {
+        return (
+            !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
     }
 }
