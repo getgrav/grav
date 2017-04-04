@@ -688,10 +688,9 @@ class Page
         if ($name) {
             if (isset($this->content_meta[$name])) {
                 return $this->content_meta[$name];
-            } else {
-                return null;
             }
 
+            return null;
         }
 
         return $this->content_meta;
@@ -1706,9 +1705,9 @@ class Page
 
         if (!empty($this->routes) && isset($this->routes['aliases'])) {
             return $this->routes['aliases'];
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     /**
@@ -2277,9 +2276,9 @@ class Page
     {
         if (!$this->parent && !$this->name && !$this->visible) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**

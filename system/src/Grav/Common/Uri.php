@@ -174,9 +174,8 @@ class Uri
         // check for localhost variations
         if ($this->name == '127.0.0.1' || $this->name== '::1') {
             return 'localhost';
-        } else {
-            return $this->name;
         }
+        return $this->name;
     }
 
     /**

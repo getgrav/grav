@@ -94,8 +94,8 @@ class ImageFile extends Image
 
         if ($actual) {
             return $file;
-        } else {
-            return $this->getFilename($file);
         }
+
+        return $this->getFilename($file);
     }
 }

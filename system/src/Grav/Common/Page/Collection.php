@@ -208,9 +208,8 @@ class Collection extends Iterator
     {
         if ($this->items && $path == array_keys($this->items)[0]) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -224,9 +223,8 @@ class Collection extends Iterator
     {
         if ($this->items && $path == array_keys($this->items)[count($this->items) - 1]) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

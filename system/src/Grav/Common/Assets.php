@@ -745,9 +745,9 @@ class Assets
             file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $this->getTimestamp();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -817,9 +817,9 @@ class Assets
             file_put_contents($this->assets_dir . $file, $buffer);
 
             return $relative_path . $this->getTimestamp();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -836,9 +836,8 @@ class Assets
             $asset_key = md5($key);
             if (isset($this->css[$asset_key])) {
                 return $this->css[$asset_key];
-            } else {
-                return null;
             }
+            return null;
         }
 
         return $this->css;
@@ -858,9 +857,9 @@ class Assets
             $asset_key = md5($key);
             if (isset($this->js[$asset_key])) {
                 return $this->js[$asset_key];
-            } else {
-                return null;
             }
+
+            return null;
         }
 
         return $this->js;
@@ -943,9 +942,9 @@ class Assets
     {
         if (isset($this->collections[$asset]) || isset($this->css[$asset]) || isset($this->js[$asset])) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -1341,15 +1340,19 @@ class Assets
         $this->timestamp = '?' . $value;
     }
 
+    /**
+     * @param null $asset
+     * @return mixed|string
+     */
     public function getTimestamp($asset = null)
     {
         if (is_array($asset)) {
             if ($asset['remote'] === false) {
                 if (Utils::contains($asset['asset'], '?')) {
                     return str_replace('?', '&', $this->timestamp);
-                } else {
-                    return $this->timestamp;
                 }
+
+                return $this->timestamp;
             }
         } elseif (empty($asset)) {
             return $this->timestamp;

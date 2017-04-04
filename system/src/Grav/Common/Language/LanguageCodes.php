@@ -157,14 +157,11 @@ class LanguageCodes
     {
         if (isset(static::$codes[$code])) {
             return static::get($code, 'nativeName');
-        } else {
-            if (preg_match('/[a-zA-Z]{2}-[a-zA-Z]{2}/', $code)) {
-                return static::get(substr($code, 0, 2), 'nativeName') . ' (' . substr($code, -2) . ')';
-            } else {
-                return $code;
-            }
-
+        } elseif (preg_match('/[a-zA-Z]{2}-[a-zA-Z]{2}/', $code)) {
+            return static::get(substr($code, 0, 2), 'nativeName') . ' (' . substr($code, -2) . ')';
         }
+
+        return $code;
     }
 
     public static function getOrientation($code)
@@ -201,8 +198,8 @@ class LanguageCodes
     {
         if (isset(static::$codes[$code][$type])) {
             return static::$codes[$code][$type];
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

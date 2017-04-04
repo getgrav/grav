@@ -473,13 +473,12 @@ class Grav extends Container
             // unsupported media type, try to download it...
             if ($uri_extension) {
                 $extension = $uri_extension;
+            } elseif (isset($path_parts['extension'])) {
+                $extension = $path_parts['extension'];
             } else {
-                if (isset($path_parts['extension'])) {
-                    $extension = $path_parts['extension'];
-                } else {
-                    $extension = null;
-                }
+                $extension = null;
             }
+
 
             if ($extension) {
                 $download = true;

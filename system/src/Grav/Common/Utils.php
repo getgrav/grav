@@ -210,9 +210,9 @@ abstract class Utils
     {
         if (mb_strlen($text) <= $length) {
             return $text;
-        } else {
-        	return Truncator::truncateLetters($text, $length, $ellipsis);
         }
+
+        return Truncator::truncateLetters($text, $length, $ellipsis);
     }
 
     /**
@@ -584,9 +584,9 @@ abstract class Utils
         // fallback to strtotime if DateTime approach failed
         if ($datetime !== false) {
             return $datetime->getTimestamp();
-        } else {
-            return strtotime($date);
         }
+
+        return strtotime($date);
     }
 
     /**

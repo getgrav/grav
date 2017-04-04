@@ -8,8 +8,8 @@
 
 namespace Grav\Common\Language;
 
-use Grav\Common\Grav;
 use Grav\Common\Config\Config;
+use Grav\Common\Grav;
 
 class Language
 {
@@ -250,9 +250,9 @@ class Language
 
         if ($this->default == $lang && $this->config->get('system.languages.include_default_lang') === false) {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -395,21 +395,21 @@ class Language
             foreach ((array)$languages as $lang) {
                 $translation = $this->getTranslation($lang, $lookup, $array_support);
 
+                if ($translation && count($args) >= 1) {
+                    return vsprintf($translation, $args);
+                }
+
                 if ($translation) {
-                    if (count($args) >= 1) {
-                        return vsprintf($translation, $args);
-                    } else {
-                        return $translation;
-                    }
+                    return $translation;
                 }
             }
         }
 
         if ($html_out) {
             return '<span class="untranslated">' . $lookup . '</span>';
-        } else {
-            return $lookup;
         }
+
+        return $lookup;
     }
 
     /**
@@ -447,9 +447,9 @@ class Language
 
         if ($html_out) {
             return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
-        } else {
-            return $key . '[' . $index . ']';
         }
+
+        return $key . '[' . $index . ']';
     }
 
     /**
@@ -481,11 +481,12 @@ class Language
     public function getBrowserLanguages($accept_langs = [])
     {
         if (empty($this->http_accept_language)) {
-            if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-                $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-            } else {
+
+            if (empty($accept_langs) == false && isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) == false) {
                 return $accept_langs;
             }
+
+            $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 
             foreach (explode(',', $accept_langs) as $k => $pref) {
                 // split $pref again by ';q='
