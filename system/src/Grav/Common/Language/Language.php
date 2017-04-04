@@ -203,6 +203,15 @@ class Language
                         }
                     }
 
+                    // repeat if not found, try base language only - fixes Safari sending the language code always
+                    // with a locale (e.g. it-it or fr-fr)
+                    foreach ($preferred as $lang) {
+                        $lang = substr($lang, 0, 2);
+                        if ($this->validate($lang)) {
+                            $this->active = $lang;
+                            break;
+                        }
+                    }
                 }
             }
         }

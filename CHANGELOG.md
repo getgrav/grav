@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed a bad method signature causing warning when running tests on `GPMTest` object
+    * When determining language from `HTTP_ACCEPT_LANGUAGE`, also try base language only
 
 # v1.2.0
 ## 03/31/2017
