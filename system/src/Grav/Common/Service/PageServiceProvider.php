@@ -40,7 +40,7 @@ class PageServiceProvider implements ServiceProviderInterface
                 $language = $c['language'];
 
                 // some debugger override logic
-                if ($page->debugger() == false) {
+                if ($page->debugger() === false) {
                     Grav::instance()['debugger']->enabled(false);
                 }
 

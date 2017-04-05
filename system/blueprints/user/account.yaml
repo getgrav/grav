@@ -8,6 +8,13 @@ form:
                 type: userinfo
                 size: large
 
+            avatar:
+                type: file
+                size: large
+                destination: 'user://accounts/avatars'
+                multiple: false
+                random_name: true
+
             content:
                 type: section
                 title: PLUGIN_ADMIN.ACCOUNT

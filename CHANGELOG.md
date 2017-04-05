@@ -1,3 +1,25 @@
+# v1.2.1
+## xx/xx/2017
+
+1. [](#improved)
+    * Added `isajaxrequest()` Twig function [#1400](https://github.com/getgrav/grav/issues/1400)
+    * Added ability to inline CSS and JS code via Asset manager [#1377](https://github.com/getgrav/grav/pull/1377)
+    * Add query string in lighttpd default config [#1393](https://github.com/getgrav/grav/issues/1393)
+    * Add `--all-yes` and `--destination` options for `bin/gpm direct-install` [#1397](https://github.com/getgrav/grav/pull/1397)
+1. [](#bugfix)
+    * Fix for direct-install of plugins with `languages.yaml` [#1396](https://github.com/getgrav/grav/issues/1396)
+    * When determining language from HTTP_ACCEPT_LANGUAGE, also try base language only [#1402](https://github.com/getgrav/grav/issues/1402)
+    * Fixed a bad method signature causing warning when running tests on `GPMTest` object
+
+# v1.2.0
+## 03/31/2017
+
+1. [](#new)
+    * Added file upload for user avatar in user/admin blueprint
+1. [](#improved)
+    * Analysis fixes
+    * Switched to stable composer lib versions
+
 # v1.2.0-rc.3
 ## 03/22/2017
 

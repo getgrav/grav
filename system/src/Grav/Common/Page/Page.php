@@ -1395,7 +1395,7 @@ class Page
      */
     public function debugger()
     {
-        if (isset($this->debugger) && $this->debugger == false) {
+        if (isset($this->debugger) && $this->debugger === false) {
             return false;
         } else {
             return true;
