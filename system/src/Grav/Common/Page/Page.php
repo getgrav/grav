@@ -760,9 +760,19 @@ class Page
     /**
      * Needed by the onPageContentProcessed event to get the raw page content
      *
-     * @return string   the current page content
+     * @return string   the current raw page content
      */
     public function getRawContent()
+    {
+        return $this->raw_content;
+    }
+    
+    /**
+     * Needed by the onPageContentProcessed event to get the page content
+     *
+     * @return string   the current page content
+     */
+    public function getContent()
     {
         return $this->content;
     }
@@ -773,6 +783,16 @@ class Page
      * @param $content
      */
     public function setRawContent($content)
+    {
+        $this->raw_content = $content;
+    }
+    
+    /**
+     * Needed by the onPageContentProcessed event to set the processed page content
+     *
+     * @param $content
+     */
+    public function setContent($content)
     {
         $this->content = $content;
     }
