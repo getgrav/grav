@@ -756,16 +756,6 @@ class Page
         $cache_id = md5('page' . $this->id());
         $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
     }
-
-    /**
-     * Needed by the onPageContentProcessed event to get the raw page content
-     *
-     * @return string   the current raw page content
-     */
-    public function getRawContent()
-    {
-        return $this->raw_content;
-    }
     
     /**
      * Needed by the onPageContentProcessed event to get the page content
@@ -775,16 +765,6 @@ class Page
     public function getContent()
     {
         return $this->content;
-    }
-
-    /**
-     * Needed by the onPageContentProcessed event to set the raw page content
-     *
-     * @param $content
-     */
-    public function setRawContent($content)
-    {
-        $this->raw_content = $content;
     }
     
     /**
@@ -884,7 +864,7 @@ class Page
      *
      * @return null
      */
-    public function rawMarkdown($var = null)
+    public function rawContent($var = null)
     {
         if ($var !== null) {
             $this->raw_content = $var;
