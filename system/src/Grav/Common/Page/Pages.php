@@ -303,7 +303,7 @@ class Pages
     {
         if (!is_null($path)) {
 
-            $page = $this->getPage($route);
+            $page = $this->dispatch($route, true);
 
             if ($page->path() == $path) {
                 return $page;
@@ -327,7 +327,7 @@ class Pages
     {
         if (!is_null($field)) {
 
-            $page = $this->getPage($route);
+            $page = $this->dispatch($route, true);
 
             $ancestorField = $page->parent()->value('header.' . $field);
 
@@ -366,7 +366,12 @@ class Pages
      */
     public function dispatch($route, $all = false, $redirect = true)
     {
-        $page = $this->getPage($route);
+        // Fetch page if there's a defined route to it.
+        $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
+        // Try without trailing slash
+        if (!$page && Utils::endsWith($route, '/')) {
+            $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
+        }
 
         // Are we in the admin? this is important!
         $not_admin = !isset($this->grav['admin']);
@@ -429,22 +434,6 @@ class Pages
                     }
                 }
             }
-        }
-
-        return $page;
-    }
-
-    /**
-     * Retrieve page instance based on the route
-     *
-     * @return Page
-     */
-    protected function getPage($route) {
-        // Fetch page if there's a defined route to it.
-        $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
-        // Try without trailing slash
-        if (!$page && Utils::endsWith($route, '/')) {
-            $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
         }
 
         return $page;
