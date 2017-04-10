@@ -2283,6 +2283,74 @@ class Page
     }
 
     /**
+     * Helper method to return an ancestor page.
+     *
+     * @param string $url The url of the page
+     * @param bool   $lookup Name of the parent folder
+     *
+     * @return \Grav\Common\Page\Page page you were looking for if it exists
+     */
+    public function ancestor($lookup = null)
+    {
+        /** @var Pages $pages */
+        $pages = Grav::instance()['pages'];
+
+        return $pages->ancestor($this->route, $lookup);
+    }
+
+    /**
+     * Helper method to return an ancestor page to inherit from. The current
+     * page object is returned.
+     *
+     * @param string   $field Name of the parent folder
+     *
+     * @return Page
+     */
+    public function inherited($field)
+    {
+        list($inherited, $currentParams) = $this->getInheritedParams($field);
+
+        $this->modifyHeader($field, $currentParams);
+
+        return $inherited;
+    }
+    /**
+     * Helper method to return an ancestor field only to inherit from. The
+     * first occurrence of an ancestor field will be returned if at all.
+     *
+     * @param string   $field Name of the parent folder
+     *
+     * @return array
+     */
+    public function inheritedField($field)
+    {
+        list($inherited, $currentParams) = $this->getInheritedParams($field);
+
+        return $currentParams;
+    }
+
+    /**
+     * Method that contains shared logic for inherited() and inheritedField()
+     *
+     * @param string   $field Name of the parent folder
+     *
+     * @return array
+     */
+    protected function getInheritedParams($field)
+    {
+        $pages = Grav::instance()['pages'];
+
+        /** @var Pages $pages */
+        $inherited = $pages->inherited($this->route, $field);
+        $inheritedParams = (array) $inherited->value('header.' . $field);
+        $currentParams = (array) $this->value('header.' . $field);
+        if($inheritedParams && is_array($inheritedParams)) {
+            $currentParams = array_replace_recursive($inheritedParams, $currentParams);
+        }
+        return [$inherited, $currentParams];
+    }
+
+    /**
      * Helper method to return a page.
      *
      * @param string $url the url of the page
