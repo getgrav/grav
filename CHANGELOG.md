@@ -1,9 +1,9 @@
 # v1.2.1
-## xx/xx/2017
+## 04/10/2017
 
 1. [](#improved)
     * Added various `ancestor` helper methods in Page and Pages classes [#1362](https://github.com/getgrav/grav/pull/1362)
-    * Added new 'parents' field and switched Page blueprints to use this
+    * Added new `parents` field and switched Page blueprints to use this
     * Added `isajaxrequest()` Twig function [#1400](https://github.com/getgrav/grav/issues/1400)
     * Added ability to inline CSS and JS code via Asset manager [#1377](https://github.com/getgrav/grav/pull/1377)
     * Add query string in lighttpd default config [#1393](https://github.com/getgrav/grav/issues/1393)
