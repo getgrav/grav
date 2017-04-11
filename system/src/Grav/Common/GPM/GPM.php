@@ -599,9 +599,11 @@ class GPM extends Iterator
      */
     public static function getPackageName($source)
     {
+        $ignore_yaml_files = ['blueprints', 'languages'];
+
         foreach (glob($source . "*.yaml") as $filename) {
             $name = strtolower(basename($filename, '.yaml'));
-            if ($name == 'blueprints') {
+            if (in_array($name, $ignore_yaml_files)) {
                 continue;
             }
             return $name;
