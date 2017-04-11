@@ -1,3 +1,9 @@
+# v1.2.2
+## 04/xx/2017
+
+1. [](#bugfix)
+    * Fix issue in direct-install with github-style dependencies [#1405](https://github.com/getgrav/grav/issues/1405)
+
 # v1.2.1
 ## 04/10/2017
 
