@@ -149,15 +149,18 @@ class DirectInstallCommand extends ConsoleCommand
                 if (isset($blueprint['dependencies'])) {
                     $depencencies = [];
                     foreach ($blueprint['dependencies'] as $dependency) {
-                        if (is_array($dependency) && isset($dependency['name'])) {
-                            $depencencies[] = $dependency['name'];
+                        if (is_array($dependency)){
+                           if (isset($dependency['name'])) {
+                              $depencencies[] = $dependency['name'];
+                           }
+                           if (isset($dependency['github'])) {
+                              $depencencies[] = $dependency['github'];
+                           }
                         } else {
-                            $depencencies[] = $dependency;
+                           $depencencies[] = $dependency;
                         }
                     }
                     $this->output->writeln("  |- Dependencies found...    <cyan>[" . implode(',', $depencencies) . "]</cyan>");
-
-
 
                     $question = new ConfirmationQuestion("  |  '- Dependencies will not be satisfied. Continue ? [y|N] ", false);
                     $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
