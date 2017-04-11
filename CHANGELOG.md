@@ -1,5 +1,5 @@
 # v1.2.2
-## 04/xx/2017
+## 04/11/2017
 
 1. [](#bugfix)
     * Fix for redirects breaking [#1420](https://github.com/getgrav/grav/issues/1420)
