@@ -390,9 +390,9 @@ class Pages
                 $config = $this->grav['config'];
 
                 // See if route matches one in the site configuration
-                $route = $config->get("site.routes.{$route}");
-                if ($route) {
-                    $page = $this->dispatch($route, $all);
+                $site_route = $config->get("site.routes.{$route}");
+                if ($site_route) {
+                    $page = $this->dispatch($site_route, $all);
                 } else {
                     // Try Regex style redirects
                     $uri = $this->grav['uri'];
