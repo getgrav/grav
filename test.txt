@@ -40,3 +40,4 @@
 * Force rebuild for Grav 1.2.0
 * Force rebuild for Gimme
 * Force rebuild for Grav Admin 1.3.1
+* Force rebuild for Grav Admin 1.3.3
