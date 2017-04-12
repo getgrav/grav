@@ -110,7 +110,7 @@ Good pull requests - patches, improvements, new features - are a fantastic
 help. They should remain focused in scope and avoid containing unrelated
 commits.
 
-**Please ask first** in Gitter or in the Forum before embarking on any significant pull request (e.g.
+**Please ask first** in [Slack](https://getgrav.org/slack) or in the Forum before embarking on any significant pull request (e.g.
 implementing features, refactoring code..),
 otherwise you risk spending a lot of time working on something that the
 project's developers might not want to merge into the project.

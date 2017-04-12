@@ -41,6 +41,7 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
+            'loading' => '',
             'group'    => 'head',
             'modified' => false
         ], reset($array));
@@ -56,6 +57,7 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
+            'loading' => '',
             'group'    => 'head',
             'modified' => false
         ], reset($array));
@@ -73,6 +75,7 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
+            'loading' => '',
             'group'    => 'head',
             'modified' => false
         ], reset($array));
@@ -90,6 +93,7 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
+            'loading' => '',
             'group'    => 'head',
             'modified' => false
         ], reset($array));
@@ -133,6 +137,7 @@ class AssetsTest extends \Codeception\TestCase\Test
             'priority' => 10,
             'order'    => 0,
             'pipeline' => true,
+            'loading' => '',
             'group'    => 'footer',
             'modified' => false
         ], reset($array));
@@ -191,6 +196,22 @@ class AssetsTest extends \Codeception\TestCase\Test
             'group'    => 'head',
             'modified' => false
         ], reset($array));
+
+        //Test inline
+        $this->assets->reset();
+        $this->assets->addJs('/system/assets/jquery/jquery-2.x.min.js', null, true, 'inline', null);
+        $js = $this->assets->js();
+        $this->assertContains('jQuery Foundation', $js);
+
+        $this->assets->reset();
+        $this->assets->addCss('/system/assets/debugger.css', null, true, null, 'inline');
+        $css = $this->assets->css();
+        $this->assertContains('div.phpdebugbar', $css);
+
+        $this->assets->reset();
+        $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', null, true, null, 'inline');
+        $css = $this->assets->css();
+        $this->assertContains('font-family: \'Roboto\';', $css);
 
         //Test adding media queries
         $this->assets->reset();
@@ -334,6 +355,24 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertContains('<link href=', $css);
         $this->assertContains('type="text/css" rel="stylesheet" />', $css);
         $this->assertContains($this->assets->getTimestamp(), $css);
+    }
+
+    public function testInlinePipeline()
+    {
+        $this->assets->reset();
+
+        //File not existing. Pipeline searches for that file without reaching it. Output is empty.
+        $this->assets->add('test.css', null, true);
+        $this->assets->setCssPipeline(true);
+        $css = $this->assets->css('head', ['loading' => 'inline']);
+        $this->assertSame('', $css);
+
+        //Add a core Grav CSS file, which is found. Pipeline will now return its content.
+        $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', null, true);
+        $this->assets->add('/system/assets/debugger.css', null, true);
+        $css = $this->assets->css('head', ['loading' => 'inline']);
+        $this->assertContains('font-family:\'Roboto\';', $css);
+        $this->assertContains('div.phpdebugbar', $css);
     }
 
     public function testAddAsyncJs()

@@ -80,7 +80,7 @@ class InstallCommand extends ConsoleCommand
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'The package(s) that are desired to be installed. Use the "index" command for a list of packages'
+                'Package(s) to install. Use "bin/gpm index" to list packages. Use "bin/gpm direct-install" to install a specific version'
             )
             ->setDescription("Performs the installation of plugins and themes")
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
@@ -563,6 +563,7 @@ class InstallCommand extends ConsoleCommand
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $this->tmp = $tmp_dir . '/Grav-' . uniqid();
         $filename = $package->slug . basename($package->zipball_url);
+        $filename = preg_replace('/[\\\\\/:"*?&<>|]+/mi', '-', $filename);
         $query = '';
 
         if ($package->premium) {

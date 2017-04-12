@@ -292,35 +292,85 @@ class Pages
     }
 
     /**
+     * Get a page ancestor.
+     *
+     * @param  string $route The relative URL of the page
+     * @param  string $path The relative path of the ancestor folder
+     *
+     * @return Page|null
+     */
+    public function ancestor($route, $path = null)
+    {
+        if (!is_null($path)) {
+
+            $page = $this->dispatch($route, true);
+
+            if ($page->path() == $path) {
+                return $page;
+            } elseif (!$page->parent()->root()) {
+                return $this->ancestor($page->parent()->route(), $path);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a page ancestor trait.
+     *
+     * @param  string $route The relative route of the page
+     * @param  string $field The field name of the ancestor to query for
+     *
+     * @return Page|null
+     */
+    public function inherited($route, $field = null)
+    {
+        if (!is_null($field)) {
+
+            $page = $this->dispatch($route, true);
+
+            $ancestorField = $page->parent()->value('header.' . $field);
+
+            if ($ancestorField != null) {
+                return $page->parent();
+            } elseif (!$page->parent()->root()) {
+                return $this->inherited($page->parent()->route(), $field);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * alias method to return find a page.
      *
-     * @param string $url The relative URL of the page
+     * @param string $route The relative URL of the page
      * @param bool   $all
      *
      * @return Page|null
      */
-    public function find($url, $all = false)
+    public function find($route, $all = false)
     {
-        return $this->dispatch($url, $all, false);
+        return $this->dispatch($route, $all, false);
     }
 
     /**
      * Dispatch URI to a page.
      *
-     * @param string $url The relative URL of the page
+     * @param string $route The relative URL of the page
      * @param bool $all
      *
      * @param bool $redirect
      * @return Page|null
      * @throws \Exception
      */
-    public function dispatch($url, $all = false, $redirect = true)
+    public function dispatch($route, $all = false, $redirect = true)
     {
         // Fetch page if there's a defined route to it.
-        $page = isset($this->routes[$url]) ? $this->get($this->routes[$url]) : null;
+        $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
         // Try without trailing slash
-        if (!$page && Utils::endsWith($url, '/')) {
-            $page = isset($this->routes[rtrim($url, '/')]) ? $this->get($this->routes[rtrim($url, '/')]) : null;
+        if (!$page && Utils::endsWith($route, '/')) {
+            $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
         }
 
         // Are we in the admin? this is important!
@@ -340,13 +390,13 @@ class Pages
                 $config = $this->grav['config'];
 
                 // See if route matches one in the site configuration
-                $route = $config->get("site.routes.{$url}");
-                if ($route) {
-                    $page = $this->dispatch($route, $all);
+                $site_route = $config->get("site.routes.{$route}");
+                if ($site_route) {
+                    $page = $this->dispatch($site_route, $all);
                 } else {
                     // Try Regex style redirects
                     $uri = $this->grav['uri'];
-                    $source_url = $url;
+                    $source_url = $route;
                     $extension = $uri->extension();
                     if (isset($extension) && !Utils::endsWith($uri->url(), $extension)) {
                         $source_url.= '.' . $extension;
