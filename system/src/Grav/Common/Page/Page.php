@@ -1126,7 +1126,7 @@ class Page
      */
     public function childType()
     {
-        return isset($this->header->child_type) ? (string)$this->header->child_type : 'default';
+        return isset($this->header->child_type) ? (string)$this->header->child_type : '';
     }
 
     /**
