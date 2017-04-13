@@ -1092,6 +1092,19 @@ form:
                     validate:
                         type: bool
 
+                username_regex:
+                    type: text
+                    size: large
+                    label: PLUGIN_ADMIN.USERNAME_REGEX
+                    help: PLUGIN_ADMIN.USERNAME_REGEX_HELP
+
+                pwd_regex:
+                    type: text
+                    size: large
+                    label: PLUGIN_ADMIN.PWD_REGEX
+                    help: PLUGIN_ADMIN.PWD_REGEX_HELP
+
+
                 wrapped_site:
                     type: toggle
                     label: PLUGIN_ADMIN.WRAPPED_SITE
