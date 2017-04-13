@@ -225,13 +225,13 @@ class Themes extends Iterator
 
         $registered = stream_get_wrappers();
 
-        $schemes = [
+        $schemes = $config->get("themes.{$name}.streams.schemes", []);
+        $schemes += [
             'theme' => [
                 'type' => 'ReadOnlyStream',
                 'paths' => $locator->findResources("themes://{$name}", false)
             ]
         ];
-        $schemes += $config->get("themes.{$name}.streams.schemes", []);
 
         foreach ($schemes as $scheme => $config) {
             if (isset($config['paths'])) {
