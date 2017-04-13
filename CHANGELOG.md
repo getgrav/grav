@@ -9,6 +9,7 @@
 ## 04/10/2017
 
 1. [](#improved)
+    * Allow `user/accounts.yaml` overrides and implemented more robust theme initialization
     * Added various `ancestor` helper methods in Page and Pages classes [#1362](https://github.com/getgrav/grav/pull/1362)
     * Added new `parents` field and switched Page blueprints to use this
     * Added `isajaxrequest()` Twig function [#1400](https://github.com/getgrav/grav/issues/1400)
