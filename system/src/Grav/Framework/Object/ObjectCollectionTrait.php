@@ -1,8 +1,25 @@
 <?php
-namespace Grav\Common\Collection;
+/**
+ * @package    Grav\Framework\Object
+ *
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
 
+namespace Grav\Framework\Object;
+
+/**
+ * ObjectCollection Trait
+ * @package Grav\Framework\Object
+ */
 trait ObjectCollectionTrait
 {
+    /**
+     * @param array $elements
+     * @return static
+     */
+    abstract public function createFrom(array $elements);
+
     /**
      * Create a copy from this collection by cloning all objects in the collection.
      *

@@ -1,8 +1,20 @@
 <?php
-namespace Grav\Common\Collection;
+/**
+ * @package    Grav\Framework\Collection
+ *
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
+namespace Grav\Framework\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
+/**
+ * General JSON serializable collection.
+ *
+ * @package Grav\Framework\Collection
+ */
 class Collection extends ArrayCollection implements CollectionInterface
 {
     /**

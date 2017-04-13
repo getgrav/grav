@@ -1,10 +1,21 @@
 <?php
-namespace Grav\Common\Object\Storage;
+/**
+ * @package    Grav\Framework\Object\Storage
+ *
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
+namespace Grav\Framework\Object\Storage;
 
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\File\FileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
+/**
+ * FilesystemStorage
+ * @package Grav\Framework\Object\Storage
+ */
 class FilesystemStorage implements StorageInterface
 {
     /**

@@ -1,5 +1,12 @@
 <?php
-namespace Grav\Common\Object;
+/**
+ * @package    Grav\Framework\Object
+ *
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
+namespace Grav\Framework\Object;
 
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
 use RocketTheme\Toolbox\ArrayTraits\Export;
@@ -8,6 +15,7 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
  * Abstract base class for stored objects.
  *
  * @property string $id
+ * @package Grav\Framework\Object
  */
 abstract class AbstractObject implements ObjectInterface
 {
@@ -39,7 +47,7 @@ abstract class AbstractObject implements ObjectInterface
     /**
      * @var string
      */
-    static protected $collectionClass = 'Grav\\Common\\Object\\AbstractObjectCollection';
+    static protected $collectionClass = 'Grav\\Framework\\Object\\AbstractObjectCollection';
 
     /**
      * Properties of the object.

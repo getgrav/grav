@@ -1,12 +1,20 @@
 <?php
-namespace Grav\Common\Object;
+/**
+ * @package    Grav\Framework\Object
+ *
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
 
-use Grav\Common\Object\Storage\StorageInterface;
+namespace Grav\Framework\Object;
+
+use Grav\Framework\Object\Storage\StorageInterface;
 
 /**
- * Abstract base class for stored objects.
+ * Trait for implementing stored objects.
  *
  * @property string $id
+ * @package Grav\Framework\Object
  */
 trait ObjectStorageTrait
 {
@@ -357,9 +365,6 @@ trait ObjectStorageTrait
     {
         return $this->getStorageKey();
     }
-
-
-    //abstract public function setStorageKey(array $keys = []);
 
     /**
      * @return StorageInterface
