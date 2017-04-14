@@ -229,8 +229,8 @@ class PagesTest extends \Codeception\TestCase\Test
     {
         $list = $this->pages->getList();
         $this->assertTrue(is_array($list));
-        $this->assertSame('Home', $list['/']);
-        $this->assertSame('Blog', $list['/blog']);
+        $this->assertSame('&mdash;-&rtrif; Home', $list['/']);
+        $this->assertSame('&mdash;-&rtrif; Blog', $list['/blog']);
     }
 
     public function testGetTypes()
