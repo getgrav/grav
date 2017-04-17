@@ -44,7 +44,7 @@ form:
                 validate:
                   required: false
                   message: PLUGIN_ADMIN.PASSWORD_VALIDATION_MESSAGE
-                  pattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}'
+                  config-pattern@: system.pwd_regex
 
             fullname:
                 type: text

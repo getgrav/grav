@@ -1,3 +1,10 @@
+# v1.2.3
+## 04/xx/2017
+
+1. [](#improved)
+    * Added new `pwd_regex` and `username_regex` system configuration options to allow format modifications
+    * Allow `user/accounts.yaml` overrides and implemented more robust theme initialization
+
 # v1.2.2
 ## 04/11/2017
 

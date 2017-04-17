@@ -504,6 +504,51 @@ class Pages
     }
 
     /**
+     * Get available parents raw routes.
+     *
+     * @return array
+     */
+    public static function parentsRawRoutes()
+    {
+        $rawRoutes = true;
+
+        return self::getParents($rawRoutes);
+    }
+
+    /**
+     * Get available parents routes
+     *
+     * @param bool $rawRoutes get the raw route or the normal route
+     *
+     * @return array
+     */
+    private static function getParents($rawRoutes)
+    {
+        $grav = Grav::instance();
+
+        /** @var Pages $pages */
+        $pages = $grav['pages'];
+
+        $parents = $pages->getList(null, 0, $rawRoutes);
+
+        if (isset($grav['admin'])) {
+            // Remove current route from parents
+
+            /** @var Admin $admin */
+            $admin = $grav['admin'];
+
+            $page = $admin->getPage($admin->route);
+            $page_route = $page->route();
+            if (isset($parents[$page_route])) {
+                unset($parents[$page_route]);
+            }
+
+        }
+
+        return $parents;
+    }
+
+    /**
      * Get list of route/title of all pages.
      *
      * @param Page $current
@@ -514,7 +559,7 @@ class Pages
      *
      * @throws \RuntimeException
      */
-    public function getList(Page $current = null, $level = 0, $rawRoutes = false)
+    public function getList(Page $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $limitLevels = false)
     {
         if (!$current) {
             if ($level) {
@@ -532,11 +577,27 @@ class Pages
             } else {
                 $route = $current->route();
             }
-            $list[$route] = str_repeat('&nbsp; ', ($level - 1) * 2) . $current->title();
+
+            if ($showFullpath) {
+                $option = $current->route();
+            } else {
+                $extra  = $showSlug ? '(' . $current->slug() . ') ' : '';
+                $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . $current->title();
+
+
+            }
+
+            $list[$route] = $option;
+
+
         }
 
-        foreach ($current->children() as $next) {
-            $list = array_merge($list, $this->getList($next, $level + 1, $rawRoutes));
+        if ($limitLevels == false || ($level+1 < $limitLevels)) {
+            foreach ($current->children() as $next) {
+                if ($showAll || $next->routable()) {
+                    $list = array_merge($list, $this->getList($next, $level + 1, $rawRoutes, $showAll, $showFullpath, $showSlug, $limitLevels));
+                }
+            }
         }
 
         return $list;
@@ -683,50 +744,7 @@ class Pages
         return self::getParents($rawRoutes);
     }
 
-    /**
-     * Get available parents raw routes.
-     *
-     * @return array
-     */
-    public static function parentsRawRoutes()
-    {
-        $rawRoutes = true;
 
-        return self::getParents($rawRoutes);
-    }
-
-    /**
-     * Get available parents routes
-     *
-     * @param bool $rawRoutes get the raw route or the normal route
-     *
-     * @return array
-     */
-    private static function getParents($rawRoutes)
-    {
-        $grav = Grav::instance();
-
-        /** @var Pages $pages */
-        $pages = $grav['pages'];
-
-        $parents = $pages->getList(null, 0, $rawRoutes);
-
-        if (isset($grav['admin'])) {
-            // Remove current route from parents
-
-            /** @var Admin $admin */
-            $admin = $grav['admin'];
-
-            $page = $admin->getPage($admin->route);
-            $page_route = $page->route();
-            if (isset($parents[$page_route])) {
-                unset($parents[$page_route]);
-            }
-
-        }
-
-        return $parents;
-    }
 
     /**
      * Gets the home route
