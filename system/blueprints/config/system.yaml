@@ -74,9 +74,12 @@ form:
                         type: string
 
                 pages.dateformat.short:
-                    type: dateformat
+                    type: select
                     size: medium
+                    selectize:
+                        create: true
                     classes: fancy
+                    dateformat: true
                     label: PLUGIN_ADMIN.SHORT_DATE_FORMAT
                     help: PLUGIN_ADMIN.SHORT_DATE_FORMAT_HELP
                     default: "jS M Y"
@@ -88,9 +91,12 @@ form:
                         "jS M Y": Date5
 
                 pages.dateformat.long:
-                    type: dateformat
+                    type: select
                     size: medium
+                    selectize:
+                        create: true
                     classes: fancy
+                    dateformat: true
                     label: PLUGIN_ADMIN.LONG_DATE_FORMAT
                     help: PLUGIN_ADMIN.LONG_DATE_FORMAT_HELP
                     options:
