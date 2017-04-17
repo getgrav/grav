@@ -72,6 +72,7 @@ form:
                   label: PLUGIN_ADMIN.PUBLISHED_DATE
                   toggleable: true
                   help: PLUGIN_ADMIN.PUBLISHED_DATE_HELP
+                  default: now
 
                 header.unpublish_date:
                   type: datetime
