@@ -1,3 +1,9 @@
+# v1.2.4
+## 04/xx/2017
+
+1. [](#bugfix)
+    * Allow multiple calls to `Themes::initTheme()` without throwing errors
+
 # v1.2.3
 ## 04/19/2017
 
