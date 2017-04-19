@@ -930,6 +930,14 @@ class Page
         }
 
         $this->_action = 'move';
+
+        if ($this->route() == $parent->route()) {
+            throw new Exception('Failed: Cannot set page parent to self');
+        }
+        if (Utils::startsWith($parent->rawRoute(), $this->rawRoute())) {
+            throw new Exception('Failed: Cannot set page parent to a child of current page');
+        }
+
         $this->parent($parent);
         $this->id(time() . md5($this->filePath()));
 
@@ -1126,7 +1134,7 @@ class Page
      */
     public function childType()
     {
-        return isset($this->header->child_type) ? (string)$this->header->child_type : 'default';
+        return isset($this->header->child_type) ? (string)$this->header->child_type : '';
     }
 
     /**

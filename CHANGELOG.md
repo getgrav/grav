@@ -1,3 +1,12 @@
+# v1.2.3
+## 04/19/2017
+
+1. [](#improved)
+    * Added new `pwd_regex` and `username_regex` system configuration options to allow format modifications
+    * Allow `user/accounts.yaml` overrides and implemented more robust theme initialization
+    * improved `getList()` method to do more powerful things
+    * Fix Typo in GPM [#1427](https://github.com/getgrav/grav/issues/1427)
+ 
 # v1.2.2
 ## 04/11/2017
 
