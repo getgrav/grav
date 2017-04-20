@@ -312,7 +312,7 @@ class Twig
      * @return string the rendered output
      * @throws \RuntimeException
      */
-    public function processSite($format = null)
+    public function processSite($format = null, array $vars = [])
     {
         // set the page now its been processed
         $this->grav->fireEvent('onTwigSiteVariables');
@@ -340,7 +340,7 @@ class Twig
         $template = $this->template($page->template() . $ext);
 
         try {
-            $output = $this->twig->render($template, $twig_vars);
+            $output = $this->twig->render($template, $vars + $twig_vars);
         } catch (\Twig_Error_Loader $e) {
             $error_msg = $e->getMessage();
             // Try html version of this template if initial template was NOT html
