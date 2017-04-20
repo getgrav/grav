@@ -3,7 +3,8 @@
 
 1. [](#bugfix)
     * Allow multiple calls to `Themes::initTheme()` without throwing errors
-
+    * Fixed querystrings in root pages with multi-lang enabled [#1436](https://github.com/getgrav/grav/issues/1436)
+    
 # v1.2.3
 ## 04/19/2017
 
