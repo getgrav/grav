@@ -8,6 +8,9 @@
 
 namespace Grav\Common;
 
+/**
+ * @deprecated Remove in Grav 2.0
+ */
 trait GravTrait
 {
     protected static $grav;
@@ -20,6 +23,10 @@ trait GravTrait
         if (!self::$grav) {
             self::$grav = Grav::instance();
         }
+
+        $caller = self::$grav['debugger']->getCaller();
+        self::$grav['debugger']->addMessage("Deprecated GravTrait used in {$caller['file']}", 'deprecated');
+
         return self::$grav;
     }
 }

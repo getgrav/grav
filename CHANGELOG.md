@@ -15,6 +15,7 @@
     * Added `Grav\Framework\Collection` classes for creating collections
     * Added `Grav\Framework\ContentBlock` classes which add better support for nested HTML blocks with assets
     * Added `Grav\Framework\Object` classes to support general objects and their collections
+    * Deprecated GravTrait
 1. [](#improved)
     * Improve error handling in Folder::move()
     * Added extra parameter for Twig::processSite() to include custom context
