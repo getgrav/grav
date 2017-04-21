@@ -10,7 +10,7 @@ namespace Grav\Common\Processors;
 
 use Grav\Common\Grav;
 
-class ProcessorBase
+abstract class ProcessorBase
 {
     /**
      * @var Grav
