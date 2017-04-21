@@ -5,6 +5,19 @@
     * Allow multiple calls to `Themes::initTheme()` without throwing errors
     * Fixed querystrings in root pages with multi-lang enabled [#1436](https://github.com/getgrav/grav/issues/1436)
     
+# Feature/Objects Branch
+## xx/xx/2017
+
+1. [](#new)
+    * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
+    * Added support for custom output providers like Slim Framework
+    * Added `Grav\Framework\Collection` classes for creating collections
+    * Added `Grav\Framework\ContentBlock` classes which add better support for nested HTML blocks with assets
+    * Added `Grav\Framework\Object` classes to support general objects and their collections
+1. [](#improved)
+    * Improve error handling in Folder::move()
+    * Added extra parameter for Twig::processSite() to include custom context
+
 # v1.2.3
 ## 04/19/2017
 
