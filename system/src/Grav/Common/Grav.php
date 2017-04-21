@@ -127,10 +127,16 @@ class Grav extends Container
             });
         }
 
-        // Set the header type
-        $this->header();
+        $output = $this->output;
 
-        echo $this->output;
+        // Support for custom output providers like Slim Framework.
+        if (!$output instanceof \Psr\Http\Message\ResponseInterface) {
+            // Set the header type
+            $this->header();
+
+            echo $output;
+        }
+
         $debugger->render();
 
         $this->fireEvent('onOutputRendered');
