@@ -1,6 +1,8 @@
 # v1.2.4
 ## 04/xx/2017
 
+1. [](#improved)
+    * Add timestamp to configuration settings [#1445](https://github.com/getgrav/grav/pull/1445)
 1. [](#bugfix)
     * Allow multiple calls to `Themes::initTheme()` without throwing errors
     * Fixed querystrings in root pages with multi-lang enabled [#1436](https://github.com/getgrav/grav/issues/1436)
