@@ -12,12 +12,13 @@ form:
             fields:
                 home.alias:
                     type: pages
-                    size: medium
+                    size: large
                     classes: fancy
                     label: PLUGIN_ADMIN.HOME_PAGE
                     show_all: false
                     show_modular: false
                     show_root: false
+                    show_slug: true
                     help: PLUGIN_ADMIN.HOME_PAGE_HELP
 
                 home.hide_in_urls:
