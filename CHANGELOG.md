@@ -1,5 +1,5 @@
 # v1.2.4
-## 04/xx/2017
+## 04/24/2017
 
 1. [](#improved)
     * Added optional ignores for `Installer::sophisticatedInstall()` [#1447](https://github.com/getgrav/grav/issues/1447)  
