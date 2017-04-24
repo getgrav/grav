@@ -1,3 +1,9 @@
+# v1.2.5
+## 04/xx/2017
+
+1. [](#bugfix)
+    * Fix to force route/redirect matching from the start of the route by default [1446](https://github.com/getgrav/grav/issues/1446)
+
 # v1.2.4
 ## 04/24/2017
 
