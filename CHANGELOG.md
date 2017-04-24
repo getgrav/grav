@@ -1,3 +1,13 @@
+# v1.2.4
+## 04/24/2017
+
+1. [](#improved)
+    * Added optional ignores for `Installer::sophisticatedInstall()` [#1447](https://github.com/getgrav/grav/issues/1447)  
+1. [](#bugfix)
+    * Allow multiple calls to `Themes::initTheme()` without throwing errors
+    * Fixed querystrings in root pages with multi-lang enabled [#1436](https://github.com/getgrav/grav/issues/1436)
+    * Allow support for `Pages::getList()` with `show_modular` option [#1080](https://github.com/getgrav/grav-plugin-admin/issues/1080)
+    
 # v1.2.3
 ## 04/19/2017
 

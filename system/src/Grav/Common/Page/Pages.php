@@ -552,14 +552,17 @@ class Pages
      * Get list of route/title of all pages.
      *
      * @param Page $current
-     * @param int  $level
+     * @param int $level
      * @param bool $rawRoutes
      *
+     * @param bool $showAll
+     * @param bool $showFullpath
+     * @param bool $showSlug
+     * @param bool $showModular
+     * @param bool $limitLevels
      * @return array
-     *
-     * @throws \RuntimeException
      */
-    public function getList(Page $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $limitLevels = false)
+    public function getList(Page $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $showModular = false, $limitLevels = false)
     {
         if (!$current) {
             if ($level) {
@@ -594,8 +597,8 @@ class Pages
 
         if ($limitLevels == false || ($level+1 < $limitLevels)) {
             foreach ($current->children() as $next) {
-                if ($showAll || $next->routable()) {
-                    $list = array_merge($list, $this->getList($next, $level + 1, $rawRoutes, $showAll, $showFullpath, $showSlug, $limitLevels));
+                if ($showAll || $next->routable() || ($next->modular() && $showModular)) {
+                    $list = array_merge($list, $this->getList($next, $level + 1, $rawRoutes, $showAll, $showFullpath, $showSlug, $showModular, $limitLevels));
                 }
             }
         }
