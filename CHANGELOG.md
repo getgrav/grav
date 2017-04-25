@@ -1,6 +1,8 @@
 # v1.2.5
 ## 04/xx/2017
 
+1. [](#improved)
+    * Add timestamp to configuration settings [#1445](https://github.com/getgrav/grav/pull/1445)
 1. [](#bugfix)
     * Fix to force route/redirect matching from the start of the route by default [1446](https://github.com/getgrav/grav/issues/1446)
 

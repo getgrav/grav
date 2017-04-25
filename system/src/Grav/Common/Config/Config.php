@@ -17,6 +17,7 @@ class Config extends Data
 {
     protected $checksum;
     protected $modified = false;
+    protected $timestamp = 0;
 
     public function key()
     {
@@ -39,6 +40,15 @@ class Config extends Data
         }
 
         return $this->modified;
+    }
+
+    public function timestamp($timestamp = null)
+    {
+        if ($timestamp !== null) {
+            $this->timestamp = $timestamp;
+        }
+
+        return $this->timestamp;
     }
 
     public function reload()
