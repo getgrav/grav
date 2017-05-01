@@ -7,7 +7,7 @@ fastcgi / 127.0.0.1:9000 php
 # Begin - Security
 # deny all direct access for these folders
 rewrite {
-    r       /(.git|cache|bin|logs|backups|tests)/.*$
+    r       /(\.git|cache|bin|logs|backups|tests)/.*$
     status  403
 }
 # deny running scripts inside core system folders
@@ -22,7 +22,7 @@ rewrite {
 }
 # deny access to specific files in the root folder
 rewrite {
-    r       /(LICENSE.txt|composer.lock|composer.json|nginx.conf|web.config|htaccess.txt|\.htaccess)
+    r       /(LICENSE\.txt|composer\.lock|composer\.json|nginx\.conf|web\.config|htaccess\.txt|\.htaccess)
     status  403
 }
 ## End - Security
