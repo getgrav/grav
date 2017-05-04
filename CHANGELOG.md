@@ -5,6 +5,7 @@
     * Add more controls over HTML5 video attributes (autoplay, poster, loop controls) [#1442](https://github.com/getgrav/grav/pull/1442)
 1. [](#bugfix)
     * Fix to force route/redirect matching from the start of the route by default [#1446](https://github.com/getgrav/grav/issues/1446)
+    * Edit check for valid slug [#1459](https://github.com/getgrav/grav/issues/1459)
 
 # v1.2.4
 ## 04/24/2017

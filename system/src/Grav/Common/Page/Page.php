@@ -1497,7 +1497,7 @@ class Page
     {
         if ($var !== null && $var !== "") {
             $this->slug = $var;
-            if (!preg_match('/^[a-z0-9][-a-z0-9]*$/', $this->slug)) {
+            if (!preg_match('/^[a-zA-Zа-яA-Я0-9][a-zA-Zа-яA-Я0-9_\-]*$/', $this->slug)) {
                 Grav::instance()['log']->notice("Invalid slug set in YAML frontmatter: " . $this->rawRoute() . " => " . $this->slug);
             }
         }
