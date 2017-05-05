@@ -16,7 +16,10 @@ use Grav\Framework\Collection\Collection;
  */
 abstract class AbstractObjectCollection extends Collection implements ObjectCollectionInterface, StoredObjectInterface
 {
-    use ObjectCollectionTrait, ObjectStorageTrait;
+    use ObjectStorageTrait {
+        getId as getParentId;
+    }
+    use ObjectCollectionTrait;
 
     protected $id;
 
@@ -27,6 +30,6 @@ abstract class AbstractObjectCollection extends Collection implements ObjectColl
 
     public function getId()
     {
-        return $this->id;
+        return $this->id ?: $this->getParentId();
     }
 }

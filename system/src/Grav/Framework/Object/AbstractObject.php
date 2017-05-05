@@ -115,14 +115,6 @@ abstract class AbstractObject implements ObjectInterface, StoredObjectInterface
     }
 
     /**
-     * @return string
-     */
-    public function getId()
-    {
-        return implode('-', $this->getKeys());
-    }
-
-    /**
      * @return ObjectFinderInterface
      */
     static public function search()
