@@ -14,7 +14,7 @@ use Grav\Framework\Collection\Collection;
  * Abstract Object Collection
  * @package Grav\Framework\Object
  */
-abstract class AbstractObjectCollection extends Collection implements ObjectCollectionInterface
+abstract class AbstractObjectCollection extends Collection implements ObjectCollectionInterface, StoredObjectInterface
 {
     use ObjectCollectionTrait, ObjectStorageTrait;
 

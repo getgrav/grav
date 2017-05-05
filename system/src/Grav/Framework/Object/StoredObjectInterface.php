@@ -12,7 +12,7 @@ namespace Grav\Framework\Object;
  * Stored Object Interface
  * @package Grav\Framework\Object
  */
-interface StoredObjectInterface extends ObjectInterface
+interface StoredObjectInterface
 {
 
     /**
