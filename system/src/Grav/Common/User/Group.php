@@ -29,6 +29,22 @@ class Group extends Data
     }
 
     /**
+     * Get the groups list
+     *
+     * @return array
+     */
+    public static function groupNames()
+    {
+        $groups = [];
+
+        foreach(Grav::instance()['config']->get('groups') as $groupname => $group) {
+            $groups[$groupname] = isset($group['readableName']) ? $group['readableName'] : $groupname;
+        }
+
+        return $groups;
+    }
+
+    /**
      * Checks if a group exists
      *
      * @param string $groupname
