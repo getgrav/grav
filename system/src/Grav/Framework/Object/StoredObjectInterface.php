@@ -44,9 +44,10 @@ interface StoredObjectInterface
      *
      * Before saving the object, this method checks if object can be safely saved.
      *
+     * @param bool $includeChildren
      * @return  boolean  True on success.
      */
-    public function save();
+    public function save($includeChildren = false);
 
     /**
      * Method to delete the object from the database.
