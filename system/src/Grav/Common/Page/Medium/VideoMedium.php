@@ -31,6 +31,75 @@ class VideoMedium extends Medium
     }
 
     /**
+     * Allows to set or remove the HTML5 default controls
+     *
+     * @param bool $display
+     * @return $this
+     */
+    public function controls($display = true)
+    {
+        if($display)
+        {
+            $this->attributes['controls'] = true;
+        }
+        else
+        {
+            unset($this->attributes['controls']);
+        }
+        return $this;
+    }
+
+    /**
+     * Allows to set the video's poster image
+     *
+     * @param $urlImage
+     * @return $this
+     */
+    public function poster($urlImage)
+    {
+        $this->attributes['poster'] = $urlImage;
+        return $this;
+    }
+
+    /**
+     * Allows to set the loop attribute
+     *
+     * @param bool $status
+     * @return $this
+     */
+    public function loop($status = false)
+    {
+        if($status)
+        {
+            $this->attributes['loop'] = true;
+        }
+        else
+        {
+            unset($this->attributes['loop']);
+        }
+        return $this;
+    }
+
+    /**
+     * Allows to set the autoplay attribute
+     *
+     * @param bool $status
+     * @return $this
+     */
+    public function autoplay($status = false)
+    {
+        if($status)
+        {
+            $this->attributes['autoplay'] = true;
+        }
+        else
+        {
+            unset($this->attributes['autoplay']);
+        }
+        return $this;
+    }
+
+    /**
      * Reset medium.
      *
      * @return $this
