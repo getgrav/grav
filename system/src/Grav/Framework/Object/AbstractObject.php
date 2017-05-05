@@ -17,7 +17,7 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
  * @property string $id
  * @package Grav\Framework\Object
  */
-abstract class AbstractObject implements ObjectInterface
+abstract class AbstractObject implements StoredObjectInterface
 {
     use ObjectStorageTrait {
         check as traitcheck;

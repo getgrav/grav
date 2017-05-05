@@ -20,7 +20,7 @@ interface ObjectInterface extends \ArrayAccess, \JsonSerializable
      * Note that using array of fields will always make a query, but it's very useful feature if you want to search one
      * item by using arbitrary set of matching fields. If there are more than one matching object, first one gets returned.
      *
-     * @param  int|array $keys An optional primary key value to load the object by, or an array of fields to match.
+     * @param  null|int|string|array $keys An optional primary key value to load the object by, or an array of fields to match.
      * @param  boolean $reload Force object to reload.
      *
      * @return  Object
@@ -37,7 +37,7 @@ interface ObjectInterface extends \ArrayAccess, \JsonSerializable
     /**
      * Removes all or selected instances from the object cache.
      *
-     * @param null|int|array $ids An optional primary key or list of keys.
+     * @param null|int|string|array $ids An optional primary key or list of keys.
      */
     static public function freeInstances($ids = null);
 
@@ -49,46 +49,6 @@ interface ObjectInterface extends \ArrayAccess, \JsonSerializable
      * @return bool True if initialization was done, false if object was already initialized.
      */
     public function initialize();
-
-    /**
-     * Convert instance to a read only object.
-     *
-     * @return $this
-     */
-    public function readonly();
-
-    /**
-     * Returns true if the object exists in the storage.
-     *
-     * @return  boolean  True if object exists.
-     */
-    public function isSaved();
-
-    /**
-     * Method to load object from the storage.
-     *
-     * @param   mixed $keys An optional primary key value to load the object by, or an array of fields to match. If not
-     *                           set the instance key value is used.
-     *
-     * @return  boolean  True on success, false if the object doesn't exist.
-     */
-    public function load($keys = null);
-
-    /**
-     * Method to save the object to the storage.
-     *
-     * Before saving the object, this method checks if object can be safely saved.
-     *
-     * @return  boolean  True on success.
-     */
-    public function save();
-
-    /**
-     * Method to delete the object from the database.
-     *
-     * @return boolean True on success.
-     */
-    public function delete();
 
     /**
      * Method to perform sanity checks on the instance properties to ensure they are safe to store in the storage.

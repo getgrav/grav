@@ -26,23 +26,27 @@ class FilesystemStorage implements StorageInterface
     /**
      * @var string
      */
-    protected $type;
+    protected $type = 'Grav\\Common\\File\\CompiledJsonFile';
 
     /**
      * @var string
      */
-    protected $extension;
+    protected $extension = '.json';
 
     /**
      * @param string $path
      * @param string $extension
      * @param string $type
      */
-    public function __construct($path, $type = 'Grav\\Common\\File\\CompiledJsonFile', $extension = '.json')
+    public function __construct($path, $type = null, $extension = null)
     {
         $this->path = $path;
-        $this->type = $type;
-        $this->extension = $extension;
+        if ($type) {
+            $this->type = $type;
+        }
+        if ($extension) {
+            $this->extension = $extension;
+        }
     }
 
     /**
@@ -112,7 +116,7 @@ class FilesystemStorage implements StorageInterface
     {
         $results = [];
         foreach ($list as $id) {
-            $results[$id] = $this->load(['id' => $id]);
+            $results[$id] = $this->load($id);
         }
 
         return $results;
@@ -147,7 +151,7 @@ class FilesystemStorage implements StorageInterface
     protected function getFile($key)
     {
         if ($key === null) {
-            throw new \RuntimeException('Id not defined');
+            throw new \RuntimeException('Storage key not defined');
         }
 
         $filename = "{$this->path}/{$key}{$this->extension}";

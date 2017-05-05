@@ -29,7 +29,7 @@ interface StorageInterface
     /**
      * @param string $key
      * @param array $data
-     * @return mixed
+     * @return string
      */
     public function save($key, array $data);
 
