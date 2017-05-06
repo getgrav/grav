@@ -13,6 +13,7 @@ use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Uri;
+use Grav\Common\Browser;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class TwigExtension extends \Twig_Extension
@@ -118,6 +119,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFunction('get_cookie', [$this, 'getCookie']),
             new \Twig_SimpleFunction('redirect_me', [$this, 'redirectFunc']),
+            new \Twig_SimpleFunction('ishuman', [$this, 'isHuman']),
             new \Twig_SimpleFunction('range', [$this, 'rangeFunc']),
             new \Twig_SimpleFunction('isajaxrequest', [$this, 'isAjaxFunc']),
         ];
@@ -878,6 +880,17 @@ class TwigExtension extends \Twig_Extension
     {
         header('Location: ' . $url, true, $statusCode);
         die();
+    }
+
+    /**
+     * detect (in)humane agent
+     *
+     * @return true if human, otherwise false
+     */
+    public function isHuman()
+    {
+        $agent = new Browser;
+        return $agent->isHuman();
     }
 
     /**
