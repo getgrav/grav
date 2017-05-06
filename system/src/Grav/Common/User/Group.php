@@ -37,7 +37,7 @@ class Group extends Data
     {
         $groups = [];
 
-        foreach(Grav::instance()['config']->get('groups') as $groupname => $group) {
+        foreach(Grav::instance()['config']->get('groups', []) as $groupname => $group) {
             $groups[$groupname] = isset($group['readableName']) ? $group['readableName'] : $groupname;
         }
 
