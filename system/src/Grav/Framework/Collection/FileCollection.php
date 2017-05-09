@@ -127,7 +127,7 @@ class FileCollection extends AbstractLazyCollection
 
     /**
      * @param Criteria $criteria
-     * @return Collection
+     * @return ArrayCollection
      * @todo Implement lazy matching
      */
     public function matching(Criteria $criteria)
@@ -162,7 +162,7 @@ class FileCollection extends AbstractLazyCollection
             $filtered = array_slice($filtered, (int)$offset, $length);
         }
 
-        return new Collection($filtered);
+        return new ArrayCollection($filtered);
     }
 
     /**
@@ -173,7 +173,7 @@ class FileCollection extends AbstractLazyCollection
         $filtered = $this->doInitializeByIterator($this->iterator, $this->nestingLimit);
         ksort($filtered);
 
-        $this->collection = new Collection($filtered);
+        $this->collection = new ArrayCollection($filtered);
     }
 
     protected function doInitializeByIterator(\SeekableIterator $iterator, $nestingLimit)

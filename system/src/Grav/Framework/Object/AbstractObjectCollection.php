@@ -8,13 +8,13 @@
 
 namespace Grav\Framework\Object;
 
-use Grav\Framework\Collection\Collection;
+use Grav\Framework\Collection\ArrayCollection;
 
 /**
  * Abstract Object Collection
  * @package Grav\Framework\Object
  */
-abstract class AbstractObjectCollection extends Collection implements ObjectCollectionInterface, StoredObjectInterface
+abstract class AbstractObjectCollection extends ArrayCollection implements ObjectCollectionInterface, StoredObjectInterface
 {
     use ObjectStorageTrait {
         getId as getParentId;

@@ -20,7 +20,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     /**
      * The backed collection to use
      *
-     * @var Collection
+     * @var ArrayCollection
      */
     protected $collection;
 

@@ -8,14 +8,14 @@
 
 namespace Grav\Framework\Collection;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\ArrayCollection as BaseArrayCollection;
 
 /**
  * General JSON serializable collection.
  *
  * @package Grav\Framework\Collection
  */
-class Collection extends ArrayCollection implements CollectionInterface
+class ArrayCollection extends BaseArrayCollection implements CollectionInterface
 {
     /**
      * Reverse the order of the items.
