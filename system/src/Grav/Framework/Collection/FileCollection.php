@@ -26,6 +26,11 @@ class FileCollection extends AbstractLazyCollection
     const RECURSIVE = 4;
 
     /**
+     * @var string
+     */
+    protected $path;
+
+    /**
      * @var \RecursiveDirectoryIterator|RecursiveUniformResourceIterator
      */
     protected $iterator;
@@ -56,25 +61,50 @@ class FileCollection extends AbstractLazyCollection
      */
     public function __construct($path, $flags = null)
     {
-        $this->setIterator($path);
+        $this->path = $path;
         $this->flags = (int) ($flags ?: FileCollection::INCLUDE_FILES | FileCollection::INCLUDE_FOLDERS | FileCollection::RECURSIVE);
 
+        $this->setIterator();
         $this->setFilter();
         $this->setObjectBuilder();
         $this->setNestingLimit();
     }
 
-    public function setIterator($path)
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFlags()
+    {
+        return $this->flags;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNestingLimit()
+    {
+        return $this->nestingLimit;
+    }
+
+    public function setIterator()
     {
         $iteratorFlags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS
             + \FilesystemIterator::CURRENT_AS_SELF + \FilesystemIterator::FOLLOW_SYMLINKS;
 
-        if (strpos($path, '://')) {
+        if (strpos($this->path, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            $this->iterator = $locator->getRecursiveIterator($path, $iteratorFlags);
+            $this->iterator = $locator->getRecursiveIterator($this->path, $iteratorFlags);
         } else {
-            $this->iterator = new \RecursiveDirectoryIterator($path, $iteratorFlags);
+            $this->iterator = new \RecursiveDirectoryIterator($this->path, $iteratorFlags);
         }
     }
 
