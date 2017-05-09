@@ -25,12 +25,6 @@ abstract class AbstractObject implements ObjectInterface, StoredObjectInterface
     use ArrayAccessWithGetters, Export;
 
     /**
-     * If you don't have global storage, override this in extending class.
-     * @var ObjectFinderInterface
-     */
-    static protected $finder;
-
-    /**
      * Primary key for the object.
      * @var array
      */
@@ -54,14 +48,6 @@ abstract class AbstractObject implements ObjectInterface, StoredObjectInterface
      * @var array
      */
     protected $items;
-
-    /**
-     * @param ObjectFinderInterface $finder
-     */
-    static public function setFinder(ObjectFinderInterface $finder)
-    {
-        static::$finder = $finder;
-    }
 
     /**
      * @param array     $ids        List of primary Ids or null to return everything that has been loaded.
@@ -112,14 +98,6 @@ abstract class AbstractObject implements ObjectInterface, StoredObjectInterface
         }
 
         return new $collectionClass($results);
-    }
-
-    /**
-     * @return ObjectFinderInterface
-     */
-    static public function search()
-    {
-        return static::$finder;
     }
 
     /**

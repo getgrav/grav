@@ -44,18 +44,4 @@ interface StorageInterface
      * @return array
      */
     public function loadList(array $list);
-
-    /**
-     * @param array $query
-     * @return int
-     */
-    public function count(array $query);
-
-    /**
-     * @param array $query
-     * @param int   $start
-     * @param int   $limit
-     * @return string[]
-     */
-    public function find(array $query, $start = 0, $limit = 0);
 }

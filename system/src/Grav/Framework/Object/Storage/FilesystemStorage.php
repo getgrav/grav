@@ -123,28 +123,6 @@ class FilesystemStorage implements StorageInterface
     }
 
     /**
-     * @param array $query
-     * @return int
-     */
-    public function count(array $query)
-    {
-        // TODO
-        return 0;
-    }
-
-    /**
-     * @param array $query
-     * @param int $start
-     * @param int $limit
-     * @return string[]
-     */
-    public function find(array $query, $start = 0, $limit = 0)
-    {
-        // TODO
-        return [];
-    }
-
-    /**
      * @param string $key
      * @return FileInterface
      */
