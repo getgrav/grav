@@ -49,7 +49,7 @@ class Group extends Data
      *
      * @param string $groupname
      *
-     * @return object
+     * @return bool
      */
     public static function groupExists($groupname)
     {

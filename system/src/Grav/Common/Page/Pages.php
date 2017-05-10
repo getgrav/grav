@@ -43,7 +43,12 @@ class Pages
     /**
      * @var string
      */
-    protected $base;
+    protected $base = '';
+
+    /**
+     * @var array|string[]
+     */
+    protected $baseUrl = [];
 
     /**
      * @var array|string[]
@@ -100,7 +105,6 @@ class Pages
     public function __construct(Grav $c)
     {
         $this->grav = $c;
-        $this->base = '';
     }
 
     /**
@@ -115,9 +119,80 @@ class Pages
         if ($path !== null) {
             $path = trim($path, '/');
             $this->base = $path ? '/' . $path : null;
+            $this->baseUrl = [];
         }
 
         return $this->base;
+    }
+
+    /**
+     *
+     * Get base URL for Grav pages.
+     *
+     * @param  string $lang     Optional language code for multilingual links.
+     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     *
+     * @return string
+     */
+    public function baseUrl($lang = null, $absolute = null)
+    {
+        $lang = (string) $lang;
+        $type = $absolute === null ? 'base_url' : ($absolute ? 'base_url_absolute' : 'base_url_relative');
+        $key = "{$lang} {$type}";
+
+        if (!isset($this->baseUrl[$key])) {
+            /** @var Config $config */
+            $config = $this->grav['config'];
+
+            /** @var Language $language */
+            $language = $this->grav['language'];
+
+            if (!$lang) {
+                $lang = $language->getActive();
+            }
+
+            $path_append = rtrim($this->grav['pages']->base(), '/');
+            if ($language->getDefault() != $lang || $config->get('system.languages.include_default_lang') === true) {
+                $path_append .= $lang ? '/' . $lang : '';
+            }
+
+            $this->baseUrl[$key] = $this->grav[$type] . $path_append;
+        }
+
+        return $this->baseUrl[$key];
+    }
+
+    /**
+     *
+     * Get home URL for Grav site.
+     *
+     * @param  string $lang     Optional language code for multilingual links.
+     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     *
+     * @return string
+     */
+    public function homeUrl($lang = null, $absolute = null)
+    {
+        return $this->baseUrl($lang, $absolute) ?: '/';
+    }
+
+    /**
+     *
+     * Get home URL for Grav site.
+     *
+     * @param  string $route    Optional route to the page.
+     * @param  string $lang     Optional language code for multilingual links.
+     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     *
+     * @return string
+     */
+    public function url($route = '/', $lang = null, $absolute = null)
+    {
+        if ($route === '/') {
+            return $this->homeUrl($lang, $absolute);
+        }
+
+        return $this->baseUrl($lang, $absolute) . $route;
     }
 
     /**

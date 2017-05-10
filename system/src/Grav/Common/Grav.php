@@ -116,9 +116,6 @@ class Grav extends Container
      */
     public function process()
     {
-        /** @var Debugger $debugger */
-        $debugger = $this['debugger'];
-
         // process all processors (e.g. config, initialize, assets, ..., render)
         foreach ($this->processors as $processor) {
             $processor = $this[$processor];
@@ -127,13 +124,9 @@ class Grav extends Container
             });
         }
 
-        // Set the header type
-        $this->header();
-
-        echo $this->output;
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
         $debugger->render();
-
-        $this->fireEvent('onOutputRendered');
 
         register_shutdown_function([$this, 'shutdown']);
     }

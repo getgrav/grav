@@ -15,7 +15,22 @@ class RenderProcessor extends ProcessorBase implements ProcessorInterface
 
     public function process()
     {
-        $this->container->output = $this->container['output'];
-        $this->container->fireEvent('onOutputGenerated');
+        $container = $this->container;
+        $output =  $container['output'];
+
+        if ($output instanceof \Psr\Http\Message\ResponseInterface) {
+            // Support for custom output providers like Slim Framework.
+        } else {
+            // Use internal Grav output.
+            $container->output = $output;
+            $container->fireEvent('onOutputGenerated');
+
+            // Set the header type
+            $container->header();
+
+            echo $output;
+        }
+
+        $container->fireEvent('onOutputRendered');
     }
 }

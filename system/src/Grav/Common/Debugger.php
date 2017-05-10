@@ -120,6 +120,13 @@ class Debugger
         return $this;
     }
 
+    public function getCaller($ignore = 2)
+    {
+        $trace = debug_backtrace(false, $ignore);
+
+        return array_pop($trace);
+    }
+
     /**
      * Adds a data collector
      *

@@ -16,6 +16,6 @@ class ConfigurationProcessor extends ProcessorBase implements ProcessorInterface
     public function process()
     {
         $this->container['config']->init();
-        return $this->container['plugins']->setup();
+        $this->container['plugins']->setup();
     }
 }
