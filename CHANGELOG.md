@@ -1,3 +1,12 @@
+# v2.0.0-dev
+## mm/dd/2017
+
+1. [](#new)
+    * Added `Grav\Framework\ContentBlock` classes which add better support for nested HTML blocks with assets
+    * Added `Grav\Framework\Object` classes to support general objects and their collections
+    * Added `Grav\Framework\Page` interfaces 
+    * Deprecated GravTrait
+
 # v1.2.5
 ## mm/dd/2017
 
