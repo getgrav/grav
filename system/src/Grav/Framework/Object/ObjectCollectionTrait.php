@@ -15,12 +15,6 @@ namespace Grav\Framework\Object;
 trait ObjectCollectionTrait
 {
     /**
-     * @param array $elements
-     * @return static
-     */
-    abstract public function createFrom(array $elements);
-
-    /**
      * Create a copy from this collection by cloning all objects in the collection.
      *
      * @return static
@@ -32,7 +26,12 @@ trait ObjectCollectionTrait
             $list[$key] = is_object($value) ? clone $value : $value;
         }
 
-        return $this->createFrom($list);
+        if (method_exists($this, 'createFrom')) {
+            return $this->createFrom($list);
+        } else {
+            // TODO: remove when PHP 5.6 is minimum (with doctrine/collections v1.4).
+            return new static($list);
+        }
     }
 
     /**
