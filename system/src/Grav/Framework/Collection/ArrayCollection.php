@@ -24,7 +24,12 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      */
     public function reverse()
     {
-        return $this->createFrom(array_reverse($this->toArray()));
+        if (method_exists($this, 'createFrom')) {
+            return $this->createFrom(array_reverse($this->toArray()));
+        } else {
+            // TODO: remove when PHP 5.6 is minimum (with doctrine/collections v1.4).
+            return new static(array_reverse($this->toArray()));
+        }
     }
 
     /**
@@ -37,7 +42,12 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
         $keys = $this->getKeys();
         shuffle($keys);
 
-        return $this->createFrom(array_replace(array_flip($keys), $this->toArray()));
+        if (method_exists($this, 'createFrom')) {
+            return $this->createFrom(array_replace(array_flip($keys), $this->toArray()));
+        } else {
+            // TODO: remove when PHP 5.6 is minimum (with doctrine/collections v1.4).
+            return new static(array_replace(array_flip($keys), $this->toArray()));
+        }
     }
 
     /**
