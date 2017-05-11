@@ -14,7 +14,7 @@ use Grav\Framework\Collection\CollectionInterface;
  * ObjectCollection Interface
  * @package Grav\Framework\Collection
  */
-interface ObjectCollectionInterface extends CollectionInterface
+interface ObjectCollectionInterface extends CollectionInterface, ObjectInterface
 {
     /**
      * Create a copy from this collection by cloning all objects in the collection.
@@ -22,6 +22,11 @@ interface ObjectCollectionInterface extends CollectionInterface
      * @return static
      */
     public function copy();
+
+    /**
+     * @return array
+     */
+    public function getObjectKeys();
 
     /**
      * @param string $property      Object property to be fetched.
@@ -42,4 +47,12 @@ interface ObjectCollectionInterface extends CollectionInterface
      * @return array                Return values.
      */
     public function call($name, array $arguments);
+
+    /**
+     * Group items in the collection by a field.
+     *
+     * @param string $property
+     * @return array
+     */
+    public function group($property);
 }
