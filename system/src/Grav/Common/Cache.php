@@ -17,6 +17,7 @@ use RocketTheme\Toolbox\Event\Event;
  * The GravCache object is used throughout Grav to store and retrieve cached data.
  * It uses DoctrineCache library and supports a variety of caching mechanisms. Those include:
  *
+ * APCu
  * APC
  * XCache
  * RedisCache
