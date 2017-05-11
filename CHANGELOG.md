@@ -2,9 +2,10 @@
 ## mm/dd/2017
 
 1. [](#new)
-    * Added `Grav\Framework\ContentBlock` classes which add better support for nested HTML blocks with assets
-    * Added `Grav\Framework\Object` classes to support general objects and their collections
-    * Added `Grav\Framework\Page` interfaces 
+    * Added `Grav\Framework\Cache` classes providing PSR-16 `Simple Cache` implementation
+    * Added `Grav\Framework\ContentBlock` classes for nested HTML blocks with CSS/JS assets
+    * Added `Grav\Framework\Object` classes for creating collections of objects
+    * Added `Grav\Framework\Page` interfaces
     * Deprecated GravTrait
 
 # v1.2.5
