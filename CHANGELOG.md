@@ -13,6 +13,7 @@
 
 1. [](#new)
     * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
+    * Added `base32_encode`, `base32_decode`, `base64_encode`, `base64_decode` Twig filters
     * Added `Debugger::getCaller()` to figure out where the method was called from
     * Added support for custom output providers like Slim Framework
     * Added `Grav\Framework\Collection` classes for creating collections
@@ -20,8 +21,8 @@
     * Add more controls over HTML5 video attributes (autoplay, poster, loop controls) [#1442](https://github.com/getgrav/grav/pull/1442)
     * Removed logging statement for invalid slug [#1459](https://github.com/getgrav/grav/issues/1459)
     * Groups selection pre-filled in user form
-    * Improve error handling in Folder::move()
-    * Added extra parameter for Twig::processSite() to include custom context
+    * Improve error handling in `Folder::move()`
+    * Added extra parameter for `Twig::processSite()` to include custom context
 1. [](#bugfix)
     * Fix to force route/redirect matching from the start of the route by default [#1446](https://github.com/getgrav/grav/issues/1446)
     * Edit check for valid slug [#1459](https://github.com/getgrav/grav/issues/1459)

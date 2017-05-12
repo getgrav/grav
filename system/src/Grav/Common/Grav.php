@@ -235,7 +235,7 @@ class Grav extends Container
 
         // Calculate a Hash based on the raw file
         if ($page->eTag()) {
-            header('ETag: ' . md5($page->raw() . $page->modified()));
+            header('ETag: "' . md5($page->raw() . $page->modified()).'"');
         }
 
         // Set debugger data in headers
