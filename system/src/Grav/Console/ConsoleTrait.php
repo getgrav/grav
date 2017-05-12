@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Console
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -10,7 +10,6 @@ namespace Grav\Console;
 
 use Grav\Common\Grav;
 use Grav\Common\Composer;
-use Grav\Common\GravTrait;
 use Grav\Console\Cli\ClearCacheCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -20,8 +19,6 @@ use Symfony\Component\Yaml\Yaml;
 
 trait ConsoleTrait
 {
-    use GravTrait;
-
     /**
      * @var
      */

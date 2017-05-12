@@ -1,3 +1,21 @@
+# v1.2.5
+## mm/dd/2017
+
+1. [](#new)
+    * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
+    * Added `Debugger::getCaller()` to figure out where the method was called from
+    * Added support for custom output providers like Slim Framework
+    * Added `Grav\Framework\Collection` classes for creating collections
+1. [](#improved)
+    * Add more controls over HTML5 video attributes (autoplay, poster, loop controls) [#1442](https://github.com/getgrav/grav/pull/1442)
+    * Removed logging statement for invalid slug [#1459](https://github.com/getgrav/grav/issues/1459)
+    * Groups selection pre-filled in user form
+    * Improve error handling in `Folder::move()`
+    * Added extra parameter for `Twig::processSite()` to include custom context
+1. [](#bugfix)
+    * Fix to force route/redirect matching from the start of the route by default [#1446](https://github.com/getgrav/grav/issues/1446)
+    * Edit check for valid slug [#1459](https://github.com/getgrav/grav/issues/1459)
+
 # v1.2.4
 ## 04/24/2017
 
@@ -7,7 +25,7 @@
     * Allow multiple calls to `Themes::initTheme()` without throwing errors
     * Fixed querystrings in root pages with multi-lang enabled [#1436](https://github.com/getgrav/grav/issues/1436)
     * Allow support for `Pages::getList()` with `show_modular` option [#1080](https://github.com/getgrav/grav-plugin-admin/issues/1080)
-    
+
 # v1.2.3
 ## 04/19/2017
 
@@ -16,7 +34,7 @@
     * Allow `user/accounts.yaml` overrides and implemented more robust theme initialization
     * improved `getList()` method to do more powerful things
     * Fix Typo in GPM [#1427](https://github.com/getgrav/grav/issues/1427)
- 
+
 # v1.2.2
 ## 04/11/2017
 

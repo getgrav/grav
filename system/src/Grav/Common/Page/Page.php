@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -1497,9 +1497,6 @@ class Page
     {
         if ($var !== null && $var !== "") {
             $this->slug = $var;
-            if (!preg_match('/^[a-z0-9][-a-z0-9]*$/', $this->slug)) {
-                Grav::instance()['log']->notice("Invalid slug set in YAML frontmatter: " . $this->rawRoute() . " => " . $this->slug);
-            }
         }
 
         if (empty($this->slug)) {

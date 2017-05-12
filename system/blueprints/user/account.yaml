@@ -20,7 +20,6 @@ form:
                 title: PLUGIN_ADMIN.ACCOUNT
                 underline: true
 
-
             username:
                 type: text
                 size: large
@@ -75,10 +74,11 @@ form:
 
                 fields:
                     groups:
-                        type: selectize
+                        type: select
+                        multiple: true
                         size: large
                         label: PLUGIN_ADMIN.GROUPS
-                        data-options@: '\Grav\User\Groups::groups'
+                        data-options@: '\Grav\Common\User\Group::groupNames'
                         classes: fancy
                         help: PLUGIN_ADMIN.GROUPS_HELP
                         validate:

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,6 +17,7 @@ use RocketTheme\Toolbox\Event\Event;
  * The GravCache object is used throughout Grav to store and retrieve cached data.
  * It uses DoctrineCache library and supports a variety of caching mechanisms. Those include:
  *
+ * APCu
  * APC
  * XCache
  * RedisCache
