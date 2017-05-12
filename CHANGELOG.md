@@ -2,6 +2,8 @@
 ## mm/dd/2017
 
 1. [](#new)
+    * Added EXIF support with automatic generation of Page Media metafiles
+    * Added Twig function to get EXIF data on any image file
     * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
     * Added `base32_encode`, `base32_decode`, `base64_encode`, `base64_decode` Twig filters
     * Added `Debugger::getCaller()` to figure out where the method was called from

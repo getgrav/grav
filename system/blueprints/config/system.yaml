@@ -930,6 +930,17 @@ form:
                     validate:
                         type: bool
 
+                media.auto_metadata_exif:
+                      type: toggle
+                      label: PLUGIN_ADMIN.ENABLE_AUTO_METADATA
+                      help: PLUGIN_ADMIN.ENABLE_AUTO_METADATA_HELP
+                      highlight: 0
+                      options:
+                          1: PLUGIN_ADMIN.YES
+                          0: PLUGIN_ADMIN.NO
+                      validate:
+                          type: bool
+
 
 
                 media.allowed_fallback_types:

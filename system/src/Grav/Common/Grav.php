@@ -45,6 +45,7 @@ class Grav extends Container
         'Grav\Common\Service\PageServiceProvider',
         'Grav\Common\Service\OutputServiceProvider',
         'browser'                 => 'Grav\Common\Browser',
+        'exif'                    => 'Grav\Common\Helpers\Exif',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\ConfigServiceProvider',
         'inflector'               => 'Grav\Common\Inflector',
