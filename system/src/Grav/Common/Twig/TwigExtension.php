@@ -13,6 +13,7 @@ use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Uri;
+use Grav\Common\Helpers\Base32;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class TwigExtension extends \Twig_Extension
@@ -71,6 +72,10 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('ltrim', [$this, 'ltrimFilter']),
             new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter']),
             new \Twig_SimpleFilter('md5', [$this, 'md5Filter']),
+            new \Twig_SimpleFilter('base32_encode', [$this, 'base32EncodeFilter']),
+            new \Twig_SimpleFilter('base32_decode', [$this, 'base32DecodeFilter']),
+            new \Twig_SimpleFilter('base64_encode', [$this, 'base64EncodeFilter']),
+            new \Twig_SimpleFilter('base64_decode', [$this, 'base64DecodeFilter']),
             new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
             new \Twig_SimpleFilter('randomize', [$this, 'randomizeFilter']),
             new \Twig_SimpleFilter('modulus', [$this, 'modulusFilter']),
@@ -273,6 +278,51 @@ class TwigExtension extends \Twig_Extension
     {
         return md5($str);
     }
+
+    /**
+     * Return Base32 encoded string
+     *
+     * @param $str
+     * @return string
+     */
+    public function base32EncodeFilter($str)
+    {
+        return Base32::encode($str);
+    }
+
+    /**
+     * Return Base32 decoded string
+     *
+     * @param $str
+     * @return bool|string
+     */
+    public function base32DecodeFilter($str)
+    {
+        return Base32::decode($str);
+    }
+
+    /**
+     * Return Base64 encoded string
+     *
+     * @param $str
+     * @return string
+     */
+    public function base64EncodeFilter($str)
+    {
+        return base64_encode($str);
+    }
+
+    /**
+     * Return Base64 decoded string
+     *
+     * @param $str
+     * @return bool|string
+     */
+    public function base64DecodeFilter($str)
+    {
+        return base64_decode($str);
+    }
+
 
     /**
      * Sorts a collection by key
