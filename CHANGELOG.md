@@ -2,6 +2,7 @@
 ## mm/dd/2017
 
 1. [](#new)
+    * Added EXIF support with automatic generation of Page Media metafiles
     * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
     * Added `Debugger::getCaller()` to figure out where the method was called from
     * Added support for custom output providers like Slim Framework
