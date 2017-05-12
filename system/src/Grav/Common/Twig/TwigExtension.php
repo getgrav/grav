@@ -120,6 +120,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('redirect_me', [$this, 'redirectFunc']),
             new \Twig_SimpleFunction('range', [$this, 'rangeFunc']),
             new \Twig_SimpleFunction('isajaxrequest', [$this, 'isAjaxFunc']),
+            new \Twig_SimpleFunction('exif', [$this, 'exifFunc']),
         ];
     }
 
@@ -905,5 +906,28 @@ class TwigExtension extends \Twig_Extension
         return (
             !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
             && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+    }
+
+    /**
+     * Get's the Exif data for a file
+     *
+     * @param $image
+     * @param bool $raw
+     * @return mixed
+     */
+    public function exifFunc($image, $raw = false)
+    {
+        if (file_exists($image)) {
+
+            $exif_data = $this->grav['exif']->reader->read($image);
+
+            if ($exif_data) {
+                if ($raw) {
+                    return $exif_data->getRawData();
+                } else {
+                    return $exif_data->getData();
+                }
+            }
+        }
     }
 }

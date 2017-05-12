@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added EXIF support with automatic generation of Page Media metafiles
+    * Added Twig function to get EXIF data on any image file
     * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
     * Added `Debugger::getCaller()` to figure out where the method was called from
     * Added support for custom output providers like Slim Framework
