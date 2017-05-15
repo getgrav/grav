@@ -21,6 +21,8 @@ class Media extends AbstractMedia
 
     protected $path;
 
+    protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
+
     /**
      * @param $path
      */
@@ -124,13 +126,17 @@ class Media extends AbstractMedia
             // Read/store Exif metadata as required
             if (!empty($types['base']) && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
                 $file_path = $types['base']['file'];
-                $meta_path = $file_path . '.meta.yaml';
                 $meta = $exif->reader->read($file_path);
 
                 if ($meta) {
-                    $file = File::instance($meta_path);
-                    $file->save(Yaml::dump($meta->getData()));
-                    $types['meta']['file'] = $meta_path;
+                    $meta_path = $file_path . '.meta.yaml';
+                    $meta_data = $meta->getData();
+                    $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
+                    if ($meta_trimmed) {
+                        $file = File::instance($meta_path);
+                        $file->save(Yaml::dump($meta_trimmed));
+                        $types['meta']['file'] = $meta_path;
+                    }
                 }
             }
 
