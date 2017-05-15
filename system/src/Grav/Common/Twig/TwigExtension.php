@@ -138,7 +138,7 @@ class TwigExtension extends \Twig_Extension
      */
     public function fieldNameFilter($str)
     {
-        $path = explode('.', $str);
+        $path = explode('.', rtrim($str, '.'));
 
         return array_shift($path) . ($path ? '[' . implode('][', $path) . ']' : '');
     }

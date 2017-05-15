@@ -2,6 +2,7 @@
 ## mm/dd/2017
 
 1. [](#new)
+    * Added support for a single array field in the forms
     * Added EXIF support with automatic generation of Page Media metafiles
     * Added Twig function to get EXIF data on any image file
     * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
