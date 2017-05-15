@@ -16,7 +16,7 @@ class Exif
 
     public function __construct()
     {
-        if (function_exists('exif_read_data')) {
+        if (function_exists('exif_read_data') && class_exists('\PHPExif\Reader\Reader')) {
             $this->reader = \PHPExif\Reader\Reader::factory(\PHPExif\Reader\Reader::TYPE_NATIVE);
         } else {
             if (Grav::instance()['config']->get('system.media.auto_metadata_exif')) {
