@@ -53,7 +53,7 @@ trait ObjectCollectionTrait
         $list = [];
 
         foreach ($this as $id => $element) {
-            $list[$id] = isset($element->{$property}) ? $element->{$property} : null;
+            $list[$id] = isset($element[$property]) ? $element[$property] : null;
         }
 
         return $list;
@@ -66,7 +66,7 @@ trait ObjectCollectionTrait
     public function setProperty($property, $value)
     {
         foreach ($this as $element) {
-            $element->{$property} = $value;
+            $element[$property] = $value;
         }
     }
 
@@ -96,8 +96,9 @@ trait ObjectCollectionTrait
     public function group($property)
     {
         $list = [];
+
         foreach ($this as $element) {
-            $list[$element->{$property}][] = $element;
+            $list[$element[$property]][] = $element;
         }
 
         return $list;
