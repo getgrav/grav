@@ -12,6 +12,9 @@
 ## mm/dd/2017
 
 1. [](#new)
+    * Added support for a single array field in the forms
+    * Added EXIF support with automatic generation of Page Media metafiles
+    * Added Twig function to get EXIF data on any image file
     * Added `Pages::baseUrl()`, `Pages::homeUrl()` and `Pages::url()` functions
     * Added `base32_encode`, `base32_decode`, `base64_encode`, `base64_decode` Twig filters
     * Added `Debugger::getCaller()` to figure out where the method was called from
@@ -23,6 +26,7 @@
     * Groups selection pre-filled in user form
     * Improve error handling in `Folder::move()`
     * Added extra parameter for `Twig::processSite()` to include custom context
+    * Updated RocketTheme Toolbox vendor library
 1. [](#bugfix)
     * Fix to force route/redirect matching from the start of the route by default [#1446](https://github.com/getgrav/grav/issues/1446)
     * Edit check for valid slug [#1459](https://github.com/getgrav/grav/issues/1459)

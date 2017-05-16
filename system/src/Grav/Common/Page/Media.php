@@ -8,15 +8,20 @@
 
 namespace Grav\Common\Page;
 
+use Grav\Common\Grav;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
+use RocketTheme\Toolbox\File\File;
+use Symfony\Component\Yaml\Yaml;
 
 class Media extends AbstractMedia
 {
     protected static $global;
 
     protected $path;
+
+    protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
 
     /**
      * @param $path
@@ -58,6 +63,8 @@ class Media extends AbstractMedia
      */
     protected function init()
     {
+        $config = Grav::instance()['config'];
+        $exif = Grav::instance()['exif'];
 
         // Handle special cases where page doesn't exist in filesystem.
         if (!is_dir($this->path)) {
@@ -71,7 +78,7 @@ class Media extends AbstractMedia
         /** @var \DirectoryIterator $info */
         foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() == 'md' || $info->getBasename()[0] === '.') {
+            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getBasename()[0] === '.') {
                 continue;
             }
 
@@ -114,6 +121,23 @@ class Media extends AbstractMedia
 
             if (empty($medium)) {
                 continue;
+            }
+
+            // Read/store Exif metadata as required
+            if (!empty($types['base']) && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
+                $file_path = $types['base']['file'];
+                $meta = $exif->reader->read($file_path);
+
+                if ($meta) {
+                    $meta_path = $file_path . '.meta.yaml';
+                    $meta_data = $meta->getData();
+                    $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
+                    if ($meta_trimmed) {
+                        $file = File::instance($meta_path);
+                        $file->save(Yaml::dump($meta_trimmed));
+                        $types['meta']['file'] = $meta_path;
+                    }
+                }
             }
 
             if (!empty($types['meta'])) {

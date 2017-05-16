@@ -50,6 +50,11 @@ class Medium extends Data implements RenderableInterface
     protected $styleAttributes = [];
 
     /**
+     * @var array
+     */
+    protected $metadata = [];
+
+    /**
      * Construct.
      *
      * @param array $items
@@ -78,13 +83,24 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Returns an array containing just the metadata
+     *
+     * @return array
+     */
+    public function metadata()
+    {
+        return $this->metadata;
+    }
+
+    /**
      * Add meta file for the medium.
      *
      * @param $filepath
      */
     public function addMetaFile($filepath)
     {
-        $this->merge((array)CompiledYamlFile::instance($filepath)->content());
+        $this->metadata = (array)CompiledYamlFile::instance($filepath)->content();
+        $this->merge($this->metadata);
     }
 
     /**
