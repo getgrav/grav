@@ -50,7 +50,7 @@ class Object implements ObjectInterface
     }
 
     /**
-     * Checks whether or not an offset exists with a possibility to load the field by $this->loadField{offset}().
+     * Checks whether or not an offset exists with a possibility to load the field by $this->loadOffset_{$offset}().
      *
      * @param mixed $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
@@ -61,7 +61,7 @@ class Object implements ObjectInterface
     }
 
     /**
-     * Returns the value at specified offset with a possibility to load the field by $this->loadField{offset}().
+     * Returns the value at specified offset with a possibility to load the field by $this->loadOffset_{$offset}().
      *
      * @param mixed $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
