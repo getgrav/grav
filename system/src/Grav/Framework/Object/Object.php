@@ -8,8 +8,8 @@
 
 namespace Grav\Framework\Object;
 
-use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
 use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 
 /**
  * Object class.
@@ -18,9 +18,10 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
  */
 class Object implements ObjectInterface
 {
-    use ObjectTrait, ArrayAccessWithGetters, Export {
-        ArrayAccessWithGetters::offsetExists as private parentOffsetExists;
-        ArrayAccessWithGetters::offsetGet as private parentOffsetGet;
+    use ObjectTrait, NestedArrayAccessWithGetters, Export {
+        NestedArrayAccessWithGetters::offsetExists as private parentOffsetExists;
+        NestedArrayAccessWithGetters::offsetGet as private parentOffsetGet;
+        NestedArrayAccessWithGetters::offsetSet as private parentOffsetSet;
     }
 
     /**
@@ -50,29 +51,45 @@ class Object implements ObjectInterface
     }
 
     /**
-     * Checks whether or not an offset exists with a possibility to load the field by $this->loadOffset_{$offset}().
+     * Checks whether or not an offset exists with a possibility to load the field by $this->offsetLoad_{$offset}().
      *
      * @param mixed $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
     public function offsetExists($offset)
     {
-        return $this->parentOffsetExists($offset) || method_exists($this, "loadOffset_{$offset}");
+        return $this->parentOffsetExists($offset) || method_exists($this, "offsetLoad_{$offset}");
     }
 
     /**
-     * Returns the value at specified offset with a possibility to load the field by $this->loadOffset_{$offset}().
+     * Returns the value at specified offset with a possibility to load the field by $this->offsetLoad_{$offset}().
      *
      * @param mixed $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
      */
     public function offsetGet($offset)
     {
-        if (!$this->parentOffsetExists($offset) && method_exists($this, "loadOffset_{$offset}")) {
-            $this->offsetSet($offset, call_user_func([$this, "loadOffset_{$offset}"]));
+        if (!$this->parentOffsetExists($offset) && method_exists($this, "offsetLoad_{$offset}")) {
+            $this->offsetSet($offset, call_user_func([$this, "offsetLoad_{$offset}"]));
         }
 
         return $this->parentOffsetGet($offset);
+    }
+
+
+    /**
+     * Assigns a value to the specified offset with a possibility to check or alter the value by $this->offsetPrepare_{$offset}().
+     *
+     * @param mixed $offset  The offset to assign the value to.
+     * @param mixed $value   The value to set.
+     */
+    public function offsetSet($offset, $value)
+    {
+        if (method_exists($this, "offsetPrepare_{$offset}")) {
+            $value = call_user_func([$this, "offsetPrepare_{$offset}"], $value);
+        }
+
+        $this->parentOffsetSet($offset, $value);
     }
 
     /**
