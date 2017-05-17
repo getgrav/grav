@@ -227,7 +227,7 @@ class InstallCommand extends ConsoleCommand
         }
 
         // clear cache after successful upgrade
-        $this->clearCache();
+        $this->clearCache('cache-only');
 
         return true;
     }

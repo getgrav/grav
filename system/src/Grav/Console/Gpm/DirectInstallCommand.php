@@ -259,7 +259,7 @@ class DirectInstallCommand extends ConsoleCommand
         Folder::delete($tmp_zip);
 
         // clear cache after successful upgrade
-        $this->clearCache();
+        $this->clearCache('cache-only');
 
         return true;
 
