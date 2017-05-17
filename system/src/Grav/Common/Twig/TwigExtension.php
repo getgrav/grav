@@ -980,4 +980,35 @@ class TwigExtension extends \Twig_Extension
             }
         }
     }
+
+    /**
+     * Process a folder as Media and return a media object
+     *
+     * @param $media_dir
+     * @return Media
+     */
+    public function mediaFunc($media_dir)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        if ($locator->isStream($media_dir)) {
+            $media_dir = $locator->findResource($media_dir);
+        }
+
+        if (file_exists($media_dir)) {
+            return new Media($media_dir);
+        }
+
+    }
+
+    /**
+     * Dump a variable to the browser
+     *
+     * @param $var
+     */
+    public function vardumpFunc($var)
+    {
+        var_dump($var);
+    }
 }
