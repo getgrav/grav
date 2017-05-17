@@ -2,9 +2,9 @@
 ## 05/17/2017
 
 1. [](#new)
-    * Added new `media` and `vardump`  Twig functions
+    * Added new `media` and `vardump` Twig functions
 1. [](#improved)
-    * Put in various checks to ensure Exif is available before trying to use
+    * Put in various checks to ensure Exif is available before trying to use it
 
 # v1.3.0-rc.1
 ## 05/16/2017
