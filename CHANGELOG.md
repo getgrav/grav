@@ -1,5 +1,13 @@
+# v1.3.0-rc.2
+## 05/17/2017
+
+1. [](#new)
+    * Added new `media` and `vardump`  Twig functions
+1. [](#improved)
+    * Put in various checks to ensure Exif is available before trying to use
+
 # v1.3.0-rc.1
-## 15/16/2017
+## 05/16/2017
 
 1. [](#new)
     * Added support for a single array field in the forms
