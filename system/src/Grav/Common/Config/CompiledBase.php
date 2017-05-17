@@ -28,6 +28,11 @@ abstract class CompiledBase
     public $checksum;
 
     /**
+     * @var string  Timestamp of compiled configuration
+     */
+    public $timestamp;
+
+    /**
      * @var string Cache folder to be used.
      */
     protected $cacheFolder;
@@ -59,9 +64,10 @@ abstract class CompiledBase
             throw new \BadMethodCallException('Cache folder not defined.');
         }
 
+        $this->path = $path ? rtrim($path, '\\/') . '/' : '';
         $this->cacheFolder = $cacheFolder;
         $this->files = $files;
-        $this->path = $path ? rtrim($path, '\\/') . '/' : '';
+        $this->timestamp = 0;
     }
 
     /**
@@ -83,6 +89,16 @@ abstract class CompiledBase
      * Function gets called when cached configuration is saved.
      */
     public function modified() {}
+
+    /**
+     * Get timestamp of compiled configuration
+     *
+     * @return int Timestamp of compiled configuration
+     */
+    public function timestamp()
+    {
+        return $this->timestamp ?: time();
+    }
 
     /**
      * Load the configuration.
@@ -196,6 +212,7 @@ abstract class CompiledBase
         }
 
         $this->createObject($cache['data']);
+        $this->timestamp = isset($cache['timestamp']) ? $cache['timestamp'] : 0;
 
         $this->finalizeObject();
 

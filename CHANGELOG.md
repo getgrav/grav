@@ -5,6 +5,7 @@
     * Added new `media` and `vardump` Twig functions
 1. [](#improved)
     * Put in various checks to ensure Exif is available before trying to use it
+    * Add timestamp to configuration settings [#1445](https://github.com/getgrav/grav/pull/1445)
 1. [](#bugfix)
     * Fix an issue saving YAML textarea fields in expert mode [#1480](https://github.com/getgrav/grav/pull/1480)
 
