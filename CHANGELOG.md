@@ -8,6 +8,7 @@
     * Add timestamp to configuration settings [#1445](https://github.com/getgrav/grav/pull/1445)
 1. [](#bugfix)
     * Fix an issue saving YAML textarea fields in expert mode [#1480](https://github.com/getgrav/grav/pull/1480)
+    * Moved `onOutputRendered()` back into Grav core
 
 # v1.3.0-rc.1
 ## 05/16/2017
