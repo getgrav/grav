@@ -8,8 +8,8 @@
     * Added `Grav\Framework\Page` interfaces
     * Deprecated GravTrait
 
-# v1.2.5
-## mm/dd/2017
+# v1.3.0-rc.1
+## 15/16/2017
 
 1. [](#new)
     * Added support for a single array field in the forms
