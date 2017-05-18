@@ -28,7 +28,7 @@ class RenderProcessor extends ProcessorBase implements ProcessorInterface
             // Set the header type
             $container->header();
 
-            echo $output;
+            echo $container->output;
 
             // remove any output
             $container->output = '';
