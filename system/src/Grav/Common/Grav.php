@@ -137,8 +137,6 @@ class Grav extends Container
         $debugger = $this['debugger'];
         $debugger->render();
 
-        $this->fireEvent('onOutputRendered');
-
         register_shutdown_function([$this, 'shutdown']);
     }
 
