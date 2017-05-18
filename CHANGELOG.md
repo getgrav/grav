@@ -8,8 +8,20 @@
     * Added `Grav\Framework\Page` interfaces
     * Deprecated GravTrait
 
+# v1.3.0-rc.2
+## 05/17/2017
+
+1. [](#new)
+    * Added new `media` and `vardump` Twig functions
+1. [](#improved)
+    * Put in various checks to ensure Exif is available before trying to use it
+    * Add timestamp to configuration settings [#1445](https://github.com/getgrav/grav/pull/1445)
+1. [](#bugfix)
+    * Fix an issue saving YAML textarea fields in expert mode [#1480](https://github.com/getgrav/grav/pull/1480)
+    * Moved `onOutputRendered()` back into Grav core
+
 # v1.3.0-rc.1
-## 15/16/2017
+## 05/16/2017
 
 1. [](#new)
     * Added support for a single array field in the forms

@@ -77,6 +77,7 @@ class CompiledConfig extends CompiledBase
     protected function finalizeObject()
     {
         $this->object->checksum($this->checksum());
+        $this->object->timestamp($this->timestamp());
     }
 
     /**

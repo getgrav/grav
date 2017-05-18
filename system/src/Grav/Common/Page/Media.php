@@ -64,7 +64,7 @@ class Media extends AbstractMedia
     protected function init()
     {
         $config = Grav::instance()['config'];
-        $exif = Grav::instance()['exif'];
+        $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
 
         // Handle special cases where page doesn't exist in filesystem.
         if (!is_dir($this->path)) {
@@ -124,9 +124,9 @@ class Media extends AbstractMedia
             }
 
             // Read/store Exif metadata as required
-            if (!empty($types['base']) && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
+            if (!empty($types['base']) && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
                 $file_path = $types['base']['file'];
-                $meta = $exif->reader->read($file_path);
+                $meta = $exif_reader->read($file_path);
 
                 if ($meta) {
                     $meta_path = $file_path . '.meta.yaml';

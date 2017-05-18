@@ -38,6 +38,11 @@ class Validation
             $field['type'] = 'text';
         }
 
+        // If this is a YAML field, stop validation
+        if (isset($field['yaml']) && $field['yaml'] === true) {
+            return $messages;
+        }
+
         // Get language class.
         $language = Grav::instance()['language'];
 
@@ -98,13 +103,7 @@ class Validation
 
         // If this is a YAML field, simply parse it and return the value.
         if (isset($field['yaml']) && $field['yaml'] === true) {
-            try {
-                $yaml = new Parser();
-
-                return $yaml->parse($value);
-            } catch (ParseException $e) {
-                throw new \RuntimeException($e->getMessage());
-            }
+            return $value;
         }
 
         // Validate type with fallback type text.

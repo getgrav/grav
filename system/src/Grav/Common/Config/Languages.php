@@ -30,6 +30,15 @@ class Languages extends Data
         return $this->modified;
     }
 
+    public function timestamp($timestamp = null)
+    {
+        if ($timestamp !== null) {
+            $this->timestamp = $timestamp;
+        }
+
+        return $this->timestamp;
+    }
+
     public function reformat()
     {
         if (isset($this->items['plugins'])) {
