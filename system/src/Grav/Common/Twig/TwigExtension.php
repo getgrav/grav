@@ -9,6 +9,7 @@
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
+use Grav\Common\Page\Media;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
@@ -109,6 +110,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
+            new \Twig_SimpleFunction('vardump', [$this, 'vardumpFunc']),
             new \Twig_SimpleFunction('evaluate', [$this, 'evaluateStringFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('evaluate_twig', [$this, 'evaluateTwigFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
@@ -126,6 +128,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('range', [$this, 'rangeFunc']),
             new \Twig_SimpleFunction('isajaxrequest', [$this, 'isAjaxFunc']),
             new \Twig_SimpleFunction('exif', [$this, 'exifFunc']),
+            new \Twig_SimpleFunction('media', [$this, 'mediaFunc']),
+
         ];
     }
 
@@ -967,17 +971,60 @@ class TwigExtension extends \Twig_Extension
      */
     public function exifFunc($image, $raw = false)
     {
-        if (file_exists($image)) {
+        if (isset($this->grav['exif'])) {
 
-            $exif_data = $this->grav['exif']->reader->read($image);
+            /** @var UniformResourceLocator $locator */
+            $locator = $this->grav['locator'];
 
-            if ($exif_data) {
-                if ($raw) {
-                    return $exif_data->getRawData();
-                } else {
-                    return $exif_data->getData();
+            if ($locator->isStream($image)) {
+                $image = $locator->findResource($image);
+            }
+
+            $exif_reader = $this->grav['exif']->getReader();
+
+            if (file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
+
+                $exif_data = $exif_reader->read($image);
+
+                if ($exif_data) {
+                    if ($raw) {
+                        return $exif_data->getRawData();
+                    } else {
+                        return $exif_data->getData();
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Process a folder as Media and return a media object
+     *
+     * @param $media_dir
+     * @return Media
+     */
+    public function mediaFunc($media_dir)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        if ($locator->isStream($media_dir)) {
+            $media_dir = $locator->findResource($media_dir);
+        }
+
+        if (file_exists($media_dir)) {
+            return new Media($media_dir);
+        }
+
+    }
+
+    /**
+     * Dump a variable to the browser
+     *
+     * @param $var
+     */
+    public function vardumpFunc($var)
+    {
+        var_dump($var);
     }
 }

@@ -29,8 +29,9 @@ class RenderProcessor extends ProcessorBase implements ProcessorInterface
             $container->header();
 
             echo $output;
-        }
 
-        $container->fireEvent('onOutputRendered');
+            // remove any output
+            $container->output = '';
+        }
     }
 }
