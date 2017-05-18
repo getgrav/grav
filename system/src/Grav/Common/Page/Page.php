@@ -192,6 +192,10 @@ class Page
                     $route = $aPage->slug();
                 }
 
+                if (!$aPage->published()) {
+                    continue;
+                }
+
                 $translatedLanguages[$language] = $route;
             }
         }
