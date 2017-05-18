@@ -172,9 +172,12 @@ class Page
 
     /**
      * Return an array with the routes of other translated languages
+     *
+     * @param bool $onlyPublished only return published translations
+     *
      * @return array the page translated languages
      */
-    public function translatedLanguages()
+    public function translatedLanguages($onlyPublished = false)
     {
         $filename = substr($this->name, 0, -(strlen($this->extension())));
         $config = Grav::instance()['config'];
@@ -192,7 +195,7 @@ class Page
                     $route = $aPage->slug();
                 }
 
-                if (!$aPage->published()) {
+                if ($onlyPublished && !$aPage->published()) {
                     continue;
                 }
 
@@ -205,9 +208,12 @@ class Page
 
     /**
      * Return an array listing untranslated languages available
+     *
+     * @param bool $includeUnpublished also list unpublished translations
+     *
      * @return array the page untranslated languages
      */
-    public function untranslatedLanguages()
+    public function untranslatedLanguages($includeUnpublished = false)
     {
         $filename = substr($this->name, 0, -(strlen($this->extension())));
         $config = Grav::instance()['config'];
@@ -219,7 +225,7 @@ class Page
             if (file_exists($path)) {
                 $aPage = new Page();
                 $aPage->init(new \SplFileInfo($path), $language . '.md');
-                if (!$aPage->published()) {
+                if ($includeUnpublished && !$aPage->published()) {
                     $untranslatedLanguages[] = $language;
                 }
             } else {
