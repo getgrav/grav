@@ -347,7 +347,7 @@ class Twig
             if ($ext != '.html' . TWIG_EXT) {
                 try {
                     $page->templateFormat('html');
-                    $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $twig_vars);
+                    $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $vars + $twig_vars);
                 } catch (\Twig_Error_Loader $e) {
                     throw new \RuntimeException($error_msg, 400, $e);
                 }
