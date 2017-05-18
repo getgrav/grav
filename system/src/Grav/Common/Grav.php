@@ -18,8 +18,14 @@ use RocketTheme\Toolbox\Event\Event;
 
 class Grav extends Container
 {
+    /**
+     * @var string Processed output for the page.
+     */
+    public $output;
 
-    /** @var static The singleton instance */
+    /**
+     * @var static The singleton instance
+     */
     protected static $instance;
 
     /**
@@ -64,7 +70,9 @@ class Grav extends Container
         'renderProcessor'         => 'Grav\Common\Processors\RenderProcessor',
     ];
 
-    /** @var array All processors that are processed in $this->process() */
+    /**
+     * @var array All processors that are processed in $this->process()
+     */
     protected $processors = [
         'siteSetupProcessor',
         'configurationProcessor',
