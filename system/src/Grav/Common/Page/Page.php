@@ -216,7 +216,13 @@ class Page
 
         foreach ($languages as $language) {
             $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language . '.md';
-            if (!file_exists($path)) {
+            if (file_exists($path)) {
+                $aPage = new Page();
+                $aPage->init(new \SplFileInfo($path), $language . '.md');
+                if (!$aPage->published()) {
+                    $untranslatedLanguages[] = $language;
+                }
+            } else {
                 $untranslatedLanguages[] = $language;
             }
         }
