@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Optionally remove unpublished pages from the translated languages, move into untranslated list [#1482](https://github.com/getgrav/grav/pull/1482)
+1. [](#bugfix)
+    * Fix output handling in RenderProcessor [#1483](https://github.com/getgrav/grav/pull/1483)
 
 # v1.3.0-rc.2
 ## 05/17/2017
