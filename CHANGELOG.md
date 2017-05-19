@@ -1,3 +1,9 @@
+# v1.3.0-rc.3
+## 05/xx/2017
+
+1. [](#improved)
+    * Optionally remove unpublished pages from the translated languages, move into untranslated list [#1482](https://github.com/getgrav/grav/pull/1482)
+
 # v1.3.0-rc.2
 ## 05/17/2017
 
@@ -37,7 +43,7 @@
 ## 04/24/2017
 
 1. [](#improved)
-    * Added optional ignores for `Installer::sophisticatedInstall()` [#1447](https://github.com/getgrav/grav/issues/1447)  
+    * Added optional ignores for `Installer::sophisticatedInstall()` [#1447](https://github.com/getgrav/grav/issues/1447)
 1. [](#bugfix)
     * Allow multiple calls to `Themes::initTheme()` without throwing errors
     * Fixed querystrings in root pages with multi-lang enabled [#1436](https://github.com/getgrav/grav/issues/1436)
