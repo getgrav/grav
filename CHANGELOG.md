@@ -1,8 +1,11 @@
 # v1.3.0-rc.3
 ## 05/xx/2017
 
+1. [](#new)
+    * Added `Utils::getPagePathFromToken()` method which is shared in Admin, Forms, etc.
 1. [](#improved)
     * Optionally remove unpublished pages from the translated languages, move into untranslated list [#1482](https://github.com/getgrav/grav/pull/1482)
+    * Improved reliability of `hash` filecheck method
 1. [](#bugfix)
     * Fix output handling in RenderProcessor [#1483](https://github.com/getgrav/grav/pull/1483)
 

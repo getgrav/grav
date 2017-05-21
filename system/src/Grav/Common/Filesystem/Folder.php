@@ -104,11 +104,12 @@ abstract class Folder
 
         $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
 
-        foreach ($iterator as $filepath => $file) {
-            $files[] = $file->getPath() . $file->getMTime();
+        foreach ($iterator as $file) {
+            $files[] = $file->getPathname() . '?'. $file->getMTime();
         }
 
-        return md5(serialize($files));
+        $hash = md5(serialize($files));
+        return $hash;
     }
 
     /**
