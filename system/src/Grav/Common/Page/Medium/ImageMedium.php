@@ -166,7 +166,7 @@ class ImageMedium extends Medium
             $this->reset();
         }
 
-        return Grav::instance()['base_url'] . $output . $this->querystring() . $this->urlHash();
+        return Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/');
     }
 
     /**
