@@ -125,6 +125,8 @@ class Uri
         // set the base
         if (isset($_SERVER['HTTPS'])) {
             $scheme = (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https://' : 'http://';
+        } elseif ( (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) && (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ) {
+            $scheme = 'https://';
         } else {
             $scheme = 'http://';
         }
