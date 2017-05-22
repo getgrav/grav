@@ -51,4 +51,9 @@ class Languages extends Data
     {
         $this->items = array_merge_recursive($this->items, $data);
     }
+    
+    public function getTranslation($lang, $key, $default = null) 
+    {
+        return isset($this->items[$lang][$key]) ? $this->items[$lang][$key] : $this->get($lang . '.' . $key, $default);
+    }
 }
