@@ -16,6 +16,7 @@
 1. [](#improved)
     * Optionally remove unpublished pages from the translated languages, move into untranslated list [#1482](https://github.com/getgrav/grav/pull/1482)
     * Improved reliability of `hash` filecheck method
+    * Make it possible to include debug bar also into non-HTML responses
 1. [](#bugfix)
     * Fix output handling in RenderProcessor [#1483](https://github.com/getgrav/grav/pull/1483)
 
