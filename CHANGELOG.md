@@ -1,12 +1,13 @@
 # v1.3.0-rc.3
-## 05/xx/2017
+## 05/22/2017
 
 1. [](#new)
-    * Added `Utils::getPagePathFromToken()` method which is shared in Admin, Forms, etc.
+    * Added new unified `Utils::getPagePathFromToken()` method which is used by various plugins (Admin, Forms, Downloads, etc.)
 1. [](#improved)
     * Optionally remove unpublished pages from the translated languages, move into untranslated list [#1482](https://github.com/getgrav/grav/pull/1482)
-    * Improved reliability of `hash` filecheck method
+    * Improved reliability of `hash` file-check method
 1. [](#bugfix)
+    * Updated to latest Toolbox library to fix issue with some blueprints rendering in admin plugin [#1117](https://github.com/getgrav/grav-plugin-admin/issues/1117)
     * Fix output handling in RenderProcessor [#1483](https://github.com/getgrav/grav/pull/1483)
 
 # v1.3.0-rc.2
