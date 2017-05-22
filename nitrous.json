@@ -1,0 +1,9 @@
+{
+  "template": "php-apache",
+  "ports": [3000],
+  "name": "Grav",
+  "description": "Modern, Crazy Fast, Ridiculously Easy and Amazingly Powerful Flat-File CMS",
+  "scripts": {
+    "post-create": "rm -rf ~/code/public_html && cd ~/code/grav && bin/grav install && cd ~/code && mv grav public_html && sudo chown -R nitrous:www-data public_html && sudo chmod -R g+w public_html && sudo a2enmod rewrite && sudo service apache2 restart"
+  }
+}
