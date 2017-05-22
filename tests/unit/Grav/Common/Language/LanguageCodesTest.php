@@ -18,6 +18,7 @@ class LanguageCodesTest extends \Codeception\TestCase\Test
             LanguageCodes::getOrientation('he'));
         $this->assertTrue(LanguageCodes::isRtl('ar'));
         $this->assertFalse(LanguageCodes::isRtl('fr'));
+        $this->assertFalse(LanguageCodes::isRtl('cn'));
 
     }
 
