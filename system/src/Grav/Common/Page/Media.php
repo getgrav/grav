@@ -178,4 +178,14 @@ class Media extends AbstractMedia
             $this->add($name, $medium);
         }
     }
+
+    /**
+     * Enable accessing the media path
+     *
+     * @return mixed
+     */
+    function path()
+    {
+        return $this->path;
+    }
 }
