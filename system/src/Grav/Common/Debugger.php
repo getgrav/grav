@@ -166,7 +166,7 @@ class Debugger
         if ($this->enabled()) {
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
-            if ($page->templateFormat() != 'html') {
+            if ($page->templateFormat() != 'html' || !$this->renderer) {
                 return $this;
             }
 
