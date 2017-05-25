@@ -147,6 +147,21 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Return the relative path to file
+     *
+     * @param bool $reset
+     * @return mixed
+     */
+    public function relativePath($reset = true)
+    {
+        if ($reset) {
+            $this->reset();
+        }
+
+        return str_replace(GRAV_ROOT, '', $this->get('filepath'));
+    }
+
+    /**
      * Return URL to file.
      *
      * @param bool $reset
