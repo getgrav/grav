@@ -4,6 +4,7 @@
 1. [](#new)
     * Added new unified `Utils::getPagePathFromToken()` method which is used by various plugins (Admin, Forms, Downloads, etc.)
     * Added 165 new thumbnail images for use in `media.yaml`
+    * Added `pathinfo()` Twig function
 1. [](#improved)
     * Optionally remove unpublished pages from the translated languages, move into untranslated list [#1482](https://github.com/getgrav/grav/pull/1482)
     * Improved reliability of `hash` file-check method

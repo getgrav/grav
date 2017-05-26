@@ -115,6 +115,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('evaluate_twig', [$this, 'evaluateTwigFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
             new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
+            new \Twig_SimpleFunction('pathinfo', [$this, 'pathinfoFunc']),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
@@ -1026,5 +1027,16 @@ class TwigExtension extends \Twig_Extension
     public function vardumpFunc($var)
     {
         var_dump($var);
+    }
+
+    /**
+     * Simple wrapper for pathinfo()
+     *
+     * @param $var
+     * @return mixed
+     */
+    public function pathinfoFunc($var)
+    {
+        return pathinfo($var);
     }
 }
