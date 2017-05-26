@@ -11,7 +11,7 @@ namespace Grav\Framework\Cache\Adapter;
 use Grav\Framework\Cache\AbstractCache;
 
 /**
- * Cache class for PSR-16 compatible "Simple Cache" implementation using memory backend.
+ * Cache class for PSR-16 compatible "Simple Cache" implementation using in memory backend.
  * Memory backend does not use namespace or ttl as the cache is unique to each cache object and request.
  *
  * @package Grav\Framework\Cache
@@ -21,15 +21,11 @@ class MemoryCache extends AbstractCache
     protected $cache = [];
 
     /**
-     * Doctrine Cache constructor.
-     *
-     * @param string $namespace
-     * @param null|int|\DateInterval $defaultLifetime
+     * Memory Cache constructor.
      */
-    public function __construct($namespace = '', $defaultLifetime = null)
+    public function __construct()
     {
-        // Do not use $namespace or $defaultLifetime directly, store them with constructor and fetch with methods.
-        parent::__construct($namespace, $defaultLifetime);
+        parent::__construct();
     }
 
     protected function doGet($key, $default)
