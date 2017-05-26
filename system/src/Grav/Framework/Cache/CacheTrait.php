@@ -233,8 +233,41 @@ trait CacheTrait
     abstract protected function doSet($key, $value, $ttl);
     abstract protected function doDelete($key);
     abstract protected function doClear();
-    abstract protected function doGetMultiple($keys, $default);
-    abstract protected function doSetMultiple($values, $ttl);
-    abstract protected function doDeleteMultiple($keys);
+
+    protected function doGetMultiple($keys, $default)
+    {
+        $results = [];
+
+        foreach ($keys as $key) {
+            if ($this->doHas($key)) {
+                $results[$key] = $this->doGet($key, $default);
+            }
+        }
+
+        return $results;
+    }
+
+    protected function doSetMultiple($values, $ttl)
+    {
+        $success = true;
+
+        foreach ($values as $key => $value) {
+            $success = $this->doSet($key, $value, $ttl) && $success;
+        }
+
+        return $success;
+    }
+
+    protected function doDeleteMultiple($keys)
+    {
+        $success = true;
+
+        foreach ($keys as $key) {
+            $success = $this->doDelete($key) && $success;
+        }
+
+        return $success;
+    }
+
     abstract protected function doHas($key);
 }
