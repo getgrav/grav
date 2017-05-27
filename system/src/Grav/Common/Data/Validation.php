@@ -166,6 +166,17 @@ class Validation
         return is_array($value) ? true : self::typeText($value, $params, $field);
     }
 
+    protected static function filterLower($value, array $params)
+    {
+        return strtolower($value);
+    }
+
+    protected static function filterUpper($value, array $params)
+    {
+        return strtoupper($value);
+    }
+
+
     /**
      * HTML5 input: textarea
      *
@@ -663,6 +674,7 @@ class Validation
     {
         return $value;
     }
+
 
     // HTML5 attributes (min, max and range are handled inside the types)
 
