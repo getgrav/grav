@@ -65,6 +65,7 @@ class Media extends AbstractMedia
     {
         $config = Grav::instance()['config'];
         $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
+        $media_types = array_keys(Grav::instance()['config']->get('media.types'));
 
         // Handle special cases where page doesn't exist in filesystem.
         if (!is_dir($this->path)) {
@@ -84,6 +85,10 @@ class Media extends AbstractMedia
 
             // Find out what type we're dealing with
             list($basename, $ext, $type, $extra) = $this->getFileParts($info->getFilename());
+
+            if (!in_array(strtolower($ext), $media_types)) {
+                continue;
+            }
 
             if ($type === 'alternative') {
                 $media["{$basename}.{$ext}"][$type][$extra] = [ 'file' => $path, 'size' => $info->getSize() ];
@@ -106,17 +111,22 @@ class Media extends AbstractMedia
                 }
             }
 
+            $file_path = null;
+
             // Create the base medium
             if (empty($types['base'])) {
                 if (!isset($types['alternative'])) {
                     continue;
                 }
+
                 $max = max(array_keys($types['alternative']));
                 $medium = $types['alternative'][$max]['file'];
+                $file_path = $medium->path();
                 $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
             } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
                 $medium && $medium->set('size', $types['base']['size']);
+                $file_path = $medium->path();
             }
 
             if (empty($medium)) {
@@ -124,8 +134,8 @@ class Media extends AbstractMedia
             }
 
             // Read/store Exif metadata as required
-            if (!empty($types['base']) && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
-                $file_path = $types['base']['file'];
+            if ($file_path  && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
+
                 $meta = $exif_reader->read($file_path);
 
                 if ($meta) {
