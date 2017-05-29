@@ -28,6 +28,11 @@ trait CacheTrait
     private $defaultLifetime = null;
 
     /**
+     * @var CacheMiss
+     */
+    private $miss;
+
+    /**
      * Always call from constructor.
      *
      * @param string $namespace
@@ -37,6 +42,7 @@ trait CacheTrait
     {
         $this->namespace = (string) $namespace;
         $this->defaultLifetime = $this->convertTtl($defaultLifetime, true);
+        $this->miss = new CacheMiss();
     }
 
     /**
@@ -56,13 +62,32 @@ trait CacheTrait
     }
 
     /**
+     * @param mixed $value
+     * @return bool
+     */
+    protected function isHit($value)
+    {
+        return !($value instanceof CacheMiss);
+    }
+
+    /**
+     * @return CacheMiss
+     */
+    protected function miss()
+    {
+        return $this->miss;
+    }
+
+    /**
      * @inheritdoc
      */
     public function get($key, $default = null)
     {
         $this->validateKey($key);
 
-        return $this->doGet($key, $default);
+        $value = $this->doGet($key);
+
+        return $this->isHit($value) ? $value : $default;
     }
 
     /**
@@ -113,7 +138,7 @@ trait CacheTrait
 
         $this->validateKeys($keys);
 
-        $list = $this->doGetMultiple($keys, $default);
+        $list = $this->doGetMultiple($keys);
 
         if (count($list) !== count($keys)) {
             // Return all values, with default value if they do not exist.
@@ -121,9 +146,7 @@ trait CacheTrait
         }
 
         // Make sure that results are returned in the same order as the keys were given.
-        ksort($list);
-
-        return $list;
+        return array_replace(array_flip($keys), $list);
     }
 
     /**
@@ -181,6 +204,49 @@ trait CacheTrait
         return $this->doHas($key);
     }
 
+    abstract public function doGet($key);
+    abstract public function doSet($key, $value, $ttl);
+    abstract public function doDelete($key);
+    abstract public function doClear();
+
+    public function doGetMultiple($keys)
+    {
+        $results = [];
+
+        foreach ($keys as $key) {
+            $value = $this->doGet($key);
+            if ($this->isHit($value)) {
+                $results[$key] = $value;
+            }
+        }
+
+        return $results;
+    }
+
+    public function doSetMultiple($values, $ttl)
+    {
+        $success = true;
+
+        foreach ($values as $key => $value) {
+            $success = $this->doSet($key, $value, $ttl) && $success;
+        }
+
+        return $success;
+    }
+
+    public function doDeleteMultiple($keys)
+    {
+        $success = true;
+
+        foreach ($keys as $key) {
+            $success = $this->doDelete($key) && $success;
+        }
+
+        return $success;
+    }
+
+    abstract public function doHas($key);
+
     /**
      * @param string $key
      */
@@ -228,46 +294,4 @@ trait CacheTrait
 
         throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given', is_object($ttl) ? get_class($ttl) : gettype($ttl)));
     }
-
-    abstract protected function doGet($key, $default);
-    abstract protected function doSet($key, $value, $ttl);
-    abstract protected function doDelete($key);
-    abstract protected function doClear();
-
-    protected function doGetMultiple($keys, $default)
-    {
-        $results = [];
-
-        foreach ($keys as $key) {
-            if ($this->doHas($key)) {
-                $results[$key] = $this->doGet($key, $default);
-            }
-        }
-
-        return $results;
-    }
-
-    protected function doSetMultiple($values, $ttl)
-    {
-        $success = true;
-
-        foreach ($values as $key => $value) {
-            $success = $this->doSet($key, $value, $ttl) && $success;
-        }
-
-        return $success;
-    }
-
-    protected function doDeleteMultiple($keys)
-    {
-        $success = true;
-
-        foreach ($keys as $key) {
-            $success = $this->doDelete($key) && $success;
-        }
-
-        return $success;
-    }
-
-    abstract protected function doHas($key);
 }

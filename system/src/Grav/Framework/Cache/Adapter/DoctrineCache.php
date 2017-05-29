@@ -41,40 +41,40 @@ class DoctrineCache extends AbstractCache
         $this->driver = $doctrineCache;
     }
 
-    protected function doGet($key, $default)
+    public function doGet($key)
     {
         $value = $this->driver->fetch($key);
 
         // Doctrine cache does not differentiate between no result and cached 'false'. Make sure that we do.
-        return $value !== false || $this->driver->contains($key) ? $value : $default;
+        return $value !== false || $this->driver->contains($key) ? $value : $this->miss();
     }
 
-    protected function doSet($key, $value, $ttl)
+    public function doSet($key, $value, $ttl)
     {
         return $this->driver->save($key, $value, (int) $ttl);
     }
 
-    protected function doDelete($key)
+    public function doDelete($key)
     {
         return $this->driver->delete($key);
     }
 
-    protected function doClear()
+    public function doClear()
     {
         return $this->driver->deleteAll();
     }
 
-    protected function doGetMultiple($keys, $default)
+    public function doGetMultiple($keys)
     {
         return $this->driver->fetchMultiple($keys);
     }
 
-    protected function doSetMultiple($values, $ttl)
+    public function doSetMultiple($values, $ttl)
     {
         return $this->driver->saveMultiple($values, (int) $ttl);
     }
 
-    protected function doDeleteMultiple($keys)
+    public function doDeleteMultiple($keys)
     {
         // TODO: Remove when Doctrine Cache has been updated to support the feature.
         if (!method_exists($this->driver, 'deleteMultiple')) {
@@ -89,7 +89,7 @@ class DoctrineCache extends AbstractCache
         return $this->driver->deleteMultiple($keys);
     }
 
-    protected function doHas($key)
+    public function doHas($key)
     {
         return $this->driver->contains($key);
     }
