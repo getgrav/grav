@@ -16,11 +16,11 @@ use Psr\SimpleCache\CacheInterface as SimpleCacheInterface;
  */
 interface CacheInterface extends SimpleCacheInterface
 {
-    public function doGet($key);
+    public function doGet($key, $miss);
     public function doSet($key, $value, $ttl);
     public function doDelete($key);
     public function doClear();
-    public function doGetMultiple($keys);
+    public function doGetMultiple($keys, $miss);
     public function doSetMultiple($values, $ttl);
     public function doDeleteMultiple($keys);
     public function doHas($key);

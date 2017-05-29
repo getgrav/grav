@@ -41,12 +41,12 @@ class DoctrineCache extends AbstractCache
         $this->driver = $doctrineCache;
     }
 
-    public function doGet($key)
+    public function doGet($key, $miss)
     {
         $value = $this->driver->fetch($key);
 
         // Doctrine cache does not differentiate between no result and cached 'false'. Make sure that we do.
-        return $value !== false || $this->driver->contains($key) ? $value : $this->miss();
+        return $value !== false || $this->driver->contains($key) ? $value : $miss;
     }
 
     public function doSet($key, $value, $ttl)
@@ -64,7 +64,7 @@ class DoctrineCache extends AbstractCache
         return $this->driver->deleteAll();
     }
 
-    public function doGetMultiple($keys)
+    public function doGetMultiple($keys, $miss)
     {
         return $this->driver->fetchMultiple($keys);
     }

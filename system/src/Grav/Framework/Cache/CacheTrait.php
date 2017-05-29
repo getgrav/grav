@@ -28,7 +28,7 @@ trait CacheTrait
     private $defaultLifetime = null;
 
     /**
-     * @var CacheMiss
+     * @var \stdClass
      */
     private $miss;
 
@@ -42,7 +42,7 @@ trait CacheTrait
     {
         $this->namespace = (string) $namespace;
         $this->defaultLifetime = $this->convertTtl($defaultLifetime, true);
-        $this->miss = new CacheMiss();
+        $this->miss = new \stdClass;
     }
 
     /**
@@ -62,32 +62,15 @@ trait CacheTrait
     }
 
     /**
-     * @param mixed $value
-     * @return bool
-     */
-    protected function isHit($value)
-    {
-        return !($value instanceof CacheMiss);
-    }
-
-    /**
-     * @return CacheMiss
-     */
-    protected function miss()
-    {
-        return $this->miss;
-    }
-
-    /**
      * @inheritdoc
      */
     public function get($key, $default = null)
     {
         $this->validateKey($key);
 
-        $value = $this->doGet($key);
+        $value = $this->doGet($key, $this->miss);
 
-        return $this->isHit($value) ? $value : $default;
+        return $value !== $this->miss ? $value : $default;
     }
 
     /**
@@ -137,12 +120,17 @@ trait CacheTrait
         }
 
         $this->validateKeys($keys);
+        $keys = array_unique($keys);
+        $keys = array_combine($keys, $keys);
 
-        $list = $this->doGetMultiple($keys);
+        $list = $this->doGetMultiple($keys, $this->miss);
 
         if (count($list) !== count($keys)) {
-            // Return all values, with default value if they do not exist.
-            return array_replace(array_fill_keys($keys, $default), $list);
+            foreach ($keys as $key) {
+                if (!array_key_exists($key, $list) || $list[$key] === $this->miss) {
+                    $list[$key] = $default;
+                }
+            }
         }
 
         // Make sure that results are returned in the same order as the keys were given.
@@ -204,18 +192,18 @@ trait CacheTrait
         return $this->doHas($key);
     }
 
-    abstract public function doGet($key);
+    abstract public function doGet($key, $miss);
     abstract public function doSet($key, $value, $ttl);
     abstract public function doDelete($key);
     abstract public function doClear();
 
-    public function doGetMultiple($keys)
+    public function doGetMultiple($keys, $miss)
     {
         $results = [];
 
         foreach ($keys as $key) {
-            $value = $this->doGet($key);
-            if ($this->isHit($value)) {
+            $value = $this->doGet($key, $miss);
+            if ($value !== $miss) {
                 $results[$key] = $value;
             }
         }

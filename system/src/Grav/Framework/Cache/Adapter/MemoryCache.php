@@ -31,11 +31,10 @@ class MemoryCache extends AbstractCache
         parent::__construct();
     }
 
-    public function doGet($key)
+    public function doGet($key, $miss)
     {
         if (!array_key_exists($key, $this->cache)) {
-            // Cache misses.
-            $this->cache[$key] = $this->miss();
+            return $miss;
         }
 
         return $this->cache[$key];
@@ -50,7 +49,7 @@ class MemoryCache extends AbstractCache
 
     public function doDelete($key)
     {
-        $this->cache[$key] = $this->miss();
+        unset($this->cache[$key]);
 
         return true;
     }
@@ -64,6 +63,6 @@ class MemoryCache extends AbstractCache
 
     public function doHas($key)
     {
-        return array_key_exists($key, $this->cache) && $this->isHit($this->cache[$key]);
+        return array_key_exists($key, $this->cache);
     }
 }

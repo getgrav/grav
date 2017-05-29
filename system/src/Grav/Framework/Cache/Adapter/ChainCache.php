@@ -29,11 +29,6 @@ class ChainCache extends AbstractCache
     protected $count;
 
     /**
-     * @var \stdClass
-     */
-    protected $miss;
-
-    /**
      * Chain Cache constructor.
      * @param array $caches
      * @param null|int|\DateInterval $defaultLifetime
@@ -54,14 +49,13 @@ class ChainCache extends AbstractCache
 
         $this->caches = array_values($caches);
         $this->count = count($caches);
-        $this->miss = new \stdClass;
     }
 
-    public function doGet($key)
+    public function doGet($key, $miss)
     {
         foreach ($this->caches as $i => $cache) {
-            $value = $cache->doGet($key);
-            if ($this->isHit($value)) {
+            $value = $cache->doGet($key, $miss);
+            if ($value !== $miss) {
                 while (--$i >= 0) {
                     // Update all the previous caches with missing value.
                     $this->caches[$i]->doSet($key, $value, $this->getDefaultLifetime());
@@ -71,7 +65,7 @@ class ChainCache extends AbstractCache
             }
         }
 
-        return $this->miss();
+        return $miss;
     }
 
     public function doSet($key, $value, $ttl)
@@ -110,34 +104,29 @@ class ChainCache extends AbstractCache
     }
 
 
-    public function doGetMultiple($keys)
+    public function doGetMultiple($keys, $miss)
     {
-        $found = [];
-        $missing = [];
+        $list = [];
         foreach ($this->caches as $i => $cache) {
-            $values = $cache->doGetMultiple($i ? $missing[$i - 1] : $keys);
+            $list[$i] = $cache->doGetMultiple($keys, $miss);
 
-            foreach ($values as $key => $value) {
-                if ($this->isHit($value)) {
-                    $found[$key] = $value;
-                } else {
-                    $missing[$i][$key] = true;
-                }
-            }
+            $keys = array_diff_key($keys, $list[$i]);
 
-            if (empty($missing[$i])) {
+            if (!$keys) {
                 break;
             }
         }
 
         $values = [];
         // Update all the previous caches with missing values.
-        foreach (array_reverse($missing) as $i => $keys) {
-            $values += array_intersect($found, $keys);
-            $this->caches[$i]->doSetMultiple($values, $this->getDefaultLifetime());
+        foreach (array_reverse($list) as $i => $items) {
+            $values += $items;
+            if ($i && $values) {
+                $this->caches[$i-1]->doSetMultiple($values, $this->getDefaultLifetime());
+            }
         }
 
-        return $found;
+        return $values;
     }
 
     public function doSetMultiple($values, $ttl)
