@@ -125,16 +125,17 @@ trait CacheTrait
 
         $list = $this->doGetMultiple($keys, $this->miss);
 
-        if (count($list) !== count($keys)) {
-            foreach ($keys as $key) {
-                if (!array_key_exists($key, $list) || $list[$key] === $this->miss) {
-                    $list[$key] = $default;
-                }
+        // Make sure that values are returned in the same order as the keys were given.
+        $values = [];
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $list) || $list[$key] === $this->miss) {
+                $values[$key] = $default;
+            } else {
+                $values[$key] = $list[$key];
             }
         }
 
-        // Make sure that results are returned in the same order as the keys were given.
-        return array_replace(array_flip($keys), $list);
+        return $values;
     }
 
     /**
