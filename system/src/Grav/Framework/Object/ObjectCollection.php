@@ -32,10 +32,6 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
         parent::__construct($elements);
 
         $this->key = $key !== null ? $key : $this->getKey();
-
-        if ($this->key === null) {
-            throw new \InvalidArgumentException('Object cannot be created without assigning a key');
-        }
     }
 
     /**
