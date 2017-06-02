@@ -8,6 +8,9 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Uri;
+use Grav\Common\Utils;
+
 class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 {
     public $id = 'init';
@@ -15,7 +18,8 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 
     public function process()
     {
-        $this->container['config']->debug();
+        $config = $this->container['config'];
+        $config->debug();
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
@@ -33,7 +37,21 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 
         // Initialize uri, session.
         $this->container['session']->init();
-        $this->container['uri']->init();
+
+        /** @var Uri $uri */
+        $uri = $this->container['uri'];
+        $uri->init();
+
+        // Redirect pages with trailing slash if configured to do so.
+        $path = $uri->path() ?: '/';
+        if ($config->get('system.pages.redirect_trailing_slash', false) && $path !== '/' && Utils::endsWith($path, '/')) {
+            $this->container->redirect(rtrim($path, '/'));
+        }
+
+        // Set some Grav stuff
+        $this->container['base_url_absolute'] = $config->get('system.custom_base_url') ?: $uri->rootUrl(true);
+        $this->container['base_url_relative'] = $uri->rootUrl(false);
+        $this->container['base_url'] = $config->get('system.absolute_urls') ? $this->container['base_url_absolute'] : $this->container['base_url_relative'];
 
         $this->container->setLocale();
     }

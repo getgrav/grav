@@ -337,7 +337,7 @@ class TwigExtension extends \Twig_Extension
      * @param  string   $filter
      * @param array|int $direction
      *
-     * @return string
+     * @return array
      */
     public function sortByKeyFilter(array $input, $filter, $direction = SORT_ASC)
     {
@@ -744,7 +744,7 @@ class TwigExtension extends \Twig_Extension
      * Output a Gist
      *
      * @param  string $id
-     * @param  string $file
+     * @param  string|bool $file
      *
      * @return string
      */
@@ -803,7 +803,7 @@ class TwigExtension extends \Twig_Extension
      *
      * @param string $key           key of item
      * @param string $val           value of item
-     * @param string $current_array optional array to add to
+     * @param array  $current_array optional array to add to
      *
      * @return array
      */
@@ -941,7 +941,7 @@ class TwigExtension extends \Twig_Extension
     public function redirectFunc($url, $statusCode = 303)
     {
         header('Location: ' . $url, true, $statusCode);
-        die();
+        exit();
     }
 
     /**
@@ -1004,6 +1004,8 @@ class TwigExtension extends \Twig_Extension
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -1025,6 +1027,7 @@ class TwigExtension extends \Twig_Extension
             return new Media($media_dir);
         }
 
+        return null;
     }
 
     /**

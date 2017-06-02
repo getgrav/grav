@@ -1580,13 +1580,18 @@ class Page
      * Gets the url for the Page.
      *
      * @param bool $include_host Defaults false, but true would include http://yourhost.com
-     * @param bool $canonical true to return the canonical URL
-     * @param bool $include_lang
+     * @param bool $canonical    True to return the canonical URL
+     * @param bool $include_base Include base url on multisite as well as language code
      * @param bool $raw_route
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_lang = true, $raw_route = false)
+    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false)
     {
+        // Override any URL when external_url is set
+        if (isset($this->external_url)) {
+            return $this->external_url;
+        }
+
         $grav = Grav::instance();
 
         /** @var Pages $pages */
@@ -1595,41 +1600,25 @@ class Page
         /** @var Config $config */
         $config = $grav['config'];
 
-        /** @var Language $language */
-        $language = $grav['language'];
-
-        /** @var Uri $uri */
-        $uri = $grav['uri'];
-
-        // Override any URL when external_url is set
-        if (isset($this->external_url)) {
-            return $this->external_url;
-        }
-
-        // get pre-route
-        if ($include_lang && $language->enabled()) {
-            $pre_route = $language->getLanguageURLPrefix();
-        } else {
-            $pre_route = '';
-        }
+        // get base route (multisite base and language)
+        $route = $include_base ? $pages->baseRoute() : '';
 
         // add full route if configured to do so
-        if ($config->get('system.absolute_urls', false)) {
+        if (!$include_host && $config->get('system.absolute_urls', false)) {
             $include_host = true;
         }
 
-        // get canonical route if requested
         if ($canonical) {
-            $route = $pre_route . $this->routeCanonical();
+            $route .= $this->routeCanonical();
         } elseif ($raw_route) {
-            $route = $pre_route . $this->rawRoute();
+            $route .= $this->rawRoute();
         } else {
-            $route = $pre_route . $this->route();
+            $route .= $this->route();
         }
 
-        $rootUrl = $uri->rootUrl($include_host) . $pages->base();
-
-        $url = $rootUrl . '/' . trim($route, '/') . $this->urlExtension();
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+        $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
 
         // trim trailing / if not root
         if ($url !== '/') {

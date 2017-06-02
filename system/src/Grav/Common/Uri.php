@@ -295,11 +295,6 @@ class Uri
             $uri = str_replace($setup_base, '', $uri);
         }
 
-        // If configured to, redirect trailing slash URI's with a 301 redirect
-        if ($config->get('system.pages.redirect_trailing_slash', false) && $uri != '/' && Utils::endsWith($uri, '/')) {
-            $grav->redirect(str_replace($this->root, '', rtrim($uri, '/')), 301);
-        }
-
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
 
@@ -349,11 +344,6 @@ class Uri
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
         }
-
-        // Set some Grav stuff
-        $grav['base_url_absolute'] = $grav['config']->get('system.custom_base_url') ?: $this->rootUrl(true);
-        $grav['base_url_relative'] = $this->rootUrl(false);
-        $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
     }
 
     /**
