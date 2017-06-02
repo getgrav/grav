@@ -445,6 +445,9 @@ class TwigExtension extends \Twig_Extension
             $difference = $now - $unix_date;
             $tense      = $this->grav['language']->translate('NICETIME.AGO', null, true);
 
+        } else if ($now == $unix_date) {
+            $tense      = $this->grav['language']->translate('NICETIME.JUST_NOW', null, false);
+            
         } else {
             $difference = $unix_date - $now;
             $tense      = $this->grav['language']->translate('NICETIME.FROM_NOW', null, true);
@@ -469,8 +472,13 @@ class TwigExtension extends \Twig_Extension
         }
 
         $periods[$j] = $this->grav['language']->translate($periods[$j], null, true);
-
-        return "$difference $periods[$j] {$tense}";
+        
+        if ($now == $unix_date) {
+            return "{$tense}";
+        }
+        else {
+            return "$difference $periods[$j] {$tense}";
+        }
     }
 
     /**
