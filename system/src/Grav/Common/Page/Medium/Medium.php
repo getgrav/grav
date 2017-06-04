@@ -175,7 +175,7 @@ class Medium extends Data implements RenderableInterface
             $this->reset();
         }
 
-        return Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/');
+        return trim(Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/'), '\\');
     }
 
     /**
