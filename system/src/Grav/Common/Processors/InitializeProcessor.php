@@ -48,11 +48,6 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
             $this->container->redirect(rtrim($path, '/'));
         }
 
-        // Set some Grav stuff
-        $this->container['base_url_absolute'] = $config->get('system.custom_base_url') ?: $uri->rootUrl(true);
-        $this->container['base_url_relative'] = $uri->rootUrl(false);
-        $this->container['base_url'] = $config->get('system.absolute_urls') ? $this->container['base_url_absolute'] : $this->container['base_url_relative'];
-
         $this->container->setLocale();
     }
 }
