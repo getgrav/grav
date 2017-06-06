@@ -11,6 +11,7 @@
 1. [](#bugfix)
     * Updated to latest Toolbox library to fix issue with some blueprints rendering in admin plugin [#1117](https://github.com/getgrav/grav-plugin-admin/issues/1117)
     * Fix output handling in RenderProcessor [#1483](https://github.com/getgrav/grav/pull/1483)
+    * Restore GravTrait in ConsoleTrait [grav-plugin-login#119](https://github.com/getgrav/grav-plugin-login/issues/119)
 
 # v1.3.0-rc.2
 ## 05/17/2017
