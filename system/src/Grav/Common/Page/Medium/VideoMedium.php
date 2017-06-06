@@ -30,6 +30,46 @@ class VideoMedium extends Medium
         ];
     }
 
+
+    /**
+     * Set video autoplay on
+     *
+     * @return $this
+     */
+    public function autoplay()
+    {
+        $this->attributes['autoplay'] = true;
+
+        return $this;
+    }
+
+
+    /**
+     * Set video loop
+     *
+     * @return $this
+     */
+    public function loop()
+    {
+        $this->attributes['loop'] = true;
+
+        return $this;
+    }
+
+
+    /**
+     * Set controls visibility off
+     *
+     * @return $this
+     */
+    public function hideControls()
+    {
+        unset($this->attributes['controls']);
+
+        return $this;
+    }
+
+
     /**
      * Allows to set or remove the HTML5 default controls
      *
