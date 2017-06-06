@@ -184,18 +184,97 @@ abstract class Utils
     }
 
     /**
-     * Truncate text by number of characters in a "word-safe" manor.
+     * Truncate text by number of characters in a "word-safe" manner.
      *
      * @param string $string
      * @param int    $limit
+     * @param string $break
+     * @param string $pad
      *
      * @return string
      */
-    public static function safeTruncate($string, $limit = 150)
+    public static function safeTruncate($string, $limit = 150, $break = " ", $pad = "&hellip;")
     {
-        return static::truncate($string, $limit, true);
+        return static::truncate($string, $limit, true, $break, $pad);
     }
 
+    /**
+     * Word wrap a string at a given column length in a "word-safe" manner.
+     *
+     * @param string $string    The string to be wrapped
+     * @param int    $limit     The maximum width of a given line
+     * @param string $eol       The string you wish to use to separate the lines
+     * @param string $break     The string at which you can break a line
+     *
+     * @return string
+     * 
+     * We can't leverage Utils::truncate() because of how it handles long words at the end of the string.
+     */
+     public static function wordwrap($string, $limit = 150, $eol = "\n", $break = " ") {
+        $lines = [];
+
+        $working = $string;
+        while (mb_strlen($working) > 0) {
+            $line = '';
+
+            // return with no change if string is shorter than $limit
+            if (mb_strlen($working) <= $limit) {
+                $line = $working;
+            }
+
+            // is $break present between $limit and the end of the string?
+            elseif (($breakpoint = static::findBreakpoint($working, $limit, $break)) !== null) {
+                $line = mb_substr($working, 0, $breakpoint);
+            } else {
+                $line = $working;
+            }
+
+            $lines[] = $line;
+            $working = mb_substr($working, mb_strlen($line)+1);
+        }
+        return implode($eol, $lines);
+    }
+
+    /**
+     * Find the breakpoint to support word-safe wordwrapping
+     *
+     * @param string $string    The string to be searched
+     * @param int    $limit     The maximum width of a given line
+     * @param string $breakstr  The string at which you can break a line
+     *
+     * @return integer
+     */
+    private static function findBreakpoint($string, $limit, $breakstr=" ") {
+        $breaks = [];
+
+        $last = 0;
+        while (($last = mb_strpos($string, $breakstr, $last)) !== false) {
+            $breaks[] = $last;
+            $last = $last + mb_strlen($breakstr);
+            if ($last > $limit) {
+                break;
+            }
+        }
+
+        if (count($breaks) === 0) {
+            # We're at the end of the string and there is no break string anywhere.
+            return null;
+        } elseif (count($breaks) === 1) {
+            # The break string doesn't occur within the limit,
+            # but there's a break point after, meaning there's still string that needs breaking. 
+            return $breaks[0];
+        } else {
+            $last = end($breaks);
+            $secondlast = prev($breaks);
+            if ($last <= $limit) {
+                # Edge case near the end of the string.
+                return $last;
+            } else {
+                # This is the most common case.
+                return $secondlast;
+            }
+        }
+    }
 
     /**
      * Truncate HTML by number of characters. not "word-safe"!
@@ -216,7 +295,7 @@ abstract class Utils
     }
 
     /**
-     * Truncate HTML by number of characters in a "word-safe" manor.
+     * Truncate HTML by number of characters in a "word-safe" manner.
      *
      * @param  string $text
      * @param  int    $length in words

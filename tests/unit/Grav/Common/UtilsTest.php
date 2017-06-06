@@ -114,6 +114,29 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     }
 
+    public function testWordwrap() {
+        $teststr = 'Lorem ipsum dolor sit amet, solet recusabo concludaturque eu duo, ei posse error albucius eum. Sit no quas populo accusamus.';
+        $r80 = "Lorem ipsum dolor sit amet, solet recusabo concludaturque eu duo, ei posse error\nalbucius eum. Sit no quas populo accusamus.";
+        $r40 = "Lorem ipsum dolor sit amet, solet\nrecusabo concludaturque eu duo, ei posse\nerror albucius eum. Sit no quas populo\naccusamus.";
+        $r39 = "Lorem ipsum dolor sit amet, solet\nrecusabo concludaturque eu duo, ei\nposse error albucius eum. Sit no quas\npopulo accusamus.";
+        $r10 = "Lorem\nipsum\ndolor sit\namet,\nsolet\nrecusabo\nconcludaturque\neu duo, ei\nposse\nerror\nalbucius\neum. Sit\nno quas\npopulo\naccusamus.";
+
+        $mb_teststr = 'Лорем ипсум долор сит амет, цум еа иллуд платонем инцидеринт, еу хис феугиат сцаевола! Фацилис диссентиет яуо еи, еум ет.';
+        $mb_r80 = "Лорем ипсум долор сит амет, цум еа иллуд платонем инцидеринт, еу хис феугиат\nсцаевола! Фацилис диссентиет яуо еи, еум ет.";
+        $mb_r40 = "Лорем ипсум долор сит амет, цум еа иллуд\nплатонем инцидеринт, еу хис феугиат\nсцаевола! Фацилис диссентиет яуо еи, еум\nет.";
+        $mb_r39 = "Лорем ипсум долор сит амет, цум еа\nиллуд платонем инцидеринт, еу хис\nфеугиат сцаевола! Фацилис диссентиет\nяуо еи, еум ет.";
+        $mb_r10 = "Лорем\nипсум\nдолор сит\nамет, цум\nеа иллуд\nплатонем\nинцидеринт,\nеу хис\nфеугиат\nсцаевола!\nФацилис\nдиссентиет\nяуо еи,\nеум ет.";
+
+        $this->assertEquals($r80, Utils::wordwrap($teststr, 80));
+        $this->assertEquals($r40, Utils::wordwrap($teststr, 40));
+        $this->assertEquals($r39, Utils::wordwrap($teststr, 39));
+        $this->assertEquals($r10, Utils::wordwrap($teststr, 10));
+        $this->assertEquals($mb_r80, Utils::wordwrap($mb_teststr, 80));
+        $this->assertEquals($mb_r40, Utils::wordwrap($mb_teststr, 40));
+        $this->assertEquals($mb_r39, Utils::wordwrap($mb_teststr, 39));
+        $this->assertEquals($mb_r10, Utils::wordwrap($mb_teststr, 10));
+    }
+
     public function testSafeTruncate()
     {
         $this->assertEquals('This ', Utils::safeTruncate('This is a string to truncate', 1));
