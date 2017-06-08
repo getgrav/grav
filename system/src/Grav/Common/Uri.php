@@ -113,7 +113,7 @@ class Uri
      *
      * @return string
      */
-    private function buildUri()
+    public function buildUri()
     {
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
