@@ -73,7 +73,7 @@ class PageServiceProvider implements ServiceProviderInterface
                         $c->redirect($url);
                     }
                     if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
-                        $c->redirectLangSafe($url);
+                        $c->redirectLangSafe($path);
                     }
                 }
                 // Default route test and redirect
