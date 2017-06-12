@@ -7,28 +7,35 @@
     * Added `Grav\Framework\Object` classes for creating collections of objects
     * Added `Grav\Framework\Page` interfaces
     * Deprecated GravTrait
-
-# v1.3.0-rc.4
-## mm/dd/2017
-
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
+
+# v1.3.x
+## 06/xx/2017
+
+1. [](#new)
+    * Added `lower` and `upper` Twig filters
+    * Added `pathinfo()` Twig function
+    * Added 165 new thumbnail images for use in `media.yaml`
+1. [](#improved)
+    * Improved error message when running `bin/grav install` instead of `bin/gpm install`, and also when running on a non-skeleton site [#1027](https://github.com/getgrav/grav/issues/1027)
+1. [](#bugfix)
+    * Restore GravTrait in ConsoleTrait [grav-plugin-login#119](https://github.com/getgrav/grav-plugin-login/issues/119)
+    * Fix Windows routing with built-in server [#1502](https://github.com/getgrav/grav/issues/1502)
+    * Fix [#1504](https://github.com/getgrav/grav/issues/1504) `process_twig` and `frontmatter.yaml`
+    * Nicetime fix: 0 seconds from now -> just now [#1509](https://github.com/getgrav/grav/issues/1509)
 
 # v1.3.0-rc.3
 ## 05/22/2017
 
 1. [](#new)
     * Added new unified `Utils::getPagePathFromToken()` method which is used by various plugins (Admin, Forms, Downloads, etc.)
-    * Added 165 new thumbnail images for use in `media.yaml`
-    * Added `pathinfo()` Twig function
 1. [](#improved)
     * Optionally remove unpublished pages from the translated languages, move into untranslated list [#1482](https://github.com/getgrav/grav/pull/1482)
     * Improved reliability of `hash` file-check method
-    * Improved error message when running `bin/grav install` instead of `bin/gpm install`, and also when running on a non-skeleton site [#1027](https://github.com/getgrav/grav/issues/1027)
 1. [](#bugfix)
     * Updated to latest Toolbox library to fix issue with some blueprints rendering in admin plugin [#1117](https://github.com/getgrav/grav-plugin-admin/issues/1117)
     * Fix output handling in RenderProcessor [#1483](https://github.com/getgrav/grav/pull/1483)
-    * Restore GravTrait in ConsoleTrait [grav-plugin-login#119](https://github.com/getgrav/grav-plugin-login/issues/119)
 
 # v1.3.0-rc.2
 ## 05/17/2017
