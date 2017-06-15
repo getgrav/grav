@@ -124,3 +124,14 @@ Any pull request should be based on the `develop` branch. We will not consider p
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project owner to
 license your work under the same license as that used by the project.
+
+<a name="translations"></a>
+### Translations
+Translations for Grav core and the Admin plugin are managed through Crowdin:
+
+- Admin: https://crowdin.com/project/grav-admin
+- Core: https://crowdin.com/project/grav-core
+
+Please do not post translations PRs for core or admin translations on GitHub, with the exception of fixes for the english language.
+
+All other plugins and themes translations are handled directly in their GitHub repository, and the string are usually found in the `languages.yaml` file at the root of each project.
