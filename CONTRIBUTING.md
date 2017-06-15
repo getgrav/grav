@@ -120,5 +120,7 @@ accurate comments, etc.) and any other requirements.
 
 See [Using Pull Request](https://help.github.com/articles/using-pull-requests/) and [Fork a Repo](https://help.github.com/articles/fork-a-repo/) if you're not familiar with Pull Requests.
 
+Any pull request should be based on the `develop` branch. We will not consider pull requests made to master.
+
 **IMPORTANT**: By submitting a patch, you agree to allow the project owner to
 license your work under the same license as that used by the project.
