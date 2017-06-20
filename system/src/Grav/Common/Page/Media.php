@@ -133,13 +133,16 @@ class Media extends AbstractMedia
                 continue;
             }
 
-            // Read/store Exif metadata as required
-            if ($file_path  && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
+            // metadata file
+            $meta_path = $file_path . '.meta.yaml';
+
+            if (file_exists($meta_path)) {
+                $types['meta']['file'] = $meta_path;
+            } elseif ($file_path && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
 
                 $meta = $exif_reader->read($file_path);
 
                 if ($meta) {
-                    $meta_path = $file_path . '.meta.yaml';
                     $meta_data = $meta->getData();
                     $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
                     if ($meta_trimmed) {

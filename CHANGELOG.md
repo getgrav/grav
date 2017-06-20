@@ -8,6 +8,7 @@
 1. [](#improved)
     * Improved error message when running `bin/grav install` instead of `bin/gpm install`, and also when running on a non-skeleton site [#1027](https://github.com/getgrav/grav/issues/1027)
 1. [](#bugfix)
+    * Don't rebuild metadata every time, only when file does not exist
     * Restore GravTrait in ConsoleTrait [grav-plugin-login#119](https://github.com/getgrav/grav-plugin-login/issues/119)
     * Fix Windows routing with built-in server [#1502](https://github.com/getgrav/grav/issues/1502)
     * Fix [#1504](https://github.com/getgrav/grav/issues/1504) `process_twig` and `frontmatter.yaml`
