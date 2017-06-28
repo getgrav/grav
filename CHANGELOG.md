@@ -10,8 +10,8 @@
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
 
-# v1.3.x
-## 06/xx/2017
+# v1.3.0-rc.4
+## 06/22/2017
 
 1. [](#new)
     * Added `lower` and `upper` Twig filters
@@ -19,7 +19,9 @@
     * Added 165 new thumbnail images for use in `media.yaml`
 1. [](#improved)
     * Improved error message when running `bin/grav install` instead of `bin/gpm install`, and also when running on a non-skeleton site [#1027](https://github.com/getgrav/grav/issues/1027)
+    * Updated vendor libraries
 1. [](#bugfix)
+    * Don't rebuild metadata every time, only when file does not exist
     * Restore GravTrait in ConsoleTrait [grav-plugin-login#119](https://github.com/getgrav/grav-plugin-login/issues/119)
     * Fix Windows routing with built-in server [#1502](https://github.com/getgrav/grav/issues/1502)
     * Fix [#1504](https://github.com/getgrav/grav/issues/1504) `process_twig` and `frontmatter.yaml`
