@@ -1,3 +1,9 @@
+# v1.3.0-rc.5
+## mm/dd/2017
+
+1. [](#bugfix)
+    * Fixed global media files disappearing after a reload (#1545)
+
 # v1.3.0-rc.4
 ## 06/22/2017
 
