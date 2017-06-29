@@ -2,7 +2,8 @@
 ## mm/dd/2017
 
 1. [](#bugfix)
-    * Fixed global media files disappearing after a reload (#1545)
+    * Fixed global media files disappearing after a reload [#1545](https://github.com/getgrav/grav/issues/1545)
+    * Set folder name as required during validation [grav-plugin-admin#1146](https://github.com/getgrav/grav-plugin-admin/issues/1146)
 
 # v1.3.0-rc.4
 ## 06/22/2017
