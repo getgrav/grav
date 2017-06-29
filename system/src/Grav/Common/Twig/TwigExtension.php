@@ -129,7 +129,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('range', [$this, 'rangeFunc']),
             new \Twig_SimpleFunction('isajaxrequest', [$this, 'isAjaxFunc']),
             new \Twig_SimpleFunction('exif', [$this, 'exifFunc']),
-            new \Twig_SimpleFunction('media', [$this, 'mediaFunc']),
+            new \Twig_SimpleFunction('media_directory', [$this, 'mediaDirFunc']),
 
         ];
     }
@@ -447,7 +447,7 @@ class TwigExtension extends \Twig_Extension
 
         } else if ($now == $unix_date) {
             $tense      = $this->grav['language']->translate('NICETIME.JUST_NOW', null, false);
-            
+
         } else {
             $difference = $unix_date - $now;
             $tense      = $this->grav['language']->translate('NICETIME.FROM_NOW', null, true);
@@ -472,7 +472,7 @@ class TwigExtension extends \Twig_Extension
         }
 
         $periods[$j] = $this->grav['language']->translate($periods[$j], null, true);
-        
+
         if ($now == $unix_date) {
             return "{$tense}";
         }
@@ -1012,7 +1012,7 @@ class TwigExtension extends \Twig_Extension
      * @param $media_dir
      * @return Media
      */
-    public function mediaFunc($media_dir)
+    public function mediaDirFunc($media_dir)
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];

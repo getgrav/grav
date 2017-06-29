@@ -30,12 +30,19 @@ class Media extends AbstractMedia
     {
         $this->path = $path;
 
+        $this->__wakeup();
+        $this->init();
+    }
+
+    /**
+     * Initialize static variables on unserialize.
+     */
+    public function __wakeup()
+    {
         if (!isset(static::$global)) {
             // Add fallback to global media.
-            static::$global = new GlobalMedia($path);
+            static::$global = new GlobalMedia();
         }
-
-        $this->init();
     }
 
     /**
