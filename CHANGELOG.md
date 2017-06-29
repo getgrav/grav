@@ -1,6 +1,8 @@
 # v1.3.0-rc.5
 ## mm/dd/2017
 
+1. [](#new)
+    * Setting `system.session.timeout` to 0 clears the session when the browser session ends [#1538](https://github.com/getgrav/grav/pull/1538)
 1. [](#bugfix)
     * Fixed global media files disappearing after a reload [#1545](https://github.com/getgrav/grav/issues/1545)
     * Set folder name as required during validation [grav-plugin-admin#1146](https://github.com/getgrav/grav-plugin-admin/issues/1146)
