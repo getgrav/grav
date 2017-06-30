@@ -122,7 +122,6 @@ form:
                       label: PLUGIN_ADMIN.FOLDER_NAME
                       validate:
                         rule: slug
-                        required: true
 
                     route:
                       type: parents
