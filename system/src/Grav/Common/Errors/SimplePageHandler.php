@@ -44,7 +44,7 @@ class SimplePageHandler extends Handler
         $vars = array(
             "stylesheet" => file_get_contents($cssFile),
             "code"        => $code,
-            "message"     => $message,
+            "message"     => filter_var(rawurldecode($message), FILTER_SANITIZE_STRING),
         );
 
         $helper->setVariables($vars);
