@@ -497,11 +497,14 @@ class Page
 
         // Set up variables to process summary from page or from custom summary
         if ($this->summary === null) {
-            $content = $this->content();
+            $content = strip_tags($this->content());
             $summary_size = $this->summary_size;
         } else {
-            $content = $this->summary;
-            $summary_size = mb_strlen($this->summary);
+            $content = strip_tags($this->summary);
+            // Use mb_strwidth to deal with the 2 character widths characters
+            // Size should not include the html tags
+            // Or like <p>, <blockquote> will make the rendered width totally different
+            $summary_size = mb_strwidth($content ,'utf-8');
         }
 
         // Return calculated summary based on summary divider's position
@@ -510,7 +513,12 @@ class Page
         if (!in_array($format, ['short', 'long'])) {
             return $content;
         } elseif (($format === 'short') && isset($summary_size)) {
-            return mb_substr($content, 0, $summary_size);
+            // Use mb_strimwidth to slice the string
+            if(mb_strwidth($content, 'utf8')>$summary_size){
+                return mb_strimwidth($content, 0, $summary_size);
+            } else {
+                return $content;
+            }
         }
 
         // Get summary size from site config's file
@@ -526,8 +534,15 @@ class Page
             $size = 300;
         }
 
-        $summary = Utils::truncateHTML($content, $size);
 
+        if (mb_strwidth($content,'utf-8') <= $size) {
+            return $content;
+        } else {
+            // Only return string but not html, wrap whatever html tag you want when using
+            return mb_strimwidth($content, 0, $size, '...', 'utf-8');
+//          return Truncator::truncateLetters($text, $length, $ellipsis);
+        }
+        
         return html_entity_decode($summary);
     }
 
