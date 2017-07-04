@@ -84,7 +84,7 @@ class Session extends BaseSession
             }
             $this->setName($session_name);
             $this->start();
-            setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
+            setcookie(session_name(), session_id(), $session_timeout ? time() + $session_timeout : 0, $session_path, $domain, $secure, $httponly);
         }
     }
 

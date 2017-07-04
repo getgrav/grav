@@ -10,6 +10,19 @@
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
 
+# v1.3.0-rc.5
+## xx/xx/2017
+
+1. [](#new)
+    * Setting `system.session.timeout` to 0 clears the session when the browser session ends [#1538](https://github.com/getgrav/grav/pull/1538)
+    * Created a `CODE_OF_CONDUCT.md` so everyone knows how to behave :)
+1. [](#improved)
+    * Renamed new `media()` Twig function to `media_directory()` to avoid conflict with Page's `media` object
+1. [](#bugfix)
+    * Fixed global media files disappearing after a reload [#1545](https://github.com/getgrav/grav/issues/1545)
+    * Fix for broken regex redirects/routes via `site.yaml`
+    * Sanitize the error message in the error handler page
+
 # v1.3.0-rc.4
 ## 06/22/2017
 
