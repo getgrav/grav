@@ -1,5 +1,5 @@
 # v1.3.0-rc.5
-## xx/xx/2017
+## 07/05/2017
 
 1. [](#new)
     * Setting `system.session.timeout` to 0 clears the session when the browser session ends [#1538](https://github.com/getgrav/grav/pull/1538)
