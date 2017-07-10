@@ -1240,7 +1240,7 @@ class Pages
                 case 'default':
                 default:
                     $list[$key] = $key;
-                    $sort_flags = $sort_flags ?: SORT_NATURAL | SORT_FLAG_CASE;
+                    $sort_flags = $sort_flags ?: SORT_REGULAR;
             }
         }
 
