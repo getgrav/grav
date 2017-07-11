@@ -1,3 +1,10 @@
+# v1.3.0-xx
+## xx/xx/2017
+
+1. [](#bugfix)
+    * Fixed an undefined variable `$difference` [#1563](https://github.com/getgrav/grav/pull/1563)
+    * Fix broken range slider [grav-plugin-admin#1153](https://github.com/getgrav/grav-plugin-admin/issues/1153)
+
 # v1.3.0-rc.5
 ## 07/05/2017
 
