@@ -481,9 +481,11 @@ class Page
      *
      * @param  int $size Max summary size.
      *
+     * @param boolean $textOnly Only count text size.
+     *
      * @return string
      */
-    public function summary($size = null)
+    public function summary($size = null, $textOnly = false)
     {
         $config = (array)Grav::instance()['config']->get('site.summary');
         if (isset($this->header->summary)) {
@@ -497,13 +499,10 @@ class Page
 
         // Set up variables to process summary from page or from custom summary
         if ($this->summary === null) {
-            $content = strip_tags($this->content());
+        	$content = $textOnly?strip_tags($this->content()):$this->content();
             $summary_size = $this->summary_size;
         } else {
-            $content = strip_tags($this->summary);
-            // Use mb_strwidth to deal with the 2 character widths characters
-            // Size should not include the html tags
-            // Or like <p>, <blockquote> will make the rendered width totally different
+            $content = $textOnly?strip_tags($this->summary):$this->summary;
             $summary_size = mb_strwidth($content ,'utf-8');
         }
 
@@ -513,7 +512,6 @@ class Page
         if (!in_array($format, ['short', 'long'])) {
             return $content;
         } elseif (($format === 'short') && isset($summary_size)) {
-            // Use mb_strimwidth to slice the string
             if(mb_strwidth($content, 'utf8')>$summary_size){
                 return mb_strimwidth($content, 0, $summary_size);
             } else {
@@ -534,15 +532,15 @@ class Page
             $size = 300;
         }
 
+		if ($textOnly) {
+			if (mb_strwidth($content,'utf-8') <= $size) {
+				return $content;
+			}
+			return mb_strimwidth($content, 0, $size, '...', 'utf-8');
+		}
 
-        if (mb_strwidth($content,'utf-8') <= $size) {
-            return $content;
-        } else {
-            // Only return string but not html, wrap whatever html tag you want when using
-            return mb_strimwidth($content, 0, $size, '...', 'utf-8');
-//          return Truncator::truncateLetters($text, $length, $ellipsis);
-        }
-        
+	    $summary = Utils::truncateHTML($content, $size);
+
         return html_entity_decode($summary);
     }
 
