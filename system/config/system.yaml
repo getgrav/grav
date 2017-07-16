@@ -121,10 +121,11 @@ images:
   auto_fix_orientation: false                    # Automatically fix the image orientation based on the Exif data
 
 media:
-  enable_media_timestamp: false                  # Enable media timetsamps
+  enable_media_timestamp: false                  # Enable media timestamps
   upload_limit: 0                                # Set maximum upload size in bytes (0 is unlimited)
   unsupported_inline_types: []                   # Array of supported media types to try to display inline
   allowed_fallback_types: []                     # Array of allowed media types of files found if accessed via Page route
+  auto_metadata_exif: false                      # Automatically create metadata files from Exif data where possible
 
 session:
   enabled: true                                  # Enable Session support

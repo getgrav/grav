@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Data
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -36,6 +36,11 @@ class Validation
 
         if (!isset($field['type'])) {
             $field['type'] = 'text';
+        }
+
+        // If this is a YAML field, stop validation
+        if (isset($field['yaml']) && $field['yaml'] === true) {
+            return $messages;
         }
 
         // Get language class.
@@ -98,13 +103,7 @@ class Validation
 
         // If this is a YAML field, simply parse it and return the value.
         if (isset($field['yaml']) && $field['yaml'] === true) {
-            try {
-                $yaml = new Parser();
-
-                return $yaml->parse($value);
-            } catch (ParseException $e) {
-                throw new \RuntimeException($e->getMessage());
-            }
+            return $value;
         }
 
         // Validate type with fallback type text.
@@ -166,6 +165,17 @@ class Validation
     {
         return is_array($value) ? true : self::typeText($value, $params, $field);
     }
+
+    protected static function filterLower($value, array $params)
+    {
+        return strtolower($value);
+    }
+
+    protected static function filterUpper($value, array $params)
+    {
+        return strtoupper($value);
+    }
+
 
     /**
      * HTML5 input: textarea
@@ -664,6 +674,7 @@ class Validation
     {
         return $value;
     }
+
 
     // HTML5 attributes (min, max and range are handled inside the types)
 

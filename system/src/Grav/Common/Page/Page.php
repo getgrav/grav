@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -156,8 +156,8 @@ class Page
     protected function processFrontmatter()
     {
         // Quick check for twig output tags in frontmatter if enabled
-        if (Utils::contains($this->frontmatter, '{{')) {
-            $process_fields = $this->file()->header();
+        $process_fields = (array)$this->header();
+        if (Utils::contains(json_encode(array_values($process_fields)), '{{')) {
             $ignored_fields = [];
             foreach ((array)Grav::instance()['config']->get('system.pages.frontmatter.ignore_fields') as $field) {
                 if (isset($process_fields[$field])) {
@@ -172,9 +172,12 @@ class Page
 
     /**
      * Return an array with the routes of other translated languages
+     *
+     * @param bool $onlyPublished only return published translations
+     *
      * @return array the page translated languages
      */
-    public function translatedLanguages()
+    public function translatedLanguages($onlyPublished = false)
     {
         $filename = substr($this->name, 0, -(strlen($this->extension())));
         $config = Grav::instance()['config'];
@@ -192,6 +195,10 @@ class Page
                     $route = $aPage->slug();
                 }
 
+                if ($onlyPublished && !$aPage->published()) {
+                    continue;
+                }
+
                 $translatedLanguages[$language] = $route;
             }
         }
@@ -201,9 +208,12 @@ class Page
 
     /**
      * Return an array listing untranslated languages available
+     *
+     * @param bool $includeUnpublished also list unpublished translations
+     *
      * @return array the page untranslated languages
      */
-    public function untranslatedLanguages()
+    public function untranslatedLanguages($includeUnpublished = false)
     {
         $filename = substr($this->name, 0, -(strlen($this->extension())));
         $config = Grav::instance()['config'];
@@ -212,7 +222,13 @@ class Page
 
         foreach ($languages as $language) {
             $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language . '.md';
-            if (!file_exists($path)) {
+            if (file_exists($path)) {
+                $aPage = new Page();
+                $aPage->init(new \SplFileInfo($path), $language . '.md');
+                if ($includeUnpublished && !$aPage->published()) {
+                    $untranslatedLanguages[] = $language;
+                }
+            } else {
                 $untranslatedLanguages[] = $language;
             }
         }
@@ -309,16 +325,16 @@ class Page
                     $this->header = (object)$file->header();
 
                     if (!Utils::isAdminPlugin()) {
-                        // Process frontmatter with Twig if enabled
-                        if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
-                            $this->processFrontmatter();
-                        }
                         // If there's a `frontmatter.yaml` file merge that in with the page header
                         // note page's own frontmatter has precedence and will overwrite any defaults
                         $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
                         if (file_exists($frontmatter_file)) {
                             $frontmatter_data = (array)Yaml::parse(file_get_contents($frontmatter_file));
                             $this->header = (object)array_replace_recursive($frontmatter_data, (array)$this->header);
+                        }
+                        // Process frontmatter with Twig if enabled
+                        if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
+                            $this->processFrontmatter();
                         }
                     }
                 } catch (ParseException $e) {
@@ -1497,9 +1513,6 @@ class Page
     {
         if ($var !== null && $var !== "") {
             $this->slug = $var;
-            if (!preg_match('/^[a-z0-9][-a-z0-9]*$/', $this->slug)) {
-                Grav::instance()['log']->notice("Invalid slug set in YAML frontmatter: " . $this->rawRoute() . " => " . $this->slug);
-            }
         }
 
         if (empty($this->slug)) {

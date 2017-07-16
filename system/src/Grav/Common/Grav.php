@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -18,8 +18,14 @@ use RocketTheme\Toolbox\Event\Event;
 
 class Grav extends Container
 {
+    /**
+     * @var string Processed output for the page.
+     */
+    public $output;
 
-    /** @var static The singleton instance */
+    /**
+     * @var static The singleton instance
+     */
     protected static $instance;
 
     /**
@@ -45,6 +51,7 @@ class Grav extends Container
         'Grav\Common\Service\PageServiceProvider',
         'Grav\Common\Service\OutputServiceProvider',
         'browser'                 => 'Grav\Common\Browser',
+        'exif'                    => 'Grav\Common\Helpers\Exif',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\ConfigServiceProvider',
         'inflector'               => 'Grav\Common\Inflector',
@@ -63,7 +70,9 @@ class Grav extends Container
         'renderProcessor'         => 'Grav\Common\Processors\RenderProcessor',
     ];
 
-    /** @var array All processors that are processed in $this->process() */
+    /**
+     * @var array All processors that are processed in $this->process()
+     */
     protected $processors = [
         'siteSetupProcessor',
         'configurationProcessor',
@@ -116,9 +125,6 @@ class Grav extends Container
      */
     public function process()
     {
-        /** @var Debugger $debugger */
-        $debugger = $this['debugger'];
-
         // process all processors (e.g. config, initialize, assets, ..., render)
         foreach ($this->processors as $processor) {
             $processor = $this[$processor];
@@ -127,13 +133,9 @@ class Grav extends Container
             });
         }
 
-        // Set the header type
-        $this->header();
-
-        echo $this->output;
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
         $debugger->render();
-
-        $this->fireEvent('onOutputRendered');
 
         register_shutdown_function([$this, 'shutdown']);
     }
@@ -242,7 +244,7 @@ class Grav extends Container
 
         // Calculate a Hash based on the raw file
         if ($page->eTag()) {
-            header('ETag: ' . md5($page->raw() . $page->modified()));
+            header('ETag: "' . md5($page->raw() . $page->modified()).'"');
         }
 
         // Set debugger data in headers

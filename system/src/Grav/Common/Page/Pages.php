@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -43,7 +43,12 @@ class Pages
     /**
      * @var string
      */
-    protected $base;
+    protected $base = '';
+
+    /**
+     * @var array|string[]
+     */
+    protected $baseUrl = [];
 
     /**
      * @var array|string[]
@@ -100,7 +105,6 @@ class Pages
     public function __construct(Grav $c)
     {
         $this->grav = $c;
-        $this->base = '';
     }
 
     /**
@@ -115,9 +119,80 @@ class Pages
         if ($path !== null) {
             $path = trim($path, '/');
             $this->base = $path ? '/' . $path : null;
+            $this->baseUrl = [];
         }
 
         return $this->base;
+    }
+
+    /**
+     *
+     * Get base URL for Grav pages.
+     *
+     * @param  string $lang     Optional language code for multilingual links.
+     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     *
+     * @return string
+     */
+    public function baseUrl($lang = null, $absolute = null)
+    {
+        $lang = (string) $lang;
+        $type = $absolute === null ? 'base_url' : ($absolute ? 'base_url_absolute' : 'base_url_relative');
+        $key = "{$lang} {$type}";
+
+        if (!isset($this->baseUrl[$key])) {
+            /** @var Config $config */
+            $config = $this->grav['config'];
+
+            /** @var Language $language */
+            $language = $this->grav['language'];
+
+            if (!$lang) {
+                $lang = $language->getActive();
+            }
+
+            $path_append = rtrim($this->grav['pages']->base(), '/');
+            if ($language->getDefault() != $lang || $config->get('system.languages.include_default_lang') === true) {
+                $path_append .= $lang ? '/' . $lang : '';
+            }
+
+            $this->baseUrl[$key] = $this->grav[$type] . $path_append;
+        }
+
+        return $this->baseUrl[$key];
+    }
+
+    /**
+     *
+     * Get home URL for Grav site.
+     *
+     * @param  string $lang     Optional language code for multilingual links.
+     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     *
+     * @return string
+     */
+    public function homeUrl($lang = null, $absolute = null)
+    {
+        return $this->baseUrl($lang, $absolute) ?: '/';
+    }
+
+    /**
+     *
+     * Get home URL for Grav site.
+     *
+     * @param  string $route    Optional route to the page.
+     * @param  string $lang     Optional language code for multilingual links.
+     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     *
+     * @return string
+     */
+    public function url($route = '/', $lang = null, $absolute = null)
+    {
+        if ($route === '/') {
+            return $this->homeUrl($lang, $absolute);
+        }
+
+        return $this->baseUrl($lang, $absolute) . $route;
     }
 
     /**
@@ -405,7 +480,7 @@ class Pages
                     $site_redirects = $config->get("site.redirects");
                     if (is_array($site_redirects)) {
                         foreach ((array)$site_redirects as $pattern => $replace) {
-                            $pattern = '#' . $pattern . '#';
+                            $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
                             try {
                                 $found = preg_replace($pattern, $replace, $source_url);
                                 if ($found != $source_url) {
@@ -421,7 +496,7 @@ class Pages
                     $site_routes = $config->get("site.routes");
                     if (is_array($site_routes)) {
                         foreach ((array)$site_routes as $pattern => $replace) {
-                            $pattern = '#' . $pattern . '#';
+                            $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
                             try {
                                 $found = preg_replace($pattern, $replace, $source_url);
                                 if ($found != $source_url) {
@@ -1182,6 +1257,12 @@ class Pages
                 $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set
                 $col = Collator::create($locale);
                 if ($col) {
+                    if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
+                        $list = preg_replace_callback('~([0-9]+)\.~', function($number) {
+                            return sprintf('%032d', $number);
+                        }, $list);
+                    }
+
                     $col->asort($list, $sort_flags);
                 } else {
                     asort($list, $sort_flags);

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Twig
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -84,11 +85,6 @@ class Twig
 
             $active_language = $language->getActive();
 
-            $path_append = rtrim($this->grav['pages']->base(), '/');
-            if ($language->getDefault() != $active_language || $config->get('system.languages.include_default_lang') === true) {
-                $path_append .= $active_language ? '/' . $active_language : '';
-            }
-
             // handle language templates if available
             if ($language->enabled()) {
                 $lang_templates = $locator->findResource('theme://templates/' . ($active_language ? $active_language : $language->getDefault()));
@@ -153,7 +149,8 @@ class Twig
 
             $this->grav->fireEvent('onTwigExtensions');
 
-            $base_url = $this->grav['base_url'] . $path_append;
+            /** @var Pages $pages */
+            $pages = $this->grav['pages'];
 
             // Set some standard variables for twig
             $this->twig_vars = $this->twig_vars + [
@@ -166,11 +163,11 @@ class Twig
                     'taxonomy'          => $this->grav['taxonomy'],
                     'browser'           => $this->grav['browser'],
                     'base_dir'          => rtrim(ROOT_DIR, '/'),
-                    'base_url'          => $base_url,
+                    'home_url'          => $pages->homeUrl($active_language),
+                    'base_url'          => $pages->baseUrl($active_language),
+                    'base_url_absolute' => $pages->baseUrl($active_language, true),
+                    'base_url_relative' => $pages->baseUrl($active_language, false),
                     'base_url_simple'   => $this->grav['base_url'],
-                    'base_url_absolute' => $this->grav['base_url_absolute'] . $path_append,
-                    'base_url_relative' => $this->grav['base_url_relative'] . $path_append,
-                    'home_url'          => $base_url == '' ?  '/' : $base_url,
                     'theme_dir'         => $locator->findResource('theme://'),
                     'theme_url'         => $this->grav['base_url'] . '/' . $locator->findResource('theme://', false),
                     'html_lang'         => $this->grav['language']->getActive() ?: $config->get('site.default_lang', 'en'),
@@ -315,7 +312,7 @@ class Twig
      * @return string the rendered output
      * @throws \RuntimeException
      */
-    public function processSite($format = null)
+    public function processSite($format = null, array $vars = [])
     {
         // set the page now its been processed
         $this->grav->fireEvent('onTwigSiteVariables');
@@ -343,14 +340,14 @@ class Twig
         $template = $this->template($page->template() . $ext);
 
         try {
-            $output = $this->twig->render($template, $twig_vars);
+            $output = $this->twig->render($template, $vars + $twig_vars);
         } catch (\Twig_Error_Loader $e) {
             $error_msg = $e->getMessage();
             // Try html version of this template if initial template was NOT html
             if ($ext != '.html' . TWIG_EXT) {
                 try {
                     $page->templateFormat('html');
-                    $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $twig_vars);
+                    $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $vars + $twig_vars);
                 } catch (\Twig_Error_Loader $e) {
                     throw new \RuntimeException($error_msg, 400, $e);
                 }

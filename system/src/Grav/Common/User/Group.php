@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.User
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -29,11 +29,27 @@ class Group extends Data
     }
 
     /**
+     * Get the groups list
+     *
+     * @return array
+     */
+    public static function groupNames()
+    {
+        $groups = [];
+
+        foreach(Grav::instance()['config']->get('groups', []) as $groupname => $group) {
+            $groups[$groupname] = isset($group['readableName']) ? $group['readableName'] : $groupname;
+        }
+
+        return $groups;
+    }
+
+    /**
      * Checks if a group exists
      *
      * @param string $groupname
      *
-     * @return object
+     * @return bool
      */
     public static function groupExists($groupname)
     {

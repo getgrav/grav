@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -850,5 +850,57 @@ abstract class Utils
      */
     public static function isApache() {
         return strpos($_SERVER["SERVER_SOFTWARE"], 'Apache') !== false;
+    }
+
+    /**
+     * Get's path based on a token
+     *
+     * @param $path
+     * @param null $page
+     * @return string
+     */
+    public static function getPagePathFromToken($path, $page = null)
+    {
+        $path_parts = pathinfo($path);
+        $grav       = Grav::instance();
+
+        $basename = '';
+        if (isset($path_parts['extension'])) {
+            $basename = '/' . $path_parts['basename'];
+            $path     = rtrim($path_parts['dirname'], ':');
+        }
+
+        $regex = '/(@self|self@)|((?:@page|page@):(?:.*))|((?:@theme|theme@):(?:.*))/';
+        preg_match($regex, $path, $matches);
+
+        if ($matches) {
+            if ($matches[1]) {
+                if (is_null($page)) {
+                    throw new \RuntimeException('Page not available for this self@ reference');
+                }
+            } elseif ($matches[2]) {
+                // page@
+                $parts = explode(':', $path);
+                $route = $parts[1];
+                $page  = $grav['page']->find($route);
+            } elseif ($matches[3]) {
+                // theme@
+                $parts = explode(':', $path);
+                $route = $parts[1];
+                $theme = str_replace(ROOT_DIR, '', $grav['locator']->findResource("theme://"));
+
+                return $theme . $route . $basename;
+            }
+        } else {
+            return $path . $basename;
+        }
+
+        if (!$page) {
+            throw new \RuntimeException('Page route not found: ' . $path);
+        }
+
+        $path = str_replace($matches[0], rtrim($page->relativePagePath(), '/'), $path);
+
+        return $path . $basename;
     }
 }

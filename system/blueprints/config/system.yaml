@@ -862,7 +862,6 @@ form:
                     append: '%'
                     label: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY
                     help: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY_HELP
-                    classes: x-small
                     validate:
                         min: 1
                         max: 100
@@ -929,6 +928,17 @@ form:
                         0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
+
+                media.auto_metadata_exif:
+                      type: toggle
+                      label: PLUGIN_ADMIN.ENABLE_AUTO_METADATA
+                      help: PLUGIN_ADMIN.ENABLE_AUTO_METADATA_HELP
+                      highlight: 0
+                      options:
+                          1: PLUGIN_ADMIN.YES
+                          0: PLUGIN_ADMIN.NO
+                      validate:
+                          type: bool
 
 
 
