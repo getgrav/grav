@@ -1,5 +1,5 @@
-# v1.3.0-xx
-## xx/xx/2017
+# v1.3.0
+## 07/16/2017
 
 1. [](#bugfix)
     * Fixed an undefined variable `$difference` [#1563](https://github.com/getgrav/grav/pull/1563)
