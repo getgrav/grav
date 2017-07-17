@@ -1259,7 +1259,7 @@ class Pages
                 if ($col) {
                     if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
                         $list = preg_replace_callback('~([0-9]+)\.~', function($number) {
-                            return sprintf('%032d', $number);
+                            return sprintf('%032d', $number[0]);
                         }, $list);
                     }
 
