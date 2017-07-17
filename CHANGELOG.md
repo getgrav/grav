@@ -1,3 +1,9 @@
+# v1.3.1
+## 07/xx/2017
+
+1. [](#bugfix)
+    * Check if medium thumbnail exists before resetting
+
 # v1.3.0
 ## 07/16/2017
 
