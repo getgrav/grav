@@ -50,6 +50,11 @@ class Object implements ObjectInterface
         }
     }
 
+    public function getKey()
+    {
+        return $this->key;
+    }
+
     /**
      * Checks whether or not an offset exists with a possibility to load the field by $this->offsetLoad_{$offset}().
      *
