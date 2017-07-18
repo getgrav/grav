@@ -10,8 +10,22 @@
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
 
+# v1.3.1
+## 07/xx/2017
+
+1. [](#bugfix)
+    * Check if medium thumbnail exists before resetting
+
+# v1.3.0
+## 07/16/2017
+
+1. [](#bugfix)
+    * Fixed an undefined variable `$difference` [#1563](https://github.com/getgrav/grav/pull/1563)
+    * Fix broken range slider [grav-plugin-admin#1153](https://github.com/getgrav/grav-plugin-admin/issues/1153)
+    * Fix natural sort when > 100 pages [#1564](https://github.com/getgrav/grav/pull/1564)
+
 # v1.3.0-rc.5
-## xx/xx/2017
+## 07/05/2017
 
 1. [](#new)
     * Setting `system.session.timeout` to 0 clears the session when the browser session ends [#1538](https://github.com/getgrav/grav/pull/1538)

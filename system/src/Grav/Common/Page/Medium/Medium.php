@@ -367,7 +367,7 @@ class Medium extends Data implements RenderableInterface
 
         $this->mode = $mode;
 
-        return $mode === 'thumbnail' ? $this->getThumbnail()->reset() : $this->reset();
+        return $mode === 'thumbnail' ? ($this->getThumbnail() ? $this->getThumbnail()->reset() : null) : $this->reset();
     }
 
     /**

@@ -862,7 +862,6 @@ form:
                     append: '%'
                     label: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY
                     help: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY_HELP
-                    classes: x-small
                     validate:
                         min: 1
                         max: 100
