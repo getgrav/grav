@@ -1,3 +1,11 @@
+# v1.3.1
+## 07/19/2017
+
+1. [](#bugfix)
+    * Fix ordering for Linux + International environments [#1574](https://github.com/getgrav/grav/issues/1574)
+    * Check if medium thumbnail exists before resetting
+    * Update Travis' auth token
+
 # v1.3.0
 ## 07/16/2017
 
