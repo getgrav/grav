@@ -66,6 +66,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('*ize', [$this, 'inflectorFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
+            new \Twig_SimpleFilter('nicenumber', [$this, 'niceNumberFunc']),
             new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
             new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
@@ -1047,5 +1048,29 @@ class TwigExtension extends \Twig_Extension
     public function pathinfoFunc($var)
     {
         return pathinfo($var);
+    }
+
+    /**
+     * Returns a nicer more readable number
+     *
+     * @param $number
+     * @return bool|string
+     */
+    public function niceNumberFunc($n)
+    {
+
+        // first strip any formatting;
+        $n = (0+str_replace(",", "", $n));
+
+        // is this a number?
+        if (!is_numeric($n)) return false;
+
+        // now filter it;
+        if ($n > 1000000000000) return round(($n/1000000000000), 2).' t';
+        elseif ($n > 1000000000) return round(($n/1000000000), 2).' b';
+        elseif ($n > 1000000) return round(($n/1000000), 2).' m';
+        elseif ($n > 1000) return round(($n/1000), 2).' k';
+
+        return number_format($n);
     }
 }

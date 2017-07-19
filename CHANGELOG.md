@@ -7,6 +7,7 @@
     * Added `Grav\Framework\Object` classes for creating collections of objects
     * Added `Grav\Framework\Page` interfaces
     * Deprecated GravTrait
+    * Added `|nicenumber` Twig filter
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
 
