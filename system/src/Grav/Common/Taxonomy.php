@@ -85,7 +85,7 @@ class Taxonomy
      *
      * @return Collection       Collection object set to contain matches found in the taxonomy map
      */
-    public function findTaxonomy($taxonomies, $operator = 'and')
+    public function findTaxonomy($taxonomies, $operator = 'and', $order = 'default')
     {
         $matches = [];
         $results = [];
