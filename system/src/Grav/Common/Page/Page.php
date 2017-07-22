@@ -2634,7 +2634,8 @@ class Page
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
                 }
-                $results = $taxonomy_map->findTaxonomy($params)->published();
+                $order = $this->orderBy();
+                $results = $taxonomy_map->findTaxonomy($params, null, $order)->published();
                 break;
         }
 

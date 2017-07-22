@@ -81,10 +81,11 @@ class Taxonomy
      *
      * @param  array  $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
      * @param  string $operator   can be 'or' or 'and' (defaults to 'and')
+     * @param  string $order      the sort order to be applied to the taxonomy
      *
      * @return Collection       Collection object set to contain matches found in the taxonomy map
      */
-    public function findTaxonomy($taxonomies, $operator = 'and')
+    public function findTaxonomy($taxonomies, $operator = 'and', $order = 'default')
     {
         $matches = [];
         $results = [];
@@ -110,7 +111,8 @@ class Taxonomy
             }
         }
 
-        return new Collection($results, ['taxonomies' => $taxonomies]);
+        $collection = new Collection($results, ['taxonomies' => $taxonomies]);
+        return $collection->order($order);
     }
 
     /**
