@@ -514,6 +514,17 @@ form:
                     help: PLUGIN_ADMIN.CACHE_PREFIX_HELP
                     placeholder: PLUGIN_ADMIN.CACHE_PREFIX_PLACEHOLDER
 
+                cache.clear_images_by_default:
+                    type: toggle
+                    label: PLUGIN_ADMIN.CLEAR_IMAGES_BY_DEFAULT
+                    help: PLUGIN_ADMIN.CLEAR_IMAGES_BY_DEFAULT_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 cache.cli_compatibility:
                     type: toggle
                     label: PLUGIN_ADMIN.CLI_COMPATIBILITY
