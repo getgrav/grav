@@ -1,3 +1,9 @@
+# v1.3.2
+## 07/xx/2017
+
+1. [](#new)
+    * Added a new `cache-control` system and page level property [#1591](https://github.com/getgrav/grav/issues/1591)
+
 # v1.3.1
 ## 07/19/2017
 

@@ -42,6 +42,7 @@ class Page
     protected $parent;
     protected $template;
     protected $expires;
+    protected $cache_control;
     protected $visible;
     protected $published;
     protected $publish_date;
@@ -428,6 +429,9 @@ class Page
             }
             if (isset($this->header->expires)) {
                 $this->expires = intval($this->header->expires);
+            }
+            if (isset($this->header->cache_control)) {
+                $this->cache_control = $this->header->cache_control;
             }
             if (isset($this->header->etag)) {
                 $this->etag = (bool)$this->header->etag;
@@ -1248,6 +1252,22 @@ class Page
         }
 
         return !isset($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
+    }
+
+    /**
+     * Gets and sets the cache-control property.  If not set it will return the default value (null)
+     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control for more details on valid options
+     *
+     * @param null $var
+     * @return null
+     */
+    public function cacheControl($var = null)
+    {
+        if ($var !== null) {
+            $this->cache_control = $var;
+        }
+
+        return !isset($this->cache_control) ? Grav::instance()['config']->get('system.pages.cache_control') : $this->cache_control;
     }
 
     /**

@@ -377,6 +377,12 @@ form:
                     validate:
                         type: number
                         min: 1
+                pages.cache_control:
+                    type: text
+                    size: medium
+                    label: PLUGIN_ADMIN.CACHE_CONTROL
+                    help: PLUGIN_ADMIN.CACHE_CONTROL_HELP
+                    placeholder: 'e.g. public, max-age=31536000'
                 pages.last_modified:
                     type: toggle
                     label: PLUGIN_ADMIN.LAST_MODIFIED
