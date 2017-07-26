@@ -101,14 +101,12 @@ trait ConsoleTrait
      * @return int
      * @throws \Exception
      */
-    public function clearCache($all = [])
+    public function clearCache($scope = 'all')
     {
-        if ($all) {
-            $all = ['--all' => true];
-        }
+        $scope = ['--'.$scope => true];
 
         $command = new ClearCacheCommand();
-        $input = new ArrayInput($all);
+        $input = new ArrayInput($scope);
         return $command->run($input, $this->output);
     }
 
