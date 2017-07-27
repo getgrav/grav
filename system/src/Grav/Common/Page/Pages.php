@@ -406,7 +406,7 @@ class Pages
 
             $ancestorField = $page->parent()->value('header.' . $field);
 
-            if ($ancestorField != null) {
+            if ($ancestorField !== null) {
                 return $page->parent();
             } elseif (!$page->parent()->root()) {
                 return $this->inherited($page->parent()->route(), $field);
@@ -670,7 +670,7 @@ class Pages
 
         }
 
-        if ($limitLevels == false || ($level+1 < $limitLevels)) {
+        if ($limitLevels === false || ($level+1 < $limitLevels)) {
             foreach ($current->children() as $next) {
                 if ($showAll || $next->routable() || ($next->modular() && $showModular)) {
                     $list = array_merge($list, $this->getList($next, $level + 1, $rawRoutes, $showAll, $showFullpath, $showSlug, $showModular, $limitLevels));
