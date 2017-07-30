@@ -1003,7 +1003,7 @@ form:
                     help: PLUGIN_ADMIN.TIMEOUT_HELP
                     validate:
                         type: number
-                        min: 1
+                        min: 0
 
                 session.name:
                     type: text
