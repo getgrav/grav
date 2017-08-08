@@ -10,16 +10,17 @@ namespace Grav\Common\User;
 
 use Grav\Common\Grav;
 use Grav\Common\User\Events\UserLoginEvent;
-use RocketTheme\Toolbox\Event\Event;
 
 abstract class Authentication
 {
     /**
+     * Login user.
+     *
      * @param array $credentials
      * @param array $options
-     * @return User|null
+     * @return User
      */
-    public static function login(array $credentials, array $options)
+    public static function login(array $credentials, array $options = [])
     {
         $grav = Grav::instance();
 
@@ -28,44 +29,58 @@ abstract class Authentication
             'options' => $options
         ];
 
-        $event = new UserLoginEvent($eventOptions);
-
         // Attempt to authenticate the user.
+        $event = new UserLoginEvent($eventOptions);
         $grav->fireEvent('onUserLoginAuthenticate', $event);
 
-        $event->removeCredentials();
-
         // Allow plugins to prevent login after successful authentication.
-        if ($event['status'] === UserLoginEvent::AUTHENTICATION_SUCCESS) {
+        if ($event->status === UserLoginEvent::AUTHENTICATION_SUCCESS) {
+            $event = new UserLoginEvent($event->toArray());
             $grav->fireEvent('onUserLoginAuthorize', $event);
         }
 
-        // Allow plugins to log errors or do other tasks on failure.
-        if ($event['status'] !== UserLoginEvent::AUTHENTICATION_SUCCESS) {
+        if ($event->status !== UserLoginEvent::AUTHENTICATION_SUCCESS) {
+            // Allow plugins to log errors or do other tasks on failure.
+            $event = new UserLoginEvent($event->toArray());
             $grav->fireEvent('onUserLoginFailure', $event);
 
-            return null;
+            $event->user->authenticated = false;
+
+        } else {
+            // User has been logged in, let plugins know.
+            $event = new UserLoginEvent($event->toArray());
+            $grav->fireEvent('onUserLogin', $event);
+
+            $event->user->authenticated = true;
         }
 
-        if (empty($event['user']->authenticated)) {
-            throw new \RuntimeException('Login: User object has not been authenticated!');
-        }
-
-        // User has been logged in, let plugins know.
-        $grav->fireEvent('onUserLogin', $event);
-
-        return $event['user'];
+        return $event->user;
     }
 
-    public static function logout($user)
+    /**
+     * Logout user.
+     *
+     * @param User $user
+     * @param array $options
+     * @return User
+     */
+    public static function logout(User $user, array $options = [])
     {
         $grav = Grav::instance();
 
-        $event = new Event;
-        $event->user = $user;
+        $eventOptions = [
+            'user' => $user,
+            'options' => $options
+        ];
+
+        $event = new UserLoginEvent($eventOptions);
 
         // Logout the user.
         $grav->fireEvent('onUserLogout', $event);
+
+        $event->user->authenticated = false;
+
+        return $event->user;
     }
 
     /**

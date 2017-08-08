@@ -17,6 +17,7 @@ use RocketTheme\Toolbox\Event\Event;
  *
  * @property int    $status
  * @property array  $credentials
+ * @property string $authorize
  * @property array  $options
  * @property User   $user
  * @property string $message
@@ -58,20 +59,18 @@ class UserLoginEvent extends Event
     {
         $defaults = [
             'credentials' => ['username' => '', 'password' => ''],
-            'options' => ['remember_me' => false],
+            'options' => [],
+            'authorize' => 'site.login',
             'status' => static::AUTHENTICATION_UNDEFINED,
             'user' => null,
             'message' => ''
         ];
 
-        parent::__construct(array_merge_recursive($defaults, $items));
+        parent::__construct(array_replace_recursive($defaults, $items));
 
-        $username = $this['credentials']['username'];
-        $this['user'] = $username ? User::load($username, false) : new User;
-    }
-
-    public function removeCredentials()
-    {
-        unset($this['credentials']);
+        if (!isset($this->user)) {
+            $username = $this->credentials['username'];
+            $this->user = $username ? User::load($username, false) : new User;
+        }
     }
 }
