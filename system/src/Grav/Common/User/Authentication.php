@@ -8,8 +8,66 @@
 
 namespace Grav\Common\User;
 
+use Grav\Common\Grav;
+use Grav\Common\User\Events\UserLoginEvent;
+use RocketTheme\Toolbox\Event\Event;
+
 abstract class Authentication
 {
+    /**
+     * @param array $credentials
+     * @param array $options
+     * @return User|null
+     */
+    public static function login(array $credentials, array $options)
+    {
+        $grav = Grav::instance();
+
+        $eventOptions = [
+            'credentials' => $credentials,
+            'options' => $options
+        ];
+
+        $event = new UserLoginEvent($eventOptions);
+
+        // Attempt to authenticate the user.
+        $grav->fireEvent('onUserLoginAuthenticate', $event);
+
+        $event->removeCredentials();
+
+        // Allow plugins to prevent login after successful authentication.
+        if ($event['status'] === UserLoginEvent::AUTHENTICATION_SUCCESS) {
+            $grav->fireEvent('onUserLoginAuthorize', $event);
+        }
+
+        // Allow plugins to log errors or do other tasks on failure.
+        if ($event['status'] !== UserLoginEvent::AUTHENTICATION_SUCCESS) {
+            $grav->fireEvent('onUserLoginFailure', $event);
+
+            return null;
+        }
+
+        if (empty($event['user']->authenticated)) {
+            throw new \RuntimeException('Login: User object has not been authenticated!');
+        }
+
+        // User has been logged in, let plugins know.
+        $grav->fireEvent('onUserLogin', $event);
+
+        return $event['user'];
+    }
+
+    public static function logout($user)
+    {
+        $grav = Grav::instance();
+
+        $event = new Event;
+        $event->user = $user;
+
+        // Logout the user.
+        $grav->fireEvent('onUserLogout', $event);
+    }
+
     /**
      * Create password hash from plaintext password.
      *

@@ -13,8 +13,10 @@ use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
+use Grav\Common\User\Authentication;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\Event\EventDispatcher;
 
 class Grav extends Container
 {
@@ -212,6 +214,29 @@ class Grav extends Container
             $this->redirect($language->getLanguage() . $route, $code);
         } else {
             $this->redirect($route, $code);
+        }
+    }
+
+    public function login(array $credentials, array $options)
+    {
+        if (isset($this['user'])) {
+            return false;
+        }
+
+        $user = Authentication::login($credentials, $options);
+        if ($user) {
+            $this['user'] = $user;
+        }
+
+        return $user !== null;
+    }
+
+    public function logout()
+    {
+        if (isset($this['user'])) {
+            Authentication::logout($this['user']);
+
+            unset($this['user']);
         }
     }
 
