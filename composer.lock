@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c10d9db1071970e7b04672767874703f",
+    "content-hash": "1397168ae7b9a8c2b2b59ed178f78605",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -52,37 +52,33 @@
         },
         {
             "name": "doctrine/cache",
-            "version": "v1.7.0",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "53d9518ffeb019c51d542ff60cb578f076d3ff16"
+                "reference": "f8af318d14bdb0eff0336795b428b547bd39ccb6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/53d9518ffeb019c51d542ff60cb578f076d3ff16",
-                "reference": "53d9518ffeb019c51d542ff60cb578f076d3ff16",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/f8af318d14bdb0eff0336795b428b547bd39ccb6",
+                "reference": "f8af318d14bdb0eff0336795b428b547bd39ccb6",
                 "shasum": ""
             },
             "require": {
-                "php": "~7.1"
+                "php": "~5.5|~7.0"
             },
             "conflict": {
                 "doctrine/common": ">2.2,<2.4"
             },
             "require-dev": {
-                "alcaeus/mongo-php-adapter": "^1.1",
-                "mongodb/mongodb": "^1.1",
-                "phpunit/phpunit": "^5.7",
-                "predis/predis": "~1.0"
-            },
-            "suggest": {
-                "alcaeus/mongo-php-adapter": "Required to use legacy MongoDB driver"
+                "phpunit/phpunit": "~4.8|~5.0",
+                "predis/predis": "~1.0",
+                "satooshi/php-coveralls": "~0.6"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -122,7 +118,7 @@
                 "cache",
                 "caching"
             ],
-            "time": "2017-07-22T13:00:15+00:00"
+            "time": "2015-12-31T16:37:02+00:00"
         },
         {
             "name": "doctrine/collections",
@@ -1037,12 +1033,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "017b4c5e255edcae8e110d096fa7362a37885c9c"
+                "reference": "76a6aacc0d343ccf090299d7a61d9f8f27d6b5ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/017b4c5e255edcae8e110d096fa7362a37885c9c",
-                "reference": "017b4c5e255edcae8e110d096fa7362a37885c9c",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/76a6aacc0d343ccf090299d7a61d9f8f27d6b5ae",
+                "reference": "76a6aacc0d343ccf090299d7a61d9f8f27d6b5ae",
                 "shasum": ""
             },
             "require": {
@@ -1077,7 +1073,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2017-08-10 17:57:13"
+            "time": "2017-08-10 18:07:33"
         },
         {
             "name": "seld/cli-prompt",
