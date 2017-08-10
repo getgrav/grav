@@ -13,8 +13,6 @@ use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
-use Grav\Common\User\Authentication;
-use Grav\Common\User\User;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
@@ -215,44 +213,6 @@ class Grav extends Container
             $this->redirect($language->getLanguage() . $route, $code);
         } else {
             $this->redirect($route, $code);
-        }
-    }
-
-    /**
-     * Login user.
-     *
-     * @param array $credentials
-     * @param array $options
-     * @return User
-     */
-    public function login(array $credentials, array $options = [])
-    {
-        if (isset($this['user']) && $this['user']->authenticated) {
-            return null;
-        }
-
-        unset($this['user']);
-
-        $user = Authentication::login($credentials, $options);
-        if ($user) {
-            $this['user'] = $user;
-        }
-
-        return $user;
-    }
-
-    /**
-     * Logout user.
-     *
-     * @param array $options
-     */
-    public function logout(array $options = [])
-    {
-        if (isset($this['user'])) {
-            $user = Authentication::logout($this['user'], $options);
-
-            unset($this['user']);
-            $this['user'] = $user;
         }
     }
 

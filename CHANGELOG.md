@@ -6,8 +6,6 @@
     * Added `Grav\Framework\ContentBlock` classes for nested HTML blocks with CSS/JS assets
     * Added `Grav\Framework\Object` classes for creating collections of objects
     * Added `Grav\Framework\Page` interfaces
-    * Added `$grav->login()` and `$grav->logout()` functions with event hooks for plugins
-    * Added events `onUserLoginAuthenticate`, `onUserLoginAuthorize`, `onUserLoginFailure`, `onUserLogin`, `onUserLogout`
     * Added `|nicenumber` Twig filter
     * Deprecated GravTrait
 1. [](#improved)

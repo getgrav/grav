@@ -8,81 +8,8 @@
 
 namespace Grav\Common\User;
 
-use Grav\Common\Grav;
-use Grav\Common\User\Events\UserLoginEvent;
-
 abstract class Authentication
 {
-    /**
-     * Login user.
-     *
-     * @param array $credentials
-     * @param array $options
-     * @return User
-     */
-    public static function login(array $credentials, array $options = [])
-    {
-        $grav = Grav::instance();
-
-        $eventOptions = [
-            'credentials' => $credentials,
-            'options' => $options
-        ];
-
-        // Attempt to authenticate the user.
-        $event = new UserLoginEvent($eventOptions);
-        $grav->fireEvent('onUserLoginAuthenticate', $event);
-
-        // Allow plugins to prevent login after successful authentication.
-        if ($event->status === UserLoginEvent::AUTHENTICATION_SUCCESS) {
-            $event = new UserLoginEvent($event->toArray());
-            $grav->fireEvent('onUserLoginAuthorize', $event);
-        }
-
-        if ($event->status !== UserLoginEvent::AUTHENTICATION_SUCCESS) {
-            // Allow plugins to log errors or do other tasks on failure.
-            $event = new UserLoginEvent($event->toArray());
-            $grav->fireEvent('onUserLoginFailure', $event);
-
-            $event->user->authenticated = false;
-
-        } else {
-            // User has been logged in, let plugins know.
-            $event = new UserLoginEvent($event->toArray());
-            $grav->fireEvent('onUserLogin', $event);
-
-            $event->user->authenticated = true;
-        }
-
-        return $event->user;
-    }
-
-    /**
-     * Logout user.
-     *
-     * @param User $user
-     * @param array $options
-     * @return User
-     */
-    public static function logout(User $user, array $options = [])
-    {
-        $grav = Grav::instance();
-
-        $eventOptions = [
-            'user' => $user,
-            'options' => $options
-        ];
-
-        $event = new UserLoginEvent($eventOptions);
-
-        // Logout the user.
-        $grav->fireEvent('onUserLogout', $event);
-
-        $event->user->authenticated = false;
-
-        return $event->user;
-    }
-
     /**
      * Create password hash from plaintext password.
      *
