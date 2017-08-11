@@ -9,6 +9,7 @@
 namespace Grav\Common\Twig;
 
 use Grav\Common\Grav;
+use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
@@ -94,6 +95,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils', 'truncateHTML']),
             new \Twig_SimpleFilter('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFilter('array_unique', 'array_unique'),
+
         ];
     }
 
@@ -108,6 +110,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
             new \Twig_SimpleFunction('array_key_value', [$this, 'arrayKeyValueFunc']),
             new \Twig_SimpleFunction('array_key_exists', [$this, 'arrayKeyExistsFunc']),
+            new \Twig_SimpleFunction('array_intersect', [$this, 'arrayIntersectFunc']),
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
@@ -830,6 +833,23 @@ class TwigExtension extends \Twig_Extension
     public function arrayKeyExistsFunc($key, $current_array = null)
     {
         return array_key_exists($key, $current_array);
+    }
+
+    /**
+     * Wrapper for array_intersect() method
+     *
+     * @param $array1
+     * @param $array2
+     * @return array
+     */
+    public function arrayIntersectFunc($array1, $array2)
+    {
+        if ($array1 instanceof Collection && $array2 instanceof Collection) {
+            return $array1->intersect($array2);
+        } else {
+            return array_intersect($array1, $array2);
+        }
+
     }
 
     /**
