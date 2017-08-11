@@ -1,5 +1,5 @@
 # v1.3.2
-## 07/xx/2017
+## mm/dd/2017
 
 1. [](#new)
     * Added a new `cache_control` system and page level property [#1591](https://github.com/getgrav/grav/issues/1591)
@@ -9,6 +9,7 @@
     * Added new `array_key_exists()` Twig function wrapper
 1. [](#bugfix)
     * Allow `session.timetout` field to be set to `0` via blueprints [#1598](https://github.com/getgrav/grav/issues/1598)
+    * Fixed `Data::exists()` and `Data::raw()` functions breaking if `Data::file()` hasn't been called with non-null value
     
 # v1.3.1
 ## 07/19/2017

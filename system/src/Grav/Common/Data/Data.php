@@ -251,7 +251,9 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function exists()
     {
-        return $this->file()->exists();
+        $file = $this->file();
+
+        return $file && $file->exists();
     }
 
     /**
@@ -263,7 +265,9 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function raw()
     {
-        return $this->file()->raw();
+        $file = $this->file();
+
+        return $file ? $file->raw() : '';
     }
 
     /**
