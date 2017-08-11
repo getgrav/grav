@@ -4,6 +4,8 @@
 1. [](#new)
     * Added a new `cache_control` system and page level property [#1591](https://github.com/getgrav/grav/issues/1591)
     * Added a new `clear_images_by_default` system property to stop cache clear events from removing processed images [#1481](https://github.com/getgrav/grav/pull/1481)
+    * Added new `onTwigLoader()` event to enable utilization of loader methods
+    * Added new `Twig::addPath()` and `Twig::prependPath()` methods to wrap loader methods and support namespacing [#1604](https://github.com/getgrav/grav/issues/1604)
 1. [](#bugfix)
     * Allow `session.timetout` field to be set to `0` via blueprints [#1598](https://github.com/getgrav/grav/issues/1598)
     
