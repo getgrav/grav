@@ -107,6 +107,7 @@ class TwigExtension extends \Twig_Extension
         return [
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
             new \Twig_SimpleFunction('array_key_value', [$this, 'arrayKeyValueFunc']),
+            new \Twig_SimpleFunction('array_key_exists', [$this, 'arrayKeyExistsFunc']),
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
@@ -816,6 +817,19 @@ class TwigExtension extends \Twig_Extension
             $current_array[$key] = $val;
             return $current_array;
         }
+    }
+
+    /**
+     * Check to see if an array key exists
+     *
+     * @param string $key           key of item
+     * @param string $current_array optional array to add to
+     *
+     * @return array
+     */
+    public function arrayKeyExistsFunc($key, $current_array = null)
+    {
+        return array_key_exists($key, $current_array);
     }
 
     /**
