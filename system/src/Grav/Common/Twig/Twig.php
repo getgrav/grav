@@ -367,7 +367,7 @@ class Twig
      * @param $template_path
      * @param null $namespace
      */
-    public function addPath($template_path, $namespace = null)
+    public function addPath($template_path, $namespace = '__main__')
     {
         $this->loader->addPath($template_path, $namespace);
     }
@@ -377,7 +377,7 @@ class Twig
      * @param $template_path
      * @param null $namespace
      */
-    public function prependPath($template_path, $namespace = null)
+    public function prependPath($template_path, $namespace = '__main__')
     {
         $this->loader->prependPath($template_path, $namespace);
     }
