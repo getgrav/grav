@@ -64,6 +64,20 @@ class Collection extends Iterator
     }
 
     /**
+     * Add a page with path and slug
+     *
+     * @param $path
+     * @param $slug
+     * @return $this
+     */
+    public function add($path, $slug)
+    {
+        $this->items[$path] = ['slug' => $slug];
+
+        return $this;
+    }
+
+    /**
      *
      * Create a copy of this collection
      *
@@ -86,6 +100,23 @@ class Collection extends Iterator
         foreach($collection as $page) {
             $this->addPage($page);
         }
+        return $this;
+    }
+
+    /**
+     * Intersect another collection with the current collection
+     *
+     * @param Collection $collection
+     * @return $this
+     */
+    public function intersect(Collection $collection)
+    {
+        $array1 = $this->items;
+        $array2 = $collection->toArray();
+
+        $this->items = array_uintersect($array1, $array2, function($val1, $val2) {
+            return strcmp($val1['slug'], $val2['slug']);
+        });
         return $this;
     }
 

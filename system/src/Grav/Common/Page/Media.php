@@ -204,7 +204,7 @@ class Media extends AbstractMedia
      *
      * @return mixed
      */
-    function path()
+    public function path()
     {
         return $this->path;
     }

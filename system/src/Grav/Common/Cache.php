@@ -63,6 +63,14 @@ class Cache extends Getters
         'asset://',
     ];
 
+    protected static $standard_remove_no_images = [
+        'cache://twig/',
+        'cache://doctrine/',
+        'cache://compiled/',
+        'cache://validated-',
+        'asset://',
+    ];
+
     protected static $all_remove = [
         'cache://',
         'cache://images',
@@ -360,7 +368,12 @@ class Cache extends Getters
                 $remove_paths = self::$tmp_remove;
                 break;
             default:
-                $remove_paths = self::$standard_remove;
+                if (Grav::instance()['config']->get('system.cache.clear_images_by_default')) {
+                    $remove_paths = self::$standard_remove;
+                } else {
+                    $remove_paths = self::$standard_remove_no_images;
+                }
+
         }
 
         // Clearing cache event to add paths to clear
