@@ -11,6 +11,7 @@
 1. [](#bugfix)
     * Allow `session.timetout` field to be set to `0` via blueprints [#1598](https://github.com/getgrav/grav/issues/1598)
     * Fixed `Data::exists()` and `Data::raw()` functions breaking if `Data::file()` hasn't been called with non-null value
+    * Fixed parent theme auto-loading in child themes of Gantry 5
     
 # v1.3.1
 ## 07/19/2017
