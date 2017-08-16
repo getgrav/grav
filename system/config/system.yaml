@@ -53,6 +53,7 @@ pages:
   types: [txt,xml,html,htm,json,rss,atom]        # list of valid page types
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
+  cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
   last_modified: false                           # Set the last modified date header based on file modification timestamp
   etag: false                                    # Set the etag header tag
   vary_accept_encoding: false                    # Add `Vary: Accept-Encoding` header
@@ -73,6 +74,7 @@ cache:
     method: file                                 # Method to check for updates in pages: file|folder|hash|none
   driver: auto                                   # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
+  clear_images_by_default: true                  # By default grav will include processed images in cache clear, this can be disabled
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                                    # GZip compress the page output

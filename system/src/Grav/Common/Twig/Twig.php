@@ -98,6 +98,9 @@ class Twig
             $this->grav->fireEvent('onTwigTemplatePaths');
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
+
+            $this->grav->fireEvent('onTwigLoader');
+
             $this->loaderArray = new \Twig_Loader_Array([]);
             $loader_chain = new \Twig_Loader_Chain([$this->loaderArray, $this->loader]);
 
@@ -357,6 +360,26 @@ class Twig
         }
 
         return $output;
+    }
+
+    /**
+     * Wraps the Twig_Loader_Filesystem addPath method (should be used only in `onTwigLoader()` event
+     * @param $template_path
+     * @param null $namespace
+     */
+    public function addPath($template_path, $namespace = '__main__')
+    {
+        $this->loader->addPath($template_path, $namespace);
+    }
+
+    /**
+     * Wraps the Twig_Loader_Filesystem prependPath method (should be used only in `onTwigLoader()` event
+     * @param $template_path
+     * @param null $namespace
+     */
+    public function prependPath($template_path, $namespace = '__main__')
+    {
+        $this->loader->prependPath($template_path, $namespace);
     }
 
     /**
