@@ -151,6 +151,7 @@ class ContentBlock implements ContentBlockInterface
 
     /**
      * @param array $serialized
+     * @throws \RuntimeException
      */
     public function build(array $serialized)
     {
@@ -221,8 +222,8 @@ class ContentBlock implements ContentBlockInterface
      */
     protected function checkVersion(array $serialized)
     {
-        $version = isset($serialized['_version']) ? (string) $serialized['_version'] : 1;
-        if ($version != $this->version) {
+        $version = isset($serialized['_version']) ? (string) $serialized['_version'] : '1';
+        if ($version !== $this->version) {
             throw new \RuntimeException(sprintf('Unsupported version %s', $version));
         }
     }

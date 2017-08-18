@@ -8,8 +8,6 @@
 
 namespace Grav\Framework\Cache;
 
-use Grav\Framework\Cache\Exception\InvalidArgumentException;
-
 /**
  * Cache trait for PSR-16 compatible "Simple Cache" implementation
  * @package Grav\Framework\Cache

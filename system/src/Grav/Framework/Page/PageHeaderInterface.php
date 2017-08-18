@@ -8,5 +8,6 @@
 
 namespace Grav\Framework\Page;
 
-interface PageHeaderInterface extends \ArrayAccess {
+interface PageHeaderInterface extends \ArrayAccess
+{
 }

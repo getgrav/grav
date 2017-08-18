@@ -80,7 +80,8 @@ trait ObjectCollectionTrait
         $list = [];
 
         foreach ($this as $id => $element) {
-            $list[$id] = method_exists($element, $method) ? call_user_func_array([$element, $method], $arguments) : null;
+            $list[$id] = method_exists($element, $method)
+                ? call_user_func_array([$element, $method], $arguments) : null;
         }
 
         return $list;

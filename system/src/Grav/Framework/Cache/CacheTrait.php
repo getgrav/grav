@@ -8,7 +8,6 @@
 
 namespace Grav\Framework\Cache;
 
-use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Cache\Exception\InvalidArgumentException;
 
 /**
@@ -106,13 +105,19 @@ trait CacheTrait
 
     /**
      * @inheritdoc
+     * @throws InvalidArgumentException
      */
     public function getMultiple($keys, $default = null)
     {
         if ($keys instanceof \Traversable) {
             $keys = iterator_to_array($keys, false);
         } elseif (!is_array($keys)) {
-            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', is_object($keys) ? get_class($keys) : gettype($keys)));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cache keys must be array or Traversable, "%s" given',
+                    is_object($keys) ? get_class($keys) : gettype($keys)
+                )
+            );
         }
 
         if (empty($keys)) {
@@ -146,7 +151,12 @@ trait CacheTrait
         if ($values instanceof \Traversable) {
             $values = iterator_to_array($values, true);
         } elseif (!is_array($values)) {
-            throw new InvalidArgumentException(sprintf('Cache values must be array or Traversable, "%s" given', is_object($values) ? get_class($values) : gettype($values)));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cache values must be array or Traversable, "%s" given',
+                    is_object($values) ? get_class($values) : gettype($values)
+                )
+            );
         }
 
         $keys = array_keys($values);
@@ -171,7 +181,12 @@ trait CacheTrait
         if ($keys instanceof \Traversable) {
             $keys = iterator_to_array($keys, false);
         } elseif (!is_array($keys)) {
-            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', is_object($keys) ? get_class($keys) : gettype($keys)));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cache keys must be array or Traversable, "%s" given',
+                    is_object($keys) ? get_class($keys) : gettype($keys)
+                )
+            );
         }
 
         if (empty($keys)) {
@@ -242,16 +257,25 @@ trait CacheTrait
     protected function validateKey($key)
     {
         if (!is_string($key)) {
-            throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given', is_object($key) ? get_class($key) : gettype($key)));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cache key must be string, "%s" given',
+                    is_object($key) ? get_class($key) : gettype($key)
+                )
+            );
         }
         if (!isset($key[0])) {
             throw new InvalidArgumentException('Cache key length must be greater than zero');
         }
         if (strlen($key) > 64) {
-            throw new InvalidArgumentException(sprintf('Cache key length must be less than 65 characters, key had %s characters', strlen($key)));
+            throw new InvalidArgumentException(
+                sprintf('Cache key length must be less than 65 characters, key had %s characters', strlen($key))
+            );
         }
         if (strpbrk($key, '{}()/\@:') !== false) {
-            throw new InvalidArgumentException(sprintf('Cache key "%s" contains reserved characters {}()/\@:', $key));
+            throw new InvalidArgumentException(
+                sprintf('Cache key "%s" contains reserved characters {}()/\@:', $key)
+            );
         }
     }
 
@@ -281,6 +305,11 @@ trait CacheTrait
             $ttl = (int) \DateTime::createFromFormat('U', 0)->add($ttl)->format('U');
         }
 
-        throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given', is_object($ttl) ? get_class($ttl) : gettype($ttl)));
+        throw new InvalidArgumentException(
+            sprintf(
+                'Expiration date must be an integer, a DateInterval or null, "%s" given',
+                is_object($ttl) ? get_class($ttl) : gettype($ttl)
+            )
+        );
     }
 }

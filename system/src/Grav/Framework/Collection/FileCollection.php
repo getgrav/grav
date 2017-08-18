@@ -62,7 +62,8 @@ class FileCollection extends AbstractLazyCollection
     public function __construct($path, $flags = null)
     {
         $this->path = $path;
-        $this->flags = (int) ($flags ?: FileCollection::INCLUDE_FILES | FileCollection::INCLUDE_FOLDERS | FileCollection::RECURSIVE);
+        $this->flags = (int) ($flags
+            ?: FileCollection::INCLUDE_FILES | FileCollection::INCLUDE_FOLDERS | FileCollection::RECURSIVE);
 
         $this->setIterator();
         $this->setFilter();
@@ -268,7 +269,7 @@ class FileCollection extends AbstractLazyCollection
     protected function createObject($file)
     {
         return (object) [
-            'key' => $file->getSubPathName(),
+            'key' => $file->getSubPathname(),
             'type' => $file->isDir() ? 'folder' : 'file:' . $file->getExtension(),
             'url' => method_exists($file, 'getUrl') ? $file->getUrl() : null,
             'pathname' => $file->getPathname(),

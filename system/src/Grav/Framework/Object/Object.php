@@ -25,37 +25,6 @@ class Object implements ObjectInterface
     }
 
     /**
-     * Properties of the object.
-     * @var array
-     */
-    protected $items;
-
-    /**
-     * @var string
-     */
-    private $key;
-
-    /**
-     * @param array $elements
-     * @param string $key
-     */
-    public function __construct(array $elements = [], $key = null)
-    {
-
-        $this->items = $elements;
-        $this->key = $key !== null ? $key : $this->getKey();
-
-        if ($this->key === null) {
-            throw new \InvalidArgumentException('Object cannot be created without assigning a key');
-        }
-    }
-
-    public function getKey()
-    {
-        return $this->key;
-    }
-
-    /**
      * Checks whether or not an offset exists with a possibility to load the field by $this->offsetLoad_{$offset}().
      *
      * @param mixed $offset  An offset to check for.
@@ -63,7 +32,9 @@ class Object implements ObjectInterface
      */
     public function offsetExists($offset)
     {
-        return $this->parentOffsetExists($offset) || method_exists($this, "offsetLoad_{$offset}");
+        $methodName = "offsetLoad_{$offset}";
+
+        return $this->parentOffsetExists($offset) || method_exists($this, $methodName);
     }
 
     /**
@@ -74,8 +45,10 @@ class Object implements ObjectInterface
      */
     public function offsetGet($offset)
     {
-        if (!$this->parentOffsetExists($offset) && method_exists($this, "offsetLoad_{$offset}")) {
-            $this->offsetSet($offset, call_user_func([$this, "offsetLoad_{$offset}"]));
+        $methodName = "offsetLoad_{$offset}";
+
+        if (!$this->parentOffsetExists($offset) && method_exists($this, $methodName)) {
+            $this->offsetSet($offset, $this->{$methodName}());
         }
 
         return $this->parentOffsetGet($offset);
@@ -83,15 +56,18 @@ class Object implements ObjectInterface
 
 
     /**
-     * Assigns a value to the specified offset with a possibility to check or alter the value by $this->offsetPrepare_{$offset}().
+     * Assigns a value to the specified offset with a possibility to check or alter the value by
+     * $this->offsetPrepare_{$offset}().
      *
      * @param mixed $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
      */
     public function offsetSet($offset, $value)
     {
-        if (method_exists($this, "offsetPrepare_{$offset}")) {
-            $value = call_user_func([$this, "offsetPrepare_{$offset}"], $value);
+        $methodName = "offsetPrepare_{$offset}";
+
+        if (method_exists($this, $methodName)) {
+            $value = $this->{$methodName}($value);
         }
 
         $this->parentOffsetSet($offset, $value);

@@ -19,19 +19,26 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
     use ObjectCollectionTrait;
 
     /**
-     * @var string
-     */
-    private $key;
-
-    /**
      * @param array $elements
      * @param string $key
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
     {
         parent::__construct($elements);
 
-        $this->key = $key !== null ? $key : $this->getKey();
+        $this->key = $key ?: $this->getKey() ?: __CLASS__ . '@' . spl_object_hash($this);
+    }
+
+    /**
+     * @param string $key
+     * @return $this
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+
+        return $this;
     }
 
     /**

@@ -32,6 +32,7 @@ class ChainCache extends AbstractCache
      * Chain Cache constructor.
      * @param array $caches
      * @param null|int|\DateInterval $defaultLifetime
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $caches, $defaultLifetime = null)
     {
@@ -43,7 +44,13 @@ class ChainCache extends AbstractCache
 
         foreach ($caches as $cache) {
             if (!$cache instanceof CacheInterface) {
-                throw new \InvalidArgumentException(sprintf("The class '%s' does not implement the '%s' interface", get_class($cache), CacheInterface::class));
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        "The class '%s' does not implement the '%s' interface",
+                        get_class($cache),
+                        CacheInterface::class
+                    )
+                );
             }
         }
 

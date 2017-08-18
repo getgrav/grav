@@ -15,7 +15,6 @@ namespace Grav\Framework\ContentBlock;
  */
 class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 {
-    protected $version = 1;
     protected $frameworks = [];
     protected $styles = [];
     protected $scripts = [];
@@ -73,7 +72,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
     }
 
     /**
-     * @return array
+     * @return array[]
      */
     public function toArray()
     {
@@ -97,6 +96,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
     /**
      * @param array $serialized
+     * @throws \RuntimeException
      */
     public function build(array $serialized)
     {
@@ -144,7 +144,15 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
         $href = $element['href'];
         $type = !empty($element['type']) ? (string) $element['type'] : 'text/css';
         $media = !empty($element['media']) ? (string) $element['media'] : null;
-        unset($element['tag'], $element['id'], $element['rel'], $element['content'], $element['href'], $element['type'], $element['media']);
+        unset(
+            $element['tag'],
+            $element['id'],
+            $element['rel'],
+            $element['content'],
+            $element['href'],
+            $element['type'],
+            $element['media']
+        );
 
         $this->styles[$location][md5($href) . sha1($href)] = [
                 ':type' => 'file',
@@ -354,10 +362,13 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
         foreach ($items as &$item) {
             $item[':order'] = ++$count;
         }
+        unset($item);
+
         uasort(
             $items,
             function ($a, $b) {
-                return ($a[':priority'] == $b[':priority']) ? $a[':order'] - $b[':order'] : $a[':priority'] - $b[':priority'];
+                return ($a[':priority'] === $b[':priority'])
+                    ? $a[':order'] - $b[':order'] : $a[':priority'] - $b[':priority'];
             }
         );
     }

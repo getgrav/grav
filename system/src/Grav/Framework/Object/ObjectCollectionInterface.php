@@ -24,6 +24,12 @@ interface ObjectCollectionInterface extends CollectionInterface, ObjectInterface
     public function copy();
 
     /**
+     * @param string $key
+     * @return $this
+     */
+    public function setKey($key);
+
+    /**
      * @return array
      */
     public function getObjectKeys();

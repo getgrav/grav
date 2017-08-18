@@ -8,9 +8,6 @@
 
 namespace Grav\Framework\Object;
 
-use RocketTheme\Toolbox\ArrayTraits\ArrayAccessWithGetters;
-use RocketTheme\Toolbox\ArrayTraits\Export;
-
 /**
  * Object trait.
  *
@@ -32,6 +29,7 @@ trait ObjectTrait
     /**
      * @param array $elements
      * @param string $key
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
     {

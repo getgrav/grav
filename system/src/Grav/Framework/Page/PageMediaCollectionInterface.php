@@ -10,5 +10,6 @@ namespace Grav\Framework\Page;
 
 use Grav\Framework\Collection\CollectionInterface;
 
-interface PageMediaCollectionInterface extends CollectionInterface {
+interface PageMediaCollectionInterface extends CollectionInterface
+{
 }
