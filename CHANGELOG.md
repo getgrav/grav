@@ -1,3 +1,9 @@
+# v1.3.3
+## xx/xx/2017
+
+1. [](#improved)
+    * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
+
 # v1.3.2
 ## 08/16/2017
 

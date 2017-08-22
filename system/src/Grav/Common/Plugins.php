@@ -27,13 +27,18 @@ class Plugins extends Iterator
         $locator = Grav::instance()['locator'];
 
         $iterator = $locator->getIterator('plugins://');
-        foreach ($iterator as $directory) {
+
+        $plugins = [];
+        foreach($iterator as $directory) {
             if (!$directory->isDir()) {
                 continue;
             }
+            $plugins[] = $directory->getBasename();
+        }
 
-            $plugin = $directory->getBasename();
+        natsort($plugins);
 
+        foreach ($plugins as $plugin) {
             $this->add($this->loadPlugin($plugin));
         }
     }
