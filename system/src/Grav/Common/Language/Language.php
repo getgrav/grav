@@ -374,9 +374,7 @@ class Language
     {
         if (is_array($args)) {
             $lookup = array_shift($args);
-            if (is_array($args)) {
-                $languages = array_shift($args);
-            }
+            $languages = array_shift($args);
         } else {
             $lookup = $args;
             $args = [];
