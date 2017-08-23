@@ -295,9 +295,9 @@ class Uri
             $uri = str_replace($setup_base, '', $uri);
         }
 
-        // If configured to, redirect trailing slash URI's with a 301 redirect
+        // If configured to, redirect trailing slash URI's with a 302 redirect
         if ($config->get('system.pages.redirect_trailing_slash', false) && $uri != '/' && Utils::endsWith($uri, '/')) {
-            $grav->redirect(str_replace($this->root, '', rtrim($uri, '/')), 301);
+            $grav->redirect(str_replace($this->root, '', rtrim($uri, '/')), 302);
         }
 
         // process params
