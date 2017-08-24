@@ -616,6 +616,12 @@ form:
                     help: PLUGIN_ADMIN.REDIS_PORT_HELP
                     placeholder: "6379"
 
+                cache.redis.password:
+                    type: text
+                    size: small
+                    label: PLUGIN_ADMIN.REDIS_PASSWORD
+
+
 
         twig:
             type: section

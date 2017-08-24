@@ -4,6 +4,7 @@
 1. [](#improved)
     * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
     * Use new `multilevel` field to handle Asset Collections [#1201](https://github.com/getgrav/grav-plugin-admin/issues/1201)
+    * Added support for redis `password` option [#1620](https://github.com/getgrav/grav/issues/1620)
 
 # v1.3.2
 ## 08/16/2017
