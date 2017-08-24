@@ -794,6 +794,27 @@ form:
                     validate:
                         type: bool
 
+                assets.precompress:
+                    type: toggle
+                    label: PLUGIN_ADMIN.PRECOMPRESS_ASSET
+                    help: PLUGIN_ADMIN.PRECOMPRESS_ASSET_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                assets.precompress_level:
+                    type: text
+                    size: x-small
+                    label: PLUGIN_ADMIN.PRECOMPRESS_ASSET_LEVEL
+                    help: PLUGIN_ADMIN.PRECOMPRESS_ASSET_LEVEL_HELP
+                    validate:
+                        type: number
+                        min: 1
+                        max: 9
+
                 assets.enable_asset_timestamp:
                     type: toggle
                     label: PLUGIN_ADMIN.ENABLED_TIMESTAMPS_ON_ASSETS

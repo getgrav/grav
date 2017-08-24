@@ -102,6 +102,8 @@ assets:                                          # Configuration for Assets Mana
   js_pipeline_include_externals: true            # Include external URLs in the pipeline by default
   js_pipeline_before_excludes: true              # Render the pipeline before any excluded files
   js_minify: true                                # Minify the JS during pipelining
+  precompress: false                             # Precompress assets with GZip
+  precompress_level: 9                           # Compression level to use (1 = fastest, 9 = highest)
   enable_asset_timestamp: false                  # Enable asset timestamps
   collections:
     jquery: system://assets/jquery/jquery-2.x.min.js
