@@ -2,9 +2,13 @@
 ## xx/xx/2017
 
 1. [](#improved)
+    * Added options to `Page::summary()` to support size without HTML tags [#1554](https://github.com/getgrav/grav/issues/1554)
     * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
     * Use new `multilevel` field to handle Asset Collections [#1201](https://github.com/getgrav/grav-plugin-admin/issues/1201)
     * Added support for redis `password` option [#1620](https://github.com/getgrav/grav/issues/1620)
+1. [](#bugfix)
+    * Fixed UTF8 2 character support in `Page::summary()` [#1554](https://github.com/getgrav/grav/issues/1554)
+    * Fixed dynamic Twig translation [#1618](https://github.com/getgrav/grav/issues/1618)
 
 # v1.3.2
 ## 08/16/2017
