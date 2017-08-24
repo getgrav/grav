@@ -806,10 +806,12 @@ form:
                         type: bool
 
                 assets.collections:
-                    type: array
+                    type: multilevel
                     label: PLUGIN_ADMIN.COLLECTIONS
                     placeholder_key: collection_name
                     placeholder_value: collection_path
+                    validate:
+                        type: array
 
         errors:
             type: section
