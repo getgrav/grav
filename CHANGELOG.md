@@ -1,6 +1,8 @@
 # v1.3.3
 ## xx/xx/2017
 
+1. [](#new)
+    * Added `gaussianBlur` media method [#1623](https://github.com/getgrav/grav/pull/1623)
 1. [](#improved)
     * Added options to `Page::summary()` to support size without HTML tags [#1554](https://github.com/getgrav/grav/issues/1554)
     * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
