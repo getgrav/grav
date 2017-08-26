@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `gaussianBlur` media method [#1623](https://github.com/getgrav/grav/pull/1623)
+    * Added support for 2-Factor Auth in admin profile
 1. [](#improved)
     * Added options to `Page::summary()` to support size without HTML tags [#1554](https://github.com/getgrav/grav/issues/1554)
     * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
