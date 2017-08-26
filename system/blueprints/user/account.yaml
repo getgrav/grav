@@ -94,7 +94,8 @@ form:
                         type: 2fa_secret
                         outerclasses: 'twofa-secret'
                         label: PLUGIN_ADMIN.2FA_SECRET
-                        help: PLUGIN_ADMIN.2FA_SECRET_HELP
+                        sublabel: PLUGIN_ADMIN.2FA_SECRET_HELP
+
 
             security:
                 title: PLUGIN_ADMIN.ACCESS_LEVELS
