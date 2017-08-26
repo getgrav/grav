@@ -67,6 +67,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('*ize', [$this, 'inflectorFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
+            new \Twig_SimpleFilter('chunk_split', [$this, 'chunkSplitFilter']),
+
             new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
             new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
@@ -375,6 +377,19 @@ class TwigExtension extends \Twig_Extension
         ksort($array);
 
         return $array;
+    }
+
+    /**
+     * Wrapper for chunk_split() function
+     *
+     * @param $value
+     * @param $chars
+     * @param string $split
+     * @return string
+     */
+    public function chunkSplitFilter($value, $chars, $split = '-')
+    {
+        return chunk_split($value, $chars, $split);
     }
 
     /**
