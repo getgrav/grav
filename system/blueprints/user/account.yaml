@@ -81,7 +81,7 @@ form:
                         type: toggle
                         label: PLUGIN_ADMIN.2FA_ENABLED
                         classes: twofa-toggle
-                        highlight: 0
+                        highlight: 1
                         default: 0
                         options:
                           1: PLUGIN_ADMIN.YES
