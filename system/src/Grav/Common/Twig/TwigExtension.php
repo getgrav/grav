@@ -92,6 +92,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('sort_by_key', [$this, 'sortByKeyFilter']),
             new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
             new \Twig_SimpleFilter('t', [$this, 'translate']),
+            new \Twig_SimpleFilter('tl', [$this, 'translateLanguage']),
             new \Twig_SimpleFilter('ta', [$this, 'translateArray']),
             new \Twig_SimpleFilter('truncate', ['\Grav\Common\Utils', 'truncate']),
             new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils', 'truncateHTML']),
@@ -127,6 +128,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
+            new \Twig_simpleFunction('tl', [$this, 'translateLanguage']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('json_decode', [$this, 'jsonDecodeFilter']),
@@ -608,6 +610,20 @@ class TwigExtension extends \Twig_Extension
     public function translate()
     {
         return $this->grav['language']->translate(func_get_args());
+    }
+
+    /**
+     * Translate Strings
+     *
+     * @param $args
+     * @param array|null $languages
+     * @param bool $array_support
+     * @param bool $html_out
+     * @return mixed
+     */
+    public function translateLanguage($args, array $languages = null, $array_support = false, $html_out = false)
+    {
+        return $this->grav['language']->translate($args, $languages, $array_support, $html_out);
     }
 
     /**
