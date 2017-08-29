@@ -11,6 +11,23 @@
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
 
+# v1.3.3
+## xx/xx/2017
+
+1. [](#new)
+    * Added support for 2-Factor Authentication in admin profile
+    * Added `gaussianBlur` media method [#1623](https://github.com/getgrav/grav/pull/1623)
+    * Added new `|chunk_split()` Twig filter
+    * Added new `tl` Twig filter/function to spport specific translations [#1618](https://github.com/getgrav/grav/issues/1618)
+1. [](#improved)
+    * Added options to `Page::summary()` to support size without HTML tags [#1554](https://github.com/getgrav/grav/issues/1554)
+    * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
+    * Use new `multilevel` field to handle Asset Collections [#1201](https://github.com/getgrav/grav-plugin-admin/issues/1201)
+    * Added support for redis `password` option [#1620](https://github.com/getgrav/grav/issues/1620)
+    * Use 302 rather than 301 redirects by default [#1619](https://github.com/getgrav/grav/issues/1619)
+1. [](#bugfix)
+    * Fixed UTF8 2 character support in `Page::summary()` [#1554](https://github.com/getgrav/grav/issues/1554)
+
 # v1.3.2
 ## 08/16/2017
 

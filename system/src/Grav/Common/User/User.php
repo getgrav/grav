@@ -200,6 +200,10 @@ class User extends Data
             return false;
         }
 
+        if (!$this->authenticated) {
+            return false;
+        }
+
         if (isset($this->state) && $this->state !== 'enabled') {
             return false;
         }
