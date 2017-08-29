@@ -36,6 +36,7 @@ trait CacheTrait
      *
      * @param string $namespace
      * @param null|int|\DateInterval $defaultLifetime
+     * @throws InvalidArgumentException
      */
     protected function init($namespace = '', $defaultLifetime = null)
     {
@@ -62,6 +63,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
+     * @throws InvalidArgumentException
      */
     public function get($key, $default = null)
     {
@@ -74,6 +76,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
+     * @throws InvalidArgumentException
      */
     public function set($key, $value, $ttl = null)
     {
@@ -87,6 +90,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
+     * @throws InvalidArgumentException
      */
     public function delete($key)
     {
@@ -145,6 +149,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
+     * @throws InvalidArgumentException
      */
     public function setMultiple($values, $ttl = null)
     {
@@ -175,6 +180,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
+     * @throws InvalidArgumentException
      */
     public function deleteMultiple($keys)
     {
@@ -200,6 +206,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
+     * @throws InvalidArgumentException
      */
     public function has($key)
     {
@@ -253,6 +260,7 @@ trait CacheTrait
 
     /**
      * @param string $key
+     * @throws InvalidArgumentException
      */
     protected function validateKey($key)
     {
@@ -290,6 +298,7 @@ trait CacheTrait
      * @param null|int|\DateInterval    $ttl
      * @param bool                      $ignoreDefault  Used internally inside $this->init().
      * @return int|null
+     * @throws InvalidArgumentException
      */
     protected function convertTtl($ttl, $ignoreDefault = false)
     {
