@@ -28,7 +28,7 @@ class MemoryCache extends AbstractCache
      */
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct('', 300);
     }
 
     public function doGet($key, $miss)
