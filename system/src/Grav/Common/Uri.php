@@ -286,6 +286,11 @@ class Uri
 
         $this->url = $this->base . $this->uri;
 
+        // if case insensitive urls is enabled, lowercase the url
+        if( $grav['config']->get('system.case_insensitive_urls') ){
+            $this->url = strtolower($this->url);
+        }
+
         // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
