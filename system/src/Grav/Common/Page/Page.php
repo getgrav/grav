@@ -2269,6 +2269,23 @@ class Page
 
         return false;
     }
+    
+    /**
+     * Returns the item in the current position.
+     *
+     * @param  string $path the path the item
+     *
+     * @return Integer   the index of the current page.
+     */
+    public function currentPosition()
+    {
+        $collection = $this->parent()->collection('content', false);
+        if ($collection instanceof Collection) {
+            return $collection->currentPosition($this->path());
+        }
+
+        return true;
+    }
 
     /**
      * Returns whether or not this page is the currently active page requested via the URL.
