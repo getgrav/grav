@@ -4,7 +4,7 @@
 1. [](#new)
     * Added support for 2-Factor Authentication in admin profile
     * Added `gaussianBlur` media method [#1623](https://github.com/getgrav/grav/pull/1623)
-    * Added new `|chunk_split()` and `|basename` Twig filter
+    * Added new `|chunk_split()`, `|basename`, and `|dirname` Twig filter
     * Added new `tl` Twig filter/function to spport specific translations [#1618](https://github.com/getgrav/grav/issues/1618)
 1. [](#improved)
     * Added options to `Page::summary()` to support size without HTML tags [#1554](https://github.com/getgrav/grav/issues/1554)
