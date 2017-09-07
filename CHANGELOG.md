@@ -7,6 +7,7 @@
     * Added new `|chunk_split()`, `|basename`, and `|dirname` Twig filter
     * Added new `tl` Twig filter/function to support specific translations [#1618](https://github.com/getgrav/grav/issues/1618)
 1. [](#improved)
+    * User `authorization` now requires a check for `authenticated` - REQUIRED: `Login v2.4.0`
     * Added options to `Page::summary()` to support size without HTML tags [#1554](https://github.com/getgrav/grav/issues/1554)
     * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
     * Use new `multilevel` field to handle Asset Collections [#1201](https://github.com/getgrav/grav-plugin-admin/issues/1201)
