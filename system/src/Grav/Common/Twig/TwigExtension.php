@@ -99,7 +99,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils', 'truncateHTML']),
             new \Twig_SimpleFilter('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFilter('array_unique', 'array_unique'),
-
+            new \Twig_SimpleFilter('basename', 'basenameFilter'),
+            new \Twig_SimpleFilter('dirname', 'dirnameFilter'),
         ];
     }
 
@@ -1113,6 +1114,22 @@ class TwigExtension extends \Twig_Extension
     public function pathinfoFunc($var)
     {
         return pathinfo($var);
+    }
+
+    /**
+     * Simple wrapper for basename()
+     *
+     * @param $var
+     * @return string
+     */
+    public function basenameFilter($var)
+    {
+        return basename($var);
+    }
+
+    public function dirnameFilter($var)
+    {
+        return dirname($var);
     }
 
     /**

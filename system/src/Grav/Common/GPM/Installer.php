@@ -238,6 +238,12 @@ class Installer
             return $class_name;
         }
 
+        $class_name_alphanumeric = preg_replace('/[^a-zA-Z0-9]+/', '', $class_name);
+
+        if (class_exists($class_name_alphanumeric)) {
+            return $class_name_alphanumeric;
+        }
+
         return $installer;
     }
 
