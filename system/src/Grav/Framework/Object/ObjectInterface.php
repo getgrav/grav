@@ -12,7 +12,7 @@ namespace Grav\Framework\Object;
  * Object Interface
  * @package Grav\Framework\Object
  */
-interface ObjectInterface extends \ArrayAccess, \JsonSerializable
+interface ObjectInterface extends \JsonSerializable
 {
     /**
      * @param array $elements
@@ -23,5 +23,23 @@ interface ObjectInterface extends \ArrayAccess, \JsonSerializable
     /**
      * @return string
      */
+    public function getType();
+
+    /**
+     * @return string
+     */
     public function getKey();
+
+    /**
+     * @param string $property      Object property to be fetched.
+     * @param mixed $default        Default value if not set.
+     * @return mixed                Property value.
+     */
+    public function getProperty($property, $default = null);
+
+    /**
+     * @param string $property  Object property to be updated.
+     * @param string $value     New value.
+     */
+    public function setProperty($property, $value);
 }

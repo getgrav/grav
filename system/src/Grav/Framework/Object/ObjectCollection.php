@@ -18,6 +18,8 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
 {
     use ObjectCollectionTrait;
 
+    static protected $prefix = 'c.';
+
     /**
      * @param array $elements
      * @param string $key
@@ -27,7 +29,11 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
     {
         parent::__construct($elements);
 
-        $this->key = $key ?: $this->getKey() ?: __CLASS__ . '@' . spl_object_hash($this);
+        $this->key = $key !== null ? $key : (string) $this;
+
+        if ($this->key === null) {
+            throw new \InvalidArgumentException('Object cannot be created without assigning a key to it');
+        }
     }
 
     /**

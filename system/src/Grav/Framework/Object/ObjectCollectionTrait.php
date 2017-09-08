@@ -46,14 +46,16 @@ trait ObjectCollectionTrait
 
     /**
      * @param string $property      Object property to be fetched.
+     * @param mixed $default        Default value if not set.
      * @return array                Key/Value pairs of the properties.
      */
-    public function getProperty($property)
+    public function getProperty($property, $default = null)
     {
         $list = [];
 
+        /** @var ObjectInterface $element */
         foreach ($this as $id => $element) {
-            $list[$id] = isset($element[$property]) ? $element[$property] : null;
+            $list[$id] = $element->getProperty($property, $default);
         }
 
         return $list;
@@ -62,12 +64,16 @@ trait ObjectCollectionTrait
     /**
      * @param string $property  Object property to be updated.
      * @param string $value     New value.
+     * @return $this
      */
     public function setProperty($property, $value)
     {
+        /** @var ObjectInterface $element */
         foreach ($this as $element) {
-            $element[$property] = $value;
+            $element->setProperty($property, $value);
         }
+
+        return $this;
     }
 
     /**
@@ -98,8 +104,9 @@ trait ObjectCollectionTrait
     {
         $list = [];
 
+        /** @var ObjectInterface $element */
         foreach ($this as $element) {
-            $list[$element[$property]][] = $element;
+            $list[(string) $element->getProperty($property)][] = $element;
         }
 
         return $list;

@@ -35,11 +35,25 @@ trait ObjectTrait
     {
 
         $this->items = $elements;
-        $this->key = $key !== null ? $key : $this->getKey();
+        $this->key = $key !== null ? $key : (string) $this;
 
         if ($this->key === null) {
-            throw new \InvalidArgumentException('Object cannot be created without assigning a key');
+            throw new \InvalidArgumentException('Object cannot be created without assigning a key to it');
         }
+    }
+
+    /**
+     * @param bool $prefix
+     * @return string
+     */
+    public function getType($prefix = false)
+    {
+        if (static::$type) {
+            return ($prefix ? static::$prefix : '') . static::$type;
+        }
+
+        $class = get_class($this);
+        return ($prefix ? static::$prefix : '') . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
     /**
@@ -57,6 +71,6 @@ trait ObjectTrait
      */
     public function __toString()
     {
-        return __CLASS__ . '@' . spl_object_hash($this);
+        return $this->getKey() ?: $this->getType() . '@' . spl_object_hash($this);
     }
 }

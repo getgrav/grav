@@ -36,14 +36,14 @@ interface ObjectCollectionInterface extends CollectionInterface, ObjectInterface
 
     /**
      * @param string $property      Object property to be fetched.
-     * @return array                Values of the property.
+     * @param mixed $default        Default value if not set.
+     * @return array                Property value.
      */
-    public function getProperty($property);
+    public function getProperty($property, $default = null);
 
     /**
      * @param string $property  Object property to be updated.
      * @param string $value     New value.
-     * @return $this
      */
     public function setProperty($property, $value);
 
