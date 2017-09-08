@@ -46,14 +46,4 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
 
         return $this;
     }
-
-    /**
-     * Implements JsonSerializable interface.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return ['key' => $this->getKey(), 'objects' => $this->toArray()];
-    }
 }

@@ -46,7 +46,7 @@ trait ObjectTrait
      * @param bool $prefix
      * @return string
      */
-    public function getType($prefix = false)
+    public function getType($prefix = true)
     {
         if (static::$type) {
             return ($prefix ? static::$prefix : '') . static::$type;
@@ -62,6 +62,16 @@ trait ObjectTrait
     public function getKey()
     {
         return $this->key;
+    }
+
+    /**
+     * Implements JsonSerializable interface.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return ['key' => (string) $this, 'type' => $this->getType(), 'elements' => $this->toArray()];
     }
 
     /**

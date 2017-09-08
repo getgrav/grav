@@ -25,14 +25,14 @@ class Object implements ObjectInterface
      *
      * @example $value = $this->get('this.is.my.nested.variable');
      *
-     * @param string  $name       Dot separated path to the requested value.
+     * @param string  $property   Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
      * @param string  $separator  Separator, defaults to '.'
      * @return mixed  Value.
      */
-    public function getProperty($name, $default = null, $separator = '.')
+    public function getProperty($property, $default = null, $separator = '.')
     {
-        $path = explode($separator, $name);
+        $path = explode($separator, $property);
         $offset = array_shift($path);
         $current = $this->__get($offset);
 
@@ -66,14 +66,14 @@ class Object implements ObjectInterface
      *
      * @example $data->set('this.is.my.nested.variable', $value);
      *
-     * @param string  $name       Dot separated path to the requested value.
+     * @param string  $property   Dot separated path to the requested value.
      * @param mixed   $value      New value.
      * @param string  $separator  Separator, defaults to '.'
      * @return $this
      */
-    public function setProperty($name, $value, $separator = '.')
+    public function setProperty($property, $value, $separator = '.')
     {
-        $path = explode($separator, $name);
+        $path = explode($separator, $property);
         $offset = array_shift($path);
 
         // Set simple variable.
@@ -122,16 +122,16 @@ class Object implements ObjectInterface
      *
      * @example $data->defProperty('this.is.my.nested.variable', $value);
      *
-     * @param string  $name       Dot separated path to the requested value.
+     * @param string  $property   Dot separated path to the requested value.
      * @param mixed   $value      New value.
      * @param string  $separator  Separator, defaults to '.'
      * @return $this
      */
-    public function defProperty($name, $value, $separator = '.')
+    public function defProperty($property, $value, $separator = '.')
     {
         $test = new \stdClass;
-        if ($this->getProperty($name, $test, $separator) === $test) {
-            $this->setProperty($name, $value, $separator);
+        if ($this->getProperty($property, $test, $separator) === $test) {
+            $this->setProperty($property, $value, $separator);
         }
 
         return $this;
@@ -201,20 +201,6 @@ class Object implements ObjectInterface
     protected function toArray()
     {
         return $this->items;
-    }
-
-    /**
-     * Implements JsonSerializable interface.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return [
-            'key' => $this->getKey(),
-            'type' => $this->getType(true),
-            'object' => $this->toArray()
-        ];
     }
 
     protected function &getRef($offset, $new = false)

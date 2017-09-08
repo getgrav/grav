@@ -24,7 +24,7 @@ trait ObjectCollectionTrait
     public function copy()
     {
         $list = [];
-        foreach ($this as $key => $value) {
+        foreach ($this->getIterator() as $key => $value) {
             $list[$key] = is_object($value) ? clone $value : $value;
         }
 
@@ -54,7 +54,7 @@ trait ObjectCollectionTrait
         $list = [];
 
         /** @var ObjectInterface $element */
-        foreach ($this as $id => $element) {
+        foreach ($this->getIterator() as $id => $element) {
             $list[$id] = $element->getProperty($property, $default);
         }
 
@@ -69,8 +69,23 @@ trait ObjectCollectionTrait
     public function setProperty($property, $value)
     {
         /** @var ObjectInterface $element */
-        foreach ($this as $element) {
+        foreach ($this->getIterator() as $element) {
             $element->setProperty($property, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $property  Object property to be updated.
+     * @param string $value     New value.
+     * @return $this
+     */
+    public function defProperty($property, $value)
+    {
+        /** @var ObjectInterface $element */
+        foreach ($this->getIterator() as $element) {
+            $element->defProperty($property, $value);
         }
 
         return $this;
@@ -85,7 +100,7 @@ trait ObjectCollectionTrait
     {
         $list = [];
 
-        foreach ($this as $id => $element) {
+        foreach ($this->getIterator() as $id => $element) {
             $list[$id] = method_exists($element, $method)
                 ? call_user_func_array([$element, $method], $arguments) : null;
         }
@@ -105,10 +120,15 @@ trait ObjectCollectionTrait
         $list = [];
 
         /** @var ObjectInterface $element */
-        foreach ($this as $element) {
+        foreach ($this->getIterator() as $element) {
             $list[(string) $element->getProperty($property)][] = $element;
         }
 
         return $list;
     }
+
+    /**
+     * @return \Traversable
+     */
+    abstract public function getIterator();
 }

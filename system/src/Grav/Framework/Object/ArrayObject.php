@@ -9,7 +9,7 @@
 namespace Grav\Framework\Object;
 
 /**
- * Object class.
+ * ArrayObject class.
  *
  * @package Grav\Framework\Object
  */

@@ -9,7 +9,7 @@
 namespace Grav\Common;
 
 /**
- * @deprecated in Grav 2.0
+ * @deprecated 2.0
  */
 trait GravTrait
 {

@@ -38,8 +38,16 @@ interface ObjectInterface extends \JsonSerializable
     public function getProperty($property, $default = null);
 
     /**
-     * @param string $property  Object property to be updated.
-     * @param string $value     New value.
+     * @param string $property      Object property to be updated.
+     * @param string $value         New value.
+     * @return $this
      */
     public function setProperty($property, $value);
+
+    /**
+     * @param string  $property     Object property to be defined.
+     * @param mixed   $value        Default value.
+     * @return $this
+     */
+    public function defProperty($property, $value);
 }

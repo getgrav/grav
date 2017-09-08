@@ -42,12 +42,6 @@ interface ObjectCollectionInterface extends CollectionInterface, ObjectInterface
     public function getProperty($property, $default = null);
 
     /**
-     * @param string $property  Object property to be updated.
-     * @param string $value     New value.
-     */
-    public function setProperty($property, $value);
-
-    /**
      * @param string $name          Method name.
      * @param array  $arguments     List of arguments passed to the function.
      * @return array                Return values.
