@@ -441,7 +441,7 @@ class Uri
      * @param  string  $id    Optional parameter name.
      * @param  boolean $array return the array format or not
      *
-     * @return null|string
+     * @return null|string|array
      */
     public function params($id = null, $array = false)
     {
