@@ -240,12 +240,18 @@ class Cache extends Getters
             case 'redis':
                 $redis = new \Redis();
                 $socket = $this->config->get('system.cache.redis.socket', false);
+                $password = $this->config->get('system.cache.redis.password', false);
 
                 if ($socket) {
                     $redis->connect($socket);
                 } else {
                     $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
                     $this->config->get('system.cache.redis.port', 6379));
+                }
+
+                // Authenticate with password if set
+                if ($password && !$redis->auth($password)) {
+                    throw new \RedisException('Redis authentication failed');
                 }
 
                 $driver = new DoctrineCache\RedisCache();

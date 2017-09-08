@@ -67,6 +67,8 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('*ize', [$this, 'inflectorFilter']),
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
+            new \Twig_SimpleFilter('chunk_split', [$this, 'chunkSplitFilter']),
+
             new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
             new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
@@ -90,12 +92,14 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('sort_by_key', [$this, 'sortByKeyFilter']),
             new \Twig_SimpleFilter('starts_with', [$this, 'startsWithFilter']),
             new \Twig_SimpleFilter('t', [$this, 'translate']),
+            new \Twig_SimpleFilter('tl', [$this, 'translateLanguage']),
             new \Twig_SimpleFilter('ta', [$this, 'translateArray']),
             new \Twig_SimpleFilter('truncate', ['\Grav\Common\Utils', 'truncate']),
             new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils', 'truncateHTML']),
             new \Twig_SimpleFilter('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFilter('array_unique', 'array_unique'),
-
+            new \Twig_SimpleFilter('basename', 'basenameFilter'),
+            new \Twig_SimpleFilter('dirname', 'dirnameFilter'),
         ];
     }
 
@@ -125,6 +129,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
+            new \Twig_simpleFunction('tl', [$this, 'translateLanguage']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('json_decode', [$this, 'jsonDecodeFilter']),
@@ -378,6 +383,19 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
+     * Wrapper for chunk_split() function
+     *
+     * @param $value
+     * @param $chars
+     * @param string $split
+     * @return string
+     */
+    public function chunkSplitFilter($value, $chars, $split = '-')
+    {
+        return chunk_split($value, $chars, $split);
+    }
+
+    /**
      * determine if a string contains another
      *
      * @param String $haystack
@@ -593,6 +611,20 @@ class TwigExtension extends \Twig_Extension
     public function translate()
     {
         return $this->grav['language']->translate(func_get_args());
+    }
+
+    /**
+     * Translate Strings
+     *
+     * @param $args
+     * @param array|null $languages
+     * @param bool $array_support
+     * @param bool $html_out
+     * @return mixed
+     */
+    public function translateLanguage($args, array $languages = null, $array_support = false, $html_out = false)
+    {
+        return $this->grav['language']->translate($args, $languages, $array_support, $html_out);
     }
 
     /**
@@ -1081,5 +1113,21 @@ class TwigExtension extends \Twig_Extension
     public function pathinfoFunc($var)
     {
         return pathinfo($var);
+    }
+
+    /**
+     * Simple wrapper for basename()
+     *
+     * @param $var
+     * @return string
+     */
+    public function basenameFilter($var)
+    {
+        return basename($var);
+    }
+
+    public function dirnameFilter($var)
+    {
+        return dirname($var);
     }
 }

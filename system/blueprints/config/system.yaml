@@ -22,15 +22,15 @@ form:
                     help: PLUGIN_ADMIN.HOME_PAGE_HELP
 
                 home.hide_in_urls:
-                      type: toggle
-                      label: PLUGIN_ADMIN.HIDE_HOME_IN_URLS
-                      help: PLUGIN_ADMIN.HIDE_HOME_IN_URLS_HELP
-                      highlight: 0
-                      options:
-                          1: PLUGIN_ADMIN.YES
-                          0: PLUGIN_ADMIN.NO
-                      validate:
-                          type: bool
+                    type: toggle
+                    label: PLUGIN_ADMIN.HIDE_HOME_IN_URLS
+                    help: PLUGIN_ADMIN.HIDE_HOME_IN_URLS_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
 
 
                 pages.theme:
@@ -616,6 +616,12 @@ form:
                     help: PLUGIN_ADMIN.REDIS_PORT_HELP
                     placeholder: "6379"
 
+                cache.redis.password:
+                    type: text
+                    size: small
+                    label: PLUGIN_ADMIN.REDIS_PASSWORD
+
+
 
         twig:
             type: section
@@ -806,10 +812,12 @@ form:
                         type: bool
 
                 assets.collections:
-                    type: array
+                    type: multilevel
                     label: PLUGIN_ADMIN.COLLECTIONS
                     placeholder_key: collection_name
                     placeholder_value: collection_path
+                    validate:
+                        type: array
 
         errors:
             type: section
@@ -1149,6 +1157,17 @@ form:
                     label: PLUGIN_ADMIN.ABSOLUTE_URLS
                     highlight: 0
                     help: PLUGIN_ADMIN.ABSOLUTE_URLS_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                case_insensitive_urls:
+                    type: toggle
+                    label: PLUGIN_ADMIN.CASE_INSENSITIVE_URLS
+                    highlight: 0
+                    help: PLUGIN_ADMIN.CASE_INSENSITIVE_URLS_HELP
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO

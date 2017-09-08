@@ -1,3 +1,26 @@
+# v1.3.3
+## 09/07/2017
+
+1. [](#new)
+    * Added support for 2-Factor Authentication in admin profile
+    * Added `gaussianBlur` media method [#1623](https://github.com/getgrav/grav/pull/1623)
+    * Added new `|chunk_split()`, `|basename`, and `|dirname` Twig filter
+    * Added new `tl` Twig filter/function to support specific translations [#1618](https://github.com/getgrav/grav/issues/1618)
+1. [](#improved)
+    * User `authorization` now requires a check for `authenticated` - REQUIRED: `Login v2.4.0`
+    * Added options to `Page::summary()` to support size without HTML tags [#1554](https://github.com/getgrav/grav/issues/1554)
+    * Forced `natsort` on plugins to ensure consistent plugin load ordering across platforms [#1614](https://github.com/getgrav/grav/issues/1614)
+    * Use new `multilevel` field to handle Asset Collections [#1201](https://github.com/getgrav/grav-plugin-admin/issues/1201)
+    * Added support for redis `password` option [#1620](https://github.com/getgrav/grav/issues/1620)
+    * Use 302 rather than 301 redirects by default [#1619](https://github.com/getgrav/grav/issues/1619)
+    * GPM Installer will try to load alphanumeric version of the class if no standard class found [#1630](https://github.com/getgrav/grav/issues/1630)
+    * Add current page position to `User` class [#1632](https://github.com/getgrav/grav/issues/1632)
+    * Added option to enable case insensitive URLs [#1638](https://github.com/getgrav/grav/issues/1638)
+    * Updated vendor libraries
+    * Updated `travis.yml` to add support for PHP 7.1 as well as 7.0.21 for test suite
+1. [](#bugfix)
+    * Fixed UTF8 2 character support in `Page::summary()` [#1554](https://github.com/getgrav/grav/issues/1554)
+
 # v1.3.2
 ## 08/16/2017
 
