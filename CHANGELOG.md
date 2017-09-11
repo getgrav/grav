@@ -1,3 +1,9 @@
+# v1.3.4
+## xx/xx/2017
+
+1. [](#bugfix)
+    * Fixed `Page::summary()` when using delimiter and multibyte UTF8 Characters [#1644](https://github.com/getgrav/grav/issues/1644)
+
 # v1.3.3
 ## 09/07/2017
 
@@ -19,7 +25,7 @@
     * Updated vendor libraries
     * Updated `travis.yml` to add support for PHP 7.1 as well as 7.0.21 for test suite
 1. [](#bugfix)
-    * Fixed UTF8 2 character support in `Page::summary()` [#1554](https://github.com/getgrav/grav/issues/1554)
+    * Fixed UTF8 multibyte UTF8 character support in `Page::summary()` [#1554](https://github.com/getgrav/grav/issues/1554)
 
 # v1.3.2
 ## 08/16/2017

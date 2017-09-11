@@ -520,7 +520,7 @@ class Page
         } elseif (($format === 'short') && isset($summary_size)) {
             // Use mb_strimwidth to slice the string
             if (mb_strwidth($content, 'utf8') > $summary_size) {
-                return mb_strimwidth($content, 0, $summary_size);
+                return mb_substr($content, 0, $summary_size);
             } else {
                 return $content;
             }
@@ -2269,7 +2269,7 @@ class Page
 
         return false;
     }
-    
+
     /**
      * Returns the item in the current position.
      *
