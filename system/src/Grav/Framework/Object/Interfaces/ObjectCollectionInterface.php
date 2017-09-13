@@ -6,7 +6,7 @@
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Framework\Object;
+namespace Grav\Framework\Object\Interfaces;
 
 use Grav\Framework\Collection\CollectionInterface;
 

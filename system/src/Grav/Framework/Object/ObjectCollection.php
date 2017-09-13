@@ -9,16 +9,20 @@
 namespace Grav\Framework\Object;
 
 use Grav\Framework\Collection\ArrayCollection;
+use Grav\Framework\Object\Access\NestedPropertyCollectionTrait;
+use Grav\Framework\Object\Base\ObjectCollectionTrait;
+use Grav\Framework\Object\Interfaces\NestedObjectInterface;
+use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 
 /**
  * Object Collection
  * @package Grav\Framework\Object
  */
-class ObjectCollection extends ArrayCollection implements ObjectCollectionInterface
+class ObjectCollection extends ArrayCollection implements ObjectCollectionInterface, NestedObjectInterface
 {
-    use ObjectCollectionTrait;
-
-    static protected $prefix = 'c.';
+    use ObjectCollectionTrait, NestedPropertyCollectionTrait {
+        NestedPropertyCollectionTrait::group insteadof ObjectCollectionTrait;
+    }
 
     /**
      * @param array $elements
@@ -27,23 +31,18 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
      */
     public function __construct(array $elements = [], $key = null)
     {
-        parent::__construct($elements);
+        parent::__construct($this->setElements($elements));
 
-        $this->key = $key !== null ? $key : (string) $this;
-
-        if ($this->key === null) {
-            throw new \InvalidArgumentException('Object cannot be created without assigning a key to it');
-        }
+        $this->setKey($key);
     }
 
-    /**
-     * @param string $key
-     * @return $this
-     */
-    public function setKey($key)
+    protected function getElements()
     {
-        $this->key = $key;
+        return $this->toArray();
+    }
 
-        return $this;
+    protected function setElements(array $elements)
+    {
+        return $elements;
     }
 }

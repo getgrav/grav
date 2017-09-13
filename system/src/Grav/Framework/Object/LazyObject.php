@@ -12,15 +12,15 @@ use Grav\Framework\Object\Access\NestedPropertyTrait;
 use Grav\Framework\Object\Access\OverloadedPropertyTrait;
 use Grav\Framework\Object\Base\ObjectTrait;
 use Grav\Framework\Object\Interfaces\NestedObjectInterface;
-use Grav\Framework\Object\Property\ArrayPropertyTrait;
+use Grav\Framework\Object\Property\LazyPropertyTrait;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccess;
 
 /**
- * Array Object class.
+ * Lazy Object class.
  *
  * @package Grav\Framework\Object
  */
-class ArrayObject implements NestedObjectInterface, \ArrayAccess
+class LazyObject implements NestedObjectInterface, \ArrayAccess
 {
-    use ObjectTrait, ArrayPropertyTrait, NestedPropertyTrait, OverloadedPropertyTrait, NestedArrayAccess;
+    use ObjectTrait, LazyPropertyTrait, NestedPropertyTrait, OverloadedPropertyTrait, NestedArrayAccess;
 }

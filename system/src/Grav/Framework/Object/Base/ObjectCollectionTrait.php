@@ -6,7 +6,9 @@
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Framework\Object;
+namespace Grav\Framework\Object\Base;
+
+use Grav\Framework\Object\Interfaces\ObjectInterface;
 
 /**
  * ObjectCollection Trait
@@ -14,7 +16,9 @@ namespace Grav\Framework\Object;
  */
 trait ObjectCollectionTrait
 {
-    use ObjectTrait;
+    use ObjectTrait {
+        setKey as public;
+    }
 
     /**
      * Create a copy from this collection by cloning all objects in the collection.
@@ -45,11 +49,27 @@ trait ObjectCollectionTrait
     }
 
     /**
+     * @param string $property      Object property to be matched.
+     * @return array                Key/Value pairs of the properties.
+     */
+    public function doHasProperty($property)
+    {
+        $list = [];
+
+        /** @var ObjectInterface $element */
+        foreach ($this->getIterator() as $id => $element) {
+            $list[$id] = $element->hasProperty($property);
+        }
+
+        return $list;
+    }
+
+    /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if not set.
      * @return array                Key/Value pairs of the properties.
      */
-    public function getProperty($property, $default = null)
+    public function doGetProperty($property, $default = null)
     {
         $list = [];
 
@@ -66,7 +86,7 @@ trait ObjectCollectionTrait
      * @param string $value     New value.
      * @return $this
      */
-    public function setProperty($property, $value)
+    public function doSetProperty($property, $value)
     {
         /** @var ObjectInterface $element */
         foreach ($this->getIterator() as $element) {
@@ -78,14 +98,28 @@ trait ObjectCollectionTrait
 
     /**
      * @param string $property  Object property to be updated.
-     * @param string $value     New value.
      * @return $this
      */
-    public function defProperty($property, $value)
+    public function doUnsetProperty($property)
     {
         /** @var ObjectInterface $element */
         foreach ($this->getIterator() as $element) {
-            $element->defProperty($property, $value);
+            $element->unsetProperty($property);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $property  Object property to be updated.
+     * @param string $default   Default value.
+     * @return $this
+     */
+    public function doDefProperty($property, $default)
+    {
+        /** @var ObjectInterface $element */
+        foreach ($this->getIterator() as $element) {
+            $element->defProperty($property, $default);
         }
 
         return $this;

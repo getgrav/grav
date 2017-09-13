@@ -6,13 +6,13 @@
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Framework\Object;
+namespace Grav\Framework\Object\Interfaces;
 
 /**
  * Object Interface
  * @package Grav\Framework\Object
  */
-interface ObjectInterface extends \JsonSerializable
+interface ObjectInterface extends \Serializable, \JsonSerializable
 {
     /**
      * @param array $elements
@@ -31,8 +31,14 @@ interface ObjectInterface extends \JsonSerializable
     public function getKey();
 
     /**
+     * @param string $property      Object property name.
+     * @return bool                 True if property has been defined (can be null).
+     */
+    public function hasProperty($property);
+
+    /**
      * @param string $property      Object property to be fetched.
-     * @param mixed $default        Default value if not set.
+     * @param mixed $default        Default value if property has not been set.
      * @return mixed                Property value.
      */
     public function getProperty($property, $default = null);
@@ -46,8 +52,14 @@ interface ObjectInterface extends \JsonSerializable
 
     /**
      * @param string  $property     Object property to be defined.
-     * @param mixed   $value        Default value.
+     * @param mixed   $default      Default value.
      * @return $this
      */
-    public function defProperty($property, $value);
+    public function defProperty($property, $default);
+
+    /**
+     * @param string  $property     Object property to be unset.
+     * @return $this
+     */
+    public function unsetProperty($property);
 }
