@@ -112,6 +112,16 @@ class Response
         $config = Grav::instance()['config'];
         $overrides = [];
 
+        // Override CA Bundle
+        $caPathOrFile = \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
+        if (is_dir($caPathOrFile) || (is_link($caPathOrFile) && is_dir(readlink($caPathOrFile)))) {
+            $overrides['curl'][CURLOPT_CAPATH] = $caPathOrFile;
+            $overrides['fopen']['ssl']['capath'] = $caPathOrFile;
+        } else {
+            $overrides['curl'][CURLOPT_CAINFO] = $caPathOrFile;
+            $overrides['fopen']['ssl']['cafile'] = $caPathOrFile;
+        }
+
         // SSL Verify Peer and Proxy Setting
         $settings = [
             'method'      => $config->get('system.gpm.method', self::$method),

@@ -2,6 +2,7 @@
 ## xx/xx/2017
 
 1. [](#improved)
+    * Implemented `Composer\CaBundle` for SSL Certs [#1241](https://github.com/getgrav/grav/issues/1241)
     * Refactored the Assets sorting logic
 1. [](#bugfix)
     * Fixed `Page::summary()` when using delimiter and multibyte UTF8 Characters [#1644](https://github.com/getgrav/grav/issues/1644)
