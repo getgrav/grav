@@ -508,24 +508,9 @@ class Assets
 
         // Sort array by priorities (larger priority first)
         if (Grav::instance()) {
-            uasort($this->css, function ($a, $b) {
-                if ($a['priority'] == $b['priority']) {
-                    return $b['order'] - $a['order'];
-                }
-
-                return $a['priority'] - $b['priority'];
-            });
-
-            uasort($this->inline_css, function ($a, $b) {
-                if ($a['priority'] == $b['priority']) {
-                    return $b['order'] - $a['order'];
-                }
-
-                return $a['priority'] - $b['priority'];
-            });
+            uasort($this->css, array($this, 'sortAssetsByPriorityThenOrder'));
+            uasort($this->inline_css, array($this, 'sortAssetsByPriorityThenOrder'));
         }
-        $this->css = array_reverse($this->css);
-        $this->inline_css = array_reverse($this->inline_css);
 
         $inlineGroup = array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline';
 
@@ -609,24 +594,8 @@ class Assets
         }
 
         // Sort array by priorities (larger priority first)
-        uasort($this->js, function ($a, $b) {
-            if ($a['priority'] == $b['priority']) {
-                return $b['order'] - $a['order'];
-            }
-
-            return $a['priority'] - $b['priority'];
-        });
-
-        uasort($this->inline_js, function ($a, $b) {
-            if ($a['priority'] == $b['priority']) {
-                return $b['order'] - $a['order'];
-            }
-
-            return $a['priority'] - $b['priority'];
-        });
-
-        $this->js = array_reverse($this->js);
-        $this->inline_js = array_reverse($this->inline_js);
+        uasort($this->js, array($this, 'sortAssetsByPriorityThenOrder'));
+        uasort($this->inline_js, array($this, 'sortAssetsByPriorityThenOrder'));
 
         $inlineGroup = array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline';
 
@@ -1416,9 +1385,13 @@ class Assets
      *
      * @return mixed
      */
-    protected function priorityCompare($a, $b)
+    protected function sortAssetsByPriorityThenOrder($a, $b)
     {
-        return $a ['priority'] - $b ['priority'];
+        if ($a['priority'] == $b['priority']) {
+            return $a['order'] - $b['order'];
+        }
+
+        return $b['priority'] - $a['priority'];
     }
 
 }

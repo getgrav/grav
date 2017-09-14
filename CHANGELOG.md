@@ -1,6 +1,8 @@
 # v1.3.4
 ## xx/xx/2017
 
+1. [](#improved)
+    * Refactored the Assets sorting logic
 1. [](#bugfix)
     * Fixed `Page::summary()` when using delimiter and multibyte UTF8 Characters [#1644](https://github.com/getgrav/grav/issues/1644)
 
