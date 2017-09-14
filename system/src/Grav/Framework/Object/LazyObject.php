@@ -8,12 +8,12 @@
 
 namespace Grav\Framework\Object;
 
+use Grav\Framework\Object\Access\NestedArrayAccessTrait;
 use Grav\Framework\Object\Access\NestedPropertyTrait;
 use Grav\Framework\Object\Access\OverloadedPropertyTrait;
 use Grav\Framework\Object\Base\ObjectTrait;
 use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Object\Property\LazyPropertyTrait;
-use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccess;
 
 /**
  * Lazy Object class.
@@ -22,5 +22,5 @@ use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccess;
  */
 class LazyObject implements NestedObjectInterface, \ArrayAccess
 {
-    use ObjectTrait, LazyPropertyTrait, NestedPropertyTrait, OverloadedPropertyTrait, NestedArrayAccess;
+    use ObjectTrait, LazyPropertyTrait, NestedPropertyTrait, OverloadedPropertyTrait, NestedArrayAccessTrait;
 }
