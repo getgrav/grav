@@ -4,6 +4,7 @@
 1. [](#improved)
     * Implemented `Composer\CaBundle` for SSL Certs [#1241](https://github.com/getgrav/grav/issues/1241)
     * Refactored the Assets sorting logic
+    * Improved language overrides to merge only 'extra' translations [#1514](https://github.com/getgrav/grav/issues/1514)
     * Improved support for Assets with query strings [#1451](https://github.com/getgrav/grav/issues/1451)
 1. [](#bugfix)
     * Fixed issue with Image query string not being fully URL encoded [#1622](https://github.com/getgrav/grav/issues/1622)
