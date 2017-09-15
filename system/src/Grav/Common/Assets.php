@@ -1373,13 +1373,17 @@ class Assets
      *
      * @return string
      */
-    public function getTimestamp()
+    public function getTimestamp($include_join = true)
     {
-        return $this->timestamp;
+        if ($this->timestamp) {
+            $timestamp = $include_join ? '?' . $this->timestamp : $this->timestamp;
+            return $timestamp;
+        }
+        return;
     }
 
     /**
-     * Get the full query string including any query params and timestamp
+     *
      *
      * @param $asset
      * @return string
