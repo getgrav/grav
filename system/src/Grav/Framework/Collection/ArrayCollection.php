@@ -51,6 +51,17 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
     }
 
     /**
+     * Split collection into chunks.
+     *
+     * @param int $size     Size of each chunk.
+     * @return array
+     */
+    public function chunk($size)
+    {
+        return array_chunk($this->toArray(), $size, true);
+    }
+
+    /**
      * Implementes JsonSerializable interface.
      *
      * @return array

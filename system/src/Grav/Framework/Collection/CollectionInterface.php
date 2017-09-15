@@ -30,4 +30,12 @@ interface CollectionInterface extends Collection, \JsonSerializable
      * @return static
      */
     public function shuffle();
+
+    /**
+     * Split collection into chunks.
+     *
+     * @param int $size     Size of each chunk.
+     * @return array
+     */
+    public function chunk($size);
 }
