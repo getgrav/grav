@@ -9,6 +9,7 @@
 namespace Grav\Common\Config;
 
 use Grav\Common\Data\Data;
+use Grav\Common\Utils;
 
 class Languages extends Data
 {
@@ -49,6 +50,6 @@ class Languages extends Data
 
     public function mergeRecursive(array $data)
     {
-        $this->items = array_merge_recursive($this->items, $data);
+        $this->items = Utils::arrayMergeRecursiveUnique($this->items, $data);
     }
 }

@@ -184,7 +184,7 @@ class Assets
 
         // Set timestamp
         if (isset($config['enable_asset_timestamp']) && $config['enable_asset_timestamp'] === true) {
-            $this->timestamp = '?' . Grav::instance()['cache']->getKey();
+            $this->timestamp = Grav::instance()['cache']->getKey();
         }
 
         return $this;
@@ -285,9 +285,20 @@ class Assets
             return $this;
         }
 
+        $query = [];
+
         $modified = false;
         $remote = $this->isRemoteLink($asset);
         if (!$remote) {
+
+            $asset_parts = parse_url($asset);
+            if (isset($asset_parts['query'])) {
+                $query[] = $asset_parts['query'];
+                unset($asset_parts['query']);
+                $asset = Uri::buildUrl($asset_parts);
+            }
+
+
             $modified = $this->getLastModificationTime($asset);
             $asset = $this->buildLocalLink($asset);
         }
@@ -305,7 +316,8 @@ class Assets
             'pipeline' => (bool) $pipeline,
             'loading'  => $loading ?: '',
             'group'    => $group ?: 'head',
-            'modified' => $modified
+            'modified' => $modified,
+            'query'    => implode('&', $query),
         ];
 
         // check for dynamic array and merge with defaults
@@ -538,7 +550,7 @@ class Assets
                     }
                     else {
                         $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
-                        $output .= '<link href="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . $media . ' />' . "\n";
+                        $output .= '<link href="' . $file['asset'] . $this->getQuerystring($file) . '"' . $attributes . $media . ' />' . "\n";
                     }
                 }
             }
@@ -558,7 +570,7 @@ class Assets
                     }
                     else {
                         $media = isset($file['media']) ? sprintf(' media="%s"', $file['media']) : '';
-                        $output .= '<link href="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . $media . ' />' . "\n";
+                        $output .= '<link href="' . $file['asset'] . $this->getQuerystring($file) . '"' . $attributes . $media . ' />' . "\n";
                     }
                 }
             }
@@ -622,7 +634,7 @@ class Assets
                         $inline_js .= $this->gatherLinks([$file], JS_ASSET) . "\n";
                     }
                     else {
-                        $output .= '<script src="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
+                        $output .= '<script src="' . $file['asset'] . $this->getQuerystring($file) . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
                     }
                 }
             }
@@ -641,7 +653,7 @@ class Assets
                         $inline_js .= $this->gatherLinks([$file], JS_ASSET) . "\n";
                     }
                     else {
-                        $output .= '<script src="' . $file['asset'] . $this->getTimestamp($file) . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
+                        $output .= '<script src="' . $file['asset'] . $this->getQuerystring($file) . '"' . $attributes . ' ' . $file['loading'] . '></script>' . "\n";
                     }
                 }
             }
@@ -1353,22 +1365,50 @@ class Assets
      */
     public function setTimestamp($value)
     {
-        $this->timestamp = '?' . $value;
+        $this->timestamp = $value;
     }
 
-    public function getTimestamp($asset = null)
+    /**
+     * Get the timestamp for assets
+     *
+     * @return string
+     */
+    public function getTimestamp($include_join = true)
     {
-        if (is_array($asset)) {
-            if ($asset['remote'] === false) {
-                if (Utils::contains($asset['asset'], '?')) {
-                    return str_replace('?', '&', $this->timestamp);
-                } else {
-                    return $this->timestamp;
-                }
-            }
-        } elseif (empty($asset)) {
-            return $this->timestamp;
+        if ($this->timestamp) {
+            $timestamp = $include_join ? '?' . $this->timestamp : $this->timestamp;
+            return $timestamp;
         }
+        return;
+    }
+
+    /**
+     *
+     *
+     * @param $asset
+     * @return string
+     */
+    public function getQuerystring($asset)
+    {
+        $querystring = '';
+
+        if (!empty($asset['query'])) {
+            if (Utils::contains($asset['asset'], '?')) {
+                $querystring .=  '&' . $asset['query'];
+            } else {
+               $querystring .= '?' . $asset['query'];
+            }
+        }
+
+        if ($this->timestamp) {
+            if (Utils::contains($asset['asset'], '?') || $querystring) {
+                $querystring .=  '&' . $this->timestamp;
+            } else {
+                $querystring .= '?' . $this->timestamp;
+            }
+        }
+
+        return $querystring;
     }
 
     /**
