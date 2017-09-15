@@ -60,7 +60,7 @@ class CompiledLanguages extends CompiledBase
     {
         $file = CompiledYamlFile::instance($filename);
         if (preg_match('|languages\.yaml$|', $filename)) {
-            $this->object->mergeRecursive((array)$file->content());
+            $this->object->mergeRecursive($file->content());
         } else {
             $this->object->mergeRecursive([$name => $file->content()]);
         }
