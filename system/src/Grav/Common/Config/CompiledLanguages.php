@@ -62,7 +62,7 @@ class CompiledLanguages extends CompiledBase
         if (preg_match('|languages\.yaml$|', $filename)) {
             $this->object->mergeRecursive((array)$file->content());
         } else {
-            $this->object->join($name, $file->content(), '/');
+            $this->object->mergeRecursive([$name => $file->content()]);
         }
         $file->free();
     }
