@@ -1,6 +1,7 @@
 getgrav:
     container_name: getgrav
     build: docker
+    user: 'www-data'
     volumes:
         - .:/var/www/html
     links:
@@ -10,4 +11,6 @@ getgrav:
 
 mailcatcher:
     container_name: getgrav_mailcatcher
-    image: helder/mailcatcher
+    image: tophfr/mailcatcher
+    ports:
+        - 1080:8080

@@ -1,4 +1,4 @@
-FROM php:5.6-apache
+FROM php:7-apache
 
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash
 
@@ -17,8 +17,6 @@ RUN apt-get update --fix-missing && \
     nodejs \
     unzip \
     bzip2 \
-    rubygems \
-    ruby-dev \
     php5-cli \
     php5-common \
     php5-sqlite \
@@ -27,6 +25,7 @@ RUN apt-get update --fix-missing && \
     sudo
 
 RUN docker-php-ext-install mbstring pdo_mysql zip gd curl intl mcrypt soap opcache json
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 
 RUN pecl install imagick && docker-php-ext-enable imagick
 
@@ -44,9 +43,6 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN a2enmod rewrite
 RUN a2enmod ssl
 
-# https://github.com/sameersbn/docker-gitlab/issues/396
-RUN sed -i 's/host = uri.host/host = "http:\/\/rubygems.org"/g' /usr/lib/ruby/2.1.0/rubygems/remote_fetcher.rb
-
 RUN usermod -u 1000 www-data \
     && groupmod -g 1000 www-data \
     && chown www-data:www-data /var/www \
@@ -56,7 +52,7 @@ RUN usermod -u 1000 www-data \
 RUN chown 1000:1000 /var/www
 RUN mkdir -p /var/www/html/cache
 RUN chown -R 1000:1000 /var/www/html/cache
-VOLUME ["/var/www/html/app/cache"]
+VOLUME ["/var/www/html/cache", "/var/www/html/logs"]
 
 USER www-data
 
