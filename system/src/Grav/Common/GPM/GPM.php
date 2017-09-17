@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -513,7 +513,7 @@ class GPM extends Iterator
         $filename = basename($package['path']);
 
         if (Grav::instance()['config']->get('system.gpm.official_gpm_only') && $package['host'] !== 'getgrav.org') {
-            throw new \RuntimeException("Only offical GPM URLs are allowed.  You can modify this behavior in the System configuration.");
+            throw new \RuntimeException("Only official GPM URLs are allowed. You can modify this behavior in the System configuration.");
         }
 
         $output = Response::get($package_file, []);
@@ -599,9 +599,11 @@ class GPM extends Iterator
      */
     public static function getPackageName($source)
     {
+        $ignore_yaml_files = ['blueprints', 'languages'];
+
         foreach (glob($source . "*.yaml") as $filename) {
             $name = strtolower(basename($filename, '.yaml'));
-            if ($name == 'blueprints') {
+            if (in_array($name, $ignore_yaml_files)) {
                 continue;
             }
             return $name;

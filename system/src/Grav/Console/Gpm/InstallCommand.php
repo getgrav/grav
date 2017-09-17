@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Console
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -80,7 +80,7 @@ class InstallCommand extends ConsoleCommand
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'The package(s) that are desired to be installed. Use the "index" command for a list of packages'
+                'Package(s) to install. Use "bin/gpm index" to list packages. Use "bin/gpm direct-install" to install a specific version'
             )
             ->setDescription("Performs the installation of plugins and themes")
             ->setHelp('The <info>install</info> command allows to install plugins and themes');

@@ -110,7 +110,7 @@ Good pull requests - patches, improvements, new features - are a fantastic
 help. They should remain focused in scope and avoid containing unrelated
 commits.
 
-**Please ask first** in Gitter or in the Forum before embarking on any significant pull request (e.g.
+**Please ask first** in [Slack](https://getgrav.org/slack) or in the Forum before embarking on any significant pull request (e.g.
 implementing features, refactoring code..),
 otherwise you risk spending a lot of time working on something that the
 project's developers might not want to merge into the project.
@@ -120,5 +120,18 @@ accurate comments, etc.) and any other requirements.
 
 See [Using Pull Request](https://help.github.com/articles/using-pull-requests/) and [Fork a Repo](https://help.github.com/articles/fork-a-repo/) if you're not familiar with Pull Requests.
 
+Any pull request should be based on the `develop` branch. We will not consider pull requests made to master.
+
 **IMPORTANT**: By submitting a patch, you agree to allow the project owner to
 license your work under the same license as that used by the project.
+
+<a name="translations"></a>
+### Translations
+Translations for Grav core and the Admin plugin are managed through Crowdin:
+
+- Admin: https://crowdin.com/project/grav-admin
+- Core: https://crowdin.com/project/grav-core
+
+Please do not post translations PRs for core or admin translations on GitHub, with the exception of fixes for the english language.
+
+All other plugins and themes translations are handled directly in their GitHub repository, and the string are usually found in the `languages.yaml` file at the root of each project.

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -51,7 +51,7 @@ class ImageMedium extends Medium
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
         'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive',
-        'rotate', 'flip', 'fixOrientation'
+        'rotate', 'flip', 'fixOrientation', 'gaussianBlur'
     ];
 
     /**
@@ -166,7 +166,7 @@ class ImageMedium extends Medium
             $this->reset();
         }
 
-        return Grav::instance()['base_url'] . $output . $this->querystring() . $this->urlHash();
+        return trim(Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/'), '\\');
     }
 
     /**

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.User
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -197,6 +197,10 @@ class User extends Data
             return false;
         }
 
+        if (!$this->authenticated) {
+            return false;
+        }
+
         if (isset($this->state) && $this->state !== 'enabled') {
             return false;
         }
@@ -238,5 +242,21 @@ class User extends Data
     public function authorise($action)
     {
         return $this->authorize($action);
+    }
+
+    /**
+     * Return the User's avatar URL
+     *
+     * @return string
+     */
+    public function avatarUrl()
+    {
+        if ($this->avatar) {
+            $avatar = $this->avatar;
+            $avatar = array_shift($avatar);
+            return Grav::instance()['base_url'] . '/' . $avatar['path'];
+        } else {
+            return 'https://www.gravatar.com/avatar/' . md5($this->email);
+        }
     }
 }

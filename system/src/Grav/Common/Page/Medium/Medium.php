@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -50,6 +50,11 @@ class Medium extends Data implements RenderableInterface
     protected $styleAttributes = [];
 
     /**
+     * @var array
+     */
+    protected $metadata = [];
+
+    /**
      * Construct.
      *
      * @param array $items
@@ -78,13 +83,24 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Returns an array containing just the metadata
+     *
+     * @return array
+     */
+    public function metadata()
+    {
+        return $this->metadata;
+    }
+
+    /**
      * Add meta file for the medium.
      *
      * @param $filepath
      */
     public function addMetaFile($filepath)
     {
-        $this->merge((array)CompiledYamlFile::instance($filepath)->content());
+        $this->metadata = (array)CompiledYamlFile::instance($filepath)->content();
+        $this->merge($this->metadata);
     }
 
     /**
@@ -131,6 +147,21 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Return the relative path to file
+     *
+     * @param bool $reset
+     * @return mixed
+     */
+    public function relativePath($reset = true)
+    {
+        if ($reset) {
+            $this->reset();
+        }
+
+        return str_replace(GRAV_ROOT, '', $this->get('filepath'));
+    }
+
+    /**
      * Return URL to file.
      *
      * @param bool $reset
@@ -144,7 +175,7 @@ class Medium extends Data implements RenderableInterface
             $this->reset();
         }
 
-        return Grav::instance()['base_url'] . $output . $this->querystring() . $this->urlHash();
+        return trim(Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/'), '\\');
     }
 
     /**
@@ -336,7 +367,7 @@ class Medium extends Data implements RenderableInterface
 
         $this->mode = $mode;
 
-        return $mode === 'thumbnail' ? $this->getThumbnail()->reset() : $this->reset();
+        return $mode === 'thumbnail' ? ($this->getThumbnail() ? $this->getThumbnail()->reset() : null) : $this->reset();
     }
 
     /**
@@ -459,7 +490,7 @@ class Medium extends Data implements RenderableInterface
     {
         $qs = $method;
         if (count($args) > 1 || (count($args) == 1 && !empty($args[0]))) {
-            $qs .= '=' . implode(',', array_map(function ($a) { return urlencode($a); }, $args));
+            $qs .= '=' . implode(',', array_map(function ($a) { return rawurlencode($a); }, $args));
         }
 
         if (!empty($qs)) {
