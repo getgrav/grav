@@ -6,6 +6,13 @@ getgrav:
         - .:/var/www/html
     links:
         - mailcatcher
+    environment:
+        DOMAIN_NAME: ${SERVER_NAME}.dev
+        SYMFONY_ENV: dev
+        DOCKER_UID: ${DOCKER_UID}
+        XDEBUG_CONFIG: ${XDEBUG_CONFIG}
+        PHP_IDE_CONFIG: ${PHP_IDE_CONFIG}
+        GITHUB_OAUTH: ${GITHUB_OAUTH}
     ports:
         - 80:80
 

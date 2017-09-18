@@ -51,6 +51,21 @@ $ composer create-project getgrav/grav ~/webroot/grav
    $ bin/grav install
    ```
 
+### Virtual localhost using Docker
+1. Install [Docker](https://docs.docker.com/engine/installation/)
+1. Install [docker-compose](https://docs.docker.com/compose/install/)
+   > For Linux Fedora >= 25 `$ sudo dnf install docker-compose`
+1. Install [docker helper](https://www.npmjs.com/package/eta-cli)
+   ```
+   $ npm install -g eta-cli
+   ```
+1. Install https://github.com/jwilder/nginx-proxy/issues/560
+1. Run docker containers
+   ```
+   $ eta up
+   ```
+   > Alternate `docker-compose up`
+
 Check out the [install procedures](https://learn.getgrav.org/basics/installation) for more information.
 
 # Adding Functionality
