@@ -42,9 +42,9 @@
     * Added new `onTwigLoader()` event to enable utilization of loader methods
     * Added new `Twig::addPath()` and `Twig::prependPath()` methods to wrap loader methods and support namespacing [#1604](https://github.com/getgrav/grav/issues/1604)
     * Added new `array_key_exists()` Twig function wrapper
-    * Added a new `Collection::intersect()` method [#1605](github.com/getgrav/grav/issues/1605)
+    * Added a new `Collection::intersect()` method [#1605](https://github.com/getgrav/grav/issues/1605)
 1. [](#bugfix)
-    * Allow `session.timetout` field to be set to `0` via blueprints [#1598](https://github.com/getgrav/grav/issues/1598)
+    * Allow `session.timeout` field to be set to `0` via blueprints [#1598](https://github.com/getgrav/grav/issues/1598)
     * Fixed `Data::exists()` and `Data::raw()` functions breaking if `Data::file()` hasn't been called with non-null value
     * Fixed parent theme auto-loading in child themes of Gantry 5
     
