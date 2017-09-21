@@ -247,15 +247,15 @@ class TwigExtension extends \Twig_Extension
     /**
      * Inflector supports following notations:
      *
-     * {{ 'person'|pluralize }} => people
-     * {{ 'shoes'|singularize }} => shoe
-     * {{ 'welcome page'|titleize }} => "Welcome Page"
-     * {{ 'send_email'|camelize }} => SendEmail
-     * {{ 'CamelCased'|underscorize }} => camel_cased
-     * {{ 'Something Text'|hyphenize }} => something-text
-     * {{ 'something_text_to_read'|humanize }} => "Something text to read"
-     * {{ '181'|monthize }} => 5
-     * {{ '10'|ordinalize }} => 10th
+     * `{{ 'person'|pluralize }} => people`
+     * `{{ 'shoes'|singularize }} => shoe`
+     * `{{ 'welcome page'|titleize }} => "Welcome Page"`
+     * `{{ 'send_email'|camelize }} => SendEmail`
+     * `{{ 'CamelCased'|underscorize }} => camel_cased`
+     * `{{ 'Something Text'|hyphenize }} => something-text`
+     * `{{ 'something_text_to_read'|humanize }} => "Something text to read"`
+     * `{{ '181'|monthize }} => 5`
+     * `{{ '10'|ordinalize }} => 10th`
      *
      * @param string $action
      * @param string $data

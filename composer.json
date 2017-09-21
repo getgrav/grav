@@ -23,7 +23,7 @@
         "gregwar/image": "2.*",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.0",
-        "rockettheme/toolbox": "~1.0",
+        "rockettheme/toolbox": "dev-develop",
         "maximebf/debugbar": "~1.10",
         "ext-mbstring": "*",
         "ext-openssl": "*",
@@ -37,8 +37,15 @@
     "require-dev": {
         "codeception/codeception": "^2.1",
         "phpunit/php-code-coverage": "~2.0",
-        "fzaninotto/faker": "^1.5"
+        "fzaninotto/faker": "^1.5",
+        "victorjonsson/markdowndocs": "dev-master"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"
