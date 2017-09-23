@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "978ee85fd58ccea6f465bbc3be308bef",
+    "content-hash": "ccb08ad7f94ef7ace49e5f96d02d53d0",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -3422,52 +3422,6 @@
             "time": "2017-07-29T21:54:42+00:00"
         },
         {
-            "name": "victorjonsson/markdowndocs",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator.git",
-                "reference": "c9fa153b28a79f5da89ec32aa501be92db212aed"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/trilbymedia/PHP-Markdown-Documentation-Generator/zipball/c9fa153b28a79f5da89ec32aa501be92db212aed",
-                "reference": "c9fa153b28a79f5da89ec32aa501be92db212aed",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.5.0",
-                "symfony/console": ">=2.6"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.23"
-            },
-            "bin": [
-                "bin/phpdoc-md"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "PHPDocsMD": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Victor Jonsson",
-                    "email": "kontakt@victorjonsson.se"
-                }
-            ],
-            "description": "Command line tool for generating markdown-formatted class documentation",
-            "homepage": "https://github.com/victorjonsson/PHP-Markdown-Documentation-Generator",
-            "support": {
-                "source": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator/tree/master"
-            },
-            "time": "2017-09-20T13:29:22+00:00"
-        },
-        {
             "name": "webmozart/assert",
             "version": "1.2.0",
             "source": {
@@ -3521,8 +3475,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rockettheme/toolbox": 20,
-        "victorjonsson/markdowndocs": 20
+        "rockettheme/toolbox": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
