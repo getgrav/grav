@@ -2507,6 +2507,41 @@ class Page
             }
         }
 
+        // If  a filter or filters are set, filter the collection...
+        if (isset($params['filter'])) {
+            foreach ((array)$params['filter'] as $type => $filter) {
+                switch ($type) {
+                    case 'visible':
+                        $collection->visible($filter);
+                        break;
+                    case 'non-visible':
+                        $collection->nonVisible($filter);
+                        break;
+                    case 'modular':
+                        $collection->modular($filter);
+                        break;
+                    case 'non-modular':
+                        $collection->nonModular($filter);
+                        break;
+                    case 'routable':
+                        $collection->routable($filter);
+                        break;
+                    case 'non-routable':
+                        $collection->nonRoutable($filter);
+                        break;
+                    case 'type':
+                        $collection->ofType($filter);
+                        break;
+                    case 'types':
+                        $collection->ofOneOfTheseTypes($filter);
+                        break;
+                    case 'access':
+                        $collection->ofOneOfTheseAccessLevels($filter);
+                        break;
+                }
+            }
+        }
+
         if (isset($params['dateRange'])) {
             $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;
             $end = isset($params['dateRange']['end']) ? $params['dateRange']['end'] : false;

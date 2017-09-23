@@ -1,6 +1,8 @@
 # v1.3.4
 ## xx/xx/2017
 
+1. [](#new)
+    * Added filter support for Page collections (routable/visible/type/access/etc.)
 1. [](#improved)
     * Implemented `Composer\CaBundle` for SSL Certs [#1241](https://github.com/getgrav/grav/issues/1241)
     * Refactored the Assets sorting logic
