@@ -133,7 +133,19 @@ trait ObjectPropertyTrait
      */
     protected function getElements()
     {
-        return array_intersect_key(get_object_vars($this), array_filter($this->_definedProperties));
+        $properties = array_intersect_key(get_object_vars($this), array_filter($this->_definedProperties));
+
+        $elements = [];
+        foreach ($properties as $offset => $value) {
+            $methodName = "offsetSerialize_{$offset}";
+            if (method_exists($this, $methodName)) {
+                $elements[$offset] = $this->{$methodName}($value);
+            } else {
+                $elements[$offset] = $value;
+            }
+        }
+
+        return $elements;
     }
 
     /**
