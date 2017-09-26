@@ -172,9 +172,9 @@ trait ObjectCollectionTrait
         foreach ($this->group($property) as $id => $elements) {
             // TODO: remove when PHP 5.6 is minimum (with doctrine/collections v1.4).
             if (!method_exists($this, 'createFrom')) {
-                $collection = new static(array_reverse($this->toArray()));
+                $collection = new static($elements);
             } else {
-                $collection = $this->createFrom(array_reverse($this->toArray()));
+                $collection = $this->createFrom($elements);
             }
 
             $collections[$id] = $collection;
