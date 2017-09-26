@@ -142,9 +142,8 @@ trait ObjectCollectionTrait
         return $list;
     }
 
-
     /**
-     * Group items in the collection by a field.
+     * Group items in the collection by a field and return them as associated array.
      *
      * @param string $property
      * @return array
@@ -159,6 +158,29 @@ trait ObjectCollectionTrait
         }
 
         return $list;
+    }
+
+    /**
+     * Group items in the collection by a field and return them as associated array of collections.
+     *
+     * @param string $property
+     * @return static[]
+     */
+    public function collectionGroup($property)
+    {
+        $collections = [];
+        foreach ($this->group($property) as $id => $elements) {
+            // TODO: remove when PHP 5.6 is minimum (with doctrine/collections v1.4).
+            if (!method_exists($this, 'createFrom')) {
+                $collection = new static(array_reverse($this->toArray()));
+            } else {
+                $collection = $this->createFrom(array_reverse($this->toArray()));
+            }
+
+            $collections[$id] = $collection;
+        }
+
+        return $collections;
     }
 
     /**

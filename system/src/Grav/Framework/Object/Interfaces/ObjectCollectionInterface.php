@@ -49,10 +49,18 @@ interface ObjectCollectionInterface extends CollectionInterface, ObjectInterface
     public function call($name, array $arguments);
 
     /**
-     * Group items in the collection by a field.
+     * Group items in the collection by a field and return them as associated array.
      *
      * @param string $property
      * @return array
      */
     public function group($property);
+
+    /**
+     * Group items in the collection by a field and return them as associated array of collections.
+     *
+     * @param string $property
+     * @return static[]
+     */
+    public function collectionGroup($property);
 }
