@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "978ee85fd58ccea6f465bbc3be308bef",
+    "content-hash": "24c56b5fbd83e5c8173f1c38c2805b68",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -1040,16 +1040,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "dev-develop",
+            "version": "1.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "726962ec51d6d7c5869888fb7d8f0df6a32b0b1f"
+                "reference": "2f7c83780bbcf527e057f15efe755e10694eb2bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/726962ec51d6d7c5869888fb7d8f0df6a32b0b1f",
-                "reference": "726962ec51d6d7c5869888fb7d8f0df6a32b0b1f",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/2f7c83780bbcf527e057f15efe755e10694eb2bc",
+                "reference": "2f7c83780bbcf527e057f15efe755e10694eb2bc",
                 "shasum": ""
             },
             "require": {
@@ -1084,7 +1084,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2017-09-20T03:05:03+00:00"
+            "time": "2017-09-23T13:39:25+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -1549,16 +1549,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.34.4",
+            "version": "v1.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "f878bab48edb66ad9c6ed626bf817f60c6c096ee"
+                "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/f878bab48edb66ad9c6ed626bf817f60c6c096ee",
-                "reference": "f878bab48edb66ad9c6ed626bf817f60c6c096ee",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/daa657073e55b0a78cce8fdd22682fddecc6385f",
+                "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f",
                 "shasum": ""
             },
             "require": {
@@ -1572,7 +1572,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.34-dev"
+                    "dev-master": "1.35-dev"
                 }
             },
             "autoload": {
@@ -1610,7 +1610,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-07-04T13:19:31+00:00"
+            "time": "2017-09-27T18:06:46+00:00"
         }
     ],
     "packages-dev": [
@@ -3521,7 +3521,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rockettheme/toolbox": 20,
         "victorjonsson/markdowndocs": 20
     },
     "prefer-stable": false,
