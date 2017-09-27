@@ -36,7 +36,8 @@ trait NestedPropertyTrait
      */
     public function getNestedProperty($property, $default = null, $separator = null)
     {
-        $path = explode($separator ?: '.', $property);
+        $separator = $separator ?: '.';
+        $path = explode($separator, $property);
         $offset = array_shift($path);
 
         if (!$this->hasProperty($offset)) {
@@ -78,7 +79,8 @@ trait NestedPropertyTrait
      */
     public function setNestedProperty($property, $value, $separator = null)
     {
-        $path = explode($separator ?: '.', $property);
+        $separator = $separator ?: '.';
+        $path = explode($separator, $property);
         $offset = array_shift($path);
 
         if (!$path) {
@@ -119,7 +121,8 @@ trait NestedPropertyTrait
      */
     public function unsetNestedProperty($property, $separator = null)
     {
-        $path = explode($separator ?: '.', $property);
+        $separator = $separator ?: '.';
+        $path = explode($separator, $property);
         $offset = array_shift($path);
 
         if (!$path) {
