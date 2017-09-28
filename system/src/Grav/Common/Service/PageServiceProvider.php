@@ -41,7 +41,7 @@ class PageServiceProvider implements ServiceProviderInterface
 
                 // some debugger override logic
                 if ($page->debugger() === false) {
-                    Grav::instance()['debugger']->enabled(false);
+                    $c['debugger']->enabled(false);
                 }
 
                 if ($c['config']->get('system.force_ssl')) {
