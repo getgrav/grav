@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "093b6264edbdec148beb6ee2461a5e72",
+    "content-hash": "24c56b5fbd83e5c8173f1c38c2805b68",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -49,6 +49,65 @@
             ],
             "description": "Composer package for DOMWordsIterator and DOMLettersIterator",
             "time": "2015-11-04T17:33:14+00:00"
+        },
+        {
+            "name": "composer/ca-bundle",
+            "version": "1.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/ca-bundle.git",
+                "reference": "9dd73a03951357922d8aee6cc084500de93e2343"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/9dd73a03951357922d8aee6cc084500de93e2343",
+                "reference": "9dd73a03951357922d8aee6cc084500de93e2343",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "ext-pcre": "*",
+                "php": "^5.3.2 || ^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.5",
+                "psr/log": "^1.0",
+                "symfony/process": "^2.5 || ^3.0"
+            },
+            "suggest": {
+                "symfony/process": "This is necessary to reliably check whether openssl_x509_parse is vulnerable on older php versions, but can be ignored on PHP 5.5.6+"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Composer\\CaBundle\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be"
+                }
+            ],
+            "description": "Lets you find a path to the system CA bundle, and includes a fallback to the Mozilla CA bundle.",
+            "keywords": [
+                "cabundle",
+                "cacert",
+                "certificate",
+                "ssl",
+                "tls"
+            ],
+            "time": "2017-09-11T07:24:36+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -532,16 +591,16 @@
         },
         {
             "name": "matthiasmullie/minify",
-            "version": "1.3.46",
+            "version": "1.3.52",
             "source": {
                 "type": "git",
                 "url": "https://github.com/matthiasmullie/minify.git",
-                "reference": "1443646268465b8930c9a7f2f8ff1a51453796d1"
+                "reference": "134b25a63d83a80ae128aedc9a99987e064b4382"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/matthiasmullie/minify/zipball/1443646268465b8930c9a7f2f8ff1a51453796d1",
-                "reference": "1443646268465b8930c9a7f2f8ff1a51453796d1",
+                "url": "https://api.github.com/repos/matthiasmullie/minify/zipball/134b25a63d83a80ae128aedc9a99987e064b4382",
+                "reference": "134b25a63d83a80ae128aedc9a99987e064b4382",
                 "shasum": ""
             },
             "require": {
@@ -588,7 +647,7 @@
                 "minifier",
                 "minify"
             ],
-            "time": "2017-07-06T12:26:44+00:00"
+            "time": "2017-09-15T13:02:11+00:00"
         },
         {
             "name": "matthiasmullie/path-converter",
@@ -981,16 +1040,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.3.7",
+            "version": "1.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "670ad362eb948d14ebc589b957965cf178674a33"
+                "reference": "2f7c83780bbcf527e057f15efe755e10694eb2bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/670ad362eb948d14ebc589b957965cf178674a33",
-                "reference": "670ad362eb948d14ebc589b957965cf178674a33",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/2f7c83780bbcf527e057f15efe755e10694eb2bc",
+                "reference": "2f7c83780bbcf527e057f15efe755e10694eb2bc",
                 "shasum": ""
             },
             "require": {
@@ -1025,7 +1084,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2017-08-28T20:31:35+00:00"
+            "time": "2017-09-23T13:39:25+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -1490,16 +1549,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.34.4",
+            "version": "v1.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "f878bab48edb66ad9c6ed626bf817f60c6c096ee"
+                "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/f878bab48edb66ad9c6ed626bf817f60c6c096ee",
-                "reference": "f878bab48edb66ad9c6ed626bf817f60c6c096ee",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/daa657073e55b0a78cce8fdd22682fddecc6385f",
+                "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f",
                 "shasum": ""
             },
             "require": {
@@ -1513,7 +1572,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.34-dev"
+                    "dev-master": "1.35-dev"
                 }
             },
             "autoload": {
@@ -1551,7 +1610,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-07-04T13:19:31+00:00"
+            "time": "2017-09-27T18:06:46+00:00"
         }
     ],
     "packages-dev": [
@@ -2048,16 +2107,16 @@
         },
         {
             "name": "phpdocumentor/reflection-common",
-            "version": "1.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionCommon.git",
-                "reference": "144c307535e82c8fdcaacbcfc1d6d8eeb896687c"
+                "reference": "21bdeb5f65d7ebf9f43b1b25d404f87deab5bfb6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionCommon/zipball/144c307535e82c8fdcaacbcfc1d6d8eeb896687c",
-                "reference": "144c307535e82c8fdcaacbcfc1d6d8eeb896687c",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionCommon/zipball/21bdeb5f65d7ebf9f43b1b25d404f87deab5bfb6",
+                "reference": "21bdeb5f65d7ebf9f43b1b25d404f87deab5bfb6",
                 "shasum": ""
             },
             "require": {
@@ -2098,7 +2157,7 @@
                 "reflection",
                 "static analysis"
             ],
-            "time": "2015-12-27T11:43:31+00:00"
+            "time": "2017-09-11T18:02:19+00:00"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -3100,7 +3159,7 @@
         },
         {
             "name": "symfony/browser-kit",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/browser-kit.git",
@@ -3157,7 +3216,7 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
@@ -3210,16 +3269,16 @@
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
-                "reference": "d15dfaf71b65bf3affb80900470caf4451a8217e"
+                "reference": "6b511d7329b203a620f09a2288818d27dcc915ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/d15dfaf71b65bf3affb80900470caf4451a8217e",
-                "reference": "d15dfaf71b65bf3affb80900470caf4451a8217e",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/6b511d7329b203a620f09a2288818d27dcc915ae",
+                "reference": "6b511d7329b203a620f09a2288818d27dcc915ae",
                 "shasum": ""
             },
             "require": {
@@ -3262,11 +3321,11 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "https://symfony.com",
-            "time": "2017-08-15T13:31:09+00:00"
+            "time": "2017-09-11T15:55:22+00:00"
         },
         {
             "name": "symfony/finder",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
@@ -3315,7 +3374,7 @@
         },
         {
             "name": "symfony/process",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
@@ -3361,6 +3420,52 @@
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
             "time": "2017-07-29T21:54:42+00:00"
+        },
+        {
+            "name": "victorjonsson/markdowndocs",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator.git",
+                "reference": "c9fa153b28a79f5da89ec32aa501be92db212aed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/trilbymedia/PHP-Markdown-Documentation-Generator/zipball/c9fa153b28a79f5da89ec32aa501be92db212aed",
+                "reference": "c9fa153b28a79f5da89ec32aa501be92db212aed",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0",
+                "symfony/console": ">=2.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.23"
+            },
+            "bin": [
+                "bin/phpdoc-md"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "PHPDocsMD": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Victor Jonsson",
+                    "email": "kontakt@victorjonsson.se"
+                }
+            ],
+            "description": "Command line tool for generating markdown-formatted class documentation",
+            "homepage": "https://github.com/victorjonsson/PHP-Markdown-Documentation-Generator",
+            "support": {
+                "source": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator/tree/master"
+            },
+            "time": "2017-09-20T13:29:22+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -3415,7 +3520,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "victorjonsson/markdowndocs": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

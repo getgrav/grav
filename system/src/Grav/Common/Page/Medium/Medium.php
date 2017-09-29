@@ -490,7 +490,7 @@ class Medium extends Data implements RenderableInterface
     {
         $qs = $method;
         if (count($args) > 1 || (count($args) == 1 && !empty($args[0]))) {
-            $qs .= '=' . implode(',', array_map(function ($a) { return urlencode($a); }, $args));
+            $qs .= '=' . implode(',', array_map(function ($a) { return rawurlencode($a); }, $args));
         }
 
         if (!empty($qs)) {

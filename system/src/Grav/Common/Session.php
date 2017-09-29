@@ -83,6 +83,8 @@ class Session extends BaseSession
               $session_name .= '-admin';
             }
             $this->setName($session_name);
+            ini_set('session.cookie_secure', $secure);
+            ini_set('session.cookie_httponly', $httponly);
             $this->start();
             setcookie(session_name(), session_id(), $session_timeout ? time() + $session_timeout : 0, $session_path, $domain, $secure, $httponly);
         }

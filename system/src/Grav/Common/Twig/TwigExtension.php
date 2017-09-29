@@ -98,8 +98,9 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFilter('truncate_html', ['\Grav\Common\Utils', 'truncateHTML']),
             new \Twig_SimpleFilter('json_decode', [$this, 'jsonDecodeFilter']),
             new \Twig_SimpleFilter('array_unique', 'array_unique'),
-            new \Twig_SimpleFilter('basename', 'basenameFilter'),
-            new \Twig_SimpleFilter('dirname', 'dirnameFilter'),
+            new \Twig_SimpleFilter('basename', 'basename'),
+            new \Twig_SimpleFilter('dirname', 'dirname'),
+            new \Twig_SimpleFilter('print_r', 'print_r'),
         ];
     }
 
@@ -113,17 +114,19 @@ class TwigExtension extends \Twig_Extension
         return [
             new \Twig_SimpleFunction('array', [$this, 'arrayFunc']),
             new \Twig_SimpleFunction('array_key_value', [$this, 'arrayKeyValueFunc']),
-            new \Twig_SimpleFunction('array_key_exists', [$this, 'arrayKeyExistsFunc']),
+            new \Twig_SimpleFunction('array_key_exists', 'array_key_exists'),
+            new \Twig_SimpleFunction('array_unique', 'array_unique'),
             new \Twig_SimpleFunction('array_intersect', [$this, 'arrayIntersectFunc']),
             new \Twig_simpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('vardump', [$this, 'vardumpFunc']),
+            new \Twig_SimpleFunction('print_r', 'print_r'),
             new \Twig_SimpleFunction('evaluate', [$this, 'evaluateStringFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('evaluate_twig', [$this, 'evaluateTwigFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
             new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
-            new \Twig_SimpleFunction('pathinfo', [$this, 'pathinfoFunc']),
+            new \Twig_SimpleFunction('pathinfo', 'pathinfo'),
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
@@ -244,15 +247,15 @@ class TwigExtension extends \Twig_Extension
     /**
      * Inflector supports following notations:
      *
-     * {{ 'person'|pluralize }} => people
-     * {{ 'shoes'|singularize }} => shoe
-     * {{ 'welcome page'|titleize }} => "Welcome Page"
-     * {{ 'send_email'|camelize }} => SendEmail
-     * {{ 'CamelCased'|underscorize }} => camel_cased
-     * {{ 'Something Text'|hyphenize }} => something-text
-     * {{ 'something_text_to_read'|humanize }} => "Something text to read"
-     * {{ '181'|monthize }} => 5
-     * {{ '10'|ordinalize }} => 10th
+     * `{{ 'person'|pluralize }} => people`
+     * `{{ 'shoes'|singularize }} => shoe`
+     * `{{ 'welcome page'|titleize }} => "Welcome Page"`
+     * `{{ 'send_email'|camelize }} => SendEmail`
+     * `{{ 'CamelCased'|underscorize }} => camel_cased`
+     * `{{ 'Something Text'|hyphenize }} => something-text`
+     * `{{ 'something_text_to_read'|humanize }} => "Something text to read"`
+     * `{{ '181'|monthize }} => 5`
+     * `{{ '10'|ordinalize }} => 10th`
      *
      * @param string $action
      * @param string $data
@@ -855,19 +858,6 @@ class TwigExtension extends \Twig_Extension
     }
 
     /**
-     * Check to see if an array key exists
-     *
-     * @param string $key           key of item
-     * @param string $current_array optional array to add to
-     *
-     * @return array
-     */
-    public function arrayKeyExistsFunc($key, $current_array = null)
-    {
-        return array_key_exists($key, $current_array);
-    }
-
-    /**
      * Wrapper for array_intersect() method
      *
      * @param $array1
@@ -1104,30 +1094,4 @@ class TwigExtension extends \Twig_Extension
         var_dump($var);
     }
 
-    /**
-     * Simple wrapper for pathinfo()
-     *
-     * @param $var
-     * @return mixed
-     */
-    public function pathinfoFunc($var)
-    {
-        return pathinfo($var);
-    }
-
-    /**
-     * Simple wrapper for basename()
-     *
-     * @param $var
-     * @return string
-     */
-    public function basenameFilter($var)
-    {
-        return basename($var);
-    }
-
-    public function dirnameFilter($var)
-    {
-        return dirname($var);
-    }
 }
