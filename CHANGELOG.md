@@ -1,5 +1,5 @@
 # v1.3.4
-## xx/xx/2017
+## 09/29/2017
 
 1. [](#new)
     * Added filter support for Page collections (routable/visible/type/access/etc.)
