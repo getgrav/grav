@@ -1,3 +1,9 @@
+# v1.3.5
+## 09/30/2017
+
+1. [](#improved)
+    * Updated `bin/grav clean` command to remove unnecessary vendor files (save some bytes) 
+
 # v1.3.4
 ## 09/29/2017
 
