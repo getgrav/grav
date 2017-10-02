@@ -1,8 +1,9 @@
 # v1.3.5
-## 09/30/2017
+## xx/xx/2017
 
 1. [](#improved)
     * Updated `bin/grav clean` command to remove unnecessary vendor files (save some bytes) 
+    * Added a `http_status_code` Twig function to allow setting HTTP status codes from Twig directly.
 
 # v1.3.4
 ## 09/29/2017

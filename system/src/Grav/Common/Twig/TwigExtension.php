@@ -122,6 +122,7 @@ class TwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('vardump', [$this, 'vardumpFunc']),
             new \Twig_SimpleFunction('print_r', 'print_r'),
+            new \Twig_SimpleFunction('http_response_code', 'http_response_code'),
             new \Twig_SimpleFunction('evaluate', [$this, 'evaluateStringFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('evaluate_twig', [$this, 'evaluateTwigFunc'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
