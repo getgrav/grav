@@ -117,7 +117,9 @@ class Uri
     {
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
-        return rawurldecode($uri);
+        $uri = Uri::cleanUrl($uri);
+
+        return $uri;
     }
 
     private function buildScheme()
@@ -216,7 +218,7 @@ class Uri
         $this->name = $uri_bits['host'];
         $this->port = isset($uri_bits['port']) ? $uri_bits['port'] : '80';
 
-        $this->uri = $uri_bits['path'];
+        $this->uri = Uri::cleanUrl($uri_bits['path']);
 
         // set active language
         $uri = $language->setActiveFromUri($this->uri);
@@ -1106,5 +1108,16 @@ class Uri
         } else {
             return false;
         }
+    }
+
+    public static function cleanUrl($url)
+    {
+        $regex = '/<script\b[^>]*>(.*?)<\/script>/';
+
+        $url = rawurldecode($url);
+        $url = preg_replace($regex, '', $url);
+        $url = filter_var($url, FILTER_SANITIZE_STRING);
+
+        return $url;
     }
 }
