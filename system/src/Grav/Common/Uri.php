@@ -1118,10 +1118,8 @@ class Uri
      */
     public static function cleanPath($path)
     {
-        $regex = '/([^:]\/)\/+/';
-
-        $path = str_replace('\\', '/', $path);
-        $path = str_replace('/ /', '/', $path);
+        $regex = '/(\/)\/+/';
+        $path = str_replace(['\\', '/ /'], '/', $path);
         $path = preg_replace($regex,'$1',$path);
 
         return $path;
