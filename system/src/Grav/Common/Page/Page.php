@@ -520,7 +520,7 @@ class Page
         } elseif (($format === 'short') && isset($summary_size)) {
             // Use mb_strimwidth to slice the string
             if (mb_strwidth($content, 'utf8') > $summary_size) {
-                return mb_strimwidth($content, 0, $summary_size);
+                return mb_substr($content, 0, $summary_size);
             } else {
                 return $content;
             }
@@ -2269,7 +2269,7 @@ class Page
 
         return false;
     }
-    
+
     /**
      * Returns the item in the current position.
      *
@@ -2503,6 +2503,41 @@ class Page
                             }
                         }
                     }
+                }
+            }
+        }
+
+        // If  a filter or filters are set, filter the collection...
+        if (isset($params['filter'])) {
+            foreach ((array)$params['filter'] as $type => $filter) {
+                switch ($type) {
+                    case 'visible':
+                        $collection->visible($filter);
+                        break;
+                    case 'non-visible':
+                        $collection->nonVisible($filter);
+                        break;
+                    case 'modular':
+                        $collection->modular($filter);
+                        break;
+                    case 'non-modular':
+                        $collection->nonModular($filter);
+                        break;
+                    case 'routable':
+                        $collection->routable($filter);
+                        break;
+                    case 'non-routable':
+                        $collection->nonRoutable($filter);
+                        break;
+                    case 'type':
+                        $collection->ofType($filter);
+                        break;
+                    case 'types':
+                        $collection->ofOneOfTheseTypes($filter);
+                        break;
+                    case 'access':
+                        $collection->ofOneOfTheseAccessLevels($filter);
+                        break;
                 }
             }
         }

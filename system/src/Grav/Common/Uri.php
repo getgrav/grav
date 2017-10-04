@@ -117,7 +117,9 @@ class Uri
     {
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
-        return rawurldecode($uri);
+        $uri = Uri::cleanUrl($uri);
+
+        return $uri;
     }
 
     private function buildScheme()
@@ -216,7 +218,7 @@ class Uri
         $this->name = $uri_bits['host'];
         $this->port = isset($uri_bits['port']) ? $uri_bits['port'] : '80';
 
-        $this->uri = $uri_bits['path'];
+        $this->uri = Uri::cleanUrl($uri_bits['path']);
 
         // set active language
         $uri = $language->setActiveFromUri($this->uri);
@@ -349,7 +351,7 @@ class Uri
 
         // set the new url
         $this->url = $this->root . $path;
-        $this->path = $path;
+        $this->path = Uri::cleanPath($path);
         $this->content_path = trim(str_replace($this->base, '', $this->path), '/');
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
@@ -1106,5 +1108,37 @@ class Uri
         } else {
             return false;
         }
+    }
+
+    /**
+     * Removes extra double slashes and fixes back-slashes
+     *
+     * @param $path
+     * @return mixed|string
+     */
+    public static function cleanPath($path)
+    {
+        $regex = '/(\/)\/+/';
+        $path = str_replace(['\\', '/ /'], '/', $path);
+        $path = preg_replace($regex,'$1',$path);
+
+        return $path;
+    }
+
+    /**
+     * Strips out any <script> tags and sanitizes the URL
+     *
+     * @param $url
+     * @return mixed|string
+     */
+    public static function cleanUrl($url)
+    {
+        $regex = '/<script\b[^>]*>(.*?)<\/script>/';
+
+        $url = rawurldecode($url);
+        $url = preg_replace($regex, '', $url);
+        $url = filter_var($url, FILTER_SANITIZE_STRING);
+
+        return $url;
     }
 }

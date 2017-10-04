@@ -41,7 +41,7 @@ class PageServiceProvider implements ServiceProviderInterface
 
                 // some debugger override logic
                 if ($page->debugger() === false) {
-                    Grav::instance()['debugger']->enabled(false);
+                    $c['debugger']->enabled(false);
                 }
 
                 if ($c['config']->get('system.force_ssl')) {
@@ -86,7 +86,7 @@ class PageServiceProvider implements ServiceProviderInterface
             if (!$page || !$page->routable()) {
 
                 // Try fallback URL stuff...
-                $c->fallbackUrl($path);
+                $page = $c->fallbackUrl($path);
 
                 if (!$page) {
                     $path = $c['locator']->findResource('system://pages/notfound.md');
@@ -94,7 +94,6 @@ class PageServiceProvider implements ServiceProviderInterface
                     $page->init(new \SplFileInfo($path));
                     $page->routable(false);
                 }
-
             }
 
             return $page;

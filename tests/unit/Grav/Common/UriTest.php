@@ -433,5 +433,13 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertTrue(is_string($this->uri->param('nonce')));
         $this->assertSame(Utils::getNonce('test-action'), $this->uri->param('nonce'));
     }
+
+    public function testXSSViaUri()
+    {
+        $url = 'https://localhost/something/"><script>eval(atob("aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ=="))</script><';
+
+        $this->uri->initializeWithURL($url)->init();
+        $this->assertSame('/something/&', $this->uri->path());
+    }
 }
 

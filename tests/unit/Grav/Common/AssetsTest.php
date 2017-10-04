@@ -43,7 +43,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading' => '',
             'group'    => 'head',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         $this->assets->add('test.js');
@@ -59,7 +60,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading' => '',
             'group'    => 'head',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         //test addCss(). Test adding asset to a separate group
@@ -77,7 +79,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading' => '',
             'group'    => 'head',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         //test addCss(). Testing with remote URL
@@ -95,7 +98,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading' => '',
             'group'    => 'head',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         //test addCss() adding asset to a separate group, and with an alternate rel attribute
@@ -119,7 +123,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading'  => '',
             'group'    => 'head',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         //Test CSS Groups
@@ -139,7 +144,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading' => '',
             'group'    => 'footer',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         //Test JS Groups
@@ -159,7 +165,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading'  => '',
             'group'    => 'footer',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         //Test async / defer
@@ -177,7 +184,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading'  => 'async',
             'group'    => 'head',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         $this->assets->reset();
@@ -194,7 +202,8 @@ class AssetsTest extends \Codeception\TestCase\Test
             'pipeline' => true,
             'loading'  => 'defer',
             'group'    => 'head',
-            'modified' => false
+            'modified' => false,
+            'query' => ''
         ], reset($array));
 
         //Test inline
@@ -412,14 +421,14 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->setTimestamp('foo');
         $this->assets->addCSS('http://somesite.com/test.css');
         $css = $this->assets->css();
-        $this->assertSame('<link href="http://somesite.com/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="http://somesite.com/test.css?foo" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
 
         // external CSS already with param
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addCSS('http://somesite.com/test.css?bar');
         $css = $this->assets->css();
-        $this->assertSame('<link href="http://somesite.com/test.css?bar" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="http://somesite.com/test.css?bar&foo" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
 
         // local JS nothing extra
         $this->assets->reset();
@@ -440,14 +449,14 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->setTimestamp('foo');
         $this->assets->addJs('http://somesite.com/test.js');
         $css = $this->assets->js();
-        $this->assertSame('<script src="http://somesite.com/test.js" type="text/javascript" ></script>' . PHP_EOL, $css);
+        $this->assertSame('<script src="http://somesite.com/test.js?foo" type="text/javascript" ></script>' . PHP_EOL, $css);
 
         // external JS already with param
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addJs('http://somesite.com/test.js?bar');
         $css = $this->assets->js();
-        $this->assertSame('<script src="http://somesite.com/test.js?bar" type="text/javascript" ></script>' . PHP_EOL, $css);
+        $this->assertSame('<script src="http://somesite.com/test.js?bar&foo" type="text/javascript" ></script>' . PHP_EOL, $css);
     }
 
     public function testAddInlineCss()
