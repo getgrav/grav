@@ -351,7 +351,7 @@ class Uri
 
         // set the new url
         $this->url = $this->root . $path;
-        $this->path = $path;
+        $this->path = Uri::cleanPath($path);
         $this->content_path = trim(str_replace($this->base, '', $this->path), '/');
         if ($this->content_path != '') {
             $this->paths = explode('/', $this->content_path);
@@ -1110,6 +1110,29 @@ class Uri
         }
     }
 
+    /**
+     * Removes extra double slashes and fixes back-slashes
+     *
+     * @param $path
+     * @return mixed|string
+     */
+    public static function cleanPath($path)
+    {
+        $regex = '/([^:]\/)\/+/';
+
+        $path = str_replace('\\', '/', $path);
+        $path = str_replace('/ /', '/', $path);
+        $path = preg_replace($regex,'$1',$path);
+
+        return $path;
+    }
+
+    /**
+     * Strips out any <script> tags and sanitizes the URL
+     *
+     * @param $url
+     * @return mixed|string
+     */
     public static function cleanUrl($url)
     {
         $regex = '/<script\b[^>]*>(.*?)<\/script>/';
