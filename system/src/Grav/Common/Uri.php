@@ -78,7 +78,7 @@ class Uri
         $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
         // Build port.
-        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : ($this->scheme === 'http' ? 80 : 443);
+        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : ($this->scheme === 'https' ? 443 : 80);
 
         // Build path.
         $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
@@ -111,14 +111,18 @@ class Uri
         $this->user = isset($parts['user']) ? $parts['user'] : '';
         $this->password = isset($parts['pass']) ? $parts['pass'] : '';
         $this->host = isset($parts['host']) ? $parts['host'] : '';
-        $this->port = isset($parts['port']) ? (int)$parts['port'] : ($this->scheme === 'http' ? 80 : 443);
+        $this->port = isset($parts['port']) ? (int)$parts['port'] : ($this->scheme === 'https' ? 443 : 80);
         $this->path = isset($parts['path']) ? $parts['path'] : '';
         $this->query = isset($parts['query']) ? $parts['query'] : '';
         $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : '';
 
-        // Filter path and query string.
+        // Validate the hostname
+        $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
+
+        // Filter path, query string and fragment.
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
         $this->query = static::filterQuery($this->query);
+        $this->fragment = static::filterQuery($this->fragment);
 
         $this->reset();
     }
@@ -202,7 +206,9 @@ class Uri
      */
     private function buildBaseUrl()
     {
-        return $this->scheme . '://' . $this->host;
+        $scheme = $this->scheme ? $this->scheme . '://' : '//';
+
+        return $scheme . $this->host;
     }
 
     /**
@@ -243,7 +249,7 @@ class Uri
         $config = $grav['config'];
         $language = $grav['language'];
 
-        $default = ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
+        $default = $this->scheme === '' || ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
         // add the port to the base for non-standard ports
         if (!$default && $config->get('system.reverse_proxy_setup') === false) {
             $this->base .= ':' . (string)$this->port;
@@ -521,7 +527,7 @@ class Uri
      */
     public function scheme()
     {
-        return $this->scheme . '://';
+        return $this->scheme ? $this->scheme . '://' : '//';
     }
 
 
@@ -863,7 +869,7 @@ class Uri
             $url['host'] = $uri->host();
 
             $port = $uri->port();
-            $default = ($url['scheme'] === 'http' && $port === 80) || ($url['scheme'] === 'https' && $port === 443);
+            $default = $url['scheme'] === '' || ($url['scheme'] === 'http' && $port === 80) || ($url['scheme'] === 'https' && $port === 443);
             if (!$default) {
                 $url['port'] = $port;
             }
