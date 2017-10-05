@@ -609,7 +609,6 @@ class UriTest extends \Codeception\TestCase\Test
         $this->runTestSet($this->tests, 'scheme');
     }
 
-    /*
     public function testUser()
     {
         $this->runTestSet($this->tests, 'user');
@@ -619,7 +618,6 @@ class UriTest extends \Codeception\TestCase\Test
     {
         $this->runTestSet($this->tests, 'password');
     }
-    */
 
     public function testHost()
     {
