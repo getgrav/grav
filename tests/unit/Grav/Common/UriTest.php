@@ -19,13 +19,13 @@ class UriTest extends \Codeception\TestCase\Test
     protected $tests = [
         '/path' => [
             'scheme' => '',
-            'user' => '',
-            'password' => '',
-            'host' => '',
+            'user' => null,
+            'password' => null,
+            'host' => null,
             'port' => null,
             'path' => '/path',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/path',
             'paths' => ['path'],
@@ -39,14 +39,14 @@ class UriTest extends \Codeception\TestCase\Test
             'extension' => null,
         ],
         '//localhost/' => [
-            'scheme' => '',
-            'user' => '',
-            'password' => '',
+            'scheme' => '//',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => null,
             'path' => '/',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/',
             'paths' => [],
@@ -61,13 +61,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost/' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/',
             'paths' => [],
@@ -82,13 +82,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://127.0.0.1/' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => '127.0.0.1',
             'port' => 80,
             'path' => '/',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/',
             'paths' => [],
@@ -103,13 +103,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'https://localhost/' => [
             'scheme' => 'https://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 443,
             'path' => '/',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/',
             'paths' => [],
@@ -124,13 +124,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:8080/grav/it/ueper' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/grav/it/ueper',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -145,13 +145,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:8080/grav/it/ueper:xxx' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/grav/it',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it',
             'paths' => ['grav', 'it'],
@@ -166,13 +166,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:8080/grav/it/ueper:xxx/page:/test:yyy' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/grav/it',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it',
             'paths' => ['grav', 'it'],
@@ -184,16 +184,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => '',
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
+            '__toString' => 'http://localhost:8080/grav/it/ueper:xxx/ueper:xxx/page:/ueper:xxx/page:/test:yyy', // FIXME <-
         ],
         'http://localhost:8080/grav/it/ueper?test=x' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/grav/it/ueper',
             'query' => 'test=x',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -208,13 +209,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:80/grav/it/ueper?test=x' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/grav/it/ueper',
             'query' => 'test=x',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -229,13 +230,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost/grav/it/ueper?test=x' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/grav/it/ueper',
             'query' => 'test=x',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -250,13 +251,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://grav/grav/it/ueper' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'grav',
             'port' => 80,
             'path' => '/grav/it/ueper',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -275,9 +276,9 @@ class UriTest extends \Codeception\TestCase\Test
             'password' => 'password',
             'host' => 'api.getgrav.com',
             'port' => 4040,
-            //'path' => '/v1/post/128', // TODO: Likely a bug?
+            'path' => '/v1/post/128/', // FIXME <-
             'query' => 'all=1',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/v1/post/128',
             'paths' => ['v1', 'post', '128'],
@@ -289,16 +290,18 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 'x',
             'rootUrl' => 'https://api.getgrav.com:4040',
             'extension' => null,
+            '__toString' => 'https://username:password@api.getgrav.com:4040/v1/post/128//page:x?all=1' // FIXME <-
+
         ],
         'https://google.com:443/' => [
             'scheme' => 'https://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'google.com',
             'port' => 443,
             'path' => '/',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/',
             'paths' => [],
@@ -314,13 +317,13 @@ class UriTest extends \Codeception\TestCase\Test
         // Path tests.
         'http://localhost:8080/a/b/c/d' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/a/b/c/d',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a/b/c/d',
             'paths' => ['a', 'b', 'c', 'd'],
@@ -335,13 +338,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f',
             'paths' => ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f'],
@@ -357,13 +360,13 @@ class UriTest extends \Codeception\TestCase\Test
         // Query params tests.
         'http://localhost:8080/grav/it/ueper?test=x&test2=y' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/grav/it/ueper',
             'query' => 'test=x&test2=y',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -378,13 +381,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/grav/it/ueper',
             'query' => 'test=x&test2=y&test3=x&test4=y',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -399,13 +402,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/grav/it/ueper',
             'query' => 'test=x&test2=y&test3=x&test4=y%2Ftest',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/grav/it/ueper',
             'paths' => ['grav', 'it', 'ueper'],
@@ -421,13 +424,13 @@ class UriTest extends \Codeception\TestCase\Test
         // Port tests.
         'http://localhost/a-page' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/a-page',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a-page',
             'paths' => ['a-page'],
@@ -442,13 +445,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:8080/a-page' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/a-page',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a-page',
             'paths' => ['a-page'],
@@ -463,13 +466,13 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         'http://localhost:443/a-page' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 443,
             'path' => '/a-page',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a-page',
             'paths' => ['a-page'],
@@ -485,13 +488,13 @@ class UriTest extends \Codeception\TestCase\Test
         // Extension tests.
         'http://localhost/a-page.html' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/a-page',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a-page',
             'paths' => ['a-page'],
@@ -503,16 +506,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => 'html',
+            '__toString' => 'http://localhost/a-page' // FIXME <-
         ],
         'http://localhost/a-page.json' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/a-page',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a-page',
             'paths' => ['a-page'],
@@ -524,16 +528,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => 'json',
+            '__toString' => 'http://localhost/a-page' // FIXME <-
         ],
         'http://localhost/a-page.foo' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/a-page.foo',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/a-page.foo',
             'paths' => ['a-page.foo'],
@@ -549,8 +554,8 @@ class UriTest extends \Codeception\TestCase\Test
         // Fragment tests.
         'http://localhost:8080/a/b/c#my-fragment' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 8080,
             'path' => '/a/b/c',
@@ -571,13 +576,13 @@ class UriTest extends \Codeception\TestCase\Test
         // Attacks.
         '"><script>alert</script>://localhost' => [
             'scheme' => '',
-            'user' => '',
-            'password' => '',
-            'host' => '',
+            'user' => null,
+            'password' => null,
+            'host' => null,
             'port' => null,
             'path' => '%22%3E%3Cscript%3Ealert%3C/localhost',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/%22%3E%3Cscript%3Ealert%3C/localhost',
             'paths' => ['%22%3E%3Cscript%3Ealert%3C', 'localhost'],
@@ -589,16 +594,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => '',
             'extension' => null,
+            '__toString' => '%22%3E%3Cscript%3Ealert%3C/localhost/script%3E:' // FIXME <-
         ],
         'http://"><script>alert</script>' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'unknown',
             'port' => 80,
             'path' => '/script%3E',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/script%3E',
             'paths' => ['script%3E'],
@@ -610,16 +616,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://unknown',
             'extension' => null,
+            '__toString' => 'http://unknown/script%3E'
         ],
         'http://localhost/"><script>alert</script>' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/%22%3E%3Cscript%3Ealert%3C/script%3E',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/%22%3E%3Cscript%3Ealert%3C/script%3E',
             'paths' => ['%22%3E%3Cscript%3Ealert%3C', 'script%3E'],
@@ -631,16 +638,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
+            '__toString' => 'http://localhost/%22%3E%3Cscript%3Ealert%3C/script%3E'
         ],
         'http://localhost/something/p1:foo/p2:"><script>alert</script>' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/something/script%3E',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/something/script%3E',
             'paths' => ['something', 'script%3E'],
@@ -652,16 +660,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
+            '__toString' => 'http://localhost/something/script%3E/p1:foo/p1:foo/p2:%22%3E%3Cscript%3Ealert%3C'
         ],
         'http://localhost/something?p="><script>alert</script>' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/something',
             'query' => 'p=%22%3E%3Cscript%3Ealert%3C%2Fscript%3E',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/something',
             'paths' => ['something'],
@@ -673,11 +682,12 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
+            '__toString' => 'http://localhost/something?p=%22%3E%3Cscript%3Ealert%3C/script%3E'
         ],
         'http://localhost/something#"><script>alert</script>' => [
             'scheme' => 'http://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'localhost',
             'port' => 80,
             'path' => '/something',
@@ -694,16 +704,17 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
+            '__toString' => 'http://localhost/something#%22%3E%3Cscript%3Ealert%3C/script%3E'
         ],
         'https://www.getgrav.org/something/"><script>eval(atob("aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ=="))</script><' => [
             'scheme' => 'https://',
-            'user' => '',
-            'password' => '',
+            'user' => null,
+            'password' => null,
             'host' => 'www.getgrav.org',
             'port' => 443,
             'path' => '/something/%22%3E%3Cscript%3Eeval%28atob%28%22aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ==%22%29%29%3C/script%3E%3C',
             'query' => '',
-            'fragment' => '',
+            'fragment' => null,
 
             'route' => '/something/%22%3E%3Cscript%3Eeval%28atob%28%22aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ==%22%29%29%3C/script%3E%3C',
             'paths' => ['something', '%22%3E%3Cscript%3Eeval%28atob%28%22aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ==%22%29%29%3C', 'script%3E%3C'],
@@ -715,6 +726,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'https://www.getgrav.org',
             'extension' => null,
+            '__toString' => 'https://www.getgrav.org/something/%22%3E%3Cscript%3Eeval%28atob%28%22aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ==%22%29%29%3C/script%3E%3C'
         ],
     ];
 
@@ -732,12 +744,16 @@ class UriTest extends \Codeception\TestCase\Test
     protected function runTestSet(array $tests, $method, $params = [])
     {
         foreach ($tests as $url => $candidates) {
-            if (!array_key_exists($method, $candidates)) {
+            if (!array_key_exists($method, $candidates) && $method !== '__toString') {
                 continue;
             }
 
             $this->uri->initializeWithURL($url)->init();
-            $expected = $candidates[$method];
+            if ($method === '__toString' && !isset($candidates[$method])) {
+                $expected = $url;
+            } else {
+                $expected = $candidates[$method];
+            }
 
             if ($params) {
                 $result = call_user_func_array([$this->uri, $method], $params);
@@ -769,6 +785,11 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertSame(false, $this->uri->validateHostname('localhost:80') );
         $this->assertSame(false, $this->uri->validateHostname('http://localhost'));
         $this->assertSame(false, $this->uri->validateHostname('localhost!'));
+    }
+
+    public function testToString()
+    {
+        $this->runTestSet($this->tests, '__toString');
     }
 
     public function testScheme()

@@ -62,8 +62,8 @@ class Uri
         $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
 
         // Build user and password.
-        $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : '';
-        $this->password = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : '';
+        $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : null;
+        $this->password = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : null;
 
         // Build host.
         $hostname = 'localhost';
@@ -91,7 +91,7 @@ class Uri
         }
 
         // Build fragment.
-        $this->fragment = '';
+        $this->fragment = null;
 
         // Filter path and query string.
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
@@ -107,14 +107,17 @@ class Uri
     {
         // Set Uri parts.
         $parts = parse_url($url);
-        $this->scheme = isset($parts['scheme']) ? $parts['scheme'] : '';
-        $this->user = isset($parts['user']) ? $parts['user'] : '';
-        $this->password = isset($parts['pass']) ? $parts['pass'] : '';
-        $this->host = isset($parts['host']) ? $parts['host'] : '';
+        if ($parts === false) {
+            throw new \RuntimeException('Malformed URL: ' . $url);
+        }
+        $this->scheme = isset($parts['scheme']) ? $parts['scheme'] : null;
+        $this->user = isset($parts['user']) ? $parts['user'] : null;
+        $this->password = isset($parts['pass']) ? $parts['pass'] : null;
+        $this->host = isset($parts['host']) ? $parts['host'] : null;
         $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
         $this->path = isset($parts['path']) ? $parts['path'] : '';
         $this->query = isset($parts['query']) ? $parts['query'] : '';
-        $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : '';
+        $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : null;
 
         // Validate the hostname
         if ($this->host) {
@@ -124,7 +127,7 @@ class Uri
         // Filter path, query string and fragment.
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
         $this->query = static::filterQuery($this->query);
-        $this->fragment = static::filterQuery($this->fragment);
+        $this->fragment = $this->fragment !== null ? static::filterQuery($this->fragment) : null;
 
         $this->reset();
     }
@@ -208,9 +211,7 @@ class Uri
      */
     private function buildBaseUrl()
     {
-        $scheme = $this->scheme ? $this->scheme . '://' : ($this->host ? '//' : '');
-
-        return $scheme . $this->host;
+        return $this->scheme() . $this->host;
     }
 
     /**
@@ -530,7 +531,14 @@ class Uri
     public function scheme($raw = false)
     {
         if (!$raw) {
-            return $this->scheme ? $this->scheme . '://' : '';
+            $scheme = '';
+            if ($this->scheme) {
+                $scheme = $this->scheme . '://';
+            } elseif ($this->host) {
+                $scheme = '//';
+            }
+
+            return $scheme;
         }
 
         return $this->scheme;
@@ -540,7 +548,7 @@ class Uri
     /**
      * Return the host of the URI
      *
-     * @return string The host of the URI
+     * @return string|null The host of the URI
      */
     public function host()
     {
@@ -571,7 +579,7 @@ class Uri
     /**
      * Return user
      *
-     * @return string
+     * @return string|null
      */
     public function user()
     {
@@ -581,7 +589,7 @@ class Uri
     /**
      * Return password
      *
-     * @return string
+     * @return string|null
      */
     public function password()
     {
@@ -739,16 +747,36 @@ class Uri
         return Utils::startsWith($url, 'http');
     }
 
+    public function __toString()
+    {
+        return static::buildUrl($this->toArray());
+    }
+
+    public function toArray()
+    {
+        return [
+            'scheme'    => $this->scheme,
+            'host'      => $this->host,
+            'port'      => $this->port,
+            'user'      => $this->user,
+            'pass'  => $this->password,
+            'path'      => $this->path,
+            'params'    => $this->params,
+            'query'     => $this->query,
+            'fragment'  => $this->fragment
+        ];
+    }
+
     /**
      * The opposite of built-in PHP method parse_url()
      *
-     * @param $parsed_url
+     * @param array $parsed_url
      *
      * @return string
      */
     public static function buildUrl($parsed_url)
     {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : (isset($parsed_url['host']) ? '//' : '');
         $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
         $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
         $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
@@ -756,7 +784,7 @@ class Uri
         $pass     = ($user || $pass) ? "{$pass}@" : '';
         $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
         $params   = isset($parsed_url['params']) ? static::buildParams($parsed_url['params']) : '';
-        $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $query    = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
         return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$params}{$query}{$fragment}";
