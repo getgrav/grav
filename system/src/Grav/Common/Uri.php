@@ -349,7 +349,7 @@ class Uri
             foreach ($matches as $match) {
                 $param = explode($delimiter, $match[1]);
                 if (count($param) === 2) {
-                    $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
+                    $plain_var = filter_var($param[1], FILTER_SANITIZE_STRING);
                     $this->params[$param[0]] = $plain_var;
                     $uri = str_replace($match[0], '', $uri);
                 }

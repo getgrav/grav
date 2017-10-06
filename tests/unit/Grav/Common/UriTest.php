@@ -602,7 +602,7 @@ class UriTest extends \Codeception\TestCase\Test
 
             'route' => '/something/script%3E',
             'paths' => ['something', 'script%3E'],
-            'params' => '/p1:foo/p2:&#34;>alert',
+            'params' => '/p1:foo/p2:%22%3E%3Cscript%3Ealert%3C',
             'url' => '/something/script%3E',
             'environment' => 'localhost',
             'basename' => 'script%3E',
