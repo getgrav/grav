@@ -62,8 +62,8 @@ class Uri
         $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
 
         // Build user and password.
-        $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : '';
-        $this->password = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : '';
+        $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : null;
+        $this->password = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : null;
 
         // Build host.
         $hostname = 'localhost';
@@ -78,7 +78,7 @@ class Uri
         $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
         // Build port.
-        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : ($this->scheme === 'https' ? 443 : 80);
+        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
 
         // Build path.
         $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
@@ -91,7 +91,7 @@ class Uri
         }
 
         // Build fragment.
-        $this->fragment = '';
+        $this->fragment = null;
 
         // Filter path and query string.
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
@@ -107,22 +107,27 @@ class Uri
     {
         // Set Uri parts.
         $parts = parse_url($url);
-        $this->scheme = isset($parts['scheme']) ? $parts['scheme'] : '';
-        $this->user = isset($parts['user']) ? $parts['user'] : '';
-        $this->password = isset($parts['pass']) ? $parts['pass'] : '';
-        $this->host = isset($parts['host']) ? $parts['host'] : '';
-        $this->port = isset($parts['port']) ? (int)$parts['port'] : ($this->scheme === 'https' ? 443 : 80);
+        if ($parts === false) {
+            throw new \RuntimeException('Malformed URL: ' . $url);
+        }
+        $this->scheme = isset($parts['scheme']) ? $parts['scheme'] : null;
+        $this->user = isset($parts['user']) ? $parts['user'] : null;
+        $this->password = isset($parts['pass']) ? $parts['pass'] : null;
+        $this->host = isset($parts['host']) ? $parts['host'] : null;
+        $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
         $this->path = isset($parts['path']) ? $parts['path'] : '';
         $this->query = isset($parts['query']) ? $parts['query'] : '';
-        $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : '';
+        $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : null;
 
         // Validate the hostname
-        $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
+        if ($this->host) {
+            $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
+        }
 
         // Filter path, query string and fragment.
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
         $this->query = static::filterQuery($this->query);
-        $this->fragment = static::filterQuery($this->fragment);
+        $this->fragment = $this->fragment !== null ? static::filterQuery($this->fragment) : null;
 
         $this->reset();
     }
@@ -206,9 +211,7 @@ class Uri
      */
     private function buildBaseUrl()
     {
-        $scheme = $this->scheme ? $this->scheme . '://' : '//';
-
-        return $scheme . $this->host;
+        return $this->scheme() . $this->host;
     }
 
     /**
@@ -236,7 +239,7 @@ class Uri
             return 'localhost';
         }
 
-        return $this->host;
+        return $this->host ?: 'unknown';
     }
 
     /**
@@ -249,9 +252,8 @@ class Uri
         $config = $grav['config'];
         $language = $grav['language'];
 
-        $default = $this->scheme === '' || ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
         // add the port to the base for non-standard ports
-        if (!$default && $config->get('system.reverse_proxy_setup') === false) {
+        if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
             $this->base .= ':' . (string)$this->port;
         }
 
@@ -507,9 +509,9 @@ class Uri
     /**
      * Return the Extension of the URI
      *
-     * @param null $default
+     * @param string|null $default
      *
-     * @return String The extension of the URI
+     * @return string The extension of the URI
      */
     public function extension($default = null)
     {
@@ -523,18 +525,30 @@ class Uri
     /**
      * Return the scheme of the URI
      *
-     * @return String The scheme of the URI
+     * @param bool $raw
+     * @return string The scheme of the URI
      */
-    public function scheme()
+    public function scheme($raw = false)
     {
-        return $this->scheme ? $this->scheme . '://' : '//';
+        if (!$raw) {
+            $scheme = '';
+            if ($this->scheme) {
+                $scheme = $this->scheme . '://';
+            } elseif ($this->host) {
+                $scheme = '//';
+            }
+
+            return $scheme;
+        }
+
+        return $this->scheme;
     }
 
 
     /**
      * Return the host of the URI
      *
-     * @return String The host of the URI
+     * @return string|null The host of the URI
      */
     public function host()
     {
@@ -542,19 +556,30 @@ class Uri
     }
 
     /**
-     * Return the port number
+     * Return the port number if it can be figured out
      *
-     * @return int
+     * @param bool $raw
+     * @return int|null
      */
-    public function port()
+    public function port($raw = false)
     {
+        $port = $this->port;
+        // If not in raw mode and port is not set, figure it out from scheme.
+        if (!$raw && $port === null) {
+            if ($this->scheme === 'http') {
+                $this->port = 80;
+            } elseif ($this->scheme === 'https') {
+                $this->port = 443;
+            }
+        }
+
         return $this->port;
     }
 
     /**
      * Return user
      *
-     * @return string
+     * @return string|null
      */
     public function user()
     {
@@ -564,7 +589,7 @@ class Uri
     /**
      * Return password
      *
-     * @return string
+     * @return string|null
      */
     public function password()
     {
@@ -722,27 +747,47 @@ class Uri
         return Utils::startsWith($url, 'http');
     }
 
+    public function __toString()
+    {
+        return static::buildUrl($this->toArray());
+    }
+
+    public function toArray()
+    {
+        return [
+            'scheme'    => $this->scheme,
+            'host'      => $this->host,
+            'port'      => $this->port,
+            'user'      => $this->user,
+            'pass'      => $this->password,
+            'path'      => $this->path,
+            'params'    => $this->params,
+            'query'     => $this->query,
+            'fragment'  => $this->fragment
+        ];
+    }
+
     /**
      * The opposite of built-in PHP method parse_url()
      *
-     * @param $parsed_url
+     * @param array $parsed_url
      *
      * @return string
      */
     public static function buildUrl($parsed_url)
     {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : (isset($parsed_url['host']) ? '//' : '');
         $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
         $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
         $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
         $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
         $pass     = ($user || $pass) ? "{$pass}@" : '';
         $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        $params   = isset($parsed_url['params']) ? static::buildParams($parsed_url['params']) : '';
-        $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $path     = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
+        $query    = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$params}{$query}{$fragment}";
+        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
     }
 
     /**
@@ -751,15 +796,19 @@ class Uri
      */
     public static function buildParams(array $params)
     {
+        if (!$params) {
+            return '';
+        }
+
         $grav = Grav::instance();
         $sep = $grav['config']->get('system.param_sep');
 
-        $params_string = '';
+        $output = [];
         foreach ($params as $key => $value) {
             $output[] = "{$key}{$sep}{$value}";
-            $params_string .= '/' . implode('/', $output);
         }
-        return $params_string;
+
+        return '/' . implode('/', $output);
     }
 
     /**
@@ -865,14 +914,9 @@ class Uri
         // handle absolute URLs
         if (!$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
 
-            $url['scheme'] = str_replace('://', '', $uri->scheme());
+            $url['scheme'] = $uri->scheme(true);
             $url['host'] = $uri->host();
-
-            $port = $uri->port();
-            $default = $url['scheme'] === '' || ($url['scheme'] === 'http' && $port === 80) || ($url['scheme'] === 'https' && $port === 443);
-            if (!$default) {
-                $url['port'] = $port;
-            }
+            $url['port'] = $uri->port(true);
 
             // check if page exists for this route, and if so, check if it has SSL enabled
             $pages = $grav['pages'];
@@ -1070,9 +1114,12 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
-        $urlWithNonce = $url . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . Utils::getNonce($action);
+        $uri = new static($url);
+        $parts = $uri->toArray();
+        $nonce = Utils::getNonce($action);
+        $parts['params'] = (isset($parts['params']) ? $parts['params'] : []) + ['nonce' => $nonce];
 
-        return $urlWithNonce;
+        return static::buildUrl($parts);
     }
 
     /**
