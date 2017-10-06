@@ -783,11 +783,11 @@ class Uri
         $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
         $pass     = ($user || $pass) ? "{$pass}@" : '';
         $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        $params   = isset($parsed_url['params']) ? static::buildParams($parsed_url['params']) : '';
+        $path     = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
         $query    = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$params}{$query}{$fragment}";
+        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
     }
 
     /**
@@ -1114,9 +1114,12 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
-        $urlWithNonce = rtrim($url, '/') . '/' . $nonceParamName . Grav::instance()['config']->get('system.param_sep', ':') . Utils::getNonce($action);
+        $uri = new static($url);
+        $parts = $uri->toArray();
+        $nonce = Utils::getNonce($action);
+        $parts['params'] = (isset($parts['params']) ? $parts['params'] : []) + ['nonce' => $nonce];
 
-        return $urlWithNonce;
+        return static::buildUrl($parts);
     }
 
     /**

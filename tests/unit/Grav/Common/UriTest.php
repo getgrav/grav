@@ -213,7 +213,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
-            //'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x',
+            'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x',
         ],
         'http://localhost:80/grav/it/ueper?test=x' => [
             'scheme' => 'http://',
@@ -235,7 +235,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost:80',
             'extension' => null,
-            //'addNonce' => 'http://localhost:80/grav/it/ueper/nonce:{{nonce}}?test=x',
+            'addNonce' => 'http://localhost:80/grav/it/ueper/nonce:{{nonce}}?test=x',
         ],
         'http://localhost/grav/it/ueper?test=x' => [
             'scheme' => 'http://',
@@ -257,7 +257,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
-            //'addNonce' => 'http://localhost/grav/it/ueper/nonce:{{nonce}}?test=x',
+            'addNonce' => 'http://localhost/grav/it/ueper/nonce:{{nonce}}?test=x',
         ],
         'http://grav/grav/it/ueper' => [
             'scheme' => 'http://',
@@ -301,8 +301,8 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 'x',
             'rootUrl' => 'https://api.getgrav.com:4040',
             'extension' => null,
-            //'addNonce' => 'https://username:password@api.getgrav.com:4040/v1/post/128/page:x/nonce:{{nonce}}/?all=1',
-            '__toString' => 'https://username:password@api.getgrav.com:4040/v1/post/128//page:x?all=1' // FIXME <-
+            'addNonce' => 'https://username:password@api.getgrav.com:4040/v1/post/128/page:x/nonce:{{nonce}}?all=1',
+            '__toString' => 'https://username:password@api.getgrav.com:4040/v1/post/128/page:x?all=1'
         ],
         'https://google.com:443/' => [
             'scheme' => 'https://',
@@ -392,7 +392,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
-            //'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x&test2=y',
+            'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x&test2=y',
         ],
         'http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y' => [
             'scheme' => 'http://',
@@ -414,7 +414,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
-            //'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x&test2=y&test3=x&test4=y',
+            'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x&test2=y&test3=x&test4=y',
         ],
         'http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test' => [
             'scheme' => 'http://',
@@ -436,7 +436,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
-            //'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x&test2=y&test3=x&test4=y/test',
+            'addNonce' => 'http://localhost:8080/grav/it/ueper/nonce:{{nonce}}?test=x&test2=y&test3=x&test4=y/test',
         ],
         // Port tests.
         'http://localhost/a-page' => [
@@ -595,7 +595,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
-            //'addNonce' => 'http://localhost:8080/a/b/c/nonce:{{nonce}}#my-fragment',
+            'addNonce' => 'http://localhost:8080/a/b/c/nonce:{{nonce}}#my-fragment',
         ],
         // Attacks.
         '"><script>alert</script>://localhost' => [
@@ -641,7 +641,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://unknown',
             'extension' => null,
-            //'addNonce' => 'http://unknown/script%3E/nonce:{{nonce}}',
+            'addNonce' => 'http://unknown/script%3E/nonce:{{nonce}}',
             '__toString' => 'http://unknown/script%3E'
         ],
         'http://localhost/"><script>alert</script>' => [
@@ -664,7 +664,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
-            //'addNonce' => 'http://localhost/%22%3E%3Cscript%3Ealert%3C/script%3E/nonce:{{nonce}}',
+            'addNonce' => 'http://localhost/%22%3E%3Cscript%3Ealert%3C/script%3E/nonce:{{nonce}}',
             '__toString' => 'http://localhost/%22%3E%3Cscript%3Ealert%3C/script%3E'
         ],
         'http://localhost/something/p1:foo/p2:"><script>alert</script>' => [
@@ -687,7 +687,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
-            //'addNonce' => 'http://localhost/something/script%3E/p1:foo/p2:%22%3E%3Cscript%3Ealert%3C/nonce:{{nonce}}',
+            //'addNonce' => 'http://localhost/something/script%3E/p1:foo/p2:%22%3E%3Cscript%3Ealert%3C/nonce:{{nonce}}', // FIXME <-
             '__toString' => 'http://localhost/something/script%3E/p1:foo/p2:%22%3E%3Cscript%3Ealert%3C'
         ],
         'http://localhost/something?p="><script>alert</script>' => [
@@ -710,7 +710,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
-            //'addNonce' => 'http://localhost/something/nonce:{{nonce}}?p=%22%3E%3Cscript%3Ealert%3C/script%3E',
+            'addNonce' => 'http://localhost/something/nonce:{{nonce}}?p=%22%3E%3Cscript%3Ealert%3C/script%3E',
             '__toString' => 'http://localhost/something?p=%22%3E%3Cscript%3Ealert%3C/script%3E'
         ],
         'http://localhost/something#"><script>alert</script>' => [
@@ -733,7 +733,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
-            //'addNonce' => 'http://localhost/something/nonce:{{nonce}}#%22%3E%3Cscript%3Ealert%3C/script%3E',
+            'addNonce' => 'http://localhost/something/nonce:{{nonce}}#%22%3E%3Cscript%3Ealert%3C/script%3E',
             '__toString' => 'http://localhost/something#%22%3E%3Cscript%3Ealert%3C/script%3E'
         ],
         'https://www.getgrav.org/something/"><script>eval(atob("aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ=="))</script><' => [
@@ -756,7 +756,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'https://www.getgrav.org',
             'extension' => null,
-            //'addNonce' => 'https://www.getgrav.org/something/%22%3E%3Cscript%3Eeval%28atob%28%22aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ==%22%29%29%3C/script%3E%3C/nonce:{{nonce}}',
+            'addNonce' => 'https://www.getgrav.org/something/%22%3E%3Cscript%3Eeval%28atob%28%22aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ==%22%29%29%3C/script%3E%3C/nonce:{{nonce}}',
             '__toString' => 'https://www.getgrav.org/something/%22%3E%3Cscript%3Eeval%28atob%28%22aGlzdG9yeS5wdXNoU3RhdGUoJycsJycsJy8nKTskKCdoZWFkLGJvZHknKS5odG1sKCcnKS5sb2FkKCcvJyk7JC5wb3N0KCcvYWRtaW4nLGZ1bmN0aW9uKGRhdGEpeyQucG9zdCgkKGRhdGEpLmZpbmQoJ1tpZD1hZG1pbi11c2VyLWRldGFpbHNdIGEnKS5hdHRyKCdocmVmJykseydhZG1pbi1ub25jZSc6JChkYXRhKS5maW5kKCdbZGF0YS1jbGVhci1jYWNoZV0nKS5hdHRyKCdkYXRhLWNsZWFyLWNhY2hlJykuc3BsaXQoJzonKS5wb3AoKS50cmltKCksJ2RhdGFbcGFzc3dvcmRdJzonSW0zdjFsaDR4eDByJywndGFzayc6J3NhdmUnfSl9KQ==%22%29%29%3C/script%3E%3C'
         ],
     ];
