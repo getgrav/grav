@@ -78,7 +78,7 @@ class Uri
         $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
         // Build port.
-        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : ($this->scheme === 'https' ? 443 : 80);
+        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
 
         // Build path.
         $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
@@ -111,13 +111,15 @@ class Uri
         $this->user = isset($parts['user']) ? $parts['user'] : '';
         $this->password = isset($parts['pass']) ? $parts['pass'] : '';
         $this->host = isset($parts['host']) ? $parts['host'] : '';
-        $this->port = isset($parts['port']) ? (int)$parts['port'] : ($this->scheme === 'https' ? 443 : 80);
+        $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
         $this->path = isset($parts['path']) ? $parts['path'] : '';
         $this->query = isset($parts['query']) ? $parts['query'] : '';
         $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : '';
 
         // Validate the hostname
-        $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
+        if ($this->host) {
+            $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
+        }
 
         // Filter path, query string and fragment.
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
@@ -206,7 +208,7 @@ class Uri
      */
     private function buildBaseUrl()
     {
-        $scheme = $this->scheme ? $this->scheme . '://' : '//';
+        $scheme = $this->scheme ? $this->scheme . '://' : ($this->host ? '//' : '');
 
         return $scheme . $this->host;
     }
@@ -236,7 +238,7 @@ class Uri
             return 'localhost';
         }
 
-        return $this->host;
+        return $this->host ?: 'unknown';
     }
 
     /**
@@ -249,9 +251,8 @@ class Uri
         $config = $grav['config'];
         $language = $grav['language'];
 
-        $default = $this->scheme === '' || ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
         // add the port to the base for non-standard ports
-        if (!$default && $config->get('system.reverse_proxy_setup') === false) {
+        if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
             $this->base .= ':' . (string)$this->port;
         }
 
@@ -507,9 +508,9 @@ class Uri
     /**
      * Return the Extension of the URI
      *
-     * @param null $default
+     * @param string|null $default
      *
-     * @return String The extension of the URI
+     * @return string The extension of the URI
      */
     public function extension($default = null)
     {
@@ -523,18 +524,23 @@ class Uri
     /**
      * Return the scheme of the URI
      *
-     * @return String The scheme of the URI
+     * @param bool $raw
+     * @return string The scheme of the URI
      */
-    public function scheme()
+    public function scheme($raw = false)
     {
-        return $this->scheme ? $this->scheme . '://' : '//';
+        if (!$raw) {
+            return $this->scheme ? $this->scheme . '://' : '';
+        }
+
+        return $this->scheme;
     }
 
 
     /**
      * Return the host of the URI
      *
-     * @return String The host of the URI
+     * @return string The host of the URI
      */
     public function host()
     {
@@ -542,12 +548,23 @@ class Uri
     }
 
     /**
-     * Return the port number
+     * Return the port number if it can be figured out
      *
-     * @return int
+     * @param bool $raw
+     * @return int|null
      */
-    public function port()
+    public function port($raw = false)
     {
+        $port = $this->port;
+        // If not in raw mode and port is not set, figure it out from scheme.
+        if (!$raw && $port === null) {
+            if ($this->scheme === 'http') {
+                $this->port = 80;
+            } elseif ($this->scheme === 'https') {
+                $this->port = 443;
+            }
+        }
+
         return $this->port;
     }
 
@@ -865,14 +882,9 @@ class Uri
         // handle absolute URLs
         if (!$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
 
-            $url['scheme'] = str_replace('://', '', $uri->scheme());
+            $url['scheme'] = $uri->scheme(true);
             $url['host'] = $uri->host();
-
-            $port = $uri->port();
-            $default = $url['scheme'] === '' || ($url['scheme'] === 'http' && $port === 80) || ($url['scheme'] === 'https' && $port === 443);
-            if (!$default) {
-                $url['port'] = $port;
-            }
+            $url['port'] = $uri->port(true);
 
             // check if page exists for this route, and if so, check if it has SSL enabled
             $pages = $grav['pages'];

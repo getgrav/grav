@@ -17,6 +17,48 @@ class UriTest extends \Codeception\TestCase\Test
     protected $uri;
 
     protected $tests = [
+        '/path' => [
+            'scheme' => '',
+            'user' => '',
+            'password' => '',
+            'host' => '',
+            'port' => null,
+            'path' => '/path',
+            'query' => '',
+            'fragment' => '',
+
+            'route' => '/path',
+            'paths' => ['path'],
+            'params' => null,
+            'url' => '/path',
+            'environment' => 'unknown',
+            'basename' => 'path',
+            'base' => '',
+            'currentPage' => 1,
+            'rootUrl' => '',
+            'extension' => null,
+        ],
+        '//localhost/' => [
+            'scheme' => '',
+            'user' => '',
+            'password' => '',
+            'host' => 'localhost',
+            'port' => null,
+            'path' => '/',
+            'query' => '',
+            'fragment' => '',
+
+            'route' => '/',
+            'paths' => [],
+            'params' => null,
+            'url' => '/',
+            'environment' => 'localhost',
+            'basename' => '',
+            'base' => '//localhost',
+            'currentPage' => 1,
+            'rootUrl' => '//localhost',
+            'extension' => null,
+        ],
         'http://localhost/' => [
             'scheme' => 'http://',
             'user' => '',
@@ -180,9 +222,9 @@ class UriTest extends \Codeception\TestCase\Test
             'url' => '/grav/it/ueper',
             'environment' => 'localhost',
             'basename' => 'ueper',
-            'base' => 'http://localhost',
+            'base' => 'http://localhost:80',
             'currentPage' => 1,
-            'rootUrl' => 'http://localhost',
+            'rootUrl' => 'http://localhost:80',
             'extension' => null,
         ],
         'http://localhost/grav/it/ueper?test=x' => [
@@ -233,7 +275,7 @@ class UriTest extends \Codeception\TestCase\Test
             'password' => 'password',
             'host' => 'api.getgrav.com',
             'port' => 4040,
-            //'path' => '/v1/post/128', // Likely a bug?
+            //'path' => '/v1/post/128', // TODO: Likely a bug?
             'query' => 'all=1',
             'fragment' => '',
 
@@ -248,7 +290,7 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'https://api.getgrav.com:4040',
             'extension' => null,
         ],
-        'https://google.com/' => [
+        'https://google.com:443/' => [
             'scheme' => 'https://',
             'user' => '',
             'password' => '',
@@ -264,9 +306,9 @@ class UriTest extends \Codeception\TestCase\Test
             'url' => '/',
             'environment' => 'google.com',
             'basename' => '',
-            'base' => 'https://google.com',
+            'base' => 'https://google.com:443',
             'currentPage' => 1,
-            'rootUrl' => 'https://google.com',
+            'rootUrl' => 'https://google.com:443',
             'extension' => null,
         ],
         // Path tests.
@@ -528,11 +570,11 @@ class UriTest extends \Codeception\TestCase\Test
         ],
         // Attacks.
         '"><script>alert</script>://localhost' => [
-            'scheme' => '//',
+            'scheme' => '',
             'user' => '',
             'password' => '',
-            'host' => 'unknown',
-            'port' => 80,
+            'host' => '',
+            'port' => null,
             'path' => '%22%3E%3Cscript%3Ealert%3C/localhost',
             'query' => '',
             'fragment' => '',
@@ -543,9 +585,9 @@ class UriTest extends \Codeception\TestCase\Test
             'url' => '%22%3E%3Cscript%3Ealert%3C//localhost',
             'environment' => 'unknown',
             'basename' => 'localhost',
-            'base' => '//unknown',
+            'base' => '',
             'currentPage' => 1,
-            'rootUrl' => '//unknown',
+            'rootUrl' => '',
             'extension' => null,
         ],
         'http://"><script>alert</script>' => [
@@ -703,15 +745,14 @@ class UriTest extends \Codeception\TestCase\Test
                 $result = $this->uri->{$method}();
             }
 
-            $this->assertSame($expected, $result);
-
+            $this->assertSame($expected, $result, "Test \$url->{$method}() for {$url}");
             // Deal with $url->query($key)
             if ($method === 'query') {
                 parse_str($expected, $queryParams);
                 foreach ($queryParams as $key => $value) {
-                    $this->assertSame($value, $this->uri->{$method}($key));
+                    $this->assertSame($value, $this->uri->{$method}($key), "Test \$url->{$method}('{$key}') for {$url}");
                 }
-                $this->assertSame(null, $this->uri->{$method}('non-existing'));
+                $this->assertSame(null, $this->uri->{$method}('non-existing'), "Test \$url->{$method}('non-existing') for {$url}");
             }
         }
     }
