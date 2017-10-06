@@ -759,7 +759,7 @@ class Uri
             'host'      => $this->host,
             'port'      => $this->port,
             'user'      => $this->user,
-            'pass'  => $this->password,
+            'pass'      => $this->password,
             'path'      => $this->path,
             'params'    => $this->params,
             'query'     => $this->query,
@@ -796,15 +796,19 @@ class Uri
      */
     public static function buildParams(array $params)
     {
+        if (!$params) {
+            return '';
+        }
+
         $grav = Grav::instance();
         $sep = $grav['config']->get('system.param_sep');
 
-        $params_string = '';
+        $output = [];
         foreach ($params as $key => $value) {
             $output[] = "{$key}{$sep}{$value}";
-            $params_string .= '/' . implode('/', $output);
         }
-        return $params_string;
+
+        return '/' . implode('/', $output);
     }
 
     /**

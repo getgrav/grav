@@ -184,7 +184,6 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => '',
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
-            '__toString' => 'http://localhost:8080/grav/it/ueper:xxx/ueper:xxx/page:/ueper:xxx/page:/test:yyy', // FIXME <-
         ],
         'http://localhost:8080/grav/it/ueper?test=x' => [
             'scheme' => 'http://',
@@ -291,7 +290,6 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'https://api.getgrav.com:4040',
             'extension' => null,
             '__toString' => 'https://username:password@api.getgrav.com:4040/v1/post/128//page:x?all=1' // FIXME <-
-
         ],
         'https://google.com:443/' => [
             'scheme' => 'https://',
@@ -660,7 +658,7 @@ class UriTest extends \Codeception\TestCase\Test
             'currentPage' => 1,
             'rootUrl' => 'http://localhost',
             'extension' => null,
-            '__toString' => 'http://localhost/something/script%3E/p1:foo/p1:foo/p2:%22%3E%3Cscript%3Ealert%3C'
+            '__toString' => 'http://localhost/something/script%3E/p1:foo/p2:%22%3E%3Cscript%3Ealert%3C'
         ],
         'http://localhost/something?p="><script>alert</script>' => [
             'scheme' => 'http://',
