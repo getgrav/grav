@@ -470,7 +470,7 @@ class Assets
      *
      * @return $this
      */
-    public function addInlineJs($asset, $priority = null, $group = null)
+    public function addInlineJs($asset, $priority = null, $group = null, $attributes = null)
     {
         $asset = trim($asset);
 
@@ -485,7 +485,8 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
-            'group'    => $group ?: 'head'
+            'group'    => $group ?: 'head',
+            'type'     => $attributes ?: '',
         ];
 
         // check for dynamic array and merge with defaults
@@ -667,7 +668,10 @@ class Assets
         }
 
         if ($inline_js) {
-            $output .= "\n<script>\n" . $inline_js . "\n</script>\n";
+            if ($inline['type']){
+            $attributeString = " type=\"" . $inline['type'] . "\""; 
+            }
+            $output .= "\n<script" . $attributeString . ">" . $inline_js . "\n</script>\n";
         }
 
         return $output;
