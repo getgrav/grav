@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Refactored `URI` class with numerous bug fixes, and optimizations
+    * Override `system.media.upload_limit` with PHP's `post_max_size` or `upload_max_filesize`
     * Updated `bin/grav clean` command to remove unnecessary vendor files (save some bytes) 
     * Added a `http_status_code` Twig function to allow setting HTTP status codes from Twig directly.
     * Deter XSS attacks via URI path/uri methods (credit:newbthenewbd)
