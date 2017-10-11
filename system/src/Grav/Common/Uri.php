@@ -1117,7 +1117,7 @@ class Uri
         $uri = new static($url);
         $parts = $uri->toArray();
         $nonce = Utils::getNonce($action);
-        $parts['params'] = (isset($parts['params']) ? $parts['params'] : []) + ['nonce' => $nonce];
+        $parts['params'] = (isset($parts['params']) ? $parts['params'] : []) + [$nonceParamName => $nonce];
 
         return static::buildUrl($parts);
     }
