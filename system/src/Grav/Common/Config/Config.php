@@ -12,6 +12,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Service\ConfigServiceProvider;
+use Grav\Common\Utils;
 
 class Config extends Data
 {
@@ -95,6 +96,10 @@ class Config extends Data
                 $this->joinDefaults($key, $value);
             }
         }
+
+        // Override the media.upload_limit based on PHP values
+        $upload_limit = Utils::getUploadLimit();
+        $this->items['system']['media']['upload_limit'] = $upload_limit > 0 ? $upload_limit : 1024*1024*1024;
     }
 
     /**

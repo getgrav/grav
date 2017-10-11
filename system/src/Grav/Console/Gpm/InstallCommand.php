@@ -187,7 +187,7 @@ class InstallCommand extends ConsoleCommand
                 } else {
                     $is_valid_destination = Installer::isValidDestination($this->destination . DS . $package->install_path);
                     if ($is_valid_destination || Installer::lastErrorCode() == Installer::NOT_FOUND) {
-                        $this->processPackage($package, true, false);
+                        $this->processPackage($package, false);
                     } else {
                         if (Installer::lastErrorCode() == Installer::EXISTS) {
 
@@ -205,7 +205,7 @@ class InstallCommand extends ConsoleCommand
 
                             if ($answer) {
                                 $is_update = true;
-                                $this->processPackage($package, true, $is_update);
+                                $this->processPackage($package, $is_update);
                             } else {
                                 $this->output->writeln("<yellow>Package " . $package_name . " not overwritten</yellow>");
                             }
@@ -311,7 +311,7 @@ class InstallCommand extends ConsoleCommand
             if ($answer) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
                     $package = $this->gpm->findPackage($dependencyName);
-                    $this->processPackage($package, true, ($type == 'update') ? true : false);
+                    $this->processPackage($package, ($type == 'update') ? true : false);
                 }
                 $this->output->writeln('');
             } else {
