@@ -1,5 +1,5 @@
 # v1.3.5
-## xx/xx/2017
+## 10/11/2017
 
 1. [](#improved)
     * Refactored `URI` class with numerous bug fixes, and optimizations
