@@ -465,8 +465,9 @@ class Assets
      * For adding chunks of string-based inline JS
      *
      * @param  mixed $asset
-     * @param  int   $priority the priority, bigger comes first
-     * @param string $group    name of the group
+     * @param  int $priority the priority, bigger comes first
+     * @param string $group name of the group
+     * @param null $attributes
      *
      * @return $this
      */
@@ -668,10 +669,8 @@ class Assets
         }
 
         if ($inline_js) {
-            if ($inline['type']){
-            $attributeString = " type=\"" . $inline['type'] . "\""; 
-            }
-            $output .= "\n<script" . $attributeString . ">" . $inline_js . "\n</script>\n";
+            $attribute_string = isset($inline) && $inline['type'] ? " type=\"" . $inline['type'] . "\"" : '';
+            $output .= "\n<script" . $attribute_string . ">\n" . $inline_js . "\n</script>\n";
         }
 
         return $output;
