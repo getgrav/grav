@@ -2,10 +2,14 @@
 ## xx/xx/2017
 
 1. [](#improved)
+    * Refactored `URI` class with numerous bug fixes, and optimizations
     * Updated `bin/grav clean` command to remove unnecessary vendor files (save some bytes) 
     * Added a `http_status_code` Twig function to allow setting HTTP status codes from Twig directly.
     * Deter XSS attacks via URI path/uri methods (credit:newbthenewbd)
     * Added support for `$uri->toArray()` and `(string)$uri`
+    * Added support for `type` on `Asstes::addInlineJs()` [#1683](https://github.com/getgrav/grav/pull/1683)
+1. [](#bugfix)
+    * Fixed method signature error with `GPM\InstallCommand::processPackage()` [#1682](https://github.com/getgrav/grav/pull/1682)   
 
 # v1.3.4
 ## 09/29/2017
