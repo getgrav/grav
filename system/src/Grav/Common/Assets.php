@@ -663,14 +663,18 @@ class Assets
 
         // Render Inline JS
         foreach ($this->inline_js as $inline) {
-            if ($group && $inline['group'] == $group) {
+            if (($group && $inline['group'] == $group) && ($inline['type'] == '')) {
+                // concatenate inlined js if type is empty
                 $inline_js .= $inline['asset'] . "\n";
+            } else {
+                // build a script tag if inline type is set
+                $attributeString = " type=\"" . $inline['type'] . "\""; 
+                $output .= "\n<script" . $attributeString . ">\n" . $inline['asset'] . "\n</script>\n";
             }
         }
 
         if ($inline_js) {
-            $attribute_string = isset($inline) && $inline['type'] ? " type=\"" . $inline['type'] . "\"" : '';
-            $output .= "\n<script" . $attribute_string . ">\n" . $inline_js . "\n</script>\n";
+             $output .= "\n<script>\n" . $inline_js . "\n</script>\n";
         }
 
         return $output;
