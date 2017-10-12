@@ -1,3 +1,9 @@
+# v1.3.6
+## mm/dd/2017
+
+1. [](#bugfix)
+    *  Regression: Ajax error in ngnix (#1244)
+    
 # v1.3.5
 ## 10/11/2017
 
