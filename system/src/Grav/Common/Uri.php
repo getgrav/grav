@@ -90,6 +90,13 @@ class Uri
             $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY);
         }
 
+        // Support ngnix routes.
+        if (strpos($this->query, '_url=') === 0) {
+            parse_str($this->query, $query);
+            unset($query['_url']);
+            $this->query = http_build_query($query);
+        }
+
         // Build fragment.
         $this->fragment = null;
 
