@@ -550,7 +550,30 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'http://localhost',
             'extension' => 'json',
             'addNonce' => 'http://localhost/a-page.json/nonce:{{nonce}}',
-            '__toString' => 'http://localhost/a-page', // FIXME <-
+            '__toString' => 'http://localhost/a-page', // FIX ME <-
+        ],
+        'http://localhost/grav/admin/media.json/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==' => [
+            'scheme' => 'http://',
+            'user' => null,
+            'password' => null,
+            'host' => 'localhost',
+            'port' => 80,
+            'path' => '/grav/admin/media',
+            'query' => '',
+            'fragment' => null,
+
+            'route' => '/grav/admin/media',
+            'paths' => ['grav','admin','media'],
+            'params' => '/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==',
+            'url' => '/grav/admin/media',
+            'environment' => 'localhost',
+            'basename' => 'media.json',
+            'base' => 'http://localhost',
+            'currentPage' => 1,
+            'rootUrl' => 'http://localhost',
+            'extension' => 'json',
+            'addNonce' => 'http://localhost/grav/admin/media.json/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==/nonce:{{nonce}}',
+            '__toString' => 'http://localhost/grav/admin/media/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==', // FIXME <-
         ],
         'http://localhost/a-page.foo' => [
             'scheme' => 'http://',
@@ -573,6 +596,7 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'http://localhost',
             'extension' => 'foo',
             'addNonce' => 'http://localhost/a-page.foo/nonce:{{nonce}}',
+            '__toString' => 'http://localhost/a-page.foo'
         ],
         // Fragment tests.
         'http://localhost:8080/a/b/c#my-fragment' => [
