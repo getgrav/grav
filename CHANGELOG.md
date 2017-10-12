@@ -2,7 +2,8 @@
 ## mm/dd/2017
 
 1. [](#bugfix)
-    *  Regression: Ajax error in ngnix (#1244)
+    * Regression: Ajax error in Nginx [admin#1244](https://github.com/getgrav/grav-plugin-admin/issues/1244)
+    * Remove the `_url=$uri` portion of the the nginx `try_files` command [admin#1244](https://github.com/getgrav/grav-plugin-admin/issues/1244)
     
 # v1.3.5
 ## 10/11/2017
