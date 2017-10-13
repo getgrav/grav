@@ -11,6 +11,13 @@
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
 
+# v1.3.6
+## 10/12/2017
+
+1. [](#bugfix)
+    * Regression: Ajax error in Nginx [admin#1244](https://github.com/getgrav/grav-plugin-admin/issues/1244)
+    * Remove the `_url=$uri` portion of the the Nginx `try_files` command [admin#1244](https://github.com/getgrav/grav-plugin-admin/issues/1244)
+    
 # v1.3.5
 ## 10/11/2017
 
