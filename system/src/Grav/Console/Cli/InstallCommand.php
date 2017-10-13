@@ -117,7 +117,7 @@ class InstallCommand extends ConsoleCommand
             $this->destination = rtrim($this->destination, DS);
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
-                exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path'], $output, $return);
+                exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' --depth 1 ' . $data['url'] . ' ' . $data['path'], $output, $return);
 
                 if (!$return) {
                     $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
