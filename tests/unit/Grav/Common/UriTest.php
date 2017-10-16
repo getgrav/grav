@@ -371,6 +371,29 @@ class UriTest extends \Codeception\TestCase\Test
             'extension' => null,
             'addNonce' => 'http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f/nonce:{{nonce}}',
         ],
+        'http://localhost/this is the path/my page' => [
+            'scheme' => 'http://',
+            'user' => null,
+            'password' => null,
+            'host' => 'localhost',
+            'port' => 80,
+            'path' => '/this%20is%20the%20path/my%20page',
+            'query' => '',
+            'fragment' => null,
+
+            'route' => '/this%20is%20the%20path/my%20page',
+            'paths' => ['this%20is%20the%20path', 'my%20page'],
+            'params' => null,
+            'url' => '/this%20is%20the%20path/my%20page',
+            'environment' => 'localhost',
+            'basename' => 'my%20page',
+            'base' => 'http://localhost',
+            'currentPage' => 1,
+            'rootUrl' => 'http://localhost',
+            'extension' => null,
+            'addNonce' => 'http://localhost/this%20is%20the%20path/my%20page/nonce:{{nonce}}',
+            '__toString' => 'http://localhost/this%20is%20the%20path/my%20page'
+        ],
         // Query params tests.
         'http://localhost:8080/grav/it/ueper?test=x&test2=y' => [
             'scheme' => 'http://',
