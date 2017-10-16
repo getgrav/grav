@@ -663,7 +663,7 @@ class Assets
 
         // Render Inline JS
         foreach ($this->inline_js as $inline) {
-            if (($group && $inline['group'] == $group) && ($inline['type'] == '')) {
+           if ($group && $inline['group'] === $group && $inline['type'] === '') {
                 // concatenate inlined js if type is empty
                 $inline_js .= $inline['asset'] . "\n";
             } else {
