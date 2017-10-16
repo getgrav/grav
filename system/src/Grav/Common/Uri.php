@@ -79,6 +79,9 @@ class Uri
 
         // Build port.
         $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
+        if ($this->hasStandardPort()) {
+            $this->port = null;
+        }
 
         // Build path.
         $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
@@ -105,6 +108,16 @@ class Uri
         $this->query = static::filterQuery($this->query);
 
         $this->reset();
+    }
+
+    /**
+     * Does this Uri use a standard port?
+     *
+     * @return bool
+     */
+    protected function hasStandardPort()
+    {
+        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
     }
 
     /**

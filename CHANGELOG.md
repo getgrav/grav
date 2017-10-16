@@ -2,7 +2,7 @@
 ## mm/dd/2017
 
 1. [](#bugfix)
-
+    * Regression: `base_url_absolute` always has the port number (#1690)
 
 # v1.3.6
 ## 10/12/2017
