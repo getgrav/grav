@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Regressionin Uri: `base_url_absolute` always has the port number (#1690)
     * Uri: Prefer using REQUEST_SCHEME instead of HTTPS (#1698)
+    * Fixed routing paths with urlencoded spaces and non-latin letters (#1688)
 
 # v1.3.6
 ## 10/12/2017

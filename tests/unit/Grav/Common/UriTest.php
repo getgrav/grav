@@ -394,6 +394,29 @@ class UriTest extends \Codeception\TestCase\Test
             'addNonce' => 'http://localhost/this%20is%20the%20path/my%20page/nonce:{{nonce}}',
             '__toString' => 'http://localhost/this%20is%20the%20path/my%20page'
         ],
+        'http://localhost/pölöpölö/päläpälä' => [
+            'scheme' => 'http://',
+            'user' => null,
+            'password' => null,
+            'host' => 'localhost',
+            'port' => 80,
+            'path' => '/p%C3%B6l%C3%B6p%C3%B6l%C3%B6/p%C3%A4l%C3%A4p%C3%A4l%C3%A4',
+            'query' => '',
+            'fragment' => null,
+
+            'route' => '/p%C3%B6l%C3%B6p%C3%B6l%C3%B6/p%C3%A4l%C3%A4p%C3%A4l%C3%A4',
+            'paths' => ['p%C3%B6l%C3%B6p%C3%B6l%C3%B6', 'p%C3%A4l%C3%A4p%C3%A4l%C3%A4'],
+            'params' => null,
+            'url' => '/p%C3%B6l%C3%B6p%C3%B6l%C3%B6/p%C3%A4l%C3%A4p%C3%A4l%C3%A4',
+            'environment' => 'localhost',
+            'basename' => 'p%C3%A4l%C3%A4p%C3%A4l%C3%A4',
+            'base' => 'http://localhost',
+            'currentPage' => 1,
+            'rootUrl' => 'http://localhost',
+            'extension' => null,
+            'addNonce' => 'http://localhost/p%C3%B6l%C3%B6p%C3%B6l%C3%B6/p%C3%A4l%C3%A4p%C3%A4l%C3%A4/nonce:{{nonce}}',
+            '__toString' => 'http://localhost/p%C3%B6l%C3%B6p%C3%B6l%C3%B6/p%C3%A4l%C3%A4p%C3%A4l%C3%A4'
+        ],
         // Query params tests.
         'http://localhost:8080/grav/it/ueper?test=x&test2=y' => [
             'scheme' => 'http://',

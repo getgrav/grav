@@ -16,12 +16,13 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Taxonomy;
+use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
-use Collator as Collator;
+use Collator;
 
 class Pages
 {
@@ -152,7 +153,7 @@ class Pages
             }
 
             $path_append = rtrim($this->grav['pages']->base(), '/');
-            if ($language->getDefault() != $lang || $config->get('system.languages.include_default_lang') === true) {
+            if ($language->getDefault() !== $lang || $config->get('system.languages.include_default_lang') === true) {
                 $path_append .= $lang ? '/' . $lang : '';
             }
 
@@ -192,7 +193,7 @@ class Pages
             return $this->homeUrl($lang, $absolute);
         }
 
-        return $this->baseUrl($lang, $absolute) . $route;
+        return $this->baseUrl($lang, $absolute) . Uri::filterPath($route);
     }
 
     /**
@@ -297,7 +298,7 @@ class Pages
 
         $sort = $this->sort[$path][$order_by];
 
-        if ($order_dir != 'asc') {
+        if ($order_dir !== 'asc') {
             $sort = array_reverse($sort);
         }
 
@@ -327,7 +328,7 @@ class Pages
 
         $sort = $this->sort[$lookup][$orderBy];
 
-        if ($orderDir != 'asc') {
+        if ($orderDir !== 'asc') {
             $sort = array_reverse($sort);
         }
 
@@ -345,10 +346,6 @@ class Pages
      */
     public function get($path)
     {
-        if (!is_null($path) && !is_string($path)) {
-            throw new \Exception();
-        }
-
         return isset($this->instances[(string)$path]) ? $this->instances[(string)$path] : null;
     }
 
@@ -376,13 +373,13 @@ class Pages
      */
     public function ancestor($route, $path = null)
     {
-        if (!is_null($path)) {
-
+        if ($path !== null) {
             $page = $this->dispatch($route, true);
 
-            if ($page->path() == $path) {
+            if ($page && $page->path() === $path) {
                 return $page;
-            } elseif (!$page->parent()->root()) {
+            }
+            if ($page && !$page->parent()->root()) {
                 return $this->ancestor($page->parent()->route(), $path);
             }
         }
@@ -400,15 +397,14 @@ class Pages
      */
     public function inherited($route, $field = null)
     {
-        if (!is_null($field)) {
+        if ($field !== null) {
 
             $page = $this->dispatch($route, true);
 
-            $ancestorField = $page->parent()->value('header.' . $field);
-
-            if ($ancestorField !== null) {
+            if ($page && $page->parent()->value('header.' . $field) !== null) {
                 return $page->parent();
-            } elseif (!$page->parent()->root()) {
+            }
+            if ($page && !$page->parent()->root()) {
                 return $this->inherited($page->parent()->route(), $field);
             }
         }
@@ -441,6 +437,8 @@ class Pages
      */
     public function dispatch($route, $all = false, $redirect = true)
     {
+        $route = urldecode($route);
+
         // Fetch page if there's a defined route to it.
         $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
         // Try without trailing slash
@@ -499,7 +497,7 @@ class Pages
                             $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
                             try {
                                 $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found != $source_url) {
+                                if ($found !== $source_url) {
                                     $page = $this->dispatch($found, $all);
                                 }
                             } catch (ErrorException $e) {
@@ -535,7 +533,7 @@ class Pages
      */
     public function blueprints($type)
     {
-        if (!isset($this->blueprints)) {
+        if ($this->blueprints === null) {
             $this->blueprints = new Blueprints(self::getTypes());
         }
 
@@ -970,7 +968,7 @@ class Pages
      * @throws \RuntimeException
      * @internal
      */
-    protected function recurse($directory, Page &$parent = null)
+    protected function recurse($directory, Page $parent = null)
     {
         $directory = rtrim($directory, DS);
         $page = new Page;
@@ -1023,7 +1021,7 @@ class Pages
                     if ($found->isDir()) {
                         continue;
                     }
-                    $regex = '/^[^\.]*' . preg_quote($extension) . '$/';
+                    $regex = '/^[^\.]*' . preg_quote($extension, '/') . '$/';
                     if (preg_match($regex, $found->getFilename())) {
                         $page_found = $found;
                         $page_extension = $extension;
@@ -1053,10 +1051,8 @@ class Pages
             $name = $file->getFilename();
 
             // Ignore all hidden files if set.
-            if ($this->ignore_hidden) {
-                if ($name && $name[0] == '.') {
-                    continue;
-                }
+            if ($this->ignore_hidden && $name && $name[0] === '.') {
+                continue;
             }
 
             if ($file->isFile()) {
@@ -1096,7 +1092,7 @@ class Pages
         }
 
         // Override the modified time if modular
-        if ($page->template() == 'modular') {
+        if ($page->template() === 'modular') {
             foreach ($page->collection() as $child) {
                 $modified = $child->modified();
 
@@ -1174,6 +1170,7 @@ class Pages
      * @param array  $pages
      * @param string $order_by
      * @param array  $manual
+     * @param int    $sort_flags
      *
      * @throws \RuntimeException
      * @internal
@@ -1249,7 +1246,7 @@ class Pages
         }
 
         // handle special case when order_by is random
-        if ($order_by == 'random') {
+        if ($order_by === 'random') {
             $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
