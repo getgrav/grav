@@ -58,8 +58,12 @@ class Uri
     protected function createFromEnvironment(array $env)
     {
         // Build scheme.
-        $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
-        $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
+        if (isset($env['REQUEST_SCHEME'])) {
+            $this->scheme = $env['REQUEST_SCHEME'];
+        } else {
+            $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
+            $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
+        }
 
         // Build user and password.
         $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : null;
