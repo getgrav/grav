@@ -58,8 +58,12 @@ class Uri
     protected function createFromEnvironment(array $env)
     {
         // Build scheme.
-        $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
-        $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
+        if (isset($env['REQUEST_SCHEME'])) {
+            $this->scheme = $env['REQUEST_SCHEME'];
+        } else {
+            $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
+            $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
+        }
 
         // Build user and password.
         $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : null;
@@ -79,6 +83,9 @@ class Uri
 
         // Build port.
         $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
+        if ($this->hasStandardPort()) {
+            $this->port = null;
+        }
 
         // Build path.
         $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
@@ -105,6 +112,16 @@ class Uri
         $this->query = static::filterQuery($this->query);
 
         $this->reset();
+    }
+
+    /**
+     * Does this Uri use a standard port?
+     *
+     * @return bool
+     */
+    protected function hasStandardPort()
+    {
+        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
     }
 
     /**
