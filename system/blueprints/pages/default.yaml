@@ -32,7 +32,7 @@ form:
                 validate:
                   type: textarea
 
-            uploads:
+            header.media_order:
               type: pagemedia
               label: PLUGIN_ADMIN.PAGE_MEDIA
 
