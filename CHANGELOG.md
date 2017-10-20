@@ -1,3 +1,9 @@
+# v1.3.8
+## xx/xx/2017
+
+1. [](#new)
+    * Added Page `media_order` capability to manually order page media via a page header
+
 # v1.3.7
 ## 10/18/2017
 
