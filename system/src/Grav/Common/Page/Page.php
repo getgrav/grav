@@ -1410,7 +1410,7 @@ class Page
     /**
      * Gets and Sets whether or not this Page is routable, ie you can reach it
      * via a URL.
-     * The page must be *routable* and *published*
+     * The page must be *routable*
      *
      * @param  bool $var true if the page is routable
      *
@@ -1422,7 +1422,7 @@ class Page
             $this->routable = (bool)$var;
         }
 
-        return $this->routable && $this->published();
+        return $this->routable;
     }
 
     public function ssl($var = null)
