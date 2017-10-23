@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added Page `media_order` capability to manually order page media via a page header
+1. [](#bugfix)
+    * Fixed GPM update issue with filtered slugs [#1711](https://github.com/getgrav/grav/issues/1711)   
 
 # v1.3.7
 ## 10/18/2017
