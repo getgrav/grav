@@ -5,6 +5,7 @@
     * Added Page `media_order` capability to manually order page media via a page header
 1. [](#bugfix)
     * Fixed GPM update issue with filtered slugs [#1711](https://github.com/getgrav/grav/issues/1711)   
+    * Fixed issue with missing image file not throwing 404 properly [#1713](https://github.com/getgrav/grav/issues/1713) 
 
 # v1.3.7
 ## 10/18/2017
