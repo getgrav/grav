@@ -182,7 +182,7 @@ class UpdateCommand extends ConsoleCommand
         $index = 0;
         foreach ($this->data as $packages) {
             foreach ($packages as $slug => $package) {
-                if (count($limit_to) && !array_key_exists($slug, $limit_to)) {
+                if (count($only_packages) && !array_key_exists($slug, $limit_to)) {
                     continue;
                 }
 
@@ -276,6 +276,7 @@ class UpdateCommand extends ConsoleCommand
                 $this->output->writeln('');
                 $this->output->writeln("Packages not found or not requiring updates: <red>" . implode('</red>, <red>',
                         $ignore) . "</red>");
+
             }
         }
 
