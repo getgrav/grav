@@ -44,3 +44,4 @@
 * Force rebuild for Grav Admin 1.4.1
 * Force rebuild for bad token
 * Rebuild due to too-slow 'release'
+* Force rebuild to pick up Grav admin 1.6.6
