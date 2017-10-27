@@ -148,7 +148,7 @@ class Grav extends Container
         // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
             $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, count($language < 3) ? ($language . '_' . strtoupper($language)) : $language);
+            setlocale(LC_ALL, strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
         } elseif ($this['config']->get('system.default_locale')) {
             setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
@@ -499,6 +499,9 @@ class Grav extends Container
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
             }
+
+            // Nothing found
+            return false;
         }
 
         return $page;

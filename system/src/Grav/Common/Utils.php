@@ -853,6 +853,24 @@ abstract class Utils
     }
 
     /**
+     * Sort a multidimensional array  by another array of ordered keys
+     *
+     * @param array $array
+     * @param array $orderArray
+     * @return array
+     */
+    public static function sortArrayByArray(array $array, array $orderArray) {
+        $ordered = array();
+        foreach ($orderArray as $key) {
+            if (array_key_exists($key, $array)) {
+                $ordered[$key] = $array[$key];
+                unset($array[$key]);
+            }
+        }
+        return $ordered + $array;
+    }
+
+    /**
      * Get's path based on a token
      *
      * @param $path

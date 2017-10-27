@@ -9,6 +9,8 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Getters;
+use Grav\Common\Grav;
+use Grav\Common\Utils;
 
 abstract class AbstractMedia extends Getters
 {
@@ -49,7 +51,8 @@ abstract class AbstractMedia extends Getters
      */
     public function all()
     {
-        ksort($this->instances, SORT_NATURAL | SORT_FLAG_CASE);
+        $this->instances = $this->orderMedia($this->instances);
+
         return $this->instances;
     }
 
@@ -60,7 +63,7 @@ abstract class AbstractMedia extends Getters
      */
     public function images()
     {
-        ksort($this->images, SORT_NATURAL | SORT_FLAG_CASE);
+        $this->images = $this->orderMedia($this->images);
         return $this->images;
     }
 
@@ -71,7 +74,7 @@ abstract class AbstractMedia extends Getters
      */
     public function videos()
     {
-        ksort($this->videos, SORT_NATURAL | SORT_FLAG_CASE);
+        $this->videos = $this->orderMedia($this->videos);
         return $this->videos;
     }
 
@@ -82,7 +85,7 @@ abstract class AbstractMedia extends Getters
      */
     public function audios()
     {
-        ksort($this->audios, SORT_NATURAL | SORT_FLAG_CASE);
+        $this->audios = $this->orderMedia($this->audios);
         return $this->audios;
     }
 
@@ -93,7 +96,7 @@ abstract class AbstractMedia extends Getters
      */
     public function files()
     {
-        ksort($this->files, SORT_NATURAL | SORT_FLAG_CASE);
+        $this->files = $this->orderMedia($this->files);
         return $this->files;
     }
 
@@ -117,6 +120,25 @@ abstract class AbstractMedia extends Getters
             default:
                 $this->files[$name] = $file;
         }
+    }
+
+    /**
+     * Order the media based on the page's media_order
+     *
+     * @param $media
+     * @return array
+     */
+    protected function orderMedia($media)
+    {
+        $page = Grav::instance()['pages']->get($this->path);
+
+        if ($page && isset($page->header()->media_order)) {
+            $media_order = array_map('trim', explode(',', $page->header()->media_order));
+            $media = Utils::sortArrayByArray($media, $media_order);
+        } else {
+            ksort($media, SORT_NATURAL | SORT_FLAG_CASE);
+        }
+        return $media;
     }
 
     /**
