@@ -1,3 +1,9 @@
+# v1.3.9
+## xx/xx/2017
+
+1. [](#improved)
+    * Added `Medium::copy()` method to create a copy of a medium object
+
 # v1.3.8
 ## 10/26/2017
 
