@@ -265,6 +265,8 @@ class Pages
             $this->children[$page->parent()->path()][$page->path()] = ['slug' => $page->slug()];
         }
         $this->routes[$route] = $page->path();
+
+        $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
     }
 
     /**

@@ -1,6 +1,8 @@
 # v1.3.9
 ## xx/xx/2017
 
+1. [](#bugfix)
+    * Dynamically added pages via `Pages::addPage()` were not firing `onPageProcessed()` event causing forms not to be processed
 1. [](#improved)
     * Added `Medium::copy()` method to create a copy of a medium object
 
