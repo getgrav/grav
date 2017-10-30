@@ -74,7 +74,7 @@ class Debugger
      */
     public function enabled($state = null)
     {
-        if (isset($state)) {
+        if ($state !== null) {
             $this->enabled = $state;
         }
 
@@ -92,7 +92,7 @@ class Debugger
 
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
-            if ($page->templateFormat() != 'html') {
+            if ($page->templateFormat() !== 'html') {
                 return $this;
             }
 
@@ -107,13 +107,13 @@ class Debugger
 
             // Get the required CSS files
             list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
-            foreach ($css_files as $css) {
+            foreach ((array)$css_files as $css) {
                 $assets->addCss($css);
             }
 
             $assets->addCss('/system/assets/debugger.css');
 
-            foreach ($js_files as $js) {
+            foreach ((array)$js_files as $js) {
                 $assets->addJs($js);
             }
         }
@@ -166,7 +166,7 @@ class Debugger
         if ($this->enabled()) {
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
-            if ($page->templateFormat() != 'html' || !$this->renderer) {
+            if (!$this->renderer || $page->templateFormat() !== 'html') {
                 return $this;
             }
 
@@ -216,7 +216,7 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
-        if ($name[0] == '_' || $this->enabled()) {
+        if ($name[0] === '_' || $this->enabled()) {
             $this->debugbar['time']->startMeasure($name, $description);
             $this->timers[] = $name;
         }
@@ -233,7 +233,7 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (in_array($name, $this->timers) && ($name[0] == '_' || $this->enabled())) {
+        if (in_array($name, $this->timers, true) && ($name[0] === '_' || $this->enabled())) {
             $this->debugbar['time']->stopMeasure($name);
         }
 
