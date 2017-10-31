@@ -2295,7 +2295,7 @@ class Page
      */
     public function active()
     {
-        $uri_path = rtrim(Grav::instance()['uri']->path(), '/') ?: '/';
+        $uri_path = rtrim(urldecode(Grav::instance()['uri']->path()), '/') ?: '/';
         $routes = Grav::instance()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
@@ -2318,7 +2318,7 @@ class Page
     {
         $uri = Grav::instance()['uri'];
         $pages = Grav::instance()['pages'];
-        $uri_path = rtrim($uri->path(), '/');
+        $uri_path = rtrim(urldecode($uri->path()), '/');
         $routes = Grav::instance()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
