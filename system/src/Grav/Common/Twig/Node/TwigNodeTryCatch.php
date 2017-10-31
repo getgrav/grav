@@ -6,9 +6,9 @@
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Twig;
+namespace Grav\Common\Twig\Node;
 
-class TwigNodeTry extends \Twig_Node
+class TwigNodeTryCatch extends \Twig_Node
 {
     public function __construct(\Twig_NodeInterface $try, \Twig_NodeInterface $catch = null, $lineno, $tag = null)
     {

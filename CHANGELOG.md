@@ -8,6 +8,7 @@
     * Added `Grav\Framework\Page` interfaces
     * Added `|nicenumber` Twig filter
     * Added `{% try %} ... {% catch %} Error: {{ e.message }} {% endcatch %}` tag to allow basic exception handling inside Twig
+    * Added `{% script %}` and `{% style %}` tags for Twig templates
     * Deprecated GravTrait
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses

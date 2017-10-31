@@ -6,7 +6,9 @@
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Twig;
+namespace Grav\Common\Twig\TokenParser;
+
+use Grav\Common\Twig\Node\TwigNodeTryCatch;
 
 /**
  * Handles try/catch in template file.
@@ -19,7 +21,7 @@ namespace Grav\Common\Twig;
  * {% endcatch %}
  * </pre>
  */
-class TokenParserTry extends \Twig_TokenParser
+class TwigTokenParserTryCatch extends \Twig_TokenParser
 {
     /**
      * Parses a token and returns a node.
@@ -41,7 +43,7 @@ class TokenParserTry extends \Twig_TokenParser
         $stream->next();
         $stream->expect(\Twig_Token::BLOCK_END_TYPE);
 
-        return new TwigNodeTry($try, $catch, $lineno, $this->getTag());
+        return new TwigNodeTryCatch($try, $catch, $lineno, $this->getTag());
     }
 
     public function decideCatch(\Twig_Token $token)
