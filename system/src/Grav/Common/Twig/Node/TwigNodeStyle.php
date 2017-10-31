@@ -90,7 +90,7 @@ class TwigNodeStyle extends \Twig_Node implements \Twig_NodeOutputInterface
             $compiler
                 ->write("ob_start();\n")
                 ->subcompile($this->getNode('body'))
-                ->write("\$content = ob_end_clean();")
+                ->write("\$content = ob_get_clean();")
                 ->write("\$assets->addInlineCss(\$content, \$priority, \$group);\n");
         }
     }

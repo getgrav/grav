@@ -13,9 +13,9 @@ use Grav\Common\Twig\Node\TwigNodeStyle;
 /**
  * Adds a style to the document.
  *
- * {% style 'theme://css/foo.css' priority 20 %}
+ * {% style 'theme://css/foo.css' priority: 20 %}
 
- * {% style priority 20 with { media: 'screen' } %}
+ * {% style priority: 20 with { media: 'screen' } %}
  *     a { color: red; }
  * {% endstyle %}
  */
@@ -64,6 +64,7 @@ class TwigTokenParserStyle extends \Twig_TokenParser
 
         $priority = null;
         if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'priority')) {
+            $stream->expect(\Twig_Token::PUNCTUATION_TYPE, ':');
             $priority = $this->parser->getExpressionParser()->parseExpression();
         }
 

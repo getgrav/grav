@@ -13,9 +13,9 @@ use Grav\Common\Twig\Node\TwigNodeScript;
 /**
  * Adds a script to head/bottom/custom location in the document.
  *
- * {% script 'theme://js/something.js' in 'bottom' priority 20 with { defer: true, async: true } %}
+ * {% script 'theme://js/something.js' in 'bottom' priority: 20 with { defer: true, async: true } %}
  *
- * {% script in 'bottom' priority 20 %}
+ * {% script in 'bottom' priority: 20 %}
  *     alert('Warning!');
  * {% endscript %}
 
@@ -71,6 +71,7 @@ class TwigTokenParserScript extends \Twig_TokenParser
 
         $priority = null;
         if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'priority')) {
+            $stream->expect(\Twig_Token::PUNCTUATION_TYPE, ':');
             $priority = $this->parser->getExpressionParser()->parseExpression();
         }
 
