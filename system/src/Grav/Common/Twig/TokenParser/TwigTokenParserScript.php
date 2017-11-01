@@ -53,14 +53,8 @@ class TwigTokenParserScript extends \Twig_TokenParser
     {
         $stream = $this->parser->getStream();
 
-        if ($stream->test(\Twig_Token::BLOCK_END_TYPE)) {
-            $stream->expect(\Twig_Token::BLOCK_END_TYPE);
-
-            return [null, null, null, null];
-        }
-
         $file = null;
-        if (!$stream->nextIf([\Twig_Token::NAME_TYPE, \Twig_Token::OPERATOR_TYPE])) {
+        if (!$stream->test(\Twig_Token::NAME_TYPE) && !$stream->test(\Twig_Token::OPERATOR_TYPE) && !$stream->test(\Twig_Token::BLOCK_END_TYPE)) {
             $file = $this->parser->getExpressionParser()->parseExpression();
         }
 

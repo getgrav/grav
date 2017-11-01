@@ -53,7 +53,7 @@ class TwigTokenParserStyle extends \Twig_TokenParser
         $stream = $this->parser->getStream();
 
         $file = null;
-        if (!$stream->nextIf([\Twig_Token::NAME_TYPE, \Twig_Token::OPERATOR_TYPE, \Twig_Token::BLOCK_END_TYPE])) {
+        if (!$stream->test(\Twig_Token::NAME_TYPE) && !$stream->test(\Twig_Token::OPERATOR_TYPE) && !$stream->test(\Twig_Token::BLOCK_END_TYPE)) {
             $file = $this->parser->getExpressionParser()->parseExpression();
         }
 
