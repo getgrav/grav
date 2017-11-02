@@ -2498,7 +2498,7 @@ class Page
                         foreach ($items as $item) {
                             $item = rawurldecode($item);
                             if (empty($page->taxonomy[$taxonomy]) || !in_array(htmlspecialchars_decode($item,
-                                    ENT_QUOTES), $page->taxonomy[$taxonomy])
+                                    ENT_QUOTES), array_map('strtolower', $page->taxonomy[$taxonomy]))
                             ) {
                                 $collection->remove($page->path());
                             }
