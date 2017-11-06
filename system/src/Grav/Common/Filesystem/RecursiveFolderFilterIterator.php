@@ -37,7 +37,7 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
         /** @var $current \SplFileInfo */
         $current = $this->current();
 
-        if ($current->isDir() && !in_array($current->getFilename(), $this::$folder_ignores)) {
+        if ($current->isDir() && !in_array($current->getFilename(), $this::$folder_ignores, true)) {
             return true;
         }
         return false;

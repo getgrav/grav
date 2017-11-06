@@ -65,11 +65,11 @@ class Blueprints
 
             /** @var \DirectoryIterator $file */
             foreach ($iterator as $file) {
-                if (!$file->isFile() || '.' . $file->getExtension() != YAML_EXT) {
+                if (!$file->isFile() || '.' . $file->getExtension() !== YAML_EXT) {
                     continue;
                 }
                 $name = $file->getBasename(YAML_EXT);
-                $this->types[$name] = ucfirst(strtr($name, '_', ' '));
+                $this->types[$name] = ucfirst(str_replace('_', ' ', $name));
             }
         }
 

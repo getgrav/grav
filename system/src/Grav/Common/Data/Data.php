@@ -233,6 +233,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
 
     /**
      * Save data if storage has been defined.
+     * @throws \RuntimeException
      */
     public function save()
     {

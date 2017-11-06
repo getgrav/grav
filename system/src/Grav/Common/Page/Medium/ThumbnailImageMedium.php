@@ -123,8 +123,8 @@ class ThumbnailImageMedium extends ImageMedium
     {
         if (!$testLinked || $this->linked) {
             return $this->parent ? call_user_func_array(array($this->parent, $method), $arguments) : $this;
-        } else {
-            return call_user_func_array(array($this, 'parent::' . $method), $arguments);
         }
+
+        return call_user_func_array(array($this, 'parent::' . $method), $arguments);
     }
 }

@@ -22,6 +22,7 @@ class GravCore extends AbstractPackageCollection
     /**
      * @param bool $refresh
      * @param null $callback
+     * @throws \InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)
     {
@@ -38,7 +39,7 @@ class GravCore extends AbstractPackageCollection
         $this->date    = isset($this->data['date']) ? $this->data['date'] : '-';
 
         if (isset($this->data['assets'])) {
-            foreach ($this->data['assets'] as $slug => $data) {
+            foreach ((array)$this->data['assets'] as $slug => $data) {
                 $this->items[$slug] = new Package($data);
             }
         }
@@ -68,10 +69,10 @@ class GravCore extends AbstractPackageCollection
         }
 
         $diffLog = [];
-        foreach ($this->data['changelog'] as $version => $changelog) {
+        foreach ((array)$this->data['changelog'] as $version => $changelog) {
             preg_match("/[\w-\.]+/", $version, $cleanVersion);
 
-            if (!$cleanVersion || version_compare($diff, $cleanVersion[0], ">=")) {
+            if (!$cleanVersion || version_compare($diff, $cleanVersion[0], '>=')) {
                 continue;
             }
 

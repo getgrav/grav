@@ -29,6 +29,7 @@ class Upgrader
      *
      * @param boolean  $refresh  Applies to Remote Packages only and forces a refetch of data
      * @param callable $callback Either a function or callback in array notation
+     * @throws \InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)
     {

@@ -34,7 +34,7 @@ class Truncator {
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
-    public static function truncateWords($html, $limit = 0, $ellipsis = "")
+    public static function truncateWords($html, $limit = 0, $ellipsis = '')
     {
         if ($limit <= 0) {
             return $html;
@@ -94,7 +94,7 @@ class Truncator {
         $dom = self::htmlToDomDocument($html);
 
         // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
+        $body = $dom->getElementsByTagName('body')->item(0);
 
         // Iterate over letters.
         $letters = new DOMLettersIterator($body);
@@ -181,7 +181,7 @@ class Truncator {
     {
         $avoid = array('a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5'); //html tags to avoid appending the ellipsis to
 
-        if (in_array($domNode->parentNode->nodeName, $avoid) && $domNode->parentNode->parentNode !== null) {
+        if ($domNode->parentNode->parentNode !== null && in_array($domNode->parentNode->nodeName, $avoid, true)) {
             // Append as text node to parent instead
             $textNode = new DOMText($ellipsis);
 
@@ -204,9 +204,9 @@ class Truncator {
      * @return string
      */
     private static function innerHTML($element) {
-        $innerHTML = "";
+        $innerHTML = '';
         $children = $element->childNodes;
-        foreach ($children as $child)
+        foreach ((array)$children as $child)
         {
             $tmp_dom = new DOMDocument();
             $tmp_dom->appendChild($tmp_dom->importNode($child, true));

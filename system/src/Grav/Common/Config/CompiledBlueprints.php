@@ -32,7 +32,7 @@ class CompiledBlueprints extends CompiledBase
      */
     public function checksum()
     {
-        if (!isset($this->checksum)) {
+        if (null === $this->checksum) {
             $this->checksum = md5(json_encode($this->files) . json_encode($this->getTypes()) . $this->version);
         }
 
@@ -92,6 +92,7 @@ class CompiledBlueprints extends CompiledBase
 
         // Convert file list into parent list.
         $list = [];
+        /** @var array $files */
         foreach ($this->files as $files) {
             foreach ($files as $name => $item) {
                 $list[$name][] = $this->path . $item['file'];

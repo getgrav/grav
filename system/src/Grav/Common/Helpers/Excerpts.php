@@ -55,13 +55,13 @@ class Excerpts
     public static function getExcerptFromHtml($html, $tag)
     {
         $doc = new \DOMDocument();
-        $doc->loadHtml($html);
+        $doc->loadHTML($html);
         $images = $doc->getElementsByTagName($tag);
         $excerpt = null;
 
         foreach ($images as $image) {
             $attributes = [];
-            foreach ($image->attributes as $name => $value) {
+            foreach ((array)$image->attributes as $name => $value) {
                 $attributes[$name] = $value->value;
             }
             $excerpt = [
@@ -87,7 +87,7 @@ class Excerpts
         $html = '<'.$element['name'];
 
         if (isset($element['attributes'])) {
-            foreach ($element['attributes'] as $name => $value) {
+            foreach ((array)$element['attributes'] as $name => $value) {
                 if ($value === null) {
                     continue;
                 }
@@ -141,9 +141,9 @@ class Excerpts
                 foreach ($actions as $attrib => $value) {
                     $key = $attrib;
 
-                    if (in_array($attrib, $valid_attributes)) {
+                    if (in_array($attrib, $valid_attributes, true)) {
                         // support both class and classes.
-                        if ($attrib == 'classes') {
+                        if ($attrib === 'classes') {
                             $attrib = 'class';
                         }
                         $excerpt['element']['attributes'][$attrib] = str_replace(',', ' ', $value);
@@ -210,8 +210,8 @@ class Excerpts
         } else {
             // File is also local if scheme is http(s) and host matches.
             $local_file = isset($url_parts['path'])
-                && (empty($url_parts['scheme']) || in_array($url_parts['scheme'], ['http', 'https']))
-                && (empty($url_parts['host']) || $url_parts['host'] == Grav::instance()['uri']->host());
+                && (empty($url_parts['scheme']) || in_array($url_parts['scheme'], ['http', 'https'], true))
+                && (empty($url_parts['host']) || $url_parts['host'] === Grav::instance()['uri']->host());
 
             if ($local_file) {
                 $filename = basename($url_parts['path']);
@@ -251,7 +251,7 @@ class Excerpts
             $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
             $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
 
-            $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, $id, true);
+            $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
 
         } else {
             // Not a current page media file, see if it needs converting to relative.
