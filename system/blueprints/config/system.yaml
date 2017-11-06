@@ -1154,17 +1154,6 @@ form:
                     validate:
                         type: bool
 
-                case_insensitive_urls:
-                    type: toggle
-                    label: PLUGIN_ADMIN.CASE_INSENSITIVE_URLS
-                    highlight: 0
-                    help: PLUGIN_ADMIN.CASE_INSENSITIVE_URLS_HELP
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
-
                 param_sep:
                     type: select
                     size: medium

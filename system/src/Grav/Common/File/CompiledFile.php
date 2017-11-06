@@ -27,7 +27,7 @@ trait CompiledFile
             // If nothing has been loaded, attempt to get pre-compiled version of the file first.
             if ($var === null && $this->raw === null && $this->content === null) {
                 $key = md5($this->filename);
-                $file = PhpFile::instance(CACHE_DIR . DS . "compiled/files/{$key}{$this->extension}.php");
+                $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
 
                 $modified = $this->modified();
 
