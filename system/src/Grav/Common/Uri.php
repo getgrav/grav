@@ -107,7 +107,9 @@ class Uri
         // Build fragment.
         $this->fragment = null;
 
-        // Filter path and query string.
+        // Filter userinfo, path and query string.
+        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
+        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
         $this->query = static::filterQuery($this->query);
 
@@ -148,7 +150,9 @@ class Uri
             $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
         }
 
-        // Filter path, query string and fragment.
+        // Filter userinfo, path, query string and fragment.
+        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
+        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
         $this->query = static::filterQuery($this->query);
         $this->fragment = $this->fragment !== null ? static::filterQuery($this->fragment) : null;
@@ -1173,6 +1177,23 @@ class Uri
     }
 
     /**
+     * Filters the user info string.
+     *
+     * @param string $info The raw user or password.
+     * @return string The percent-encoded user or password string.
+     */
+    public static function filterUserInfo($info)
+    {
+        return preg_replace_callback(
+            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=]+|%(?![A-Fa-f0-9]{2}))/u',
+            function ($match) {
+                return rawurlencode($match[0]);
+            },
+            $info
+        );
+    }
+
+    /**
      * Filter Uri path.
      *
      * This method percent-encodes all reserved
@@ -1187,7 +1208,7 @@ class Uri
     public static function filterPath($path)
     {
         return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/',
+            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/u',
             function ($match) {
                 return rawurlencode($match[0]);
             },
@@ -1204,7 +1225,7 @@ class Uri
     public static function filterQuery($query)
     {
         return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
+            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/u',
             function ($match) {
                 return rawurlencode($match[0]);
             },
