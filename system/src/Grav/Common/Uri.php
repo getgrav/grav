@@ -249,7 +249,8 @@ class Uri
      */
     private function buildRootPath()
     {
-        $scriptPath = $_SERVER['PHP_SELF'];
+        // In Windows script path uses backslash, convert it:
+        $scriptPath = str_replace('\\', '/', $_SERVER['PHP_SELF']);
         $rootPath = str_replace(' ', '%20', rtrim(substr($scriptPath, 0, strpos($scriptPath, 'index.php')), '/'));
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
