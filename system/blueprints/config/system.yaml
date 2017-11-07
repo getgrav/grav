@@ -1176,6 +1176,18 @@ form:
                     validate:
                         type: bool
 
+                force_lowercase_urls:
+                    type: toggle
+                    label: PLUGIN_ADMIN.FORCE_LOWERCASE_URLS
+                    highlight: 1
+                    default: 1
+                    help: PLUGIN_ADMIN.FORCE_LOWERCASE_URLS_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 custom_base_url:
                     type: text
                     size: medium
