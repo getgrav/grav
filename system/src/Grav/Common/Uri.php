@@ -286,17 +286,26 @@ class Uri
             $this->base .= ':' . (string)$this->port;
         }
 
-        // Set some defaults
-        if ($grav['config']->get('system.custom_base_url')) {
-            $this->root_path = parse_url($grav['config']->get('system.custom_base_url'), PHP_URL_PATH);
-            $this->root = $grav['config']->get('system.custom_base_url');
+        // Handle custom base
+        $custom_base = rtrim($grav['config']->get('system.custom_base_url'), '/');
+
+        if ($custom_base) {
+            $custom_parts = parse_url($custom_base);
+            $orig_root_path = $this->root_path;
+            $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
+            $this->root      = isset($custom_parts['scheme']) ? $custom_base : $this->base . $this->root_path;
+            $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
+
+            // If custom_base_url has a domain, force absolute_urls to true
+            if (isset($custom_parts['scheme'])) {
+                $config->set('system.absolute_urls', true);
+            }
         } else {
             $this->root = $this->base . $this->root_path;
         }
 
         $this->url = $this->base . $this->uri;
 
-        // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
         // remove the setup.php based base if set:
@@ -306,8 +315,9 @@ class Uri
         }
 
         // If configured to, redirect trailing slash URI's with a 302 redirect
-        if ($uri !== '/' && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
-            $grav->redirect(str_replace($this->root, '', rtrim($uri, '/')), 302);
+        $redirect = Utils::replaceLastOccurrence($this->root, '', rtrim($uri, '/'));
+        if ($uri !== '/' && $redirect !== $this->base() && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
+            $grav->redirect($redirect, 302);
         }
 
         // process params

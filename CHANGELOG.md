@@ -5,6 +5,7 @@
     * Added `Medium::copy()` method to create a copy of a medium object
     * Added new `force_lowercase_urls` functionality on routes and slugs
 1. [](#bugfix)
+    * Fixed several issues related to `system.custom_base_url` that were broken [#1736](https://github.com/getgrav/grav/issues/1736)
     * Dynamically added pages via `Pages::addPage()` were not firing `onPageProcessed()` event causing forms not to be processed
     * Fixed `Page::active()` and `Page::activeChild()` to work with UTF-8 characters in the URL [#1727](https://github.com/getgrav/grav/issues/1727)
     * Fixed typo in `modular.yaml` causing media to be ignored [#1725](https://github.com/getgrav/grav/issues/1725)
