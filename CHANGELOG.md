@@ -18,13 +18,17 @@
 
 1. [](#new)
     * Added `Medium::copy()` method to create a copy of a medium object
+    * Added new `force_lowercase_urls` functionality on routes and slugs
 1. [](#bugfix)
+    * Fixed several issues related to `system.custom_base_url` that were broken [#1736](https://github.com/getgrav/grav/issues/1736)
     * Dynamically added pages via `Pages::addPage()` were not firing `onPageProcessed()` event causing forms not to be processed
     * Fixed `Page::active()` and `Page::activeChild()` to work with UTF-8 characters in the URL [#1727](https://github.com/getgrav/grav/issues/1727)
     * Fixed typo in `modular.yaml` causing media to be ignored [#1725](https://github.com/getgrav/grav/issues/1725)
     * Reverted `case_insensitive_urls` option as it was causing issues with taxonomy [#1733](https://github.com/getgrav/grav/pull/1733)
     * Removed an extra `/` in `CompileFile.php` [#1693](https://github.com/getgrav/grav/pull/1693)
     * Uri: Encode user and password to prevent issues in browsers
+    * Fixed "Invalid AJAX response" When using Built-in PHP Webserver in Windows [#1258](https://github.com/getgrav/grav-plugin-admin/issues/1258)
+    * Remove support for `config.user`, it was broken and bad practise
     
 # v1.3.8
 ## 10/26/2017

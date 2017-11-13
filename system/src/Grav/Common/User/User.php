@@ -8,7 +8,6 @@
 
 namespace Grav\Common\User;
 
-use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
@@ -28,13 +27,11 @@ class User extends Data
      *
      * @return User
      */
-    public static function load($username, $setConfig = true)
+    public static function load($username)
     {
         $grav = Grav::instance();
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        /** @var Config $config */
-        $config = $grav['config'];
 
         // force lowercase of username
         $username = strtolower($username);
@@ -48,11 +45,6 @@ class User extends Data
 
         $user = new User($content, $blueprint);
         $user->file($file);
-
-        if ($setConfig) {
-            // add user to config
-            $config->set('user', $user);
-        }
 
         return $user;
     }

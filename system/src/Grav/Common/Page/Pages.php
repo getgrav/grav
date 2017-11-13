@@ -1223,6 +1223,9 @@ class Pages
                 case 'basename':
                     $list[$key] = basename($key);
                     break;
+                case 'folder':
+                    $list[$key] = $child->folder();
+                    break;
                 case (is_string($header_query[0])):
                     $child_header = new Header((array)$child->header());
                     $header_value = $child_header->get($header_query[0]);

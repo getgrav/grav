@@ -249,7 +249,8 @@ class Uri
      */
     private function buildRootPath()
     {
-        $scriptPath = $_SERVER['PHP_SELF'];
+        // In Windows script path uses backslash, convert it:
+        $scriptPath = str_replace('\\', '/', $_SERVER['PHP_SELF']);
         $rootPath = str_replace(' ', '%20', rtrim(substr($scriptPath, 0, strpos($scriptPath, 'index.php')), '/'));
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
@@ -285,17 +286,21 @@ class Uri
             $this->base .= ':' . (string)$this->port;
         }
 
-        // Set some defaults
-        if ($grav['config']->get('system.custom_base_url')) {
-            $this->root_path = parse_url($grav['config']->get('system.custom_base_url'), PHP_URL_PATH);
-            $this->root = $grav['config']->get('system.custom_base_url');
+        // Handle custom base
+        $custom_base = rtrim($grav['config']->get('system.custom_base_url'), '/');
+
+        if ($custom_base) {
+            $custom_parts = parse_url($custom_base);
+            $orig_root_path = $this->root_path;
+            $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
+            $this->root      = isset($custom_parts['scheme']) ? $custom_base : $this->base . $this->root_path;
+            $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
         }
 
         $this->url = $this->base . $this->uri;
 
-        // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
         // remove the setup.php based base if set:
@@ -305,8 +310,9 @@ class Uri
         }
 
         // If configured to, redirect trailing slash URI's with a 302 redirect
-        if ($uri !== '/' && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
-            $grav->redirect(str_replace($this->root, '', rtrim($uri, '/')), 302);
+        $redirect = str_replace($this->root, '', rtrim($uri, '/'));
+        if ($redirect && $uri !== '/' && $redirect !== $this->base() && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
+            $grav->redirect($redirect, 302);
         }
 
         // process params
