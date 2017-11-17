@@ -1143,10 +1143,19 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
+        $fake = $url && $url[0] === '/';
+
+        if ($fake) {
+            $url = 'http://domain.com' . $url;
+        }
         $uri = new static($url);
         $parts = $uri->toArray();
         $nonce = Utils::getNonce($action);
         $parts['params'] = (isset($parts['params']) ? $parts['params'] : []) + [$nonceParamName => $nonce];
+
+        if ($fake) {
+            unset($parts['scheme'], $parts['host']);
+        }
 
         return static::buildUrl($parts);
     }
