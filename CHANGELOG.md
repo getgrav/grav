@@ -14,6 +14,8 @@
     * Uri: Encode user and password to prevent issues in browsers
     * Fixed "Invalid AJAX response" When using Built-in PHP Webserver in Windows [#1258](https://github.com/getgrav/grav-plugin-admin/issues/1258)
     * Remove support for `config.user`, it was broken and bad practise
+    * Make sure that `clean cache` uses valid path [#1745](https://github.com/getgrav/grav/pull/1745)
+    * Fixed token creation issue with `Uri` params like `/id:3`
     
 # v1.3.8
 ## 10/26/2017
