@@ -40,7 +40,11 @@ class Assets
     /** @const Regex to match CSS import content */
     const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
-    const HTML_TAG_REGEX = '#(<([A-Z][A-Z0-9]*)>)+(.*?)(<\/\2>)#is';
+    /**
+     * @const Regex to match <script> or <style> tag when adding inline style/script. Note that this only supports a
+     * single tag, so the check is greedy to avoid issues in JS.
+     */
+    const HTML_TAG_REGEX = '#(<([A-Z][A-Z0-9]*)>)+(.*)(<\/\2>)#is';
 
 
     /**
