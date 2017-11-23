@@ -35,12 +35,12 @@ class Assets
     const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 
     /** @const Regex to match CSS sourcemap comments */
-    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*) \*\/}';
+    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
 
     /** @const Regex to match CSS import content */
-    const CSS_IMPORT_REGEX = '{@import(.*);}';
+    const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
-    const HTML_TAG_REGEX = '#(<([A-Z][A-Z0-9]*)>)+(.*)(<\/\2>)#is';
+    const HTML_TAG_REGEX = '#(<([A-Z][A-Z0-9]*)>)+(.*?)(<\/\2>)#is';
 
 
     /**
