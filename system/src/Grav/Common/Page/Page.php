@@ -2902,7 +2902,7 @@ class Page
         $case_insensitive = Grav::instance()['config']->get('system.force_lowercase_urls');
 
         if ($case_insensitive) {
-            return strtolower($route);
+            return mb_strtolower($route);
         } else {
             return $route;
         }
