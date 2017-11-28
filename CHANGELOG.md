@@ -5,6 +5,8 @@
     * Added `Medium::copy()` method to create a copy of a medium object
     * Added new `force_lowercase_urls` functionality on routes and slugs
 1. [](#bugfix)
+    * Fixed issue with multibyte Markdown link URLs [#1749](https://github.com/getgrav/grav/issues/1749)
+    * Fixed issue with multibyte folder names [#1751](https://github.com/getgrav/grav/issues/1751)
     * Fixed several issues related to `system.custom_base_url` that were broken [#1736](https://github.com/getgrav/grav/issues/1736)
     * Dynamically added pages via `Pages::addPage()` were not firing `onPageProcessed()` event causing forms not to be processed
     * Fixed `Page::active()` and `Page::activeChild()` to work with UTF-8 characters in the URL [#1727](https://github.com/getgrav/grav/issues/1727)
@@ -16,6 +18,7 @@
     * Remove support for `config.user`, it was broken and bad practise
     * Make sure that `clean cache` uses valid path [#1745](https://github.com/getgrav/grav/pull/1745)
     * Fixed token creation issue with `Uri` params like `/id:3`
+    * Fixed CSS Pipeline failing with Google remote fonts if the file was minified [#1261](https://github.com/getgrav/grav-plugin-admin/issues/1261)
     
 # v1.3.8
 ## 10/26/2017
