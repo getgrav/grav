@@ -18,6 +18,7 @@
     * Remove support for `config.user`, it was broken and bad practise
     * Make sure that `clean cache` uses valid path [#1745](https://github.com/getgrav/grav/pull/1745)
     * Fixed token creation issue with `Uri` params like `/id:3`
+    * Fixed CSS Pipeline failing with Google remote fonts if the file was minified [#1261](https://github.com/getgrav/grav-plugin-admin/issues/1261)
     
 # v1.3.8
 ## 10/26/2017
