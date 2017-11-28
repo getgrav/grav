@@ -2,8 +2,11 @@
 ## xx/xx/2017
 
 1. [](#new)
+    * Added ability to work with GPM locally [#1742](https://github.com/getgrav/grav/issues/1742) 
+    * Added new HTML5 audio controls [#1756](https://github.com/getgrav/grav/issues/1756)
     * Added `Medium::copy()` method to create a copy of a medium object
     * Added new `force_lowercase_urls` functionality on routes and slugs
+    * Added new `item-list` filter type to remove empty items
 1. [](#bugfix)
     * Fixed issue with multibyte Markdown link URLs [#1749](https://github.com/getgrav/grav/issues/1749)
     * Fixed issue with multibyte folder names [#1751](https://github.com/getgrav/grav/issues/1751)
