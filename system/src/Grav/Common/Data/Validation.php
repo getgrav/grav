@@ -758,6 +758,11 @@ class Validation
             && $value instanceof \Countable);
     }
 
+    public static function filterItem_List($value, $params)
+    {
+        return array_values(array_filter($value, function($v) { return !empty($v); } ));
+    }
+
     public static function validateJson($value, $params)
     {
         return (bool) (@json_decode($value));
