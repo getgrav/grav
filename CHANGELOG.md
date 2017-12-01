@@ -2,6 +2,7 @@
 ## xx/xx/2017
 
 1. [](#new)
+    * Added new core Twig templates for `partials/metadata.html.twig` and `partials/messages.html.twig`
     * Added ability to work with GPM locally [#1742](https://github.com/getgrav/grav/issues/1742) 
     * Added new HTML5 audio controls [#1756](https://github.com/getgrav/grav/issues/1756)
     * Added `Medium::copy()` method to create a copy of a medium object

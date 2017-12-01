@@ -1,0 +1,14 @@
+{% set type_mapping = {'info':'green', 'error': 'red', 'warning': 'yellow'} %}
+
+{% if grav.messages.all %}
+    <div id="messages">
+        {% for message in grav.messages.fetch %}
+
+            {% set scope = message.scope|e %}
+            {% set type = type_mapping[scope] %}
+
+            <div class="notices {{ type }} {{ scope }}"><p>{{ message.message|raw }}</p></div>
+
+        {% endfor %}
+    </div>
+{% endif %}
