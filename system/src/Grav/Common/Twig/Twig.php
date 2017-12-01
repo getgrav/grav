@@ -85,6 +85,9 @@ class Twig
 
             $active_language = $language->getActive();
 
+            // Add Grav core templates location
+            $this->twig_paths[] = $locator->findResource('system://templates');
+
             // handle language templates if available
             if ($language->enabled()) {
                 $lang_templates = $locator->findResource('theme://templates/' . ($active_language ? $active_language : $language->getDefault()));
