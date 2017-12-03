@@ -81,20 +81,20 @@ class AudioMedium extends Medium
     }
 
     /**
-     * Allows to set the mute attribute
+     * Allows to set the muted attribute
      *
      * @param bool $status
      * @return $this
      */
-    public function mute($status = false)
+    public function muted($status = false)
     {
         if($status)
         {
-            $this->attributes['mute'] = true;
+            $this->attributes['muted'] = true;
         }
         else
         {
-            unset($this->attributes['mute']);
+            unset($this->attributes['muted']);
         }
         return $this;
     }
