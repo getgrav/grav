@@ -160,7 +160,7 @@ class Validation
         return is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
     }
 
-    protected static function typeCommaList($value, array $params, array $field)
+    public static function typeCommaList($value, array $params, array $field)
     {
         return is_array($value) ? true : self::typeText($value, $params, $field);
     }
@@ -229,6 +229,7 @@ class Validation
      */
     public static function typeCheckboxes($value, array $params, array $field)
     {
+        $field['multiple'] = true;
         return self::typeArray((array) $value, $params, $field);
     }
 
