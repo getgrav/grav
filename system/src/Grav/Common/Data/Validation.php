@@ -229,6 +229,7 @@ class Validation
      */
     public static function typeCheckboxes($value, array $params, array $field)
     {
+        // Set multiple: true so checkboxes can easily use min/max counts to control number of options required
         $field['multiple'] = true;
         return self::typeArray((array) $value, $params, $field);
     }
