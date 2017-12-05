@@ -28,9 +28,12 @@ class Validation
         $messages = [];
 
         $validate = isset($field['validate']) ? (array) $field['validate'] : [];
+        // Validate type with fallback type text.
+        $type = (string) isset($validate['type']) ? $validate['type'] : $field['type'];
+        $method = 'type'.strtr($type, '-', '_');
 
         // If value isn't required, we will stop validation if empty value is given.
-        if (empty($validate['required']) && ($value === null || $value === '')) {
+        if ((empty($validate['required']) || (isset($validate['required']) && $validate['required'] !== true)) && ($value === null || $value === '' || ($field['type'] === 'checkbox' && $value == false))) {
             return $messages;
         }
 
@@ -45,10 +48,6 @@ class Validation
 
         // Get language class.
         $language = Grav::instance()['language'];
-
-        // Validate type with fallback type text.
-        $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
-        $method = 'type'.strtr($type, '-', '_');
 
         $name = ucfirst(isset($field['label']) ? $field['label'] : $field['name']);
         $message = (string) isset($field['validate']['message'])
@@ -253,7 +252,7 @@ class Validation
         if (!isset($field['value'])) {
             $field['value'] = 1;
         }
-        if ($value && $value != $field['value']) {
+        if (isset($value) && $value != $field['value']) {
             return false;
         }
 
