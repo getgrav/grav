@@ -1263,7 +1263,13 @@ class Pages
                         $list = preg_replace_callback('~([0-9]+)\.~', function($number) {
                             return sprintf('%032d.', $number[0]);
                         }, $list);
-                        $sort_flags = Collator::SORT_STRING;
+
+                        $list_vals = array_values($list);
+                        if (is_numeric(array_shift($list_vals))) {
+                            $sort_flags = Collator::SORT_REGULAR;
+                        } else {
+                            $sort_flags = Collator::SORT_STRING;
+                        }
                     }
 
                     $col->asort($list, $sort_flags);
