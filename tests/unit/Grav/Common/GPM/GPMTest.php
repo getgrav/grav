@@ -320,47 +320,4 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->assertSame(null, $this->gpm->calculateVersionNumberFromDependencyVersion('*'));
         $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('2.0.2'));
     }
-
-    public function testRemoteRepositoryIsEmptyAfterConstruct()
-    {
-        $gpm = new GPM();
-        $reflection = new \ReflectionClass(get_class($gpm));
-        $repository = $reflection->getProperty('repository');
-        $repository->setAccessible(true);
-
-        $this->assertSame(null, $repository->getValue($gpm));
-    }
-
-    public function testLocalRepositoryIsNotEmptyAfterConstruct()
-    {
-        $gpm = new GPM();
-        $reflection = new \ReflectionClass(get_class($gpm));
-        $repository = $reflection->getProperty('installed');
-        $repository->setAccessible(true);
-
-        $this->assertInstanceOf( '\Grav\Common\GPM\Local\Packages', $repository->getValue($gpm));
-    }
-
-    public function testGetRepository()
-    {
-        $this->assertInstanceOf('\Grav\Common\GPM\Remote\Packages', $this->gpm->getRepository());
-    }
-
-    public function testLatestVersionOfPackage()
-    {
-        $gpm = new GPM();
-        $this->assertNotNull($gpm->getLatestVersionOfPackage('admin'));
-    }
-
-    public function testReleaseType()
-    {
-        $gpm = new GPM();
-        $this->assertNotNull($gpm->getReleaseType('admin'));
-    }
-
-    public function testGetRepositoryPlugin()
-    {
-        $gpm = new GPM();
-        $this->assertNotNull($gpm->getRepositoryPlugin('admin'));
-    }
 }

@@ -1,3 +1,11 @@
+# v1.3.10
+## 12/06/2017
+
+1. [](#bugfix)
+    * Reverted GPM Local pull request as it broken admin [#1742](https://github.com/getgrav/grav/issues/1742) 
+
+1. [](#new)
+
 # v1.3.9
 ## 12/05/2017
 
