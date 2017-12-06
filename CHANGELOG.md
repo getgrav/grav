@@ -1,5 +1,5 @@
 # v1.3.9
-## xx/xx/2017
+## 12/05/2017
 
 1. [](#new)
     * Added new core Twig templates for `partials/metadata.html.twig` and `partials/messages.html.twig`
