@@ -1131,6 +1131,16 @@ form:
                     label: PLUGIN_ADMIN.PWD_REGEX
                     help: PLUGIN_ADMIN.PWD_REGEX_HELP
 
+                intl_enabled:
+                    type: toggle
+                    label: PLUGIN_ADMIN.INTL_ENABLED
+                    highlight: 1
+                    help: PLUGIN_ADMIN.INTL_ENABLED_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
 
                 wrapped_site:
                     type: toggle

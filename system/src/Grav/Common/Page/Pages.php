@@ -1255,7 +1255,7 @@ class Pages
             $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
-            if (extension_loaded('intl')) {
+            if (extension_loaded('intl') && $this->grav['config']->get('system.intl_enabled')) {
                 $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set
                 $col = Collator::create($locale);
                 if ($col) {

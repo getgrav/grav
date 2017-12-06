@@ -19,7 +19,7 @@
     * Fixed typo in `modular.yaml` causing media to be ignored [#1725](https://github.com/getgrav/grav/issues/1725)
     * Reverted `case_insensitive_urls` option as it was causing issues with taxonomy [#1733](https://github.com/getgrav/grav/pull/1733)
     * Removed an extra `/` in `CompileFile.php` [#1693](https://github.com/getgrav/grav/pull/1693)
-    * Uri: Encode user and password to prevent issues in browsers
+    * Uri::Encode user and password to prevent issues in browsers
     * Fixed "Invalid AJAX response" When using Built-in PHP Webserver in Windows [#1258](https://github.com/getgrav/grav-plugin-admin/issues/1258)
     * Remove support for `config.user`, it was broken and bad practise
     * Make sure that `clean cache` uses valid path [#1745](https://github.com/getgrav/grav/pull/1745)
