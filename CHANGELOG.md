@@ -9,6 +9,7 @@
     * Added new `force_lowercase_urls` functionality on routes and slugs
     * Added new `item-list` filter type to remove empty items
     * Added new `setFlashCookieObject()` and `getFlashCookieObject()` methods to `Session` object
+    * Added new `intl_enabled` option to disable PHP intl module collation when not needed
 1. [](#bugfix)
     * Fixed an issue with checkbox field validation [form#216](https://github.com/getgrav/grav-plugin-form/issues/216)
     * Fixed issue with multibyte Markdown link URLs [#1749](https://github.com/getgrav/grav/issues/1749)
