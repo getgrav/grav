@@ -97,6 +97,9 @@ class Twig
 
             $this->grav->fireEvent('onTwigTemplatePaths');
 
+            // Add Grav core templates location
+            $this->twig_paths = array_merge($this->twig_paths, $locator->findResources('system://templates'));
+
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
 
             $this->grav->fireEvent('onTwigLoader');

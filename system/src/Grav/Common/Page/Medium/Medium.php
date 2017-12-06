@@ -73,6 +73,16 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Create a copy of this media object
+     *
+     * @return Medium
+     */
+    public function copy()
+    {
+        return clone($this);
+    }
+
+    /**
      * Return just metadata from the Medium object
      *
      * @return Data

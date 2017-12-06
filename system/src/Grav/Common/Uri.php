@@ -107,7 +107,9 @@ class Uri
         // Build fragment.
         $this->fragment = null;
 
-        // Filter path and query string.
+        // Filter userinfo, path and query string.
+        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
+        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
         $this->query = static::filterQuery($this->query);
 
@@ -148,7 +150,9 @@ class Uri
             $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
         }
 
-        // Filter path, query string and fragment.
+        // Filter userinfo, path, query string and fragment.
+        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
+        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
         $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
         $this->query = static::filterQuery($this->query);
         $this->fragment = $this->fragment !== null ? static::filterQuery($this->fragment) : null;
@@ -245,7 +249,8 @@ class Uri
      */
     private function buildRootPath()
     {
-        $scriptPath = $_SERVER['PHP_SELF'];
+        // In Windows script path uses backslash, convert it:
+        $scriptPath = str_replace('\\', '/', $_SERVER['PHP_SELF']);
         $rootPath = str_replace(' ', '%20', rtrim(substr($scriptPath, 0, strpos($scriptPath, 'index.php')), '/'));
 
         // check if userdir in the path and workaround PHP bug with PHP_SELF
@@ -281,22 +286,21 @@ class Uri
             $this->base .= ':' . (string)$this->port;
         }
 
-        // Set some defaults
-        if ($grav['config']->get('system.custom_base_url')) {
-            $this->root_path = parse_url($grav['config']->get('system.custom_base_url'), PHP_URL_PATH);
-            $this->root = $grav['config']->get('system.custom_base_url');
+        // Handle custom base
+        $custom_base = rtrim($grav['config']->get('system.custom_base_url'), '/');
+
+        if ($custom_base) {
+            $custom_parts = parse_url($custom_base);
+            $orig_root_path = $this->root_path;
+            $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
+            $this->root      = isset($custom_parts['scheme']) ? $custom_base : $this->base . $this->root_path;
+            $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
         }
 
         $this->url = $this->base . $this->uri;
 
-        // if case insensitive urls is enabled, lowercase the url
-        if( $grav['config']->get('system.case_insensitive_urls') ){
-            $this->url = strtolower($this->url);
-        }
-
-        // get any params and remove them
         $uri = str_replace($this->root, '', $this->url);
 
         // remove the setup.php based base if set:
@@ -306,8 +310,9 @@ class Uri
         }
 
         // If configured to, redirect trailing slash URI's with a 302 redirect
-        if ($uri !== '/' && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
-            $grav->redirect(str_replace($this->root, '', rtrim($uri, '/')), 302);
+        $redirect = str_replace($this->root, '', rtrim($uri, '/'));
+        if ($redirect && $uri !== '/' && $redirect !== $this->base() && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
+            $grav->redirect($redirect, 302);
         }
 
         // process params
@@ -1138,10 +1143,19 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
+        $fake = $url && $url[0] === '/';
+
+        if ($fake) {
+            $url = 'http://domain.com' . $url;
+        }
         $uri = new static($url);
         $parts = $uri->toArray();
         $nonce = Utils::getNonce($action);
         $parts['params'] = (isset($parts['params']) ? $parts['params'] : []) + [$nonceParamName => $nonce];
+
+        if ($fake) {
+            unset($parts['scheme'], $parts['host']);
+        }
 
         return static::buildUrl($parts);
     }
@@ -1178,6 +1192,23 @@ class Uri
     }
 
     /**
+     * Filters the user info string.
+     *
+     * @param string $info The raw user or password.
+     * @return string The percent-encoded user or password string.
+     */
+    public static function filterUserInfo($info)
+    {
+        return preg_replace_callback(
+            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=]+|%(?![A-Fa-f0-9]{2}))/u',
+            function ($match) {
+                return rawurlencode($match[0]);
+            },
+            $info
+        );
+    }
+
+    /**
      * Filter Uri path.
      *
      * This method percent-encodes all reserved
@@ -1192,7 +1223,7 @@ class Uri
     public static function filterPath($path)
     {
         return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/',
+            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/u',
             function ($match) {
                 return rawurlencode($match[0]);
             },
@@ -1209,7 +1240,7 @@ class Uri
     public static function filterQuery($query)
     {
         return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
+            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/u',
             function ($match) {
                 return rawurlencode($match[0]);
             },

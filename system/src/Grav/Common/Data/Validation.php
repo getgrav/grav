@@ -28,9 +28,12 @@ class Validation
         $messages = [];
 
         $validate = isset($field['validate']) ? (array) $field['validate'] : [];
+        // Validate type with fallback type text.
+        $type = (string) isset($validate['type']) ? $validate['type'] : $field['type'];
+        $method = 'type'.strtr($type, '-', '_');
 
         // If value isn't required, we will stop validation if empty value is given.
-        if (empty($validate['required']) && ($value === null || $value === '')) {
+        if ((empty($validate['required']) || (isset($validate['required']) && $validate['required'] !== true)) && ($value === null || $value === '' || ($field['type'] === 'checkbox' && $value == false))) {
             return $messages;
         }
 
@@ -45,10 +48,6 @@ class Validation
 
         // Get language class.
         $language = Grav::instance()['language'];
-
-        // Validate type with fallback type text.
-        $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
-        $method = 'type'.strtr($type, '-', '_');
 
         $name = ucfirst(isset($field['label']) ? $field['label'] : $field['name']);
         $message = (string) isset($field['validate']['message'])
@@ -161,7 +160,7 @@ class Validation
         return is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
     }
 
-    protected static function typeCommaList($value, array $params, array $field)
+    public static function typeCommaList($value, array $params, array $field)
     {
         return is_array($value) ? true : self::typeText($value, $params, $field);
     }
@@ -230,6 +229,8 @@ class Validation
      */
     public static function typeCheckboxes($value, array $params, array $field)
     {
+        // Set multiple: true so checkboxes can easily use min/max counts to control number of options required
+        $field['multiple'] = true;
         return self::typeArray((array) $value, $params, $field);
     }
 
@@ -253,7 +254,7 @@ class Validation
         if (!isset($field['value'])) {
             $field['value'] = 1;
         }
-        if ($value && $value != $field['value']) {
+        if (isset($value) && $value != $field['value']) {
             return false;
         }
 
@@ -756,6 +757,11 @@ class Validation
         || ($value instanceof \ArrayAccess
             && $value instanceof \Traversable
             && $value instanceof \Countable);
+    }
+
+    public static function filterItem_List($value, $params)
+    {
+        return array_values(array_filter($value, function($v) { return !empty($v); } ));
     }
 
     public static function validateJson($value, $params)

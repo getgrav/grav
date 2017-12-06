@@ -42,6 +42,6 @@ form:
               type: ignore
             content:
               type: ignore
-            header.media_orider:
+            header.media_order:
               type: ignore
 

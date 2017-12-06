@@ -105,4 +105,20 @@ class Session extends BaseSession
 
         return $object;
     }
+
+    // Store something in cookie temporarily
+    public function setFlashCookieObject($name, $object, $time = 60)
+    {
+        setcookie($name, json_encode($object), time() + $time, '/');
+    }
+
+    // Return object and remove it from the cookie
+    public function getFlashCookieObject($name)
+    {
+        if (isset($_COOKIE[$name])) {
+            $object = json_decode($_COOKIE[$name]);
+            setcookie($name, '', time() - 3600, '/');
+            return $object;
+        }
+    }
 }

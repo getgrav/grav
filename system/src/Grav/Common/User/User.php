@@ -29,7 +29,6 @@ class User extends Data
     {
         $grav = Grav::instance();
         $locator = $grav['locator'];
-        $config = $grav['config'];
 
         // force lowercase of username
         $username = strtolower($username);
@@ -38,7 +37,7 @@ class User extends Data
         $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
         $file = CompiledYamlFile::instance($file_path);
-        $content = $file->content();
+        $content = (array)$file->content();
         if (!isset($content['username'])) {
             $content['username'] = $username;
         }
@@ -47,9 +46,6 @@ class User extends Data
         }
         $user = new User($content, $blueprint);
         $user->file($file);
-
-        // add user to config
-        $config->set("user", $user);
 
         return $user;
     }

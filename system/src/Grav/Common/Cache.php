@@ -390,6 +390,7 @@ class Cache extends Getters
             // Convert stream to a real path
             try {
                 $path = $locator->findResource($stream, true, true);
+                if($path === false) continue;
 
                 $anything = false;
                 $files = glob($path . '/*');

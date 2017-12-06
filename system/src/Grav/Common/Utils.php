@@ -80,7 +80,7 @@ abstract class Utils
     }
 
     /**
-     * Returns the substring of a string up to a specified needle.  if not found, return the whole haytack
+     * Returns the substring of a string up to a specified needle.  if not found, return the whole haystack
      *
      * @param $haystack
      * @param $needle
@@ -94,6 +94,46 @@ abstract class Utils
         }
 
         return $haystack;
+    }
+
+    /**
+     * Utility method to replace only the first occurrence in a string
+     *
+     * @param $search
+     * @param $replace
+     * @param $subject
+     * @return mixed
+     */
+    public static function replaceFirstOccurrence($search, $replace, $subject)
+    {
+        if (!$search) {
+            return $subject;
+        }
+        $pos = strpos($subject, $search);
+        if ($pos !== false) {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+        return $subject;
+    }
+
+    /**
+     * Utility method to replace only the last occurrence in a string
+     *
+     * @param $search
+     * @param $replace
+     * @param $subject
+     * @return mixed
+     */
+    public static function replaceLastOccurrence($search, $replace, $subject)
+    {
+        $pos = strrpos($subject, $search);
+
+        if($pos !== false)
+        {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+
+        return $subject;
     }
 
     /**
@@ -956,5 +996,37 @@ abstract class Utils
         } else {
             return intval($size);
         }
+    }
+
+    /**
+     * Multibyte-safe Parse URL function
+     *
+     * @param $url
+     * @return mixed
+     */
+    public static function multibyteParseUrl($url)
+    {
+        $enc_url = preg_replace_callback(
+            '%[^:/@?&=#]+%usD',
+            function ($matches)
+            {
+                return urlencode($matches[0]);
+            },
+            $url
+        );
+
+        $parts = parse_url($enc_url);
+
+        if($parts === false)
+        {
+            throw new \InvalidArgumentException('Malformed URL: ' . $url);
+        }
+
+        foreach($parts as $name => $value)
+        {
+            $parts[$name] = urldecode($value);
+        }
+
+        return $parts;
     }
 }

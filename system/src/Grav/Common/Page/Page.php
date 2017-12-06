@@ -125,7 +125,7 @@ class Page
         $config = Grav::instance()['config'];
 
         $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
-        $this->home_route = $config->get('system.home.alias');
+        $this->home_route = $this->adjustRouteCase($config->get('system.home.alias'));
         $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
         $this->id($this->modified() . md5($this->filePath()));
@@ -1558,7 +1558,7 @@ class Page
         }
 
         if (empty($this->slug)) {
-            $this->slug = strtolower(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
+            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
         }
 
 
@@ -1748,7 +1748,7 @@ class Page
         if (empty($this->raw_route)) {
             $baseRoute = $this->parent ? (string)$this->parent()->rawRoute() : null;
 
-            $slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
+            $slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
 
             $this->raw_route = isset($baseRoute) ? $baseRoute . '/' . $slug : null;
         }
@@ -2295,7 +2295,7 @@ class Page
      */
     public function active()
     {
-        $uri_path = rtrim(Grav::instance()['uri']->path(), '/') ?: '/';
+        $uri_path = rtrim(urldecode(Grav::instance()['uri']->path()), '/') ?: '/';
         $routes = Grav::instance()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
@@ -2318,7 +2318,7 @@ class Page
     {
         $uri = Grav::instance()['uri'];
         $pages = Grav::instance()['pages'];
-        $uri_path = rtrim($uri->path(), '/');
+        $uri_path = rtrim(urldecode($uri->path()), '/');
         $routes = Grav::instance()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
@@ -2894,6 +2894,17 @@ class Page
                 $this->published(false);
                 Grav::instance()['cache']->setLifeTime($this->publishDate());
             }
+        }
+    }
+
+    protected function adjustRouteCase($route)
+    {
+        $case_insensitive = Grav::instance()['config']->get('system.force_lowercase_urls');
+
+        if ($case_insensitive) {
+            return mb_strtolower($route);
+        } else {
+            return $route;
         }
     }
 }

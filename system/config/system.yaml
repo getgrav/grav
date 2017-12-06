@@ -5,9 +5,11 @@ param_sep: ':'                                   # Parameter separator, use ';' 
 wrapped_site: false                              # For themes/plugins to know if Grav is wrapped by another platform
 reverse_proxy_setup: false                       # Running in a reverse proxy scenario with different webserver ports than proxy
 force_ssl: false                                 # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
+force_lowercase_urls: true                       # If you want to support mixed cased URLs set this to false
 custom_base_url: ''                              # Set the base_url manually, e.g. http://yoursite.com/yourpath
 username_regex: '^[a-z0-9_-]{3,16}$'             # Only lowercase chars, digits, dashes, underscores. 3 - 16 chars
 pwd_regex: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' # At least one number, one uppercase and lowercase letter, and be at least 8+ chars
+intl_enabled: true                               # Special logic for PHP International Extension (mod_intl)
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
