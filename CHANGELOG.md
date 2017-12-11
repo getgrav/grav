@@ -1,4 +1,4 @@
-# v2.0.0-dev
+# v1.4.0-beta.1
 ## mm/dd/2017
 
 1. [](#new)
@@ -23,14 +23,14 @@
 ## 12/06/2017
 
 1. [](#bugfix)
-    * Reverted GPM Local pull request as it broken admin [#1742](https://github.com/getgrav/grav/issues/1742) 
+    * Reverted GPM Local pull request as it broken admin [#1742](https://github.com/getgrav/grav/issues/1742)
 
 # v1.3.9
 ## 12/05/2017
 
 1. [](#new)
     * Added new core Twig templates for `partials/metadata.html.twig` and `partials/messages.html.twig`
-    * Added ability to work with GPM locally [#1742](https://github.com/getgrav/grav/issues/1742) 
+    * Added ability to work with GPM locally [#1742](https://github.com/getgrav/grav/issues/1742)
     * Added new HTML5 audio controls [#1756](https://github.com/getgrav/grav/issues/1756)
     * Added `Medium::copy()` method to create a copy of a medium object
     * Added new `force_lowercase_urls` functionality on routes and slugs
@@ -54,15 +54,15 @@
     * Fixed token creation issue with `Uri` params like `/id:3`
     * Fixed CSS Pipeline failing with Google remote fonts if the file was minified [#1261](https://github.com/getgrav/grav-plugin-admin/issues/1261)
     * Forced `field.multiple: true` to allow use of min/max options in `checkboxes.validate`
-    
+
 # v1.3.8
 ## 10/26/2017
 
 1. [](#new)
     * Added Page `media_order` capability to manually order page media via a page header
 1. [](#bugfix)
-    * Fixed GPM update issue with filtered slugs [#1711](https://github.com/getgrav/grav/issues/1711)   
-    * Fixed issue with missing image file not throwing 404 properly [#1713](https://github.com/getgrav/grav/issues/1713) 
+    * Fixed GPM update issue with filtered slugs [#1711](https://github.com/getgrav/grav/issues/1711)
+    * Fixed issue with missing image file not throwing 404 properly [#1713](https://github.com/getgrav/grav/issues/1713)
 
 # v1.3.7
 ## 10/18/2017
@@ -78,20 +78,20 @@
 1. [](#bugfix)
     * Regression: Ajax error in Nginx [admin#1244](https://github.com/getgrav/grav-plugin-admin/issues/1244)
     * Remove the `_url=$uri` portion of the the Nginx `try_files` command [admin#1244](https://github.com/getgrav/grav-plugin-admin/issues/1244)
-    
+
 # v1.3.5
 ## 10/11/2017
 
 1. [](#improved)
     * Refactored `URI` class with numerous bug fixes, and optimizations
     * Override `system.media.upload_limit` with PHP's `post_max_size` or `upload_max_filesize`
-    * Updated `bin/grav clean` command to remove unnecessary vendor files (save some bytes) 
+    * Updated `bin/grav clean` command to remove unnecessary vendor files (save some bytes)
     * Added a `http_status_code` Twig function to allow setting HTTP status codes from Twig directly.
     * Deter XSS attacks via URI path/uri methods (credit:newbthenewbd)
     * Added support for `$uri->toArray()` and `(string)$uri`
     * Added support for `type` on `Asstes::addInlineJs()` [#1683](https://github.com/getgrav/grav/pull/1683)
 1. [](#bugfix)
-    * Fixed method signature error with `GPM\InstallCommand::processPackage()` [#1682](https://github.com/getgrav/grav/pull/1682)   
+    * Fixed method signature error with `GPM\InstallCommand::processPackage()` [#1682](https://github.com/getgrav/grav/pull/1682)
 
 # v1.3.4
 ## 09/29/2017
@@ -105,7 +105,7 @@
     * Improved support for Assets with query strings [#1451](https://github.com/getgrav/grav/issues/1451)
     * Twig extension cleanup
 1. [](#bugfix)
-    * Fixed an issue where fallback was not supporting dynamic page generation 
+    * Fixed an issue where fallback was not supporting dynamic page generation
     * Fixed issue with Image query string not being fully URL encoded [#1622](https://github.com/getgrav/grav/issues/1622)
     * Fixed `Page::summary()` when using delimiter and multibyte UTF8 Characters [#1644](https://github.com/getgrav/grav/issues/1644)
     * Fixed missing `.json` thumbnail throwing error when adding media [grav-plugin-admin#1156](https://github.com/getgrav/grav-plugin-admin/issues/1156)
@@ -148,7 +148,7 @@
     * Allow `session.timeout` field to be set to `0` via blueprints [#1598](https://github.com/getgrav/grav/issues/1598)
     * Fixed `Data::exists()` and `Data::raw()` functions breaking if `Data::file()` hasn't been called with non-null value
     * Fixed parent theme auto-loading in child themes of Gantry 5
-    
+
 # v1.3.1
 ## 07/19/2017
 
