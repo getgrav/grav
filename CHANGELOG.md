@@ -13,8 +13,20 @@
 1. [](#improved)
     * Make it possible to include debug bar also into non-HTML responses
 
+# v1.3.11
+## mm/dd/2017
+
+1. [](#bugfix)
+    * Fixed issue with _illegal scheme offset_ in `Uri::convertUrl()` [page-inject#8](https://github.com/getgrav/grav-plugin-page-inject/issues/8)
+
+# v1.3.10
+## 12/06/2017
+
+1. [](#bugfix)
+    * Reverted GPM Local pull request as it broken admin [#1742](https://github.com/getgrav/grav/issues/1742) 
+
 # v1.3.9
-## xx/xx/2017
+## 12/05/2017
 
 1. [](#new)
     * Added new core Twig templates for `partials/metadata.html.twig` and `partials/messages.html.twig`
@@ -24,7 +36,9 @@
     * Added new `force_lowercase_urls` functionality on routes and slugs
     * Added new `item-list` filter type to remove empty items
     * Added new `setFlashCookieObject()` and `getFlashCookieObject()` methods to `Session` object
+    * Added new `intl_enabled` option to disable PHP intl module collation when not needed
 1. [](#bugfix)
+    * Fixed an issue with checkbox field validation [form#216](https://github.com/getgrav/grav-plugin-form/issues/216)
     * Fixed issue with multibyte Markdown link URLs [#1749](https://github.com/getgrav/grav/issues/1749)
     * Fixed issue with multibyte folder names [#1751](https://github.com/getgrav/grav/issues/1751)
     * Fixed several issues related to `system.custom_base_url` that were broken [#1736](https://github.com/getgrav/grav/issues/1736)
@@ -33,12 +47,13 @@
     * Fixed typo in `modular.yaml` causing media to be ignored [#1725](https://github.com/getgrav/grav/issues/1725)
     * Reverted `case_insensitive_urls` option as it was causing issues with taxonomy [#1733](https://github.com/getgrav/grav/pull/1733)
     * Removed an extra `/` in `CompileFile.php` [#1693](https://github.com/getgrav/grav/pull/1693)
-    * Uri: Encode user and password to prevent issues in browsers
+    * Uri::Encode user and password to prevent issues in browsers
     * Fixed "Invalid AJAX response" When using Built-in PHP Webserver in Windows [#1258](https://github.com/getgrav/grav-plugin-admin/issues/1258)
     * Remove support for `config.user`, it was broken and bad practise
     * Make sure that `clean cache` uses valid path [#1745](https://github.com/getgrav/grav/pull/1745)
     * Fixed token creation issue with `Uri` params like `/id:3`
     * Fixed CSS Pipeline failing with Google remote fonts if the file was minified [#1261](https://github.com/getgrav/grav-plugin-admin/issues/1261)
+    * Forced `field.multiple: true` to allow use of min/max options in `checkboxes.validate`
     
 # v1.3.8
 ## 10/26/2017

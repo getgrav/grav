@@ -17,9 +17,6 @@ use Symfony\Component\Yaml\Yaml;
 
 class GPM extends Iterator
 {
-    /** @var  callable */
-    private $callback;
-
     /**
      * Local installed Packages
      * @var Local\Packages
@@ -31,9 +28,6 @@ class GPM extends Iterator
      * @var Remote\Packages
      */
     private $repository;
-
-    /** @var  bool */
-    private $shouldRefresh;
 
     /**
      * @var Remote\GravCore
@@ -53,33 +47,18 @@ class GPM extends Iterator
     ];
 
     /**
-     * Loads Remote Packages available
-     */
-    private function retrieveRemoteRepository()
-    {
-        if (!$this->repository) {
-            $this->repository = new Remote\Packages($this->shouldRefresh, $this->callback);
-        }
-    }
-
-    /**
-     * Creates a new GPM instance with Local packages available
+     * Creates a new GPM instance with Local and Remote packages available
      * @param boolean $refresh Applies to Remote Packages only and forces a refetch of data
      * @param callable $callback Either a function or callback in array notation
      */
     public function __construct($refresh = false, $callback = null)
     {
         $this->installed = new Local\Packages();
-        $this->shouldRefresh = $refresh;
-        $this->callback = $callback;
-    }
-
-    /**
-     * Loads Remote Grav package available
-     */
-    public function loadRemoteGrav()
-    {
-        $this->grav = new Remote\GravCore($this->refresh, $this->callback);
+        try {
+            $this->repository = new Remote\Packages($refresh, $callback);
+            $this->grav = new Remote\GravCore($refresh, $callback);
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -289,7 +268,6 @@ class GPM extends Iterator
      */
     public function getLatestVersionOfPackage($package_name)
     {
-        $this->retrieveRemoteRepository();
         $repository = $this->repository['plugins'];
         if (isset($repository[$package_name])) {
             return $repository[$package_name]->available ?: $repository[$package_name]->version;
@@ -332,7 +310,6 @@ class GPM extends Iterator
     public function getUpdatableThemes()
     {
         $items = [];
-        $this->retrieveRemoteRepository();
         $repository = $this->repository['themes'];
 
         // local cache to speed things up
@@ -380,7 +357,6 @@ class GPM extends Iterator
      */
     public function getReleaseType($package_name)
     {
-        $this->retrieveRemoteRepository();
         $repository = $this->repository['plugins'];
         if (isset($repository[$package_name])) {
             return $repository[$package_name]->release_type;
@@ -429,7 +405,6 @@ class GPM extends Iterator
      */
     public function getRepositoryPlugin($slug)
     {
-        $this->retrieveRemoteRepository();
         return @$this->repository['plugins'][$slug];
     }
 
@@ -468,7 +443,6 @@ class GPM extends Iterator
      */
     public function getRepository()
     {
-        $this->retrieveRemoteRepository();
         return $this->repository;
     }
 

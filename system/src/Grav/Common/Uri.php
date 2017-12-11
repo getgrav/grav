@@ -941,7 +941,7 @@ class Uri
         }
 
         // handle absolute URLs
-        if (!$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
+        if (is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
 
             $url['scheme'] = $uri->scheme(true);
             $url['host'] = $uri->host();
@@ -983,15 +983,16 @@ class Uri
             }
         }
 
+        // Handle route only
+        if ($route_only) {
+            $url_path = str_replace($base_url, '', $url_path);
+        }
+
         // transform back to string/array as needed
         if (is_array($url)) {
             $url['path'] = $url_path;
         } else {
             $url = $url_path;
-        }
-
-        if ($route_only) {
-            $url = str_replace($base_url, '', $url);
         }
 
         return $url;
