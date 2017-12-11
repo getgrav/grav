@@ -206,7 +206,7 @@ class Truncator {
     private static function innerHTML($element) {
         $innerHTML = '';
         $children = $element->childNodes;
-        foreach ((array)$children as $child)
+        foreach ($children as $child)
         {
             $tmp_dom = new DOMDocument();
             $tmp_dom->appendChild($tmp_dom->importNode($child, true));

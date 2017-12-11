@@ -62,7 +62,7 @@ class Excerpts
 
         foreach ($images as $image) {
             $attributes = [];
-            foreach ((array)$image->attributes as $name => $value) {
+            foreach ($image->attributes as $name => $value) {
                 $attributes[$name] = $value->value;
             }
             $excerpt = [
@@ -88,7 +88,7 @@ class Excerpts
         $html = '<'.$element['name'];
 
         if (isset($element['attributes'])) {
-            foreach ((array)$element['attributes'] as $name => $value) {
+            foreach ($element['attributes'] as $name => $value) {
                 if ($value === null) {
                     continue;
                 }
