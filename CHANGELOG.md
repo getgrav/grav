@@ -5,7 +5,6 @@
     * Added `Grav\Framework\Cache` classes providing PSR-16 `Simple Cache` implementation
     * Added `Grav\Framework\ContentBlock` classes for nested HTML blocks with CSS/JS assets
     * Added `Grav\Framework\Object` classes for creating collections of objects
-    * Added `Grav\Framework\Page` interfaces
     * Added `|nicenumber` Twig filter
     * Added `{% try %} ... {% catch %} Error: {{ e.message }} {% endcatch %}` tag to allow basic exception handling inside Twig
     * Added `{% script %}` and `{% style %}` tags for Twig templates
