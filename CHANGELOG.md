@@ -2,6 +2,13 @@
 ## mm/dd/2017
 
 1. [](#new)
+    * Transferred copyright from RocketTheme, LLC, to Trilby Media LLC
+
+
+# v1.4.0-beta.1
+## 12/11/2017
+
+1. [](#new)
     * Added `Grav\Framework\Cache` classes providing PSR-16 `Simple Cache` implementation
     * Added `Grav\Framework\ContentBlock` classes for nested HTML blocks with CSS/JS assets
     * Added `Grav\Framework\Object` classes for creating collections of objects
