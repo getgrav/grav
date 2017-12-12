@@ -6,6 +6,7 @@
     "homepage": "http://getgrav.org",
     "license": "MIT",
     "require": {
+        "roave/security-advisories": "dev-master",
         "php": ">=5.5.9",
         "twig/twig": "~1.24",
         "erusev/parsedown": "~1.6",
@@ -39,6 +40,11 @@
         "phpunit/php-code-coverage": "~2.0",
         "fzaninotto/faker": "^1.5",
         "victorjonsson/markdowndocs": "dev-master"
+    },
+    "config": {
+        "platform": {
+            "php": "5.5.9"
+        }
     },
     "repositories": [
         {
