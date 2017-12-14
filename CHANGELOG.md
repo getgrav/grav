@@ -1,9 +1,11 @@
-# v1.4.0-beta.1
+# v1.4.0-beta.2
 ## mm/dd/2017
 
 1. [](#new)
     * Transferred overall copyright from RocketTheme, LLC, to Trilby Media LLC
-
+    * Added `theme_var` and `body_class` Twig functions that are useful for themes
+1. [](#improved)
+    * Updated vendor libraries to latest version
 
 # v1.4.0-beta.1
 ## 12/11/2017
