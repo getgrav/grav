@@ -137,6 +137,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('isajaxrequest', [$this, 'isAjaxFunc']),
             new \Twig_SimpleFunction('exif', [$this, 'exifFunc']),
             new \Twig_SimpleFunction('media_directory', [$this, 'mediaDirFunc']),
+            new \Twig_SimpleFunction('body_class', [$this, 'bodyClassFunc']),
+            new \Twig_SimpleFunction('theme_var', [$this, 'themeVarFunc']),
 
         ];
     }
@@ -1123,5 +1125,41 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         elseif ($n > 1000) return round(($n/1000), 2).' k';
 
         return number_format($n);
+    }
+
+    /**
+     * Get a theme variable
+     *
+     * @param $var
+     * @return string
+     */
+    public function themeVarFunc($var)
+    {
+        return $this->config->get('theme.' . $var, false) ?: '';
+    }
+
+    /**
+     * takes an array of classes, and if they are not set on body_classes
+     * look to see if they are set in theme config
+     *
+     * @param $classes
+     * @return string
+     */
+    public function bodyClassFunc($classes)
+    {
+
+        $header = $this->grav['page']->header();
+        $body_classes = isset($header->body_classes) ? $header->body_classes : '';
+
+        foreach ((array)$classes as $class) {
+            if (!empty($body_classes) && Utils::contains($body_classes, $class)) {
+                continue;
+            } else {
+                $val = $this->config->get('theme.' . $class, false) ? $class : false;
+                $body_classes .= $val ? ' ' . $val : '';
+            }
+        }
+
+        return $body_classes;
     }
 }
