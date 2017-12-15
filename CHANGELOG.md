@@ -24,6 +24,8 @@
 # v1.3.11
 ## mm/dd/2017
 
+1. [](#improved)
+    * Updated vendor libraries to latest
 1. [](#bugfix)
     * Fixed issue with _illegal scheme offset_ in `Uri::convertUrl()` [page-inject#8](https://github.com/getgrav/grav-plugin-page-inject/issues/8)
 
