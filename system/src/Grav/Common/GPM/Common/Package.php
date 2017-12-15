@@ -35,7 +35,7 @@ class Package {
     }
 
     public function __set($key, $value) {
-        throw new \BadMethodCallException('Not Implemented');
+        $this->data->set($key, $value);
     }
 
     public function __toString() {
