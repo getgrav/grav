@@ -15,12 +15,6 @@ namespace Grav\Framework\Object\Interfaces;
 interface ObjectInterface extends \Serializable, \JsonSerializable
 {
     /**
-     * @param array $elements
-     * @param string $key
-     */
-    public function __construct(array $elements = [], $key = null);
-
-    /**
      * @return string
      */
     public function getType();

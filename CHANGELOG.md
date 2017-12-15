@@ -6,6 +6,7 @@
     * Added `theme_var` and `body_class` Twig functions that are useful for themes
 1. [](#improved)
     * Updated vendor libraries to latest version
+    * Removed constructor from ObjectInterface
 
 # v1.4.0-beta.1
 ## 12/11/2017
