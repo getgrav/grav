@@ -6,6 +6,7 @@
     * Added `theme_var` and `body_class` Twig functions that are useful for themes
 1. [](#improved)
     * Updated vendor libraries to latest version
+    * Removed constructor from ObjectInterface
 1. [](#bugfix)
     * Fixed `BadMethodCallException` thrown in GPM updates [#1784](https://github.com/getgrav/grav/issues/1784)
 
@@ -26,6 +27,8 @@
 # v1.3.11
 ## mm/dd/2017
 
+1. [](#improved)
+    * Updated vendor libraries to latest
 1. [](#bugfix)
     * Fixed issue with _illegal scheme offset_ in `Uri::convertUrl()` [page-inject#8](https://github.com/getgrav/grav-plugin-page-inject/issues/8)
 
