@@ -1,11 +1,11 @@
 # v1.4.0-beta.2
-## mm/dd/2017
+## 12/15/2017
 
 1. [](#new)
     * Transferred overall copyright from RocketTheme, LLC, to Trilby Media LLC
     * Added `theme_var` and `body_class` Twig functions that are useful for themes
 1. [](#improved)
-    * Updated vendor libraries to latest version
+    * Updated vendor libraries to latest versions
     * Removed constructor from ObjectInterface
 1. [](#bugfix)
     * Fixed `BadMethodCallException` thrown in GPM updates [#1784](https://github.com/getgrav/grav/issues/1784)
