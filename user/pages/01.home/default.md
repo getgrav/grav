@@ -4,7 +4,7 @@ body_classes: title-center
 ---
 
 # Grav is Running!
-## You have installed Grav successfully
+## installation successful...
 
 Congratulations! You have installed the **Base Grav Package** that provides a **simple page** and the default **Quark** theme to get you started.
 
