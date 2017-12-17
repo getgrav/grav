@@ -139,6 +139,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('media_directory', [$this, 'mediaDirFunc']),
             new \Twig_SimpleFunction('body_class', [$this, 'bodyClassFunc']),
             new \Twig_SimpleFunction('theme_var', [$this, 'themeVarFunc']),
+            new \Twig_SimpleFunction('header_var', [$this, 'pageHeaderVarFunc']),
 
         ];
     }
@@ -1161,5 +1162,38 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         }
 
         return $body_classes;
+    }
+
+    /**
+     * Look for a page header variable in an array of pages working its way through until a value is found
+     *
+     * @param $var
+     * @param null $pages
+     * @return mixed
+     */
+    public function pageHeaderVarFunc($var, $pages = null)
+    {
+        if ($pages === null) {
+            $pages = $this->grav['page'];
+        }
+
+        // Make sure pages are an array
+        if (!is_array($pages)) {
+            $pages = array($pages);
+        }
+
+        // Loop over pages and look for header vars
+        foreach ($pages as $page) {
+            if (is_string($page)) {
+                $page = $this->grav['pages']->find($page);
+            }
+
+            if ($page) {
+                $header = $page->header();
+                if (isset($header->$var)) {
+                    return $header->$var;
+                }
+            }
+        }
     }
 }

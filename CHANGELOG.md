@@ -3,7 +3,7 @@
 
 1. [](#new)
     * Transferred overall copyright from RocketTheme, LLC, to Trilby Media LLC
-    * Added `theme_var` and `body_class` Twig functions that are useful for themes
+    * Added `theme_var`, `header_var` and `body_class` Twig functions for themes
 1. [](#improved)
     * Updated vendor libraries to latest versions
     * Removed constructor from ObjectInterface
