@@ -1,5 +1,5 @@
 # v1.4.0-beta.2
-## 12/15/2017
+## 12/18/2017
 
 1. [](#new)
     * Transferred overall copyright from RocketTheme, LLC, to Trilby Media LLC
