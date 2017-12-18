@@ -6,7 +6,7 @@
     * Added `theme_var`, `header_var` and `body_class` Twig functions for themes
 1. [](#improved)
     * Updated vendor libraries to latest versions
-    * Removed constructor from ObjectInterface
+    * Removed constructor from `ObjectInterface`
 1. [](#bugfix)
     * Fixed `BadMethodCallException` thrown in GPM updates [#1784](https://github.com/getgrav/grav/issues/1784)
 
