@@ -34,10 +34,6 @@ class Package {
         return isset($this->data->$key);
     }
 
-    public function __set($key, $value) {
-        $this->data->set($key, $value);
-    }
-
     public function __toString() {
         return $this->toJson();
     }

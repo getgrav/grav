@@ -1,3 +1,9 @@
+# v1.4.0-beta.3
+## mm/dd/2017
+
+1. [](#bugfix)
+    * Fix for `vundefined` error for version numbers in GPM [form#222](https://github.com/getgrav/grav-plugin-form/issues/222)
+
 # v1.4.0-beta.2
 ## 12/18/2017
 
