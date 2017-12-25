@@ -1029,4 +1029,27 @@ abstract class Utils
 
         return $parts;
     }
+
+    /**
+    * Replace german characters
+    *
+    * @param $subject
+    * @return string with replaced german char
+    */
+    public static function htmlGermanCharacter($subject)
+    {
+        $replace = array(
+            'Ä' => '&Auml;',
+            'ä' => '&auml;',
+            'Ö' => '&Ouml;',
+            'ö' => '&ouml;',
+            'Ü' => '&Uuml;',
+            'ü' => '&uuml;',
+            'ß' => '&szlig;',
+            '»' => '&raquo;',
+            '«' => '&laquo;',
+            '€' => '&euro;'
+        );
+        return str_replace(array_keys($replace), array_values($replace), $subject);
+    }
 }
