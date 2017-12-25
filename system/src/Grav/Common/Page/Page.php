@@ -688,6 +688,8 @@ class Page
 
         }
 
+        // htmlGermanCharacter
+        $this->content = Utils::htmlGermanCharacter($this->content);
         return $this->content;
     }
 
