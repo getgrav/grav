@@ -47,7 +47,7 @@ class Session extends BaseSession
         if ($config->get('plugins.admin.enabled')) {
             $route = $config->get('plugins.admin.route');
             // Uri::route() is not processed yet, let's quickly get what we need
-            $current_route = str_replace($base_url, '', parse_url($uri->url(true), PHP_URL_PATH));
+            $current_route = str_replace(Uri::filterPath($base_url), '', parse_url($uri->url(true), PHP_URL_PATH));
             $base = '/' . trim($route, '/');
 
             if (substr($current_route, 0, strlen($base)) == $base || //handle no language specified
