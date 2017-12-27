@@ -31,8 +31,12 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
             date_default_timezone_set($this->container['config']->get('system.timezone'));
         }
 
-        // Initialize uri, session.
-        $this->container['session']->init();
+        // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
+        if ($this->container['config']->get('system.session.initialize', 1)) {
+            $this->container['session']->init();
+        }
+
+        // Initialize uri.
         $this->container['uri']->init();
 
         $this->container->setLocale();
