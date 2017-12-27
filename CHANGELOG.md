@@ -4,6 +4,8 @@
 1. [](#bugfix)
     * Fix for base paths containing special characters [#1799](https://github.com/getgrav/grav/issues/1799)
     * Fix for `vundefined` error for version numbers in GPM [form#222](https://github.com/getgrav/grav-plugin-form/issues/222)
+1. [](#improved)
+    * Added new configuration option `system.session.initialize` to delay session initialization if needed by a plugin
 
 # v1.4.0-beta.2
 ## 12/18/2017
