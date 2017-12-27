@@ -2,6 +2,7 @@
 ## mm/dd/2017
 
 1. [](#bugfix)
+    * Fix for base paths containing special characters [#1799](https://github.com/getgrav/grav/issues/1799)
     * Fix for `vundefined` error for version numbers in GPM [form#222](https://github.com/getgrav/grav-plugin-form/issues/222)
 
 # v1.4.0-beta.2

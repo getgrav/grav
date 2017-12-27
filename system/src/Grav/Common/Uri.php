@@ -301,7 +301,7 @@ class Uri
 
         $this->url = $this->base . $this->uri;
 
-        $uri = str_replace($this->root, '', $this->url);
+        $uri = str_replace(static::filterPath($this->root), '', $this->url);
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
