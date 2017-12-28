@@ -40,7 +40,7 @@ class Session extends BaseSession
         $session_timeout = $config->get('system.session.timeout', 1800);
         $session_path = $config->get('system.session.path');
         if (!$session_path) {
-            $session_path = '/' . ltrim($base_url, '/');
+            $session_path = '/' . ltrim(Uri::filterPath($base_url), '/');
         }
 
         // Activate admin if we're inside the admin path.
