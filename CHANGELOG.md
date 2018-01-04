@@ -1,3 +1,9 @@
+# v1.4.0-rc.1
+## mm/dd/2017
+
+1. [](#bugfix)
+    * Date ordering should always be numeric [#1810](https://github.com/getgrav/grav/issues/1810)
+
 # v1.4.0-beta.3
 ## 12/29/2017
 

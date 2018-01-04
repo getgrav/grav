@@ -1203,19 +1203,19 @@ class Pages
                     break;
                 case 'date':
                     $list[$key] = $child->date();
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = SORT_NUMERIC;
                     break;
                 case 'modified':
                     $list[$key] = $child->modified();
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = SORT_NUMERIC;
                     break;
                 case 'publish_date':
                     $list[$key] = $child->publishDate();
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = SORT_NUMERIC;
                     break;
                 case 'unpublish_date':
                     $list[$key] = $child->unpublishDate();
-                    $sort_flags = SORT_REGULAR;
+                    $sort_flags = SORT_NUMERIC;
                     break;
                 case 'slug':
                     $list[$key] = $child->slug();
