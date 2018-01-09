@@ -4,7 +4,7 @@
 1. [](#bugfix)
     * Date ordering should always be numeric [#1810](https://github.com/getgrav/grav/issues/1810)
 1. [](#improved)
-    * Objects: Add protected function `getVariable()` to get serialized value for a single property
+    * Objects: Add protected function `getElement()` to get serialized value for a single property
     * `ObjectPropertyTrait`: Added protected functions `isPropertyLoaded()`, `offsetLoad()`, `offsetPrepare()` and `offsetSerialize()`
 
 # v1.4.0-beta.3
