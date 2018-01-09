@@ -10,6 +10,9 @@ namespace Grav\Framework\Object\Property;
 
 /**
  * Array Property Trait
+ *
+ * Stores all object properties into an array.
+ *
  * @package Grav\Framework\Object\Property
  */
 trait ArrayPropertyTrait
@@ -74,6 +77,16 @@ trait ArrayPropertyTrait
     protected function doUnsetProperty($property)
     {
         unset($this->_elements[$property]);
+    }
+
+    /**
+     * @param string $property
+     * @param mixed|null $default
+     * @return mixed|null
+     */
+    protected function getElement($property, $default = null)
+    {
+        return $this->doHasProperty($property) ? $this->_elements[$property] : $default;
     }
 
     /**
