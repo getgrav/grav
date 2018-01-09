@@ -123,7 +123,7 @@ trait ObjectPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @throws \InvalidArgumentException
      */
     protected function doSetProperty($property, $value)

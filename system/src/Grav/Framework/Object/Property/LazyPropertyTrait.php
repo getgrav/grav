@@ -67,7 +67,7 @@ trait LazyPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @return $this
      */
     protected function doSetProperty($property, $value)
@@ -104,7 +104,7 @@ trait LazyPropertyTrait
             return $this->getObjectElement($property, $default);
         }
 
-        return $this->getArrayElement($property, $default, false);
+        return $this->getArrayElement($property, $default);
     }
 
     /**

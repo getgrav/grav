@@ -66,7 +66,7 @@ trait MixedPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @return $this
      */
     protected function doSetProperty($property, $value)

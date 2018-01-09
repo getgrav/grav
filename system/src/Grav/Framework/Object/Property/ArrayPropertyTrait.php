@@ -51,7 +51,7 @@ trait ArrayPropertyTrait
      */
     protected function &doGetProperty($property, $default = null, $doCreate = false)
     {
-        if (!$this->doHasProperty($property)) {
+        if (!array_key_exists($property, $this->_elements)) {
             if ($doCreate) {
                 $this->_elements[$property] = null;
             } else {
@@ -64,7 +64,7 @@ trait ArrayPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      */
     protected function doSetProperty($property, $value)
     {
@@ -86,7 +86,7 @@ trait ArrayPropertyTrait
      */
     protected function getElement($property, $default = null)
     {
-        return $this->doHasProperty($property) ? $this->_elements[$property] : $default;
+        return array_key_exists($property, $this->_elements) ? $this->_elements[$property] : $default;
     }
 
     /**
