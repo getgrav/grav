@@ -1,6 +1,8 @@
 # v1.4.0-rc.1
 ## mm/dd/2017
 
+1. [](#improved)
+    * Made `modular` blueprint more flexible
 1. [](#bugfix)
     * Date ordering should always be numeric [#1810](https://github.com/getgrav/grav/issues/1810)
 
