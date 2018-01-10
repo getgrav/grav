@@ -10,6 +10,15 @@ namespace Grav\Framework\Object\Property;
 
 /**
  * Object Property Trait
+ *
+ * Stores all properties as class member variables or object properties. All properties need to be defined as protected
+ * properties. Undefined properties will throw an error.
+ *
+ * Additionally you may define following methods:
+ * - `$this->offsetLoad($offset, $value)` called first time object property gets accessed
+ * - `$this->offsetPrepare($offset, $value)` called on every object property set
+ * - `$this->offsetSerialize($offset, $value)` called when the raw or serialized object property value is needed
+ *
  * @package Grav\Framework\Object\Property
  */
 trait ObjectPropertyTrait
@@ -29,6 +38,51 @@ trait ObjectPropertyTrait
         $this->initObjectProperties();
         $this->setElements($elements);
         $this->setKey($key);
+    }
+
+    /**
+     * @param string $property      Object property name.
+     * @return bool                 True if property has been loaded.
+     */
+    protected function isPropertyLoaded($property)
+    {
+        return !empty($this->_definedProperties[$property]);
+    }
+
+    /**
+     * @param string $offset
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function offsetLoad($offset, $value)
+    {
+        $methodName = "offsetLoad_{$offset}";
+
+        return method_exists($this, $methodName)? $this->{$methodName}($value) : $value;
+    }
+
+    /**
+     * @param string $offset
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function offsetPrepare($offset, $value)
+    {
+        $methodName = "offsetPrepare_{$offset}";
+
+        return method_exists($this, $methodName) ? $this->{$methodName}($value) : $value;
+    }
+
+    /**
+     * @param string $offset
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function offsetSerialize($offset, $value)
+    {
+        $methodName = "offsetSerialize_{$offset}";
+
+        return method_exists($this, $methodName) ? $this->{$methodName}($value) : $value;
     }
 
     /**
@@ -58,7 +112,7 @@ trait ObjectPropertyTrait
                 $this->{$property} = null;
             } elseif (is_callable($doCreate)) {
                 $this->_definedProperties[$property] = true;
-                $this->{$property} = $this->onPropertyLoad($property, $doCreate());
+                $this->{$property} = $this->offsetLoad($property, $doCreate());
             } else {
                 return $default;
             }
@@ -69,7 +123,7 @@ trait ObjectPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @throws \InvalidArgumentException
      */
     protected function doSetProperty($property, $value)
@@ -79,7 +133,7 @@ trait ObjectPropertyTrait
         }
 
         $this->_definedProperties[$property] = true;
-        $this->{$property} = $this->onPropertySet($property, $value);
+        $this->{$property} = $this->offsetPrepare($property, $value);
     }
 
     /**
@@ -95,29 +149,6 @@ trait ObjectPropertyTrait
         unset($this->{$property});
     }
 
-
-    protected function onPropertyLoad($offset, $value)
-    {
-        $methodName = "offsetLoad_{$offset}";
-
-        if (method_exists($this, $methodName)) {
-            return $this->{$methodName}($value);
-        }
-
-        return $value;
-    }
-
-    protected function onPropertySet($offset, $value)
-    {
-        $methodName = "offsetPrepare_{$offset}";
-
-        if (method_exists($this, $methodName)) {
-            return $this->{$methodName}($value);
-        }
-
-        return $value;
-    }
-
     protected function initObjectProperties()
     {
         $this->_definedProperties = [];
@@ -129,6 +160,20 @@ trait ObjectPropertyTrait
     }
 
     /**
+     * @param string $property
+     * @param mixed|null $default
+     * @return mixed|null
+     */
+    protected function getElement($property, $default = null)
+    {
+        if (empty($this->_definedProperties[$property])) {
+            return $default;
+        }
+
+        return $this->offsetSerialize($property, $this->{$property});
+    }
+
+    /**
      * @return array
      */
     protected function getElements()
@@ -137,12 +182,7 @@ trait ObjectPropertyTrait
 
         $elements = [];
         foreach ($properties as $offset => $value) {
-            $methodName = "offsetSerialize_{$offset}";
-            if (method_exists($this, $methodName)) {
-                $elements[$offset] = $this->{$methodName}($value);
-            } else {
-                $elements[$offset] = $value;
-            }
+            $elements[$offset] = $this->offsetSerialize($offset, $value);
         }
 
         return $elements;

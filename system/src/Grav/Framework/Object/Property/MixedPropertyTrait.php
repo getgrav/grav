@@ -10,6 +10,15 @@ namespace Grav\Framework\Object\Property;
 
 /**
  * Mixed Property Trait
+ *
+ * Stores defined object properties as class member variables and the rest into an array.
+ *
+ * You may define following methods for member variables:
+ * - `$this->offsetLoad($offset, $value)` called first time object property gets accessed
+ * - `$this->offsetPrepare($offset, $value)` called on every object property set
+ * - `$this->offsetSerialize($offset, $value)` called when the raw or serialized object property value is needed
+
+ *
  * @package Grav\Framework\Object\Property
  */
 trait MixedPropertyTrait
@@ -20,12 +29,14 @@ trait MixedPropertyTrait
         ArrayPropertyTrait::doGetProperty as getArrayProperty;
         ArrayPropertyTrait::doSetProperty as setArrayProperty;
         ArrayPropertyTrait::doUnsetProperty as unsetArrayProperty;
+        ArrayPropertyTrait::getElement as getArrayElement;
         ArrayPropertyTrait::getElements as getArrayElements;
         ArrayPropertyTrait::setElements as setArrayElements;
         ObjectPropertyTrait::doHasProperty as hasObjectProperty;
         ObjectPropertyTrait::doGetProperty as getObjectProperty;
         ObjectPropertyTrait::doSetProperty as setObjectProperty;
         ObjectPropertyTrait::doUnsetProperty as unsetObjectProperty;
+        ObjectPropertyTrait::getElement as getObjectElement;
         ObjectPropertyTrait::getElements as getObjectElements;
         ObjectPropertyTrait::setElements as setObjectElements;
     }
@@ -55,7 +66,7 @@ trait MixedPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @return $this
      */
     protected function doSetProperty($property, $value)
@@ -76,6 +87,20 @@ trait MixedPropertyTrait
             $this->unsetObjectProperty($property) : $this->unsetArrayProperty($property);
 
         return $this;
+    }
+
+    /**
+     * @param string $property
+     * @param mixed|null $default
+     * @return mixed|null
+     */
+    protected function getElement($property, $default = null)
+    {
+        if ($this->hasObjectProperty($property)) {
+            return $this->getObjectElement($property, $default);
+        }
+
+        return $this->getArrayElement($property, $default);
     }
 
     /**
