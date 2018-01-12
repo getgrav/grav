@@ -677,36 +677,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function urlFunc($input, $domain = false)
     {
-        if (!trim((string)$input)) {
-            return false;
-        }
-
-        if ($this->grav['config']->get('system.absolute_urls', false)) {
-            $domain = true;
-        }
-
-        if (Grav::instance()['uri']->isExternal($input)) {
-            return $input;
-        }
-
-        $input = ltrim((string)$input, '/');
-
-        if (Utils::contains((string)$input, '://')) {
-            /** @var UniformResourceLocator $locator */
-            $locator = $this->grav['locator'];
-
-
-
-            // Get relative path to the resource (or false if not found).
-            $resource = $locator->findResource($input, false);
-        } else {
-            $resource = $input;
-        }
-
-        /** @var Uri $uri */
-        $uri = $this->grav['uri'];
-
-        return $resource ? rtrim($uri->rootUrl($domain), '/') . '/' . $resource : null;
+        return Utils::url($input, $domain);
     }
 
     /**

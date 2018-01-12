@@ -1,6 +1,8 @@
 # v1.4.0-rc.1
 ## mm/dd/2017
 
+1. [](#new)
+    * Moved Twig `urlFunc()` to `Utils::url()` as its so darn handy
 1. [](#improved)
     * Made `modular` blueprint more flexible
 1. [](#bugfix)

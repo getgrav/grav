@@ -17,6 +17,45 @@ abstract class Utils
     protected static $nonces = [];
 
     /**
+     * Simple helper method to make getting a Grav URL easier
+     *
+     * @param $input
+     * @param bool $domain
+     * @return bool|null|string
+     */
+    public static function url($input, $domain = false)
+    {
+        if (!trim((string)$input)) {
+            return false;
+        }
+
+        if (Grav::instance()['config']->get('system.absolute_urls', false)) {
+            $domain = true;
+        }
+
+        if (Grav::instance()['uri']->isExternal($input)) {
+            return $input;
+        }
+
+        $input = ltrim((string)$input, '/');
+
+        if (Utils::contains((string)$input, '://')) {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+
+            // Get relative path to the resource (or false if not found).
+            $resource = $locator->findResource($input, false);
+        } else {
+            $resource = $input;
+        }
+
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        return $resource ? rtrim($uri->rootUrl($domain), '/') . '/' . $resource : null;
+    }
+
+    /**
      * Check if the $haystack string starts with the substring $needle
      *
      * @param  string $haystack
