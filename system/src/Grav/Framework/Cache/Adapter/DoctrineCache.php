@@ -29,7 +29,7 @@ class DoctrineCache extends AbstractCache
      * @param CacheProvider $doctrineCache
      * @param string $namespace
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function __construct(CacheProvider $doctrineCache, $namespace = '', $defaultLifetime = null)
     {
@@ -96,6 +96,7 @@ class DoctrineCache extends AbstractCache
 
     /**
      * @inheritdoc
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function doDeleteMultiple($keys)
     {

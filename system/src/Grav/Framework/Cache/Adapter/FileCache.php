@@ -62,7 +62,7 @@ class FileCache extends AbstractCache
 
     /**
      * @inheritdoc
-     * @throws CacheException
+     * @throws \Psr\SimpleCache\CacheException
      */
     public function doSet($key, $value, $ttl)
     {
@@ -136,7 +136,7 @@ class FileCache extends AbstractCache
     /**
      * @param string $namespace
      * @param string $directory
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     private function init($namespace, $directory)
     {

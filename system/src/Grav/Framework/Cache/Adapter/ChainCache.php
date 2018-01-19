@@ -33,7 +33,7 @@ class ChainCache extends AbstractCache
      * Chain Cache constructor.
      * @param array $caches
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function __construct(array $caches, $defaultLifetime = null)
     {
