@@ -900,23 +900,23 @@ class UriTest extends \Codeception\TestCase\Test
                 foreach ($queryParams as $key => $value) {
                     $this->assertSame($value, $this->uri->{$method}($key), "Test \$url->{$method}('{$key}') for {$url}");
                 }
-                $this->assertSame(null, $this->uri->{$method}('non-existing'), "Test \$url->{$method}('non-existing') for {$url}");
+                $this->assertNull($this->uri->{$method}('non-existing'), "Test \$url->{$method}('non-existing') for {$url}");
             }
         }
     }
 
     public function testValidatingHostname()
     {
-        $this->assertSame(true, $this->uri->validateHostname('localhost'));
-        $this->assertSame(true, $this->uri->validateHostname('google.com'));
-        $this->assertSame(true, $this->uri->validateHostname('google.it'));
-        $this->assertSame(true, $this->uri->validateHostname('goog.le'));
-        $this->assertSame(true, $this->uri->validateHostname('goog.wine'));
-        $this->assertSame(true, $this->uri->validateHostname('goog.localhost'));
+        $this->assertTrue($this->uri->validateHostname('localhost'));
+        $this->assertTrue($this->uri->validateHostname('google.com'));
+        $this->assertTrue($this->uri->validateHostname('google.it'));
+        $this->assertTrue($this->uri->validateHostname('goog.le'));
+        $this->assertTrue($this->uri->validateHostname('goog.wine'));
+        $this->assertTrue($this->uri->validateHostname('goog.localhost'));
 
-        $this->assertSame(false, $this->uri->validateHostname('localhost:80') );
-        $this->assertSame(false, $this->uri->validateHostname('http://localhost'));
-        $this->assertSame(false, $this->uri->validateHostname('localhost!'));
+        $this->assertFalse($this->uri->validateHostname('localhost:80') );
+        $this->assertFalse($this->uri->validateHostname('http://localhost'));
+        $this->assertFalse($this->uri->validateHostname('localhost!'));
     }
 
     public function testToString()
@@ -999,23 +999,23 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
         $this->assertSame('/test:yyy', $this->uri->params('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertSame(null, $this->uri->params());
-        $this->assertSame(null, $this->uri->params('ueper'));
+        $this->assertNull($this->uri->params());
+        $this->assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y')->init();
-        $this->assertSame(null, $this->uri->params());
-        $this->assertSame(null, $this->uri->params('ueper'));
+        $this->assertNull($this->uri->params());
+        $this->assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y')->init();
-        $this->assertSame(null, $this->uri->params());
-        $this->assertSame(null, $this->uri->params('ueper'));
+        $this->assertNull($this->uri->params());
+        $this->assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test')->init();
-        $this->assertSame(null, $this->uri->params());
-        $this->assertSame(null, $this->uri->params('ueper'));
+        $this->assertNull($this->uri->params());
+        $this->assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertSame(null, $this->uri->params());
-        $this->assertSame(null, $this->uri->params('ueper'));
+        $this->assertNull($this->uri->params());
+        $this->assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertSame(null, $this->uri->params());
-        $this->assertSame(null, $this->uri->params('ueper'));
+        $this->assertNull($this->uri->params());
+        $this->assertNull($this->uri->params('ueper'));
     }
 
     public function testParam()

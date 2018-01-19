@@ -477,9 +477,9 @@ class AssetsTest extends \Codeception\TestCase\Test
 
     public function testGetCollections()
     {
-        $this->assertTrue(is_array($this->assets->getCollections()));
-        $this->assertTrue(in_array('jquery', array_keys($this->assets->getCollections())));
-        $this->assertTrue(in_array('system://assets/jquery/jquery-2.x.min.js', $this->assets->getCollections()));
+        $this->assertInternalType('array', $this->assets->getCollections());
+        $this->assertContains('jquery', array_keys($this->assets->getCollections()));
+        $this->assertContains('system://assets/jquery/jquery-2.x.min.js', $this->assets->getCollections());
     }
 
     public function testExists()
@@ -492,107 +492,107 @@ class AssetsTest extends \Codeception\TestCase\Test
     {
         $this->assets->registerCollection('debugger', ['/system/assets/debugger.css']);
         $this->assertTrue($this->assets->exists('debugger'));
-        $this->assertTrue(in_array('debugger', array_keys($this->assets->getCollections())));
+        $this->assertContains('debugger', array_keys($this->assets->getCollections()));
     }
 
     public function testReset()
     {
         $this->assets->addInlineJs('alert("test")');
         $this->assets->reset();
-        $this->assertTrue(count($this->assets->js()) == 0);
+        $this->assertSame(0, count($this->assets->js()));
 
         $this->assets->addAsyncJs('jquery');
         $this->assets->reset();
 
-        $this->assertTrue(count($this->assets->js()) == 0);
+        $this->assertSame(0, count($this->assets->js()));
 
         $this->assets->addInlineCss('body { color: black }');
         $this->assets->reset();
 
-        $this->assertTrue(count($this->assets->css()) == 0);
+        $this->assertSame(0, count($this->assets->css()));
 
         $this->assets->add('/system/assets/debugger.css', null, true);
         $this->assets->reset();
 
-        $this->assertTrue(count($this->assets->css()) == 0);
+        $this->assertSame(0, count($this->assets->css()));
     }
 
     public function testResetJs()
     {
         $this->assets->addInlineJs('alert("test")');
         $this->assets->resetJs();
-        $this->assertTrue(count($this->assets->js()) == 0);
+        $this->assertSame(0, count($this->assets->js()));
 
         $this->assets->addAsyncJs('jquery');
         $this->assets->resetJs();
 
-        $this->assertTrue(count($this->assets->js()) == 0);
+        $this->assertSame(0, count($this->assets->js()));
     }
 
     public function testResetCss()
     {
-        $this->assertTrue(count($this->assets->js()) == 0);
+        $this->assertSame(0, count($this->assets->js()));
 
         $this->assets->addInlineCss('body { color: black }');
         $this->assets->resetCss();
 
-        $this->assertTrue(count($this->assets->css()) == 0);
+        $this->assertSame(0, count($this->assets->css()));
 
         $this->assets->add('/system/assets/debugger.css', null, true);
         $this->assets->resetCss();
 
-        $this->assertTrue(count($this->assets->css()) == 0);
+        $this->assertSame(0, count($this->assets->css()));
     }
 
     public function testAddDirCss()
     {
         $this->assets->addDirCss('/system');
 
-        $this->assertTrue(is_array($this->assets->getCss()));
-        $this->assertTrue(count($this->assets->getCss()) > 0);
-        $this->assertTrue(is_array($this->assets->getJs()));
-        $this->assertTrue(count($this->assets->getJs()) == 0);
+        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertGreaterThan(0, $this->assets->getCss());
+        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertCount(0, $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDirCss('/system/assets');
 
-        $this->assertTrue(is_array($this->assets->getCss()));
-        $this->assertTrue(count($this->assets->getCss()) > 0);
-        $this->assertTrue(is_array($this->assets->getJs()));
-        $this->assertTrue(count($this->assets->getJs()) == 0);
+        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertGreaterThan(0, $this->assets->getCss());
+        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertCount(0, $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDirJs('/system');
 
-        $this->assertTrue(is_array($this->assets->getCss()));
-        $this->assertTrue(count($this->assets->getCss()) == 0);
-        $this->assertTrue(is_array($this->assets->getJs()));
-        $this->assertTrue(count($this->assets->getJs()) > 0);
+        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertCount(0, $this->assets->getCss());
+        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertGreaterThan(0, $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDirJs('/system/assets');
 
-        $this->assertTrue(is_array($this->assets->getCss()));
-        $this->assertTrue(count($this->assets->getCss()) == 0);
-        $this->assertTrue(is_array($this->assets->getJs()));
-        $this->assertTrue(count($this->assets->getJs()) > 0);
+        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertCount(0, $this->assets->getCss());
+        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertGreaterThan(0, $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDir('/system/assets');
 
-        $this->assertTrue(is_array($this->assets->getCss()));
-        $this->assertTrue(count($this->assets->getCss()) > 0);
-        $this->assertTrue(is_array($this->assets->getJs()));
-        $this->assertTrue(count($this->assets->getJs()) > 0);
+        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertGreaterThan(0, $this->assets->getCss());
+        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertGreaterThan(0, $this->assets->getJs());
 
         //Use streams
         $this->assets->reset();
         $this->assets->addDir('system://assets');
 
-        $this->assertTrue(is_array($this->assets->getCss()));
-        $this->assertTrue(count($this->assets->getCss()) > 0);
-        $this->assertTrue(is_array($this->assets->getJs()));
-        $this->assertTrue(count($this->assets->getJs()) > 0);
+        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertGreaterThan(0, $this->assets->getCss());
+        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertGreaterThan(0, $this->assets->getJs());
 
     }
 }
