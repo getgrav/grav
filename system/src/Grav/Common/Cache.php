@@ -493,10 +493,6 @@ class Cache extends Getters
      */
     public function isVolatileDriver($setting)
     {
-        if (in_array($setting, ['apc', 'apcu', 'xcache', 'wincache'])) {
-            return true;
-        } else {
-            return false;
-        }
+        return in_array($setting, ['apc', 'apcu', 'xcache', 'wincache']);
     }
 }

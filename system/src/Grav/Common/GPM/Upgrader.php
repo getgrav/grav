@@ -92,11 +92,7 @@ class Upgrader
      */
     public function meetsRequirements()
     {
-        if (version_compare(PHP_VERSION, GRAV_PHP_MIN, '<')) {
-            return false;
-        }
-
-        return true;
+        return version_compare(PHP_VERSION, GRAV_PHP_MIN, '>');
     }
 
     /**

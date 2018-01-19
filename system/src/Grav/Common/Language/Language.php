@@ -248,11 +248,7 @@ class Language
             $lang = $this->getLanguage();
         }
 
-        if ($this->default == $lang && $this->config->get('system.languages.include_default_lang') === false) {
-            return false;
-        } else {
-            return true;
-        }
+        return $this->default == $lang && $this->config->get('system.languages.include_default_lang') !== false;
     }
 
     /**
@@ -352,11 +348,7 @@ class Language
      */
     public function validate($lang)
     {
-        if (in_array($lang, $this->languages)) {
-            return true;
-        }
-
-        return false;
+        return in_array($lang, $this->languages);
     }
 
     /**

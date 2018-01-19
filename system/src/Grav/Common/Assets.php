@@ -975,11 +975,7 @@ class Assets
      */
     public function exists($asset)
     {
-        if (isset($this->collections[$asset]) || isset($this->css[$asset]) || isset($this->js[$asset])) {
-            return true;
-        } else {
-            return false;
-        }
+        return isset($this->collections[$asset]) || isset($this->css[$asset]) || isset($this->js[$asset]);
     }
 
     /**
