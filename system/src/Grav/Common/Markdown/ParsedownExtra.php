@@ -17,10 +17,12 @@ class ParsedownExtra extends \ParsedownExtra
      *
      * @param $page
      * @param $defaults
+     * @throws \Exception
      */
     public function __construct($page, $defaults)
     {
         parent::__construct();
+
         $this->init($page, $defaults);
     }
 }

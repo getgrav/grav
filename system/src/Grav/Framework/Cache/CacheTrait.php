@@ -85,7 +85,7 @@ trait CacheTrait
         $ttl = $this->convertTtl($ttl);
 
         // If a negative or zero TTL is provided, the item MUST be deleted from the cache.
-        return $ttl <= 0 ? $this->doDelete($key) : $this->doSet($key, $value, $ttl);
+        return null !== $ttl && $ttl <= 0 ? $this->doDelete($key) : $this->doSet($key, $value, $ttl);
     }
 
     /**
@@ -175,7 +175,7 @@ trait CacheTrait
         $ttl = $this->convertTtl($ttl);
 
         // If a negative or zero TTL is provided, the item MUST be deleted from the cache.
-        return $ttl <= 0 ? $this->doDeleteMultiple($keys) : $this->doSetMultiple($values, $ttl);
+        return null !== $ttl && $ttl <= 0 ? $this->doDeleteMultiple($keys) : $this->doSetMultiple($values, $ttl);
     }
 
     /**
