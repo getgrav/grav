@@ -10,6 +10,7 @@
 1. [](#improved)
     * Objects: Add protected function `getElement()` to get serialized value for a single property
     * `ObjectPropertyTrait`: Added protected functions `isPropertyLoaded()`, `offsetLoad()`, `offsetPrepare()` and `offsetSerialize()`
+    * `Grav\Framework\Cache`: Allow unlimited TTL
 
 # v1.4.0-beta.3
 ## 12/29/2017

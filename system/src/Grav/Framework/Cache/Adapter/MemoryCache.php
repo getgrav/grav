@@ -12,6 +12,7 @@ use Grav\Framework\Cache\AbstractCache;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using in memory backend.
+ *
  * Memory backend does not use namespace or default ttl as the cache is unique to each cache object and request.
  *
  * @package Grav\Framework\Cache
@@ -22,14 +23,6 @@ class MemoryCache extends AbstractCache
      * @var array
      */
     protected $cache = [];
-
-    /**
-     * Memory Cache constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct('', 300);
-    }
 
     public function doGet($key, $miss)
     {
