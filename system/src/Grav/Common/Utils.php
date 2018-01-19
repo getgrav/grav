@@ -594,11 +594,7 @@ abstract class Utils
 
         $languages_enabled = Grav::instance()['config']->get('system.languages.supported', []);
 
-        if ($string[0] == '/' && $string[3] == '/' && in_array(substr($string, 1, 2), $languages_enabled)) {
-            return true;
-        }
-
-        return false;
+        return $string[0] == '/' && $string[3] == '/' && in_array(substr($string, 1, 2), $languages_enabled);
     }
 
     /**
@@ -798,11 +794,7 @@ abstract class Utils
      */
     public static function isAdminPlugin()
     {
-        if (isset(Grav::instance()['admin'])) {
-            return true;
-        }
-
-        return false;
+        return isset(Grav::instance()['admin']);
     }
 
     /**

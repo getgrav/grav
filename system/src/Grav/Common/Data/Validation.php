@@ -254,11 +254,8 @@ class Validation
         if (!isset($field['value'])) {
             $field['value'] = 1;
         }
-        if (isset($value) && $value != $field['value']) {
-            return false;
-        }
 
-        return true;
+        return !isset($value) && $value == $field['value'];
     }
 
     /**

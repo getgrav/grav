@@ -237,11 +237,7 @@ class Collection extends Iterator
      */
     public function isFirst($path)
     {
-        if ($this->items && $path == array_keys($this->items)[0]) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->items && $path == array_keys($this->items)[0];
     }
 
     /**
@@ -253,11 +249,7 @@ class Collection extends Iterator
      */
     public function isLast($path)
     {
-        if ($this->items && $path == array_keys($this->items)[count($this->items) - 1]) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->items && $path == array_keys($this->items)[count($this->items) - 1];
     }
 
     /**

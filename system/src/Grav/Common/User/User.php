@@ -96,11 +96,8 @@ class User extends Data
     public static function remove($username)
     {
         $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
-        if ($file_path && unlink($file_path)) {
-            return true;
-        }
 
-        return false;
+        return $file_path && unlink($file_path);
     }
 
     /**

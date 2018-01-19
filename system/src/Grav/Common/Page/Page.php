@@ -1458,11 +1458,7 @@ class Page
      */
     public function debugger()
     {
-        if (isset($this->debugger) && $this->debugger === false) {
-            return false;
-        }
-
-        return true;
+        return !isset($this->debugger) && $this->debugger !== false;
     }
 
     /**
@@ -2357,11 +2353,7 @@ class Page
      */
     public function root()
     {
-        if (!$this->parent && !$this->name && !$this->visible) {
-            return true;
-        }
-
-        return false;
+        return !$this->parent && !$this->name && !$this->visible;
     }
 
     /**
@@ -2746,11 +2738,7 @@ class Page
      */
     public function isPage()
     {
-        if ($this->name) {
-            return true;
-        }
-
-        return false;
+        return $this->name;
     }
 
     /**
