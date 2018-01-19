@@ -7,6 +7,7 @@
     * Made `modular` blueprint more flexible
     * Objects: Add protected function `getElement()` to get serialized value for a single property
     * `ObjectPropertyTrait`: Added protected functions `isPropertyLoaded()`, `offsetLoad()`, `offsetPrepare()` and `offsetSerialize()`    
+    * Slight modification of Whoops error colors
     * Updated vendor libs to latest
 1. [](#bugfix)
     * Date ordering should always be numeric [#1810](https://github.com/getgrav/grav/issues/1810)
