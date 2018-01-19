@@ -194,6 +194,7 @@ class FileCache extends AbstractCache
 
     /**
      * @internal
+     * @throws \ErrorException
      */
     public static function throwError($type, $message, $file, $line)
     {

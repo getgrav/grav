@@ -10,6 +10,7 @@ namespace Grav\Framework\Cache\Adapter;
 
 use Grav\Framework\Cache\AbstractCache;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\Cache\Exception\InvalidArgumentException;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using chained cache adapters.
@@ -32,19 +33,19 @@ class ChainCache extends AbstractCache
      * Chain Cache constructor.
      * @param array $caches
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $caches, $defaultLifetime = null)
     {
         parent::__construct('', $defaultLifetime);
 
         if (!$caches) {
-            throw new \InvalidArgumentException('At least one cache must be specified');
+            throw new InvalidArgumentException('At least one cache must be specified');
         }
 
         foreach ($caches as $cache) {
             if (!$cache instanceof CacheInterface) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     sprintf(
                         "The class '%s' does not implement the '%s' interface",
                         get_class($cache),
