@@ -10,6 +10,7 @@ namespace Grav\Framework\Cache\Adapter;
 
 use Grav\Framework\Cache\AbstractCache;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\Cache\Exception\InvalidArgumentException;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using chained cache adapters.
@@ -32,19 +33,19 @@ class ChainCache extends AbstractCache
      * Chain Cache constructor.
      * @param array $caches
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws \InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function __construct(array $caches, $defaultLifetime = null)
     {
         parent::__construct('', $defaultLifetime);
 
         if (!$caches) {
-            throw new \InvalidArgumentException('At least one cache must be specified');
+            throw new InvalidArgumentException('At least one cache must be specified');
         }
 
         foreach ($caches as $cache) {
             if (!$cache instanceof CacheInterface) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     sprintf(
                         "The class '%s' does not implement the '%s' interface",
                         get_class($cache),
@@ -58,6 +59,9 @@ class ChainCache extends AbstractCache
         $this->count = count($caches);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doGet($key, $miss)
     {
         foreach ($this->caches as $i => $cache) {
@@ -75,6 +79,9 @@ class ChainCache extends AbstractCache
         return $miss;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doSet($key, $value, $ttl)
     {
         $success = true;
@@ -87,6 +94,9 @@ class ChainCache extends AbstractCache
         return $success;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doDelete($key)
     {
         $success = true;
@@ -99,6 +109,9 @@ class ChainCache extends AbstractCache
         return $success;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doClear()
     {
         $success = true;
@@ -110,7 +123,9 @@ class ChainCache extends AbstractCache
         return $success;
     }
 
-
+    /**
+     * @inheritdoc
+     */
     public function doGetMultiple($keys, $miss)
     {
         $list = [];
@@ -136,6 +151,9 @@ class ChainCache extends AbstractCache
         return $values;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doSetMultiple($values, $ttl)
     {
         $success = true;
@@ -148,6 +166,9 @@ class ChainCache extends AbstractCache
         return $success;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doDeleteMultiple($keys)
     {
         $success = true;
@@ -160,6 +181,9 @@ class ChainCache extends AbstractCache
         return $success;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doHas($key)
     {
         foreach ($this->caches as $cache) {

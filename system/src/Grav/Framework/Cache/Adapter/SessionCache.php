@@ -29,7 +29,13 @@ class SessionCache extends AbstractCache
 
     public function doSet($key, $value, $ttl)
     {
-        $_SESSION[$this->getNamespace()][$key] = [self::VALUE => $value, self::LIFETIME => time() + $ttl];
+        $stored = [self::VALUE => $value];
+        if (null !== $ttl) {
+            $stored[self::LIFETIME] = time() + $ttl;
+
+        }
+
+        $_SESSION[$this->getNamespace()][$key] = $stored;
 
         return true;
     }
@@ -43,7 +49,7 @@ class SessionCache extends AbstractCache
 
     public function doClear()
     {
-        $_SESSION[$this->getNamespace()] = [];
+        unset($_SESSION[$this->getNamespace()]);
 
         return true;
     }
@@ -62,7 +68,7 @@ class SessionCache extends AbstractCache
     {
         $stored = isset($_SESSION[$this->getNamespace()][$key]) ? $_SESSION[$this->getNamespace()][$key] : null;
 
-        if ($stored && $stored[self::LIFETIME] < time()) {
+        if (isset($stored[self::LIFETIME]) && $stored[self::LIFETIME] < time()) {
             unset($_SESSION[$this->getNamespace()][$key]);
             $stored = null;
         }

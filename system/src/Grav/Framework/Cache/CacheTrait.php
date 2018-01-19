@@ -36,12 +36,12 @@ trait CacheTrait
      *
      * @param string $namespace
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     protected function init($namespace = '', $defaultLifetime = null)
     {
         $this->namespace = (string) $namespace;
-        $this->defaultLifetime = $this->convertTtl($defaultLifetime, true);
+        $this->defaultLifetime = $this->convertTtl($defaultLifetime);
         $this->miss = new \stdClass;
     }
 
@@ -63,7 +63,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function get($key, $default = null)
     {
@@ -76,7 +76,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function set($key, $value, $ttl = null)
     {
@@ -85,12 +85,12 @@ trait CacheTrait
         $ttl = $this->convertTtl($ttl);
 
         // If a negative or zero TTL is provided, the item MUST be deleted from the cache.
-        return $ttl <= 0 ? $this->doDelete($key) : $this->doSet($key, $value, $ttl);
+        return null !== $ttl && $ttl <= 0 ? $this->doDelete($key) : $this->doSet($key, $value, $ttl);
     }
 
     /**
      * @inheritdoc
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function delete($key)
     {
@@ -109,7 +109,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function getMultiple($keys, $default = null)
     {
@@ -149,7 +149,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function setMultiple($values, $ttl = null)
     {
@@ -175,12 +175,12 @@ trait CacheTrait
         $ttl = $this->convertTtl($ttl);
 
         // If a negative or zero TTL is provided, the item MUST be deleted from the cache.
-        return $ttl <= 0 ? $this->doDeleteMultiple($keys) : $this->doSetMultiple($values, $ttl);
+        return null !== $ttl && $ttl <= 0 ? $this->doDeleteMultiple($keys) : $this->doSetMultiple($values, $ttl);
     }
 
     /**
      * @inheritdoc
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function deleteMultiple($keys)
     {
@@ -206,7 +206,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function has($key)
     {
@@ -220,6 +220,11 @@ trait CacheTrait
     abstract public function doDelete($key);
     abstract public function doClear();
 
+    /**
+     * @param array $keys
+     * @param mixed $miss
+     * @return array
+     */
     public function doGetMultiple($keys, $miss)
     {
         $results = [];
@@ -234,6 +239,11 @@ trait CacheTrait
         return $results;
     }
 
+    /**
+     * @param array $values
+     * @param int $ttl
+     * @return bool
+     */
     public function doSetMultiple($values, $ttl)
     {
         $success = true;
@@ -245,6 +255,10 @@ trait CacheTrait
         return $success;
     }
 
+    /**
+     * @param array $keys
+     * @return bool
+     */
     public function doDeleteMultiple($keys)
     {
         $success = true;
@@ -260,7 +274,7 @@ trait CacheTrait
 
     /**
      * @param string $key
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     protected function validateKey($key)
     {
@@ -287,6 +301,10 @@ trait CacheTrait
         }
     }
 
+    /**
+     * @param array $keys
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     protected function validateKeys($keys)
     {
         foreach ($keys as $key) {
@@ -296,13 +314,12 @@ trait CacheTrait
 
     /**
      * @param null|int|\DateInterval    $ttl
-     * @param bool                      $ignoreDefault  Used internally inside $this->init().
      * @return int|null
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    protected function convertTtl($ttl, $ignoreDefault = false)
+    protected function convertTtl($ttl)
     {
-        if (!$ignoreDefault && $ttl === null) {
+        if ($ttl === null) {
             return $this->getDefaultLifetime();
         }
 

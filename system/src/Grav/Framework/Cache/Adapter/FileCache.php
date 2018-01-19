@@ -15,6 +15,8 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using file backend.
  *
+ * Defaults to 1 year TTL. Does not support unlimited TTL.
+ *
  * @package Grav\Framework\Cache
  */
 class FileCache extends AbstractCache
@@ -22,6 +24,17 @@ class FileCache extends AbstractCache
     private $directory;
     private $tmp;
 
+    /**
+     * @inheritdoc
+     */
+    public function __construct($namespace = '', $defaultLifetime = null)
+    {
+        parent::__construct($namespace, $defaultLifetime ?: 31557600); // = 1 year
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function doGet($key, $miss)
     {
         $now = time();
@@ -47,9 +60,13 @@ class FileCache extends AbstractCache
         return $miss;
     }
 
+    /**
+     * @inheritdoc
+     * @throws \Psr\SimpleCache\CacheException
+     */
     public function doSet($key, $value, $ttl)
     {
-        $expiresAt = time() + ($ttl ?: 31557600); // = 1 year
+        $expiresAt = time() + (int)$ttl;
 
         $result = $this->write(
             $this->getFile($key, true),
@@ -64,6 +81,9 @@ class FileCache extends AbstractCache
         return $result;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doDelete($key)
     {
         $file = $this->getFile($key);
@@ -71,6 +91,9 @@ class FileCache extends AbstractCache
         return (!file_exists($file) || @unlink($file) || !file_exists($file));
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doClear()
     {
         $result = true;
@@ -83,6 +106,9 @@ class FileCache extends AbstractCache
         return $result;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function doHas($key)
     {
         $file = $this->getFile($key);
@@ -90,6 +116,11 @@ class FileCache extends AbstractCache
         return file_exists($file) && (@filemtime($file) > time() || $this->doGet($key, null));
     }
 
+    /**
+     * @param string $key
+     * @param bool $mkdir
+     * @return string
+     */
     protected function getFile($key, $mkdir = false)
     {
         $hash = str_replace('/', '-', base64_encode(hash('sha256', static::class . $key, true)));
@@ -102,6 +133,11 @@ class FileCache extends AbstractCache
         return $dir . substr($hash, 2, 20);
     }
 
+    /**
+     * @param string $namespace
+     * @param string $directory
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     private function init($namespace, $directory)
     {
         if (!isset($directory[0])) {
@@ -129,6 +165,12 @@ class FileCache extends AbstractCache
         $this->directory = $directory;
     }
 
+    /**
+     * @param string $file
+     * @param string $data
+     * @param int|null $expiresAt
+     * @return bool
+     */
     private function write($file, $data, $expiresAt = null)
     {
         set_error_handler(__CLASS__.'::throwError');
@@ -152,6 +194,7 @@ class FileCache extends AbstractCache
 
     /**
      * @internal
+     * @throws \ErrorException
      */
     public static function throwError($type, $message, $file, $line)
     {
