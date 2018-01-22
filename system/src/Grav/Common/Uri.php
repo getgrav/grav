@@ -985,7 +985,7 @@ class Uri
 
         // Handle route only
         if ($route_only) {
-            $url_path = str_replace(static::filter($base_url), '', $url_path);
+            $url_path = str_replace(static::filterPath($base_url), '', $url_path);
         }
 
         // transform back to string/array as needed
