@@ -2471,7 +2471,15 @@ class Page
             return new Collection();
         }
 
-        $collection = $this->evaluate($params['items']);
+        // See if require published filter is set and use that, if assume published=true
+        $only_published = true;
+        if (isset($params['filter']['published']) && $params['filter']['published']) {
+            $only_published = false;
+        } elseif (isset($params['filter']['non-published']) && $params['filter']['non-published']) {
+            $only_published = false;
+        }
+
+        $collection = $this->evaluate($params['items'], $only_published);
         if (!$collection instanceof Collection) {
             $collection = new Collection();
         }
@@ -2510,25 +2518,60 @@ class Page
 
         // If  a filter or filters are set, filter the collection...
         if (isset($params['filter'])) {
+
+            // remove any inclusive sets from filer:
+            $sets = ['published', 'visible', 'modular', 'routable'];
+            foreach ($sets as $type) {
+                if (isset($params['filter'][$type]) && isset($params['filter']['non-'.$type])) {
+                    if ($params['filter'][$type] && $params['filter']['non-'.$type]) {
+                        unset ($params['filter'][$type]);
+                        unset ($params['filter']['non-'.$type]);
+                    }
+
+                }
+            }
+
             foreach ((array)$params['filter'] as $type => $filter) {
                 switch ($type) {
+                    case 'published':
+                        if ((bool) $filter) {
+                            $collection->published();
+                        }
+                        break;
+                    case 'non-published':
+                        if ((bool) $filter) {
+                            $collection->nonPublished();
+                        }
+                        break;
                     case 'visible':
-                        $collection->visible($filter);
+                        if ((bool) $filter) {
+                            $collection->visible();
+                        }
                         break;
                     case 'non-visible':
-                        $collection->nonVisible($filter);
+                        if ((bool) $filter) {
+                            $collection->nonVisible();
+                        }
                         break;
                     case 'modular':
-                        $collection->modular($filter);
+                        if ((bool) $filter) {
+                            $collection->modular();
+                        }
                         break;
                     case 'non-modular':
-                        $collection->nonModular($filter);
+                        if ((bool) $filter) {
+                            $collection->nonModular();
+                        }
                         break;
                     case 'routable':
-                        $collection->routable($filter);
+                        if ((bool) $filter) {
+                            $collection->routable();
+                        }
                         break;
                     case 'non-routable':
-                        $collection->nonRoutable($filter);
+                        if ((bool) $filter) {
+                            $collection->nonRoutable();
+                        }
                         break;
                     case 'type':
                         $collection->ofType($filter);
@@ -2589,11 +2632,11 @@ class Page
 
     /**
      * @param string|array $value
-     *
+     * @param bool $only_published
      * @return mixed
      * @internal
      */
-    public function evaluate($value)
+    public function evaluate($value, $only_published = true)
     {
         // Parse command.
         if (is_string($value)) {
@@ -2662,7 +2705,7 @@ class Page
                     }
                 }
 
-                $results = $results->published();
+
                 break;
 
             case 'page@':
@@ -2706,16 +2749,14 @@ class Page
                     $results = $page->children()->nonModular();
                 }
 
-                $results = $results->published();
-
                 break;
 
             case 'root@':
             case '@root':
                 if (!empty($parts) && $parts[0] === 'descendants') {
-                    $results = $pages->all($pages->root())->nonModular()->published();
+                    $results = $pages->all($pages->root())->nonModular();
                 } else {
-                    $results = $pages->root()->children()->nonModular()->published();
+                    $results = $pages->root()->children()->nonModular();
                 }
                 break;
 
@@ -2732,8 +2773,12 @@ class Page
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
                 }
-                $results = $taxonomy_map->findTaxonomy($params)->published();
+                $results = $taxonomy_map->findTaxonomy($params);
                 break;
+        }
+
+        if ($only_published) {
+            $results = $results->published();
         }
 
         return $results;
