@@ -2,7 +2,8 @@
 ## mm/dd/2018
 
 1. [](#new)
-    * Added new `Collection:toExtendedArray()` method that's particularly useful for Json output of data
+    * Added new `Collection::toExtendedArray()` method that's particularly useful for Json output of data
+    * Added new `|yaml_encode` and `|yaml_decode` Twig filter to convert to and from YAML
 1. [](#improved)
     * Better `Page.collection()` filtering support including ability to have non-published pages in collections
 

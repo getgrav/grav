@@ -20,6 +20,7 @@ use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Uri;
 use Grav\Common\Helpers\Base32;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Symfony\Component\Yaml\Yaml;
 
 class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
@@ -95,6 +96,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('basename', 'basename'),
             new \Twig_SimpleFilter('dirname', 'dirname'),
             new \Twig_SimpleFilter('print_r', 'print_r'),
+            new \Twig_SimpleFilter('yaml_encode', [$this, 'yamlEncodeFilter']),
+            new \Twig_SimpleFilter('yaml_decode', [$this, 'yamlDecodeFilter']),
         ];
     }
 
@@ -1166,5 +1169,27 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                 }
             }
         }
+    }
+
+    /**
+     * Dump/Encode data into YAML format
+     *
+     * @param $data
+     * @return mixed
+     */
+    public function yamlEncodeFilter($data)
+    {
+        return Yaml::dump($data, 10);
+    }
+
+    /**
+     * Decode/Parse data from YAML format
+     *
+     * @param $data
+     * @return mixed
+     */
+    public function yamlDecodeFilter($data)
+    {
+        return Yaml::parse($data);
     }
 }
