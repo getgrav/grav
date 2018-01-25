@@ -1,6 +1,8 @@
 # v1.4.0-rc.2
 ## mm/dd/2018
 
+1. [](#new)
+    * Added new `Collection:toExtendedArray()` method that's particularly useful for Json output of data
 1. [](#improved)
     * Better `Page.collection()` filtering support including ability to have non-published pages in collections
 

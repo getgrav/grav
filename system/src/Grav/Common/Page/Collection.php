@@ -610,4 +610,23 @@ class Collection extends Iterator
 
         return $this;
     }
+
+    /**
+     * Get the extended version of this Collection with each page keyed by route
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function toExtendedArray()
+    {
+        $items  = [];
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+
+            if ($page !== null) {
+                $items[$page->route()] = $page->toArray();
+            }
+        }
+        return $items;
+    }
 }
