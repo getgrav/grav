@@ -143,6 +143,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('body_class', [$this, 'bodyClassFunc']),
             new \Twig_SimpleFunction('theme_var', [$this, 'themeVarFunc']),
             new \Twig_SimpleFunction('header_var', [$this, 'pageHeaderVarFunc']),
+            new \Twig_SimpleFunction('read_file', [$this, 'readFileFunc']),
 
         ];
     }
@@ -1044,6 +1045,26 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Simple function to read a file based on a filepath and output it
+     *
+     * @param $filepath
+     * @return bool|string
+     */
+    public function readFileFunc($filepath)
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+
+        if ($locator->isStream($filepath)) {
+            $filepath = $locator->findResource($filepath);
+        }
+
+        if (file_exists($filepath)) {
+            return file_get_contents($filepath);
         }
     }
 
