@@ -93,6 +93,20 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Check if this medium exists or not
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        $path = $this->get('filepath');
+        if (file_exists($path)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Returns an array containing just the metadata
      *
      * @return array
