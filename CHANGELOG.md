@@ -4,6 +4,7 @@
 1. [](#new)
     * Added new `Collection::toExtendedArray()` method that's particularly useful for Json output of data
     * Added new `|yaml_encode` and `|yaml_decode` Twig filter to convert to and from YAML
+    * Added new `read_file()` Twig function to allow you to load and display a file in Twig (Supports streams and regular paths)
 1. [](#improved)
     * Better `Page.collection()` filtering support including ability to have non-published pages in collections
 
