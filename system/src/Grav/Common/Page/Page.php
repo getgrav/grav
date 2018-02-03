@@ -683,7 +683,8 @@ class Page
             $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
-                $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
+                $this->content = str_replace("<p>{$delimiter}</p>", '</div>', $this->content);
+                $this->content = '<div class="summary">' . $this->content; 
             }
 
         }
