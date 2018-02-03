@@ -617,7 +617,7 @@ class Assets
 
         $inlineGroup = array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline';
 
-        $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
+        $attributes = $this->attributes($attributes);
 
         $output = '';
         $inline_js = '';
