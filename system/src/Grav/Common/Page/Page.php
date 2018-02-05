@@ -1525,12 +1525,13 @@ class Page
                             $separator = strpos($key, ':');
                             $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry = [
-                                'name' => $key,
                                 'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
                             ];
 
-                            if ($hasSeparator) {
+                            if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {
                                 $entry['property'] = $key;
+                            } else {
+                                $entry['name'] = $key;
                             }
 
                             $this->metadata[$key] = $entry;

@@ -8,6 +8,8 @@
     * Added a new `Medium::exists()` method to check for file existence
 1. [](#improved)
     * Better `Page.collection()` filtering support including ability to have non-published pages in collections
+1. [](#bugfix)    
+    * Fixed OpenGraph metatags so only Twitter uses `name=`, and all others use `property=` [#1849](https://github.com/getgrav/grav/issues/1849)
 
 # v1.4.0-rc.1
 ## 01/22/2018
