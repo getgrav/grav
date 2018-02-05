@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Language
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -170,7 +170,7 @@ class Language
      */
     public function setActiveFromUri($uri)
     {
-        $regex = '/(^\/(' . $this->getAvailable() . '))(?:\/.*|$)/i';
+        $regex = '/(^\/(' . $this->getAvailable() . '))(?:\/|\?|$)/i';
 
         // if languages set
         if ($this->enabled()) {
@@ -178,7 +178,7 @@ class Language
             if (preg_match($regex, $uri, $matches)) {
                 $this->lang_in_url = true;
                 $this->active = $matches[2];
-                $uri = preg_replace("/\\" . $matches[1] . "/", '', $matches[0], 1);
+                $uri = preg_replace("/\\" . $matches[1] . "/", '', $uri, 1);
 
                 // store in session if different
                 if ($this->config->get('system.session.enabled', false)
@@ -203,6 +203,15 @@ class Language
                         }
                     }
 
+                    // repeat if not found, try base language only - fixes Safari sending the language code always
+                    // with a locale (e.g. it-it or fr-fr)
+                    foreach ($preferred as $lang) {
+                        $lang = substr($lang, 0, 2);
+                        if ($this->validate($lang)) {
+                            $this->active = $lang;
+                            break;
+                        }
+                    }
                 }
             }
         }

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Errors
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -44,7 +44,7 @@ class SimplePageHandler extends Handler
         $vars = array(
             "stylesheet" => file_get_contents($cssFile),
             "code"        => $code,
-            "message"     => $message,
+            "message"     => filter_var(rawurldecode($message), FILTER_SANITIZE_STRING),
         );
 
         $helper->setVariables($vars);

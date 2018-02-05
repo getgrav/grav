@@ -11,7 +11,7 @@ class GpmStub extends GPM
 {
     public $data;
 
-    public function findPackage($packageName)
+    public function findPackage($packageName, $ignore_exception = false)
     {
         if (isset($this->data[$packageName])) {
             return $this->data[$packageName];
@@ -80,12 +80,12 @@ class GpmTest extends \Codeception\TestCase\Test
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
 
-        $this->assertTrue(is_array($dependencies));
-        $this->assertSame(5, count($dependencies));
+        $this->assertInternalType('array', $dependencies);
+        $this->assertCount(5, $dependencies);
 
-        $this->assertTrue($dependencies['grav'] == '>=1.0.10');
-        $this->assertTrue(isset($dependencies['errors']));
-        $this->assertTrue(isset($dependencies['problems']));
+        $this->assertSame('>=1.0.10', $dependencies['grav']);
+        $this->assertArrayHasKey('errors', $dependencies);
+        $this->assertArrayHasKey('problems', $dependencies);
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Second working example
@@ -93,9 +93,9 @@ class GpmTest extends \Codeception\TestCase\Test
         $packages = ['admin', 'form'];
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertTrue(is_array($dependencies));
-        $this->assertSame(5, count($dependencies));
-        $this->assertTrue($dependencies['errors'] == '>=3.2');
+        $this->assertInternalType('array', $dependencies);
+        $this->assertCount(5, $dependencies);
+        $this->assertSame('>=3.2', $dependencies['errors']);
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Third working example
@@ -124,9 +124,9 @@ class GpmTest extends \Codeception\TestCase\Test
 
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertTrue(is_array($dependencies));
-        $this->assertSame(1, count($dependencies));
-        $this->assertTrue($dependencies['errors'] == '>=4.0');
+        $this->assertInternalType('array', $dependencies);
+        $this->assertCount(1, $dependencies);
+        $this->assertSame('>=4.0', $dependencies['errors']);
 
 
 
@@ -161,10 +161,10 @@ class GpmTest extends \Codeception\TestCase\Test
 
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertTrue($dependencies['package1'] == '>=4.0.0-rc2');
-        $this->assertTrue($dependencies['package2'] == '>=3.2.0-beta.11');
-        $this->assertTrue($dependencies['package3'] == '>=3.2.0-alpha.2');
-        $this->assertTrue($dependencies['package4'] == '>=3.2.0');
+        $this->assertSame('>=4.0.0-rc2', $dependencies['package1']);
+        $this->assertSame('>=3.2.0-beta.11', $dependencies['package2']);
+        $this->assertSame('>=3.2.0-alpha.2', $dependencies['package3']);
+        $this->assertSame('>=3.2.0', $dependencies['package4']);
 
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -253,14 +253,14 @@ class GpmTest extends \Codeception\TestCase\Test
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
 
-        $this->assertTrue(is_array($dependencies));
-        $this->assertSame(7, count($dependencies));
+        $this->assertInternalType('array', $dependencies);
+        $this->assertCount(7, $dependencies);
 
         $this->assertSame('>=1.0.10', $dependencies['grav']);
-        $this->assertTrue(isset($dependencies['errors']));
-        $this->assertTrue(isset($dependencies['problems']));
-        $this->assertTrue(isset($dependencies['antimatter']));
-        $this->assertTrue(isset($dependencies['something']));
+        $this->assertArrayHasKey('errors', $dependencies);
+        $this->assertArrayHasKey('problems', $dependencies);
+        $this->assertArrayHasKey('antimatter', $dependencies);
+        $this->assertArrayHasKey('something', $dependencies);
         $this->assertSame('>=3.2', $dependencies['something']);
     }
 
@@ -316,8 +316,8 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('>=2.0.2'));
         $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('~2.0.2'));
         $this->assertSame('1', $this->gpm->calculateVersionNumberFromDependencyVersion('~1'));
-        $this->assertSame(null, $this->gpm->calculateVersionNumberFromDependencyVersion(''));
-        $this->assertSame(null, $this->gpm->calculateVersionNumberFromDependencyVersion('*'));
+        $this->assertNull($this->gpm->calculateVersionNumberFromDependencyVersion(''));
+        $this->assertNull($this->gpm->calculateVersionNumberFromDependencyVersion('*'));
         $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('2.0.2'));
     }
 }

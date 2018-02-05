@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -118,6 +118,13 @@ class Debugger
         }
 
         return $this;
+    }
+
+    public function getCaller($ignore = 2)
+    {
+        $trace = debug_backtrace(false, $ignore);
+
+        return array_pop($trace);
     }
 
     /**

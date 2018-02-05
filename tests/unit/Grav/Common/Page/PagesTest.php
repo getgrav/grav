@@ -41,19 +41,19 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->pages->base('/test');
         $this->assertSame('/test', $this->pages->base());
         $this->pages->base('');
-        $this->assertSame(null, $this->pages->base());
+        $this->assertNull($this->pages->base());
     }
 
     public function testLastModified()
     {
-        $this->assertSame(null, $this->pages->lastModified());
+        $this->assertNull($this->pages->lastModified());
         $this->pages->lastModified('test');
         $this->assertSame('test', $this->pages->lastModified());
     }
 
     public function testInstances()
     {
-        $this->assertTrue(is_array($this->pages->instances()));
+        $this->assertInternalType('array', $this->pages->instances());
         foreach($this->pages->instances() as $instance) {
             $this->assertInstanceOf('Grav\Common\Page\Page', $instance);
         }
@@ -64,7 +64,7 @@ class PagesTest extends \Codeception\TestCase\Test
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        $this->assertTrue(is_array($this->pages->routes()));
+        $this->assertInternalType('array', $this->pages->routes());
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/']);
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/home']);
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog', $this->pages->routes()['/blog']);
@@ -84,7 +84,7 @@ class PagesTest extends \Codeception\TestCase\Test
 
         $this->pages->addPage($aPage, '/new-page');
 
-        $this->assertTrue(in_array('/new-page', array_keys($this->pages->routes())));
+        $this->assertContains('/new-page', array_keys($this->pages->routes()));
         $this->assertSame($locator->findResource('tests://') . '/fake/single-pages/01.simple-page', $this->pages->routes()['/new-page']);
     }
 
@@ -96,28 +96,28 @@ class PagesTest extends \Codeception\TestCase\Test
         $aPage = $this->pages->dispatch('/blog');
         $subPagesSorted = $this->pages->sort($aPage);
 
-        $this->assertTrue(is_array($subPagesSorted));
-        $this->assertTrue(count($subPagesSorted) === 2);
+        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[1]);
 
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)));
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
         $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
         $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
 
         $subPagesSorted = $this->pages->sort($aPage, null, 'desc');
 
-        $this->assertTrue(is_array($subPagesSorted));
-        $this->assertTrue(count($subPagesSorted) === 2);
+        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[1]);
 
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)));
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
         $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
         $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
@@ -131,28 +131,28 @@ class PagesTest extends \Codeception\TestCase\Test
         $aPage = $this->pages->dispatch('/blog');
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy());
 
-        $this->assertTrue(is_array($subPagesSorted));
-        $this->assertTrue(count($subPagesSorted) === 2);
+        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[1]);
 
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)));
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
         $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
         $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
 
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy(), 'desc');
 
-        $this->assertTrue(is_array($subPagesSorted));
-        $this->assertTrue(count($subPagesSorted) === 2);
+        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
         $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[1]);
 
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)));
-        $this->assertTrue(in_array($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
         $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
         $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
@@ -165,12 +165,12 @@ class PagesTest extends \Codeception\TestCase\Test
 
         //Page existing
         $aPage = $this->pages->get($locator->findResource('tests://') . '/fake/simple-site/user/pages/03.about');
-        $this->assertTrue(is_object($aPage));
+        $this->assertInternalType('object', $aPage);
         $this->assertInstanceOf('Grav\Common\Page\Page', $aPage);
 
         //Page not existing
         $anotherPage = $this->pages->get($locator->findResource('tests://') . '/fake/simple-site/user/pages/03.non-existing');
-        $this->assertFalse(is_object($anotherPage));
+        $this->assertNotInternalType('object', $anotherPage);
         $this->assertNull($anotherPage);
     }
 
@@ -218,8 +218,8 @@ class PagesTest extends \Codeception\TestCase\Test
 
     public function testAll()
     {
-        $this->assertTrue(is_object($this->pages->all()));
-        $this->assertTrue(is_array($this->pages->all()->toArray()));
+        $this->assertInternalType('object', $this->pages->all());
+        $this->assertInternalType('array', $this->pages->all()->toArray());
         foreach($this->pages->all() as $page) {
             $this->assertInstanceOf('Grav\Common\Page\Page', $page);
         }
@@ -228,9 +228,9 @@ class PagesTest extends \Codeception\TestCase\Test
     public function testGetList()
     {
         $list = $this->pages->getList();
-        $this->assertTrue(is_array($list));
-        $this->assertSame('Home', $list['/']);
-        $this->assertSame('Blog', $list['/blog']);
+        $this->assertInternalType('array', $list);
+        $this->assertSame('&mdash;-&rtrif; Home', $list['/']);
+        $this->assertSame('&mdash;-&rtrif; Blog', $list['/blog']);
     }
 
     public function testGetTypes()

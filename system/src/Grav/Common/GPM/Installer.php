@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -58,6 +58,7 @@ class Installer
         'sophisticated'   => false,
         'theme'           => false,
         'install_path'    => '',
+        'ignores'         => [],
         'exclude_checks'  => [self::EXISTS, self::NOT_FOUND, self::IS_LINK]
     ];
 
@@ -134,7 +135,7 @@ class Installer
                 self::moveInstall($extracted, $install_path);
             }
         } else {
-            self::sophisticatedInstall($extracted, $install_path);
+            self::sophisticatedInstall($extracted, $install_path, $options['ignores']);
         }
 
         Folder::delete($tmp);
@@ -237,6 +238,12 @@ class Installer
             return $class_name;
         }
 
+        $class_name_alphanumeric = preg_replace('/[^a-zA-Z0-9]+/', '', $class_name);
+
+        if (class_exists($class_name_alphanumeric)) {
+            return $class_name_alphanumeric;
+        }
+
         return $installer;
     }
 
@@ -280,11 +287,11 @@ class Installer
      *
      * @return bool
      */
-    public static function sophisticatedInstall($source_path, $install_path)
+    public static function sophisticatedInstall($source_path, $install_path, $ignores = [])
     {
         foreach (new \DirectoryIterator($source_path) as $file) {
 
-            if ($file->isLink() || $file->isDot()) {
+            if ($file->isLink() || $file->isDot() || in_array($file->getBasename(),$ignores)) {
                 continue;
             }
 
@@ -296,7 +303,7 @@ class Installer
 
                 if ($file->getBasename() == 'bin') {
                     foreach (glob($path . DS . '*') as $bin_file) {
-                           @chmod($bin_file, 0755);
+                        @chmod($bin_file, 0755);
                     }
                 }
             } else {

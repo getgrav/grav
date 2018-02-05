@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -83,8 +83,10 @@ class Session extends BaseSession
               $session_name .= '-admin';
             }
             $this->setName($session_name);
+            ini_set('session.cookie_secure', $secure);
+            ini_set('session.cookie_httponly', $httponly);
             $this->start();
-            setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
+            setcookie(session_name(), session_id(), $session_timeout ? time() + $session_timeout : 0, $session_path, $domain, $secure, $httponly);
         }
     }
 
@@ -102,5 +104,21 @@ class Session extends BaseSession
         $this->$name = null;
 
         return $object;
+    }
+
+    // Store something in cookie temporarily
+    public function setFlashCookieObject($name, $object, $time = 60)
+    {
+        setcookie($name, json_encode($object), time() + $time, '/');
+    }
+
+    // Return object and remove it from the cookie
+    public function getFlashCookieObject($name)
+    {
+        if (isset($_COOKIE[$name])) {
+            $object = json_decode($_COOKIE[$name]);
+            setcookie($name, '', time() - 3600, '/');
+            return $object;
+        }
     }
 }

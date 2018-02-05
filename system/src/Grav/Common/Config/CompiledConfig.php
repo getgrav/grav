@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Config
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -77,6 +77,7 @@ class CompiledConfig extends CompiledBase
     protected function finalizeObject()
     {
         $this->object->checksum($this->checksum());
+        $this->object->timestamp($this->timestamp());
     }
 
     /**

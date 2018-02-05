@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -27,13 +27,18 @@ class Plugins extends Iterator
         $locator = Grav::instance()['locator'];
 
         $iterator = $locator->getIterator('plugins://');
-        foreach ($iterator as $directory) {
+
+        $plugins = [];
+        foreach($iterator as $directory) {
             if (!$directory->isDir()) {
                 continue;
             }
+            $plugins[] = $directory->getBasename();
+        }
 
-            $plugin = $directory->getBasename();
+        natsort($plugins);
 
+        foreach ($plugins as $plugin) {
             $this->add($this->loadPlugin($plugin));
         }
     }

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.FileSystem
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -104,11 +104,12 @@ abstract class Folder
 
         $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
 
-        foreach ($iterator as $filepath => $file) {
-            $files[] = $file->getPath() . $file->getMTime();
+        foreach ($iterator as $file) {
+            $files[] = $file->getPathname() . '?'. $file->getMTime();
         }
 
-        return md5(serialize($files));
+        $hash = md5(serialize($files));
+        return $hash;
     }
 
     /**
@@ -332,7 +333,8 @@ abstract class Folder
      */
     public static function move($source, $target)
     {
-        if (!is_dir($source)) {
+        if (!file_exists($source) || !is_dir($source)) {
+            // Rename fails if source folder does not exist.
             throw new \RuntimeException('Cannot move non-existing folder.');
         }
 
@@ -341,11 +343,24 @@ abstract class Folder
             return;
         }
 
+        if (file_exists($target)) {
+            // Rename fails if target folder exists.
+            throw new \RuntimeException('Cannot move files to existing folder/file.');
+        }
+
         // Make sure that path to the target exists before moving.
         self::create(dirname($target));
 
-        $success = @rename($source, $target);
-        if (!$success) {
+        // Silence warnings (chmod failed etc).
+        @rename($source, $target);
+
+        // Rename function can fail while still succeeding, so let's check if the folder exists.
+        if (!file_exists($target) || !is_dir($target)) {
+            // In some rare cases rename() creates file, not a folder. Get rid of it.
+            if (file_exists($target)) {
+                @unlink($target);
+            }
+            // Rename doesn't support moving folders across filesystems. Use copy instead.
             self::copy($source, $target);
             self::delete($source);
         }
@@ -353,6 +368,7 @@ abstract class Folder
         // Make sure that the change will be detected when caching.
         @touch(dirname($source));
         @touch(dirname($target));
+        @touch($target);
     }
 
     /**

@@ -83,17 +83,10 @@ $ bin/gpm update
 
 
 # Contributing
-We appreciate any contribution to Grav, whether it is related to bugs, grammar, or simply a suggestion or improvement.
-However, we ask that any contributions follow our simple guidelines in order to be properly received.
+We appreciate any contribution to Grav, whether it is related to bugs, grammar, or simply a suggestion or improvement! Please refer to the [Contributing guide](CONTRIBUTING.md) for more guidance on this topic.
 
-All our projects follow the [GitFlow branching model][gitflow-model], from development to release. If you are not familiar with it, there are several guides and tutorials to make you understand what it is about.
-
-You will probably want to get started by installing [this very good collection of git extensions][gitflow-extensions].
-
-What you mainly want to know is that:
-
-- All the main activity happens in the `develop` branch. Any pull request should be addressed only to that branch. We will not consider pull requests made to the `master`.
-- It's very well appreciated, and highly suggested, to start a new feature whenever you want to make changes or add functionalities. It will make it much easier for us to just checkout your feature branch and test it, before merging it into `develop`
+## Security issues
+If you discover a possible security issue related to Grav or one of its plugins, please email the core team at contact@getgrav.org and we'll address it as soon as possible.
 
 # Getting Started
 
@@ -108,9 +101,11 @@ What you mainly want to know is that:
 
 * Have a look at our [Basic Tutorial](https://learn.getgrav.org/basics/basic-tutorial)
 * Dive into more [advanced](https://learn.getgrav.org/advanced) functions
+* Learn about the [Grav CLI](https://learn.getgrav.org/cli-console/grav-cli)
+* Review examples in the [Grav Cookbook](https://learn.getgrav.org/cookbook)
 
 # Backers
-Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/grav#backer)]
+Support Grav with a monthly donation to help us continue development. [[Become a backer](https://opencollective.com/grav#backer)]
 
 <a href="https://opencollective.com/grav/backer/0/website" target="_blank"><img src="https://opencollective.com/grav/backer/0/avatar.svg"></a>
 <a href="https://opencollective.com/grav/backer/1/website" target="_blank"><img src="https://opencollective.com/grav/backer/1/avatar.svg"></a>

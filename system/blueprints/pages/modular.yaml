@@ -42,6 +42,6 @@ form:
               type: ignore
             content:
               type: ignore
-            uploads:
+            header.media_order:
               type: ignore
 
