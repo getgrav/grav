@@ -8,6 +8,7 @@
     * Added a new `Medium::exists()` method to check for file existence
 1. [](#improved)
     * Better `Page.collection()` filtering support including ability to have non-published pages in collections
+    * Stopped Chrome from auto-completing admin user profile form [#1847](https://github.com/getgrav/grav/issues/1847)
 1. [](#bugfix)    
     * Fixed OpenGraph metatags so only Twitter uses `name=`, and all others use `property=` [#1849](https://github.com/getgrav/grav/issues/1849)
 
