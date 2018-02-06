@@ -422,7 +422,7 @@ form:
             fields:
                 pages.markdown.extra:
                     type: toggle
-                    label: Markdown extra
+                    label: PLUGIN_ADMIN.MARKDOWN_EXTRA
                     help: PLUGIN_ADMIN.MARKDOWN_EXTRA_HELP
                     highlight: 0
                     options:
@@ -432,7 +432,7 @@ form:
                         type: bool
                 pages.markdown.extra_escape_fences:
                     type: toggle
-                    label: Escape HTML elements in markdown extra fences
+                    label: PLUGIN_ADMIN.MARKDOWN_EXTRA_ESCAPE_FENCES
                     help: PLUGIN_ADMIN.MARKDOWN_EXTRA_ESCAPE_FENCES_HELP
                     highlight: 1
                     options:

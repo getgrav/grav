@@ -772,7 +772,7 @@ class Page
         if ($defaults['extra']) {
             $parsedown = new ParsedownExtra($this, $defaults);
             if ($config->get("system.pages.markdown.extra_escape_fences")) {
-                include_once "ParsedownExtraUtil.php";
+                include_once __DIR__ . "/../Markdown/ParsedownExtraUtil.php";
                 $content = escapeFences($content);
                 $needToUnescape = true;
             }
