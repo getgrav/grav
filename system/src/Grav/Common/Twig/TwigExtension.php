@@ -185,10 +185,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
         $email   = '';
         for ( $i = 0, $len = strlen( $str ); $i < $len; $i++ ) {
-            $j = rand( 0, 1);
-            if ( $j == 0 ) {
+            $j = mt_rand( 0, 1);
+            if ( $j === 0 ) {
                 $email .= '&#' . ord( $str[$i] ) . ';';
-            } elseif ( $j == 1 ) {
+            } elseif ( $j === 1 ) {
                 $email .= $str[$i];
             }
         }
@@ -218,7 +218,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         $random = array_slice($original, $offset);
         shuffle($random);
 
-        $sizeOf = sizeof($original);
+        $sizeOf = count($original);
         for ($x = 0; $x < $sizeOf; $x++) {
             if ($x < $offset) {
                 $sorted[] = $original[$x];
@@ -233,9 +233,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Returns the modulus of an integer
      *
-     * @param  int   $number
-     * @param  int   $divider
-     * @param  array $items array of items to select from to return
+     * @param  string|int   $number
+     * @param  int          $divider
+     * @param  array        $items array of items to select from to return
      *
      * @return int
      */
@@ -250,9 +250,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         if (is_array($items)) {
             if (isset($items[$remainder])) {
                 return $items[$remainder];
-            } else {
-                return $items[0];
             }
+
+            return $items[0];
         }
 
         return $remainder;
@@ -283,20 +283,23 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         $inflector = $this->grav['inflector'];
 
-        if (in_array(
+        if (\in_array(
             $action,
-            ['titleize', 'camelize', 'underscorize', 'hyphenize', 'humanize', 'ordinalize', 'monthize']
+            ['titleize', 'camelize', 'underscorize', 'hyphenize', 'humanize', 'ordinalize', 'monthize'],
+            true
         )) {
             return $inflector->$action($data);
-        } elseif (in_array($action, ['pluralize', 'singularize'])) {
+        }
+
+        if (\in_array($action, ['pluralize', 'singularize'], true)) {
             if ($count) {
                 return $inflector->$action($data, $count);
-            } else {
-                return $inflector->$action($data);
             }
-        } else {
-            return $data;
+
+            return $inflector->$action($data);
         }
+
+        return $data;
     }
 
     /**
@@ -363,13 +366,13 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param  string   $filter
      * @param array|int $direction
      *
-     * @return string
+     * @return array
      */
-    public function sortByKeyFilter(array $input, $filter, $direction = SORT_ASC)
+    public function sortByKeyFilter($input, $filter, $direction = SORT_ASC)
     {
         $output = [];
 
-        if (!$input) {
+        if (!is_array($input) || !$input) {
             return $output;
         }
 
@@ -391,7 +394,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function ksortFilter($array)
     {
-        if (is_null($array)) {
+        if (null === $array) {
             $array = [];
         }
         ksort($array);
@@ -516,9 +519,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         if ($now == $unix_date) {
             return "{$tense}";
         }
-        else {
-            return "$difference $periods[$j] {$tense}";
-        }
+
+        return "$difference $periods[$j] {$tense}";
     }
 
     /**
@@ -593,11 +595,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function definedDefaultFilter($value, $default = null)
     {
-        if (isset($value)) {
-            return $value;
-        } else {
-            return $default;
-        }
+        return null !== $value ? $value : $default;
     }
 
     /**
@@ -698,7 +696,6 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         $template = $env->createTemplate($twig);
         return $template->render($context);
-;
     }
 
     /**
@@ -710,8 +707,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function evaluateStringFunc($context, $string )
     {
-        $parsed = $this->evaluateTwigFunc($context, "{{ $string }}");
-        return $parsed;
+        return $this->evaluateTwigFunc($context, "{{ $string }}");
     }
 
 
@@ -813,7 +809,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      *
      * @param string $key           key of item
      * @param string $val           value of item
-     * @param string $current_array optional array to add to
+     * @param array  $current_array optional array to add to
      *
      * @return array
      */
@@ -821,10 +817,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
         if (empty($current_array)) {
             return array($key => $val);
-        } else {
-            $current_array[$key] = $val;
-            return $current_array;
         }
+
+        $current_array[$key] = $val;
+        return $current_array;
     }
 
     /**
@@ -838,10 +834,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
         if ($array1 instanceof Collection && $array2 instanceof Collection) {
             return $array1->intersect($array2);
-        } else {
-            return array_intersect($array1, $array2);
         }
 
+        return array_intersect($array1, $array2);
     }
 
     /**
@@ -855,9 +850,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
         if (is_array($value)) { //format the array as a string
             return json_encode($value);
-        } else {
-            return $value;
         }
+
+        return $value;
     }
 
     /**
@@ -891,8 +886,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         foreach ($action as $key => $perms) {
             $prefix = is_int($key) ? '' : $key . '.';
             $perms = $prefix ? (array) $perms : [$perms => true];
-            foreach ($perms as $action => $authenticated) {
-                if ($this->grav['user']->authorize($prefix . $action)) {
+            foreach ($perms as $action2 => $authenticated) {
+                if ($this->grav['user']->authorize($prefix . $action2)) {
                     return $authenticated;
                 }
             }
@@ -995,7 +990,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
         return (
             !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-            && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+            && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
 
     /**
@@ -1025,12 +1020,14 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                 if ($exif_data) {
                     if ($raw) {
                         return $exif_data->getRawData();
-                    } else {
-                        return $exif_data->getData();
                     }
+
+                    return $exif_data->getData();
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -1051,13 +1048,15 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         if (file_exists($filepath)) {
             return file_get_contents($filepath);
         }
+
+        return false;
     }
 
     /**
      * Process a folder as Media and return a media object
      *
      * @param $media_dir
-     * @return Media
+     * @return Media|null
      */
     public function mediaDirFunc($media_dir)
     {
@@ -1072,6 +1071,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return new Media($media_dir);
         }
 
+        return null;
     }
 
     /**
@@ -1087,23 +1087,32 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Returns a nicer more readable number
      *
-     * @param $number
+     * @param int|float $n
      * @return bool|string
      */
     public function niceNumberFunc($n)
     {
-
         // first strip any formatting;
-        $n = (0+str_replace(",", "", $n));
+        $n = 0 + str_replace(',', '', $n);
 
         // is this a number?
-        if (!is_numeric($n)) return false;
+        if (!is_numeric($n)) {
+            return false;
+        }
 
         // now filter it;
-        if ($n > 1000000000000) return round(($n/1000000000000), 2).' t';
-        elseif ($n > 1000000000) return round(($n/1000000000), 2).' b';
-        elseif ($n > 1000000) return round(($n/1000000), 2).' m';
-        elseif ($n > 1000) return round(($n/1000), 2).' k';
+        if ($n > 1000000000000) {
+            return round(($n/1000000000000), 2).' t';
+        }
+        if ($n > 1000000000) {
+            return round(($n/1000000000), 2).' b';
+        }
+        if ($n > 1000000) {
+            return round(($n/1000000), 2).' m';
+        }
+        if ($n > 1000) {
+            return round(($n/1000), 2).' k';
+        }
 
         return number_format($n);
     }
@@ -1135,10 +1144,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         foreach ((array)$classes as $class) {
             if (!empty($body_classes) && Utils::contains($body_classes, $class)) {
                 continue;
-            } else {
-                $val = $this->config->get('theme.' . $class, false) ? $class : false;
-                $body_classes .= $val ? ' ' . $val : '';
             }
+
+            $val = $this->config->get('theme.' . $class, false) ? $class : false;
+            $body_classes .= $val ? ' ' . $val : '';
         }
 
         return $body_classes;
@@ -1175,6 +1184,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                 }
             }
         }
+
+        return null;
     }
 
     /**

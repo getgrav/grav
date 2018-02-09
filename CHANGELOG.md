@@ -12,6 +12,7 @@
 1. [](#bugfix)    
     * Fixed OpenGraph metatags so only Twitter uses `name=`, and all others use `property=` [#1849](https://github.com/getgrav/grav/issues/1849)
     * Fixed an issue with `evaluate()` and `evaluate_twig()` Twig functions that throws invalid template error
+    * Fixed issue with `|sort_by_key` twig filter if the input was null or not an array
 
 # v1.4.0-rc.1
 ## 01/22/2018
