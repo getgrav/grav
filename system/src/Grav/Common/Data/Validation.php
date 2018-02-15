@@ -33,7 +33,7 @@ class Validation
         $method = 'type'.strtr($type, '-', '_');
 
         // If value isn't required, we will stop validation if empty value is given.
-        if ((empty($validate['required']) || (isset($validate['required']) && $validate['required'] !== true)) && ($value === null || $value === '' || ($field['type'] === 'checkbox' && $value == false))) {
+        if ((empty($validate['required']) || (isset($validate['required']) && $validate['required'] !== true)) && ($value === null || $value === '' || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))) {
             return $messages;
         }
 

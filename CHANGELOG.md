@@ -9,6 +9,7 @@
 1. [](#improved)
     * Better `Page.collection()` filtering support including ability to have non-published pages in collections
     * Stopped Chrome from auto-completing admin user profile form [#1847](https://github.com/getgrav/grav/issues/1847)
+    * Support for empty `switch` field like a `checkbox`
 1. [](#bugfix) 
     * Properly validate YAML blueprint fields so admin can save as proper YAML now  [addresses many issues]   
     * Fixed OpenGraph metatags so only Twitter uses `name=`, and all others use `property=` [#1849](https://github.com/getgrav/grav/issues/1849)
