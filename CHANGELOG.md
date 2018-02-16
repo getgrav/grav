@@ -1,3 +1,9 @@
+# v1.4.0-rc.3
+## mm/dd/2018
+
+1. [](#new)
+    * Added `Grav\Framework\Uri` classes extending PSR-7 `HTTP message UriInterface` implementation
+
 # v1.4.0-rc.2
 ## 02/15/2018
 
