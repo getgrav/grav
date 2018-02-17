@@ -1201,7 +1201,7 @@ class Uri
      */
     public static function filterUserInfo($info)
     {
-        return UriPartsFilter::filterUserInfo($info);
+        return $info !== null ? UriPartsFilter::filterUserInfo($info) : '';
     }
 
     /**
@@ -1218,7 +1218,7 @@ class Uri
      */
     public static function filterPath($path)
     {
-        return UriPartsFilter::filterPath($path);
+        return $path !== null ? UriPartsFilter::filterPath($path) : '';
     }
 
     /**
@@ -1229,6 +1229,6 @@ class Uri
      */
     public static function filterQuery($query)
     {
-        return UriPartsFilter::filterQueryOrFragment($query);
+        return $query !== null ? UriPartsFilter::filterQueryOrFragment($query) : '';
     }
 }
