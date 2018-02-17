@@ -9,7 +9,6 @@
 namespace Grav\Framework\Psr7;
 
 use Grav\Framework\Uri\UriFilter;
-use Grav\Framework\Uri\UriHelper;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -19,6 +18,11 @@ use Psr\Http\Message\UriInterface;
  */
 abstract class AbstractUri implements UriInterface
 {
+    protected static $defaultPorts = [
+        'http'  => 80,
+        'https' => 443
+    ];
+
     /** @var string Uri scheme. */
     private $scheme = '';
 
@@ -384,9 +388,18 @@ abstract class AbstractUri implements UriInterface
         }
     }
 
+    protected function isDefaultPort()
+    {
+        $scheme = $this->scheme;
+        $port = $this->port;
+
+        return $this->port === null
+            || (isset(static::$defaultPorts[$scheme]) && $port === static::$defaultPorts[$scheme]);
+    }
+
     private function unsetDefaultPort()
     {
-        if ($this->port !== null && UriHelper::isDefaultPort($this)) {
+        if ($this->isDefaultPort()) {
             $this->port = null;
         }
     }
