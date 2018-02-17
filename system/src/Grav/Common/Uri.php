@@ -9,6 +9,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Page\Page;
+use Grav\Framework\Uri\UriPartsFilter;
 
 class Uri
 {
@@ -1200,13 +1201,7 @@ class Uri
      */
     public static function filterUserInfo($info)
     {
-        return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=]+|%(?![A-Fa-f0-9]{2}))/u',
-            function ($match) {
-                return rawurlencode($match[0]);
-            },
-            $info
-        );
+        return UriPartsFilter::filterUserInfo($info);
     }
 
     /**
@@ -1223,13 +1218,7 @@ class Uri
      */
     public static function filterPath($path)
     {
-        return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/u',
-            function ($match) {
-                return rawurlencode($match[0]);
-            },
-            $path
-        );
+        return UriPartsFilter::filterPath($path);
     }
 
     /**
@@ -1240,12 +1229,6 @@ class Uri
      */
     public static function filterQuery($query)
     {
-        return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/u',
-            function ($match) {
-                return rawurlencode($match[0]);
-            },
-            $query
-        );
+        return UriPartsFilter::filterQueryOrFragment($query);
     }
 }

@@ -12,7 +12,7 @@ namespace Grav\Framework\Uri;
  * Class Uri
  * @package Grav\Framework\Uri
  */
-class UriFilter
+class UriPartsFilter
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/u';
 

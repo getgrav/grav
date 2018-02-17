@@ -8,7 +8,7 @@
 
 namespace Grav\Framework\Psr7;
 
-use Grav\Framework\Uri\UriFilter;
+use Grav\Framework\Uri\UriPartsFilter;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -138,7 +138,7 @@ abstract class AbstractUri implements UriInterface
      */
     public function withScheme($scheme)
     {
-        $scheme = UriFilter::filterScheme($scheme);
+        $scheme = UriPartsFilter::filterScheme($scheme);
 
         if ($this->scheme === $scheme) {
             return $this;
@@ -158,8 +158,8 @@ abstract class AbstractUri implements UriInterface
      */
     public function withUserInfo($user, $password = '')
     {
-        $user = UriFilter::filterUserInfo($user);
-        $password = UriFilter::filterUserInfo($password);
+        $user = UriPartsFilter::filterUserInfo($user);
+        $password = UriPartsFilter::filterUserInfo($password);
 
         if ($this->user === $user && $this->password === $password) {
             return $this;
@@ -178,7 +178,7 @@ abstract class AbstractUri implements UriInterface
      */
     public function withHost($host)
     {
-        $host = UriFilter::filterHost($host);
+        $host = UriPartsFilter::filterHost($host);
 
         if ($this->host === $host) {
             return $this;
@@ -196,7 +196,7 @@ abstract class AbstractUri implements UriInterface
      */
     public function withPort($port)
     {
-        $port = UriFilter::filterPort($port);
+        $port = UriPartsFilter::filterPort($port);
 
         if ($this->port === $port) {
             return $this;
@@ -215,7 +215,7 @@ abstract class AbstractUri implements UriInterface
      */
     public function withPath($path)
     {
-        $path = UriFilter::filterPath($path);
+        $path = UriPartsFilter::filterPath($path);
 
         if ($this->path === $path) {
             return $this;
@@ -233,7 +233,7 @@ abstract class AbstractUri implements UriInterface
      */
     public function withQuery($query)
     {
-        $query = UriFilter::filterQueryOrFragment($query);
+        $query = UriPartsFilter::filterQueryOrFragment($query);
 
         if ($this->query === $query) {
             return $this;
@@ -251,7 +251,7 @@ abstract class AbstractUri implements UriInterface
      */
     public function withFragment($fragment)
     {
-        $fragment = UriFilter::filterQueryOrFragment($fragment);
+        $fragment = UriPartsFilter::filterQueryOrFragment($fragment);
 
         if ($this->fragment === $fragment) {
             return $this;
@@ -354,14 +354,14 @@ abstract class AbstractUri implements UriInterface
      */
     protected function initParts(array $parts)
     {
-        $this->scheme = isset($parts['scheme']) ? UriFilter::filterScheme($parts['scheme']) : '';
-        $this->user = isset($parts['user']) ? UriFilter::filterUserInfo($parts['user']) : '';
-        $this->password = isset($parts['pass']) ? UriFilter::filterUserInfo($parts['pass']) : '';
-        $this->host = isset($parts['host']) ? UriFilter::filterHost($parts['host']) : '';
-        $this->port = isset($parts['port']) ? UriFilter::filterPort((int)$parts['port']) : null;
-        $this->path = isset($parts['path']) ? UriFilter::filterPath($parts['path']) : '';
-        $this->query = isset($parts['query']) ? UriFilter::filterQueryOrFragment($parts['query']) : '';
-        $this->fragment = isset($parts['fragment']) ? UriFilter::filterQueryOrFragment($parts['fragment']) : '';
+        $this->scheme = isset($parts['scheme']) ? UriPartsFilter::filterScheme($parts['scheme']) : '';
+        $this->user = isset($parts['user']) ? UriPartsFilter::filterUserInfo($parts['user']) : '';
+        $this->password = isset($parts['pass']) ? UriPartsFilter::filterUserInfo($parts['pass']) : '';
+        $this->host = isset($parts['host']) ? UriPartsFilter::filterHost($parts['host']) : '';
+        $this->port = isset($parts['port']) ? UriPartsFilter::filterPort((int)$parts['port']) : null;
+        $this->path = isset($parts['path']) ? UriPartsFilter::filterPath($parts['path']) : '';
+        $this->query = isset($parts['query']) ? UriPartsFilter::filterQueryOrFragment($parts['query']) : '';
+        $this->fragment = isset($parts['fragment']) ? UriPartsFilter::filterQueryOrFragment($parts['fragment']) : '';
 
         $this->unsetDefaultPort();
         $this->validate();
