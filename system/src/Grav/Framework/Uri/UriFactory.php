@@ -80,7 +80,7 @@ class UriFactory
 
         // Build path.
         $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
-        $path = rawurldecode(parse_url('http://example.com' . $request_uri, PHP_URL_PATH));
+        $path = parse_url('http://example.com' . $request_uri, PHP_URL_PATH);
 
         // Build query string.
         $query = isset($env['QUERY_STRING']) ? $env['QUERY_STRING'] : '';
@@ -107,24 +107,58 @@ class UriFactory
     }
 
     /**
-     * Advanced `parse_url()` method.
+     * UTF-8 aware parse_url() implementation.
      *
-     * @param string $uri
+     * @param string $url
      * @return array
      * @throws \InvalidArgumentException
      */
-    public static function parseUrl($uri)
+    public static function parseUrl($url)
     {
-        if (!is_string($uri)) {
-            throw new \InvalidArgumentException('Uri must be a string');
+        if (!is_string($url)) {
+            throw new \InvalidArgumentException('URL must be a string');
         }
 
-        // Set Uri parts.
-        $parts = parse_url($uri);
+        $encodedUrl = preg_replace_callback(
+            '%[^:/@?&=#]+%u',
+            function ($matches) { return rawurlencode($matches[0]); },
+            $url
+        );
+
+        $parts = parse_url($encodedUrl);
         if ($parts === false) {
-            throw new \InvalidArgumentException('Malformed URI: ' . $uri);
+            throw new \InvalidArgumentException('Malformed URL: ' . $encodedUrl);
         }
 
         return $parts;
+    }
+
+    /**
+     * Parse query string and return it as an array.
+     *
+     * @param string $query
+     * @params bool $decode
+     * @return mixed
+     */
+    public static function parseQuery($query, $decode = false)
+    {
+        parse_str($query, $params);
+
+        if ($decode) {
+            array_map(function($str) { return rawurldecode($str); }, $params);
+        }
+
+        return $params;
+    }
+
+    /**
+     * Build query string from variables.
+     *
+     * @param array $params
+     * @return string
+     */
+    public static function buildQuery(array $params)
+    {
+        return $params ? http_build_query($params,  null, ini_get('arg_separator.output'), PHP_QUERY_RFC3986) : '';
     }
 }

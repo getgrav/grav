@@ -109,8 +109,7 @@ class Uri extends AbstractUri
     public function getQueryParams()
     {
         if ($this->queryParams === null) {
-            parse_str($this->getQuery(), $this->queryParams);
-            array_map(function($str) { return rawurldecode($str); }, $this->queryParams);
+            $this->queryParams = UriFactory::parseQuery($this->getQuery(), true);
         }
 
         return $this->queryParams;
@@ -122,7 +121,7 @@ class Uri extends AbstractUri
      */
     public function withQueryParams(array $params)
     {
-        $query = $params ? http_build_query($params) : '';
+        $query = UriFactory::buildQuery($params);
 
         return $this->withQuery($query);
     }
