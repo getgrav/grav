@@ -185,7 +185,7 @@ class UninstallCommand extends ConsoleCommand
                 if (is_array($dependency)) {
                     $dependency = $dependency['name'];
                 }
-                if ($dependency === 'grav') {
+                if ($dependency === 'grav' || $dependency === 'php') {
                     continue;
                 }
 

@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `Grav\Framework\Uri` classes extending PSR-7 `HTTP message UriInterface` implementation
+    * Added ability to have `php` version dependencies in GPM assets
 
 # v1.4.0-rc.2
 ## 02/15/2018
