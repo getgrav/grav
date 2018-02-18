@@ -18,6 +18,7 @@ class GravCore extends AbstractPackageCollection
 
     private $version;
     private $date;
+    private $min_php;
 
     /**
      * @param bool $refresh
@@ -37,6 +38,7 @@ class GravCore extends AbstractPackageCollection
         $this->data    = json_decode($this->raw, true);
         $this->version = isset($this->data['version']) ? $this->data['version'] : '-';
         $this->date    = isset($this->data['date']) ? $this->data['date'] : '-';
+        $this->min_php = isset($this->data['min_php']) ? $this->data['min_php'] : null;
 
         if (isset($this->data['assets'])) {
             foreach ((array)$this->data['assets'] as $slug => $data) {
@@ -92,6 +94,11 @@ class GravCore extends AbstractPackageCollection
         return $this->date;
     }
 
+    /**
+     * Determine if this version of Grav is eligible to be updated
+     *
+     * @return mixed
+     */
     public function isUpdatable()
     {
         return version_compare(GRAV_VERSION, $this->getVersion(), '<');
@@ -107,6 +114,25 @@ class GravCore extends AbstractPackageCollection
         return $this->version;
     }
 
+    /**
+     * Returns the minimum PHP version
+     *
+     * @return null|string
+     */
+    public function getMinPHPVersion()
+    {
+        // If non min set, assume current PHP version
+        if (is_null($this->min_php)) {
+            $this->min_php = phpversion();
+        }
+        return $this->min_php;
+    }
+
+    /**
+     * Is this installation symlinked?
+     *
+     * @return bool
+     */
     public function isSymlink()
     {
         return is_link(GRAV_ROOT . DS . 'index.php');

@@ -24,6 +24,8 @@ class Upgrader
      */
     private $remote;
 
+    private $min_php;
+
     /**
      * Creates a new GPM instance with Local and Remote packages available
      *
@@ -89,15 +91,31 @@ class Upgrader
     }
 
     /**
+     * Make sure this meets minimum PHP requirements
+     *
      * @return bool
      */
     public function meetsRequirements()
     {
-        if (version_compare(PHP_VERSION, GRAV_PHP_MIN, '<')) {
+        $current_php_version = phpversion();
+        if (version_compare($current_php_version, $this->minPHPVersion(), '<')) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Get minimum PHP version from remote
+     *
+     * @return null
+     */
+    public function minPHPVersion()
+    {
+        if (is_null($this->min_php)) {
+            $this->min_php = $this->remote->getMinPHPVersion();
+        }
+        return $this->min_php;
     }
 
     /**
