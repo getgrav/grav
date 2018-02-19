@@ -5,6 +5,8 @@
     * Added `Grav\Framework\Uri` classes extending PSR-7 `HTTP message UriInterface` implementation
     * Added `$grav['uri]->getCurrentUri()` function to get `Grav\Framework\Uri` instance for the current URL.
     * Added ability to have `php` version dependencies in GPM assets
+1. [](#improved)
+    * Vendor library updates    
 1. [](#bugfix) 
     * Fixed issue with remote PHP version determination for Grav updates
 
