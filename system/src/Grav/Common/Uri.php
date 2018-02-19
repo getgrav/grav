@@ -9,11 +9,15 @@
 namespace Grav\Common;
 
 use Grav\Common\Page\Page;
+use Grav\Framework\Uri\UriFactory;
 use Grav\Framework\Uri\UriPartsFilter;
 
 class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
+
+    /** @var \Grav\Framework\Uri\Uri */
+    protected static $currentUri;
 
     public $url;
 
@@ -594,6 +598,20 @@ class Uri
 
         return $ip;
 
+    }
+
+    /**
+     * Returns current Uri.
+     *
+     * @return \Grav\Framework\Uri\Uri
+     */
+    public static function getCurrentUri()
+    {
+        if (!static::$currentUri) {
+            static::$currentUri = UriFactory::createFromEnvironment($_SERVER);
+        }
+
+        return static::$currentUri;
     }
 
     /**
