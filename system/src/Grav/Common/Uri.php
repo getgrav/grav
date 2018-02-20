@@ -8,7 +8,10 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Config\Config;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
+use Grav\Framework\Route\RouteFactory;
 use Grav\Framework\Uri\UriFactory;
 use Grav\Framework\Uri\UriPartsFilter;
 
@@ -18,6 +21,9 @@ class Uri
 
     /** @var \Grav\Framework\Uri\Uri */
     protected static $currentUri;
+
+    /** @var \Grav\Framework\Route\Route */
+    protected static $currentRoute;
 
     public $url;
 
@@ -109,7 +115,10 @@ class Uri
     {
         $grav = Grav::instance();
 
+        /** @var Config $config */
         $config = $grav['config'];
+
+        /** @var Language $language */
         $language = $grav['language'];
 
         // add the port to the base for non-standard ports
@@ -193,6 +202,9 @@ class Uri
         $grav['base_url_absolute'] = $grav['config']->get('system.custom_base_url') ?: $this->rootUrl(true);
         $grav['base_url_relative'] = $this->rootUrl(false);
         $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
+
+        RouteFactory::setRoot($this->root_path);
+        RouteFactory::setLanguage($language->getLanguageURLPrefix());
     }
 
     /**
@@ -612,6 +624,21 @@ class Uri
         }
 
         return static::$currentUri;
+    }
+
+    /**
+     * Returns current route.
+     *
+     * @return \Grav\Framework\Route\Route
+     */
+    public static function getCurrentRoute()
+    {
+        if (!static::$currentRoute) {
+            $uri = Grav::instance()['uri'];
+            static::$currentRoute = RouteFactory::createFromParts($uri->toArray());
+        }
+
+        return static::$currentRoute;
     }
 
     /**
