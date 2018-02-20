@@ -7,6 +7,8 @@
     * Added `$grav['uri]->getCurrentUri()` method to get `Grav\Framework\Uri\Uri` instance for the current URL
     * Added `$grav['uri]->getCurrentRoute()` method to get `Grav\Framework\Route\Route` instance for the current URL
     * Added ability to have `php` version dependencies in GPM assets
+1. [](#improved)
+    * Vendor library updates    
 1. [](#bugfix) 
     * Fixed issue with remote PHP version determination for Grav updates
 
