@@ -1121,11 +1121,12 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * Get a theme variable
      *
      * @param $var
+     * @param bool $default
      * @return string
      */
-    public function themeVarFunc($var)
+    public function themeVarFunc($var, $default = null)
     {
-        return $this->config->get('theme.' . $var, false) ?: '';
+        return $this->config->get('theme.' . $var, $default);
     }
 
     /**
