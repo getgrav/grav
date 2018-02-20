@@ -109,7 +109,7 @@ class Uri extends AbstractUri
     public function getQueryParams()
     {
         if ($this->queryParams === null) {
-            $this->queryParams = UriFactory::parseQuery($this->getQuery(), true);
+            $this->queryParams = UriFactory::parseQuery($this->getQuery());
         }
 
         return $this->queryParams;

@@ -137,16 +137,11 @@ class UriFactory
      * Parse query string and return it as an array.
      *
      * @param string $query
-     * @params bool $decode
      * @return mixed
      */
-    public static function parseQuery($query, $decode = false)
+    public static function parseQuery($query)
     {
         parse_str($query, $params);
-
-        if ($decode) {
-            array_map(function($str) { return rawurldecode($str); }, $params);
-        }
 
         return $params;
     }

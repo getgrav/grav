@@ -272,7 +272,7 @@ class Route
                 $this->gravParams = RouteFactory::getParams($path);
             }
             if (isset($parts['query'])) {
-                $this->queryParams = UriFactory::parseQuery($parts['query'], true);
+                $this->queryParams = UriFactory::parseQuery($parts['query']);
             }
         }
     }
