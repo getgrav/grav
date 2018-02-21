@@ -8,7 +8,8 @@
     * Added `$grav['uri]->getCurrentRoute()` method to get `Grav\Framework\Route\Route` instance for the current URL
     * Added ability to have `php` version dependencies in GPM assets
 1. [](#improved)
-    * Vendor library updated to latest   
+    * Vendor library updated to latest  
+    * Improved `Session` initialization
 1. [](#bugfix) 
     * Fixed issue with remote PHP version determination for Grav updates
 
