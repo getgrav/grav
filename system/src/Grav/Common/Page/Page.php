@@ -2487,7 +2487,7 @@ class Page
         if ($process_taxonomy) {
             foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
                 if ($uri->param(rawurlencode($taxonomy))) {
-                    $items = explode(',', $uri->param($taxonomy));
+                    $items = explode(',', $uri->param(rawurlencode($taxonomy)));
                     $collection->setParams(['taxonomies' => [$taxonomy => $items]]);
 
                     foreach ($collection as $page) {
