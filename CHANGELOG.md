@@ -9,6 +9,7 @@
     * Added ability to have `php` version dependencies in GPM assets
     * Added new `{% switch %}` twig tag for more elegant if statements
     * Added new `{% markdown %}` twig tag
+    * Added **Route Overrides** to the default page blueprint
 1. [](#improved)
     * Vendor library updated to latest  
     * Improved `Session` initialization
