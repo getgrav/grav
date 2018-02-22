@@ -118,6 +118,9 @@ trait ObjectTrait
     {
         $data = unserialize($serialized);
 
+        if (method_exists($this, 'initObjectProperties')) {
+            $this->initObjectProperties();
+        }
         $this->doUnserialize($data);
     }
 
@@ -126,6 +129,10 @@ trait ObjectTrait
      */
     protected function doUnserialize(array $serialized)
     {
+        if (!isset($serialized['key'], $serialized['type'], $serialized['elements']) || $serialized['type'] !== $this->getType()) {
+            throw new \InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
+        }
+
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
     }
