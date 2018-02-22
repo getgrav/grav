@@ -14,10 +14,10 @@ use Grav\Common\Page\Media;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
 use Grav\Common\Twig\TokenParser\TwigTokenParserTryCatch;
+use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
-use Grav\Common\Uri;
 use Grav\Common\Helpers\Base32;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Symfony\Component\Yaml\Yaml;
@@ -69,7 +69,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
             new \Twig_SimpleFilter('ksort', [$this, 'ksortFilter']),
             new \Twig_SimpleFilter('ltrim', [$this, 'ltrimFilter']),
-            new \Twig_SimpleFilter('markdown', [$this, 'markdownFilter']),
+            new \Twig_SimpleFilter('markdown', [$this, 'markdownFunction']),
             new \Twig_SimpleFilter('md5', [$this, 'md5Filter']),
             new \Twig_SimpleFilter('base32_encode', [$this, 'base32EncodeFilter']),
             new \Twig_SimpleFilter('base32_decode', [$this, 'base32DecodeFilter']),
@@ -157,6 +157,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new TwigTokenParserTryCatch(),
             new TwigTokenParserScript(),
             new TwigTokenParserStyle(),
+            new TwigTokenParserMarkdown(),
         ];
     }
 
@@ -543,7 +544,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param bool $block  Block or Line processing
      * @return mixed|string
      */
-    public function markdownFilter($string, $block = true)
+    public function markdownFunction($string, $block = true)
     {
         $page     = $this->grav['page'];
         $defaults = $this->config->get('system.pages.markdown');
