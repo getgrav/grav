@@ -13,6 +13,7 @@ use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
+use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserTryCatch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
 use Grav\Common\Utils;
@@ -158,6 +159,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new TwigTokenParserScript(),
             new TwigTokenParserStyle(),
             new TwigTokenParserMarkdown(),
+            new TwigTokenParserSwitch(),
         ];
     }
 
