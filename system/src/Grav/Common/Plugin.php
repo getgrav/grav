@@ -359,4 +359,67 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
             $this->blueprint = $plugins->get($this->name)->blueprints();
         }
     }
+
+    /**
+     * Checks plugin dependencies.  Call this after all plugins have been loaded.
+     *
+     * @param $plugin
+     * @param $issues array Receives issues as strings.  If null, grav['messages'] is used.
+     * @return bool true if dependencies are met.
+     */
+    public static function checkDependencies($plugin, &$issues = null)
+    {
+        $grav = Grav::instance();
+        $errors = 0;
+        $messages = $grav['messages'];
+        $plugins = $grav['plugins'];
+
+        $deps = $plugin->getBlueprint()->dependencies;
+        if ($deps) {
+            foreach ($deps as $dep) {
+                $name = $dep['name'];
+                $version = $dep['version'];
+                if (!preg_match("#^([<>=]+)?(.*)#", $version, $m)) {
+                    continue;
+                }
+                $compare = $m[1];
+                $version = $m[2];
+                if (!$compare) {
+                    $compare = '=';
+                }
+
+                $found = $plugins->get($name);
+                if (!$found) {
+                    $msg = "Missing Dependency: '$name'";
+                    if (is_array($issues)) {
+                        $issues[] = $msg;
+                    } else {
+                        $messages->add($msg, 'error');
+                    }
+                    $errors++;
+                    continue;
+                }
+                $realVersion = $found->blueprints()->version;
+                if (!version_compare($realVersion, $version, $compare)) {
+                    $msg = "Missing Dependency: '$name' $version";
+                    if (is_array($issues)) {
+                        $issues[] = $msg;
+                    } else {
+                        $messages->add($msg, 'error');
+                    }
+                    $errors++;
+                    continue;
+                }
+            }
+        }
+        if ($errors > 0) {
+            $msg = "Plugin '$plugin->name' was not loaded due to dependency issues";
+            if (is_array($issues)) {
+                $issues[] = $msg;
+            } else {
+                $messages->add($msg, 'error');
+            }
+        }
+        return $errors === 0;
+    }
 }
