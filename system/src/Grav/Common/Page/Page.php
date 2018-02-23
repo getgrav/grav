@@ -17,6 +17,7 @@ use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Markdown\ParsedownExtraUtil;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -772,7 +773,6 @@ class Page
         if ($defaults['extra']) {
             $parsedown = new ParsedownExtra($this, $defaults);
             if ($config->get("system.pages.markdown.extra_escape_fences")) {
-                include_once __DIR__ . "/../Markdown/ParsedownExtraUtil.php";
                 $content = escapeFences($content);
                 $needToUnescape = true;
             }
