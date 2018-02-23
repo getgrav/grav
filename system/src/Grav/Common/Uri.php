@@ -58,7 +58,11 @@ class Uri
     protected function createFromEnvironment(array $env)
     {
         // Build scheme.
-        if (isset($env['REQUEST_SCHEME'])) {
+        if (isset($env['HTTP_X_FORWARDED_PROTO'])) {
+            $this->scheme = $env['HTTP_X_FORWARDED_PROTO'];
+        } elseif (isset($env['X-FORWARDED-PROTO'])) {
+            $this->scheme = $env['X-FORWARDED-PROTO'];
+        } elseif (isset($env['REQUEST_SCHEME'])) {
             $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
@@ -82,7 +86,15 @@ class Uri
         $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
         // Build port.
-        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
+        if (isset($env['HTTP_X_FORWARDED_PORT'])) {
+            $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
+        } elseif (isset($env['X-FORWARDED-PORT'])) {
+            $this->port = (int)$env['X-FORWARDED-PORT'];
+        } elseif (isset($env['SERVER_PORT'])) {
+            $this->port = (int)$env['SERVER_PORT'];
+        } else {
+            $this->port = null;
+        }
         if ($this->hasStandardPort()) {
             $this->port = null;
         }
