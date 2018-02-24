@@ -361,13 +361,13 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
-     * Checks plugin dependencies.  Call this after all plugins have been loaded.
+     * Checks plugin dependencies.  Call this after all plugins have been loaded and enabled.
      *
      * @param $plugin
      * @param $issues array Receives issues as strings.  If null, grav['messages'] is used.
      * @return bool true if dependencies are met.
      */
-    public static function checkDependencies($plugin, &$issues = null)
+    public static function _checkDependencies($plugin, &$issues = null)
     {
         $grav = Grav::instance();
         $errors = 0;
@@ -402,6 +402,19 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
                     }
                     $errors++;
                     continue;
+                }
+                if (!$grav['config']->get("plugins.$name.enabled")) {
+                    //BUG admin should always be enabled if installed
+                    if ($name !== 'admin') {
+                        $msg = "Dependency Not Enabled: '$name'";
+                        if (is_array($issues)) {
+                            $issues[] = $msg;
+                        } else {
+                            $messages->add($msg, 'error');
+                        }
+                        $errors++;
+                        continue;
+                    }
                 }
                 $realVersion = $found->blueprints()->version;
                 if (!version_compare($realVersion, $version, $compare)) {
