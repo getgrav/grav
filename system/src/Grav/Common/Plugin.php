@@ -378,6 +378,10 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         if ($deps) {
             foreach ($deps as $dep) {
                 $name = $dep['name'];
+                if ($name === 'grav') {
+                    //TODO check grav core version
+                    continue;
+                }
                 $version = $dep['version'];
                 if (!preg_match("#^([<>=]+)?(.*)#", $version, $m)) {
                     continue;
