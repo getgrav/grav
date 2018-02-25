@@ -85,7 +85,7 @@ class Route
     public function getRoute($offset = 0, $length = null)
     {
         if ($offset !== 0 || $length !== null) {
-            return implode('/', $this->getRouteParts($offset, $length));
+            return ($offset === 0 ? '/' : '') . implode('/', $this->getRouteParts($offset, $length));
         }
 
         return '/' . $this->route;
