@@ -78,11 +78,19 @@ class Route
     }
 
     /**
+     * @param int $offset
+     * @param int|null $length
      * @return string
      */
-    public function getRoute()
+    public function getRoute($offset = 0, $length = null)
     {
-        return '/' . $this->route;
+        if ($offset !== 0 || $length !== null) {
+            $route = implode('/', $this->getRouteParts($offset, $length));
+        } else {
+            $route = $this->route;
+        }
+
+        return '/' . $route;
     }
 
     /**
