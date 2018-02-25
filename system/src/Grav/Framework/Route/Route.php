@@ -86,6 +86,22 @@ class Route
     }
 
     /**
+     * @param int $offset
+     * @param int|null $length
+     * @return array
+     */
+    public function getRouteParts($offset = 0, $length = null)
+    {
+        $parts = explode('/', $this->route);
+
+        if ($offset !== 0 || $length !== null) {
+            $parts = array_slice($parts, $offset, $length);
+        }
+
+        return $parts;
+    }
+
+    /**
      * Return array of both query and Grav parameters.
      *
      * If a parameter exists in both, prefer Grav parameter.
