@@ -14,7 +14,8 @@
     * Vendor library updated to latest  
     * Improved `Session` initialization
 1. [](#bugfix) 
-    * Fixed issue with remote PHP version determination for Grav updates
+    * Fixed issue with image alt tag always getting empted out unless set in markdown
+    * Fixed issue with remote PHP version determination for Grav updates [#1883](https://github.com/getgrav/grav/issues/1883)
 
 # v1.4.0-rc.2
 ## 02/15/2018
