@@ -1129,7 +1129,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function themeVarFunc($var, $default = null)
     {
-        return $this->config->get('theme.' . $var, $default);
+        $header = $this->grav['page']->header();
+        $header_classes = isset($header->$var) ? $header->$var : null;
+        return $header_classes ?: $this->config->get('theme.' . $var, $default);
     }
 
     /**
