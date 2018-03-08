@@ -14,6 +14,7 @@
     * Vendor library updated to latest  
     * Improved `Session` initialization
     * Added ability to set a `theme_var()` option in page frontmatter
+    * Force clearing PHP `clearstatcache` and `opcache-reset` on `Cache::clear()`
 1. [](#bugfix) 
     * Fixed issue with image alt tag always getting empted out unless set in markdown
     * Fixed issue with remote PHP version determination for Grav updates [#1883](https://github.com/getgrav/grav/issues/1883)
