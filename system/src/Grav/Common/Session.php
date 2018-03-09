@@ -16,6 +16,19 @@ class Session extends BaseSession
     protected $autoStart = false;
 
     /**
+     * @param int    $lifetime Defaults to 1800 seconds.
+     * @param string $path     Cookie path.
+     * @param string $domain   Optional, domain for the session
+     * @throws \RuntimeException
+     */
+    public function __construct($lifetime, $path, $domain = null)
+    {
+        if (php_sapi_name() !== 'cli') {
+            parent::__construct($lifetime, $path, $domain);
+        }
+    }
+
+    /**
      * Initialize session.
      *
      * Code in this function has been moved into SessionServiceProvider class.
