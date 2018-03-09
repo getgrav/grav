@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Config
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -133,7 +133,7 @@ class Setup extends Data
      */
     public function __construct($container)
     {
-        $environment = isset(static::$environment) ? static::$environment : ($container['uri']->environment() ?: 'localhost');
+        $environment = null !== static::$environment ? static::$environment : ($container['uri']->environment() ?: 'localhost');
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
@@ -151,11 +151,13 @@ class Setup extends Data
 
         // Set up environment.
         $this->def('environment', $environment ?: 'cli');
-        $this->def('streams.schemes.environment.prefixes', ['' => ($environment ? ["user://{$this->environment}"] : [])]);
+        $this->def('streams.schemes.environment.prefixes', ['' => $environment ? ["user://{$this->environment}"] : []]);
     }
 
     /**
      * @return $this
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function init()
     {
@@ -175,7 +177,7 @@ class Setup extends Data
             // Update streams.
             foreach (array_reverse($files) as $path) {
                 $file = CompiledYamlFile::instance($path);
-                $content = $file->content();
+                $content = (array)$file->content();
                 if (!empty($content['schemes'])) {
                     $this->items['streams']['schemes'] = $content['schemes'] + $this->items['streams']['schemes'];
                 }
@@ -196,6 +198,7 @@ class Setup extends Data
      * Initialize resource locator by using the configuration.
      *
      * @param UniformResourceLocator $locator
+     * @throws \BadMethodCallException
      */
     public function initializeLocator(UniformResourceLocator $locator)
     {
@@ -212,7 +215,7 @@ class Setup extends Data
             $force = isset($config['force']) ? $config['force'] : false;
 
             if (isset($config['prefixes'])) {
-                foreach ($config['prefixes'] as $prefix => $paths) {
+                foreach ((array)$config['prefixes'] as $prefix => $paths) {
                     $locator->addPath($scheme, $prefix, $paths, $override, $force);
                 }
             }
@@ -229,7 +232,7 @@ class Setup extends Data
         $schemes = [];
         foreach ((array) $this->get('streams.schemes') as $scheme => $config) {
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
-            if ($type[0] != '\\') {
+            if ($type[0] !== '\\') {
                 $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
 
@@ -242,6 +245,8 @@ class Setup extends Data
     /**
      * @param UniformResourceLocator $locator
      * @throws \InvalidArgumentException
+     * @throws \BadMethodCallException
+     * @throws \RuntimeException
      */
     protected function check(UniformResourceLocator $locator)
     {

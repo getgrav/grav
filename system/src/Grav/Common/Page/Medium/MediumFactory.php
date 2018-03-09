@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,7 +34,7 @@ class MediumFactory
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get("media.types.".strtolower($ext));
+        $media_params = $config->get("media.types." . strtolower($ext));
         if (!$media_params) {
             return null;
         }
@@ -106,7 +106,7 @@ class MediumFactory
      * @param  ImageMedium $medium
      * @param  int         $from
      * @param  int         $to
-     * @return Medium
+     * @return Medium|array
      */
     public static function scaledFromMedium($medium, $from, $to)
     {
