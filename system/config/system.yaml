@@ -25,7 +25,7 @@ home:
   hide_in_urls: false                            # Hide the home route in URLs
 
 pages:
-  theme: antimatter                              # Default theme (defaults to "antimatter" theme)
+  theme: quark                                   # Default theme (defaults to "quark" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
     dir: asc                                     # Default ordering direction, "asc" or "desc"
@@ -132,6 +132,7 @@ media:
 
 session:
   enabled: true                                  # Enable Session support
+  initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
   timeout: 1800                                  # Timeout in seconds
   name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   secure: false                                  # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS

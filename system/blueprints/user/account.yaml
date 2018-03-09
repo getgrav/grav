@@ -40,6 +40,7 @@ form:
                 type: password
                 size: large
                 label: PLUGIN_ADMIN.PASSWORD
+                autocomplete: new-password
                 validate:
                   required: false
                   message: PLUGIN_ADMIN.PASSWORD_VALIDATION_MESSAGE

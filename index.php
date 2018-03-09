@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Core
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,7 +17,7 @@ if (!is_file($autoload)) {
 
 if (PHP_SAPI == 'cli-server') {
     if (!isset($_SERVER['PHP_CLI_ROUTER'])) {
-        die("PHP webserver requires a router to run Grav, please use: <pre>php -S {$_SERVER["SERVER_NAME"]}:{$_SERVER["SERVER_PORT"]} system/router.php</pre>");
+       die("PHP webserver requires a router to run Grav, please use: <pre>php -S {$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']} system/router.php</pre>");
     }
 }
 

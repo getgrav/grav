@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,6 +15,7 @@ use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\Event\EventDispatcher;
 
 class Grav extends Container
 {
@@ -38,8 +39,7 @@ class Grav extends Container
         'uri'                     => 'Grav\Common\Uri',
         'events'                  => 'RocketTheme\Toolbox\Event\EventDispatcher',
         'cache'                   => 'Grav\Common\Cache',
-        'session'                 => 'Grav\Common\Session',
-        'Grav\Common\Service\MessagesServiceProvider',
+        'Grav\Common\Service\SessionServiceProvider',
         'plugins'                 => 'Grav\Common\Plugins',
         'themes'                  => 'Grav\Common\Themes',
         'twig'                    => 'Grav\Common\Twig\Twig',
@@ -256,11 +256,6 @@ class Grav extends Container
             header('ETag: "' . md5($page->raw() . $page->modified()).'"');
         }
 
-        // Set debugger data in headers
-        if (!($format === null || $format == 'html')) {
-            $this['debugger']->enabled(false);
-        }
-
         // Set HTTP response code
         if (isset($this['page']->header()->http_response_code)) {
             http_response_code($this['page']->header()->http_response_code);
@@ -440,7 +435,7 @@ class Grav extends Container
      */
     public function fallbackUrl($path)
     {
-      	$this->fireEvent('onPageFallBackUrl');
+        $this->fireEvent('onPageFallBackUrl');
 
         /** @var Uri $uri */
         $uri = $this['uri'];
@@ -453,10 +448,11 @@ class Grav extends Container
         $supported_types = $config->get('media.types');
 
         // Check whitelist first, then ensure extension is a valid media type
-        if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {
-            return;
-        } elseif (!array_key_exists($uri_extension, $supported_types)) {
-            return;
+        if (!empty($fallback_types) && !\in_array($uri_extension, $fallback_types, true)) {
+            return false;
+        }
+        if (!array_key_exists($uri_extension, $supported_types)) {
+            return false;
         }
 
         $path_parts = pathinfo($path);

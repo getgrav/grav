@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -617,7 +617,7 @@ class Assets
 
         $inlineGroup = array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline';
 
-        $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
+        $attributes = $this->attributes($attributes);
 
         $output = '';
         $inline_js = '';

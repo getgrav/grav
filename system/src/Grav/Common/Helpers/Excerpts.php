@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Helpers
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -56,7 +56,7 @@ class Excerpts
     public static function getExcerptFromHtml($html, $tag)
     {
         $doc = new \DOMDocument();
-        $doc->loadHtml($html);
+        $doc->loadHTML($html);
         $images = $doc->getElementsByTagName($tag);
         $excerpt = null;
 
@@ -142,9 +142,9 @@ class Excerpts
                 foreach ($actions as $attrib => $value) {
                     $key = $attrib;
 
-                    if (in_array($attrib, $valid_attributes)) {
+                    if (in_array($attrib, $valid_attributes, true)) {
                         // support both class and classes.
-                        if ($attrib == 'classes') {
+                        if ($attrib === 'classes') {
                             $attrib = 'class';
                         }
                         $excerpt['element']['attributes'][$attrib] = str_replace(',', ' ', $value);
@@ -211,8 +211,8 @@ class Excerpts
         } else {
             // File is also local if scheme is http(s) and host matches.
             $local_file = isset($url_parts['path'])
-                && (empty($url_parts['scheme']) || in_array($url_parts['scheme'], ['http', 'https']))
-                && (empty($url_parts['host']) || $url_parts['host'] == Grav::instance()['uri']->host());
+                && (empty($url_parts['scheme']) || in_array($url_parts['scheme'], ['http', 'https'], true))
+                && (empty($url_parts['host']) || $url_parts['host'] === Grav::instance()['uri']->host());
 
             if ($local_file) {
                 $filename = basename($url_parts['path']);
@@ -246,13 +246,14 @@ class Excerpts
 
             // Process operations
             $medium = static::processMediaActions($medium, $url_parts);
+            $element_excerpt = $excerpt['element']['attributes'];
 
-            $alt = isset($excerpt['element']['attributes']['alt']) ? $excerpt['element']['attributes']['alt'] : '';
-            $title = isset($excerpt['element']['attributes']['title']) ? $excerpt['element']['attributes']['title'] : '';
-            $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
-            $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
+            $alt = isset($element_excerpt['alt']) ? $element_excerpt['alt'] : '';
+            $title = isset($element_excerpt['title']) ? $element_excerpt['title'] : '';
+            $class = isset($element_excerpt['class']) ? $element_excerpt['class'] : '';
+            $id = isset($element_excerpt['id']) ? $element_excerpt['id'] : '';
 
-            $excerpt['element'] = $medium->parseDownElement($title, $alt, $class, $id, true);
+            $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
 
         } else {
             // Not a current page media file, see if it needs converting to relative.

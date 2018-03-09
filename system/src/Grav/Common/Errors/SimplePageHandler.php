@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Errors
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,6 +57,7 @@ class SimplePageHandler extends Handler
      * @param $resource
      *
      * @return string
+     * @throws \RuntimeException
      */
     protected function getResource($resource)
     {
@@ -80,8 +81,7 @@ class SimplePageHandler extends Handler
 
         // If we got this far, nothing was found.
         throw new \RuntimeException(
-            "Could not find resource '$resource' in any resource paths."
-            . "(searched: " . join(", ", $this->searchPaths). ")"
+            "Could not find resource '{$resource}' in any resource paths (searched: " . implode(', ', $this->searchPaths). ')'
         );
     }
 
@@ -89,7 +89,7 @@ class SimplePageHandler extends Handler
     {
         if (!is_dir($path)) {
             throw new \InvalidArgumentException(
-                "'$path' is not a valid directory"
+                "'{$path}' is not a valid directory"
             );
         }
 

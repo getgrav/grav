@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -427,6 +427,14 @@ class Cache extends Getters
 
             $output[] = '<red>Touched: </red>' . $user_config;
             $output[] = '';
+        }
+
+        // Clear stat cache
+        @clearstatcache();
+
+        // Clear opcache
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
         }
 
         return $output;
