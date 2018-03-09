@@ -1109,7 +1109,7 @@ class Page
      */
     public function toYaml()
     {
-        return Yaml::dump($this->toArray(), 10);
+        return Yaml::dump($this->toArray(), 20);
     }
 
     /**
