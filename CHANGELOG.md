@@ -1,5 +1,5 @@
 # v1.4.1
-## 03/dd/2018
+## 03/11/2018
 
 1. [](#bugfix) 
     * Fixed session timing out because of session cookie was not being sent
