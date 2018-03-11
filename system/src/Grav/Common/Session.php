@@ -15,6 +15,12 @@ class Session extends BaseSession
     /** @var bool */
     protected $autoStart = false;
 
+    protected $lifetime;
+    protected $path;
+    protected $domain;
+    protected $secure;
+    protected $httpOnly;
+
     /**
      * @param int    $lifetime Defaults to 1800 seconds.
      * @param string $path     Cookie path.
@@ -23,6 +29,10 @@ class Session extends BaseSession
      */
     public function __construct($lifetime, $path, $domain = null)
     {
+        $this->lifetime = $lifetime;
+        $this->path = $path;
+        $this->domain = $domain;
+
         if (php_sapi_name() !== 'cli') {
             parent::__construct($lifetime, $path, $domain);
         }
@@ -37,6 +47,9 @@ class Session extends BaseSession
     {
         if ($this->autoStart) {
             $this->start();
+
+            // TODO: This setcookie shouldn't be here, session should by itself be able to update its cookie.
+            setcookie(session_name(), session_id(), $this->lifetime ? time() + $this->lifetime : 0, $this->path, $this->domain, $this->secure, $this->httpOnly);
 
             $this->autoStart = false;
         }
@@ -59,18 +72,20 @@ class Session extends BaseSession
      */
     public function setSecure($secure)
     {
+        $this->secure = $secure;
         ini_set('session.cookie_secure', (bool)$secure);
 
         return $this;
     }
 
     /**
-     * @param bool $httponly
+     * @param bool $httpOnly
      * @return $this
      */
-    public function setHttpOnly($httponly)
+    public function setHttpOnly($httpOnly)
     {
-        ini_set('session.cookie_httponly', (bool)$httponly);
+        $this->httpOnly = $httpOnly;
+        ini_set('session.cookie_httponly', (bool)$httpOnly);
 
         return $this;
     }
