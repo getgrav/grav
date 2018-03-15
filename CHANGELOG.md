@@ -2,7 +2,7 @@
 ## mm/dd/2018
 
 1. [](#new)
-    * Added new `|niceszie` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
+    * Added new `|nicefilesize` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
     * Added new `regex_filter()` Twig function to values in arrays
 
 # v1.4.1
