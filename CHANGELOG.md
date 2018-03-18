@@ -4,6 +4,9 @@
 1. [](#new)
     * Added new `|nicefilesize` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
     * Added new `regex_filter()` Twig function to values in arrays
+1. [](#improved)
+    * Added bosnian to lang codes [#1917](﻿https://github.com/getgrav/grav/issues/1917) 
+    * Improved Zip extraction error codes [#1922](﻿https://github.com/getgrav/grav/issues/1922)  
 1. [](#bugfix)
     * Fix an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
 
