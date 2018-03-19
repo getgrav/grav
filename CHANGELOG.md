@@ -9,6 +9,7 @@
     * Improved Zip extraction error codes [#1922](﻿https://github.com/getgrav/grav/issues/1922)  
 1. [](#bugfix)
     * Fix an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
+    * Fixx for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
 
 
 # v1.4.1
