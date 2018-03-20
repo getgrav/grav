@@ -12,7 +12,7 @@ patches and features.
 
 ## Grav, Plugins, Themes and Skeletons
 
-Grav is a large open source project—it's made up of over 100 repositories. When you initially consider contributing to Grav, you might be unsure about which of those 200 repositories implements the functionality you want to change or report a bug for.
+Grav is a large open source project — it's made up of over 100 repositories. When you initially consider contributing to Grav, you might be unsure about which of those 200 repositories implements the functionality you want to change or report a bug for.
 
 [https://github.com/getgrav/grav](https://github.com/getgrav/grav) is the main Grav repository. The core of Grav is provided by this repo.
 
@@ -60,20 +60,20 @@ Guidelines for bug reports:
 A good bug report shouldn't leave others needing to chase you up for more
 information. Please try to be as detailed as possible in your report.
 
-What is your environment? Is it localhost, OSX, Linux, on a remote server? Same happening locally and or the server, or just locally or just on Linux?
+- What is your environment? Is it localhost, OSX, Linux, on a remote server? Same happening locally and or the server, or just locally or just on Linux?
 
-What steps will reproduce the issue? What browser(s) and OS experience the problem?
+- What steps will reproduce the issue? What browser(s) and OS experience the problem?
 
-What would you expect to be the outcome?
+- What would you expect to be the outcome?
 
-Did the problem start happening recently (e.g. after updating to a new version of Grav) or was this always a problem?
+- Did the problem start happening recently (e.g. after updating to a new version of Grav) or was this always a problem?
 
-If the problem started happening recently, can you reproduce the problem in an older version of Grav? What's the most recent version in which the problem doesn't happen? You can download older versions of Grav from the releases page on Github.
+- If the problem started happening recently, can you reproduce the problem in an older version of Grav? What's the most recent version in which the problem doesn't happen? You can download older versions of Grav from the releases page on Github.
 
-Can you reliably reproduce the issue? If not, provide details about how often the problem happens and under which conditions it normally happens.
+- Can you reliably reproduce the issue? If not, provide details about how often the problem happens and under which conditions it normally happens.
 
 
-All these details will help people to fix any potential bugs.
+All these details will help contributors to fix any potential bugs.
 
 Important: [include Code Samples in triple backticks](https://help.github.com/articles/github-flavored-markdown/#fenced-code-blocks) so that Github will provide a proper indentation. [Add the language name after the backticks](https://help.github.com/articles/github-flavored-markdown/#syntax-highlighting) to add syntax highlighting to the code snippets.
 
@@ -120,5 +120,18 @@ accurate comments, etc.) and any other requirements.
 
 See [Using Pull Request](https://help.github.com/articles/using-pull-requests/) and [Fork a Repo](https://help.github.com/articles/fork-a-repo/) if you're not familiar with Pull Requests.
 
+Any pull request should be based on the `develop` branch. We will not consider pull requests made to master.
+
 **IMPORTANT**: By submitting a patch, you agree to allow the project owner to
 license your work under the same license as that used by the project.
+
+<a name="translations"></a>
+### Translations
+Translations for Grav core and the Admin plugin are managed through Crowdin:
+
+- Admin: https://crowdin.com/project/grav-admin
+- Core: https://crowdin.com/project/grav-core
+
+Please do not post translations PRs for core or admin translations on GitHub, with the exception of fixes for the english language.
+
+All other plugins and themes translations are handled directly in their GitHub repository, and the string are usually found in the `languages.yaml` file at the root of each project.

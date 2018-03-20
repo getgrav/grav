@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Service
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -40,7 +40,7 @@ class PageServiceProvider implements ServiceProviderInterface
             if ($page) {
                 // some debugger override logic
                 if ($page->debugger() === false) {
-                    Grav::instance()['debugger']->enabled(false);
+                    $c['debugger']->enabled(false);
                 }
 
                 if ($config->get('system.force_ssl')) {
@@ -83,7 +83,7 @@ class PageServiceProvider implements ServiceProviderInterface
             if (!$page || !$page->routable()) {
 
                 // Try fallback URL stuff...
-                $c->fallbackUrl($path);
+                $page = $c->fallbackUrl($path);
 
                 if (!$page) {
                     $path = $c['locator']->findResource('system://pages/notfound.md');
@@ -91,7 +91,6 @@ class PageServiceProvider implements ServiceProviderInterface
                     $page->init(new \SplFileInfo($path));
                     $page->routable(false);
                 }
-
             }
 
             return $page;

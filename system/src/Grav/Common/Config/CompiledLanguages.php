@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Config
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -60,9 +60,9 @@ class CompiledLanguages extends CompiledBase
     {
         $file = CompiledYamlFile::instance($filename);
         if (preg_match('|languages\.yaml$|', $filename)) {
-            $this->object->mergeRecursive((array)$file->content());
+            $this->object->mergeRecursive((array) $file->content());
         } else {
-            $this->object->join($name, $file->content(), '/');
+            $this->object->mergeRecursive([$name => $file->content()]);
         }
         $file->free();
     }

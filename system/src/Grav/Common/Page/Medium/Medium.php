@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -73,6 +73,16 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Create a copy of this media object
+     *
+     * @return Medium
+     */
+    public function copy()
+    {
+        return clone($this);
+    }
+
+    /**
      * Return just metadata from the Medium object
      *
      * @return Data
@@ -80,6 +90,20 @@ class Medium extends Data implements RenderableInterface
     public function meta()
     {
         return new Data($this->items);
+    }
+
+    /**
+     * Check if this medium exists or not
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        $path = $this->get('filepath');
+        if (file_exists($path)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -175,7 +199,7 @@ class Medium extends Data implements RenderableInterface
             $this->reset();
         }
 
-        return Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/');
+        return trim(Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/'), '\\');
     }
 
     /**
@@ -260,10 +284,14 @@ class Medium extends Data implements RenderableInterface
         }
 
         if (empty($attributes['alt'])) {
-            if (!empty($alt) || $alt === '') {
+            if (!empty($alt)) {
                 $attributes['alt'] = $alt;
             } elseif (!empty($this->items['alt'])) {
                 $attributes['alt'] = $this->items['alt'];
+            } elseif (!empty($this->items['alt_text'])) {
+                $attributes['alt'] = $this->items['alt_text'];
+            } else {
+                $attributes['alt'] = '';
             }
         }
 
@@ -367,7 +395,7 @@ class Medium extends Data implements RenderableInterface
 
         $this->mode = $mode;
 
-        return $mode === 'thumbnail' ? $this->getThumbnail()->reset() : $this->reset();
+        return $mode === 'thumbnail' ? ($this->getThumbnail() ? $this->getThumbnail()->reset() : null) : $this->reset();
     }
 
     /**
@@ -490,7 +518,7 @@ class Medium extends Data implements RenderableInterface
     {
         $qs = $method;
         if (count($args) > 1 || (count($args) == 1 && !empty($args[0]))) {
-            $qs .= '=' . implode(',', array_map(function ($a) { return urlencode($a); }, $args));
+            $qs .= '=' . implode(',', array_map(function ($a) { return rawurlencode($a); }, $args));
         }
 
         if (!empty($qs)) {

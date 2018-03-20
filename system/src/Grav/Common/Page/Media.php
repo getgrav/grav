@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -30,12 +30,19 @@ class Media extends AbstractMedia
     {
         $this->path = $path;
 
+        $this->__wakeup();
+        $this->init();
+    }
+
+    /**
+     * Initialize static variables on unserialize.
+     */
+    public function __wakeup()
+    {
         if (!isset(static::$global)) {
             // Add fallback to global media.
-            static::$global = new GlobalMedia($path);
+            static::$global = new GlobalMedia();
         }
-
-        $this->init();
     }
 
     /**
@@ -133,13 +140,16 @@ class Media extends AbstractMedia
                 continue;
             }
 
-            // Read/store Exif metadata as required
-            if ($file_path  && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
+            // metadata file
+            $meta_path = $file_path . '.meta.yaml';
+
+            if (file_exists($meta_path)) {
+                $types['meta']['file'] = $meta_path;
+            } elseif ($file_path && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
 
                 $meta = $exif_reader->read($file_path);
 
                 if ($meta) {
-                    $meta_path = $file_path . '.meta.yaml';
                     $meta_data = $meta->getData();
                     $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
                     if ($meta_trimmed) {
@@ -194,7 +204,7 @@ class Media extends AbstractMedia
      *
      * @return mixed
      */
-    function path()
+    public function path()
     {
         return $this->path;
     }
