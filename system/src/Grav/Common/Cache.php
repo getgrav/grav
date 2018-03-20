@@ -429,6 +429,14 @@ class Cache extends Getters
             $output[] = '';
         }
 
+        // Clear stat cache
+        @clearstatcache();
+
+        // Clear opcache
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
+        }
+
         return $output;
     }
 

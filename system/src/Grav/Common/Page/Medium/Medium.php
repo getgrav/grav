@@ -284,10 +284,14 @@ class Medium extends Data implements RenderableInterface
         }
 
         if (empty($attributes['alt'])) {
-            if (!empty($alt) || $alt === '') {
+            if (!empty($alt)) {
                 $attributes['alt'] = $alt;
             } elseif (!empty($this->items['alt'])) {
                 $attributes['alt'] = $this->items['alt'];
+            } elseif (!empty($this->items['alt_text'])) {
+                $attributes['alt'] = $this->items['alt_text'];
+            } else {
+                $attributes['alt'] = '';
             }
         }
 

@@ -22,6 +22,7 @@ class LanguageCodes
         'bn-BD'      => [ 'name' => 'Bengali (Bangladesh)',      'nativeName' => 'বাংলা (বাংলাদেশ)' ],
         'bn-IN'      => [ 'name' => 'Bengali (India)',           'nativeName' => 'বাংলা (ভারত)' ],
         'br'         => [ 'name' => 'Breton',                    'nativeName' => 'Brezhoneg' ],
+        'bs'         => [ 'name' => 'Bosnian',                   'nativeName' => 'Bosanski' ],
         'ca'         => [ 'name' => 'Catalan',                   'nativeName' => 'Català' ],
         'ca-valencia'=> [ 'name' => 'Catalan (Valencian)',       'nativeName' => 'Català (valencià)' ], // not iso-639-1. a=l10n-drivers
         'cs'         => [ 'name' => 'Czech',                     'nativeName' => 'Čeština' ],

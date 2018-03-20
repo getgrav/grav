@@ -611,8 +611,8 @@ class Uri
         return $ip;
 
     }
-
     /**
+
      * Returns current Uri.
      *
      * @return \Grav\Framework\Uri\Uri

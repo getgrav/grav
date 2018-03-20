@@ -1,5 +1,25 @@
-# v1.4.0-rc.3
+# v1.42
 ## mm/dd/2018
+
+1. [](#new)
+    * Added new `|nicefilesize` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
+    * Added new `regex_filter()` Twig function to values in arrays
+1. [](#improved)
+    * Added bosnian to lang codes [#1917](﻿https://github.com/getgrav/grav/issues/1917) 
+    * Improved Zip extraction error codes [#1922](﻿https://github.com/getgrav/grav/issues/1922)  
+1. [](#bugfix)
+    * Fix an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
+    * Fixx for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
+
+
+# v1.4.1
+## 03/11/2018
+
+1. [](#bugfix)
+    * Fixed session timing out because of session cookie was not being sent
+
+# v1.4.0
+## 03/09/2018
 
 1. [](#new)
     * Added `Grav\Framework\Uri` classes extending PSR-7 `HTTP message UriInterface` implementation
@@ -10,73 +30,13 @@
     * Added new `{% switch %}` twig tag for more elegant if statements
     * Added new `{% markdown %}` twig tag
     * Added **Route Overrides** to the default page blueprint
-1. [](#improved)
-    * Vendor library updated to latest  
-    * Improved `Session` initialization
-1. [](#bugfix) 
-    * Fixed issue with remote PHP version determination for Grav updates
-
-# v1.4.0-rc.2
-## 02/15/2018
-
-1. [](#new)
     * Added new `Collection::toExtendedArray()` method that's particularly useful for Json output of data
     * Added new `|yaml_encode` and `|yaml_decode` Twig filter to convert to and from YAML
     * Added new `read_file()` Twig function to allow you to load and display a file in Twig (Supports streams and regular paths)
     * Added a new `Medium::exists()` method to check for file existence
-1. [](#improved)
-    * Better `Page.collection()` filtering support including ability to have non-published pages in collections
-    * Stopped Chrome from auto-completing admin user profile form [#1847](https://github.com/getgrav/grav/issues/1847)
-    * Support for empty `switch` field like a `checkbox`
-1. [](#bugfix) 
-    * Properly validate YAML blueprint fields so admin can save as proper YAML now  [addresses many issues]   
-    * Fixed OpenGraph metatags so only Twitter uses `name=`, and all others use `property=` [#1849](https://github.com/getgrav/grav/issues/1849)
-    * Fixed an issue with `evaluate()` and `evaluate_twig()` Twig functions that throws invalid template error
-    * Fixed issue with `|sort_by_key` twig filter if the input was null or not an array
-
-# v1.4.0-rc.1
-## 01/22/2018
-
-1. [](#new)
     * Moved Twig `urlFunc()` to `Utils::url()` as its so darn handy
-1. [](#improved)
-    * Made `modular` blueprint more flexible
-    * Code optimizations to `Utils` class [#1830](https://github.com/getgrav/grav/pull/1830)
-    * Objects: Add protected function `getElement()` to get serialized value for a single property
-    * `ObjectPropertyTrait`: Added protected functions `isPropertyLoaded()`, `offsetLoad()`, `offsetPrepare()` and `offsetSerialize()`    
-    * `Grav\Framework\Cache`: Allow unlimited TTL
-    * Optimizations & refactoring to the test suite [#1779](https://github.com/getgrav/grav/pull/1779)
-    * Slight modification of Whoops error colors
-    * Updated vendor libs to latest
-1. [](#bugfix)
-    * Date ordering should always be numeric [#1810](https://github.com/getgrav/grav/issues/1810)
-
-# v1.4.0-beta.3
-## 12/29/2017
-
-1. [](#bugfix)
-    * Fix for base paths containing special characters [#1799](https://github.com/getgrav/grav/issues/1799)
-    * Fix for session cookies in paths containing special characters
-    * Fix for `vundefined` error for version numbers in GPM [form#222](https://github.com/getgrav/grav-plugin-form/issues/222)
-1. [](#improved)
-    * Added new configuration option `system.session.initialize` to delay session initialization if needed by a plugin
-
-# v1.4.0-beta.2
-## 12/18/2017
-
-1. [](#new)
     * Transferred overall copyright from RocketTheme, LLC, to Trilby Media LLC
     * Added `theme_var`, `header_var` and `body_class` Twig functions for themes
-1. [](#improved)
-    * Updated vendor libraries to latest versions
-    * Removed constructor from `ObjectInterface`
-1. [](#bugfix)
-    * Fixed `BadMethodCallException` thrown in GPM updates [#1784](https://github.com/getgrav/grav/issues/1784)
-
-# v1.4.0-beta.1
-## 12/11/2017
-
-1. [](#new)
     * Added `Grav\Framework\Cache` classes providing PSR-16 `Simple Cache` implementation
     * Added `Grav\Framework\ContentBlock` classes for nested HTML blocks with CSS/JS assets
     * Added `Grav\Framework\Object` classes for creating collections of objects
@@ -85,15 +45,39 @@
     * Added `{% script %}` and `{% style %}` tags for Twig templates
     * Deprecated GravTrait
 1. [](#improved)
+    * Improved `Session` initialization
+    * Added ability to set a `theme_var()` option in page frontmatter
+    * Force clearing PHP `clearstatcache` and `opcache-reset` on `Cache::clear()`
+    * Better `Page.collection()` filtering support including ability to have non-published pages in collections
+    * Stopped Chrome from auto-completing admin user profile form [#1847](https://github.com/getgrav/grav/issues/1847)
+    * Support for empty `switch` field like a `checkbox`
+    * Made `modular` blueprint more flexible
+    * Code optimizations to `Utils` class [#1830](https://github.com/getgrav/grav/pull/1830)
+    * Objects: Add protected function `getElement()` to get serialized value for a single property
+    * `ObjectPropertyTrait`: Added protected functions `isPropertyLoaded()`, `offsetLoad()`, `offsetPrepare()` and `offsetSerialize()`
+    * `Grav\Framework\Cache`: Allow unlimited TTL
+    * Optimizations & refactoring to the test suite [#1779](https://github.com/getgrav/grav/pull/1779)
+    * Slight modification of Whoops error colors
+    * Added new configuration option `system.session.initialize` to delay session initialization if needed by a plugin
+    * Vendor library updated to latest
+    * Updated vendor libraries to latest versions
+    * Removed constructor from `ObjectInterface`
     * Make it possible to include debug bar also into non-HTML responses
-
-# v1.3.11
-## mm/dd/2017
-
-1. [](#improved)
-    * Updated vendor libraries to latest
+    * Updated built-in JQuery to latest 3.3.1
 1. [](#bugfix)
+    * Fixed issue with image alt tag always getting empted out unless set in markdown
+    * Fixed issue with remote PHP version determination for Grav updates [#1883](https://github.com/getgrav/grav/issues/1883)
     * Fixed issue with _illegal scheme offset_ in `Uri::convertUrl()` [page-inject#8](https://github.com/getgrav/grav-plugin-page-inject/issues/8)
+    * Properly validate YAML blueprint fields so admin can save as proper YAML now  [addresses many issues]
+    * Fixed OpenGraph metatags so only Twitter uses `name=`, and all others use `property=` [#1849](https://github.com/getgrav/grav/issues/1849)
+    * Fixed an issue with `evaluate()` and `evaluate_twig()` Twig functions that throws invalid template error
+    * Fixed issue with `|sort_by_key` twig filter if the input was null or not an array
+    * Date ordering should always be numeric [#1810](https://github.com/getgrav/grav/issues/1810)
+    * Fix for base paths containing special characters [#1799](https://github.com/getgrav/grav/issues/1799)
+    * Fix for session cookies in paths containing special characters
+    * Fix for `vundefined` error for version numbers in GPM [form#222](https://github.com/getgrav/grav-plugin-form/issues/222)
+    * Fixed `BadMethodCallException` thrown in GPM updates [#1784](https://github.com/getgrav/grav/issues/1784)
+    * NOTE: Parsedown security release now escapes `&` to `&amp;` in Markdown links
 
 # v1.3.10
 ## 12/06/2017

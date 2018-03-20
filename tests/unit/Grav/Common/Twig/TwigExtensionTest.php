@@ -62,11 +62,11 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
         $threeYears   = time() - (60*60*24*365*3);
         $measures = ['minutes','hours','days','months','years'];
 
-        $this->assertSame('No date provided', $this->twig_ext->nicetimeFilter(null));
+        $this->assertSame('No date provided', $this->twig_ext->nicetimeFunc(null));
 
         for ($i=0; $i<count($measures); $i++) {
             $time = 'three' . ucfirst($measures[$i]);
-            $this->assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFilter($$time));
+            $this->assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFunc($$time));
         }
     }
 

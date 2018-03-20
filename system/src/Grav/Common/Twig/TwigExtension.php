@@ -63,8 +63,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('absolute_url', [$this, 'absoluteUrlFilter']),
             new \Twig_SimpleFilter('contains', [$this, 'containsFilter']),
             new \Twig_SimpleFilter('chunk_split', [$this, 'chunkSplitFilter']),
-
             new \Twig_SimpleFilter('nicenumber', [$this, 'niceNumberFunc']),
+            new \Twig_SimpleFilter('nicefilesize', [$this, 'niceFilesizeFunc']),
+            new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFunc']),
             new \Twig_SimpleFilter('defined', [$this, 'definedDefaultFilter']),
             new \Twig_SimpleFilter('ends_with', [$this, 'endsWithFilter']),
             new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
@@ -76,7 +77,6 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('base32_decode', [$this, 'base32DecodeFilter']),
             new \Twig_SimpleFilter('base64_encode', [$this, 'base64EncodeFilter']),
             new \Twig_SimpleFilter('base64_decode', [$this, 'base64DecodeFilter']),
-            new \Twig_SimpleFilter('nicetime', [$this, 'nicetimeFilter']),
             new \Twig_SimpleFilter('randomize', [$this, 'randomizeFilter']),
             new \Twig_SimpleFilter('modulus', [$this, 'modulusFilter']),
             new \Twig_SimpleFilter('rtrim', [$this, 'rtrimFilter']),
@@ -129,6 +129,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
+            new \Twig_SimpleFunction('regex_filter', [$this, 'regexFilter']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_simpleFunction('t', [$this, 'translate']),
             new \Twig_simpleFunction('tl', [$this, 'translateLanguage']),
@@ -145,6 +146,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('theme_var', [$this, 'themeVarFunc']),
             new \Twig_SimpleFunction('header_var', [$this, 'pageHeaderVarFunc']),
             new \Twig_SimpleFunction('read_file', [$this, 'readFileFunc']),
+            new \Twig_SimpleFunction('nicenumber', [$this, 'niceNumberFunc']),
+            new \Twig_SimpleFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
+            new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFilter']),
 
         ];
     }
@@ -255,8 +259,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                 return $items[$remainder];
             }
 
-            return $items[0];
-        }
+                return $items[0];
+            }
 
         return $remainder;
     }
@@ -299,10 +303,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                 return $inflector->$action($data, $count);
             }
 
-            return $inflector->$action($data);
-        }
+                return $inflector->$action($data);
+            }
 
-        return $data;
+            return $data;
     }
 
     /**
@@ -439,7 +443,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      *
      * @return boolean
      */
-    public function nicetimeFilter($date, $long_strings = true)
+    public function nicetimeFunc($date, $long_strings = true)
     {
         if (empty($date)) {
             return $this->grav['language']->translate('NICETIME.NO_DATE_PROVIDED', null, true);
@@ -523,7 +527,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return "{$tense}";
         }
 
-        return "$difference $periods[$j] {$tense}";
+            return "$difference $periods[$j] {$tense}";
     }
 
     /**
@@ -599,7 +603,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function definedDefaultFilter($value, $default = null)
     {
         return null !== $value ? $value : $default;
-    }
+        }
 
     /**
      * @param      $value
@@ -683,7 +687,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function urlFunc($input, $domain = false)
     {
         return Utils::url($input, $domain);
-    }
+        }
 
     /**
      * This function will evaluate Twig $twig through the $environment, and return its results.
@@ -699,6 +703,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         $template = $env->createTemplate($twig);
         return $template->render($context);
+;
     }
 
     /**
@@ -822,9 +827,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return array($key => $val);
         }
 
-        $current_array[$key] = $val;
-        return $current_array;
-    }
+            $current_array[$key] = $val;
+            return $current_array;
+        }
 
     /**
      * Wrapper for array_intersect() method
@@ -855,8 +860,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return json_encode($value);
         }
 
-        return $value;
-    }
+            return $value;
+        }
 
     /**
      * Translate a string
@@ -958,6 +963,18 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
+     * Twig wrapper for PHP's preg_grep method
+     *
+     * @param $array
+     * @param $regex
+     * @param int $flags
+     * @return array
+     */
+    public function regexFilter($array, $regex, $flags = 0) {
+        return preg_grep($regex, $array, $flags);
+    }
+
+    /**
      * redirect browser from twig
      *
      * @param string $url          the url to redirect to
@@ -1025,10 +1042,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                         return $exif_data->getRawData();
                     }
 
-                    return $exif_data->getData();
+                        return $exif_data->getData();
+                    }
                 }
             }
-        }
 
         return null;
     }
@@ -1050,7 +1067,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         if (file_exists($filepath)) {
             return file_get_contents($filepath);
-        }
+    }
 
         return false;
     }
@@ -1086,6 +1103,43 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
         var_dump($var);
     }
+
+    /**
+     * Returns a nicer more readable filesize based on bytes
+     *
+     * @param $bytes
+     * @return string
+     */
+    public function niceFilesizeFunc($bytes)
+    {
+        if ($bytes >= 1073741824)
+        {
+            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        }
+        elseif ($bytes >= 1048576)
+        {
+            $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        }
+        elseif ($bytes >= 1024)
+        {
+            $bytes = number_format($bytes / 1024, 1) . ' KB';
+        }
+        elseif ($bytes > 1)
+        {
+            $bytes = $bytes . ' bytes';
+        }
+        elseif ($bytes == 1)
+        {
+            $bytes = $bytes . ' byte';
+        }
+        else
+        {
+            $bytes = '0 bytes';
+        }
+
+        return $bytes;
+    }
+
 
     /**
      * Returns a nicer more readable number
@@ -1129,7 +1183,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function themeVarFunc($var, $default = null)
     {
-        return $this->config->get('theme.' . $var, $default);
+        $header = $this->grav['page']->header();
+        $header_classes = isset($header->$var) ? $header->$var : null;
+        return $header_classes ?: $this->config->get('theme.' . $var, $default);
     }
 
     /**

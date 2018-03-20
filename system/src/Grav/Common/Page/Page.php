@@ -1109,7 +1109,7 @@ class Page
      */
     public function toYaml()
     {
-        return Yaml::dump($this->toArray(), 10);
+        return Yaml::dump($this->toArray(), 20);
     }
 
     /**
@@ -1499,6 +1499,8 @@ class Page
 
             // Build an array of meta objects..
             foreach ((array)$metadata as $key => $value) {
+                // Lowercase the key
+                $key = strtolower($key);
                 // If this is a property type metadata: "og", "twitter", "facebook" etc
                 // Backward compatibility for nested arrays in metas
                 if (is_array($value)) {
@@ -2495,7 +2497,7 @@ class Page
 
         if ($process_taxonomy) {
             foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
-                if ($uri->param($taxonomy)) {
+                if ($uri->param(rawurlencode($taxonomy))) {
                     $items = explode(',', $uri->param($taxonomy));
                     $collection->setParams(['taxonomies' => [$taxonomy => $items]]);
 

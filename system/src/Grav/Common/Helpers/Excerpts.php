@@ -246,11 +246,12 @@ class Excerpts
 
             // Process operations
             $medium = static::processMediaActions($medium, $url_parts);
+            $element_excerpt = $excerpt['element']['attributes'];
 
-            $alt = isset($excerpt['element']['attributes']['alt']) ? $excerpt['element']['attributes']['alt'] : '';
-            $title = isset($excerpt['element']['attributes']['title']) ? $excerpt['element']['attributes']['title'] : '';
-            $class = isset($excerpt['element']['attributes']['class']) ? $excerpt['element']['attributes']['class'] : '';
-            $id = isset($excerpt['element']['attributes']['id']) ? $excerpt['element']['attributes']['id'] : '';
+            $alt = isset($element_excerpt['alt']) ? $element_excerpt['alt'] : '';
+            $title = isset($element_excerpt['title']) ? $element_excerpt['title'] : '';
+            $class = isset($element_excerpt['class']) ? $element_excerpt['class'] : '';
+            $id = isset($element_excerpt['id']) ? $element_excerpt['id'] : '';
 
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
 
