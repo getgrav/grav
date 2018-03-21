@@ -189,8 +189,57 @@ class Installer
             return $extracted_folder;
         }
 
-        self::$error = self::ZIP_EXTRACT_ERROR;
+        self::$error = self::getZipError($archive);
         return false;
+    }
+
+    /**
+     * Output a more useful ZIP error
+     *
+     * @param $res
+     * @return string
+     */
+    protected static function getZipError($res)
+    {
+        switch($res){
+            case ZipArchive::ER_EXISTS:
+                $error = "File already exists.";
+                break;
+
+            case ZipArchive::ER_INCONS:
+                $error = "Zip archive inconsistent.";
+                break;
+
+            case ZipArchive::ER_MEMORY:
+                $error = "Malloc failure.";
+                break;
+
+            case ZipArchive::ER_NOENT:
+                $error = "No such file.";
+                break;
+
+            case ZipArchive::ER_NOZIP:
+                $error = "Not a zip archive.";
+                break;
+
+            case ZipArchive::ER_OPEN:
+                $error = "Can't open file.";
+                break;
+
+            case ZipArchive::ER_READ:
+                $error = "Read error.";
+                break;
+
+            case ZipArchive::ER_SEEK:
+                $error = "Seek error.";
+                break;
+
+            default:
+                $error = self::ZIP_EXTRACT_ERROR;
+                break;
+        }
+
+        return $error;
     }
 
 

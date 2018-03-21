@@ -78,11 +78,33 @@ class Route
     }
 
     /**
+     * @param int $offset
+     * @param int|null $length
      * @return string
      */
-    public function getRoute()
+    public function getRoute($offset = 0, $length = null)
     {
+        if ($offset !== 0 || $length !== null) {
+            return ($offset === 0 ? '/' : '') . implode('/', $this->getRouteParts($offset, $length));
+        }
+
         return '/' . $this->route;
+    }
+
+    /**
+     * @param int $offset
+     * @param int|null $length
+     * @return array
+     */
+    public function getRouteParts($offset = 0, $length = null)
+    {
+        $parts = explode('/', $this->route);
+
+        if ($offset !== 0 || $length !== null) {
+            $parts = array_slice($parts, $offset, $length);
+        }
+
+        return $parts;
     }
 
     /**
