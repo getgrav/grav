@@ -1,4 +1,4 @@
-# v1.42
+# v1.4.2
 ## mm/dd/2018
 
 1. [](#new)
@@ -8,9 +8,9 @@
     * Added bosnian to lang codes [#1917](﻿https://github.com/getgrav/grav/issues/1917) 
     * Improved Zip extraction error codes [#1922](﻿https://github.com/getgrav/grav/issues/1922)  
 1. [](#bugfix)
-    * Fix an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
-    * Fixx for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
-
+    * Fixed an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
+    * Fix for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
+    * Fixed missing composer requirements for the new `Grav\Framework\Uri` classes
 
 # v1.4.1
 ## 03/11/2018
