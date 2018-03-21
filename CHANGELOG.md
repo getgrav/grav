@@ -1,5 +1,5 @@
 # v1.4.2
-## mm/dd/2018
+## 03/21/2018
 
 1. [](#new)
     * Added new `|nicefilesize` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
