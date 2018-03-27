@@ -1,12 +1,16 @@
 <?php
+/**
+ * @package    Grav.Common.FileSystem
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Filesystem;
 
-/**
- * Folder helper class.
- *
- * @author RocketTheme
- * @license MIT
- */
+use Grav\Common\Grav;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+
 abstract class Folder
 {
     /**
@@ -19,7 +23,14 @@ abstract class Folder
     {
         $last_modified = 0;
 
-        $directory = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
+        if ($locator->isStream($path)) {
+            $directory = $locator->getRecursiveIterator($path, $flags);
+        } else {
+            $directory = new \RecursiveDirectoryIterator($path, $flags);
+        }
         $filter  = new RecursiveFolderFilterIterator($directory);
         $iterator = new \RecursiveIteratorIterator($filter, \RecursiveIteratorIterator::SELF_FIRST);
 
@@ -46,15 +57,26 @@ abstract class Folder
     {
         $last_modified = 0;
 
-        $directory = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
+        if ($locator->isStream($path)) {
+            $directory = $locator->getRecursiveIterator($path, $flags);
+        } else {
+            $directory = new \RecursiveDirectoryIterator($path, $flags);
+        }
         $recursive = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
         $iterator = new \RegexIterator($recursive, '/^.+\.'.$extensions.'$/i');
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $filepath => $file) {
-            $file_modified = $file->getMTime();
-            if ($file_modified > $last_modified) {
-                $last_modified = $file_modified;
+            try {
+                $file_modified = $file->getMTime();
+                if ($file_modified > $last_modified) {
+                    $last_modified = $file_modified;
+                }
+            } catch (\Exception $e) {
+                Grav::instance()['log']->error('Could not process file: ' . $e->getMessage());
             }
         }
 
@@ -62,10 +84,39 @@ abstract class Folder
     }
 
     /**
+     * Recursively md5 hash all files in a path
+     *
+     * @param $path
+     * @return string
+     */
+    public static function hashAllFiles($path)
+    {
+        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
+        $files = [];
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($path)) {
+            $directory = $locator->getRecursiveIterator($path, $flags);
+        } else {
+            $directory = new \RecursiveDirectoryIterator($path, $flags);
+        }
+
+        $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+
+        foreach ($iterator as $file) {
+            $files[] = $file->getPathname() . '?'. $file->getMTime();
+        }
+
+        return md5(serialize($files));
+    }
+
+    /**
      * Get relative path between target and base path. If path isn't relative, return full path.
      *
-     * @param  string  $path
-     * @param  string  $base
+     * @param string       $path
+     * @param mixed|string $base
+     *
      * @return string
      */
     public static function getRelativePath($path, $base = GRAV_ROOT)
@@ -141,10 +192,10 @@ abstract class Folder
      * @return array
      * @throws \RuntimeException
      */
-    public static function all($path, array $params = array())
+    public static function all($path, array $params = [])
     {
         if ($path === false) {
-            throw new \RuntimeException("Path to {$path} doesn't exist.");
+            throw new \RuntimeException("Path doesn't exist.");
         }
 
         $compare = isset($params['compare']) ? 'get' . $params['compare'] : null;
@@ -157,21 +208,32 @@ abstract class Folder
         $folders = isset($params['folders']) ? $params['folders'] : true;
         $files = isset($params['files']) ? $params['files'] : true;
 
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
         if ($recursive) {
-            $directory = new \RecursiveDirectoryIterator($path,
-                \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS + \FilesystemIterator::CURRENT_AS_SELF);
+            $flags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS
+                + \FilesystemIterator::CURRENT_AS_SELF + \FilesystemIterator::FOLLOW_SYMLINKS;
+            if ($locator->isStream($path)) {
+                $directory = $locator->getRecursiveIterator($path, $flags);
+            } else {
+                $directory = new \RecursiveDirectoryIterator($path, $flags);
+            }
             $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
             $iterator->setMaxDepth(max($levels, -1));
         } else {
-            $iterator = new \FilesystemIterator($path);
+            if ($locator->isStream($path)) {
+                $iterator = $locator->getIterator($path);
+            } else {
+                $iterator = new \FilesystemIterator($path);
+            }
         }
 
-        $results = array();
+        $results = [];
 
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {
             // Ignore hidden files.
-            if ($file->getFilename()[0] == '.') {
+            if ($file->getFilename()[0] === '.') {
                 continue;
             }
             if (!$folders && $file->isDir()) {
@@ -270,29 +332,42 @@ abstract class Folder
      */
     public static function move($source, $target)
     {
-        if (!is_dir($source)) {
+        if (!file_exists($source) || !is_dir($source)) {
+            // Rename fails if source folder does not exist.
             throw new \RuntimeException('Cannot move non-existing folder.');
         }
 
         // Don't do anything if the source is the same as the new target
-        if ($source == $target) {
+        if ($source === $target) {
             return;
+        }
+
+        if (file_exists($target)) {
+            // Rename fails if target folder exists.
+            throw new \RuntimeException('Cannot move files to existing folder/file.');
         }
 
         // Make sure that path to the target exists before moving.
         self::create(dirname($target));
 
-        // Just rename the directory.
-        $success = @rename($source, $target);
+        // Silence warnings (chmod failed etc).
+        @rename($source, $target);
 
-        if (!$success) {
-            $error = error_get_last();
-            throw new \RuntimeException($error['message']);
+        // Rename function can fail while still succeeding, so let's check if the folder exists.
+        if (!file_exists($target) || !is_dir($target)) {
+            // In some rare cases rename() creates file, not a folder. Get rid of it.
+            if (file_exists($target)) {
+                @unlink($target);
+            }
+            // Rename doesn't support moving folders across filesystems. Use copy instead.
+            self::copy($source, $target);
+            self::delete($source);
         }
 
         // Make sure that the change will be detected when caching.
         @touch(dirname($source));
         @touch(dirname($target));
+        @touch($target);
     }
 
     /**
@@ -301,6 +376,7 @@ abstract class Folder
      * @param  string $target
      * @param  bool   $include_target
      * @return bool
+     * @throws \RuntimeException
      */
     public static function delete($target, $include_target = true)
     {
@@ -328,7 +404,6 @@ abstract class Folder
     /**
      * @param  string  $folder
      * @throws \RuntimeException
-     * @internal
      */
     public static function mkdir($folder)
     {
@@ -338,7 +413,6 @@ abstract class Folder
     /**
      * @param  string  $folder
      * @throws \RuntimeException
-     * @internal
      */
     public static function create($folder)
     {
@@ -361,6 +435,7 @@ abstract class Folder
      * @param $dest
      *
      * @return bool
+     * @throws \RuntimeException
      */
     public static function rcopy($src, $dest)
     {
@@ -373,10 +448,7 @@ abstract class Folder
 
         // If the destination directory does not exist create it
         if (!is_dir($dest)) {
-            if (!mkdir($dest)) {
-                // If the destination directory could not be created stop processing
-                return false;
-            }
+            static::mkdir($dest);
         }
 
         // Open the source directory to read in files
@@ -384,10 +456,10 @@ abstract class Folder
         /** @var \DirectoryIterator $f */
         foreach ($i as $f) {
             if ($f->isFile()) {
-                copy($f->getRealPath(), "$dest/" . $f->getFilename());
+                copy($f->getRealPath(), "{$dest}/" . $f->getFilename());
             } else {
                 if (!$f->isDot() && $f->isDir()) {
-                    static::rcopy($f->getRealPath(), "$dest/$f");
+                    static::rcopy($f->getRealPath(), "{$dest}/{$f}");
                 }
             }
         }
@@ -407,22 +479,11 @@ abstract class Folder
             return @unlink($folder);
         }
 
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        /** @var \DirectoryIterator $fileinfo */
-        foreach ($files as $fileinfo) {
-            if ($fileinfo->isDir()) {
-                if (false === @rmdir($fileinfo->getRealPath())) {
-                    return false;
-                }
-            } else {
-                if (false === @unlink($fileinfo->getRealPath())) {
-                    return false;
-                }
-            }
+        // Go through all items in filesystem and recursively remove everything.
+        $files = array_diff(scandir($folder, SCANDIR_SORT_NONE), array('.', '..'));
+        foreach ($files as $file) {
+            $path = "{$folder}/{$file}";
+            is_dir($path) ? self::doDelete($path) : @unlink($path);
         }
 
         return $include_target ? @rmdir($folder) : true;

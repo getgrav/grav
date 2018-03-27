@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
@@ -6,15 +13,12 @@ use Grav\Common\GPM\Upgrader;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class VersionCommand
- * @package Grav\Console\Gpm
- */
 class VersionCommand extends ConsoleCommand
 {
     /**
-     * @var
+     * @var GPM
      */
     protected $gpm;
 
@@ -70,9 +74,26 @@ class VersionCommand extends ConsoleCommand
                 }
 
             } else {
-                if ($installed = $this->gpm->findPackage($package)) {
+                // get currently installed version
+                $locator = \Grav\Common\Grav::instance()['locator'];
+                $blueprints_path = $locator->findResource('plugins://' . $package . DS . 'blueprints.yaml');
+                if (!file_exists($blueprints_path)) { // theme?
+                    $blueprints_path = $locator->findResource('themes://' . $package . DS . 'blueprints.yaml');
+                    if (!file_exists($blueprints_path)) {
+                        continue;
+                    }
+                }
+
+                $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+                $version = $package_yaml['version'];
+
+                if (!$version) {
+                    continue;
+                }
+
+                $installed = $this->gpm->findPackage($package);
+                if ($installed) {
                     $name = $installed->name;
-                    $version = $installed->version;
 
                     if ($this->gpm->isUpdatable($package)) {
                         $updatable = ' [updatable: v<green>' . $installed->available . '</green>]';

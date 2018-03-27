@@ -1,13 +1,13 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page\Medium;
 
-/**
- * Renderable Medium objects can be rendered to HTML markup and Parsedown objects
- *
- * @author Grav
- * @license MIT
- *
- */
 interface RenderableInterface
 {
     /**
@@ -27,8 +27,9 @@ interface RenderableInterface
      * @param string $title
      * @param string $alt
      * @param string $class
+     * @param string $id
      * @param bool $reset
      * @return string
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $reset = true);
+    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true);
 }

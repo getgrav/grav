@@ -1,14 +1,17 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Common\Cache;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * Class ClearCacheCommand
- * @package Grav\Console\Cli
- */
 class ClearCacheCommand extends ConsoleCommand
 {
     /**
@@ -24,6 +27,7 @@ class ClearCacheCommand extends ConsoleCommand
             ->addOption('assets-only', null, InputOption::VALUE_NONE, 'If set will remove only assets/*')
             ->addOption('images-only', null, InputOption::VALUE_NONE, 'If set will remove only images/*')
             ->addOption('cache-only', null, InputOption::VALUE_NONE, 'If set will remove only cache/*')
+            ->addOption('tmp-only', null, InputOption::VALUE_NONE, 'If set will remove only tmp/*')
             ->setHelp('The <info>clear-cache</info> deletes all cache files');
     }
 
@@ -52,6 +56,8 @@ class ClearCacheCommand extends ConsoleCommand
             $remove = 'images-only';
         } elseif ($this->input->getOption('cache-only')) {
             $remove = 'cache-only';
+        } elseif ($this->input->getOption('tmp-only')) {
+            $remove = 'tmp-only';
         } else {
             $remove = 'standard';
         }

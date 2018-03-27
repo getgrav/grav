@@ -1,4 +1,5 @@
 title: Grav                                 # Name of the site
+default_lang: en                            # Default language for site (potentially used by theme)
 
 author:
   name: John Appleseed                      # Default author name
@@ -16,12 +17,12 @@ summary:
   delimiter: ===                            # The summary delimiter
 
 redirects:
-  /redirect-test: /                         # Redirect test goes to home page
-  /old/(.*): /new/$1                        # Would redirect /old/my-page to /new/my-page
+#  '/redirect-test': '/'                         # Redirect test goes to home page
+#  '/old/(.*)': '/new/$1'                        # Would redirect /old/my-page to /new/my-page
 
 routes:
-  /something/else: '/blog/sample-3'         # Alias for /blog/sample-3
-  /new/(.*): '/blog/$1'                     # Regex any /new/my-page URL to /blog/my-page Route
+#  '/something/else': '/blog/sample-3'         # Alias for /blog/sample-3
+#  '/new/(.*)': '/blog/$1'                     # Regex any /new/my-page URL to /blog/my-page Route
 
 blog:
   route: '/blog'                            # Custom value added (accessible via system.blog.route)

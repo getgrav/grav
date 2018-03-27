@@ -1,14 +1,16 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-/**
- * Class ComposerCommand
- * @package Grav\Console\Cli
- */
 class ComposerCommand extends ConsoleCommand
 {
     /**

@@ -1,8 +1,0 @@
-form:
-  validation: loose
-  fields:
-    route:
-      type: select
-      label: PLUGIN_ADMIN.PAGE
-      classes: fancy
-      '@data-options': '\Grav\Common\Page\Pages::parents'

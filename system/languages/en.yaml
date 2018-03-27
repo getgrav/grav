@@ -60,6 +60,7 @@ NICETIME:
     BAD_DATE: Bad date
     AGO: ago
     FROM_NOW: from now
+    JUST_NOW: just now
     SECOND: second
     MINUTE: minute
     HOUR: hour
@@ -96,3 +97,5 @@ FORM:
     VALIDATION_FAIL: <b>Validation failed:</b>
     INVALID_INPUT: Invalid input in
     MISSING_REQUIRED_FIELD: Missing required field:
+MONTHS_OF_THE_YEAR: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+DAYS_OF_THE_WEEK: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']

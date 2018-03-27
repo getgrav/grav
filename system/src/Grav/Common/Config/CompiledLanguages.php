@@ -1,11 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common.Config
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 
-/**
- * The Compiled Languages class.
- */
 class CompiledLanguages extends CompiledBase
 {
     /**
@@ -34,6 +38,7 @@ class CompiledLanguages extends CompiledBase
     protected function finalizeObject()
     {
         $this->object->checksum($this->checksum());
+        $this->object->timestamp($this->timestamp());
     }
 
 
@@ -55,9 +60,9 @@ class CompiledLanguages extends CompiledBase
     {
         $file = CompiledYamlFile::instance($filename);
         if (preg_match('|languages\.yaml$|', $filename)) {
-            $this->object->mergeRecursive($file->content());
+            $this->object->mergeRecursive((array) $file->content());
         } else {
-            $this->object->join($name, $file->content(), '/');
+            $this->object->mergeRecursive([$name => $file->content()]);
         }
         $file->free();
     }

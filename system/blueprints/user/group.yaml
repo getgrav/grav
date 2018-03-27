@@ -29,16 +29,9 @@ form:
             size: small
             label: PLUGIN_ADMIN_PRO.ICON
 
-        access.admin:
-            type: array
-            label: PLUGIN_ADMIN.ADMIN_ACCESS
-            multiple: false
-            validate:
-                type: array
-
-        access.site:
-            type: array
-            label: PLUGIN_ADMIN.SITE_ACCESS
-            multiple: false
+        access:
+            type: permissions
+            label: PLUGIN_ADMIN.PERMISSIONS
+            ignore_empty: true
             validate:
                 type: array

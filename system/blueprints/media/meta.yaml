@@ -1,7 +1,0 @@
-form:
-  validation: loose
-  fields:
-
-    alt_text:
-      type: string
-      label: Alt Text

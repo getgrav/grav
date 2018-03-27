@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
@@ -6,10 +13,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class InstallCommand
- * @package Grav\Console\Cli
- */
 class InstallCommand extends ConsoleCommand
 {
     /**
@@ -62,22 +65,24 @@ class InstallCommand extends ConsoleCommand
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
         $this->user_path = $this->destination . USER_PATH;
-
-        if (false === $this->isWindows()) {
-            $local_config_file = exec('eval echo ~/.grav/config');
-            if (file_exists($local_config_file)) {
-                $this->local_config = Yaml::parse($local_config_file);
-                $this->output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
-            }
+        if ($local_config_file = $this->loadLocalConfig()) {
+            $this->output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
         }
 
         // Look for dependencies file in ROOT and USER dir
         if (file_exists($this->user_path . $dependencies_file)) {
-            $this->config = Yaml::parse($this->user_path . $dependencies_file);
+            $this->config = Yaml::parse(file_get_contents($this->user_path . $dependencies_file));
         } elseif (file_exists($this->destination . $dependencies_file)) {
-            $this->config = Yaml::parse($this->destination . $dependencies_file);
+            $this->config = Yaml::parse(file_get_contents($this->destination . $dependencies_file));
         } else {
             $this->output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
+            if ($this->input->getArgument('destination')) {
+                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install a plugin or a theme? Make sure you use <cyan>bin/gpm install <something></cyan>, not <cyan>bin/grav install</cyan>. This command is only used to install Grav skeletons.');    
+            } else {
+                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install Grav? Grav is already installed. You need to run this command only if you download a skeleton from GitHub directly.');    
+            }
+            
+            return;
         }
 
         // If yaml config, process
@@ -109,10 +114,18 @@ class InstallCommand extends ConsoleCommand
         $this->output->writeln('');
 
         foreach ($this->config['git'] as $repo => $data) {
+            $this->destination = rtrim($this->destination, DS);
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
-                exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' ' . $data['url'] . ' ' . $data['path']);
-                $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
+                exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' --depth 1 ' . $data['url'] . ' ' . $data['path'], $output, $return);
+
+                if (!$return) {
+                    $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
+                } else {
+                    $this->output->writeln('<red>ERROR</red> cloning <magenta>' . $data['url']);
+
+                }
+
                 $this->output->writeln('');
             } else {
                 $this->output->writeln('<red>' . $path . ' already exists, skipping...</red>');

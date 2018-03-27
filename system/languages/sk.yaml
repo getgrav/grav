@@ -1,0 +1,42 @@
+---
+NICETIME:
+  NO_DATE_PROVIDED: Neposkytnutý žiaden dátum
+  BAD_DATE: Nesprávny dátum
+  AGO: pred
+  FROM_NOW: odteraz
+  SECOND: sekunda
+  MINUTE: minúta
+  HOUR: hodina
+  DAY: deň
+  WEEK: týždeň
+  MONTH: mesiac
+  YEAR: rok
+  DECADE: desaťročie
+  SEC: sek
+  MIN: min
+  HR: hod
+FORM:
+  VALIDATION_FAIL: '<b>Overenie zlyhalo:</b>'
+  INVALID_INPUT: Neplatný vstup v
+  MISSING_REQUIRED_FIELD: 'Chýba vyžadované pole:'
+MONTHS_OF_THE_YEAR:
+  - Január
+  - Február
+  - Marec
+  - Apríl
+  - Máj
+  - Jún
+  - Júl
+  - August
+  - September
+  - Október
+  - November
+  - December
+DAYS_OF_THE_WEEK:
+  - Pondelok
+  - Utorok
+  - Streda
+  - Štvrtok
+  - Piatok
+  - Sobota
+  - Nedeľa

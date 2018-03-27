@@ -1,61 +1,103 @@
 <?php
+/**
+ * @package    Grav.Common.Page
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Page;
 
-use Grav\Common\Getters;
-use Grav\Common\GravTrait;
-use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Grav;
+use Grav\Common\Page\Medium\AbstractMedia;
+use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
+use RocketTheme\Toolbox\File\File;
+use Symfony\Component\Yaml\Yaml;
 
-/**
- * Media is a holder object that contains references to the media of page. This object is created and
- * populated during the getMedia() method in the Pages object
- *
- * @author RocketTheme
- * @license MIT
- */
-class Media extends Getters
+class Media extends AbstractMedia
 {
-    use GravTrait;
+    protected static $global;
 
-    protected $gettersVariable = 'instances';
     protected $path;
 
-    protected $instances = array();
-    protected $images = array();
-    protected $videos = array();
-    protected $audios = array();
-    protected $files = array();
+    protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
 
     /**
      * @param $path
      */
     public function __construct($path)
     {
+        $this->path = $path;
+
+        $this->__wakeup();
+        $this->init();
+    }
+
+    /**
+     * Initialize static variables on unserialize.
+     */
+    public function __wakeup()
+    {
+        if (!isset(static::$global)) {
+            // Add fallback to global media.
+            static::$global = new GlobalMedia();
+        }
+    }
+
+    /**
+     * @param mixed $offset
+     *
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return parent::offsetExists($offset) ?: isset(static::$global[$offset]);
+    }
+
+    /**
+     * @param mixed $offset
+     *
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        return parent::offsetGet($offset) ?: static::$global[$offset];
+    }
+
+    /**
+     * Initialize class.
+     */
+    protected function init()
+    {
+        $config = Grav::instance()['config'];
+        $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
+        $media_types = array_keys(Grav::instance()['config']->get('media.types'));
+
         // Handle special cases where page doesn't exist in filesystem.
-        if (!is_dir($path)) {
+        if (!is_dir($this->path)) {
             return;
         }
 
-        $this->path = $path;
-
-        $iterator = new \FilesystemIterator($path, \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
+        $iterator = new \FilesystemIterator($this->path, \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
 
         $media = [];
 
         /** @var \DirectoryIterator $info */
         foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() == 'md' || $info->getBasename() === '.DS_Store') {
+            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getBasename()[0] === '.') {
                 continue;
             }
 
             // Find out what type we're dealing with
             list($basename, $ext, $type, $extra) = $this->getFileParts($info->getFilename());
 
-            $media["{$basename}.{$ext}"] = isset($media["{$basename}.{$ext}"]) ? $media["{$basename}.{$ext}"] : [];
+            if (!in_array(strtolower($ext), $media_types)) {
+                continue;
+            }
 
             if ($type === 'alternative') {
-                $media["{$basename}.{$ext}"][$type] = isset($media["{$basename}.{$ext}"][$type]) ? $media["{$basename}.{$ext}"][$type] : [];
                 $media["{$basename}.{$ext}"][$type][$extra] = [ 'file' => $path, 'size' => $info->getSize() ];
             } else {
                 $media["{$basename}.{$ext}"][$type] = [ 'file' => $path, 'size' => $info->getSize() ];
@@ -76,21 +118,46 @@ class Media extends Getters
                 }
             }
 
+            $file_path = null;
+
             // Create the base medium
-            if (!empty($types['base'])) {
+            if (empty($types['base'])) {
+                if (!isset($types['alternative'])) {
+                    continue;
+                }
+
+                $max = max(array_keys($types['alternative']));
+                $medium = $types['alternative'][$max]['file'];
+                $file_path = $medium->path();
+                $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
+            } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
                 $medium && $medium->set('size', $types['base']['size']);
-            } else if (!empty($types['alternative'])) {
-                $altMedium = reset($types['alternative']);
-                $ratio = key($types['alternative']);
-
-                $altMedium = $altMedium['file'];
-
-                $medium = MediumFactory::scaledFromMedium($altMedium, $ratio, 1)['file'];
+                $file_path = $medium->path();
             }
 
-            if (!$medium) {
+            if (empty($medium)) {
                 continue;
+            }
+
+            // metadata file
+            $meta_path = $file_path . '.meta.yaml';
+
+            if (file_exists($meta_path)) {
+                $types['meta']['file'] = $meta_path;
+            } elseif ($file_path && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
+
+                $meta = $exif_reader->read($file_path);
+
+                if ($meta) {
+                    $meta_data = $meta->getData();
+                    $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
+                    if ($meta_trimmed) {
+                        $file = File::instance($meta_path);
+                        $file->save(Yaml::dump($meta_trimmed));
+                        $types['meta']['file'] = $meta_path;
+                    }
+                }
             }
 
             if (!empty($types['meta'])) {
@@ -106,10 +173,9 @@ class Media extends Getters
             // Build missing alternatives
             if (!empty($types['alternative'])) {
                 $alternatives = $types['alternative'];
-
                 $max = max(array_keys($alternatives));
 
-                for ($i=2; $i < $max; $i++) {
+                for ($i=$max; $i > 1; $i--) {
                     if (isset($alternatives[$i])) {
                         continue;
                     }
@@ -117,8 +183,15 @@ class Media extends Getters
                     $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
                 }
 
-                foreach ($types['alternative'] as $ratio => $altMedium) {
-                    $medium->addAlternative($ratio, $altMedium['file']);
+                foreach ($types['alternative'] as $altMedium) {
+                    if ($altMedium['file'] != $medium) {
+                        $altWidth = $altMedium['file']->get('width');
+                        $medWidth = $medium->get('width');
+                        if ($altWidth && $medWidth) {
+                            $ratio = $altWidth / $medWidth;
+                            $medium->addAlternative($ratio, $altMedium['file']);
+                        }
+                    }
                 }
             }
 
@@ -127,132 +200,12 @@ class Media extends Getters
     }
 
     /**
-     * Get medium by filename.
+     * Enable accessing the media path
      *
-     * @param string $filename
-     * @return Medium|null
+     * @return mixed
      */
-    public function get($filename)
+    public function path()
     {
-        return isset($this->instances[$filename]) ? $this->instances[$filename] : null;
-    }
-
-    /**
-     * Get a list of all media.
-     *
-     * @return array|Medium[]
-     */
-    public function all()
-    {
-        ksort($this->instances, SORT_NATURAL | SORT_FLAG_CASE);
-        return $this->instances;
-    }
-
-    /**
-     * Get a list of all image media.
-     *
-     * @return array|Medium[]
-     */
-    public function images()
-    {
-        ksort($this->images, SORT_NATURAL | SORT_FLAG_CASE);
-        return $this->images;
-    }
-
-    /**
-     * Get a list of all video media.
-     *
-     * @return array|Medium[]
-     */
-    public function videos()
-    {
-        ksort($this->videos, SORT_NATURAL | SORT_FLAG_CASE);
-        return $this->videos;
-    }
-
-    /**
-     * Get a list of all audio media.
-     *
-     * @return array|Medium[]
-     */
-    public function audios()
-    {
-        ksort($this->audios, SORT_NATURAL | SORT_FLAG_CASE);
-        return $this->audios;
-    }
-
-    /**
-     * Get a list of all file media.
-     *
-     * @return array|Medium[]
-     */
-    public function files()
-    {
-        ksort($this->files, SORT_NATURAL | SORT_FLAG_CASE);
-        return $this->files;
-    }
-
-    /**
-     * @internal
-     */
-    protected function add($name, $file)
-    {
-        $this->instances[$name] = $file;
-        switch ($file->type) {
-            case 'image':
-                $this->images[$name] = $file;
-                break;
-            case 'video':
-                $this->videos[$name] = $file;
-                break;
-            case 'audio':
-                $this->audios[$name] = $file;
-                break;
-            default:
-                $this->files[$name] = $file;
-        }
-    }
-
-    /**
-     * Get filename, extension and meta part.
-     *
-     * @param  string $filename
-     * @return array
-     */
-    protected function getFileParts($filename)
-    {
-        $fileParts = explode('.', $filename);
-
-        $name = array_shift($fileParts);
-        $type = 'base';
-        $extra = null;
-
-        if (preg_match('/(.*)@(\d+)x\.(.*)$/', $filename, $matches)) {
-            $name = $matches[1];
-            $extension = $matches[3];
-            $extra = (int) $matches[2];
-            $type = 'alternative';
-
-            if ($extra === 1) {
-                $type = 'base';
-                $extra = null;
-            }
-        } else {
-            $extension = null;
-            while (($part = array_shift($fileParts)) !== null) {
-                if ($part != 'meta' && $part != 'thumb') {
-                    if (isset($extension)) {
-                        $name .= '.' . $extension;
-                    }
-                    $extension = $part;
-                } else {
-                    $type = $part;
-                    $extra = '.' . $part . '.' . implode('.', $fileParts);
-                    break;
-                }
-            }
-        }
-
-        return array($name, $extension, $type, $extra);
+        return $this->path;
     }
 }

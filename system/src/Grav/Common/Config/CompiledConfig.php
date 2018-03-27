@@ -1,11 +1,15 @@
 <?php
+/**
+ * @package    Grav.Common.Config
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 
-/**
- * The Compiled Configuration class.
- */
 class CompiledConfig extends CompiledBase
 {
     /**
@@ -73,6 +77,7 @@ class CompiledConfig extends CompiledBase
     protected function finalizeObject()
     {
         $this->object->checksum($this->checksum());
+        $this->object->timestamp($this->timestamp());
     }
 
     /**

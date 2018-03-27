@@ -7,9 +7,13 @@ git:
         url: https://github.com/getgrav/grav-plugin-error
         path: user/plugins/error
         branch: master
-    antimatter:
-        url: https://github.com/getgrav/grav-theme-antimatter
-        path: user/themes/antimatter
+    markdown-notices:
+        url: https://github.com/getgrav/grav-plugin-markdown-notices
+        path: user/plugins/markdown-notices
+        branch: master
+    quark:
+        url: https://github.com/getgrav/grav-theme-quark
+        path: user/themes/quark
         branch: master
 links:
     problems:
@@ -20,7 +24,11 @@ links:
         src: grav-plugin-error
         path: user/plugins/error
         scm: github
-    antimatter:
-        src: grav-theme-antimatter
-        path: user/themes/antimatter
+    markdown-notices:
+        src: grav-plugin-markdown-notices
+        path: user/plugins/markdown-notices
+        scm: github
+    quark:
+        src: grav-theme-quark
+        path: user/themes/quark
         scm: github

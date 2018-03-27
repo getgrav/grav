@@ -1,49 +1,55 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
+use Grav\Common\GPM\Licenses;
 use Grav\Common\GPM\Response;
+use Grav\Common\GPM\Remote\Package as Package;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Yaml\Yaml;
 
 define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
 
-/**
- * Class InstallCommand
- * @package Grav\Console\Gpm
- */
 class InstallCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var */
     protected $data;
-    /**
-     * @var
-     */
+
+    /** @var GPM */
     protected $gpm;
-    /**
-     * @var
-     */
+
+    /** @var */
     protected $destination;
-    /**
-     * @var
-     */
+
+    /** @var */
     protected $file;
-    /**
-     * @var
-     */
+
+    /** @var */
     protected $tmp;
 
+    /** @var */
     protected $local_config;
 
+    /** @var bool */
+    protected $use_symlinks;
+
+    /** @var array */
+    protected $demo_processing = [];
+
+    protected $all_yes;
 
     /**
      *
@@ -74,29 +80,38 @@ class InstallCommand extends ConsoleCommand
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'The package(s) that are desired to be installed. Use the "index" command for a list of packages'
+                'Package(s) to install. Use "bin/gpm index" to list packages. Use "bin/gpm direct-install" to install a specific version'
             )
             ->setDescription("Performs the installation of plugins and themes")
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
     }
 
     /**
-     * @return int|null|void
+     * Allows to set the GPM object, used for testing the class
+     *
+     * @param $gpm
+     */
+    public function setGpm($gpm)
+    {
+        $this->gpm = $gpm;
+    }
+
+    /**
+     * @return bool
      */
     protected function serve()
     {
         $this->gpm = new GPM($this->input->getOption('force'));
+
+        $this->all_yes = $this->input->getOption('all-yes');
+
+        $this->displayGPMRelease();
+
         $this->destination = realpath($this->input->getOption('destination'));
 
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = $this->gpm->findPackages($packages);
-
-        if (false === $this->isWindows() && @is_file(getenv("HOME").'/.grav/config')) {
-            $local_config_file = exec('eval echo ~/.grav/config');
-            if (file_exists($local_config_file)) {
-                $this->local_config = Yaml::parse($local_config_file);
-            }
-        }
+        $this->loadLocalConfig();
 
         if (
             !Installer::isGravInstance($this->destination) ||
@@ -122,115 +137,265 @@ class InstallCommand extends ConsoleCommand
         unset($this->data['not_found']);
         unset($this->data['total']);
 
+
+        if (isset($this->local_config)) {
+            // Symlinks available, ask if Grav should use them
+            $this->use_symlinks = false;
+            $helper = $this->getHelper('question');
+            $question = new ConfirmationQuestion('Should Grav use the symlinks if available? [y|N] ', false);
+
+            $answer = $this->all_yes ? false : $helper->ask($this->input, $this->output, $question);
+
+            if ($answer) {
+                $this->use_symlinks = true;
+            }
+
+
+        }
+
+        $this->output->writeln('');
+
+        try {
+            $dependencies = $this->gpm->getDependencies($packages);
+        } catch (\Exception $e) {
+            //Error out if there are incompatible packages requirements and tell which ones, and what to do
+            //Error out if there is any error in parsing the dependencies and their versions, and tell which one is broken
+            $this->output->writeln("<red>" . $e->getMessage() . "</red>");
+            return false;
+        }
+
+        if ($dependencies) {
+            try {
+                $this->installDependencies($dependencies, 'install', "The following dependencies need to be installed...");
+                $this->installDependencies($dependencies, 'update',  "The following dependencies need to be updated...");
+                $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
+            } catch (\Exception $e) {
+                $this->output->writeln("<red>Installation aborted</red>");
+                return false;
+            }
+
+            $this->output->writeln("<green>Dependencies are OK</green>");
+            $this->output->writeln("");
+        }
+
+
+        //We're done installing dependencies. Install the actual packages
         foreach ($this->data as $data) {
-            foreach ($data as $package) {
-                //Check for dependencies
-                if (isset($package->dependencies)) {
-                    $this->output->writeln("Package <cyan>" . $package->name . "</cyan> has ". count($package->dependencies) . " required dependencies that must be installed first...");
-                    $this->output->writeln('');
-
-                    $dependency_data = $this->gpm->findPackages($package->dependencies);
-
-                    if (!$dependency_data['total']) {
-                        $this->output->writeln("No dependencies found...");
-                        $this->output->writeln('');
+            foreach ($data as $package_name => $package) {
+                if (in_array($package_name, array_keys($dependencies))) {
+                    $this->output->writeln("<green>Package " . $package_name . " already installed as dependency</green>");
+                } else {
+                    $is_valid_destination = Installer::isValidDestination($this->destination . DS . $package->install_path);
+                    if ($is_valid_destination || Installer::lastErrorCode() == Installer::NOT_FOUND) {
+                        $this->processPackage($package, false);
                     } else {
-                        unset($dependency_data['total']);
+                        if (Installer::lastErrorCode() == Installer::EXISTS) {
 
-                        foreach($dependency_data as $type => $dep_data) {
-                            foreach($dep_data as $name => $dep_package) {
+                            try {
+                                $this->askConfirmationIfMajorVersionUpdated($package);
+                                $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available, array_keys($data));
+                            } catch (\Exception $e) {
+                                $this->output->writeln("<red>" . $e->getMessage() . "</red>");
+                                return false;
+                            }
 
-                                $this->processPackage($dep_package);
+                            $helper = $this->getHelper('question');
+                            $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> is already installed, overwrite? [y|N] ", false);
+                            $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
+
+                            if ($answer) {
+                                $is_update = true;
+                                $this->processPackage($package, $is_update);
+                            } else {
+                                $this->output->writeln("<yellow>Package " . $package_name . " not overwritten</yellow>");
+                            }
+                        } else {
+                            if (Installer::lastErrorCode() == Installer::IS_LINK) {
+                                $this->output->writeln("<red>Cannot overwrite existing symlink for </red><cyan>$package_name</cyan>");
+                                $this->output->writeln("");
                             }
                         }
                     }
                 }
+            }
+        }
 
-                $this->processPackage($package);
+        if (count($this->demo_processing) > 0) {
+            foreach ($this->demo_processing as $package) {
+                $this->installDemoContent($package);
             }
         }
 
         // clear cache after successful upgrade
         $this->clearCache();
+
+        return true;
     }
 
     /**
+     * If the package is updated from an older major release, show warning and ask confirmation
+     *
      * @param $package
      */
-    private function processPackage($package)
+    public function askConfirmationIfMajorVersionUpdated($package)
     {
-        $install_options = ['GPM'];
+        $helper = $this->getHelper('question');
+        $package_name = $package->name;
+        $new_version = $package->available ? $package->available : $this->gpm->getLatestVersionOfPackage($package->slug);
+        $old_version = $package->version;
 
-        // if no name, not found in GPM
-        if (!isset($package->version)) {
-            unset($install_options[0]);
+        $major_version_changed = explode('.', $new_version)[0] !== explode('.', $old_version)[0];
+
+        if ($major_version_changed) {
+            if ($this->all_yes) {
+                $this->output->writeln("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>");
+                return;
+            }
+
+            $question = new ConfirmationQuestion("The package <cyan>$package_name</cyan> will be updated to a new major version <green>$new_version</green>, from <magenta>$old_version</magenta>. Be sure to read what changed with the new major release. Continue? [y|N] ", false);
+
+            if (!$helper->ask($this->input, $this->output, $question)) {
+                $this->output->writeln("<yellow>Package " . $package_name . " not updated</yellow>");
+                exit;
+            }
         }
-        // if local config found symlink is a valid option
-        if (isset($this->local_config) && $this->getSymlinkSource($package)) {
-            $install_options[] = 'Symlink';
-        }
-        // if override set, can install via git
-        if (isset($package->override_repository)) {
-            $install_options[] = 'Git';
-        }
-
-        // reindex list
-        $install_options = array_values($install_options);
-
-        if (count($install_options) == 0) {
-            // no valid install options - error and return
-            $this->output->writeln("<red>not valid installation methods found!</red>");
-            return;
-        } elseif (count($install_options) == 1) {
-            // only one option, use it...
-            $method = $install_options[0];
-        } else {
-            $helper = $this->getHelper('question');
-            $question = new ChoiceQuestion(
-                'Please select installation method for <cyan>' . $package->name . '</cyan> (<magenta>'.$install_options[0].' is default</magenta>)', array_values($install_options), 0
-            );
-            $question->setErrorMessage('Method %s is invalid');
-            $method = $helper->ask($this->input, $this->output, $question);
-        }
-
-        $this->output->writeln('');
-
-        $method_name = 'process'.$method;
-        $this->$method_name($package);
-
-        $this->installDemoContent($package);
     }
 
+    /**
+     * Given a $dependencies list, filters their type according to $type and
+     * shows $message prior to listing them to the user. Then asks the user a confirmation prior
+     * to installing them.
+     *
+     * @param array  $dependencies The dependencies array
+     * @param string $type         The type of dependency to show: install, update, ignore
+     * @param string $message      A message to be shown prior to listing the dependencies
+     * @param bool   $required     A flag that determines if the installation is required or optional
+     *
+     * @throws \Exception
+     */
+    public function installDependencies($dependencies, $type, $message, $required = true)
+    {
+        $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
+        if (count($packages) > 0) {
+            $this->output->writeln($message);
+
+            foreach ($packages as $dependencyName => $dependencyVersion) {
+                $this->output->writeln("  |- Package <cyan>" . $dependencyName . "</cyan>");
+            }
+
+            $this->output->writeln("");
+
+            $helper = $this->getHelper('question');
+
+            if ($type == 'install') {
+                $questionAction = 'Install';
+            } else {
+                $questionAction = 'Update';
+            }
+
+            if (count($packages) == 1) {
+                $questionArticle = 'this';
+            } else {
+                $questionArticle = 'these';
+            }
+
+            if (count($packages) == 1) {
+                $questionNoun = 'package';
+            } else {
+                $questionNoun = 'packages';
+            }
+
+            $question = new ConfirmationQuestion("$questionAction $questionArticle $questionNoun? [Y|n] ", true);
+            $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
+
+            if ($answer) {
+                foreach ($packages as $dependencyName => $dependencyVersion) {
+                    $package = $this->gpm->findPackage($dependencyName);
+                    $this->processPackage($package, ($type == 'update') ? true : false);
+                }
+                $this->output->writeln('');
+            } else {
+                if ($required) {
+                    throw new \Exception();
+                }
+            }
+        }
+    }
 
     /**
+     * @param      $package
+     * @param bool $is_update      True if the package is an update
+     */
+    private function processPackage($package, $is_update = false)
+    {
+        if (!$package) {
+            $this->output->writeln("<red>Package not found on the GPM!</red>  ");
+            $this->output->writeln('');
+            return;
+        }
+
+        $symlink = false;
+        if ($this->use_symlinks) {
+            if ($this->getSymlinkSource($package) || !isset($package->version)) {
+                $symlink = true;
+            }
+        }
+
+        $symlink ? $this->processSymlink($package) : $this->processGpm($package, $is_update);
+
+        $this->processDemo($package);
+    }
+
+    /**
+     * Add package to the queue to process the demo content, if demo content exists
+     *
+     * @param $package
+     */
+    private function processDemo($package)
+    {
+        $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
+        if (file_exists($demo_dir)) {
+            $this->demo_processing[] = $package;
+        }
+    }
+
+    /**
+     * Prompt to install the demo content of a package
+     *
      * @param $package
      */
     private function installDemoContent($package)
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
-        $dest_dir = $this->destination . DS . 'user';
-        $pages_dir = $dest_dir . DS . 'pages';
 
         if (file_exists($demo_dir)) {
+            $dest_dir = $this->destination . DS . 'user';
+            $pages_dir = $dest_dir . DS . 'pages';
+
             // Demo content exists, prompt to install it.
-            $this->output->writeln("<white>Attention: </white><cyan>".$package->name . "</cyan> contains demo content");
+            $this->output->writeln("<white>Attention: </white><cyan>" . $package->name . "</cyan> contains demo content");
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Do you wish to install this demo content? [y|N] ', false);
 
-            if (!$helper->ask($this->input, $this->output, $question)) {
+            $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
+
+            if (!$answer) {
                 $this->output->writeln("  '- <red>Skipped!</red>  ");
                 $this->output->writeln('');
+
                 return;
             }
 
             // if pages folder exists in demo
             if (file_exists($demo_dir . DS . 'pages')) {
                 $pages_backup = 'pages.' . date('m-d-Y-H-i-s');
-                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/'. $pages_backup. '`, continue? [y|N]', false);
+                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/' . $pages_backup . '`, continue? [y|N]', false);
+                $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
 
-                if (!$helper->ask($this->input, $this->output, $question)) {
+                if (!$answer) {
                     $this->output->writeln("  '- <red>Skipped!</red>  ");
                     $this->output->writeln('');
+
                     return;
                 }
 
@@ -255,13 +420,11 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param $package
      *
-     * @return array
+     * @return array|bool
      */
     private function getGitRegexMatches($package)
     {
-        if (isset($package->override_repository)) {
-            $repository = $package->override_repository;
-        } elseif (isset($package->repository)) {
+        if (isset($package->repository)) {
             $repository = $package->repository;
         } else {
             return false;
@@ -294,11 +457,12 @@ class InstallCommand extends ConsoleCommand
                 return $from;
             }
         }
+
         return false;
     }
 
     /**
-     * @param $package
+     * @param      $package
      */
     private function processSymlink($package)
     {
@@ -329,13 +493,11 @@ class InstallCommand extends ConsoleCommand
 
                     // extra white spaces to clear out the buffer properly
                     $this->output->writeln("  |- Symlinking package...    <green>ok</green>                             ");
-
                     $this->output->writeln("  '- <green>Success!</green>  ");
                     $this->output->writeln('');
                 }
-
-
             }
+
             return;
         }
 
@@ -344,43 +506,27 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param      $package
+     * @param bool $is_update
+     *
+     * @return bool
      */
-    private function processGit($package)
-    {
-        $matches = $this->getGitRegexMatches($package);
-
-        $this->output->writeln("Preparing to Git clone <cyan>" . $package->name . "</cyan> from " . $matches[0]);
-
-        $this->output->write("  |- Checking destination...  ");
-        $checks = $this->checkDestination($package);
-
-        if (!$checks) {
-            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
-            $this->output->writeln('');
-        } else {
-            $cmd = 'cd ' . $this->destination . ' && git clone ' . $matches[0] . ' ' . $package->install_path;
-            exec($cmd);
-
-            // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- Cloning package...    <green>ok</green>                             ");
-
-            $this->output->writeln("  '- <green>Success!</green>  ");
-            $this->output->writeln('');
-        }
-    }
-
-    /**
-     * @param $package
-     */
-    private function processGPM($package)
+    private function processGpm($package, $is_update = false)
     {
         $version = isset($package->available) ? $package->available : $package->version;
+        $license = Licenses::get($package->slug);
 
         $this->output->writeln("Preparing to install <cyan>" . $package->name . "</cyan> [v" . $version . "]");
 
         $this->output->write("  |- Downloading package...     0%");
-        $this->file = $this->downloadPackage($package);
+        $this->file = $this->downloadPackage($package, $license);
+
+        if (!$this->file) {
+            $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
+            $this->output->writeln('');
+
+            return false;
+        }
 
         $this->output->write("  |- Checking destination...  ");
         $checks = $this->checkDestination($package);
@@ -390,27 +536,60 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln('');
         } else {
             $this->output->write("  |- Installing package...  ");
-            $installation = $this->installPackage($package);
+            $installation = $this->installPackage($package, $is_update);
             if (!$installation) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                 $this->output->writeln('');
             } else {
                 $this->output->writeln("  '- <green>Success!</green>  ");
                 $this->output->writeln('');
+
+                return true;
             }
         }
+
+        return false;
     }
 
     /**
-     * @param $package
+     * @param Package $package
+     *
+     * @param string    $license
      *
      * @return string
      */
-    private function downloadPackage($package)
+    private function downloadPackage($package, $license = null)
     {
-        $this->tmp = CACHE_DIR . DS . 'tmp/Grav-' . uniqid();
+        $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
+        $this->tmp = $tmp_dir . '/Grav-' . uniqid();
         $filename = $package->slug . basename($package->zipball_url);
-        $output = Response::get($package->zipball_url, [], [$this, 'progress']);
+        $filename = preg_replace('/[\\\\\/:"*?&<>|]+/mi', '-', $filename);
+        $query = '';
+
+        if ($package->premium) {
+            $query = \json_encode(array_merge(
+                $package->premium,
+                [
+                    'slug' => $package->slug,
+                    'filename' => $package->premium['filename'],
+                    'license_key' => $license
+                ]
+            ));
+
+            $query = '?d=' . base64_encode($query);
+        }
+
+        try {
+            $output = Response::get($package->zipball_url . $query, [], [$this, 'progress']);
+        } catch (\Exception $e) {
+            $error = str_replace("\n", "\n  |  '- ", $e->getMessage());
+            $this->output->write("\x0D");
+            // extra white spaces to clear out the buffer properly
+            $this->output->writeln("  |- Downloading package...    <red>error</red>                             ");
+            $this->output->writeln("  |  '- " . $error);
+
+            return false;
+        }
 
         Folder::mkdir($this->tmp);
 
@@ -424,39 +603,21 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param      $package
      *
      * @return bool
      */
     private function checkDestination($package)
     {
         $question_helper = $this->getHelper('question');
-        $skip_prompt = $this->input->getOption('all-yes');
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
-
-        if (Installer::lastErrorCode() == Installer::EXISTS) {
-            if (!$skip_prompt) {
-                $this->output->write("\x0D");
-                $this->output->writeln("  |- Checking destination...  <yellow>exists</yellow>");
-
-                $question = new ConfirmationQuestion("  |  '- The package has been detected as installed already, do you want to overwrite it? [y|N] ",
-                    false);
-                $answer = $question_helper->ask($this->input, $this->output, $question);
-
-                if (!$answer) {
-                    $this->output->writeln("  |     '- <red>You decided to not overwrite the already installed package.</red>");
-
-                    return false;
-                }
-            }
-        }
 
         if (Installer::lastErrorCode() == Installer::IS_LINK) {
             $this->output->write("\x0D");
             $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
 
-            if ($skip_prompt) {
+            if ($this->all_yes) {
                 $this->output->writeln("  |     '- <yellow>Skipped automatically.</yellow>");
 
                 return false;
@@ -482,25 +643,35 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * Install a package
+     *
+     * @param Package $package
+     * @param bool    $is_update True if it's an update. False if it's an install
      *
      * @return bool
      */
-    private function installPackage($package)
+    private function installPackage($package, $is_update = false)
     {
         $type = $package->package_type;
 
-        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path, 'theme' => (($type == 'themes'))]);
+        Installer::install($this->file, $this->destination, ['install_path' => $package->install_path, 'theme' => (($type == 'themes')), 'is_update' => $is_update]);
         $error_code = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
-        if ($error_code & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+        if ($error_code) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing package...    <red>error</red>                             ");
             $this->output->writeln("  |  '- " . Installer::lastErrorMsg());
 
             return false;
+        }
+
+        $message = Installer::getMessage();
+        if ($message) {
+            $this->output->write("\x0D");
+            // extra white spaces to clear out the buffer properly
+            $this->output->writeln("  |- " . $message);
         }
 
         $this->output->write("\x0D");

@@ -1,0 +1,75 @@
+---
+FRONTMATTER_ERROR_PAGE: |
+  ---
+  title: %1$s
+  ---
+  
+  # S'ha produït un error: Frontmatter invàlid
+  
+  Ruta: `%2$s`
+  
+  **%3$s**
+  
+  ```
+  %4$s
+  ```
+NICETIME:
+  NO_DATE_PROVIDED: "No s'ha proporcionat data"
+  BAD_DATE: Data invàlida
+  AGO: abans
+  FROM_NOW: "des d'ara"
+  SECOND: segon
+  MINUTE: minut
+  HOUR: hora
+  DAY: dia
+  WEEK: setmana
+  MONTH: mes
+  YEAR: any
+  DECADE: dècada
+  SEC: s
+  MIN: min
+  HR: h
+  WK: setm.
+  MO: m.
+  YR: a.
+  DEC: dèc.
+  SECOND_PLURAL: segons
+  MINUTE_PLURAL: minuts
+  HOUR_PLURAL: hores
+  DAY_PLURAL: dies
+  WEEK_PLURAL: setmanes
+  MONTH_PLURAL: mesos
+  YEAR_PLURAL: anys
+  DECADE_PLURAL: dècades
+  SEC_PLURAL: s
+  MIN_PLURAL: min
+  HR_PLURAL: h
+  WK_PLURAL: setm.
+  MO_PLURAL: mesos
+  YR_PLURAL: anys
+  DEC_PLURAL: dèc.
+FORM:
+  VALIDATION_FAIL: '<b>Ha fallat la validació:</b>'
+  INVALID_INPUT: Entrada no vàlida a
+  MISSING_REQUIRED_FIELD: 'Falta camp obligatori:'
+MONTHS_OF_THE_YEAR:
+  - Gener
+  - Febrer
+  - Març
+  - Abril
+  - Maig
+  - Juny
+  - Juliol
+  - Agost
+  - Setembre
+  - Octubre
+  - Novembre
+  - Desembre
+DAYS_OF_THE_WEEK:
+  - Dilluns
+  - Dimarts
+  - Dimecres
+  - Dijous
+  - Divendres
+  - Dissabte
+  - Diumenge
