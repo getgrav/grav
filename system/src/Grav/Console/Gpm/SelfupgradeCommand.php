@@ -220,7 +220,7 @@ class SelfupgradeCommand extends ConsoleCommand
         $errorCode = Installer::lastErrorCode();
         Folder::delete($this->tmp);
 
-        if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+      if ($errorCode) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $this->output->writeln("  |- Installing upgrade...    <red>error</red>                             ");

@@ -219,7 +219,7 @@ class Installer
                 break;
 
             case \ZipArchive::ER_NOZIP:
-                $error = "Not a zip archive.";
+                $error = "Not a zip archive. (Download failed or incomplete?)";
                 break;
 
             case \ZipArchive::ER_OPEN:
