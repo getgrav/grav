@@ -189,59 +189,9 @@ class Installer
             return $extracted_folder;
         }
 
-        self::$error = self::getZipError($archive);
+        self::$error = $archive;
         return false;
     }
-
-    /**
-     * Output a more useful ZIP error
-     *
-     * @param $res
-     * @return string
-     */
-    protected static function getZipError($res)
-    {
-        switch($res){
-            case \ZipArchive::ER_EXISTS:
-                $error = "File already exists.";
-                break;
-
-            case \ZipArchive::ER_INCONS:
-                $error = "Zip archive inconsistent.";
-                break;
-
-            case \ZipArchive::ER_MEMORY:
-                $error = "Malloc failure.";
-                break;
-
-            case \ZipArchive::ER_NOENT:
-                $error = "No such file.";
-                break;
-
-            case \ZipArchive::ER_NOZIP:
-                $error = "Not a zip archive.";
-                break;
-
-            case \ZipArchive::ER_OPEN:
-                $error = "Can't open file.";
-                break;
-
-            case \ZipArchive::ER_READ:
-                $error = "Read error.";
-                break;
-
-            case \ZipArchive::ER_SEEK:
-                $error = "Seek error.";
-                break;
-
-            default:
-                $error = self::ZIP_EXTRACT_ERROR;
-                break;
-        }
-
-        return $error;
-    }
-
 
     /**
      * Instantiates and returns the package installer class
@@ -510,6 +460,38 @@ class Installer
 
             case self::ZIP_EXTRACT_ERROR:
                 $msg = 'An error occurred while extracting the package';
+                break;
+
+            case \ZipArchive::ER_EXISTS:
+                $msg = "File already exists.";
+                break;
+
+            case \ZipArchive::ER_INCONS:
+                $msg = "Zip archive inconsistent.";
+                break;
+
+            case \ZipArchive::ER_MEMORY:
+                $msg = "Malloc failure.";
+                break;
+
+            case \ZipArchive::ER_NOENT:
+                $msg = "No such file.";
+                break;
+
+            case \ZipArchive::ER_NOZIP:
+                $msg = "Not a zip archive.";
+                break;
+
+            case \ZipArchive::ER_OPEN:
+                $msg = "Can't open file.";
+                break;
+
+            case \ZipArchive::ER_READ:
+                $msg = "Read error.";
+                break;
+
+            case \ZipArchive::ER_SEEK:
+                $msg = "Seek error.";
                 break;
 
             default:
