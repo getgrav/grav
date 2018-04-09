@@ -2,7 +2,7 @@
 ## 03/24/2018
 
 1. [](#bugfix)
-    * Fix for bad reference to `ZipArchive` in `GPM::Installer`
+    * ix for bad reference to `ZipArchive` in `GPM::Installer`
 
 # v1.4.2
 ## 03/21/2018
