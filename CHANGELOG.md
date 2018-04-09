@@ -1,8 +1,10 @@
 # v1.4.3
-## 03/24/2018
+## mm/dd//2018
 
+1. [](#new)
+    * moved sortArrayByKey logic into `Utils::` class
 1. [](#bugfix)
-    * ix for bad reference to `ZipArchive` in `GPM::Installer`
+    * Fix for bad reference to `ZipArchive` in `GPM::Installer`
 
 # v1.4.2
 ## 03/21/2018
