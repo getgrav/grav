@@ -1,5 +1,5 @@
 # v1.4.3
-## mm/dd/2018
+## 03/24/2018
 
 1. [](#bugfix)
     * Fix for bad reference to `ZipArchive` in `GPM::Installer`
