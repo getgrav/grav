@@ -59,9 +59,17 @@ trait ParsedownGravTrait
      * @param bool $continuable
      * @param bool $completable
      * @param $index
+     * @param bool $allow this is mandatory to pass through to be compatible with Parsedow 1.8.0
      */
-    public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
+    public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null, $allow = false)
     {
+        // This mandatory attribute ensures that only updated and compatible plugins
+        // will be able to add the blocktype attributes, as old plugins that have not been updated
+        // can break Grav completely until the plugin is disabled
+        if (!$allow) {
+            return;
+        }
+
         $block = &$this->unmarkedBlockTypes;
         if ($type) {
             if (!isset($this->BlockTypes[$type])) {
