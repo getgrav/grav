@@ -168,7 +168,9 @@ trait ParsedownGravTrait
     protected function blockTwigTag($line)
     {
         if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', $line['body'], $matches)) {
-            return ['markup' => $line['body']];
+            return ['element' => [
+                'rawHtml' => $line['body']
+            ]];
         }
 
         return null;

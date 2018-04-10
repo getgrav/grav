@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a8a5c0cb1969632422711809e4d55e06",
+    "content-hash": "7f11c43893137f2af50de7c8e1eab00d",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -295,16 +295,16 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "1.7.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erusev/parsedown.git",
-                "reference": "92e9c27ba0e74b8b028b111d1b6f956a15c01fc1"
+                "reference": "8091e5586ad8f164b56d6b1e0b9d0722bf460144"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/92e9c27ba0e74b8b028b111d1b6f956a15c01fc1",
-                "reference": "92e9c27ba0e74b8b028b111d1b6f956a15c01fc1",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/8091e5586ad8f164b56d6b1e0b9d0722bf460144",
+                "reference": "8091e5586ad8f164b56d6b1e0b9d0722bf460144",
                 "shasum": ""
             },
             "require": {
@@ -337,24 +337,30 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2018-03-08T01:11:30+00:00"
+            "time": "2018-04-09T15:53:07+00:00"
         },
         {
             "name": "erusev/parsedown-extra",
-            "version": "0.7.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erusev/parsedown-extra.git",
-                "reference": "0db5cce7354e4b76f155d092ab5eb3981c21258c"
+                "reference": "51cdff11d89e1471e447fda487bbee4956b207c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/0db5cce7354e4b76f155d092ab5eb3981c21258c",
-                "reference": "0db5cce7354e4b76f155d092ab5eb3981c21258c",
+                "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/51cdff11d89e1471e447fda487bbee4956b207c0",
+                "reference": "51cdff11d89e1471e447fda487bbee4956b207c0",
                 "shasum": ""
             },
             "require": {
-                "erusev/parsedown": "~1.4"
+                "erusev/parsedown": "^1.8.0|dev-master",
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.3.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -381,7 +387,7 @@
                 "parsedown",
                 "parser"
             ],
-            "time": "2015-11-01T10:19:22+00:00"
+            "time": "2018-04-08T01:24:10+00:00"
         },
         {
             "name": "filp/whoops",
@@ -3761,6 +3767,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "roave/security-advisories": 20,
+        "erusev/parsedown": 20,
+        "erusev/parsedown-extra": 20,
         "victorjonsson/markdowndocs": 20
     },
     "prefer-stable": false,
