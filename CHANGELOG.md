@@ -1,5 +1,13 @@
+# v1.4.3
+## mm/dd//2018
+
+1. [](#new)
+    * moved sortArrayByKey logic into `Utils::` class
+1. [](#bugfix)
+    * Fix for bad reference to `ZipArchive` in `GPM::Installer`
+
 # v1.4.2
-## mm/dd/2018
+## 03/21/2018
 
 1. [](#new)
     * Added `Grav\Framework\Session` class to replace `RocketTheme\Toolbox\Session\Session`
@@ -13,6 +21,7 @@
     * Fixed an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
     * Fix for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
     * Fixed missing composer requirements for the new `Grav\Framework\Uri` classes
+    * Added missing PSR-7 vendor library required for URI additions in Grav 1.4.0 
 
 # v1.4.1
 ## 03/11/2018

@@ -371,25 +371,14 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      *
      * @param  array    $input
      * @param  string   $filter
-     * @param array|int $direction
+     * @param  int      $direction
+     * @param  int      $sort_flags
      *
      * @return array
      */
-    public function sortByKeyFilter($input, $filter, $direction = SORT_ASC)
+    public function sortByKeyFilter($input, $filter, $direction = SORT_ASC, $sort_flags = SORT_REGULAR)
     {
-        $output = [];
-
-        if (!is_array($input) || !$input) {
-            return $output;
-        }
-
-        foreach ($input as $key => $row) {
-            $output[$key] = $row[$filter];
-        }
-
-        array_multisort($output, $direction, $input);
-
-        return $input;
+        return Utils::sortArrayByKey($input, $filter, $direction, $sort_flags);
     }
 
     /**

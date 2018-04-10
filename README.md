@@ -183,7 +183,7 @@ See [LICENSE](LICENSE.txt)
 
 # Running Tests
 
-First install the dev dependencies by running `composer update` from the Grav root.
-Then `composer test` will run the Unit Tests, which should be always executed successfully on any site.
-
+First install the dev dependencies by running `composer update` from the Grav root.  
+Then `composer test` will run the Unit Tests, which should be always executed successfully on any site.  
+Windows users should use the `composer test-windows` command.  
 You can also run a single unit test file, e.g. `composer test tests/unit/Grav/Common/AssetsTest.php`
