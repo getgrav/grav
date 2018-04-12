@@ -1,5 +1,5 @@
 # v1.4.3
-## mm/dd//2018
+## 04/12/2018
 
 1. [](#new)
     * moved Twig `sortArrayByKey` logic into `Utils::` class
