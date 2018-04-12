@@ -5,6 +5,7 @@
     * moved Twig `sortArrayByKey` logic into `Utils::` class
 1. [](#improved)
     * Rolled back Parsedown library to stable `1.6.4` until a better solution for `1.8.0` compatibility can fe found
+    * Updated vendor libraries to latest versions
 1. [](#bugfix)
     * Fix for bad reference to `ZipArchive` in `GPM::Installer`
 
@@ -70,7 +71,6 @@
     * Optimizations & refactoring to the test suite [#1779](https://github.com/getgrav/grav/pull/1779)
     * Slight modification of Whoops error colors
     * Added new configuration option `system.session.initialize` to delay session initialization if needed by a plugin
-    * Vendor library updated to latest
     * Updated vendor libraries to latest versions
     * Removed constructor from `ObjectInterface`
     * Make it possible to include debug bar also into non-HTML responses
