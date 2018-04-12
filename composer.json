@@ -6,10 +6,9 @@
     "homepage": "http://getgrav.org",
     "license": "MIT",
     "require": {
-        "roave/security-advisories": "dev-master",
         "php": ">=5.5.9",
         "twig/twig": "~1.24",
-        "erusev/parsedown": "~1.6",
+        "erusev/parsedown": "1.6.4",
         "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~2.8",
         "symfony/console": "~2.8",

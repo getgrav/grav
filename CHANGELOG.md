@@ -1,3 +1,14 @@
+# v1.4.3
+## 04/12/2018
+
+1. [](#new)
+    * moved Twig `sortArrayByKey` logic into `Utils::` class
+1. [](#improved)
+    * Rolled back Parsedown library to stable `1.6.4` until a better solution for `1.8.0` compatibility can fe found
+    * Updated vendor libraries to latest versions
+1. [](#bugfix)
+    * Fix for bad reference to `ZipArchive` in `GPM::Installer`
+
 # v1.4.2
 ## 03/21/2018
 
@@ -11,7 +22,7 @@
     * Fixed an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
     * Fix for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
     * Fixed missing composer requirements for the new `Grav\Framework\Uri` classes
-    * Added missing PSR-7 vendor library required for URI additions in Grav 1.4.0
+    * Added missing PSR-7 vendor library required for URI additions in Grav 1.4.0 
 
 # v1.4.1
 ## 03/11/2018
@@ -60,7 +71,6 @@
     * Optimizations & refactoring to the test suite [#1779](https://github.com/getgrav/grav/pull/1779)
     * Slight modification of Whoops error colors
     * Added new configuration option `system.session.initialize` to delay session initialization if needed by a plugin
-    * Vendor library updated to latest
     * Updated vendor libraries to latest versions
     * Removed constructor from `ObjectInterface`
     * Make it possible to include debug bar also into non-HTML responses
