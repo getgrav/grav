@@ -243,19 +243,6 @@ trait ParsedownGravTrait
         return $excerpt;
     }
 
-    /**
-     * Return Text as-is to get around Parsedown security fixes
-     * which break these fields
-     *
-     * @param $text
-     * @param $nestable
-     * @return mixed
-     */
-    public function html($text, $nestable)
-    {
-        return $text;
-    }
-
     // For extending this class via plugins
     public function __call($method, $args)
     {
