@@ -159,8 +159,11 @@ class Session implements \IteratorAggregate
 
         $options = $readonly ? ['read_and_close' => '1'] : [];
 
-        if (!session_start($options)) {
-            throw new \RuntimeException('Failed to start session.', 500);
+        $success = @session_start($options);
+        if (!$success) {
+            $last = error_get_last();
+            $error = $last ? $last['message'] : 'Unknown error';
+            throw new \RuntimeException('Failed to start session: ' . $error, 500);
         }
 
         $params = session_get_cookie_params();
