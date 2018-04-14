@@ -1,3 +1,10 @@
+# v1.5.0
+## mm/dd/2018
+
+1. [](#new)
+    * Set minimum requirements to [PHP 5.6.0](https://getgrav.org/blog/raising-php-requirements-2018)
+    * Updated to Doctrine Collections 1.4
+
 # v1.4.3
 ## 04/12/2018
 
