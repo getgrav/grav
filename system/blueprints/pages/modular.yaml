@@ -1,5 +1,5 @@
 title: PLUGIN_ADMIN.MODULAR
-'@extends': default
+extends@: default
 
 form:
   fields:
