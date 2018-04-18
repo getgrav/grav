@@ -402,12 +402,14 @@ class Medium extends Data implements RenderableInterface
     /**
      * Helper method to determine if this media item has a thumbnail or not
      *
+     * @param string $type;
+     *
      * @return bool
      */
-    public function thumbnailExists()
+    public function thumbnailExists($type = 'page')
     {
         $thumbs = $this->get('thumbnails');
-        if (isset($thumbs['page'])) {
+        if (isset($thumbs[$type])) {
             return true;
         }
         return false;
