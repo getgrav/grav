@@ -12,6 +12,7 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Utils;
 
 class Medium extends Data implements RenderableInterface
 {
@@ -399,6 +400,20 @@ class Medium extends Data implements RenderableInterface
     }
 
     /**
+     * Helper method to determine if this media item has a thumbnail or not
+     *
+     * @return bool
+     */
+    public function thumbnailExists()
+    {
+        $thumbs = $this->get('thumbnails');
+        if (isset($thumbs['page'])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Switch thumbnail.
      *
      * @param string $type
@@ -419,6 +434,7 @@ class Medium extends Data implements RenderableInterface
 
         return $this;
     }
+
 
     /**
      * Turn the current Medium into a Link
