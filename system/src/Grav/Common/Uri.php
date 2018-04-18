@@ -471,6 +471,23 @@ class Uri
     }
 
     /**
+     * Return the full uri
+     *
+     * @param bool $include_root
+     * @return mixed
+     */
+    public function uri($include_root = true)
+    {
+        if ($include_root) {
+            return $this->uri;
+        } else {
+            $uri = str_replace($this->root_path, '', $this->uri);
+            return $uri;
+        }
+
+    }
+
+    /**
      * Return the base of the URI
      *
      * @return String The base of the URI

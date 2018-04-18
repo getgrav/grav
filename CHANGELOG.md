@@ -2,9 +2,10 @@
 ## 04/12/2018
 
 1. [](#new)
-    * added a new `Medium:thumbnailExists()` function [#1966](https://github.com/getgrav/grav/issues/1966)
+    * Added a new `Medium:thumbnailExists()` function [#1966](https://github.com/getgrav/grav/issues/1966)
 1. [](#bugfix)
-    * fixed an issue with `custom_base_url` always causing 404 errors
+    * Fixed an issue with `custom_base_url` always causing 404 errors
+    * Improve support for regex redirects with query and params [#1983](https://github.com/getgrav/grav/issues/1983)
 
 # v1.4.3
 ## 04/12/2018
