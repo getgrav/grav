@@ -133,7 +133,12 @@ class Uri
             $custom_parts = parse_url($custom_base);
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
-            $this->root      = isset($custom_parts['scheme']) ? $custom_base : $this->base . $this->root_path;
+            if (isset($custom_parts['scheme'])) {
+                $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
+                $this->root = $custom_base;
+            } else {
+                $this->root = $this->base . $this->root_path;
+            }
             $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
@@ -142,6 +147,7 @@ class Uri
         $this->url = $this->base . $this->uri;
 
         $uri = str_replace(static::filterPath($this->root), '', $this->url);
+
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
@@ -462,6 +468,23 @@ class Uri
     public function basename()
     {
         return $this->basename;
+    }
+
+    /**
+     * Return the full uri
+     *
+     * @param bool $include_root
+     * @return mixed
+     */
+    public function uri($include_root = true)
+    {
+        if ($include_root) {
+            return $this->uri;
+        } else {
+            $uri = str_replace($this->root_path, '', $this->uri);
+            return $uri;
+        }
+
     }
 
     /**
@@ -1185,7 +1208,6 @@ class Uri
         if ($this->host) {
             $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
         }
-
         // Filter userinfo, path, query string and fragment.
         $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
         $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
