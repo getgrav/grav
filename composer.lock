@@ -1208,12 +1208,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "9434fb837b84fbb088b1cbcfbe482b6543c28450"
+                "reference": "52dfd040537ea609f6ce1d608517d3d970a27305"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/9434fb837b84fbb088b1cbcfbe482b6543c28450",
-                "reference": "9434fb837b84fbb088b1cbcfbe482b6543c28450",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/52dfd040537ea609f6ce1d608517d3d970a27305",
+                "reference": "52dfd040537ea609f6ce1d608517d3d970a27305",
                 "shasum": ""
             },
             "require": {
@@ -1230,6 +1230,7 @@
                 "psr-4": {
                     "RocketTheme\\Toolbox\\ArrayTraits\\": "ArrayTraits/src",
                     "RocketTheme\\Toolbox\\Blueprints\\": "Blueprints/src",
+                    "RocketTheme\\Toolbox\\Compat\\": "Compat/src",
                     "RocketTheme\\Toolbox\\DI\\": "DI/src",
                     "RocketTheme\\Toolbox\\Event\\": "Event/src",
                     "RocketTheme\\Toolbox\\File\\": "File/src",
@@ -1251,7 +1252,7 @@
                 "source": "https://github.com/rockettheme/toolbox/tree/feature/grav15",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2018-04-20T08:06:27+00:00"
+            "time": "2018-04-20T09:18:58+00:00"
         },
         {
             "name": "seld/cli-prompt",

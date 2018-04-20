@@ -113,7 +113,10 @@ class Twig
                 $params['cache'] = new \Twig_Cache_Filesystem($cachePath, \Twig_Cache_Filesystem::FORCE_BYTECODE_INVALIDATION);
             }
 
-            if (!empty($this->autoescape)) {
+            if (!$config->get('system.strict_mode.twig_compat', true)) {
+                // Force autoescape on for all files if in strict mode.
+                $params['autoescape'] = true;
+            } elseif (!empty($this->autoescape)) {
                 $params['autoescape'] = $this->autoescape;
             }
 

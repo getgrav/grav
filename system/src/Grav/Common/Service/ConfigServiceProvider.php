@@ -16,6 +16,7 @@ use Grav\Common\Config\ConfigFileFinder;
 use Grav\Common\Config\Setup;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class ConfigServiceProvider implements ServiceProviderInterface
@@ -31,7 +32,14 @@ class ConfigServiceProvider implements ServiceProviderInterface
         };
 
         $container['config'] = function ($c) {
-            return static::load($c);
+            $config = static::load($c);
+
+            // After configuration has been loaded, we can disable YAML compatibility if strict mode has been enabled.
+            if (!$config->get('system.strict_mode.yaml_compat', true)) {
+                YamlFile::globalSettings(['compat' => false, 'native' => true]);
+            }
+
+            return $config;
         };
 
         $container['languages'] = function ($c) {
@@ -65,6 +73,10 @@ class ConfigServiceProvider implements ServiceProviderInterface
         return $blueprints->name("master-{$setup->environment}")->load();
     }
 
+    /**
+     * @param Container $container
+     * @return Config
+     */
     public static function load(Container $container)
     {
         /** Setup $setup */

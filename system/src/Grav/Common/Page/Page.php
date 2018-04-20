@@ -12,6 +12,7 @@ use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
@@ -318,8 +319,6 @@ class Page
         if (!$this->header) {
             $file = $this->file();
             if ($file) {
-                // Set some options
-                $file->settings(['native' => true, 'compat' => true]);
                 try {
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
@@ -328,11 +327,12 @@ class Page
                     if (!Utils::isAdminPlugin()) {
                         // If there's a `frontmatter.yaml` file merge that in with the page header
                         // note page's own frontmatter has precedence and will overwrite any defaults
-                        $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
-                        if (file_exists($frontmatter_file)) {
-                            $frontmatter_data = (array)Yaml::parse(file_get_contents($frontmatter_file));
+                        $frontmatterFile = CompiledYamlFile::instance($this->path . '/' . $this->folder . '/frontmatter.yaml');
+                        if ($frontmatterFile->exists()) {
+                            $frontmatter_data = (array)$frontmatterFile->content();
                             $this->header = (object)array_replace_recursive($frontmatter_data,
                                 (array)$this->header);
+                            $frontmatterFile->free();
                         }
                         // Process frontmatter with Twig if enabled
                         if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
