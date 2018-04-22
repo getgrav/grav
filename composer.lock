@@ -606,26 +606,29 @@
         },
         {
             "name": "league/climate",
-            "version": "3.2.4",
+            "version": "3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/climate.git",
-                "reference": "ca70f67f7739cca823eba0ad98f8130bca226bf0"
+                "reference": "ad092407f70c5adbbb51f6aa65ccc4c5598a557b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/climate/zipball/ca70f67f7739cca823eba0ad98f8130bca226bf0",
-                "reference": "ca70f67f7739cca823eba0ad98f8130bca226bf0",
+                "url": "https://api.github.com/repos/thephpleague/climate/zipball/ad092407f70c5adbbb51f6aa65ccc4c5598a557b",
+                "reference": "ad092407f70c5adbbb51f6aa65ccc4c5598a557b",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0",
-                "seld/cli-prompt": "~1.0"
+                "php": "^5.6|^7.0",
+                "seld/cli-prompt": "^1.0"
             },
             "require-dev": {
-                "mikey179/vfsstream": "~1.4",
-                "mockery/mockery": "~0.9",
-                "phpunit/phpunit": "~4.6"
+                "mikey179/vfsstream": "^1.4",
+                "mockery/mockery": "^1.0",
+                "phpunit/phpunit": "^5.7.16"
+            },
+            "suggest": {
+                "ext-mbstring": "If ext-mbstring is not available you MUST install symfony/polyfill-mbstring"
             },
             "type": "library",
             "autoload": {
@@ -638,6 +641,12 @@
                 "MIT"
             ],
             "authors": [
+                {
+                    "name": "Craig Duncan",
+                    "email": "git@duncanc.co.uk",
+                    "homepage": "https://github.com/duncan3dc",
+                    "role": "Developer"
+                },
                 {
                     "name": "Joe Tannenbaum",
                     "email": "hey@joe.codes",
@@ -653,7 +662,7 @@
                 "php",
                 "terminal"
             ],
-            "time": "2016-10-30T22:18:25+00:00"
+            "time": "2018-04-20T18:42:25+00:00"
         },
         {
             "name": "matthiasmullie/minify",
@@ -1208,12 +1217,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "52dfd040537ea609f6ce1d608517d3d970a27305"
+                "reference": "e83f6632a12f23c06f9054f7c31c24be38ccada1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/52dfd040537ea609f6ce1d608517d3d970a27305",
-                "reference": "52dfd040537ea609f6ce1d608517d3d970a27305",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/e83f6632a12f23c06f9054f7c31c24be38ccada1",
+                "reference": "e83f6632a12f23c06f9054f7c31c24be38ccada1",
                 "shasum": ""
             },
             "require": {
@@ -1252,7 +1261,7 @@
                 "source": "https://github.com/rockettheme/toolbox/tree/feature/grav15",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2018-04-20T09:18:58+00:00"
+            "time": "2018-04-22T16:05:55+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -2192,16 +2201,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.3.2",
+            "version": "6.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "68d0ea14d5a3f42a20e87632a5f84931e2709c90"
+                "reference": "407b0cb880ace85c9b63c5f9551db498cb2d50ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/68d0ea14d5a3f42a20e87632a5f84931e2709c90",
-                "reference": "68d0ea14d5a3f42a20e87632a5f84931e2709c90",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/407b0cb880ace85c9b63c5f9551db498cb2d50ba",
+                "reference": "407b0cb880ace85c9b63c5f9551db498cb2d50ba",
                 "shasum": ""
             },
             "require": {
@@ -2211,7 +2220,7 @@
             },
             "require-dev": {
                 "ext-curl": "*",
-                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4",
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4 || ^7.0",
                 "psr/log": "^1.0"
             },
             "suggest": {
@@ -2253,7 +2262,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2018-03-26T16:33:04+00:00"
+            "time": "2018-04-22T15:46:56+00:00"
         },
         {
             "name": "guzzlehttp/promises",
