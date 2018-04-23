@@ -499,49 +499,49 @@ class AssetsTest extends \Codeception\TestCase\Test
     {
         $this->assets->addInlineJs('alert("test")');
         $this->assets->reset();
-        $this->assertSame(0, count((array) $this->assets->js()));
+        $this->assertCount(0, (array) $this->assets->js());
 
         $this->assets->addAsyncJs('jquery');
         $this->assets->reset();
 
-        $this->assertSame(0, count((array) $this->assets->js()));
+        $this->assertCount(0, (array) $this->assets->js());
 
         $this->assets->addInlineCss('body { color: black }');
         $this->assets->reset();
 
-        $this->assertSame(0, count((array) $this->assets->css()));
+        $this->assertCount(0, (array) $this->assets->css());
 
         $this->assets->add('/system/assets/debugger.css', null, true);
         $this->assets->reset();
 
-        $this->assertSame(0, count((array) $this->assets->css()));
+        $this->assertCount(0, (array) $this->assets->css());
     }
 
     public function testResetJs()
     {
         $this->assets->addInlineJs('alert("test")');
         $this->assets->resetJs();
-        $this->assertSame(0, count((array) $this->assets->js()));
+        $this->assertCount(0, (array) $this->assets->js());
 
         $this->assets->addAsyncJs('jquery');
         $this->assets->resetJs();
 
-        $this->assertSame(0, count((array) $this->assets->js()));
+        $this->assertCount(0, (array) $this->assets->js());
     }
 
     public function testResetCss()
     {
-        $this->assertSame(0, count((array) $this->assets->js()));
+        $this->assertCount(0, (array) $this->assets->js());
 
         $this->assets->addInlineCss('body { color: black }');
         $this->assets->resetCss();
 
-        $this->assertSame(0, count((array) $this->assets->css()));
+        $this->assertCount(0, (array) $this->assets->css());
 
         $this->assets->add('/system/assets/debugger.css', null, true);
         $this->assets->resetCss();
 
-        $this->assertSame(0, count((array) $this->assets->css()));
+        $this->assertCount(0, (array) $this->assets->css());
     }
 
     public function testAddDirCss()
