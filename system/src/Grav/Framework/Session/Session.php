@@ -357,7 +357,7 @@ class Session implements \IteratorAggregate
      */
     protected function isSessionStarted()
     {
-        return php_sapi_name() !== 'cli' ? session_id() !== '' : false;
+        return php_sapi_name() !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
     }
 
     /**
