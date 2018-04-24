@@ -5,6 +5,7 @@
     * Set minimum requirements to [PHP 5.6.4](https://getgrav.org/blog/raising-php-requirements-2018)
     * Updated Doctrine Collections to 1.4
     * Updated Symfony Components to 3.4 (with compatibility mode to fall back to Symfony YAML 2.8)
+    * Added new `Grav\Framework\File\Formatter` classes for encoding/decoding YAML, MarkDown, JSON, INI and PHP serialized formats
 
 # v1.4.4
 ## 04/12/2018
