@@ -20,14 +20,18 @@ class JsonFormatter implements FormatterInterface
     public function __construct(array $config = [])
     {
         $this->config = $config + [
+            'file_extension' => '.json',
             'encode_options' => 0,
             'decode_assoc' => true
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getFileExtension()
     {
-        return 'json';
+        return $this->config['file_extension'];
     }
 
     /**
@@ -35,10 +39,13 @@ class JsonFormatter implements FormatterInterface
      */
     public function encode($data)
     {
-        $encoded = json_encode($data, $this->config['encode_options']);
+        $encoded = @json_encode($data, $this->config['encode_options']);
+
         if ($encoded === false) {
-            throw new \RuntimeException('');
+            throw new \RuntimeException('Encoding JSON failed');
         }
+
+        return $encoded;
     }
 
     /**
@@ -46,6 +53,12 @@ class JsonFormatter implements FormatterInterface
      */
     public function decode($data)
     {
-        return json_decode($data, $this->config['decode_assoc']);
+        $decoded = @json_decode($data, $this->config['decode_assoc']);
+
+        if ($decoded === false) {
+            throw new \RuntimeException('Decoding JSON failed');
+        }
+
+        return $decoded;
     }
 }

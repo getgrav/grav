@@ -10,9 +10,26 @@ namespace Grav\Framework\Formatter;
 
 class SerializeFormatter implements FormatterInterface
 {
+    /** @var array */
+    private $config;
+
+    /**
+     * IniFormatter constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        $this->config = $config + [
+                'file_extension' => '.ser'
+            ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getFileExtension()
     {
-        return 'raw';
+        return $this->config['file_extension'];
     }
 
     /**
@@ -28,7 +45,13 @@ class SerializeFormatter implements FormatterInterface
      */
     public function decode($data)
     {
-        return $this->preserveLines(unserialize($data), ['\\n', '\\r'], ["\n", "\r"]);
+        $decoded = @unserialize($data);
+
+        if ($decoded === false) {
+            throw new \RuntimeException('Decoding serialized data failed');
+        }
+
+        return $this->preserveLines($decoded, ['\\n', '\\r'], ["\n", "\r"]);
     }
 
     /**

@@ -25,6 +25,7 @@ class YamlFormatter implements FormatterInterface
     public function __construct(array $config = [])
     {
         $this->config = $config + [
+            'file_extension' => '.yaml',
             'inline' => 5,
             'indent' => 2,
             'native' => true,
@@ -32,9 +33,12 @@ class YamlFormatter implements FormatterInterface
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getFileExtension()
     {
-        return 'yaml';
+        return $this->config['file_extension'];
     }
 
     /**
@@ -50,7 +54,7 @@ class YamlFormatter implements FormatterInterface
                 YamlParser::DUMP_EXCEPTION_ON_INVALID_TYPE
             );
         } catch (DumpException $e) {
-            throw new \RuntimeException($e->getMessage(), 500, $e);
+            throw new \RuntimeException('Encoding YAML failed: ' . $e->getMessage(), 0, $e);
         }
     }
 
@@ -79,7 +83,7 @@ class YamlFormatter implements FormatterInterface
                 return (array) FallbackYamlParser::parse($data);
             }
 
-            throw new \RuntimeException($e->getMessage(), 500, $e);
+            throw new \RuntimeException('Decoding YAML failed: ' . $e->getMessage(), 0, $e);
         }
     }
 }

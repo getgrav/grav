@@ -22,6 +22,7 @@ class MarkdownFormatter implements FormatterInterface
     public function __construct(array $config = [], FormatterInterface $headerFormatter = null)
     {
         $this->config = $config + [
+            'file_extension' => '.md',
             'header' => 'header',
             'body' => 'markdown',
             'raw' => 'frontmatter',
@@ -31,9 +32,12 @@ class MarkdownFormatter implements FormatterInterface
         $this->headerFormatter = $headerFormatter ?: new YamlFormatter($this->config['formatter']);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getFileExtension()
     {
-        return 'md';
+        return $this->config['file_extension'];
     }
 
     /**

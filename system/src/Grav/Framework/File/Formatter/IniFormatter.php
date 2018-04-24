@@ -14,9 +14,26 @@ namespace Grav\Framework\Formatter;
  */
 class IniFormatter implements FormatterInterface
 {
+    /** @var array */
+    private $config;
+
+    /**
+     * IniFormatter constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        $this->config = $config + [
+                'file_extension' => '.ini'
+            ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getFileExtension()
     {
-        return 'ini';
+        return $this->config['file_extension'];
     }
 
     /**
@@ -32,6 +49,7 @@ class IniFormatter implements FormatterInterface
                     $value
                 ) . "\"\n";
         }
+
         return $string;
     }
 
@@ -43,7 +61,7 @@ class IniFormatter implements FormatterInterface
         $decoded = @parse_ini_string($data);
 
         if ($decoded === false) {
-            throw new \RuntimeException("Decoding INI format failed'");
+            throw new \RuntimeException('Decoding INI failed');
         }
 
         return $decoded;
