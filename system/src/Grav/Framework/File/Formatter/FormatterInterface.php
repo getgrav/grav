@@ -1,12 +1,12 @@
 <?php
 /**
- * @package    Grav\Framework\Formatter
+ * @package    Grav\Framework\File\Formatter
  *
  * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Framework\Formatter;
+namespace Grav\Framework\File\Formatter;
 
 interface FormatterInterface
 {

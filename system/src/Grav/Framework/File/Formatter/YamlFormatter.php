@@ -1,22 +1,18 @@
 <?php
 /**
- * @package    Grav\Framework\Formatter
+ * @package    Grav\Framework\File\Formatter
  *
  * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Framework\Formatter;
+namespace Grav\Framework\File\Formatter;
 
 use Symfony\Component\Yaml\Exception\DumpException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYamlParser;
 
-/**
- * Class YamlFormatter
- * @package Grav\Framework\Formatter
- */
 class YamlFormatter implements FormatterInterface
 {
     /** @var array */
