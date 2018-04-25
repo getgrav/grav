@@ -1,9 +1,4 @@
 schemes:
-  asset:
-    type: ReadOnlyStream
-    paths:
-      - assets
-
   image:
     type: ReadOnlyStream
     paths:

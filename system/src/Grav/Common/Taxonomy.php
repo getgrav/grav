@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package    Grav.Common
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
@@ -21,9 +28,6 @@ use Grav\Common\Page\Page;
  * [tag][grav][path/to/item1]
  * [tag][grav][path/to/item2]
  * [tag][dog][path/to/item3]
- *
- * @author RocketTheme
- * @license MIT
  */
 class Taxonomy
 {
@@ -32,10 +36,12 @@ class Taxonomy
 
     /**
      * Constructor that resets the map
+     *
+     * @param Grav $grav
      */
     public function __construct(Grav $grav)
     {
-        $this->taxonomy_map = array();
+        $this->taxonomy_map = [];
         $this->grav = $grav;
     }
 
@@ -43,7 +49,7 @@ class Taxonomy
      * Takes an individual page and processes the taxonomies configured in its header. It
      * then adds those taxonomies to the map
      *
-     * @param Page $page the page to process
+     * @param Page  $page the page to process
      * @param array $page_taxonomy
      */
     public function addTaxonomy(Page $page, $page_taxonomy = null)
@@ -59,10 +65,10 @@ class Taxonomy
         /** @var Config $config */
         $config = $this->grav['config'];
         if ($config->get('site.taxonomies')) {
-            foreach ((array) $config->get('site.taxonomies') as $taxonomy) {
+            foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {
-                    foreach ((array) $page_taxonomy[$taxonomy] as $item) {
-                        $this->taxonomy_map[$taxonomy][(string) $item][$page->path()] = array('slug' => $page->slug());
+                    foreach ((array)$page_taxonomy[$taxonomy] as $item) {
+                        $this->taxonomy_map[$taxonomy][(string)$item][$page->path()] = ['slug' => $page->slug()];
                     }
                 }
             }
@@ -73,8 +79,9 @@ class Taxonomy
      * Returns a new Page object with the sub-pages containing all the values set for a
      * particular taxonomy.
      *
-     * @param  array $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
-     * @param  string $operator can be 'or' or 'and' (defaults to 'or')
+     * @param  array  $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
+     * @param  string $operator   can be 'or' or 'and' (defaults to 'and')
+     *
      * @return Collection       Collection object set to contain matches found in the taxonomy map
      */
     public function findTaxonomy($taxonomies, $operator = 'and')
@@ -83,9 +90,11 @@ class Taxonomy
         $results = [];
 
         foreach ((array)$taxonomies as $taxonomy => $items) {
-            foreach ((array) $items as $item) {
+            foreach ((array)$items as $item) {
                 if (isset($this->taxonomy_map[$taxonomy][$item])) {
                     $matches[] = $this->taxonomy_map[$taxonomy][$item];
+                } else {
+                    $matches[] = [];
                 }
             }
         }
@@ -108,6 +117,7 @@ class Taxonomy
      * Gets and Sets the taxonomy map
      *
      * @param  array $var the taxonomy map
+     *
      * @return array      the taxonomy map
      */
     public function taxonomy($var = null)
@@ -115,6 +125,25 @@ class Taxonomy
         if ($var) {
             $this->taxonomy_map = $var;
         }
+
         return $this->taxonomy_map;
+    }
+
+    /**
+     * Gets item keys per taxonomy
+     *
+     * @param  string $taxonomy       taxonomy name
+     *
+     * @return array                  keys of this taxonomy
+     */
+    public function getTaxonomyItemKeys($taxonomy) {
+        if (isset($this->taxonomy_map[$taxonomy])) {
+
+            $results = array_keys($this->taxonomy_map[$taxonomy]);
+
+            return $results;
+        }
+
+        return [];
     }
 }

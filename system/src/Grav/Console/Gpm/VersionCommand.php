@@ -1,25 +1,24 @@
 <?php
+/**
+ * @package    Grav.Console
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Upgrader;
-use Grav\Console\ConsoleTrait;
-use Symfony\Component\Console\Command\Command;
+use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class VersionCommand
- * @package Grav\Console\Gpm
- */
-class VersionCommand extends Command
+class VersionCommand extends ConsoleCommand
 {
-    use ConsoleTrait;
-
     /**
-     * @var
+     * @var GPM
      */
     protected $gpm;
 
@@ -46,15 +45,10 @@ class VersionCommand extends Command
     }
 
     /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function serve()
     {
-        $this->setupConsole($input, $output);
-
         $this->gpm = new GPM($this->input->getOption('force'));
         $packages = $this->input->getArgument('package');
 
@@ -80,9 +74,26 @@ class VersionCommand extends Command
                 }
 
             } else {
-                if ($installed = $this->gpm->findPackage($package)) {
+                // get currently installed version
+                $locator = \Grav\Common\Grav::instance()['locator'];
+                $blueprints_path = $locator->findResource('plugins://' . $package . DS . 'blueprints.yaml');
+                if (!file_exists($blueprints_path)) { // theme?
+                    $blueprints_path = $locator->findResource('themes://' . $package . DS . 'blueprints.yaml');
+                    if (!file_exists($blueprints_path)) {
+                        continue;
+                    }
+                }
+
+                $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+                $version = $package_yaml['version'];
+
+                if (!$version) {
+                    continue;
+                }
+
+                $installed = $this->gpm->findPackage($package);
+                if ($installed) {
                     $name = $installed->name;
-                    $version = $installed->version;
 
                     if ($this->gpm->isUpdatable($package)) {
                         $updatable = ' [updatable: v<green>' . $installed->available . '</green>]';
