@@ -196,6 +196,11 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     {
         $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $this->get('filepath'));
 
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($output)) {
+            $output = $locator->findResource($output, false);
+        }
+
         if ($reset) {
             $this->reset();
         }
