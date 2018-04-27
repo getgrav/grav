@@ -49,6 +49,8 @@ class Uri
     protected $root;
     protected $root_path;
     protected $uri;
+    protected $content_type;
+    protected $post;
 
     /**
      * Uri constructor.
@@ -1233,6 +1235,55 @@ class Uri
         $this->root_path    = $this->buildRootPath();
         $this->root         = $this->base . $this->root_path;
         $this->url          = $this->base . $this->uri;
+    }
+
+    /**
+     * Get's post from either $_POST or JSON response object
+     * By default returns all data, or can return a single item
+     *
+     * @param string $element
+     * @param string $filter_type
+     * @return array|mixed|null
+     */
+    public function post($element = null, $filter_type = null)
+    {
+        if (!$this->post) {
+            $content_type = $this->getContentType();
+            if ($content_type == 'application/json') {
+                $json = file_get_contents('php://input');
+                $this->post = json_decode($json, true);
+            } elseif (!empty($_POST)) {
+                $this->post = (array)$_POST;
+            }
+        }
+
+        if ($this->post && !is_null($element)) {
+            $item = Utils::getDotNotation($this->post, $element);
+            if ($filter_type) {
+                $item = filter_var($item, $filter_type);
+            }
+            return $item;
+        }
+
+        return $this->post;
+    }
+
+    /**
+     * Get content type from request
+     *
+     * @param bool $short
+     * @return null|string
+     */
+    private function getContentType($short = true)
+    {
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            $content_type = $_SERVER['CONTENT_TYPE'];
+            if ($short) {
+                return Utils::substrToString($content_type,';');
+            }
+            return $content_type;
+        }
+        return null;
     }
 
     /**
