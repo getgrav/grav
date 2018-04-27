@@ -18,6 +18,8 @@ use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -28,8 +30,10 @@ use Symfony\Component\Yaml\Yaml;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
-class Page
+class Page implements PageInterface
 {
+    use MediaTrait;
+
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -66,7 +70,6 @@ class Page
     protected $summary;
     protected $raw_content;
     protected $pagination;
-    protected $media;
     protected $metadata;
     protected $title;
     protected $max_count;
@@ -1123,6 +1126,14 @@ class Page
     }
 
     /**
+     * @return string
+     */
+    protected function getCacheKey()
+    {
+        return $this->id();
+    }
+
+    /**
      * Gets and sets the associated media as found in the page folder.
      *
      * @param  Media $var Representation of associated media.
@@ -1131,24 +1142,21 @@ class Page
      */
     public function media($var = null)
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-
         if ($var) {
-            $this->media = $var;
-        }
-        if ($this->media === null) {
-            // Use cached media if possible.
-            $media_cache_id = md5('media' . $this->id());
-            if (!$media = $cache->fetch($media_cache_id)) {
-                $media = new Media($this->path());
-                $cache->save($media_cache_id, $media);
-            }
-            $this->media = $media;
+            $this->setMedia($var);
         }
 
-        return $this->media;
+        return $this->getMedia();
     }
+
+    public function getMediaFolder()
+    {
+        return $this->path();
+    }
+
+
+
+
 
     /**
      * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
