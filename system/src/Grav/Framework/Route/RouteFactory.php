@@ -28,6 +28,23 @@ class RouteFactory
         return new Route($parts);
     }
 
+    public static function createFromString($path)
+    {
+        $path = ltrim($path, '/');
+        $parts = [
+            'path' => $path,
+            'query' => '',
+            'query_params' => [],
+            'grav' => [
+                'root' => self::$root,
+                'language' => self::$language,
+                'route' => $path,
+                'params' => ''
+            ],
+        ];
+        return new Route($parts);
+    }
+
     public static function getRoot()
     {
         return self::$root;

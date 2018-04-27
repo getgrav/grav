@@ -22,10 +22,10 @@ class MarkdownFormatter implements FormatterInterface
             'header' => 'header',
             'body' => 'markdown',
             'raw' => 'frontmatter',
-            'formatter' => ['inline' => 20]
+            'yaml' => ['inline' => 20]
         ];
 
-        $this->headerFormatter = $headerFormatter ?: new YamlFormatter($this->config['formatter']);
+        $this->headerFormatter = $headerFormatter ?: new YamlFormatter($this->config['yaml']);
     }
 
     /**
