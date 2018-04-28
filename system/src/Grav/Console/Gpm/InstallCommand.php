@@ -182,7 +182,7 @@ class InstallCommand extends ConsoleCommand
         //We're done installing dependencies. Install the actual packages
         foreach ($this->data as $data) {
             foreach ($data as $package_name => $package) {
-                if (in_array($package_name, array_keys($dependencies))) {
+                if (array_key_exists($package_name, $dependencies)) {
                     $this->output->writeln("<green>Package " . $package_name . " already installed as dependency</green>");
                 } else {
                     $is_valid_destination = Installer::isValidDestination($this->destination . DS . $package->install_path);
