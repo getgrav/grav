@@ -47,6 +47,7 @@ class Truncator {
 
         // Iterate over words.
         $words = new DOMWordsIterator($body);
+        $truncated = false;
         foreach ($words as $word) {
 
             // If we have exceeded the limit, we delete the remainder of the content.
@@ -70,12 +71,19 @@ class Truncator {
                     self::insertEllipsis($curNode, $ellipsis);
                 }
 
+                $truncated = true;
+
                 break;
             }
 
         }
 
-        return self::innerHTML($body);
+        // Return original HTML if not truncated.
+        if ($truncated) {
+            return self::innerHTML($body);
+        } else {
+            return $html;
+        }
     }
 
     /**
