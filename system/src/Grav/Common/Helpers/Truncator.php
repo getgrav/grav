@@ -98,6 +98,7 @@ class Truncator {
 
         // Iterate over letters.
         $letters = new DOMLettersIterator($body);
+        $truncated = false;
         foreach ($letters as $letter) {
 
             // If we have exceeded the limit, we want to delete the remainder of this document.
@@ -111,11 +112,18 @@ class Truncator {
                     self::insertEllipsis($currentText[0], $ellipsis);
                 }
 
+                $truncated = true;
+
                 break;
             }
         }
 
-        return self::innerHTML($body);
+        // Return original HTML if not truncated.
+        if ($truncated) {
+            return self::innerHTML($body);
+        } else {
+            return $html;
+        }
     }
 
     /**
