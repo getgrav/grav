@@ -8,7 +8,9 @@
     * Added new `Grav\Framework\File\Formatter` classes for encoding/decoding YAML, Markdown, JSON, INI and PHP serialized strings
     * Added `Grav\Common\Media` interfaces and trait; use those in `Page` and `Media` classes 
     * Added `Grav\Common\Page` interface to allow custom page types in the future
-
+1. [](#bugfix)
+    * Fixed bug in `ContentBlock` serialization
+    
 # v1.4.4
 ## 04/12/2018
 
