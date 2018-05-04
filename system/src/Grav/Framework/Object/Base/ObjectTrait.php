@@ -15,13 +15,21 @@ namespace Grav\Framework\Object\Base;
  */
 trait ObjectTrait
 {
-    static protected $prefix;
+    /** @var string */
     static protected $type;
 
     /**
      * @var string
      */
-    private $_key;
+    private $key;
+
+    /**
+     * @return string
+     */
+    protected function getTypePrefix()
+    {
+        return '';
+    }
 
     /**
      * @param bool $prefix
@@ -29,12 +37,14 @@ trait ObjectTrait
      */
     public function getType($prefix = true)
     {
+        $type = $prefix ? $this->getTypePrefix() : '';
+
         if (static::$type) {
-            return ($prefix ? static::$prefix : '') . static::$type;
+            return $type . static::$type;
         }
 
         $class = get_class($this);
-        return ($prefix ? static::$prefix : '') . strtolower(substr($class, strrpos($class, '\\') + 1));
+        return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
     /**
@@ -42,7 +52,7 @@ trait ObjectTrait
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getType() . '@' . spl_object_hash($this);
+        return $this->key ?: $this->getType() . '@' . spl_object_hash($this);
     }
 
     /**
@@ -159,10 +169,13 @@ trait ObjectTrait
 
     /**
      * @param string $key
+     * @return $this
      */
     protected function setKey($key)
     {
-        $this->_key = (string) $key;
+        $this->key = (string) $key;
+
+        return $this;
     }
 
     abstract protected function doHasProperty($property);
