@@ -27,6 +27,7 @@ class ContentBlock implements ContentBlockInterface
     protected $tokenTemplate = '@@BLOCK-%s@@';
     protected $content = '';
     protected $blocks = [];
+    protected $checksum;
 
     /**
      * @param string $id
@@ -104,8 +105,12 @@ class ContentBlock implements ContentBlockInterface
         $array = [
             '_type' => get_class($this),
             '_version' => $this->version,
-            'id' => $this->id,
+            'id' => $this->id
         ];
+
+        if ($this->checksum) {
+            $array['checksum'] = $this->checksum;
+        }
 
         if ($this->content) {
             $array['content'] = $this->content;
@@ -158,6 +163,7 @@ class ContentBlock implements ContentBlockInterface
         $this->checkVersion($serialized);
 
         $this->id = isset($serialized['id']) ? $serialized['id'] : $this->generateId();
+        $this->checksum = isset($serialized['checksum']) ? $serialized['checksum'] : null;
 
         if (isset($serialized['content'])) {
             $this->setContent($serialized['content']);
@@ -167,6 +173,25 @@ class ContentBlock implements ContentBlockInterface
         foreach ($blocks as $block) {
             $this->addBlock(self::fromArray($block));
         }
+    }
+
+    /**
+     * @param string $checksum
+     * @return $this
+     */
+    public function setChecksum($checksum)
+    {
+        $this->checksum = $checksum;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getChecksum()
+    {
+        return $this->checksum;
     }
 
     /**
