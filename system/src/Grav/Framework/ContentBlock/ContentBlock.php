@@ -41,6 +41,7 @@ class ContentBlock implements ContentBlockInterface
     /**
      * @param array $serialized
      * @return ContentBlockInterface
+     * @throws \InvalidArgumentException
      */
     public static function fromArray(array $serialized)
     {
@@ -49,14 +50,14 @@ class ContentBlock implements ContentBlockInterface
             $id = isset($serialized['id']) ? $serialized['id'] : null;
 
             if (!$type || !$id || !is_a($type, 'Grav\Framework\ContentBlock\ContentBlockInterface', true)) {
-                throw new \RuntimeException('Bad data');
+                throw new \InvalidArgumentException('Bad data');
             }
 
             /** @var ContentBlockInterface $instance */
             $instance = new $type($id);
             $instance->build($serialized);
         } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf('Cannot unserialize Block: %s', $e->getMessage()), $e->getCode(), $e);
+            throw new \InvalidArgumentException(sprintf('Cannot unserialize Block: %s', $e->getMessage()), $e->getCode(), $e);
         }
 
         return $instance;
