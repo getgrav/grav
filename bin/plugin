@@ -60,9 +60,6 @@ $grav['streams'];
 $grav['plugins']->init();
 $grav['themes']->init();
 
-// Initialize Plugins
-$grav->fireEvent('onPluginsInitialized');
-
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
 $pattern = '([A-Z]\w+Command\.php)';
