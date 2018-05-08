@@ -21,7 +21,7 @@ trait ObjectTrait
     /**
      * @var string
      */
-    private $key;
+    private $_key;
 
     /**
      * @return string
@@ -52,7 +52,7 @@ trait ObjectTrait
      */
     public function getKey()
     {
-        return $this->key ?: $this->getType() . '@' . spl_object_hash($this);
+        return $this->_key ?: $this->getType() . '@' . spl_object_hash($this);
     }
 
     /**
@@ -173,7 +173,7 @@ trait ObjectTrait
      */
     protected function setKey($key)
     {
-        $this->key = (string) $key;
+        $this->_key = (string) $key;
 
         return $this;
     }
