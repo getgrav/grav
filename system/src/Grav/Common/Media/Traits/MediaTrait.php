@@ -5,6 +5,7 @@ use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 trait MediaTrait
 {
@@ -16,6 +17,29 @@ trait MediaTrait
      * @return string|null
      */
     abstract public function getMediaFolder();
+
+    /**
+     * Get URI ot the associated media. Method will return null if path isn't URI.
+     *
+     * @return null|string
+     */
+    public function getMediaUri()
+    {
+       $folder = $this->getMediaFolder();
+
+       if (strpos($folder, '://')) {
+           return $folder;
+       }
+
+       /** @var UniformResourceLocator $locator */
+       $locator = Grav::instance()['locator'];
+       $user = $locator->findResource('user://');
+       if (strpos($folder, $user) === 0) {
+           return 'user://' . substr($folder, strlen($user)+1);
+       }
+
+       return null;
+    }
 
     /**
      * Gets the associated media collection.
