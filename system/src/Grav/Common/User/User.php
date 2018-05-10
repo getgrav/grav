@@ -62,9 +62,9 @@ class User extends Data
         $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
 
         // Try with username first, you never know!
-        if (in_array('username', $fields)) {
+        if (in_array('username', $fields, true)) {
             $user = User::load($query);
-            unset($fields[array_search('username', $fields)]);
+            unset($fields[array_search('username', $fields, true)]);
         } else {
             $user = User::load('');
         }
