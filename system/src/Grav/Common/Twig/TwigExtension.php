@@ -1056,7 +1056,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         if (file_exists($filepath)) {
             return file_get_contents($filepath);
-    }
+        }
 
         return false;
     }
