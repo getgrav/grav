@@ -49,6 +49,8 @@ class Uri
     protected $root;
     protected $root_path;
     protected $uri;
+    protected $content_type;
+    protected $post;
 
     /**
      * Uri constructor.
@@ -133,7 +135,12 @@ class Uri
             $custom_parts = parse_url($custom_base);
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
-            $this->root      = isset($custom_parts['scheme']) ? $custom_base : $this->base . $this->root_path;
+            if (isset($custom_parts['scheme'])) {
+                $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
+                $this->root = $custom_base;
+            } else {
+                $this->root = $this->base . $this->root_path;
+            }
             $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
@@ -142,6 +149,7 @@ class Uri
         $this->url = $this->base . $this->uri;
 
         $uri = str_replace(static::filterPath($this->root), '', $this->url);
+
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
@@ -462,6 +470,23 @@ class Uri
     public function basename()
     {
         return $this->basename;
+    }
+
+    /**
+     * Return the full uri
+     *
+     * @param bool $include_root
+     * @return mixed
+     */
+    public function uri($include_root = true)
+    {
+        if ($include_root) {
+            return $this->uri;
+        } else {
+            $uri = str_replace($this->root_path, '', $this->uri);
+            return $uri;
+        }
+
     }
 
     /**
@@ -1185,7 +1210,6 @@ class Uri
         if ($this->host) {
             $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
         }
-
         // Filter userinfo, path, query string and fragment.
         $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
         $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
@@ -1211,6 +1235,55 @@ class Uri
         $this->root_path    = $this->buildRootPath();
         $this->root         = $this->base . $this->root_path;
         $this->url          = $this->base . $this->uri;
+    }
+
+    /**
+     * Get's post from either $_POST or JSON response object
+     * By default returns all data, or can return a single item
+     *
+     * @param string $element
+     * @param string $filter_type
+     * @return array|mixed|null
+     */
+    public function post($element = null, $filter_type = null)
+    {
+        if (!$this->post) {
+            $content_type = $this->getContentType();
+            if ($content_type == 'application/json') {
+                $json = file_get_contents('php://input');
+                $this->post = json_decode($json, true);
+            } elseif (!empty($_POST)) {
+                $this->post = (array)$_POST;
+            }
+        }
+
+        if ($this->post && !is_null($element)) {
+            $item = Utils::getDotNotation($this->post, $element);
+            if ($filter_type) {
+                $item = filter_var($item, $filter_type);
+            }
+            return $item;
+        }
+
+        return $this->post;
+    }
+
+    /**
+     * Get content type from request
+     *
+     * @param bool $short
+     * @return null|string
+     */
+    private function getContentType($short = true)
+    {
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            $content_type = $_SERVER['CONTENT_TYPE'];
+            if ($short) {
+                return Utils::substrToString($content_type,';');
+            }
+            return $content_type;
+        }
+        return null;
     }
 
     /**

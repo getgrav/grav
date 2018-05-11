@@ -469,14 +469,13 @@ class Pages
                 if ($site_route) {
                     $page = $this->dispatch($site_route, $all);
                 } else {
-                    // Try Regex style redirects
-                    $uri = $this->grav['uri'];
-                    $source_url = $route;
-                    $extension = $uri->extension();
-                    if (isset($extension) && !Utils::endsWith($uri->url(), $extension)) {
-                        $source_url.= '.' . $extension;
-                    }
 
+                    /** @var Uri $uri */
+                    $uri = $this->grav['uri'];
+                    /** @var \Grav\Framework\Uri\Uri $source_url */
+                    $source_url = $uri->uri(false);
+
+                    // Try Regex style redirects
                     $site_redirects = $config->get("site.redirects");
                     if (is_array($site_redirects)) {
                         foreach ((array)$site_redirects as $pattern => $replace) {
@@ -1203,19 +1202,19 @@ class Pages
                     break;
                 case 'date':
                     $list[$key] = $child->date();
-                    $sort_flags = SORT_NUMERIC;
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'modified':
                     $list[$key] = $child->modified();
-                    $sort_flags = SORT_NUMERIC;
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'publish_date':
                     $list[$key] = $child->publishDate();
-                    $sort_flags = SORT_NUMERIC;
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'unpublish_date':
                     $list[$key] = $child->unpublishDate();
-                    $sort_flags = SORT_NUMERIC;
+                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'slug':
                     $list[$key] = $child->slug();

@@ -1,3 +1,20 @@
+# v1.4.4
+## 05/11/2018
+
+1. [](#new)
+    * Added support for `Uri::post()` and `Uri::getConentType()`
+    * Added a new `Medium:thumbnailExists()` function [#1966](https://github.com/getgrav/grav/issues/1966)
+    * Added `authorized` support for 2FA
+1. [](#improved)
+    * Added default configuration for images [#1979](https://github.com/getgrav/grav/pull/1979)  
+    * Added dedicated PHPUnit assertions [#1990](https://github.com/getgrav/grav/pull/1990)  
+1. [](#bugfix)
+    * Use `array_key_exists` instead of `in_array + array_keys` [#1991](https://github.com/getgrav/grav/pull/1991)
+    * Fixed an issue with `custom_base_url` always causing 404 errors
+    * Improve support for regex redirects with query and params [#1983](https://github.com/getgrav/grav/issues/1983)
+    * Changed collection-based date sorting to `SORT_REGULAR` for better server compatibility [#1910](https://github.com/getgrav/grav/issues/1910)
+    * Fix hardcoded string in modular blueprint [#1933](https://github.com/getgrav/grav/pull/1993)
+
 # v1.4.3
 ## 04/12/2018
 

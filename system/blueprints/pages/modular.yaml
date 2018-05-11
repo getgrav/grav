@@ -1,5 +1,5 @@
 title: PLUGIN_ADMIN.MODULAR
-'@extends': default
+extends@: default
 
 form:
   fields:
@@ -13,7 +13,7 @@ form:
 
             modular_title:
               type: spacer
-              title: Modular Setup
+              title: PLUGIN_ADMIN.MODULAR_SETUP
 
             header.content.items:
               type: text
