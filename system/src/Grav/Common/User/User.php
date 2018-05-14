@@ -17,6 +17,9 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class User extends Data
 {
+    protected $authenticated;
+    protected $authorized;
+
     /**
      * Load user account.
      *
@@ -100,6 +103,55 @@ class User extends Data
         }
 
         return false;
+    }
+
+
+    public function offsetExists($offset)
+    {
+        if ($offset === 'authenticated') {
+            return null !== $this->authenticated;
+        }
+        if ($offset === 'authorized') {
+            return null !== $this->authorized;
+        }
+
+        return parent::offsetExists($offset);
+    }
+
+    public function offsetGet($offset)
+    {
+        if ($offset === 'authenticated') {
+            return null !== $this->authenticated ? $this->authenticated : false;
+        }
+        if ($offset === 'authorized') {
+            return null !== $this->authorized ? $this->authorized : $this->authenticated;
+        }
+
+        return parent::offsetGet($offset);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if ($offset === 'authenticated') {
+            $this->authenticated = (bool)$value;
+        }
+        if ($offset === 'authorized') {
+            $this->authorized = (bool)$value;
+        }
+
+        parent::offsetSet($offset, $value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        if ($offset === 'authenticated') {
+            $this->authenticated = null;
+        }
+        if ($offset === 'authorized') {
+            $this->authorized = null;
+        }
+
+        parent::offsetUnset($offset);
     }
 
     /**
