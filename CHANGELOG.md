@@ -10,6 +10,7 @@
     * Added `Grav\Common\Page` interface to allow custom page types in the future
 1. [](#bugfix)
     * Fixed bug in `ContentBlock` serialization
+    * Fixed `Route::withQueryParam()` to accept array values
     
 # v1.4.4
 ## 04/12/2018
