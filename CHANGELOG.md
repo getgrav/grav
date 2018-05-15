@@ -1,3 +1,11 @@
+# v1.4.5
+## 05/15/2018
+
+1. [](#bugfix)
+    * Fixed an issue with some users getting **2FA** prompt after upgrade [admin#1442](https://github.com/getgrav/grav-plugin-admin/issues/1442)
+    * Do not crash when generating URLs with arrays as parameters [#2018](https://github.com/getgrav/grav/pull/2018)
+    * Utils::truncateHTML removes whitespace when generating summaries [#2004](https://github.com/getgrav/grav/pull/2004)
+    
 # v1.4.4
 ## 05/11/2018
 
