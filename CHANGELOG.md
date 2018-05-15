@@ -1,3 +1,9 @@
+# v1.4.5
+## 05/11/2018
+
+1. [](#bugfix)
+    * Fixed an issue with some users getting **2FA** prompt after upgrade [admin#1442](https://github.com/getgrav/grav-plugin-admin/issues/1442)
+
 # v1.4.4
 ## 05/11/2018
 
