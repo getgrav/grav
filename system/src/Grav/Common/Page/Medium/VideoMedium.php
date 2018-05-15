@@ -22,13 +22,10 @@ class VideoMedium extends Medium
     protected function sourceParsedownElement(array $attributes, $reset = true)
     {
         $location = $this->url($reset);
-        $path = parse_url($location, PHP_URL_PATH);
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
-        $mimeType = \Grav\Common\Utils::getMimeByExtension($extension);
 
         return [
             'name' => 'video',
-            'text' => '<source src="' . $location . '" type="' . $mimeType . '">Your browser does not support the video tag.',
+            'text' => '<source src="' . $location . '">Your browser does not support the video tag.',
             'attributes' => $attributes
         ];
     }
