@@ -3,7 +3,7 @@ default_lang: en                            # Default language for site (potenti
 
 author:
   name: John Appleseed                      # Default author name
-  email: 'john@email.com'                   # Default author email
+  email: 'john@example.com'                 # Default author email
 
 taxonomies: [category,tag]                  # Arbitrary list of taxonomy types
 
