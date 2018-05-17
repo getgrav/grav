@@ -32,7 +32,7 @@ class Session implements \IteratorAggregate
      */
     public static function instance()
     {
-        if (!isset(self::$instance)) {
+        if (null === self::$instance) {
             throw new \RuntimeException("Session hasn't been initialized.", 500);
         }
 
@@ -46,14 +46,14 @@ class Session implements \IteratorAggregate
     public function __construct(array $options = [])
     {
         // Session is a singleton.
-        if (php_sapi_name() === 'cli') {
+        if (\PHP_SAPI === 'cli') {
             self::$instance = $this;
 
             return;
         }
 
-        if (isset(self::$instance)) {
-            throw new \RuntimeException("Session has already been initialized.", 500);
+        if (null !== self::$instance) {
+            throw new \RuntimeException('Session has already been initialized.', 500);
         }
 
         // Destroy any existing sessions started with session.auto_start
@@ -147,6 +147,7 @@ class Session implements \IteratorAggregate
     /**
      * Starts the session storage
      *
+     * @param bool $readonly
      * @return $this
      * @throws \RuntimeException
      */
@@ -357,7 +358,7 @@ class Session implements \IteratorAggregate
      */
     protected function isSessionStarted()
     {
-        return php_sapi_name() !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
+        return \PHP_SAPI !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
     }
 
     /**
