@@ -62,9 +62,9 @@ class User extends Data
         $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
 
         // Try with username first, you never know!
-        if (in_array('username', $fields)) {
+        if (in_array('username', $fields, true)) {
             $user = User::load($query);
-            unset($fields[array_search('username', $fields)]);
+            unset($fields[array_search('username', $fields, true)]);
         } else {
             $user = User::load('');
         }
@@ -95,11 +95,41 @@ class User extends Data
     public static function remove($username)
     {
         $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
-        if ($file_path && unlink($file_path)) {
-            return true;
+
+        return $file_path && unlink($file_path);
+    }
+
+    /**
+     * @param string $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        $value = parent::offsetExists($offset);
+
+        // Handle special case where user was logged in before 'authorized' was added to the user object.
+        if (false === $value && $offset === 'authorized') {
+            $value = $this->offsetExists('authenticated');
         }
 
-        return false;
+        return $value;
+    }
+
+    /**
+     * @param string $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        $value = parent::offsetGet($offset);
+
+        // Handle special case where user was logged in before 'authorized' was added to the user object.
+        if (null === $value && $offset === 'authorized') {
+            $value = $this->offsetGet('authenticated');
+            $this->offsetSet($offset, $value);
+        }
+
+        return $value;
     }
 
     /**

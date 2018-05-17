@@ -296,10 +296,6 @@ abstract class Utils
      */
     public static function truncateHtml($text, $length = 100, $ellipsis = '...')
     {
-        if (mb_strlen($text) <= $length) {
-            return $text;
-        }
-
         return Truncator::truncateLetters($text, $length, $ellipsis);
     }
 
