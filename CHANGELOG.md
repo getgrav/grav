@@ -44,9 +44,11 @@
 ## 03/21/2018
 
 1. [](#new)
+    * Added `Grav\Framework\Session` class to replace `RocketTheme\Toolbox\Session\Session`
     * Added new `|nicefilesize` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
     * Added new `regex_filter()` Twig function to values in arrays
 1. [](#improved)
+    * Improved session handling, allow all session configuration options in `system.session.options`
     * Added bosnian to lang codes [#1917](﻿https://github.com/getgrav/grav/issues/1917) 
     * Improved Zip extraction error codes [#1922](﻿https://github.com/getgrav/grav/issues/1922)  
 1. [](#bugfix)

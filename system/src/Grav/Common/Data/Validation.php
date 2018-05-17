@@ -107,7 +107,7 @@ class Validation
         $method = 'filter' . ucfirst(strtr($type, '-', '_'));
 
         // If this is a YAML field validate/filter as such
-        if ($type != 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
+        if ($type !== 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
             $method = 'filterYaml';
         }
 
