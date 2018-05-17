@@ -8,6 +8,10 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Config\Config;
+use Grav\Common\Uri;
+use Grav\Common\Utils;
+
 class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 {
     public $id = 'init';
@@ -15,7 +19,9 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 
     public function process()
     {
-        $this->container['config']->debug();
+        /** @var Config $config */
+        $config = $this->container['config'];
+        $config->debug();
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
@@ -36,8 +42,15 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
             $this->container['session']->init();
         }
 
-        // Initialize uri.
-        $this->container['uri']->init();
+        /** @var Uri $uri */
+        $uri = $this->container['uri'];
+        $uri->init();
+
+        // Redirect pages with trailing slash if configured to do so.
+        $path = $uri->path() ?: '/';
+        if ($config->get('system.pages.redirect_trailing_slash', false) && $path !== '/' && Utils::endsWith($path, '/')) {
+            $this->container->redirect(rtrim($path, '/'), 302);
+        }
 
         $this->container->setLocale();
     }

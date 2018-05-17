@@ -157,12 +157,6 @@ class Uri
             $uri = str_replace($setup_base, '', $uri);
         }
 
-        // If configured to, redirect trailing slash URI's with a 302 redirect
-        $redirect = str_replace($this->root, '', rtrim($uri, '/'));
-        if ($redirect && $uri !== '/' && $redirect !== $this->base() && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
-            $grav->redirect($redirect, 302);
-        }
-
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
 
@@ -207,9 +201,9 @@ class Uri
         }
 
         // Set some Grav stuff
-        $grav['base_url_absolute'] = $grav['config']->get('system.custom_base_url') ?: $this->rootUrl(true);
+        $grav['base_url_absolute'] = $config->get('system.custom_base_url') ?: $this->rootUrl(true);
         $grav['base_url_relative'] = $this->rootUrl(false);
-        $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
+        $grav['base_url'] = $config->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
 
         RouteFactory::setRoot($this->root_path);
         RouteFactory::setLanguage($language->getLanguageURLPrefix());

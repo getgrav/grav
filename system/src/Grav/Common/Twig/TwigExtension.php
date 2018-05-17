@@ -748,7 +748,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * Output a Gist
      *
      * @param  string $id
-     * @param  string $file
+     * @param  string|bool $file
      *
      * @return string
      */
@@ -976,7 +976,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function redirectFunc($url, $statusCode = 303)
     {
         header('Location: ' . $url, true, $statusCode);
-        die();
+        exit();
     }
 
     /**
