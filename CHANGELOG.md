@@ -1,5 +1,41 @@
-# v1.42
-## mm/dd/2018
+# v1.4.5
+## 05/15/2018
+
+1. [](#bugfix)
+    * Fixed an issue with some users getting **2FA** prompt after upgrade [admin#1442](https://github.com/getgrav/grav-plugin-admin/issues/1442)
+    * Do not crash when generating URLs with arrays as parameters [#2018](https://github.com/getgrav/grav/pull/2018)
+    * Utils::truncateHTML removes whitespace when generating summaries [#2004](https://github.com/getgrav/grav/pull/2004)
+    
+# v1.4.4
+## 05/11/2018
+
+1. [](#new)
+    * Added support for `Uri::post()` and `Uri::getConentType()`
+    * Added a new `Medium:thumbnailExists()` function [#1966](https://github.com/getgrav/grav/issues/1966)
+    * Added `authorized` support for 2FA
+1. [](#improved)
+    * Added default configuration for images [#1979](https://github.com/getgrav/grav/pull/1979)  
+    * Added dedicated PHPUnit assertions [#1990](https://github.com/getgrav/grav/pull/1990)  
+1. [](#bugfix)
+    * Use `array_key_exists` instead of `in_array + array_keys` [#1991](https://github.com/getgrav/grav/pull/1991)
+    * Fixed an issue with `custom_base_url` always causing 404 errors
+    * Improve support for regex redirects with query and params [#1983](https://github.com/getgrav/grav/issues/1983)
+    * Changed collection-based date sorting to `SORT_REGULAR` for better server compatibility [#1910](https://github.com/getgrav/grav/issues/1910)
+    * Fix hardcoded string in modular blueprint [#1933](https://github.com/getgrav/grav/pull/1993)
+
+# v1.4.3
+## 04/12/2018
+
+1. [](#new)
+    * moved Twig `sortArrayByKey` logic into `Utils::` class
+1. [](#improved)
+    * Rolled back Parsedown library to stable `1.6.4` until a better solution for `1.8.0` compatibility can fe found
+    * Updated vendor libraries to latest versions
+1. [](#bugfix)
+    * Fix for bad reference to `ZipArchive` in `GPM::Installer`
+
+# v1.4.2
+## 03/21/2018
 
 1. [](#new)
     * Added new `|nicefilesize` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
@@ -8,9 +44,10 @@
     * Added bosnian to lang codes [#1917](﻿https://github.com/getgrav/grav/issues/1917) 
     * Improved Zip extraction error codes [#1922](﻿https://github.com/getgrav/grav/issues/1922)  
 1. [](#bugfix)
-    * Fix an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
-    * Fixx for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
-
+    * Fixed an issue with Markdown Video and Audio that broke after Parsedown 1.7.0 Security updates [#1924](﻿https://github.com/getgrav/grav/issues/1924)
+    * Fix for case-sensitive page metadata [admin#1370](https://github.com/getgrav/grav-plugin-admin/issues/1370)
+    * Fixed missing composer requirements for the new `Grav\Framework\Uri` classes
+    * Added missing PSR-7 vendor library required for URI additions in Grav 1.4.0 
 
 # v1.4.1
 ## 03/11/2018
@@ -59,7 +96,6 @@
     * Optimizations & refactoring to the test suite [#1779](https://github.com/getgrav/grav/pull/1779)
     * Slight modification of Whoops error colors
     * Added new configuration option `system.session.initialize` to delay session initialization if needed by a plugin
-    * Vendor library updated to latest
     * Updated vendor libraries to latest versions
     * Removed constructor from `ObjectInterface`
     * Make it possible to include debug bar also into non-HTML responses
