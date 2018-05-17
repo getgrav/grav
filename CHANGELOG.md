@@ -5,10 +5,10 @@
     * Set minimum requirements to [PHP 5.6.4](https://getgrav.org/blog/raising-php-requirements-2018)
     * Updated Doctrine Collections to 1.4
     * Updated Symfony Components to 3.4 (with compatibility mode to fall back to Symfony YAML 2.8)
-    * Added new `Grav\Framework\File\Formatter` classes for encoding/decoding YAML, Markdown, JSON, INI and PHP serialized strings
+    * Added `Grav\Framework\File\Formatter` classes for encoding/decoding YAML, Markdown, JSON, INI and PHP serialized strings
+    * Added `Grav\Framework\Session` class to replace `RocketTheme\Toolbox\Session\Session`
     * Added `Grav\Common\Media` interfaces and trait; use those in `Page` and `Media` classes 
     * Added `Grav\Common\Page` interface to allow custom page types in the future
-    * Added `Grav\Framework\Session` class to replace `RocketTheme\Toolbox\Session\Session`
 1. [](#improved)
     * Improved session handling, allow all session configuration options in `system.session.options`
 1. [](#bugfix)

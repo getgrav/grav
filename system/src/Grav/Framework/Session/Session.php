@@ -12,7 +12,7 @@ namespace Grav\Framework\Session;
  * Class Session
  * @package Grav\Framework\Session
  */
-class Session implements \IteratorAggregate
+class Session implements SessionInterface
 {
     /**
      * @var bool
@@ -25,12 +25,9 @@ class Session implements \IteratorAggregate
     protected static $instance;
 
     /**
-     * Get current session instance.
-     *
-     * @return Session
-     * @throws \RuntimeException
+     * @inheritdoc
      */
-    public static function instance()
+    public static function getInstance()
     {
         if (null === self::$instance) {
             throw new \RuntimeException("Session hasn't been initialized.", 500);
@@ -40,8 +37,7 @@ class Session implements \IteratorAggregate
     }
 
     /**
-     * @param array  $options  Array of session configuration options with their values
-     * @throws \RuntimeException
+     * @inheritdoc
      */
     public function __construct(array $options = [])
     {
@@ -79,11 +75,43 @@ class Session implements \IteratorAggregate
     }
 
     /**
-     * Sets session.* ini variables.
-     *
-     * @param array $options
-     *
-     * @see http://php.net/session.configuration
+     * @inheritdoc
+     */
+    public function getId()
+    {
+        return session_id();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setId($id)
+    {
+        session_id($id);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getName()
+    {
+        return session_name();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setName($name)
+    {
+        session_name($name);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
      */
     public function setOptions(array $options)
     {
@@ -145,11 +173,7 @@ class Session implements \IteratorAggregate
     }
 
     /**
-     * Starts the session storage
-     *
-     * @param bool $readonly
-     * @return $this
-     * @throws \RuntimeException
+     * @inheritdoc
      */
     public function start($readonly = false)
     {
@@ -185,58 +209,7 @@ class Session implements \IteratorAggregate
     }
 
     /**
-     * Get session ID
-     *
-     * @return string|null Session ID
-     */
-    public function getId()
-    {
-        return session_id();
-    }
-
-    /**
-     * Set session Id
-     *
-     * @param string $id Session ID
-     *
-     * @return $this
-     */
-    public function setId($id)
-    {
-        session_id($id);
-
-        return $this;
-    }
-
-
-    /**
-     * Get session name
-     *
-     * @return string|null
-     */
-    public function getName()
-    {
-        return session_name();
-    }
-
-    /**
-     * Set session name
-     *
-     * @param string $name
-     *
-     * @return $this
-     */
-    public function setName($name)
-    {
-        session_name($name);
-
-        return $this;
-    }
-
-    /**
-     * Invalidates the current session.
-     *
-     * @return $this
+     * @inheritdoc
      */
     public function invalidate()
     {
@@ -260,9 +233,7 @@ class Session implements \IteratorAggregate
     }
 
     /**
-     * Force the session to be saved and closed
-     *
-     * @return $this
+     * @inheritdoc
      */
     public function close()
     {
@@ -276,65 +247,15 @@ class Session implements \IteratorAggregate
     }
 
     /**
-     * Checks if an attribute is defined.
-     *
-     * @param string $name The attribute name
-     *
-     * @return bool True if the attribute is defined, false otherwise
+     * @inheritdoc
      */
-    public function __isset($name)
-    {
-        return isset($_SESSION[$name]);
-    }
-
-    /**
-     * Returns an attribute.
-     *
-     * @param string $name    The attribute name
-     *
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
-    }
-
-    /**
-     * Sets an attribute.
-     *
-     * @param string $name
-     * @param mixed  $value
-     */
-    public function __set($name, $value)
-    {
-        $_SESSION[$name] = $value;
-    }
-
-    /**
-     * Removes an attribute.
-     *
-     * @param string $name
-     */
-    public function __unset($name)
-    {
-        unset($_SESSION[$name]);
-    }
-
-    /**
-     * Returns attributes.
-     *
-     * @return array Attributes
-     */
-    public function all()
+    public function getAll()
     {
         return $_SESSION;
     }
 
-
     /**
-     * Retrieve an external iterator
-     *
-     * @return \ArrayIterator Return an ArrayIterator of $_SESSION
+     * @inheritdoc
      */
     public function getIterator()
     {
@@ -342,13 +263,43 @@ class Session implements \IteratorAggregate
     }
 
     /**
-     * Checks if the session was started.
-     *
-     * @return Boolean
+     * @inheritdoc
      */
-    public function started()
+    public function isStarted()
     {
         return $this->started;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __isset($name)
+    {
+        return isset($_SESSION[$name]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __get($name)
+    {
+        return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __set($name, $value)
+    {
+        $_SESSION[$name] = $value;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __unset($name)
+    {
+        unset($_SESSION[$name]);
     }
 
     /**

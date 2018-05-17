@@ -14,6 +14,15 @@ class Session extends \Grav\Framework\Session\Session
     protected $autoStart = false;
 
     /**
+     * @return \Grav\Framework\Session\Session
+     * @deprecated 1.5
+     */
+    public static function instance()
+    {
+        return static::getInstance();
+    }
+
+    /**
      * Initialize session.
      *
      * Code in this function has been moved into SessionServiceProvider class.
@@ -36,6 +45,28 @@ class Session extends \Grav\Framework\Session\Session
         $this->autoStart = (bool)$auto;
 
         return $this;
+    }
+
+    /**
+     * Returns attributes.
+     *
+     * @return array Attributes
+     * @deprecated 1.5
+     */
+    public function all()
+    {
+        return $this->getAll();
+    }
+
+    /**
+     * Checks if the session was started.
+     *
+     * @return Boolean
+     * @deprecated 1.5
+     */
+    public function started()
+    {
+        return $this->isStarted();
     }
 
     /**
