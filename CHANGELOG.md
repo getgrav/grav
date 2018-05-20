@@ -14,6 +14,7 @@
 1. [](#bugfix)
     * Fixed bug in `ContentBlock` serialization
     * Fixed `Route::withQueryParam()` to accept array values
+    * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
     
 # v1.4.4
 ## 05/11/2018
