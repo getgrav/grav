@@ -128,9 +128,11 @@ class Validation
      */
     public static function typeText($value, array $params, array $field)
     {
-        if (!is_string($value)) {
+        if (!is_string($value) && !is_numeric($value)) {
             return false;
         }
+
+        $value = (string)$value;
 
         if (isset($params['min']) && strlen($value) < $params['min']) {
             return false;
