@@ -35,11 +35,9 @@ class SessionServiceProvider implements ServiceProviderInterface
             if (null === $session_path) {
                 $session_path = '/' . ltrim(Uri::filterPath($uri->rootUrl(false)), '/');
             }
-            $domain = $uri->host();
-            if ($domain === 'localhost') {
-                $domain = '';
-            }
 
+            $domain = $config->get('system.session.domain', '');
+            
             // Get session options.
             $secure = (bool)$config->get('system.session.secure', false);
             $httponly = (bool)$config->get('system.session.httponly', true);
