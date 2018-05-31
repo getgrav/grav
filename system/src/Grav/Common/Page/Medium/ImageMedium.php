@@ -301,6 +301,7 @@ class ImageMedium extends Medium
                 $derivative->set('width', $width);
                 $derivative->set('height', $height);
 
+                $derivative->resetImage();
                 $this->addAlternative($ratio, $derivative);
             }
         }
@@ -557,6 +558,14 @@ class ImageMedium extends Medium
             ->setPrettyName($this->getImagePrettyName());
 
         return $this;
+    }
+    
+    /**
+     * Frees the cached image file.
+     */
+    protected function resetImage()
+    {
+        $this->image = null;
     }
 
     /**
