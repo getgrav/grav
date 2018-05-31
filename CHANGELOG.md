@@ -16,6 +16,15 @@
     * Fixed `Route::withQueryParam()` to accept array values
     * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
     * Fixed blueprint field validation: Allow numeric inputs in text fields
+        
+# v1.4.5
+## 05/15/2018
+
+1. [](#bugfix)
+    * Fixed an issue with some users getting **2FA** prompt after upgrade [admin#1442](https://github.com/getgrav/grav-plugin-admin/issues/1442)
+    * Do not crash when generating URLs with arrays as parameters [#2018](https://github.com/getgrav/grav/pull/2018)
+    * Utils::truncateHTML removes whitespace when generating summaries [#2004](https://github.com/getgrav/grav/pull/2004)
+    * Fixed issue with Errors `display:` option not handling integers properly [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
     
 # v1.4.4
 ## 05/11/2018
@@ -49,11 +58,9 @@
 ## 03/21/2018
 
 1. [](#new)
-    * Added `Grav\Framework\Session` class to replace `RocketTheme\Toolbox\Session\Session`
     * Added new `|nicefilesize` Twig filter for pretty file (auto converts to bytes, kB, MB, GB, etc)
     * Added new `regex_filter()` Twig function to values in arrays
 1. [](#improved)
-    * Improved session handling, allow all session configuration options in `system.session.options`
     * Added bosnian to lang codes [#1917](﻿https://github.com/getgrav/grav/issues/1917) 
     * Improved Zip extraction error codes [#1922](﻿https://github.com/getgrav/grav/issues/1922)  
 1. [](#bugfix)

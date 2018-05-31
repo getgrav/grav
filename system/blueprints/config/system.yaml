@@ -835,6 +835,8 @@ form:
                         -1: PLUGIN_ADMIN.ERROR_SYSTEM
                         0: PLUGIN_ADMIN.ERROR_SIMPLE
                         1: PLUGIN_ADMIN.ERROR_FULL_BACKTRACE
+                    validate:
+                        type: int
 
 
                 errors.log:
