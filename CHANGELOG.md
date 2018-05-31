@@ -3,7 +3,9 @@
 
 1. [](#improved)
     * Manually re-added the improved SSL off-loading that was lost with Grav v1.4.0 merge [#1888](https://github.com/getgrav/grav/pull/1888)
-
+    * Updated robots.txt to include `/user/images/` folder [#2043](https://github.com/getgrav/grav/pull/2043)
+1. [](#bugfix)
+    * Handle `errors.display` system property better in admin plugin [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
 
 # v1.4.5
 ## 05/15/2018
