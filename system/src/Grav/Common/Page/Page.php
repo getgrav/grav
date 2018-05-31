@@ -1149,14 +1149,27 @@ class Page implements PageInterface
         return $this->getMedia();
     }
 
+    /**
+     * Get filesystem path to the associated media.
+     *
+     * @return string|null
+     */
     public function getMediaFolder()
     {
         return $this->path();
     }
 
+    /**
+     * Get display order for the associated media.
+     *
+     * @return array Empty array means default ordering.
+     */
+    public function getMediaOrder()
+    {
+        $header = $this->header();
 
-
-
+        return isset($header->media_order) ? array_map('trim', explode(',', (string)$header->media_order)) : [];
+    }
 
     /**
      * Gets and sets the name field.  If no name field is set, it will return 'default.md'.

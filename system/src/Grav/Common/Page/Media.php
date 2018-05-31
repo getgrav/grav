@@ -24,11 +24,13 @@ class Media extends AbstractMedia
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
 
     /**
-     * @param $path
+     * @param string $path
+     * @param array  $media_order
      */
-    public function __construct($path)
+    public function __construct($path, array $media_order = null)
     {
         $this->path = $path;
+        $this->media_order = $media_order;
 
         $this->__wakeup();
         $this->init();

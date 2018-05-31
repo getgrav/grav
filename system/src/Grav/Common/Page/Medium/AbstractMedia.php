@@ -23,6 +23,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     protected $videos = [];
     protected $audios = [];
     protected $files = [];
+    protected $media_order;
 
     /**
      * Get medium by filename.
@@ -132,14 +133,20 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
      */
     protected function orderMedia($media)
     {
-        $page = Grav::instance()['pages']->get($this->path);
+        if (null === $this->media_order) {
+            $page = Grav::instance()['pages']->get($this->path);
 
-        if ($page && isset($page->header()->media_order)) {
-            $media_order = array_map('trim', explode(',', $page->header()->media_order));
-            $media = Utils::sortArrayByArray($media, $media_order);
+            if ($page && isset($page->header()->media_order)) {
+                $this->media_order = array_map('trim', explode(',', $page->header()->media_order));
+            }
+        }
+
+        if (!empty($this->media_order) && is_array($this->media_order)) {
+            $media = Utils::sortArrayByArray($media, $this->media_order);
         } else {
             ksort($media, SORT_NATURAL | SORT_FLAG_CASE);
         }
+
         return $media;
     }
 

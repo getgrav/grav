@@ -19,6 +19,13 @@ trait MediaTrait
     abstract public function getMediaFolder();
 
     /**
+     * Get display order for the associated media.
+     *
+     * @return array Empty array means default ordering.
+     */
+    abstract public function getMediaOrder();
+
+    /**
      * Get URI ot the associated media. Method will return null if path isn't URI.
      *
      * @return null|string
@@ -55,7 +62,7 @@ trait MediaTrait
             // Use cached media if possible.
             $cacheKey = md5('media' . $this->getCacheKey());
             if (!$media = $cache->fetch($cacheKey)) {
-                $media = new Media($this->getMediaFolder());
+                $media = new Media($this->getMediaFolder(), $this->getMediaOrder());
                 $cache->save($cacheKey, $media);
             }
             $this->media = $media;
@@ -72,6 +79,11 @@ trait MediaTrait
      */
     protected function setMedia(MediaCollectionInterface $media)
     {
+         /** @var Cache $cache */
+        $cache = Grav::instance()['cache'];
+        $cacheKey = md5('media' . $this->getCacheKey());
+        $cache->save($cacheKey, $media);
+
         $this->media = $media;
 
         return $this;
