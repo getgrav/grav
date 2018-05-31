@@ -301,6 +301,7 @@ class ImageMedium extends Medium
                 $derivative->set('width', $width);
                 $derivative->set('height', $height);
 
+                $derivative->saveImage();
                 $derivative->resetImage();
                 $this->addAlternative($ratio, $derivative);
             }
@@ -559,7 +560,7 @@ class ImageMedium extends Medium
 
         return $this;
     }
-    
+
     /**
      * Frees the cached image file.
      */
@@ -596,7 +597,9 @@ class ImageMedium extends Medium
             $this->image->merge(ImageFile::open($overlay));
         }
 
-        return $this->image->cacheFile($this->format, $this->quality);
+        $cachedPath = $this->image->cacheFile($this->format, $this->quality);
+        $this->set('filepath', $cachedPath);
+        return $cachedPath;
     }
 
     /**
