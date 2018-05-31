@@ -6,6 +6,7 @@
     * Updated robots.txt to include `/user/images/` folder [#2043](https://github.com/getgrav/grav/pull/2043)
 1. [](#bugfix)
     * Handle `errors.display` system property better in admin plugin [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
+    * Fix classes on non-http based protocol links [#2034](https://github.com/getgrav/grav/issues/2034)
 
 # v1.4.5
 ## 05/15/2018
