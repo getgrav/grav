@@ -262,7 +262,7 @@ abstract class Utils
         // is $break present between $limit and the end of the string?
         if ($up_to_break && false !== ($breakpoint = mb_strpos($string, $break, $limit))) {
             if ($breakpoint < mb_strlen($string) - 1) {
-                $string = mb_substr($string, 0, $breakpoint) . $break;
+                $string = mb_substr($string, 0, $breakpoint) . $pad;
             }
         } else {
             $string = mb_substr($string, 0, $limit) . $pad;

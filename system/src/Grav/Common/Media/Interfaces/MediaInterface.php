@@ -19,4 +19,11 @@ interface MediaInterface
      * @return string|null  Media path or null if the object doesn't have media folder.
      */
     public function getMediaFolder();
+
+    /**
+     * Get display order for the associated media.
+     *
+     * @return array Empty array means default ordering.
+     */
+    public function getMediaOrder();
 }
