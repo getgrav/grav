@@ -44,8 +44,8 @@ class PageServiceProvider implements ServiceProviderInterface
                 }
 
                 if ($config->get('system.force_ssl')) {
-                    if (!isset($_SERVER['HTTPS']) || $_SERVER["HTTPS"] != "on") {
-                        $url = "https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+                    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
+                        $url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                         $c->redirect($url);
                     }
                 }
@@ -53,7 +53,7 @@ class PageServiceProvider implements ServiceProviderInterface
                 $url = $pages->route($page->route());
 
                 if ($uri->params()) {
-                    if ($url == '/') { //Avoid double slash
+                    if ($url === '/') { //Avoid double slash
                         $url = $uri->params();
                     } else {
                         $url .= $uri->params();
@@ -74,7 +74,7 @@ class PageServiceProvider implements ServiceProviderInterface
                     $c->redirect($url);
                 }
                 // Default route test and redirect
-                if ($config->get('system.pages.redirect_default_route') && $page->route() != $path) {
+                if ($config->get('system.pages.redirect_default_route') && $page->route() !== $path) {
                     $c->redirect($url);
                 }
             }

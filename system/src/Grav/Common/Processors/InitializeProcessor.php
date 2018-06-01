@@ -25,20 +25,18 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
-        if ($this->container['config']->get('system.cache.gzip')) {
+        if ($config->get('system.cache.gzip') && !@ob_start('ob_gzhandler')) {
             // Enable zip/deflate with a fallback in case of if browser does not support compressing.
-            if (!@ob_start("ob_gzhandler")) {
-                ob_start();
-            }
+            ob_start();
         }
 
         // Initialize the timezone.
-        if ($this->container['config']->get('system.timezone')) {
+        if ($config->get('system.timezone')) {
             date_default_timezone_set($this->container['config']->get('system.timezone'));
         }
 
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
-        if ($this->container['config']->get('system.session.initialize', 1) && isset($this->container['session'])) {
+        if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
             $this->container['session']->init();
         }
 
@@ -48,7 +46,7 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 
         // Redirect pages with trailing slash if configured to do so.
         $path = $uri->path() ?: '/';
-        if ($config->get('system.pages.redirect_trailing_slash', false) && $path !== '/' && Utils::endsWith($path, '/')) {
+        if ($path !== '/' && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($path, '/')) {
             $this->container->redirect(rtrim($path, '/'), 302);
         }
 

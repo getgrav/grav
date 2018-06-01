@@ -173,8 +173,8 @@ class Pages
      *
      * Get base URL for Grav pages.
      *
-     * @param  string $lang     Optional language code for multilingual links.
-     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     * @param  string     $lang     Optional language code for multilingual links.
+     * @param  bool|null  $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
      *
      * @return string
      */
@@ -201,7 +201,7 @@ class Pages
 
     /**
      *
-     * Get home URL for Grav site.
+     * Get URL for Grav site.
      *
      * @param  string $route    Optional route to the page.
      * @param  string $lang     Optional language code for multilingual links.
