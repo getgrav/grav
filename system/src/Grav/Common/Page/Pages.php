@@ -120,7 +120,7 @@ class Pages
         if ($path !== null) {
             $path = trim($path, '/');
             $this->base = $path ? '/' . $path : null;
-            $this->baseUrl = [];
+            $this->baseRoute = [];
         }
 
         return $this->base;
