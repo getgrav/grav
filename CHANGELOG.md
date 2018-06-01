@@ -17,6 +17,16 @@
     * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
     * Fixed blueprint field validation: Allow numeric inputs in text fields
         
+# v1.4.6
+## mm/dd/2018
+
+1. [](#improved)
+    * Manually re-added the improved SSL off-loading that was lost with Grav v1.4.0 merge [#1888](https://github.com/getgrav/grav/pull/1888)
+    * Updated robots.txt to include `/user/images/` folder [#2043](https://github.com/getgrav/grav/pull/2043)
+1. [](#bugfix)
+    * Handle `errors.display` system property better in admin plugin [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
+    * Fix classes on non-http based protocol links [#2034](https://github.com/getgrav/grav/issues/2034)
+
 # v1.4.5
 ## 05/15/2018
 
