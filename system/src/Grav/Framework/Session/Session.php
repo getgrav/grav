@@ -249,6 +249,16 @@ class Session implements SessionInterface
     /**
      * @inheritdoc
      */
+    public function clear()
+    {
+        session_unset();
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getAll()
     {
         return $_SESSION;

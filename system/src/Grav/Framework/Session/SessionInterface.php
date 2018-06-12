@@ -87,6 +87,13 @@ interface SessionInterface extends \IteratorAggregate
     public function close();
 
     /**
+     * Free all session variables.
+     *
+     * @return $this
+     */
+    public function clear();
+
+    /**
      * Returns all session variables.
      *
      * @return array
