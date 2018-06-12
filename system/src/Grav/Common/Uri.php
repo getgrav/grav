@@ -11,6 +11,7 @@ namespace Grav\Common;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use Grav\Framework\Route\RouteFactory;
 use Grav\Framework\Uri\UriFactory;
 use Grav\Framework\Uri\UriPartsFilter;
@@ -157,12 +158,6 @@ class Uri
             $uri = str_replace($setup_base, '', $uri);
         }
 
-        // If configured to, redirect trailing slash URI's with a 302 redirect
-        $redirect = str_replace($this->root, '', rtrim($uri, '/'));
-        if ($redirect && $uri !== '/' && $redirect !== $this->base() && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($uri, '/')) {
-            $grav->redirect($redirect, 302);
-        }
-
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
 
@@ -207,9 +202,9 @@ class Uri
         }
 
         // Set some Grav stuff
-        $grav['base_url_absolute'] = $grav['config']->get('system.custom_base_url') ?: $this->rootUrl(true);
+        $grav['base_url_absolute'] = $config->get('system.custom_base_url') ?: $this->rootUrl(true);
         $grav['base_url_relative'] = $this->rootUrl(false);
-        $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
+        $grav['base_url'] = $config->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
 
         RouteFactory::setRoot($this->root_path);
         RouteFactory::setLanguage($language->getLanguageURLPrefix());
@@ -482,11 +477,9 @@ class Uri
     {
         if ($include_root) {
             return $this->uri;
-        } else {
-            $uri = str_replace($this->root_path, '', $this->uri);
-            return $uri;
         }
 
+        return str_replace($this->root_path, '', $this->uri);
     }
 
     /**
@@ -509,16 +502,10 @@ class Uri
     {
         $grav = Grav::instance();
 
-        // Link processing should prepend language
-        $language = $grav['language'];
-        $language_append = '';
-        if ($language->enabled()) {
-            $language_append = $language->getLanguageURLPrefix();
-        }
+        /** @var Pages $pages */
+        $pages = $grav['pages'];
 
-        $base = $grav['base_url_relative'];
-
-        return rtrim($base . $grav['pages']->base(), '/') . $language_append;
+        return $pages->baseUrl(null, false);
     }
 
     /**
@@ -1263,7 +1250,7 @@ class Uri
     {
         if (!$this->post) {
             $content_type = $this->getContentType();
-            if ($content_type == 'application/json') {
+            if ($content_type === 'application/json') {
                 $json = file_get_contents('php://input');
                 $this->post = json_decode($json, true);
             } elseif (!empty($_POST)) {
@@ -1271,7 +1258,7 @@ class Uri
             }
         }
 
-        if ($this->post && !is_null($element)) {
+        if ($this->post && null !== $element) {
             $item = Utils::getDotNotation($this->post, $element);
             if ($filter_type) {
                 $item = filter_var($item, $filter_type);

@@ -8,6 +8,10 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Config\Config;
+use Grav\Common\Uri;
+use Grav\Common\Utils;
+
 class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 {
     public $id = 'init';
@@ -15,29 +19,36 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 
     public function process()
     {
-        $this->container['config']->debug();
+        /** @var Config $config */
+        $config = $this->container['config'];
+        $config->debug();
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
-        if ($this->container['config']->get('system.cache.gzip')) {
+        if ($config->get('system.cache.gzip') && !@ob_start('ob_gzhandler')) {
             // Enable zip/deflate with a fallback in case of if browser does not support compressing.
-            if (!@ob_start("ob_gzhandler")) {
-                ob_start();
-            }
+            ob_start();
         }
 
         // Initialize the timezone.
-        if ($this->container['config']->get('system.timezone')) {
+        if ($config->get('system.timezone')) {
             date_default_timezone_set($this->container['config']->get('system.timezone'));
         }
 
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
-        if ($this->container['config']->get('system.session.initialize', 1) && isset($this->container['session'])) {
+        if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
             $this->container['session']->init();
         }
 
-        // Initialize uri.
-        $this->container['uri']->init();
+        /** @var Uri $uri */
+        $uri = $this->container['uri'];
+        $uri->init();
+
+        // Redirect pages with trailing slash if configured to do so.
+        $path = $uri->path() ?: '/';
+        if ($path !== '/' && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($path, '/')) {
+            $this->container->redirect(rtrim($path, '/'), 302);
+        }
 
         $this->container->setLocale();
     }
