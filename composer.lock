@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84bdd0ec9d5acca4bae5a50d4484cd3e",
+    "content-hash": "9ae02152ae6dafc04994f598bfcf0d55",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -1214,7 +1214,7 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "dev-feature/grav15",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
