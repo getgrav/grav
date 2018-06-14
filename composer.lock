@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ae02152ae6dafc04994f598bfcf0d55",
+    "content-hash": "efa79b81f0fd94dca8b9084cdc6fafef",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -1214,16 +1214,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "dev-develop",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "e83f6632a12f23c06f9054f7c31c24be38ccada1"
+                "reference": "ca12fcc980dc7bdf3f955beb74278a070448a485"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/e83f6632a12f23c06f9054f7c31c24be38ccada1",
-                "reference": "e83f6632a12f23c06f9054f7c31c24be38ccada1",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/ca12fcc980dc7bdf3f955beb74278a070448a485",
+                "reference": "ca12fcc980dc7bdf3f955beb74278a070448a485",
                 "shasum": ""
             },
             "require": {
@@ -1259,10 +1259,10 @@
                 "rockettheme"
             ],
             "support": {
-                "source": "https://github.com/rockettheme/toolbox/tree/feature/grav15",
+                "source": "https://github.com/rockettheme/toolbox/tree/1.4.0",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2018-04-22T16:05:55+00:00"
+            "time": "2018-06-13T17:11:52+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -3699,7 +3699,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rockettheme/toolbox": 20,
         "victorjonsson/markdowndocs": 20
     },
     "prefer-stable": false,
