@@ -9,6 +9,7 @@
     * Added `Grav\Framework\Session` class to replace `RocketTheme\Toolbox\Session\Session`
     * Added `Grav\Common\Media` interfaces and trait; use those in `Page` and `Media` classes 
     * Added `Grav\Common\Page` interface to allow custom page types in the future
+    * Added setting to disable sessions from the site [#2013](https://github.com/getgrav/grav/issues/2013)
 1. [](#improved)
     * Improved session handling, allow all session configuration options in `system.session.options`
 1. [](#bugfix)

@@ -996,6 +996,18 @@ form:
                     validate:
                         type: bool
 
+                session.initialize:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_INITIALIZE
+                    help: PLUGIN_ADMIN.SESSION_INITIALIZE_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
+
                 session.timeout:
                     type: text
                     size: small
