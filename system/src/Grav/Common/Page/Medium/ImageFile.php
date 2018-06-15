@@ -11,6 +11,7 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Grav;
 use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
+use Gregwar\Image\Source;
 use RocketTheme\Toolbox\Event\Event;
 
 class ImageFile extends Image
@@ -65,7 +66,6 @@ class ImageFile extends Image
             $cacheFile .= $this->prettyName;
         }
 
-
         $cacheFile .= '.' . $type;
 
         // If the files does not exists, save it
@@ -81,8 +81,6 @@ class ImageFile extends Image
         $generate = function ($target) use ($image, $type, $quality) {
             $result = $image->save($target, $type, $quality);
 
-            $image->getAdapter()->deinit();
-
             if ($result !== $target) {
                 throw new GenerationError($result);
             }
@@ -94,10 +92,14 @@ class ImageFile extends Image
         try {
             $perms = Grav::instance()['config']->get('system.images.cache_perms', '0755');
             $perms = octdec($perms);
-            $file = $this->cache->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
+            $file = $this->getCacheSystem()->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {
             $file = $e->getNewFile();
         }
+
+        // Nulling the resource
+        $this->getAdapter()->setSource(new Source\File($file));
+        $this->getAdapter()->deinit();
 
         if ($actual) {
             return $file;
