@@ -52,7 +52,9 @@ abstract class AbstractMedia extends Getters
     public function offsetGet($offset)
     {
         $object = parent::offsetGet($offset);
-        $object = $object ? clone($object) : null;
+
+        // It would be nice if previous image modification would not affect the later ones.
+        //$object = $object ? clone($object) : null;
 
         return $object;
     }
