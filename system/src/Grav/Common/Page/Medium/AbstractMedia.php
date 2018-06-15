@@ -48,6 +48,19 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     }
 
     /**
+     * @param mixed $offset
+     *
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        $object = parent::offsetGet($offset);
+        $object = $object ? clone($object) : null;
+
+        return $object;
+    }
+
+    /**
      * Get a list of all media.
      *
      * @return array|MediaObjectInterface[]
@@ -177,8 +190,8 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
             $type = 'base';
 
             while (($part = array_shift($fileParts)) !== null) {
-                if ($part != 'meta' && $part != 'thumb') {
-                    if (isset($extension)) {
+                if ($part !== 'meta' && $part !== 'thumb') {
+                    if (null !== $extension) {
                         $name .= '.' . $extension;
                     }
                     $extension = $part;

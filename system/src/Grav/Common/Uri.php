@@ -151,11 +151,10 @@ class Uri
 
         $uri = str_replace(static::filterPath($this->root), '', $this->url);
 
-
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
         if ($setup_base) {
-            $uri = str_replace($setup_base, '', $uri);
+            $uri = preg_replace('|^' . preg_quote($setup_base, '|') . '|', '', $uri);
         }
 
         // process params
