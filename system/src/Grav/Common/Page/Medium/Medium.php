@@ -73,6 +73,11 @@ class Medium extends Data implements RenderableInterface
         $this->reset();
     }
 
+    public function __clone()
+    {
+        // Allows future compatibility as parent::__clone() works.
+    }
+
     /**
      * Create a copy of this media object
      *
@@ -80,7 +85,7 @@ class Medium extends Data implements RenderableInterface
      */
     public function copy()
     {
-        return clone($this);
+        return clone $this;
     }
 
     /**
