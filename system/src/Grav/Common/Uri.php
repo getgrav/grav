@@ -150,11 +150,10 @@ class Uri
 
         $uri = str_replace(static::filterPath($this->root), '', $this->url);
 
-
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
         if ($setup_base) {
-            $uri = str_replace($setup_base, '', $uri);
+            $uri = preg_replace('|^' . preg_quote($setup_base, '|') . '|', '', $uri);
         }
 
         // If configured to, redirect trailing slash URI's with a 302 redirect
@@ -687,18 +686,19 @@ class Uri
      */
     public static function buildUrl($parsed_url)
     {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : (isset($parsed_url['host']) ? '//' : '');
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
-        $pass     = ($user || $pass) ? "{$pass}@" : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        $path     = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
-        $query    = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-        $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+        $scheme    = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . ':' : '';
+        $authority = isset($parsed_url['host']) ? '//' : '';
+        $host      = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $port      = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+        $user      = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+        $pass      = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+        $pass      = ($user || $pass) ? "{$pass}@" : '';
+        $path      = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $path      = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
+        $query     = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $fragment  = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
+        return "{$scheme}{$authority}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
     }
 
     /**
@@ -1119,8 +1119,12 @@ class Uri
     protected function createFromEnvironment(array $env)
     {
         // Build scheme.
-        if (isset($env['REQUEST_SCHEME'])) {
-            $this->scheme = $env['REQUEST_SCHEME'];
+        if (isset($env['HTTP_X_FORWARDED_PROTO'])) {
+            $this->scheme = $env['HTTP_X_FORWARDED_PROTO'];
+        } elseif (isset($env['X-FORWARDED-PROTO'])) {
+            $this->scheme = $env['X-FORWARDED-PROTO'];
+        } elseif (isset($env['REQUEST_SCHEME'])) {
+           $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
             $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
@@ -1143,7 +1147,16 @@ class Uri
         $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
         // Build port.
-        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
+        if (isset($env['HTTP_X_FORWARDED_PORT'])) {
+           $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
+        } elseif (isset($env['X-FORWARDED-PORT'])) {
+           $this->port = (int)$env['X-FORWARDED-PORT'];
+        } elseif (isset($env['SERVER_PORT'])) {
+           $this->port = (int)$env['SERVER_PORT'];
+        } else {
+           $this->port = null;
+        }
+
         if ($this->hasStandardPort()) {
             $this->port = null;
         }

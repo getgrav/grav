@@ -172,10 +172,9 @@ class Excerpts
             if ($type !== 'image' && !empty($url_parts['stream']) && !empty($url_parts['path'])) {
                 $url_parts['path'] = Grav::instance()['base_url_relative'] . '/' . static::resolveStream("{$url_parts['scheme']}://{$url_parts['path']}");
                 unset($url_parts['stream'], $url_parts['scheme']);
-
-                $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
             }
 
+            $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
             return $excerpt;
         }
 
