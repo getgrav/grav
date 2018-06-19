@@ -16,6 +16,7 @@ use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
 use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserTryCatch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
+use Grav\Common\User\User;
 use Grav\Common\Utils;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
@@ -371,25 +372,14 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      *
      * @param  array    $input
      * @param  string   $filter
-     * @param array|int $direction
+     * @param  int      $direction
+     * @param  int      $sort_flags
      *
      * @return array
      */
-    public function sortByKeyFilter($input, $filter, $direction = SORT_ASC)
+    public function sortByKeyFilter($input, $filter, $direction = SORT_ASC, $sort_flags = SORT_REGULAR)
     {
-        $output = [];
-
-        if (!is_array($input) || !$input) {
-            return $output;
-        }
-
-        foreach ($input as $key => $row) {
-            $output[$key] = $row[$filter];
-        }
-
-        array_multisort($output, $direction, $input);
-
-        return $input;
+        return Utils::sortArrayByKey($input, $filter, $direction, $sort_flags);
     }
 
     /**
@@ -886,7 +876,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function authorize($action)
     {
-        if (!$this->grav['user']->authenticated) {
+        /** @var User $user */
+        $user = $this->grav['user'];
+
+        if (!$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
             return false;
         }
 
@@ -895,7 +888,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             $prefix = is_int($key) ? '' : $key . '.';
             $perms = $prefix ? (array) $perms : [$perms => true];
             foreach ($perms as $action2 => $authenticated) {
-                if ($this->grav['user']->authorize($prefix . $action2)) {
+                if ($user->authorize($prefix . $action2)) {
                     return $authenticated;
                 }
             }

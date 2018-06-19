@@ -296,10 +296,6 @@ abstract class Utils
      */
     public static function truncateHtml($text, $length = 100, $ellipsis = '...')
     {
-        if (mb_strlen($text) <= $length) {
-            return $text;
-        }
-
         return Truncator::truncateLetters($text, $length, $ellipsis);
     }
 
@@ -964,6 +960,32 @@ abstract class Utils
             }
         }
         return $ordered + $array;
+    }
+
+    /**
+     * Sort an array by a key value in the array
+     *
+     * @param $array
+     * @param $array_key
+     * @param int $direction
+     * @param int $sort_flags
+     * @return array
+     */
+    public static function sortArrayByKey($array, $array_key, $direction = SORT_DESC, $sort_flags = SORT_REGULAR )
+    {
+        $output = [];
+
+        if (!is_array($array) || !$array) {
+            return $output;
+        }
+
+        foreach ($array as $key => $row) {
+            $output[$key] = $row[$array_key];
+        }
+
+        array_multisort($output, $direction, $sort_flags, $array);
+
+        return $array;
     }
 
     /**

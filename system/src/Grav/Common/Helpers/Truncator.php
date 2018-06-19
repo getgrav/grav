@@ -47,6 +47,7 @@ class Truncator {
 
         // Iterate over words.
         $words = new DOMWordsIterator($body);
+        $truncated = false;
         foreach ($words as $word) {
 
             // If we have exceeded the limit, we delete the remainder of the content.
@@ -70,12 +71,19 @@ class Truncator {
                     self::insertEllipsis($curNode, $ellipsis);
                 }
 
+                $truncated = true;
+
                 break;
             }
 
         }
 
-        return self::innerHTML($body);
+        // Return original HTML if not truncated.
+        if ($truncated) {
+            return self::innerHTML($body);
+        } else {
+            return $html;
+        }
     }
 
     /**
@@ -98,24 +106,32 @@ class Truncator {
 
         // Iterate over letters.
         $letters = new DOMLettersIterator($body);
+        $truncated = false;
         foreach ($letters as $letter) {
 
             // If we have exceeded the limit, we want to delete the remainder of this document.
             if ($letters->key() >= $limit) {
 
                 $currentText = $letters->currentTextPosition();
-                $currentText[0]->nodeValue = substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
+                $currentText[0]->nodeValue = mb_substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
                 self::removeProceedingNodes($currentText[0], $body);
 
                 if (!empty($ellipsis)) {
                     self::insertEllipsis($currentText[0], $ellipsis);
                 }
 
+                $truncated = true;
+
                 break;
             }
         }
 
-        return self::innerHTML($body);
+        // Return original HTML if not truncated.
+        if ($truncated) {
+            return self::innerHTML($body);
+        } else {
+            return $html;
+        }
     }
 
     /**

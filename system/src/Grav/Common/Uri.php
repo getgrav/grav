@@ -49,6 +49,8 @@ class Uri
     protected $root;
     protected $root_path;
     protected $uri;
+    protected $content_type;
+    protected $post;
 
     /**
      * Uri constructor.
@@ -133,7 +135,12 @@ class Uri
             $custom_parts = parse_url($custom_base);
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
-            $this->root      = isset($custom_parts['scheme']) ? $custom_base : $this->base . $this->root_path;
+            if (isset($custom_parts['scheme'])) {
+                $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
+                $this->root = $custom_base;
+            } else {
+                $this->root = $this->base . $this->root_path;
+            }
             $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
@@ -146,7 +153,7 @@ class Uri
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
         if ($setup_base) {
-            $uri = str_replace($setup_base, '', $uri);
+            $uri = preg_replace('|^' . preg_quote($setup_base, '|') . '|', '', $uri);
         }
 
         // If configured to, redirect trailing slash URI's with a 302 redirect
@@ -465,6 +472,23 @@ class Uri
     }
 
     /**
+     * Return the full uri
+     *
+     * @param bool $include_root
+     * @return mixed
+     */
+    public function uri($include_root = true)
+    {
+        if ($include_root) {
+            return $this->uri;
+        } else {
+            $uri = str_replace($this->root_path, '', $this->uri);
+            return $uri;
+        }
+
+    }
+
+    /**
      * Return the base of the URI
      *
      * @return String The base of the URI
@@ -662,18 +686,19 @@ class Uri
      */
     public static function buildUrl($parsed_url)
     {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : (isset($parsed_url['host']) ? '//' : '');
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
-        $pass     = ($user || $pass) ? "{$pass}@" : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        $path     = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
-        $query    = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-        $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+        $scheme    = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . ':' : '';
+        $authority = isset($parsed_url['host']) ? '//' : '';
+        $host      = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $port      = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+        $user      = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+        $pass      = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+        $pass      = ($user || $pass) ? "{$pass}@" : '';
+        $path      = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $path      = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
+        $query     = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $fragment  = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
+        return "{$scheme}{$authority}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
     }
 
     /**
@@ -1094,8 +1119,12 @@ class Uri
     protected function createFromEnvironment(array $env)
     {
         // Build scheme.
-        if (isset($env['REQUEST_SCHEME'])) {
-            $this->scheme = $env['REQUEST_SCHEME'];
+        if (isset($env['HTTP_X_FORWARDED_PROTO'])) {
+            $this->scheme = $env['HTTP_X_FORWARDED_PROTO'];
+        } elseif (isset($env['X-FORWARDED-PROTO'])) {
+            $this->scheme = $env['X-FORWARDED-PROTO'];
+        } elseif (isset($env['REQUEST_SCHEME'])) {
+           $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
             $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
@@ -1118,7 +1147,16 @@ class Uri
         $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
 
         // Build port.
-        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
+        if (isset($env['HTTP_X_FORWARDED_PORT'])) {
+           $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
+        } elseif (isset($env['X-FORWARDED-PORT'])) {
+           $this->port = (int)$env['X-FORWARDED-PORT'];
+        } elseif (isset($env['SERVER_PORT'])) {
+           $this->port = (int)$env['SERVER_PORT'];
+        } else {
+           $this->port = null;
+        }
+
         if ($this->hasStandardPort()) {
             $this->port = null;
         }
@@ -1185,7 +1223,6 @@ class Uri
         if ($this->host) {
             $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
         }
-
         // Filter userinfo, path, query string and fragment.
         $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
         $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
@@ -1211,6 +1248,55 @@ class Uri
         $this->root_path    = $this->buildRootPath();
         $this->root         = $this->base . $this->root_path;
         $this->url          = $this->base . $this->uri;
+    }
+
+    /**
+     * Get's post from either $_POST or JSON response object
+     * By default returns all data, or can return a single item
+     *
+     * @param string $element
+     * @param string $filter_type
+     * @return array|mixed|null
+     */
+    public function post($element = null, $filter_type = null)
+    {
+        if (!$this->post) {
+            $content_type = $this->getContentType();
+            if ($content_type == 'application/json') {
+                $json = file_get_contents('php://input');
+                $this->post = json_decode($json, true);
+            } elseif (!empty($_POST)) {
+                $this->post = (array)$_POST;
+            }
+        }
+
+        if ($this->post && !is_null($element)) {
+            $item = Utils::getDotNotation($this->post, $element);
+            if ($filter_type) {
+                $item = filter_var($item, $filter_type);
+            }
+            return $item;
+        }
+
+        return $this->post;
+    }
+
+    /**
+     * Get content type from request
+     *
+     * @param bool $short
+     * @return null|string
+     */
+    private function getContentType($short = true)
+    {
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            $content_type = $_SERVER['CONTENT_TYPE'];
+            if ($short) {
+                return Utils::substrToString($content_type,';');
+            }
+            return $content_type;
+        }
+        return null;
     }
 
     /**
