@@ -1211,6 +1211,10 @@ class Page
         }
 
         if (empty($this->template_format)) {
+            $this->template_format = $this->url_extension;
+        }
+
+        if (empty($this->template_format)) {
             $this->template_format = Grav::instance()['uri']->extension('html');
         }
 
@@ -2954,27 +2958,5 @@ class Page
         } else {
             return $route;
         }
-    }
-
-    /**
-     * Gets the Page Unmodified (original) version of the page.
-     *
-     * @return Page
-     *   The original version of the page.
-     */
-    public function getOriginal()
-    {
-      return $this->_original;
-    }
-
-    /**
-     * Gets the action.
-     *
-     * @return string
-     *   The Action string.
-     */
-    public function getAction()
-    {
-      return $this->_action;
     }
 }
