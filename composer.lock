@@ -1249,6 +1249,7 @@
                     "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1258,10 +1259,6 @@
                 "php",
                 "rockettheme"
             ],
-            "support": {
-                "source": "https://github.com/rockettheme/toolbox/tree/1.4.0",
-                "issues": "https://github.com/rockettheme/toolbox/issues"
-            },
             "time": "2018-06-13T17:11:52+00:00"
         },
         {
