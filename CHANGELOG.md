@@ -13,6 +13,8 @@
     * Fix classes on non-http based protocol links [#2034](https://github.com/getgrav/grav/issues/2034)
     * Fixed crash on IIS (Windows) with open_basedir in effect [#2053](https://github.com/getgrav/grav/issues/2053)
     * Fixed incorrect routing with setup.php based base [#1892](https://github.com/getgrav/grav/issues/1892)
+    * Fixed image resource memory deallocation [#2045](https://github.com/getgrav/grav/pull/2045)
+    * Fixed issue with Errors `display:` option not handling integers properly [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
 
 # v1.4.5
 ## 05/15/2018
@@ -21,7 +23,6 @@
     * Fixed an issue with some users getting **2FA** prompt after upgrade [admin#1442](https://github.com/getgrav/grav-plugin-admin/issues/1442)
     * Do not crash when generating URLs with arrays as parameters [#2018](https://github.com/getgrav/grav/pull/2018)
     * Utils::truncateHTML removes whitespace when generating summaries [#2004](https://github.com/getgrav/grav/pull/2004)
-    * Fixed issue with Errors `display:` option not handling integers properly [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
     
 # v1.4.4
 ## 05/11/2018
