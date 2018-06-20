@@ -26,7 +26,7 @@
         "gregwar/image": "2.*",
         "donatj/phpuseragentparser": "~0.3",
         "pimple/pimple": "~3.2",
-        "rockettheme/toolbox": "~1.3",
+        "rockettheme/toolbox": "~1.3.9",
         "maximebf/debugbar": "~1.10",
         "ext-mbstring": "*",
         "ext-openssl": "*",
