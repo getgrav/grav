@@ -1,5 +1,5 @@
 # v1.4.6
-## 06/19/2018
+## 06/20/2018
 
 1. [](#improved)
     * Manually re-added the improved SSL off-loading that was lost with Grav v1.4.0 merge [#1888](https://github.com/getgrav/grav/pull/1888)
