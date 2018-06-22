@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fix for modular page preview [#2066](https://github.com/getgrav/grav/issues/2066)
+    * `Page::routeCanonical()` should be string not array [#2069](https://github.com/getgrav/grav/issues/2069)
 
 # v1.4.6
 ## 06/20/2018

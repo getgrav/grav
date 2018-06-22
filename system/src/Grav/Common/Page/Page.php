@@ -1790,7 +1790,7 @@ class Page
     public function routeCanonical($var = null)
     {
         if ($var !== null) {
-            $this->routes['canonical'] = (array)$var;
+            $this->routes['canonical'] = $var;
         }
 
         if (!empty($this->routes) && isset($this->routes['canonical'])) {
