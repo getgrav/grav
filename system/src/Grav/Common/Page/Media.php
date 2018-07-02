@@ -86,7 +86,7 @@ class Media extends AbstractMedia
         /** @var \DirectoryIterator $info */
         foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getBasename()[0] === '.') {
+            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getFilename()[0] === '.') {
                 continue;
             }
 
