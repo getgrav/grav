@@ -18,8 +18,15 @@
     * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
     * Fixed blueprint field validation: Allow numeric inputs in text fields
         
+# v1.4.7
+## mm/dd/2018
+
+1. [](#bugfix)
+    * Fix for modular page preview [#2066](https://github.com/getgrav/grav/issues/2066)
+    * `Page::routeCanonical()` should be string not array [#2069](https://github.com/getgrav/grav/issues/2069)
+
 # v1.4.6
-## 06/19/2018
+## 06/20/2018
 
 1. [](#improved)
     * Manually re-added the improved SSL off-loading that was lost with Grav v1.4.0 merge [#1888](https://github.com/getgrav/grav/pull/1888)
