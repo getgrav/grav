@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Made `ObjectCollection::matching()` criteria expressions to behave more like in Twig
+    * Criteria: Added support for `LENGTH()`, `LOWER()`, `UPPER()`, `LTRIM()`, `RTRIM()` and `TRIM()`
 1. [](#bugfix)
     * Fixed regression in 1.5.0-beta.1 blueprint extend and embed
 

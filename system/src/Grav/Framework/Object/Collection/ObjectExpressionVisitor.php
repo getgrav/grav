@@ -23,23 +23,69 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
      */
     public static function getObjectFieldValue($object, $field)
     {
+        $op = $value = null;
+
+        $pos = strpos($field, '(');
+        if (false !== $pos) {
+            list ($op, $field) = explode('(', $field, 2);
+            $field = rtrim($field, ')');
+        }
+
         if (isset($object[$field])) {
-            return $object[$field];
-        }
+            $value = $object[$field];
+        } else {
+            $accessors = array('', 'get', 'is');
 
-        $accessors = array('', 'get', 'is');
+            foreach ($accessors as $accessor) {
+                $accessor .= $field;
 
-        foreach ($accessors as $accessor) {
-            $accessor .= $field;
+                if (!method_exists($object, $accessor)) {
+                    continue;
+                }
 
-            if (!method_exists($object, $accessor)) {
-                continue;
+                $value = $object->{$accessor}();
+                break;
             }
-
-            return $object->{$accessor}();
         }
 
-        return null;
+        if ($op) {
+            $function = 'filter' . ucfirst(strtolower($op));
+            if (method_exists(static::class, $function)) {
+                $value = static::$function($value);
+            }
+        }
+
+        return $value;
+    }
+
+    public static function filterLower($str)
+    {
+        return mb_strtolower($str);
+    }
+
+    public static function filterUpper($str)
+    {
+        return mb_strtoupper($str);
+    }
+
+    public static function filterLength($str)
+    {
+        return mb_strlen($str);
+    }
+
+    public static function filterLtrim($str)
+    {
+        return ltrim($str);
+    }
+
+    public static function filterRtrim($str)
+    {
+        return rtrim($str);
+    }
+
+    public static function filterTrim($str)
+    {
+        return trim($str);
     }
 
     /**
