@@ -1,5 +1,13 @@
-# v1.5.0-beta.1
+# v1.5.0-beta.2
 ## mm/dd/2018
+
+1. [](#improved)
+    * Made `ObjectCollection::matching()` criteria expressions to behave more like in Twig
+1. [](#bugfix)
+    * Fixed regression in 1.5.0-beta.1 blueprint extend and embed
+
+# v1.5.0-beta.1
+## 06/19/2018
 
 1. [](#new)
     * Set minimum requirements to [PHP 5.6.4](https://getgrav.org/blog/raising-php-requirements-2018)
