@@ -17,7 +17,7 @@
     * Fixed `Route::withQueryParam()` to accept array values
     * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
     * Fixed blueprint field validation: Allow numeric inputs in text fields
-        
+
 # v1.4.7
 ## mm/dd/2018
 
