@@ -52,10 +52,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/rockettheme/toolbox"
         }
     ],
     "autoload": {
