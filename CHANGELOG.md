@@ -1,7 +1,7 @@
 # v1.5.0-beta.2
 ## mm/dd/2018
 
-1. [](#improved)
+1. [](#new)
     * Made `ObjectCollection::matching()` criteria expressions to behave more like in Twig
     * Criteria: Added support for `LENGTH()`, `LOWER()`, `UPPER()`, `LTRIM()`, `RTRIM()` and `TRIM()`
 1. [](#bugfix)
