@@ -296,17 +296,17 @@ class Installer
     {
         foreach (new \DirectoryIterator($source_path) as $file) {
 
-            if ($file->isLink() || $file->isDot() || in_array($file->getBasename(),$ignores)) {
+            if ($file->isLink() || $file->isDot() || in_array($file->getFilename(), $ignores)) {
                 continue;
             }
 
-            $path = $install_path . DS . $file->getBasename();
+            $path = $install_path . DS . $file->getFilename();
 
             if ($file->isDir()) {
                 Folder::delete($path);
                 Folder::move($file->getPathname(), $path);
 
-                if ($file->getBasename() == 'bin') {
+                if ($file->getFilename() === 'bin') {
                     foreach (glob($path . DS . '*') as $bin_file) {
                         @chmod($bin_file, 0755);
                     }
