@@ -950,6 +950,8 @@ class Page
         }
 
         $this->_original = null;
+        $cache = Grav::instance()['cache'];
+        $cache->autotouch();        
     }
 
     /**
