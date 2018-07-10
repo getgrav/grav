@@ -75,6 +75,7 @@ cache:
   check:
     method: file                                 # Method to check for updates in pages: file|folder|hash|none
   driver: auto                                   # One of: auto|file|apc|xcache|memcache|wincache
+  autotouch: false                               # Touch system.yaml triggering a cache refresh without file system impact in the case of volatile caches, e.g. memcached or apcu  
   prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
   clear_images_by_default: true                  # By default grav will include processed images in cache clear, this can be disabled
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
