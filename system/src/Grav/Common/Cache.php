@@ -445,6 +445,22 @@ class Cache extends Getters
         return $output;
     }
 
+    /**
+     * Helper that allows to re-fill caches when cache.method is set to none for speed
+     * and volatile caches like memcached or apcu are used
+     * 
+     */
+    public function autotouch()
+    {
+        $user_config = USER_DIR . 'config/system.yaml';
+        if (Grav::instance()['config']->get('system.cache.enabled')
+            && file_exists($user_config)
+            && in_array(strtolower(Grav::instance()['config']->get('system.cache.check.method', 'file')), ['none', 'off'])
+            && Grav::instance()['config']->get('system.cache.autotouch')) {    
+                //if ($this->isVolatileDriver($this->driver_name)) {
+                touch($user_config);            
+        }        
+    }
 
     /**
      * Set the cache lifetime programmatically
