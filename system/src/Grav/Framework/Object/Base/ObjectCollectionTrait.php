@@ -32,11 +32,6 @@ trait ObjectCollectionTrait
             $list[$key] = is_object($value) ? clone $value : $value;
         }
 
-        // TODO: remove when PHP 5.6 is minimum (with doctrine/collections v1.4).
-        if (!method_exists($this, 'createFrom')) {
-            return new static($list);
-        }
-
         return $this->createFrom($list);
     }
 
@@ -170,12 +165,7 @@ trait ObjectCollectionTrait
     {
         $collections = [];
         foreach ($this->group($property) as $id => $elements) {
-            // TODO: remove when PHP 5.6 is minimum (with doctrine/collections v1.4).
-            if (!method_exists($this, 'createFrom')) {
-                $collection = new static($elements);
-            } else {
-                $collection = $this->createFrom($elements);
-            }
+            $collection = $this->createFrom($elements);
 
             $collections[$id] = $collection;
         }

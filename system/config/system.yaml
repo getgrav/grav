@@ -88,7 +88,7 @@ twig:
   cache: true                                    # Set to true to enable Twig caching
   debug: true                                    # Enable Twig debug
   auto_reload: true                              # Refresh cache on changes
-  autoescape: false                              # Autoescape Twig vars
+  autoescape: false                              # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
   undefined_functions: true                      # Allow undefined functions
   undefined_filters: true                        # Allow undefined filters
   umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
@@ -146,3 +146,7 @@ gpm:
   method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
   verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+
+strict_mode:
+  yaml_compat: true                              # Grav 1.5+: Enables YAML backwards compatibility
+  twig_compat: true                              # Grav 1.5+: Enables deprecated Twig autoescape setting (autoescape: false)

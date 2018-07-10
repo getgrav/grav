@@ -7,7 +7,7 @@
  */
 
 namespace Grav;
-define('GRAV_PHP_MIN', '5.5.9');
+define('GRAV_PHP_MIN', '5.6.4');
 
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/vendor/autoload.php';

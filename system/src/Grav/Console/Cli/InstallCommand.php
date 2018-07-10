@@ -9,9 +9,9 @@
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
+use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Yaml\Yaml;
 
 class InstallCommand extends ConsoleCommand
 {
@@ -71,9 +71,9 @@ class InstallCommand extends ConsoleCommand
 
         // Look for dependencies file in ROOT and USER dir
         if (file_exists($this->user_path . $dependencies_file)) {
-            $this->config = Yaml::parse(file_get_contents($this->user_path . $dependencies_file));
+            $file = YamlFile::instance($this->user_path . $dependencies_file);
         } elseif (file_exists($this->destination . $dependencies_file)) {
-            $this->config = Yaml::parse(file_get_contents($this->destination . $dependencies_file));
+            $file = YamlFile::instance($this->destination . $dependencies_file);
         } else {
             $this->output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
             if ($this->input->getArgument('destination')) {
@@ -84,6 +84,9 @@ class InstallCommand extends ConsoleCommand
             
             return;
         }
+
+        $this->config = $file->content();
+        $file->free();
 
         // If yaml config, process
         if ($this->config) {

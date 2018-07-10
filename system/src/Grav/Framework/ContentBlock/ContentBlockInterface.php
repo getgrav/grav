@@ -62,6 +62,17 @@ interface ContentBlockInterface extends \Serializable
     public function build(array $serialized);
 
     /**
+     * @param string $checksum
+     * @return $this
+     */
+    public function setChecksum($checksum);
+
+    /**
+     * @return string
+     */
+    public function getChecksum();
+
+    /**
      * @param string $content
      * @return $this
      */
