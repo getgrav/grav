@@ -490,6 +490,17 @@ form:
                         hash: All files timestamps
                         none: No timestamp checking
 
+                cache.autotouch:
+                    type: toggle
+                    label: PLUGIN_ADMIN.CACHE_AUTOTOUCH
+                    help: PLUGIN_ADMIN.CACHE_AUTOTOUCH_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 cache.driver:
                     type: select
                     size: small
