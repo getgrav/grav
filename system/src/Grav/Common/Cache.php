@@ -373,6 +373,9 @@ class Cache extends Getters
             case 'tmp-only':
                 $remove_paths = self::$tmp_remove;
                 break;
+            case 'touch-only':
+                $remove_paths = [];
+                break;                            
             default:
                 if (Grav::instance()['config']->get('system.cache.clear_images_by_default')) {
                     $remove_paths = self::$standard_remove;
@@ -422,19 +425,21 @@ class Cache extends Getters
 
         $output[] = '';
 
-        if (($remove == 'all' || $remove == 'standard') && file_exists($user_config)) {
+        if (($remove == 'all' || $remove == 'standard' || $remove == 'touch-only') && file_exists($user_config)) {
             touch($user_config);
 
             $output[] = '<red>Touched: </red>' . $user_config;
             $output[] = '';
-        }
+        }        
+        
+        if ($remove != 'touch-only') {
+            // Clear stat cache
+            @clearstatcache();
 
-        // Clear stat cache
-        @clearstatcache();
-
-        // Clear opcache
-        if (function_exists('opcache_reset')) {
-            @opcache_reset();
+            // Clear opcache
+            if (function_exists('opcache_reset')) {
+                @opcache_reset();
+            }
         }
 
         return $output;
