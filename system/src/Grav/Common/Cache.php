@@ -47,6 +47,8 @@ class Cache extends Getters
 
     protected $driver_setting;
 
+    protected $disable_auto_touch;
+    
     /**
      * @var bool
      */
@@ -138,6 +140,8 @@ class Cache extends Getters
 
         // Set the cache namespace to our unique key
         $this->driver->setNamespace($this->key);
+        
+        $this->disable_auto_touch = false;        
     }
 
     /**
@@ -446,6 +450,18 @@ class Cache extends Getters
     }
 
     /**
+     * Helper that allows to disable autotouch for bulk changes
+     * Once all changes have been done code implementations can
+     * call autotouch()
+     * 
+     * 
+     */
+    public function disableAutotouch()
+    {
+        $this->disable_auto_touch = true;
+    }
+    
+    /**
      * Helper that allows to re-fill caches when cache.method is set to none for speed
      * and volatile caches like memcached or apcu are used
      * 
@@ -453,7 +469,8 @@ class Cache extends Getters
     public function autotouch()
     {
         $user_config = USER_DIR . 'config/system.yaml';
-        if (Grav::instance()['config']->get('system.cache.enabled')
+        if (!$this->disable_auto_touch 
+            && Grav::instance()['config']->get('system.cache.enabled')
             && file_exists($user_config)
             && in_array(strtolower(Grav::instance()['config']->get('system.cache.check.method', 'file')), ['none', 'off'])
             && Grav::instance()['config']->get('system.cache.autotouch')) {    
