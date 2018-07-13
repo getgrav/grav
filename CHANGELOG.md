@@ -1,5 +1,5 @@
 # v1.5.0-beta.2
-## mm/dd/2018
+## 07/13/2018
 
 1. [](#new)
     * Made `ObjectCollection::matching()` criteria expressions to behave more like in Twig
