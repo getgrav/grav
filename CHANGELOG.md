@@ -1,5 +1,5 @@
 # v1.4.7
-## mm/dd/2018
+## 07/13/2018
 
 1. [](#improved)
     * Use `getFilename` instead of `getBasename` [#2087](https://github.com/getgrav/grav/issues/2087)
