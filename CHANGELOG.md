@@ -1,6 +1,8 @@
 # v1.4.7
 ## mm/dd/2018
 
+1. [](#improved)
+    * Use `getFilename` instead of `getBasename` [#2087](https://github.com/getgrav/grav/issues/2087)
 1. [](#bugfix)
     * Fix for modular page preview [#2066](https://github.com/getgrav/grav/issues/2066)
     * `Page::routeCanonical()` should be string not array [#2069](https://github.com/getgrav/grav/issues/2069)
