@@ -238,7 +238,7 @@ class Twig
             // Process Modular Twig
             if ($item->modularTwig()) {
                 $twig_vars['content'] = $content;
-                $extension = $this->grav['uri']->extension();
+                $extension = $item->templateFormat();
                 $extension = $extension ? ".{$extension}.twig" : TEMPLATE_EXT;
                 $template = $item->template() . $extension;
                 $output = $content = $local_twig->render($template, $twig_vars);

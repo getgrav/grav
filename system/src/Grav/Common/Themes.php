@@ -98,7 +98,7 @@ class Themes extends Iterator
                 continue;
             }
 
-            $theme = $directory->getBasename();
+            $theme = $directory->getFilename();
             $result = self::get($theme);
 
             if ($result) {

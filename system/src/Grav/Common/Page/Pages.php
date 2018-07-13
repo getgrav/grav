@@ -1041,7 +1041,7 @@ class Pages
             }
 
             // Ignore all files in ignore list.
-            if (\in_array($file->getBasename(), $this->ignore_files, true)) {
+            if (\in_array($filename, $this->ignore_files, true)) {
                 continue;
             }
 

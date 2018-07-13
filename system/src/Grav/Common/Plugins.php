@@ -33,7 +33,7 @@ class Plugins extends Iterator
             if (!$directory->isDir()) {
                 continue;
             }
-            $plugins[] = $directory->getBasename();
+            $plugins[] = $directory->getFilename();
         }
 
         natsort($plugins);
