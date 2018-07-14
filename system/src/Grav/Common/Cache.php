@@ -359,7 +359,8 @@ class Cache extends Getters
     {
         $locator = Grav::instance()['locator'];
         $output = [];
-        $user_config = USER_DIR . 'config/system.yaml';
+        //$user_config = USER_DIR . 'config/system.yaml';
+        $user_config = Grav::instance()['locator']->findResource('config://system.yaml');        
 
         switch ($remove) {
             case 'all':
@@ -463,18 +464,20 @@ class Cache extends Getters
     
     /**
      * Helper that allows to re-fill caches when cache.method is set to none for speed
-     * and volatile caches like memcached or apcu are used
+     * and volatile caches like memcached or apcu are used but works with file cache 
+     * as well
      * 
      */
     public function autotouch()
     {
-        $user_config = USER_DIR . 'config/system.yaml';
+        // Should find a valid system.yaml for the current instance
+        // I change this in clearCache as well
+        $user_config = Grav::instance()['locator']->findResource('config://system.yaml');        
         if (!$this->disable_auto_touch 
             && Grav::instance()['config']->get('system.cache.enabled')
             && file_exists($user_config)
             && in_array(strtolower(Grav::instance()['config']->get('system.cache.check.method', 'file')), ['none', 'off'])
             && Grav::instance()['config']->get('system.cache.autotouch')) {    
-                //if ($this->isVolatileDriver($this->driver_name)) {
                 touch($user_config);            
         }        
     }
