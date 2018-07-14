@@ -1,3 +1,11 @@
+# v1.5.0-beta.3
+## mm/dd/2018
+
+1. [](#new)
+    * Added twig filters for casting values: `|string`, `|int`, `|bool`, `|float`, `|array`
+1. [](#bugfix)
+    * Made `|markdown` filter HTML safe
+
 # v1.5.0-beta.2
 ## 07/13/2018
 
