@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.User
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class User extends Data
 {
@@ -22,12 +23,14 @@ class User extends Data
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
+     * @param bool $setConfig
      *
      * @return User
      */
     public static function load($username)
     {
         $grav = Grav::instance();
+        /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
         // force lowercase of username
@@ -35,15 +38,11 @@ class User extends Data
 
         $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/account');
+
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
         $file = CompiledYamlFile::instance($file_path);
-        $content = (array)$file->content();
-        if (!isset($content['username'])) {
-            $content['username'] = $username;
-        }
-        if (!isset($content['state'])) {
-            $content['state'] = 'enabled';
-        }
+        $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
+
         $user = new User($content, $blueprint);
         $user->file($file);
 
@@ -63,9 +62,9 @@ class User extends Data
         $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
 
         // Try with username first, you never know!
-        if (in_array('username', $fields)) {
+        if (in_array('username', $fields, true)) {
             $user = User::load($query);
-            unset($fields[array_search('username', $fields)]);
+            unset($fields[array_search('username', $fields, true)]);
         } else {
             $user = User::load('');
         }
@@ -76,7 +75,7 @@ class User extends Data
                 if (Utils::endsWith($file, YAML_EXT)) {
                     $find_user = User::load(trim(pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
-                        if ($find_user[$field] == $query) {
+                        if ($find_user[$field] === $query) {
                             return $find_user;
                         }
                     }
@@ -96,11 +95,41 @@ class User extends Data
     public static function remove($username)
     {
         $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
-        if ($file_path && unlink($file_path)) {
-            return true;
+
+        return $file_path && unlink($file_path);
+    }
+
+    /**
+     * @param string $offset
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        $value = parent::offsetExists($offset);
+
+        // Handle special case where user was logged in before 'authorized' was added to the user object.
+        if (false === $value && $offset === 'authorized') {
+            $value = $this->offsetExists('authenticated');
         }
 
-        return false;
+        return $value;
+    }
+
+    /**
+     * @param string $offset
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        $value = parent::offsetGet($offset);
+
+        // Handle special case where user was logged in before 'authorized' was added to the user object.
+        if (null === $value && $offset === 'authorized') {
+            $value = $this->offsetGet('authenticated');
+            $this->offsetSet($offset, $value);
+        }
+
+        return $value;
     }
 
     /**
@@ -128,20 +157,20 @@ class User extends Data
                 );
 
                 return false;
-            } else {
-                // Plain-text does match, we can update the hash and proceed
-                $save = true;
-
-                $this->hashed_password = Authentication::create($this->password);
-                unset($this->password);
             }
+
+            // Plain-text does match, we can update the hash and proceed
+            $save = true;
+
+            $this->hashed_password = Authentication::create($this->password);
+            unset($this->password);
 
         }
 
         $result = Authentication::verify($password, $this->hashed_password);
 
         // Password needs to be updated, save the file.
-        if ($result == 2) {
+        if ($result === 2) {
             $save = true;
             $this->hashed_password = Authentication::create($password);
         }
@@ -251,8 +280,8 @@ class User extends Data
             $avatar = $this->avatar;
             $avatar = array_shift($avatar);
             return Grav::instance()['base_url'] . '/' . $avatar['path'];
-        } else {
-            return 'https://www.gravatar.com/avatar/' . md5($this->email);
         }
+
+        return 'https://www.gravatar.com/avatar/' . md5($this->email);
     }
 }

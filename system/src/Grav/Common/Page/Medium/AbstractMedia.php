@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -42,6 +42,21 @@ abstract class AbstractMedia extends Getters
     public function __invoke($filename)
     {
         return $this->offsetGet($filename);
+    }
+
+    /**
+     * @param mixed $offset
+     *
+     * @return mixed
+     */
+    public function offsetGet($offset)
+    {
+        $object = parent::offsetGet($offset);
+
+        // It would be nice if previous image modification would not affect the later ones.
+        //$object = $object ? clone($object) : null;
+
+        return $object;
     }
 
     /**
@@ -168,8 +183,8 @@ abstract class AbstractMedia extends Getters
             $type = 'base';
 
             while (($part = array_shift($fileParts)) !== null) {
-                if ($part != 'meta' && $part != 'thumb') {
-                    if (isset($extension)) {
+                if ($part !== 'meta' && $part !== 'thumb') {
+                    if (null !== $extension) {
                         $name .= '.' . $extension;
                     }
                     $extension = $part;

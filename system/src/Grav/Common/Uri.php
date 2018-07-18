@@ -2,17 +2,28 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
+use Grav\Common\Config\Config;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
+use Grav\Framework\Route\RouteFactory;
+use Grav\Framework\Uri\UriFactory;
+use Grav\Framework\Uri\UriPartsFilter;
 
 class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
+
+    /** @var \Grav\Framework\Uri\Uri */
+    protected static $currentUri;
+
+    /** @var \Grav\Framework\Route\Route */
+    protected static $currentRoute;
 
     public $url;
 
@@ -38,6 +49,8 @@ class Uri
     protected $root;
     protected $root_path;
     protected $uri;
+    protected $content_type;
+    protected $post;
 
     /**
      * Uri constructor.
@@ -50,114 +63,6 @@ class Uri
         } else {
             $this->createFromEnvironment(is_array($env) ? $env : $_SERVER);
         }
-    }
-
-    /**
-     * @param array $env
-     */
-    protected function createFromEnvironment(array $env)
-    {
-        // Build scheme.
-        if (isset($env['REQUEST_SCHEME'])) {
-            $this->scheme = $env['REQUEST_SCHEME'];
-        } else {
-            $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
-            $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
-        }
-
-        // Build user and password.
-        $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : null;
-        $this->password = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : null;
-
-        // Build host.
-        $hostname = 'localhost';
-        if (isset($env['HTTP_HOST'])) {
-            $hostname = $env['HTTP_HOST'];
-        } elseif (isset($env['SERVER_NAME'])) {
-            $hostname = $env['SERVER_NAME'];
-        }
-        // Remove port from HTTP_HOST generated $hostname
-        $hostname = Utils::substrToString($hostname, ':');
-        // Validate the hostname
-        $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
-
-        // Build port.
-        $this->port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
-        if ($this->hasStandardPort()) {
-            $this->port = null;
-        }
-
-        // Build path.
-        $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
-        $this->path = rawurldecode(parse_url('http://example.com' . $request_uri, PHP_URL_PATH));
-
-        // Build query string.
-        $this->query = isset($env['QUERY_STRING']) ? $env['QUERY_STRING'] : '';
-        if ($this->query === '') {
-            $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY);
-        }
-
-        // Support ngnix routes.
-        if (strpos($this->query, '_url=') === 0) {
-            parse_str($this->query, $query);
-            unset($query['_url']);
-            $this->query = http_build_query($query);
-        }
-
-        // Build fragment.
-        $this->fragment = null;
-
-        // Filter userinfo, path and query string.
-        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
-        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
-        $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
-        $this->query = static::filterQuery($this->query);
-
-        $this->reset();
-    }
-
-    /**
-     * Does this Uri use a standard port?
-     *
-     * @return bool
-     */
-    protected function hasStandardPort()
-    {
-        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
-    }
-
-    /**
-     * @param string $url
-     */
-    protected function createFromString($url)
-    {
-        // Set Uri parts.
-        $parts = parse_url($url);
-        if ($parts === false) {
-            throw new \RuntimeException('Malformed URL: ' . $url);
-        }
-        $this->scheme = isset($parts['scheme']) ? $parts['scheme'] : null;
-        $this->user = isset($parts['user']) ? $parts['user'] : null;
-        $this->password = isset($parts['pass']) ? $parts['pass'] : null;
-        $this->host = isset($parts['host']) ? $parts['host'] : null;
-        $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
-        $this->path = isset($parts['path']) ? $parts['path'] : '';
-        $this->query = isset($parts['query']) ? $parts['query'] : '';
-        $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : null;
-
-        // Validate the hostname
-        if ($this->host) {
-            $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
-        }
-
-        // Filter userinfo, path, query string and fragment.
-        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
-        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
-        $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
-        $this->query = static::filterQuery($this->query);
-        $this->fragment = $this->fragment !== null ? static::filterQuery($this->fragment) : null;
-
-        $this->reset();
     }
 
     /**
@@ -193,33 +98,6 @@ class Uri
         return $this;
     }
 
-    protected function reset()
-    {
-        // resets
-        parse_str($this->query, $this->queries);
-        $this->extension    = null;
-        $this->basename     = null;
-        $this->paths        = [];
-        $this->params       = [];
-        $this->env          = $this->buildEnvironment();
-        $this->uri          = $this->path . (!empty($this->query) ? '?' . $this->query : '');
-
-        $this->base         = $this->buildBaseUrl();
-        $this->root_path    = $this->buildRootPath();
-        $this->root         = $this->base . $this->root_path;
-        $this->url          = $this->base . $this->uri;
-    }
-
-    /**
-     * Calculate the parameter regex based on the param_sep setting
-     *
-     * @return string
-     */
-    public static function paramsRegex()
-    {
-        return '/\/([^\:\#\/\?]*' . Grav::instance()['config']->get('system.param_sep') . '[^\:\#\/\?]*)/';
-    }
-
     /**
      * Validate a hostname
      *
@@ -233,52 +111,16 @@ class Uri
     }
 
     /**
-     * Get the base URI with port if needed
-     *
-     * @return string
-     */
-    private function buildBaseUrl()
-    {
-        return $this->scheme() . $this->host;
-    }
-
-    /**
-     * Get the Grav Root Path
-     *
-     * @return string
-     */
-    private function buildRootPath()
-    {
-        // In Windows script path uses backslash, convert it:
-        $scriptPath = str_replace('\\', '/', $_SERVER['PHP_SELF']);
-        $rootPath = str_replace(' ', '%20', rtrim(substr($scriptPath, 0, strpos($scriptPath, 'index.php')), '/'));
-
-        // check if userdir in the path and workaround PHP bug with PHP_SELF
-        if (strpos($this->uri, '/~') !== false && strpos($scriptPath, '/~') === false) {
-            $rootPath = substr($this->uri, 0, strpos($this->uri, '/', 1)) . $rootPath;
-        }
-
-        return $rootPath;
-    }
-
-    private function buildEnvironment()
-    {
-        // check for localhost variations
-        if ($this->host === '127.0.0.1' || $this->host === '::1') {
-            return 'localhost';
-        }
-
-        return $this->host ?: 'unknown';
-    }
-
-    /**
      * Initializes the URI object based on the url set on the object
      */
     public function init()
     {
         $grav = Grav::instance();
 
+        /** @var Config $config */
         $config = $grav['config'];
+
+        /** @var Language $language */
         $language = $grav['language'];
 
         // add the port to the base for non-standard ports
@@ -293,7 +135,12 @@ class Uri
             $custom_parts = parse_url($custom_base);
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
-            $this->root      = isset($custom_parts['scheme']) ? $custom_base : $this->base . $this->root_path;
+            if (isset($custom_parts['scheme'])) {
+                $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
+                $this->root = $custom_base;
+            } else {
+                $this->root = $this->base . $this->root_path;
+            }
             $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
@@ -301,12 +148,12 @@ class Uri
 
         $this->url = $this->base . $this->uri;
 
-        $uri = str_replace($this->root, '', $this->url);
+        $uri = str_replace(static::filterPath($this->root), '', $this->url);
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
         if ($setup_base) {
-            $uri = str_replace($setup_base, '', $uri);
+            $uri = preg_replace('|^' . preg_quote($setup_base, '|') . '|', '', $uri);
         }
 
         // If configured to, redirect trailing slash URI's with a 302 redirect
@@ -362,31 +209,9 @@ class Uri
         $grav['base_url_absolute'] = $grav['config']->get('system.custom_base_url') ?: $this->rootUrl(true);
         $grav['base_url_relative'] = $this->rootUrl(false);
         $grav['base_url'] = $grav['config']->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
-    }
 
-    /**
-     * Process any params based in this URL, supports any valid delimiter
-     *
-     * @param        $uri
-     * @param string $delimiter
-     *
-     * @return string
-     */
-    private function processParams($uri, $delimiter = ':')
-    {
-        if (strpos($uri, $delimiter) !== false) {
-            preg_match_all(static::paramsRegex(), $uri, $matches, PREG_SET_ORDER);
-
-            foreach ($matches as $match) {
-                $param = explode($delimiter, $match[1]);
-                if (count($param) === 2) {
-                    $plain_var = filter_var($param[1], FILTER_SANITIZE_STRING);
-                    $this->params[$param[0]] = $plain_var;
-                    $uri = str_replace($match[0], '', $uri);
-                }
-            }
-        }
-        return $uri;
+        RouteFactory::setRoot($this->root_path);
+        RouteFactory::setLanguage($language->getLanguageURLPrefix());
     }
 
     /**
@@ -647,6 +472,23 @@ class Uri
     }
 
     /**
+     * Return the full uri
+     *
+     * @param bool $include_root
+     * @return mixed
+     */
+    public function uri($include_root = true)
+    {
+        if ($include_root) {
+            return $this->uri;
+        } else {
+            $uri = str_replace($this->root_path, '', $this->uri);
+            return $uri;
+        }
+
+    }
+
+    /**
      * Return the base of the URI
      *
      * @return String The base of the URI
@@ -737,6 +579,36 @@ class Uri
         return substr($referrer, strlen($root));
     }
 
+    public function __toString()
+    {
+        return static::buildUrl($this->toArray());
+    }
+
+    public function toArray()
+    {
+        return [
+            'scheme'    => $this->scheme,
+            'host'      => $this->host,
+            'port'      => $this->port,
+            'user'      => $this->user,
+            'pass'      => $this->password,
+            'path'      => $this->path,
+            'params'    => $this->params,
+            'query'     => $this->query,
+            'fragment'  => $this->fragment
+        ];
+    }
+
+    /**
+     * Calculate the parameter regex based on the param_sep setting
+     *
+     * @return string
+     */
+    public static function paramsRegex()
+    {
+        return '/\/([^\:\#\/\?]*' . Grav::instance()['config']->get('system.param_sep') . '[^\:\#\/\?]*)/';
+    }
+
     /**
      * Return the IP address of the current user
      *
@@ -763,6 +635,35 @@ class Uri
         return $ip;
 
     }
+    /**
+
+     * Returns current Uri.
+     *
+     * @return \Grav\Framework\Uri\Uri
+     */
+    public static function getCurrentUri()
+    {
+        if (!static::$currentUri) {
+            static::$currentUri = UriFactory::createFromEnvironment($_SERVER);
+        }
+
+        return static::$currentUri;
+    }
+
+    /**
+     * Returns current route.
+     *
+     * @return \Grav\Framework\Route\Route
+     */
+    public static function getCurrentRoute()
+    {
+        if (!static::$currentRoute) {
+            $uri = Grav::instance()['uri'];
+            static::$currentRoute = RouteFactory::createFromParts($uri->toArray());
+        }
+
+        return static::$currentRoute;
+    }
 
     /**
      * Is this an external URL? if it starts with `http` then yes, else false
@@ -776,26 +677,6 @@ class Uri
         return Utils::startsWith($url, 'http');
     }
 
-    public function __toString()
-    {
-        return static::buildUrl($this->toArray());
-    }
-
-    public function toArray()
-    {
-        return [
-            'scheme'    => $this->scheme,
-            'host'      => $this->host,
-            'port'      => $this->port,
-            'user'      => $this->user,
-            'pass'      => $this->password,
-            'path'      => $this->path,
-            'params'    => $this->params,
-            'query'     => $this->query,
-            'fragment'  => $this->fragment
-        ];
-    }
-
     /**
      * The opposite of built-in PHP method parse_url()
      *
@@ -805,18 +686,19 @@ class Uri
      */
     public static function buildUrl($parsed_url)
     {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : (isset($parsed_url['host']) ? '//' : '');
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
-        $pass     = ($user || $pass) ? "{$pass}@" : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        $path     = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
-        $query    = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-        $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+        $scheme    = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . ':' : '';
+        $authority = isset($parsed_url['host']) ? '//' : '';
+        $host      = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $port      = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+        $user      = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+        $pass      = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+        $pass      = ($user || $pass) ? "{$pass}@" : '';
+        $path      = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $path      = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
+        $query     = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+        $fragment  = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
+        return "{$scheme}{$authority}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
     }
 
     /**
@@ -985,7 +867,7 @@ class Uri
 
         // Handle route only
         if ($route_only) {
-            $url_path = str_replace($base_url, '', $url_path);
+            $url_path = str_replace(static::filterPath($base_url), '', $url_path);
         }
 
         // transform back to string/array as needed
@@ -1200,13 +1082,7 @@ class Uri
      */
     public static function filterUserInfo($info)
     {
-        return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=]+|%(?![A-Fa-f0-9]{2}))/u',
-            function ($match) {
-                return rawurlencode($match[0]);
-            },
-            $info
-        );
+        return $info !== null ? UriPartsFilter::filterUserInfo($info) : '';
     }
 
     /**
@@ -1223,13 +1099,7 @@ class Uri
      */
     public static function filterPath($path)
     {
-        return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/u',
-            function ($match) {
-                return rawurlencode($match[0]);
-            },
-            $path
-        );
+        return $path !== null ? UriPartsFilter::filterPath($path) : '';
     }
 
     /**
@@ -1240,12 +1110,256 @@ class Uri
      */
     public static function filterQuery($query)
     {
-        return preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/u',
-            function ($match) {
-                return rawurlencode($match[0]);
-            },
-            $query
-        );
+        return $query !== null ? UriPartsFilter::filterQueryOrFragment($query) : '';
+    }
+
+    /**
+     * @param array $env
+     */
+    protected function createFromEnvironment(array $env)
+    {
+        // Build scheme.
+        if (isset($env['HTTP_X_FORWARDED_PROTO'])) {
+            $this->scheme = $env['HTTP_X_FORWARDED_PROTO'];
+        } elseif (isset($env['X-FORWARDED-PROTO'])) {
+            $this->scheme = $env['X-FORWARDED-PROTO'];
+        } elseif (isset($env['REQUEST_SCHEME'])) {
+           $this->scheme = $env['REQUEST_SCHEME'];
+        } else {
+            $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
+            $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
+        }
+
+        // Build user and password.
+        $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : null;
+        $this->password = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : null;
+
+        // Build host.
+        $hostname = 'localhost';
+        if (isset($env['HTTP_HOST'])) {
+            $hostname = $env['HTTP_HOST'];
+        } elseif (isset($env['SERVER_NAME'])) {
+            $hostname = $env['SERVER_NAME'];
+        }
+        // Remove port from HTTP_HOST generated $hostname
+        $hostname = Utils::substrToString($hostname, ':');
+        // Validate the hostname
+        $this->host = $this->validateHostname($hostname) ? $hostname : 'unknown';
+
+        // Build port.
+        if (isset($env['HTTP_X_FORWARDED_PORT'])) {
+           $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
+        } elseif (isset($env['X-FORWARDED-PORT'])) {
+           $this->port = (int)$env['X-FORWARDED-PORT'];
+        } elseif (isset($env['SERVER_PORT'])) {
+           $this->port = (int)$env['SERVER_PORT'];
+        } else {
+           $this->port = null;
+        }
+
+        if ($this->hasStandardPort()) {
+            $this->port = null;
+        }
+
+        // Build path.
+        $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
+        $this->path = rawurldecode(parse_url('http://example.com' . $request_uri, PHP_URL_PATH));
+
+        // Build query string.
+        $this->query = isset($env['QUERY_STRING']) ? $env['QUERY_STRING'] : '';
+        if ($this->query === '') {
+            $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY);
+        }
+
+        // Support ngnix routes.
+        if (strpos($this->query, '_url=') === 0) {
+            parse_str($this->query, $query);
+            unset($query['_url']);
+            $this->query = http_build_query($query);
+        }
+
+        // Build fragment.
+        $this->fragment = null;
+
+        // Filter userinfo, path and query string.
+        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
+        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
+        $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
+        $this->query = static::filterQuery($this->query);
+
+        $this->reset();
+    }
+
+    /**
+     * Does this Uri use a standard port?
+     *
+     * @return bool
+     */
+    protected function hasStandardPort()
+    {
+        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
+    }
+
+    /**
+     * @param string $url
+     */
+    protected function createFromString($url)
+    {
+        // Set Uri parts.
+        $parts = parse_url($url);
+        if ($parts === false) {
+            throw new \RuntimeException('Malformed URL: ' . $url);
+        }
+        $this->scheme = isset($parts['scheme']) ? $parts['scheme'] : null;
+        $this->user = isset($parts['user']) ? $parts['user'] : null;
+        $this->password = isset($parts['pass']) ? $parts['pass'] : null;
+        $this->host = isset($parts['host']) ? $parts['host'] : null;
+        $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
+        $this->path = isset($parts['path']) ? $parts['path'] : '';
+        $this->query = isset($parts['query']) ? $parts['query'] : '';
+        $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : null;
+
+        // Validate the hostname
+        if ($this->host) {
+            $this->host = $this->validateHostname($this->host) ? $this->host : 'unknown';
+        }
+        // Filter userinfo, path, query string and fragment.
+        $this->user = $this->user !== null ? static::filterUserInfo($this->user) : null;
+        $this->password = $this->password !== null ? static::filterUserInfo($this->password) : null;
+        $this->path = empty($this->path) ? '/' : static::filterPath($this->path);
+        $this->query = static::filterQuery($this->query);
+        $this->fragment = $this->fragment !== null ? static::filterQuery($this->fragment) : null;
+
+        $this->reset();
+    }
+
+    protected function reset()
+    {
+        // resets
+        parse_str($this->query, $this->queries);
+        $this->extension    = null;
+        $this->basename     = null;
+        $this->paths        = [];
+        $this->params       = [];
+        $this->env          = $this->buildEnvironment();
+        $this->uri          = $this->path . (!empty($this->query) ? '?' . $this->query : '');
+
+        $this->base         = $this->buildBaseUrl();
+        $this->root_path    = $this->buildRootPath();
+        $this->root         = $this->base . $this->root_path;
+        $this->url          = $this->base . $this->uri;
+    }
+
+    /**
+     * Get's post from either $_POST or JSON response object
+     * By default returns all data, or can return a single item
+     *
+     * @param string $element
+     * @param string $filter_type
+     * @return array|mixed|null
+     */
+    public function post($element = null, $filter_type = null)
+    {
+        if (!$this->post) {
+            $content_type = $this->getContentType();
+            if ($content_type == 'application/json') {
+                $json = file_get_contents('php://input');
+                $this->post = json_decode($json, true);
+            } elseif (!empty($_POST)) {
+                $this->post = (array)$_POST;
+            }
+        }
+
+        if ($this->post && !is_null($element)) {
+            $item = Utils::getDotNotation($this->post, $element);
+            if ($filter_type) {
+                $item = filter_var($item, $filter_type);
+            }
+            return $item;
+        }
+
+        return $this->post;
+    }
+
+    /**
+     * Get content type from request
+     *
+     * @param bool $short
+     * @return null|string
+     */
+    private function getContentType($short = true)
+    {
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            $content_type = $_SERVER['CONTENT_TYPE'];
+            if ($short) {
+                return Utils::substrToString($content_type,';');
+            }
+            return $content_type;
+        }
+        return null;
+    }
+
+    /**
+     * Get the base URI with port if needed
+     *
+     * @return string
+     */
+    private function buildBaseUrl()
+    {
+        return $this->scheme() . $this->host;
+    }
+
+    /**
+     * Get the Grav Root Path
+     *
+     * @return string
+     */
+    private function buildRootPath()
+    {
+        // In Windows script path uses backslash, convert it:
+        $scriptPath = str_replace('\\', '/', $_SERVER['PHP_SELF']);
+        $rootPath = str_replace(' ', '%20', rtrim(substr($scriptPath, 0, strpos($scriptPath, 'index.php')), '/'));
+
+        // check if userdir in the path and workaround PHP bug with PHP_SELF
+        if (strpos($this->uri, '/~') !== false && strpos($scriptPath, '/~') === false) {
+            $rootPath = substr($this->uri, 0, strpos($this->uri, '/', 1)) . $rootPath;
+        }
+
+        return $rootPath;
+    }
+
+    private function buildEnvironment()
+    {
+        // check for localhost variations
+        if ($this->host === '127.0.0.1' || $this->host === '::1') {
+            return 'localhost';
+        }
+
+        return $this->host ?: 'unknown';
+    }
+
+    /**
+     * Process any params based in this URL, supports any valid delimiter
+     *
+     * @param        $uri
+     * @param string $delimiter
+     *
+     * @return string
+     */
+    private function processParams($uri, $delimiter = ':')
+    {
+        if (strpos($uri, $delimiter) !== false) {
+            preg_match_all(static::paramsRegex(), $uri, $matches, PREG_SET_ORDER);
+
+            foreach ($matches as $match) {
+                $param = explode($delimiter, $match[1]);
+                if (count($param) === 2) {
+                    $plain_var = filter_var($param[1], FILTER_SANITIZE_STRING);
+                    $this->params[$param[0]] = $plain_var;
+                    $uri = str_replace($match[0], '', $uri);
+                }
+            }
+        }
+        return $uri;
     }
 }

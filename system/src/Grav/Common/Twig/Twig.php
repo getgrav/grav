@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Twig
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -238,7 +238,9 @@ class Twig
             // Process Modular Twig
             if ($item->modularTwig()) {
                 $twig_vars['content'] = $content;
-                $template = $item->template() . TEMPLATE_EXT;
+                $extension = $item->templateFormat();
+                $extension = $extension ? ".{$extension}.twig" : TEMPLATE_EXT;
+                $template = $item->template() . $extension;
                 $output = $content = $local_twig->render($template, $twig_vars);
             }
 

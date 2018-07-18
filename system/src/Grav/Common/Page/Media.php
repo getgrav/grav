@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -86,7 +86,7 @@ class Media extends AbstractMedia
         /** @var \DirectoryIterator $info */
         foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getBasename()[0] === '.') {
+            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getFilename()[0] === '.') {
                 continue;
             }
 

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,107 +12,134 @@ use RocketTheme\Toolbox\Session\Session as BaseSession;
 
 class Session extends BaseSession
 {
-    protected $grav;
-    protected $session;
+    /** @var bool */
+    protected $autoStart = false;
+
+    protected $lifetime;
+    protected $path;
+    protected $domain;
+    protected $secure;
+    protected $httpOnly;
 
     /**
-     * Session constructor.
-     *
-     * @param Grav $grav
+     * @param int    $lifetime Defaults to 1800 seconds.
+     * @param string $path     Cookie path.
+     * @param string $domain   Optional, domain for the session
+     * @throws \RuntimeException
      */
-    public function __construct(Grav $grav)
+    public function __construct($lifetime, $path, $domain = null)
     {
-        $this->grav = $grav;
+        $this->lifetime = $lifetime;
+        $this->path = $path;
+        $this->domain = $domain;
+
+        if (php_sapi_name() !== 'cli') {
+            parent::__construct($lifetime, $path, $domain);
+        }
     }
 
     /**
-     * Session init
+     * Initialize session.
+     *
+     * Code in this function has been moved into SessionServiceProvider class.
      */
     public function init()
     {
-        /** @var Uri $uri */
-        $uri = $this->grav['uri'];
-        $config = $this->grav['config'];
-
-        $is_admin = false;
-        $base_url = $uri->rootUrl(false);
-
-        $session_timeout = $config->get('system.session.timeout', 1800);
-        $session_path = $config->get('system.session.path');
-        if (!$session_path) {
-            $session_path = '/' . ltrim($base_url, '/');
-        }
-
-        // Activate admin if we're inside the admin path.
-        if ($config->get('plugins.admin.enabled')) {
-            $route = $config->get('plugins.admin.route');
-            // Uri::route() is not processed yet, let's quickly get what we need
-            $current_route = str_replace($base_url, '', parse_url($uri->url(true), PHP_URL_PATH));
-            $base = '/' . trim($route, '/');
-
-            if (substr($current_route, 0, strlen($base)) == $base || //handle no language specified
-                substr($current_route, 3, strlen($base)) == $base || //handle language (en)
-                substr($current_route, 6, strlen($base)) == $base) { //handle region specific language prefix (en-US)
-                $session_timeout = $config->get('plugins.admin.session.timeout', 1800);
-                $is_admin = true;
-            }
-        }
-
-        if ($config->get('system.session.enabled') || $is_admin) {
-            $domain = $uri->host();
-            if ($domain === 'localhost') {
-                $domain = '';
-            }
-
-            // Fix for HUGE session timeouts
-            if ($session_timeout > 99999999999) {
-                $session_timeout = 9999999999;
-            }
-
-            // Define session service.
-            parent::__construct($session_timeout, $session_path, $domain);
-
-            $secure = $config->get('system.session.secure', false);
-            $httponly = $config->get('system.session.httponly', true);
-
-            $unique_identifier = GRAV_ROOT;
-            $inflector = new Inflector();
-            $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7);
-            $split_session = $config->get('system.session.split', true);
-            if ($is_admin && $split_session) {
-              $session_name .= '-admin';
-            }
-            $this->setName($session_name);
-            ini_set('session.cookie_secure', $secure);
-            ini_set('session.cookie_httponly', $httponly);
+        if ($this->autoStart) {
             $this->start();
-            setcookie(session_name(), session_id(), $session_timeout ? time() + $session_timeout : 0, $session_path, $domain, $secure, $httponly);
+
+            // TODO: This setcookie shouldn't be here, session should by itself be able to update its cookie.
+            setcookie(session_name(), session_id(), $this->lifetime ? time() + $this->lifetime : 0, $this->path, $this->domain, $this->secure, $this->httpOnly);
+
+            $this->autoStart = false;
         }
     }
 
-    // Store something in session temporarily
+    /**
+     * @param bool $auto
+     * @return $this
+     */
+    public function setAutoStart($auto)
+    {
+        $this->autoStart = (bool)$auto;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $secure
+     * @return $this
+     */
+    public function setSecure($secure)
+    {
+        $this->secure = $secure;
+        ini_set('session.cookie_secure', (bool)$secure);
+
+        return $this;
+    }
+
+    /**
+     * @param bool $httpOnly
+     * @return $this
+     */
+    public function setHttpOnly($httpOnly)
+    {
+        $this->httpOnly = $httpOnly;
+        ini_set('session.cookie_httponly', (bool)$httpOnly);
+
+        return $this;
+    }
+
+    /**
+     * Store something in session temporarily.
+     *
+     * @param string $name
+     * @param mixed $object
+     * @return $this
+     */
     public function setFlashObject($name, $object)
     {
-        $this->$name = serialize($object);
+        $this->{$name} = serialize($object);
+
+        return $this;
     }
 
-    // Return object and remove it from session
+    /**
+     * Return object and remove it from session.
+     *
+     * @param string $name
+     * @return mixed
+     */
     public function getFlashObject($name)
     {
-        $object = unserialize($this->$name);
+        $object = unserialize($this->{$name});
 
-        $this->$name = null;
+        $this->{$name} = null;
 
         return $object;
     }
 
-    // Store something in cookie temporarily
+    /**
+     * Store something in cookie temporarily.
+     *
+     * @param string $name
+     * @param mixed $object
+     * @param int $time
+     * @return $this
+     */
     public function setFlashCookieObject($name, $object, $time = 60)
     {
         setcookie($name, json_encode($object), time() + $time, '/');
+
+        return $this;
     }
 
-    // Return object and remove it from the cookie
+    /**
+     * Return object and remove it from the cookie.
+     *
+     * @param string $name
+     * @return mixed|null
+     */
     public function getFlashCookieObject($name)
     {
         if (isset($_COOKIE[$name])) {
@@ -120,5 +147,7 @@ class Session extends BaseSession
             setcookie($name, '', time() - 3600, '/');
             return $object;
         }
+
+        return null;
     }
 }
