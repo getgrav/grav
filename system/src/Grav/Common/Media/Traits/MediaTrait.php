@@ -55,8 +55,7 @@ trait MediaTrait
      */
     public function getMedia()
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
+        $cache = $this->getMediaCache();
 
         if ($this->media === null) {
             // Use cached media if possible.
@@ -79,8 +78,7 @@ trait MediaTrait
      */
     protected function setMedia(MediaCollectionInterface $media)
     {
-         /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
+        $cache = $this->getMediaCache();
         $cacheKey = md5('media' . $this->getCacheKey());
         $cache->save($cacheKey, $media);
 
@@ -94,11 +92,17 @@ trait MediaTrait
      */
     protected function clearMediaCache()
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-
+        $cache = $this->getMediaCache();
         $cacheKey = md5('media' . $this->getCacheKey());
         $cache->delete($cacheKey);
+    }
+
+    /**
+     * @return Cache
+     */
+    protected function getMediaCache()
+    {
+        return Grav::instance()['cache'];
     }
 
     /**
