@@ -90,6 +90,18 @@ trait MediaTrait
     }
 
     /**
+     * Clear media cache.
+     */
+    protected function clearMediaCache()
+    {
+        /** @var Cache $cache */
+        $cache = Grav::instance()['cache'];
+
+        $cacheKey = md5('media' . $this->getCacheKey());
+        $cache->delete($cacheKey);
+    }
+
+    /**
      * @return string
      */
     abstract protected function getCacheKey();

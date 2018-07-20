@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added twig filters for casting values: `|string`, `|int`, `|bool`, `|float`, `|array`
+1. [](#improved)
+    * Added `MediaTrait::clearMediaCache()` to allow cache to be cleared
 1. [](#bugfix)
     * Made `|markdown` filter HTML safe
 
