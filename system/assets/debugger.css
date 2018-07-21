@@ -1,0 +1,54 @@
+div.phpdebugbar {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.phpdebugbar pre {
+    padding: 1rem;
+}
+
+.phpdebugbar div.phpdebugbar-header > div > * {
+    padding: 5px 15px;
+}
+
+.phpdebugbar div.phpdebugbar-header > div.phpdebugbar-header-right > * {
+    padding: 5px 8px;
+}
+
+.phpdebugbar div.phpdebugbar-header, .phpdebugbar a.phpdebugbar-restore-btn {
+    background-image: url(grav.png);
+}
+
+.phpdebugbar a.phpdebugbar-restore-btn {
+    width: 13px;
+}
+
+.phpdebugbar a.phpdebugbar-tab.phpdebugbar-active {
+    background: #3DB9EC;
+    color: #fff;
+    margin-top: -1px;
+    padding-top: 6px;
+}
+
+.phpdebugbar .phpdebugbar-widgets-toolbar {
+    padding-left: 5px;
+}
+
+.phpdebugbar input[type=text] {
+    padding: 0;
+    display: inline;
+}
+
+.phpdebugbar dl.phpdebugbar-widgets-varlist, ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-label {
+    font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, Courier, monospace;
+    font-size: 12px;
+}
+
+ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-label {
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+    top: 0;
+}
+
+.phpdebugbar pre, .phpdebugbar code {
+    margin: 0;
+    font-size: 14px;
+}

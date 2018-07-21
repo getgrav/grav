@@ -1,0 +1,81 @@
+---
+FRONTMATTER_ERROR_PAGE: |
+  ---
+  title: %1$s
+  ---
+  
+  # Ошибка: Недопустимое содержимое
+  
+  Path: `%2$s`
+  
+  **%3$s**
+  
+  ```
+  %4$s
+  ```
+INFLECTOR_IRREGULAR:
+  person: люди
+  man: человек
+  child: ребенок
+  sex: пол
+  move: движется
+NICETIME:
+  NO_DATE_PROVIDED: Дата не указана
+  BAD_DATE: Неверная дата
+  AGO: назад
+  FROM_NOW: теперь
+  SECOND: секунда
+  MINUTE: минута
+  HOUR: час
+  DAY: д
+  WEEK: неделя
+  MONTH: месяц
+  YEAR: год
+  DECADE: десятилетие
+  SEC: с
+  MIN: мин
+  HR: ч
+  WK: нед.
+  MO: мес.
+  YR: г.
+  DEC: гг.
+  SECOND_PLURAL: секунды
+  MINUTE_PLURAL: минуты
+  HOUR_PLURAL: часы
+  DAY_PLURAL: д
+  WEEK_PLURAL: недели
+  MONTH_PLURAL: месяцы
+  YEAR_PLURAL: годы
+  DECADE_PLURAL: десятилетия
+  SEC_PLURAL: с
+  MIN_PLURAL: мин
+  HR_PLURAL: ч
+  WK_PLURAL: нед
+  MO_PLURAL: мес
+  YR_PLURAL: г.
+  DEC_PLURAL: гг.
+FORM:
+  VALIDATION_FAIL: '<b>Проверка не удалась:</b>'
+  INVALID_INPUT: Неверный ввод в
+  MISSING_REQUIRED_FIELD: 'Отсутствует необходимое поле:'
+MONTHS_OF_THE_YEAR:
+  - Январь
+  - Февраль
+  - Март
+  - Апрель
+  - Май
+  - Июнь
+  - Июль
+  - Август
+  - Сентябрь
+  - Октябрь
+  - Ноябрь
+  - Декабрь
+DAYS_OF_THE_WEEK:
+  - Понедельник
+  - Вторник
+  - Среда
+  - Четверг
+  - Пятница
+  - Суббота
+  - Воскресенье

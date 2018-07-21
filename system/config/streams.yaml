@@ -1,0 +1,16 @@
+schemes:
+  image:
+    type: ReadOnlyStream
+    paths:
+      - user://images
+      - system://images
+
+  page:
+    type: ReadOnlyStream
+    paths:
+      - user://pages
+
+  account:
+    type: ReadOnlyStream
+    paths:
+      - user://accounts

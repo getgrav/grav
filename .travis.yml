@@ -1,0 +1,105 @@
+language: php
+php:
+  - '5.5'
+  - '5.6'
+  - '7.0.21'
+  - '7.1'
+  - '7.2'
+branches:
+  only:
+    - develop
+    - master
+    - build_test
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+  hipchat:
+  # hipchat_api@grav
+    rooms:
+      - secure: "bqO0wM1B7bJnQw2fuhquSXEqI9gw6WmFytIh9sEWXzbYTzTUP5t0PcKOd3FT2BNMRaDxPJLVl+vG/oqmqDUBkEmOGcG504IQjeNzZqnMz0tXQMIcCc22Las9tFfc4Jf6RVi/qGomFtHGE9Wgii+TAN4zqZaufbNjwd8SyjO0+W8="
+    template:
+      - '%{repository}#%{build_number} (%{branch}): Travis Job Finished [%{duration}] (<a href="%{build_url}">Details</a>)'
+    format: html
+  slack:
+    secure: dowksPsxxCxGKT6nis5hUgkp6+ZDAhoqzQHF9rJnx4hx0iEygPhVBs7pKl9yL2jubYJoLs+EXwE7z1dYgDAEJh4BnfrCokCMLpFGcxVxQC/HeAUdSQ2/RtdBYR5PRT75ScaFpqM/SfXXZVtnwVXAw9Z+JC6BjQ9vmn23m51Jw4k=
+env:
+  global:
+    # Colors!
+    - TEXTRESET=$(tput sgr0) # reset the foreground colour
+    - RED=$(tput setaf 1)
+    - GREEN=$(tput setaf 2)
+    - YELLOW=$(tput setaf 3)
+    - BLUE=$(tput setaf 4)
+    - BOLD=$(tput bold)
+    # User
+    - GH_USER="getgrav"
+    # Paths
+    - RT_DEVTOOLS=$HOME/devtools
+    - GOPATH="$HOME/go"
+    - PATH="$GOPATH/bin:$PATH"
+    # GH_TOKEN [API Key]
+    - secure: "NR9pV7YteY9OoPmjDTQG0fDfocVu+tCeiDH1F2GFhXCu71UOIvqWXpOxp0RHkG5GIXdCFHx59yu+ZO275lbaHkbF8+4lVSVrV4RcGn+pIncvxr6iZCVW05dbAxV3H8alK+xYJRGmbyfQl5wIM49WvmuGHZjcmIloS4t/omQ3N+I="
+    # BB_TOKEN value => "user:pass@"
+    - secure: "einUtSEkUWy2IrqLXyVjwUU+mwaaoiOXRRVdLBpA3Zye6bZx8cm5h/5AplkPWhM/NmCJoW/MwNZHHkFhlr3mDRov5iOxVmTTYfnXB+I5lxYTSgduOLLErS7mU8hfADpVDU8bHNU44fNGD3UEiG1PD4qQBX4DMlqIFmR20mjs81k="
+    # GH_API_USER [for curl]
+    - secure: "AQGcX1B2NrI8ajflY4AimZDNcK2kBA3F6mbtEFQ78NkDoWhMipsQHayWXiSTzRc0YJKvQl2Y16MTwQF4VHzjTAiiZFATgA8J88vQUjIPabi/kKjqSmcLFoaAOAxStQbW6e0z2GiQ6KBMcNF1y5iUuI63xVrBvtKrYX/w5y+ako8="
+
+before_install:
+  - export TZ=Pacific/Honolulu
+  - echo $TRAVIS_PHP_VERSION
+  - echo $TRAVIS_BRANCH
+  - echo $TRAVIS_PULL_REQUEST
+  - composer self-update
+  - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
+        composer install --dev --prefer-dist;
+    fi
+  - if [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+        export TRAVIS_TAG=$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
+        eval "$(curl -sL https://raw.githubusercontent.com/travis-ci/gimme/master/gimme | GIMME_GO_VERSION=1.8 bash)";
+        go get github.com/aktau/github-release;
+        git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;
+        if [ ! -z "$TRAVIS_TAG" ]; then
+            cd ${RT_DEVTOOLS};
+            ./build-grav.sh skeletons.txt;
+        fi;
+    fi
+before_script:
+    - if [ $TRAVIS_PHP_VERSION != 'hhvm' ]; then phpenv config-rm xdebug.ini; fi
+script:
+  - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
+        vendor/bin/codecept run;
+    fi
+  - echo "Latest Release Tag - ${TRAVIS_TAG}"
+  - if [ ! -z "$TRAVIS_TAG" ] && [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+      FILES="$RT_DEVTOOLS/grav-dist/*.zip";
+      for file in ${FILES[@]}; do
+        NAME=${file##*/};
+        if [[ "$NAME" == *"-rc"* ]]; then
+            REPO="$(echo ${NAME} | rev | cut -f 3- -d "-" | rev)";
+        else
+            REPO="$(echo ${NAME} | rev | cut -f 2- -d "-" | rev)";
+        fi;
+        if [[ $REPO == 'grav' || $REPO == 'grav-admin' || $REPO == 'grav-update' ]]; then
+          REPO="grav";
+        fi;
+        API="$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/${GH_USER}/${REPO}/releases/latest)";
+        ASSETS="$(echo "${API}" | node gh-assets.js)";
+        TAG="$(echo "${API}" | grep tag_name | head -n 1 | cut -d '"' -f 4)";
+        if [ $REPO == "grav" ]; then
+          TAG="$TRAVIS_TAG";
+        fi;
+        if [ ! -z "$ASSETS" ]; then
+          for asset in ${ASSETS[@]}; do
+            asset_id=$(echo ${asset} | cut -d ':' -f 1);
+            asset_name=$(echo ${asset} | cut -d ':' -f 2);
+            if [ "${NAME}" == "${asset_name}" ]; then
+              echo -e "\nAsset ${BOLD}${BLUE}${NAME}${TEXTRESET} already exists in ${YELLOW}${REPO}${TEXTRESET}@${BOLD}${YELLOW}${TAG}${TEXTRESET}... deleting id ${BOLD}${RED}${asset_id}${TEXTRESET}...";
+              curl -X DELETE --fail --user "${GH_API_USER}" "https://api.github.com/repos/${GH_USER}/${REPO}/releases/assets/${asset_id}";
+            fi;
+          done;
+        fi;
+        echo "Uploading package ${BOLD}${BLUE}${NAME}${TEXTRESET} to ${YELLOW}${REPO}${TEXTRESET}@${YELLOW}${TAG}${TEXTRESET}";
+        github-release upload --security-token $GH_TOKEN --user ${GH_USER} --repo $REPO --tag "$TAG" --name "$NAME" --file "$file";
+      done;
+    fi

@@ -1,0 +1,19 @@
+body header {
+    background: #3085EE;
+}
+
+body .left-panel {
+    background: inherit;
+}
+
+body .exc-title-primary {
+    color: #fff;
+}
+
+body .exc-title {
+    color: #ddd;
+}
+
+body .frame:not(.active):hover {
+    background: #e6e6e6;
+}

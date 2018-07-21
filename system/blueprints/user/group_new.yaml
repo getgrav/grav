@@ -1,0 +1,16 @@
+title: PLUGIN_ADMIN_PRO.ADD_GROUP
+
+form:
+  validation: loose
+  fields:
+
+    content:
+      type: section
+      title: PLUGIN_ADMIN_PRO.ADD_GROUP
+
+    groupname:
+      type: text
+      label: PLUGIN_ADMIN_PRO.GROUP_NAME
+      help: PLUGIN_ADMIN_PRO.GROUP_NAME_HELP
+      validate:
+        required: true

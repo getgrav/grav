@@ -1,0 +1,73 @@
+#!/usr/bin/env php
+<?php
+define('GRAV_CLI', true);
+
+if (!file_exists(__DIR__ . '/../vendor')){
+    require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
+}
+
+use Grav\Common\Composer;
+use Grav\Common\Config\Setup;
+
+if (!file_exists(__DIR__ . '/../vendor')){
+    // Before we can even start, we need to run composer first
+    $composer = Composer::getComposerExecutor();
+    echo "Preparing to install vendor dependencies...\n\n";
+    echo system($composer.' --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
+    echo "\n\n";
+}
+
+use Symfony\Component\Console\Application;
+use Grav\Common\Grav;
+
+$autoload = require_once(__DIR__ . '/../vendor/autoload.php');
+
+if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
+    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
+}
+
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('UTC');
+}
+
+if (!file_exists(ROOT_DIR . 'index.php')) {
+    exit('FATAL: Must be run from ROOT directory of Grav!');
+}
+
+if (!function_exists('curl_version')) {
+    exit('FATAL: GPM requires PHP Curl module to be installed');
+}
+
+$climate = new League\CLImate\CLImate;
+$climate->arguments->add([
+    'environment' => [
+        'prefix'        => 'e',
+        'longPrefix'    => 'env',
+        'description'   => 'Configuration Environment',
+        'defaultValue'  => 'localhost'
+    ]
+]);
+$climate->arguments->parse();
+$environment = $climate->arguments->get('environment');
+
+// Set up environment based on params.
+Setup::$environment = $environment;
+
+$grav = Grav::instance(array('loader' => $autoload));
+$grav['uri']->init();
+$grav['config']->init();
+$grav['streams'];
+
+$app = new Application('Grav Package Manager', GRAV_VERSION);
+$app->addCommands(array(
+    new \Grav\Console\Gpm\IndexCommand(),
+    new \Grav\Console\Gpm\VersionCommand(),
+    new \Grav\Console\Gpm\InfoCommand(),
+    new \Grav\Console\Gpm\InstallCommand(),
+    new \Grav\Console\Gpm\UninstallCommand(),
+    new \Grav\Console\Gpm\UpdateCommand(),
+    new \Grav\Console\Gpm\SelfupgradeCommand(),
+    new \Grav\Console\Gpm\DirectInstallCommand(),
+));
+
+$app->run();

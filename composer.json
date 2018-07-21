@@ -1,0 +1,76 @@
+{
+    "name": "getgrav/grav",
+    "type": "project",
+    "description": "Modern, Crazy Fast, Ridiculously Easy and Amazingly Powerful Flat-File CMS",
+    "keywords": ["cms","flat-file cms","flat cms","flatfile cms","php"],
+    "homepage": "http://getgrav.org",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.5.9",
+        "twig/twig": "~1.24",
+        "erusev/parsedown": "1.6.4",
+        "erusev/parsedown-extra": "~0.7",
+        "symfony/yaml": "~2.8",
+        "symfony/console": "~2.8",
+        "symfony/event-dispatcher": "~2.8",
+        "symfony/var-dumper": "~2.8",
+        "symfony/polyfill-iconv": "~1.0",
+        "doctrine/cache": "^1.6",
+        "doctrine/collections": "1.3",
+        "psr/simple-cache": "^1.0",
+        "psr/http-message": "^1.0",
+        "guzzlehttp/psr7": "^1.4",
+        "filp/whoops": "~2.0",
+        "matthiasmullie/minify": "^1.3",
+        "monolog/monolog": "~1.0",
+        "gregwar/image": "2.*",
+        "donatj/phpuseragentparser": "~0.3",
+        "pimple/pimple": "~3.2",
+        "rockettheme/toolbox": "~1.3.9",
+        "maximebf/debugbar": "~1.10",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*",
+        "ext-zip": "*",
+        "league/climate": "^3.2",
+        "antoligy/dom-string-iterators": "^1.0",
+        "miljar/php-exif": "^0.6.3",
+        "composer/ca-bundle": "^1.0"
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.1",
+        "phpunit/php-code-coverage": "~2.0",
+        "fzaninotto/faker": "^1.5",
+        "victorjonsson/markdowndocs": "dev-master"
+    },
+    "config": {
+        "platform": {
+            "php": "5.5.9"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Grav\\": "system/src/Grav"
+        },
+        "files": ["system/defines.php"]
+    },
+    "archive": {
+        "exclude": ["VERSION"]
+    },
+    "scripts": {
+        "post-create-project-cmd": "bin/grav install",
+        "test": "vendor/bin/codecept run unit",
+        "test-windows": "vendor\\bin\\codecept run unit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "1.x-dev"
+        }
+    }
+}

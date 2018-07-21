@@ -1,0 +1,148 @@
+absolute_urls: false                             # Absolute or relative URLs for `base_url`
+timezone: ''                                     # Valid values: http://php.net/manual/en/timezones.php
+default_locale:                                  # Default locale (defaults to system)
+param_sep: ':'                                   # Parameter separator, use ';' for Apache on windows
+wrapped_site: false                              # For themes/plugins to know if Grav is wrapped by another platform
+reverse_proxy_setup: false                       # Running in a reverse proxy scenario with different webserver ports than proxy
+force_ssl: false                                 # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
+force_lowercase_urls: true                       # If you want to support mixed cased URLs set this to false
+custom_base_url: ''                              # Set the base_url manually, e.g. http://yoursite.com/yourpath
+username_regex: '^[a-z0-9_-]{3,16}$'             # Only lowercase chars, digits, dashes, underscores. 3 - 16 chars
+pwd_regex: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' # At least one number, one uppercase and lowercase letter, and be at least 8+ chars
+intl_enabled: true                               # Special logic for PHP International Extension (mod_intl)
+
+languages:
+  supported: []                                  # List of languages supported. eg: [en, fr, de]
+  include_default_lang: true                     # Include the default lang prefix in all URLs
+  translations: true                             # Enable translations by default
+  translations_fallback: true                    # Fallback through supported translations if active lang doesn't exist
+  session_store_active: false                    # Store active language in session
+  http_accept_language: false                    # Attempt to set the language based on http_accept_language header in the browser
+  override_locale: false                         # Override the default or system locale with language specific one
+
+home:
+  alias: '/home'                                 # Default path for home, ie /
+  hide_in_urls: false                            # Hide the home route in URLs
+
+pages:
+  theme: quark                                   # Default theme (defaults to "quark" theme)
+  order:
+    by: default                                  # Order pages by "default", "alpha" or "date"
+    dir: asc                                     # Default ordering direction, "asc" or "desc"
+  list:
+    count: 20                                    # Default item count per page
+  dateformat:
+    default:                                     # The default date format Grav expects in the `date: ` field
+    short: 'jS M Y'                              # Short date format
+    long: 'F jS \a\t g:ia'                       # Long date format
+  publish_dates: true                            # automatically publish/unpublish based on dates
+  process:
+    markdown: true                               # Process Markdown
+    twig: false                                  # Process Twig
+  twig_first: false                              # Process Twig before markdown when processing both on a page
+  never_cache_twig: false                        # Only cache content, never cache twig processed in content (incompatible with `twig_first: true`)
+  events:
+    page: true                                   # Enable page level events
+    twig: true                                   # Enable Twig level events
+  markdown:
+    extra: false                                 # Enable support for Markdown Extra support (GFM by default)
+    auto_line_breaks: false                      # Enable automatic line breaks
+    auto_url_links: false                        # Enable automatic HTML links
+    escape_markup: false                         # Escape markup tags into entities
+    special_chars:                               # List of special characters to automatically convert to entities
+      '>': 'gt'
+      '<': 'lt'
+  types: [txt,xml,html,htm,json,rss,atom]        # list of valid page types
+  append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
+  expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
+  cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
+  last_modified: false                           # Set the last modified date header based on file modification timestamp
+  etag: false                                    # Set the etag header tag
+  vary_accept_encoding: false                    # Add `Vary: Accept-Encoding` header
+  redirect_default_route: false                  # Automatically redirect to a page's default route
+  redirect_default_code: 302                     # Default code to use for redirects
+  redirect_trailing_slash: true                  # Handle automatically or 302 redirect a trailing / URL
+  ignore_files: [.DS_Store]                      # Files to ignore in Pages
+  ignore_folders: [.git, .idea]                  # Folders to ignore in Pages
+  ignore_hidden: true                            # Ignore all Hidden files and folders
+  url_taxonomy_filters: true                     # Enable auto-magic URL-based taxonomy filters for page collections
+  frontmatter:
+    process_twig: false                          # Should the frontmatter be processed to replace Twig variables?
+    ignore_fields: ['form','forms']              # Fields that might contain Twig variables and should not be processed
+
+cache:
+  enabled: true                                  # Set to true to enable caching
+  check:
+    method: file                                 # Method to check for updates in pages: file|folder|hash|none
+  driver: auto                                   # One of: auto|file|apc|xcache|memcache|wincache
+  prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
+  clear_images_by_default: true                  # By default grav will include processed images in cache clear, this can be disabled
+  cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
+  lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
+  gzip: false                                    # GZip compress the page output
+  allow_webserver_gzip: false                    # If true, `content-encoding: identity` but connection isn't closed before `onShutDown()` event
+  redis:
+    socket: false                                # Path to redis unix socket (e.g. /var/run/redis/redis.sock), false = use server and port to connect
+
+twig:
+  cache: true                                    # Set to true to enable Twig caching
+  debug: true                                    # Enable Twig debug
+  auto_reload: true                              # Refresh cache on changes
+  autoescape: false                              # Autoescape Twig vars
+  undefined_functions: true                      # Allow undefined functions
+  undefined_filters: true                        # Allow undefined filters
+  umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
+
+assets:                                          # Configuration for Assets Manager (JS, CSS)
+  css_pipeline: false                            # The CSS pipeline is the unification of multiple CSS resources into one file
+  css_pipeline_include_externals: true           # Include external URLs in the pipeline by default
+  css_pipeline_before_excludes: true             # Render the pipeline before any excluded files
+  css_minify: true                               # Minify the CSS during pipelining
+  css_minify_windows: false                      # Minify Override for Windows platforms. False by default due to ThreadStackSize
+  css_rewrite: true                              # Rewrite any CSS relative URLs during pipelining
+  js_pipeline: false                             # The JS pipeline is the unification of multiple JS resources into one file
+  js_pipeline_include_externals: true            # Include external URLs in the pipeline by default
+  js_pipeline_before_excludes: true              # Render the pipeline before any excluded files
+  js_minify: true                                # Minify the JS during pipelining
+  enable_asset_timestamp: false                  # Enable asset timestamps
+  collections:
+    jquery: system://assets/jquery/jquery-2.x.min.js
+
+errors:
+  display: 0                                     # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
+  log: true                                      # Log errors to /logs folder
+
+debugger:
+  enabled: false                                 # Enable Grav debugger and following settings
+  shutdown:
+    close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
+
+images:
+  default_image_quality: 85                      # Default image quality to use when resampling images (85%)
+  cache_all: false                               # Cache all image by default
+  cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
+  debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
+  auto_fix_orientation: false                    # Automatically fix the image orientation based on the Exif data
+
+media:
+  enable_media_timestamp: false                  # Enable media timestamps
+  unsupported_inline_types: []                   # Array of supported media types to try to display inline
+  allowed_fallback_types: []                     # Array of allowed media types of files found if accessed via Page route
+  auto_metadata_exif: false                      # Automatically create metadata files from Exif data where possible
+
+session:
+  enabled: true                                  # Enable Session support
+  initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
+  timeout: 1800                                  # Timeout in seconds
+  name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
+  secure: false                                  # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
+  httponly: true                                 # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
+  split: true                                    # Sessions should be independent between site and plugins (such as admin)
+  path:
+
+gpm:
+  releases: stable                               # Set to either 'stable' or 'testing'
+  proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+  method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
+  verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
+  official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security

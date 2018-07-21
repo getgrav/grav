@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+<?php
+define('GRAV_CLI', true);
+
+if (!file_exists(__DIR__ . '/../vendor')){
+    require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
+}
+
+use Grav\Common\Composer;
+
+if (!file_exists(__DIR__ . '/../vendor')){
+    // Before we can even start, we need to run composer first
+    $composer = Composer::getComposerExecutor();
+    echo "Preparing to install vendor dependencies...\n\n";
+    echo system($composer.' --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
+    echo "\n\n";
+}
+
+use Symfony\Component\Console\Application;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
+    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
+}
+
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('UTC');
+}
+
+if (!file_exists(ROOT_DIR . 'index.php')) {
+    exit('FATAL: Must be run from ROOT directory of Grav!');
+}
+
+$app = new Application('Grav CLI Application', GRAV_VERSION);
+$app->addCommands(array(
+    new \Grav\Console\Cli\InstallCommand(),
+    new \Grav\Console\Cli\ComposerCommand(),
+    new \Grav\Console\Cli\SandboxCommand(),
+    new \Grav\Console\Cli\CleanCommand(),
+    new \Grav\Console\Cli\ClearCacheCommand(),
+    new \Grav\Console\Cli\BackupCommand(),
+    new \Grav\Console\Cli\NewProjectCommand(),
+));
+$app->run();
