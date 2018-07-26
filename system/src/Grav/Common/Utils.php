@@ -754,13 +754,13 @@ abstract class Utils
     public static function getNonce($action, $plusOneTick = false)
     {
         // Don't regenerate this again if not needed
-        if (isset(static::$nonces[$action])) {
-            return static::$nonces[$action];
+        if (isset(static::$nonces[$action][$plusOneTick])) {
+            return static::$nonces[$action][$plusOneTick];
         }
         $nonce = md5(self::generateNonceString($action, $plusOneTick));
-        static::$nonces[$action] = $nonce;
+        static::$nonces[$action][$plusOneTick] = $nonce;
 
-        return static::$nonces[$action];
+        return static::$nonces[$action][$plusOneTick];
     }
 
     /**
