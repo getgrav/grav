@@ -705,11 +705,11 @@ abstract class Utils
      * with reverse proxy setups.
      *
      * @param string $action
-     * @param bool   $plusOneTick if true, generates the token for the next tick (the next 12 hours)
+     * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
      *
      * @return string the nonce string
      */
-    private static function generateNonceString($action, $plusOneTick = false)
+    private static function generateNonceString($action, $previousTick = false)
     {
         $username = '';
         if (isset(Grav::instance()['user'])) {
@@ -720,8 +720,8 @@ abstract class Utils
         $token = session_id();
         $i = self::nonceTick();
 
-        if ($plusOneTick) {
-            $i++;
+        if ($previousTick) {
+            $i--;
         }
 
         return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
@@ -747,20 +747,20 @@ abstract class Utils
      * action is the same for 12 hours.
      *
      * @param string $action      the action the nonce is tied to (e.g. save-user-admin or move-page-homepage)
-     * @param bool   $plusOneTick if true, generates the token for the next tick (the next 12 hours)
+     * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
      *
      * @return string the nonce
      */
-    public static function getNonce($action, $plusOneTick = false)
+    public static function getNonce($action, $previousTick = false)
     {
         // Don't regenerate this again if not needed
-        if (isset(static::$nonces[$action][$plusOneTick])) {
-            return static::$nonces[$action][$plusOneTick];
+        if (isset(static::$nonces[$action][$previousTick])) {
+            return static::$nonces[$action][$previousTick];
         }
-        $nonce = md5(self::generateNonceString($action, $plusOneTick));
-        static::$nonces[$action][$plusOneTick] = $nonce;
+        $nonce = md5(self::generateNonceString($action, $previousTick));
+        static::$nonces[$action][$previousTick] = $nonce;
 
-        return static::$nonces[$action][$plusOneTick];
+        return static::$nonces[$action][$previousTick];
     }
 
     /**
@@ -784,8 +784,8 @@ abstract class Utils
         }
 
         //Nonce generated 12-24 hours ago
-        $plusOneTick = true;
-        if ($nonce === self::getNonce($action, $plusOneTick)) {
+        $previousTick = true;
+        if ($nonce === self::getNonce($action, $previousTick)) {
             return true;
         }
 
