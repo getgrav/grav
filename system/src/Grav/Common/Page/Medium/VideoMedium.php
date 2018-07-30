@@ -95,6 +95,40 @@ class VideoMedium extends Medium
     }
 
     /**
+     * Allows to set the playsinline attribute
+     *
+     * @param bool $status
+     * @return $this
+     */
+    public function playsinline($status = false)
+    {
+        if($status) {
+            $this->attributes['playsinline'] = true;
+        } else {
+            unset($this->attributes['playsinline']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Allows to set the muted attribute
+     *
+     * @param bool $status
+     * @return $this
+     */
+    public function muted($status = false)
+    {
+        if($status) {
+            $this->attributes['muted'] = true;
+        } else {
+            unset($this->attributes['muted']);
+        }
+
+        return $this;
+    }
+
+    /**
      * Reset medium.
      *
      * @return $this
