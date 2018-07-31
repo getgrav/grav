@@ -1,4 +1,4 @@
-# v1.5.0-beta.3
+# v1.5.0-rc.1
 ## mm/dd/2018
 
 1. [](#new)
@@ -38,6 +38,16 @@
     * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
     * Fixed blueprint field validation: Allow numeric inputs in text fields
 
+# v1.4.8
+## 07/31/2018
+
+1. [](#improved)
+    * Add Grav version to debug bar messages tab [#2106](https://github.com/getgrav/grav/pull/2106)
+    * Add Nginx config for ddev project to `webserver-configs` [#2117](https://github.com/getgrav/grav/pull/2117)
+    * Vendor library updates
+1. [](#bugfix)
+    * Don't allow `null` to be set as Page content
+
 # v1.4.7
 ## 07/13/2018
 
@@ -46,7 +56,7 @@
 1. [](#bugfix)
     * Fix for modular page preview [#2066](https://github.com/getgrav/grav/issues/2066)
     * `Page::routeCanonical()` should be string not array [#2069](https://github.com/getgrav/grav/issues/2069)
-
+    
 # v1.4.6
 ## 06/20/2018
 
