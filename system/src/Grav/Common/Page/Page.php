@@ -813,6 +813,8 @@ class Page
      */
     public function setRawContent($content)
     {
+        $content = $content === null ? '': $content;
+
         $this->content = $content;
     }
 
