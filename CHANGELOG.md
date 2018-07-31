@@ -1,5 +1,5 @@
 # v1.5.0-rc.1
-## mm/dd/2018
+## 07/31/2018
 
 1. [](#new)
     * Added twig filters for casting values: `|string`, `|int`, `|bool`, `|float`, `|array`
