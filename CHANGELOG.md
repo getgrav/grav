@@ -4,6 +4,7 @@
 1. [](#improved)
     * Add Grav version to debug bar messages tab [#2106](https://github.com/getgrav/grav/pull/2106)
     * Add Nginx config for ddev project to `webserver-configs` [#2117](https://github.com/getgrav/grav/pull/2117)
+    * Vendor library updates
 1. [](#bugfix)
     * Don't allow `null` to be set as Page content
 
