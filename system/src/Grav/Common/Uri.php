@@ -371,6 +371,17 @@ class Uri
         return $this->extension;
     }
 
+    public function method()
+    {
+        $method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
+
+        if ($method === 'POST' && isset($_SERVER['X-HTTP-METHOD-OVERRIDE'])) {
+            $method = strtoupper($_SERVER['X-HTTP-METHOD-OVERRIDE']);
+        }
+
+        return $method;
+    }
+
     /**
      * Return the scheme of the URI
      *
@@ -620,10 +631,9 @@ class Uri
         }
 
         return $ip;
-
     }
-    /**
 
+    /**
      * Returns current Uri.
      *
      * @return \Grav\Framework\Uri\Uri

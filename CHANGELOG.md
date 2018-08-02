@@ -1,3 +1,9 @@
+# v1.5.0-rc.2
+## mm/dd/2018
+
+1. [](#new)
+    * Added `Uri::method()` to get current HTTP method (GET/POST etc)
+
 # v1.5.0-rc.1
 ## 07/31/2018
 
