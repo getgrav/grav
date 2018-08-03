@@ -23,12 +23,21 @@ class JsonFormatter implements FormatterInterface
     }
 
     /**
-     * @deprecated
-     * @internal
+     * @deprecated 1.5 Use $formatter->getDefaultFileExtension() instead.
      */
     public function getFileExtension()
     {
-        return $this->getSupportedFileExtensions()[0];
+        return $this->getDefaultFileExtension();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultFileExtension()
+    {
+        $extensions = $this->getSupportedFileExtensions();
+
+        return (string) reset($extensions);
     }
 
     /**

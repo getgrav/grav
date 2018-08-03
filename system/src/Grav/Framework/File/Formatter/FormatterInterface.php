@@ -11,6 +11,15 @@ namespace Grav\Framework\File\Formatter;
 interface FormatterInterface
 {
     /**
+     * Get default file extension from current formatter (with dot).
+     *
+     * Default file extension is the first defined extension.
+     *
+     * @return string File extension (can be empty).
+     */
+    public function getDefaultFileExtension();
+
+    /**
      * Get file extensions supported by current formatter (with dot).
      *
      * @return string[]
