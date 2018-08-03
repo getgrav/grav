@@ -11,11 +11,11 @@ namespace Grav\Framework\File\Formatter;
 interface FormatterInterface
 {
     /**
-     * Get file extension with dot.
+     * Get file extensions supported by current formatter (with dot).
      *
-     * @return string
+     * @return string[]
      */
-    public function getFileExtension();
+    public function getSupportedFileExtensions();
 
     /**
      * Encode data into a string.

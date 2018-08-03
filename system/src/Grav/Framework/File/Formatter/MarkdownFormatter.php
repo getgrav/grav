@@ -29,11 +29,20 @@ class MarkdownFormatter implements FormatterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @deprecated
+     * @internal
      */
     public function getFileExtension()
     {
-        return $this->config['file_extension'];
+        return $this->getSupportedFileExtensions()[0];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSupportedFileExtensions()
+    {
+        return (array) $this->config['file_extension'];
     }
 
     /**

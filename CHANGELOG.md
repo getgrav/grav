@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `Uri::method()` to get current HTTP method (GET/POST etc)
+    * Added `FormatterInterface::getSupportedFileExtensions()` method, deprecated `getFileExtension()`
 
 # v1.5.0-rc.1
 ## 07/31/2018
