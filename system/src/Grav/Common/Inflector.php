@@ -190,10 +190,11 @@ class Inflector
     public function hyphenize($word)
     {
         $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1-\2', $word);
-        $regex2 = preg_replace('/([a-zd])([A-Z])/', '\1-\2', $regex1);
-        $regex3 = preg_replace('/[^A-Z^a-z^0-9]+/', '-', $regex2);
+        $regex2 = preg_replace('/([a-z])([A-Z])/', '\1-\2', $regex1);
+        $regex3 = preg_replace('/([0-9])([A-Z])/', '\1-\2', $regex2);
+        $regex4 = preg_replace('/[^A-Z^a-z^0-9]+/', '-', $regex3);
 
-        return strtolower($regex3);
+        return strtolower($regex4);
     }
 
     /**
