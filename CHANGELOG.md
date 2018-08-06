@@ -6,6 +6,8 @@
     * `FormatterInterface`: Added `getSupportedFileExtensions()` and `getDefaultFileExtension()` methods
 1. [](#improved)
     * Improved `Utils::url()` to support query strings
+1. [](#bugfix)
+    * Fixed issue with uppercase extensions and fallback media URLs [#2133](https://github.com/getgrav/grav/issues/2133)   
     
 # v1.5.0-rc.1
 ## 07/31/2018
