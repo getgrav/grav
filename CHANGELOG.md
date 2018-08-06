@@ -4,7 +4,9 @@
 1. [](#new)
     * Added `Uri::method()` to get current HTTP method (GET/POST etc)
     * `FormatterInterface`: Added `getSupportedFileExtensions()` and `getDefaultFileExtension()` methods
-
+1. [](#improved)
+    * Improved `Utils::url()` to support query strings
+    
 # v1.5.0-rc.1
 ## 07/31/2018
 

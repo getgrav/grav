@@ -45,8 +45,15 @@ abstract class Utils
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
 
-            // Get relative path to the resource (or false if not found).
-            $resource = $locator->findResource($input, false);
+            $parts = Uri::parseUrl($input);
+
+            $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
+
+            if (isset($parts['query'])) {
+                $resource = $resource . '?' . $parts['query'];
+            }
+
+
         } else {
             $resource = $input;
         }
