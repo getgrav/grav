@@ -47,10 +47,15 @@ abstract class Utils
 
             $parts = Uri::parseUrl($input);
 
-            $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
+            if ($parts) {
+                $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
 
-            if (isset($parts['query'])) {
-                $resource = $resource . '?' . $parts['query'];
+                if (isset($parts['query'])) {
+                    $resource = $resource . '?' . $parts['query'];
+                }
+            } else {
+                // Not a valid URL (can still be a stream).
+                $resource = $locator->findResource($input, false);
             }
 
 

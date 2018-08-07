@@ -880,7 +880,23 @@ class Uri
     public static function parseUrl($url)
     {
         $grav = Grav::instance();
-        $parts = parse_url($url);
+
+        $encodedUrl = preg_replace_callback(
+            '%[^:/@?&=#]+%usD',
+            function ($matches) { return rawurlencode($matches[0]); },
+            $url
+        );
+
+        $parts = parse_url($encodedUrl);
+
+        if (false === $parts) {
+            return false;
+        }
+
+        foreach($parts as $name => $value) {
+            $parts[$name] = rawurldecode($value);
+        }
+
         if (!isset($parts['path'])) {
             $parts['path'] = '';
         }
