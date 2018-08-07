@@ -7,6 +7,7 @@
     * Added option to disable `SimpleCache` key validation    
 1. [](#improved)
     * Improved `Utils::url()` to support query strings
+    * Display better exception message if Grav fails to initialize
 1. [](#bugfix)
     * Fixed issue with uppercase extensions and fallback media URLs [#2133](https://github.com/getgrav/grav/issues/2133)   
     * Fixed theme inheritance issue with `camel-case` that includes numbers [#2134](https://github.com/getgrav/grav/issues/2134)
