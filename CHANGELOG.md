@@ -4,6 +4,7 @@
 1. [](#new)
     * Added `Uri::method()` to get current HTTP method (GET/POST etc)
     * `FormatterInterface`: Added `getSupportedFileExtensions()` and `getDefaultFileExtension()` methods
+    * Added option to disable `SimpleCache` key validation    
 1. [](#improved)
     * Improved `Utils::url()` to support query strings
 1. [](#bugfix)

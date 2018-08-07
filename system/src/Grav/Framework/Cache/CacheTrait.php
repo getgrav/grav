@@ -16,20 +16,17 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
  */
 trait CacheTrait
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $namespace = '';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $defaultLifetime = null;
 
-    /**
-     * @var \stdClass
-     */
+    /** @var \stdClass */
     private $miss;
+
+    /** @var bool */
+    private $validation = true;
 
     /**
      * Always call from constructor.
@@ -43,6 +40,14 @@ trait CacheTrait
         $this->namespace = (string) $namespace;
         $this->defaultLifetime = $this->convertTtl($defaultLifetime);
         $this->miss = new \stdClass;
+    }
+
+    /**
+     * @param $validation
+     */
+    public function setValidation($validation)
+    {
+        $this->validation = (bool) $validation;
     }
 
     /**
@@ -307,6 +312,10 @@ trait CacheTrait
      */
     protected function validateKeys($keys)
     {
+        if (!$this->validation) {
+            return;
+        }
+
         foreach ($keys as $key) {
             $this->validateKey($key);
         }
