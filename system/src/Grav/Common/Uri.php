@@ -881,6 +881,9 @@ class Uri
     {
         $grav = Grav::instance();
         $parts = parse_url($url);
+        if (!isset($parts['path'])) {
+            $parts['path'] = '';
+        }
 
         list($stripped_path, $params) = static::extractParams($parts['path'], $grav['config']->get('system.param_sep'));
 
