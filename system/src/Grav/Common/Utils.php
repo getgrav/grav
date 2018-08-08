@@ -726,7 +726,7 @@ abstract class Utils
         $username = '';
         if (isset(Grav::instance()['user'])) {
             $user = Grav::instance()['user'];
-            $username = $user->username;
+            $username = mb_strtolower($user->username);
         }
 
         $token = session_id();
@@ -744,7 +744,7 @@ abstract class Utils
     {
         if (isset(Grav::instance()['user'])) {
             $user = Grav::instance()['user'];
-            $username = $user->username;
+            $username = mb_strtolower($user->username);
             if (isset($_SERVER['REMOTE_ADDR'])) {
                 $username .= $_SERVER['REMOTE_ADDR'];
             }
