@@ -17,6 +17,7 @@ use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Markdown\ParsedownExtraUtil;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -766,14 +767,27 @@ class Page
             $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }
 
+        $content = $this->content;
+        $needToUnescape = false;
         // Initialize the preferred variant of Parsedown
         if ($defaults['extra']) {
             $parsedown = new ParsedownExtra($this, $defaults);
-        } else {
+            if ($config->get("system.pages.markdown.extra_escape_fences")) {
+                $content = escapeFences($content);
+                $needToUnescape = true;
+            }
+        }
+        else {
             $parsedown = new Parsedown($this, $defaults);
         }
 
-        $this->content = $parsedown->text($this->content);
+        $content = $parsedown->text($content);
+
+        if ($needToUnescape) {
+            $content = unescapeFences($content);
+        }
+        
+        $this->content = $content;
     }
 
 

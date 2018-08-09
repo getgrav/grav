@@ -7,6 +7,7 @@ pages:
   theme: quark
   markdown:
     extra: false
+    extra_escape_fences: true
   process:
     markdown: true
     twig: false

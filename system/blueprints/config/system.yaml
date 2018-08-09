@@ -422,7 +422,7 @@ form:
             fields:
                 pages.markdown.extra:
                     type: toggle
-                    label: Markdown extra
+                    label: PLUGIN_ADMIN.MARKDOWN_EXTRA
                     help: PLUGIN_ADMIN.MARKDOWN_EXTRA_HELP
                     highlight: 0
                     options:
@@ -430,6 +430,16 @@ form:
                         0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
+                pages.markdown.extra_escape_fences:
+                    type: toggle
+                    label: PLUGIN_ADMIN.MARKDOWN_EXTRA_ESCAPE_FENCES
+                    help: PLUGIN_ADMIN.MARKDOWN_EXTRA_ESCAPE_FENCES_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool          
                 pages.markdown.auto_line_breaks:
                     type: toggle
                     label: PLUGIN_ADMIN.AUTO_LINE_BREAKS
