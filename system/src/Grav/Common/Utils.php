@@ -732,8 +732,8 @@ abstract class Utils
         $token = session_id();
         $i = self::nonceTick();
 
-        if ($plusOneTick) {
-            $i++;
+        if ($previousTick) {
+            $i--;
         }
 
         return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
