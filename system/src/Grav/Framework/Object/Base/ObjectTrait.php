@@ -118,7 +118,7 @@ trait ObjectTrait
      */
     public function serialize()
     {
-        return serialize($this->jsonSerialize());
+        return serialize($this->doSerialize());
     }
 
     /**
@@ -132,6 +132,14 @@ trait ObjectTrait
             $this->initObjectProperties();
         }
         $this->doUnserialize($data);
+    }
+
+    /**
+     * @return array
+     */
+    protected function doSerialize()
+    {
+        return $this->jsonSerialize();
     }
 
     /**
