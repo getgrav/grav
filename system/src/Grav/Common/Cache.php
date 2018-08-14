@@ -249,6 +249,10 @@ class Cache extends Getters
                     $this->config->get('system.cache.redis.port', 6379));
                 }
 
+                if (!$redis->select((int)$this->config->get('system.cache.redis.database', 0))) {
+                    throw new \RedisException('Could not select a Redis database');
+                }
+
                 // Authenticate with password if set
                 if ($password && !$redis->auth($password)) {
                     throw new \RedisException('Redis authentication failed');
