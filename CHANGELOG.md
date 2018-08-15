@@ -9,9 +9,13 @@
 1. [](#improved)
     * Improved `Utils::url()` to support query strings
     * Display better exception message if Grav fails to initialize
+    * Added `muted` and `playsinline` support to videos [#2124](https://github.com/getgrav/grav/pull/2124)
 1. [](#bugfix)
+    * Fix broken form nonce logic [#2121](https://github.com/getgrav/grav/pull/2121)
     * Fixed issue with uppercase extensions and fallback media URLs [#2133](https://github.com/getgrav/grav/issues/2133)   
     * Fixed theme inheritance issue with `camel-case` that includes numbers [#2134](https://github.com/getgrav/grav/issues/2134)
+    * Typo in demo typography page [#2136](https://github.com/getgrav/grav/pull/2136)
+    * Fix for incorrect plugin order in debugger panel
     
 # v1.5.0-rc.1
 ## 07/31/2018
