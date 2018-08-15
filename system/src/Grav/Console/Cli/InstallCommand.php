@@ -156,20 +156,29 @@ class InstallCommand extends ConsoleCommand
 
         exec('cd ' . $this->destination);
         foreach ($this->config['links'] as $repo => $data) {
-            $from = $this->local_config[$data['scm'] . '_repos'] . $data['src'];
+            $repos = (array) $this->local_config[$data['scm'] . '_repos'];
+            $from = false;
             $to = $this->destination . $data['path'];
 
-            if (file_exists($from)) {
-                if (!file_exists($to)) {
-                    symlink($from, $to);
-                    $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
-                    $this->output->writeln('');
-                } else {
-                    $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
-                    $this->output->writeln('');
+            foreach ($repos as $repo) {
+                $path = $repo . $data['src'];
+                if (file_exists($path)) {
+                    $from = $path;
+                    continue;
                 }
-            } else {
+            }
+
+            if (!$from) {
                 $this->output->writeln('<red>source: ' . $from . ' does not exists, skipping...</red>');
+                $this->output->writeln('');
+            }
+
+            if (!file_exists($to)) {
+                symlink($from, $to);
+                $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
+                $this->output->writeln('');
+            } else {
+                $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
                 $this->output->writeln('');
             }
 
