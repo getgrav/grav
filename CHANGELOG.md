@@ -4,7 +4,8 @@
 1. [](#new)
     * Added `Uri::method()` to get current HTTP method (GET/POST etc)
     * `FormatterInterface`: Added `getSupportedFileExtensions()` and `getDefaultFileExtension()` methods
-    * Added option to disable `SimpleCache` key validation    
+    * Added option to disable `SimpleCache` key validation   
+    * Added support for multiple repo locations for `bin/grav install` command 
 1. [](#improved)
     * Improved `Utils::url()` to support query strings
     * Display better exception message if Grav fails to initialize
