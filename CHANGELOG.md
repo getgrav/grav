@@ -1,4 +1,4 @@
-# v1.5.0-rc.2
+# v1.5.0
 ## mm/dd/2018
 
 1. [](#new)
@@ -6,41 +6,9 @@
     * `FormatterInterface`: Added `getSupportedFileExtensions()` and `getDefaultFileExtension()` methods
     * Added option to disable `SimpleCache` key validation   
     * Added support for multiple repo locations for `bin/grav install` command 
-1. [](#improved)
-    * Improved `Utils::url()` to support query strings
-    * Display better exception message if Grav fails to initialize
-    * Added `muted` and `playsinline` support to videos [#2124](https://github.com/getgrav/grav/pull/2124)
-1. [](#bugfix)
-    * Fix broken form nonce logic [#2121](https://github.com/getgrav/grav/pull/2121)
-    * Fixed issue with uppercase extensions and fallback media URLs [#2133](https://github.com/getgrav/grav/issues/2133)   
-    * Fixed theme inheritance issue with `camel-case` that includes numbers [#2134](https://github.com/getgrav/grav/issues/2134)
-    * Typo in demo typography page [#2136](https://github.com/getgrav/grav/pull/2136)
-    * Fix for incorrect plugin order in debugger panel
-    
-# v1.5.0-rc.1
-## 07/31/2018
-
-1. [](#new)
     * Added twig filters for casting values: `|string`, `|int`, `|bool`, `|float`, `|array`
-1. [](#improved)
-    * Added `MediaTrait::clearMediaCache()` to allow cache to be cleared
-    * Added `MediaTrait::getMediaCache()` to allow custom caching
-1. [](#bugfix)
-    * Made `|markdown` filter HTML safe
-
-# v1.5.0-beta.2
-## 07/13/2018
-
-1. [](#new)
     * Made `ObjectCollection::matching()` criteria expressions to behave more like in Twig
     * Criteria: Added support for `LENGTH()`, `LOWER()`, `UPPER()`, `LTRIM()`, `RTRIM()` and `TRIM()`
-1. [](#bugfix)
-    * Fixed regression in 1.5.0-beta.1 blueprint extend and embed
-
-# v1.5.0-beta.1
-## 06/19/2018
-
-1. [](#new)
     * Set minimum requirements to [PHP 5.6.4](https://getgrav.org/blog/raising-php-requirements-2018)
     * Updated Doctrine Collections to 1.4
     * Updated Symfony Components to 3.4 (with compatibility mode to fall back to Symfony YAML 2.8)
@@ -50,8 +18,20 @@
     * Added `Grav\Common\Page` interface to allow custom page types in the future
     * Added setting to disable sessions from the site [#2013](https://github.com/getgrav/grav/issues/2013)
 1. [](#improved)
+    * Improved `Utils::url()` to support query strings
+    * Display better exception message if Grav fails to initialize
+    * Added `muted` and `playsinline` support to videos [#2124](https://github.com/getgrav/grav/pull/2124)
+    * Added `MediaTrait::clearMediaCache()` to allow cache to be cleared
+    * Added `MediaTrait::getMediaCache()` to allow custom caching
     * Improved session handling, allow all session configuration options in `system.session.options`
 1. [](#bugfix)
+    * Fix broken form nonce logic [#2121](https://github.com/getgrav/grav/pull/2121)
+    * Fixed issue with uppercase extensions and fallback media URLs [#2133](https://github.com/getgrav/grav/issues/2133)   
+    * Fixed theme inheritance issue with `camel-case` that includes numbers [#2134](https://github.com/getgrav/grav/issues/2134)
+    * Typo in demo typography page [#2136](https://github.com/getgrav/grav/pull/2136)
+    * Fix for incorrect plugin order in debugger panel
+    * Made `|markdown` filter HTML safe
+    * Fixed regression in 1.5.0-beta.1 blueprint extend and embed
     * Fixed bug in `ContentBlock` serialization
     * Fixed `Route::withQueryParam()` to accept array values
     * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
