@@ -24,20 +24,17 @@ class TwigNodeSwitch extends \Twig_Node implements \Twig_NodeOutputInterface
     {
         $compiler
             ->addDebugInfo($this)
-            ->write("switch (")
+            ->write('switch (')
             ->subcompile($this->getNode('value'))
             ->raw(") {\n")
             ->indent();
 
-        foreach ($this->getNode('cases') as $case)
-        {
-            if (!$case->hasNode('body'))
-            {
+        foreach ($this->getNode('cases') as $case) {
+            if (!$case->hasNode('body')) {
                 continue;
             }
 
-            foreach ($case->getNode('values') as $value)
-            {
+            foreach ($case->getNode('values') as $value) {
                 $compiler
                     ->write('case ')
                     ->subcompile($value)
@@ -53,8 +50,7 @@ class TwigNodeSwitch extends \Twig_Node implements \Twig_NodeOutputInterface
                 ->write("}\n");
         }
 
-        if ($this->hasNode('default') && $this->getNode('default') !== null)
-        {
+        if ($this->hasNode('default') && $this->getNode('default') !== null) {
             $compiler
                 ->write("default:\n")
                 ->write("{\n")

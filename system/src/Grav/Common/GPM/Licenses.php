@@ -114,7 +114,7 @@ class Licenses
 
     {
         if (!isset(self::$file)) {
-            $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';;
+            $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';
             if (!file_exists($path)) {
                 touch($path);
             }

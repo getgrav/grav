@@ -27,6 +27,7 @@ class ContentBlock implements ContentBlockInterface
     protected $tokenTemplate = '@@BLOCK-%s@@';
     protected $content = '';
     protected $blocks = [];
+    protected $checksum;
 
     /**
      * @param string $id
@@ -40,6 +41,7 @@ class ContentBlock implements ContentBlockInterface
     /**
      * @param array $serialized
      * @return ContentBlockInterface
+     * @throws \InvalidArgumentException
      */
     public static function fromArray(array $serialized)
     {
@@ -48,14 +50,14 @@ class ContentBlock implements ContentBlockInterface
             $id = isset($serialized['id']) ? $serialized['id'] : null;
 
             if (!$type || !$id || !is_a($type, 'Grav\Framework\ContentBlock\ContentBlockInterface', true)) {
-                throw new \RuntimeException('Bad data');
+                throw new \InvalidArgumentException('Bad data');
             }
 
             /** @var ContentBlockInterface $instance */
             $instance = new $type($id);
             $instance->build($serialized);
         } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf('Cannot unserialize Block: %s', $e->getMessage()), $e->getCode(), $e);
+            throw new \InvalidArgumentException(sprintf('Cannot unserialize Block: %s', $e->getMessage()), $e->getCode(), $e);
         }
 
         return $instance;
@@ -104,8 +106,12 @@ class ContentBlock implements ContentBlockInterface
         $array = [
             '_type' => get_class($this),
             '_version' => $this->version,
-            'id' => $this->id,
+            'id' => $this->id
         ];
+
+        if ($this->checksum) {
+            $array['checksum'] = $this->checksum;
+        }
 
         if ($this->content) {
             $array['content'] = $this->content;
@@ -158,6 +164,7 @@ class ContentBlock implements ContentBlockInterface
         $this->checkVersion($serialized);
 
         $this->id = isset($serialized['id']) ? $serialized['id'] : $this->generateId();
+        $this->checksum = isset($serialized['checksum']) ? $serialized['checksum'] : null;
 
         if (isset($serialized['content'])) {
             $this->setContent($serialized['content']);
@@ -167,6 +174,25 @@ class ContentBlock implements ContentBlockInterface
         foreach ($blocks as $block) {
             $this->addBlock(self::fromArray($block));
         }
+    }
+
+    /**
+     * @param string $checksum
+     * @return $this
+     */
+    public function setChecksum($checksum)
+    {
+        $this->checksum = $checksum;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getChecksum()
+    {
+        return $this->checksum;
     }
 
     /**
@@ -222,7 +248,7 @@ class ContentBlock implements ContentBlockInterface
      */
     protected function checkVersion(array $serialized)
     {
-        $version = isset($serialized['_version']) ? (string) $serialized['_version'] : '1';
+        $version = isset($serialized['_version']) ? (int) $serialized['_version'] : 1;
         if ($version !== $this->version) {
             throw new \RuntimeException(sprintf('Unsupported version %s', $version));
         }

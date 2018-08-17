@@ -37,8 +37,7 @@ class TwigTokenParserSwitch extends \Twig_TokenParser
         $stream->expect(\Twig_Token::BLOCK_END_TYPE);
 
         // There can be some whitespace between the {% switch %} and first {% case %} tag.
-        while ($stream->getCurrent()->getType() == \Twig_Token::TEXT_TYPE && trim($stream->getCurrent()->getValue()) == '')
-        {
+        while ($stream->getCurrent()->getType() === \Twig_Token::TEXT_TYPE && trim($stream->getCurrent()->getValue()) === '') {
             $stream->next();
         }
 
@@ -47,56 +46,45 @@ class TwigTokenParserSwitch extends \Twig_TokenParser
         $expressionParser = $this->parser->getExpressionParser();
 
         $default = null;
-        $cases = array();
+        $cases = [];
         $end = false;
 
-        while (!$end)
-        {
+        while (!$end) {
             $next = $stream->next();
 
-            switch ($next->getValue())
-            {
+            switch ($next->getValue()) {
                 case 'case':
-                    {
-                        $values = array();
+                    $values = [];
 
-                        while (true)
-                        {
-                            $values[] = $expressionParser->parsePrimaryExpression();
-                            // Multiple allowed values?
-                            if ($stream->test(\Twig_Token::OPERATOR_TYPE, 'or'))
-                            {
-                                $stream->next();
-                            }
-                            else
-                            {
-                                break;
-                            }
+                    while (true) {
+                        $values[] = $expressionParser->parsePrimaryExpression();
+                        // Multiple allowed values?
+                        if ($stream->test(\Twig_Token::OPERATOR_TYPE, 'or')) {
+                            $stream->next();
+                        } else {
+                            break;
                         }
+                    }
 
-                        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
-                        $body = $this->parser->subparse(array($this, 'decideIfFork'));
-                        $cases[] = new \Twig_Node(array(
-                            'values' => new \Twig_Node($values),
-                            'body' => $body
-                        ));
-                        break;
-                    }
+                    $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+                    $body = $this->parser->subparse(array($this, 'decideIfFork'));
+                    $cases[] = new \Twig_Node([
+                        'values' => new \Twig_Node($values),
+                        'body' => $body
+                    ]);
+                    break;
+
                 case 'default':
-                    {
-                        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
-                        $default = $this->parser->subparse(array($this, 'decideIfEnd'));
-                        break;
-                    }
+                    $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+                    $default = $this->parser->subparse(array($this, 'decideIfEnd'));
+                    break;
+
                 case 'endswitch':
-                    {
-                        $end = true;
-                        break;
-                    }
+                    $end = true;
+                    break;
+
                 default:
-                    {
-                        throw new \Twig_Error_Syntax(sprintf('Unexpected end of template. Twig was looking for the following tags "case", "default", or "endswitch" to close the "switch" block started at line %d)', $lineno), -1);
-                    }
+                    throw new \Twig_Error_Syntax(sprintf('Unexpected end of template. Twig was looking for the following tags "case", "default", or "endswitch" to close the "switch" block started at line %d)', $lineno), -1);
             }
         }
 
@@ -126,7 +114,6 @@ class TwigTokenParserSwitch extends \Twig_TokenParser
     {
         return $token->test(array('endswitch'));
     }
-
 
     /**
      * {@inheritdoc}

@@ -109,16 +109,16 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('engli' . '...', Utils::truncate('english', 5, true, " ", "..."));
         $this->assertEquals('english', Utils::truncate('english'));
         $this->assertEquals('This is a string to truncate', Utils::truncate('This is a string to truncate'));
-        $this->assertEquals('This ', Utils::truncate('This is a string to truncate', 3, true));
-        $this->assertEquals('<input ', Utils::truncate('<input type="file" id="file" multiple />', 6, true));
+        $this->assertEquals('This' . '&hellip;', Utils::truncate('This is a string to truncate', 3, true));
+        $this->assertEquals('<input' . '&hellip;', Utils::truncate('<input type="file" id="file" multiple />', 6, true));
 
     }
 
     public function testSafeTruncate()
     {
-        $this->assertEquals('This ', Utils::safeTruncate('This is a string to truncate', 1));
-        $this->assertEquals('This ', Utils::safeTruncate('This is a string to truncate', 4));
-        $this->assertEquals('This is ', Utils::safeTruncate('This is a string to truncate', 5));
+        $this->assertEquals('This' . '&hellip;', Utils::safeTruncate('This is a string to truncate', 1));
+        $this->assertEquals('This' . '&hellip;', Utils::safeTruncate('This is a string to truncate', 4));
+        $this->assertEquals('This is' . '&hellip;', Utils::safeTruncate('This is a string to truncate', 5));
     }
 
     public function testTruncateHtml()

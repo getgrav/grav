@@ -94,6 +94,7 @@ form:
                     twofa_secret:
                         type: 2fa_secret
                         outerclasses: 'twofa-secret'
+                        markdown: true
                         label: PLUGIN_ADMIN.2FA_SECRET
                         sublabel: PLUGIN_ADMIN.2FA_SECRET_HELP
 

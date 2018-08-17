@@ -207,7 +207,7 @@ class ConfigFileFinder
                     continue;
                 }
 
-                $name = $directory->getBasename();
+                $name = $directory->getFilename();
                 $find = ($lookup ?: $name) . '.yaml';
                 $filename = "{$path}/{$name}/{$find}";
 

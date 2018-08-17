@@ -53,7 +53,7 @@ _Italic_ `_Italic_`
 
 Text<sup>Superscripted</sup> `<sup>`
 
-Text<sub>Subscxripted</sub> `<sub>`
+Text<sub>Subscripted</sub> `<sub>`
 
 <u>Underlined</u> `<u>`
 

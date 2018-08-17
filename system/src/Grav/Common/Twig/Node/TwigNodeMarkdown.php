@@ -12,7 +12,7 @@ class TwigNodeMarkdown extends \Twig_Node implements \Twig_NodeOutputInterface
 {
     public function __construct(\Twig_Node $body, $lineno, $tag = 'markdown')
     {
-        parent::__construct(array('body' => $body), array(), $lineno, $tag);
+        parent::__construct(['body' => $body], [], $lineno, $tag);
     }
     /**
      * Compiles the node to PHP.

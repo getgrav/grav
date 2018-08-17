@@ -1,5 +1,63 @@
+# v1.5.0
+## 08/17/2018
+
+1. [](#new)
+    * Set minimum requirements to [PHP 5.6.4](https://getgrav.org/blog/raising-php-requirements-2018) 
+    * Updated Doctrine Collections to 1.4
+    * Updated Symfony Components to 3.4 (with compatibility mode to fall back to Symfony YAML 2.8)
+    * Added `Uri::method()` to get current HTTP method (GET/POST etc)
+    * `FormatterInterface`: Added `getSupportedFileExtensions()` and `getDefaultFileExtension()` methods
+    * Added option to disable `SimpleCache` key validation   
+    * Added support for multiple repo locations for `bin/grav install` command 
+    * Added twig filters for casting values: `|string`, `|int`, `|bool`, `|float`, `|array`
+    * Made `ObjectCollection::matching()` criteria expressions to behave more like in Twig
+    * Criteria: Added support for `LENGTH()`, `LOWER()`, `UPPER()`, `LTRIM()`, `RTRIM()` and `TRIM()`
+    * Added `Grav\Framework\File\Formatter` classes for encoding/decoding YAML, Markdown, JSON, INI and PHP serialized strings
+    * Added `Grav\Framework\Session` class to replace `RocketTheme\Toolbox\Session\Session`
+    * Added `Grav\Common\Media` interfaces and trait; use those in `Page` and `Media` classes 
+    * Added `Grav\Common\Page` interface to allow custom page types in the future
+    * Added setting to disable sessions from the site [#2013](https://github.com/getgrav/grav/issues/2013)
+    * Added new `strict_mode` settings in `system.yaml` for compatibility
+1. [](#improved)
+    * Improved `Utils::url()` to support query strings
+    * Display better exception message if Grav fails to initialize
+    * Added `muted` and `playsinline` support to videos [#2124](https://github.com/getgrav/grav/pull/2124)
+    * Added `MediaTrait::clearMediaCache()` to allow cache to be cleared
+    * Added `MediaTrait::getMediaCache()` to allow custom caching
+    * Improved session handling, allow all session configuration options in `system.session.options`
+1. [](#bugfix)
+    * Fix broken form nonce logic [#2121](https://github.com/getgrav/grav/pull/2121)
+    * Fixed issue with uppercase extensions and fallback media URLs [#2133](https://github.com/getgrav/grav/issues/2133)   
+    * Fixed theme inheritance issue with `camel-case` that includes numbers [#2134](https://github.com/getgrav/grav/issues/2134)
+    * Typo in demo typography page [#2136](https://github.com/getgrav/grav/pull/2136)
+    * Fix for incorrect plugin order in debugger panel
+    * Made `|markdown` filter HTML safe
+    * Fixed bug in `ContentBlock` serialization
+    * Fixed `Route::withQueryParam()` to accept array values
+    * Fixed typo in truncate function [#1943](https://github.com/getgrav/grav/issues/1943)
+    * Fixed blueprint field validation: Allow numeric inputs in text fields
+
+# v1.4.8
+## 07/31/2018
+
+1. [](#improved)
+    * Add Grav version to debug bar messages tab [#2106](https://github.com/getgrav/grav/pull/2106)
+    * Add Nginx config for ddev project to `webserver-configs` [#2117](https://github.com/getgrav/grav/pull/2117)
+    * Vendor library updates
+1. [](#bugfix)
+    * Don't allow `null` to be set as Page content
+
+# v1.4.7
+## 07/13/2018
+
+1. [](#improved)
+    * Use `getFilename` instead of `getBasename` [#2087](https://github.com/getgrav/grav/issues/2087)
+1. [](#bugfix)
+    * Fix for modular page preview [#2066](https://github.com/getgrav/grav/issues/2066)
+    * `Page::routeCanonical()` should be string not array [#2069](https://github.com/getgrav/grav/issues/2069)
+    
 # v1.4.6
-## 06/19/2018
+## 06/20/2018
 
 1. [](#improved)
     * Manually re-added the improved SSL off-loading that was lost with Grav v1.4.0 merge [#1888](https://github.com/getgrav/grav/pull/1888)
@@ -13,6 +71,8 @@
     * Fix classes on non-http based protocol links [#2034](https://github.com/getgrav/grav/issues/2034)
     * Fixed crash on IIS (Windows) with open_basedir in effect [#2053](https://github.com/getgrav/grav/issues/2053)
     * Fixed incorrect routing with setup.php based base [#1892](https://github.com/getgrav/grav/issues/1892)
+    * Fixed image resource memory deallocation [#2045](https://github.com/getgrav/grav/pull/2045)
+    * Fixed issue with Errors `display:` option not handling integers properly [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
 
 # v1.4.5
 ## 05/15/2018
@@ -21,7 +81,6 @@
     * Fixed an issue with some users getting **2FA** prompt after upgrade [admin#1442](https://github.com/getgrav/grav-plugin-admin/issues/1442)
     * Do not crash when generating URLs with arrays as parameters [#2018](https://github.com/getgrav/grav/pull/2018)
     * Utils::truncateHTML removes whitespace when generating summaries [#2004](https://github.com/getgrav/grav/pull/2004)
-    * Fixed issue with Errors `display:` option not handling integers properly [admin#1452](https://github.com/getgrav/grav-plugin-admin/issues/1452)
     
 # v1.4.4
 ## 05/11/2018
