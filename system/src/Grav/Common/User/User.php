@@ -34,7 +34,7 @@ class User extends Data
         $locator = $grav['locator'];
 
         // force lowercase of username
-        $username = strtolower($username);
+        $username = mb_strtolower($username);
 
         $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/account');
@@ -192,10 +192,8 @@ class User extends Data
         if ($file) {
             $username = $this->get('username');
 
-            if (!$file->filename()) {
-                $locator = Grav::instance()['locator'];
-                $file->filename($locator->findResource('account://') . DS . strtolower($username) . YAML_EXT);
-            }
+            $locator = Grav::instance()['locator'];
+            $file->filename($locator->findResource('account://') . DS . mb_strtolower($username) . YAML_EXT);
 
             // if plain text password, hash it and remove plain text
             if ($this->password) {
@@ -203,7 +201,9 @@ class User extends Data
                 unset($this->password);
             }
 
-            unset($this->username);
+            if ($username == mb_strtolower($username)) {
+                unset($this->username);
+            }
             $file->save($this->items);
             $this->set('username', $username);
         }
