@@ -1,5 +1,5 @@
 # v1.5.0
-## mm/dd/2018
+## 08/17/2018
 
 1. [](#new)
     * Set minimum requirements to [PHP 5.6.4](https://getgrav.org/blog/raising-php-requirements-2018) 
