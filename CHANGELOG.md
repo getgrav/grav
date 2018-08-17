@@ -1,3 +1,11 @@
+# v1.6.0-dev
+## 08/17/2018
+
+1. [](#new)
+    * Set minimum requirements to [PHP 7.1.3](https://getgrav.org/blog/raising-php-requirements-2018) 
+    * Updated Doctrine Collections to 1.5
+    * Updated Doctrine Cache to 1.7
+
 # v1.5.0
 ## 08/17/2018
 
