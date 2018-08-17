@@ -5,6 +5,7 @@
     * Set minimum requirements to [PHP 7.1.3](https://getgrav.org/blog/raising-php-requirements-2018) 
     * Updated Doctrine Collections to 1.5
     * Updated Doctrine Cache to 1.7
+    * Updated Symfony Components to 4.1
 
 # v1.5.0
 ## 08/17/2018
