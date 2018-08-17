@@ -444,18 +444,21 @@ class InstallCommand extends ConsoleCommand
     {
         $matches = $this->getGitRegexMatches($package);
 
-        foreach ($this->local_config as $path) {
+        foreach ($this->local_config as $paths) {
             if (Utils::endsWith($matches[2], '.git')) {
                 $repo_dir = preg_replace('/\.git$/', '', $matches[2]);
             } else {
                 $repo_dir = $matches[2];
             }
-
-            $from = rtrim($path, '/') . '/' . $repo_dir;
-
-            if (file_exists($from)) {
-                return $from;
+            
+            $paths = (array) $paths;
+            foreach ($paths as $repo) {
+                $path = rtrim($repo, '/') . '/' . $repo_dir;
+                if (file_exists($path)) {
+                    return $path;
+                }
             }
+
         }
 
         return false;

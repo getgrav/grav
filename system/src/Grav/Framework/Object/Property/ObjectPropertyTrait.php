@@ -95,10 +95,10 @@ trait ObjectPropertyTrait
     }
 
     /**
-     * @param string $property      Object property to be fetched.
-     * @param mixed $default        Default value if property has not been set.
-     * @param bool $doCreate        Set true to create variable.
-     * @return mixed                Property value.
+     * @param string $property          Object property to be fetched.
+     * @param mixed $default            Default value if property has not been set.
+     * @param callable|bool $doCreate   Set true to create variable.
+     * @return mixed                    Property value.
      */
     protected function &doGetProperty($property, $default = null, $doCreate = false)
     {

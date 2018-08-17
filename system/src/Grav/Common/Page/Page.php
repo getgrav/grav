@@ -12,11 +12,14 @@ use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -27,8 +30,10 @@ use Symfony\Component\Yaml\Yaml;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
-class Page
+class Page implements PageInterface
 {
+    use MediaTrait;
+
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -65,7 +70,6 @@ class Page
     protected $summary;
     protected $raw_content;
     protected $pagination;
-    protected $media;
     protected $metadata;
     protected $title;
     protected $max_count;
@@ -318,8 +322,6 @@ class Page
         if (!$this->header) {
             $file = $this->file();
             if ($file) {
-                // Set some options
-                $file->settings(['native' => true, 'compat' => true]);
                 try {
                     $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
@@ -328,11 +330,12 @@ class Page
                     if (!Utils::isAdminPlugin()) {
                         // If there's a `frontmatter.yaml` file merge that in with the page header
                         // note page's own frontmatter has precedence and will overwrite any defaults
-                        $frontmatter_file = $this->path . '/' . $this->folder . '/frontmatter.yaml';
-                        if (file_exists($frontmatter_file)) {
-                            $frontmatter_data = (array)Yaml::parse(file_get_contents($frontmatter_file));
+                        $frontmatterFile = CompiledYamlFile::instance($this->path . '/' . $this->folder . '/frontmatter.yaml');
+                        if ($frontmatterFile->exists()) {
+                            $frontmatter_data = (array)$frontmatterFile->content();
                             $this->header = (object)array_replace_recursive($frontmatter_data,
                                 (array)$this->header);
+                            $frontmatterFile->free();
                         }
                         // Process frontmatter with Twig if enabled
                         if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
@@ -1125,6 +1128,14 @@ class Page
     }
 
     /**
+     * @return string
+     */
+    protected function getCacheKey()
+    {
+        return $this->id();
+    }
+
+    /**
      * Gets and sets the associated media as found in the page folder.
      *
      * @param  Media $var Representation of associated media.
@@ -1133,23 +1144,33 @@ class Page
      */
     public function media($var = null)
     {
-        /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
-
         if ($var) {
-            $this->media = $var;
-        }
-        if ($this->media === null) {
-            // Use cached media if possible.
-            $media_cache_id = md5('media' . $this->id());
-            if (!$media = $cache->fetch($media_cache_id)) {
-                $media = new Media($this->path());
-                $cache->save($media_cache_id, $media);
-            }
-            $this->media = $media;
+            $this->setMedia($var);
         }
 
-        return $this->media;
+        return $this->getMedia();
+    }
+
+    /**
+     * Get filesystem path to the associated media.
+     *
+     * @return string|null
+     */
+    public function getMediaFolder()
+    {
+        return $this->path();
+    }
+
+    /**
+     * Get display order for the associated media.
+     *
+     * @return array Empty array means default ordering.
+     */
+    public function getMediaOrder()
+    {
+        $header = $this->header();
+
+        return isset($header->media_order) ? array_map('trim', explode(',', (string)$header->media_order)) : [];
     }
 
     /**
@@ -1628,14 +1649,19 @@ class Page
      * Gets the url for the Page.
      *
      * @param bool $include_host Defaults false, but true would include http://yourhost.com
-     * @param bool $canonical true to return the canonical URL
-     * @param bool $include_lang
+     * @param bool $canonical    True to return the canonical URL
+     * @param bool $include_base Include base url on multisite as well as language code
      * @param bool $raw_route
      *
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_lang = true, $raw_route = false)
+    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false)
     {
+        // Override any URL when external_url is set
+        if (isset($this->external_url)) {
+            return $this->external_url;
+        }
+
         $grav = Grav::instance();
 
         /** @var Pages $pages */
@@ -1644,41 +1670,25 @@ class Page
         /** @var Config $config */
         $config = $grav['config'];
 
-        /** @var Language $language */
-        $language = $grav['language'];
-
-        /** @var Uri $uri */
-        $uri = $grav['uri'];
-
-        // Override any URL when external_url is set
-        if (isset($this->external_url)) {
-            return $this->external_url;
-        }
-
-        // get pre-route
-        if ($include_lang && $language->enabled()) {
-            $pre_route = $language->getLanguageURLPrefix();
-        } else {
-            $pre_route = '';
-        }
+        // get base route (multisite base and language)
+        $route = $include_base ? $pages->baseRoute() : '';
 
         // add full route if configured to do so
-        if ($config->get('system.absolute_urls', false)) {
+        if (!$include_host && $config->get('system.absolute_urls', false)) {
             $include_host = true;
         }
 
-        // get canonical route if requested
         if ($canonical) {
-            $route = $pre_route . $this->routeCanonical();
+            $route .= $this->routeCanonical();
         } elseif ($raw_route) {
-            $route = $pre_route . $this->rawRoute();
+            $route .= $this->rawRoute();
         } else {
-            $route = $pre_route . $this->route();
+            $route .= $this->route();
         }
 
-        $rootUrl = $uri->rootUrl($include_host) . $pages->base();
-
-        $url = $rootUrl . '/' . trim($route, '/') . $this->urlExtension();
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+        $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
 
         // trim trailing / if not root
         if ($url !== '/') {

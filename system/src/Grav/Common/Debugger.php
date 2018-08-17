@@ -58,8 +58,14 @@ class Debugger
         $this->enabled = $this->config->get('system.debugger.enabled');
 
         if ($this->enabled()) {
+
+            $plugins_config = (array)$this->config->get('plugins');
+
+            ksort($plugins_config);
+
+
             $this->debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
-            $this->debugbar->addCollector(new ConfigCollector((array)$this->config->get('plugins'), 'Plugins'));
+            $this->debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
             $this->addMessage('Grav v' . GRAV_VERSION);
         }
 

@@ -9,7 +9,6 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
@@ -205,11 +204,8 @@ class Grav extends Container
      */
     public function redirectLangSafe($route, $code = null)
     {
-        /** @var Language $language */
-        $language = $this['language'];
-
-        if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
-            $this->redirect($language->getLanguage() . $route, $code);
+        if (!$this['uri']->isExternal($route)) {
+            $this->redirect($this['pages']->route($route), $code);
         } else {
             $this->redirect($route, $code);
         }
@@ -443,7 +439,7 @@ class Grav extends Container
         /** @var Config $config */
         $config = $this['config'];
 
-        $uri_extension = $uri->extension();
+        $uri_extension = strtolower($uri->extension());
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
         $supported_types = $config->get('media.types');
 
