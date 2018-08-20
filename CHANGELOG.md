@@ -1,3 +1,9 @@
+# v1.5.1
+## mm/dd/2018
+
+1. [](#improved)
+    * Updated deprecated Twig code so it works in both in Twig 1.34+ and Twig 2.4+
+
 # v1.5.0
 ## 08/17/2018
 

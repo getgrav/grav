@@ -10,7 +10,12 @@ namespace Grav\Common\Twig\Node;
 
 class TwigNodeTryCatch extends \Twig_Node
 {
-    public function __construct(\Twig_NodeInterface $try, \Twig_NodeInterface $catch = null, $lineno, $tag = null)
+    public function __construct(
+        \Twig_Node $try,
+        \Twig_Node $catch = null,
+        $lineno = 0,
+        $tag = null
+    )
     {
         parent::__construct(array('try' => $try, 'catch' => $catch), array(), $lineno, $tag);
     }

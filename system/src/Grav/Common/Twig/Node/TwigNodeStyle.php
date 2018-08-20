@@ -14,18 +14,18 @@ class TwigNodeStyle extends \Twig_Node implements \Twig_NodeOutputInterface
 
     /**
      * TwigNodeAssets constructor.
-     * @param \Twig_NodeInterface|null $body
+     * @param \Twig_Node|null $body
      * @param \Twig_Node_Expression|null $attributes
      * @param int $lineno
      * @param null $tag
      */
     public function __construct(
-        \Twig_NodeInterface $body = null,
+        \Twig_Node $body = null,
         \Twig_Node_Expression $file = null,
         \Twig_Node_Expression $group = null,
         \Twig_Node_Expression $priority = null,
         \Twig_Node_Expression $attributes = null,
-        $lineno,
+        $lineno = 0,
         $tag = null
     )
     {
