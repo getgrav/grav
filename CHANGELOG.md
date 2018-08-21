@@ -1,3 +1,9 @@
+# v1.5.1
+## mm/dd/2018
+
+1. [](#bugfix)
+    * Broken handling of user folder in Grav URI object [2151](https://github.com/getgrav/grav/issues/2151)
+
 # v1.5.0
 ## 08/17/2018
 
