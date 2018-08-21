@@ -10,7 +10,13 @@ namespace Grav\Common\Twig\Node;
 
 class TwigNodeSwitch extends \Twig_Node implements \Twig_NodeOutputInterface
 {
-    public function __construct(\Twig_NodeInterface $value, \Twig_NodeInterface $cases, \Twig_NodeInterface $default = null, $lineno, $tag = null)
+    public function __construct(
+        \Twig_Node $value,
+        \Twig_Node $cases,
+        \Twig_Node $default = null,
+        $lineno = 0,
+        $tag = null
+    )
     {
         parent::__construct(array('value' => $value, 'cases' => $cases, 'default' => $default), array(), $lineno, $tag);
     }
