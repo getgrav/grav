@@ -63,8 +63,8 @@ class YamlFormatter implements FormatterInterface
         try {
             return (string) YamlParser::dump(
                 $data,
-                $inline ?: $this->config['inline'],
-                $indent ?: $this->config['indent'],
+                $inline ? (int) $inline : $this->config['inline'],
+                $indent ? (int) $indent : $this->config['indent'],
                 YamlParser::DUMP_EXCEPTION_ON_INVALID_TYPE
             );
         } catch (DumpException $e) {
