@@ -24,13 +24,13 @@ abstract class Yaml
         return static::$yaml->decode($data);
     }
 
-    public static function dump($data)
+    public static function dump($data, $inline = null, $indent = null)
     {
         if (null === static::$yaml) {
             static::init();
         }
 
-        return static::$yaml->encode($data);
+        return static::$yaml->encode($data, $inline, $indent);
     }
 
     private static function init()

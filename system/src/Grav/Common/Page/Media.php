@@ -9,11 +9,11 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
+use Grav\Common\Yaml;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
 use RocketTheme\Toolbox\File\File;
-use Symfony\Component\Yaml\Yaml;
 
 class Media extends AbstractMedia
 {

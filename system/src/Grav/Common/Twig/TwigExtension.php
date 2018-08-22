@@ -18,11 +18,11 @@ use Grav\Common\Twig\TokenParser\TwigTokenParserTryCatch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
 use Grav\Common\User\User;
 use Grav\Common\Utils;
+use Grav\Common\Yaml;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Helpers\Base32;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-use Symfony\Component\Yaml\Yaml;
 
 class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
@@ -1297,11 +1297,12 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * Dump/Encode data into YAML format
      *
      * @param $data
+     * @param $inline integer number of levels of inline syntax
      * @return mixed
      */
-    public function yamlEncodeFilter($data)
+    public function yamlEncodeFilter($data, $inline = 10)
     {
-        return Yaml::dump($data, 10);
+        return Yaml::dump($data, $inline);
     }
 
     /**
