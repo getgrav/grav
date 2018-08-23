@@ -1,5 +1,5 @@
 # v1.5.1
-## mm/dd/2018
+## 08/23/2018
 
 1. [](#new)
     * Added static `Grav\Common\Yaml` class which should be used instead of `Symfony\Component\Yaml\Yaml`
