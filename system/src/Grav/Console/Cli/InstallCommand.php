@@ -169,7 +169,7 @@ class InstallCommand extends ConsoleCommand
             }
 
             if (!$from) {
-                $this->output->writeln('<red>source: ' . $from . ' does not exists, skipping...</red>');
+                $this->output->writeln('<red>source for ' . $data['src'] . ' does not exists, skipping...</red>');
                 $this->output->writeln('');
             } else {
                 if (!file_exists($to)) {
