@@ -9,6 +9,7 @@
 namespace Grav\Common;
 
 use DebugBar\DataCollector\ConfigCollector;
+use DebugBar\DataCollector\MessagesCollector;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
@@ -31,6 +32,11 @@ class Debugger
 
     protected $timers = [];
 
+    /** @var string[] $deprecations */
+    protected $deprecations = [];
+
+    protected $errorHandler;
+
     /**
      * Debugger constructor.
      */
@@ -41,6 +47,9 @@ class Debugger
 
         $this->debugbar = new StandardDebugBar();
         $this->debugbar['time']->addMeasure('Loading', $this->debugbar['time']->getRequestStartTime(), microtime(true));
+
+        // Set deprecation collector.
+        $this->setErrorHandler();
     }
 
     /**
@@ -177,6 +186,8 @@ class Debugger
                 return $this;
             }
 
+            $this->addDeprecations();
+
             echo $this->renderer->render();
         }
 
@@ -191,6 +202,7 @@ class Debugger
     public function sendDataInHeaders()
     {
         if ($this->enabled()) {
+            $this->addDeprecations();
             $this->debugbar->sendDataInHeaders();
         }
 
@@ -208,6 +220,7 @@ class Debugger
             return null;
         }
 
+        $this->addDeprecations();
         $this->timers = [];
 
         return $this->debugbar->getData();
@@ -278,5 +291,56 @@ class Debugger
         }
 
         return $this;
+    }
+
+    public function setErrorHandler()
+    {
+        $this->errorHandler = set_error_handler(
+            [$this, 'deprecatedErrorHandler'],
+            E_USER_DEPRECATED
+        );
+    }
+
+    /**
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param int $errline
+     * @return bool
+     */
+    public function deprecatedErrorHandler($errno, $errstr, $errfile, $errline)
+    {
+        $this->deprecations[] = [
+            'message' => $errstr,
+            'file' => $errfile,
+            'line' => $errline
+        ];
+
+        return true;
+    }
+
+    protected function addDeprecations()
+    {
+        if (!$this->deprecations) {
+            return;
+        }
+
+        $collector = new MessagesCollector('deprecated');
+        $this->addCollector($collector);
+        $collector->addMessage('Your site is using following deprecated features:');
+
+        /** @var array $deprecated */
+        foreach ($this->deprecations as $deprecated) {
+            if (strpos($deprecated['message'], 'Grav') !== false) {
+                $scope = 'grav';
+            } elseif (strpos($deprecated['file'], 'Twig') !== false) {
+                $scope = 'twig';
+            } elseif (strpos($deprecated['file'], 'yaml') !== false) {
+                $scope = 'yaml';
+            } else {
+                $scope = 'unknown';
+            }
+            $collector->addMessage($deprecated, $scope);
+        }
     }
 }

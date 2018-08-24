@@ -109,6 +109,8 @@ class Config extends Data
      */
     public function getLanguages()
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use Grav::instance()[\'languages\'] instead', E_USER_DEPRECATED);
+
         return Grav::instance()['languages'];
     }
 }

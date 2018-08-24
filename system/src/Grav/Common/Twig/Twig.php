@@ -120,6 +120,10 @@ class Twig
                 $params['autoescape'] = $this->autoescape;
             }
 
+            if (empty($params['autoescape'])) {
+                user_error('Having Twig auto-escaping turned off is deprecated since Grav 1.5, please disable \'system.strict_mode.twig_compat\' setting in your configuration', E_USER_DEPRECATED);
+            }
+
             $this->twig = new TwigEnvironment($loader_chain, $params);
 
             if ($config->get('system.twig.undefined_functions')) {
@@ -411,8 +415,12 @@ class Twig
      * Overrides the autoescape setting
      *
      * @param boolean $state
+     * @deprecated 1.5
      */
-    public function setAutoescape($state) {
+    public function setAutoescape($state)
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5', E_USER_DEPRECATED);
+
         $this->autoescape = (bool) $state;
     }
 }
