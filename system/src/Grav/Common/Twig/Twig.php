@@ -115,9 +115,9 @@ class Twig
 
             if (!$config->get('system.strict_mode.twig_compat', true)) {
                 // Force autoescape on for all files if in strict mode.
-                $params['autoescape'] = true;
+                $params['autoescape'] = 'html';
             } elseif (!empty($this->autoescape)) {
-                $params['autoescape'] = $this->autoescape;
+                $params['autoescape'] = $this->autoescape ? 'html' : false;
             }
 
             if (empty($params['autoescape'])) {
@@ -419,7 +419,9 @@ class Twig
      */
     public function setAutoescape($state)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5', E_USER_DEPRECATED);
+        if (!$state) {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '(false) is deprecated since Grav 1.5', E_USER_DEPRECATED);
+        }
 
         $this->autoescape = (bool) $state;
     }

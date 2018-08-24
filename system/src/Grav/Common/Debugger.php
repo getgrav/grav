@@ -137,9 +137,9 @@ class Debugger
         return $this;
     }
 
-    public function getCaller($ignore = 2)
+    public function getCaller($limit = 2)
     {
-        $trace = debug_backtrace(false, $ignore);
+        $trace = debug_backtrace(false, $limit);
 
         return array_pop($trace);
     }
@@ -310,10 +310,59 @@ class Debugger
      */
     public function deprecatedErrorHandler($errno, $errstr, $errfile, $errline)
     {
+        if (!$this->enabled()) {
+            return true;
+        }
+
+        $backtrace = debug_backtrace(false);
+
+        // Skip current call.
+        array_shift($backtrace);
+
+        // Skip vendor libraries and method where error was triggered.
+        while ($current = array_shift($backtrace)) {
+            if (isset($current['file']) && strpos($current['file'], 'vendor') !== false) {
+                continue;
+            }
+            if (isset($current['function']) && $current['function'] === 'user_error') {
+                $current = array_shift($backtrace);
+            }
+
+            break;
+        }
+
+        // Add back last call.
+        array_unshift($backtrace, $current);
+
+        // Filter arguments.
+        foreach ($backtrace as &$current) {
+            if (isset($current['args'])) {
+                $args = [];
+                foreach ($current['args'] as $arg) {
+                    if (\is_string($arg)) {
+                        $args[] = "'" . $arg . "'";
+                    } elseif (\is_bool($arg)) {
+                        $args[] = $arg ? 'true' : 'false';
+                    } elseif (\is_scalar($arg)) {
+                        $args[] = $arg;
+                    } elseif (\is_object($arg)) {
+                        $args[] = get_class($arg) . ' $object';
+                    } elseif (\is_array($arg)) {
+                        $args[] = '$array';
+                    } else {
+                        $args[] = '$object';
+                    }
+                }
+                $current['args'] = $args;
+            }
+        }
+        unset($current);
+
         $this->deprecations[] = [
             'message' => $errstr,
             'file' => $errfile,
-            'line' => $errline
+            'line' => $errline,
+            'trace' => $backtrace,
         ];
 
         return true;
@@ -337,10 +386,44 @@ class Debugger
                 $scope = 'twig';
             } elseif (strpos($deprecated['file'], 'yaml') !== false) {
                 $scope = 'yaml';
+            } elseif (strpos($deprecated['file'], 'vendor') !== false) {
+                $scope = 'vendor';
             } else {
                 $scope = 'unknown';
             }
-            $collector->addMessage($deprecated, $scope);
+
+            $message = $this->getDepracatedMessage($deprecated);
+
+            $collector->addMessage($message, $scope);
         }
+    }
+
+    protected function getDepracatedMessage($deprecated)
+    {
+        $trace = [];
+        foreach ($deprecated['trace'] as $current) {
+            $class = isset($current['class']) ? $current['class'] : '';
+            $type = isset($current['type']) ? $current['type'] : '';
+            $function = $this->getFunction($current);
+            $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
+
+            unset($current['class'], $current['type'], $current['function'], $current['args']);
+
+            $trace[] = ['call' => $class . $type . $function] + $current;
+        }
+
+        return [
+            'message' => $deprecated['message'],
+            'trace' => $trace
+        ];
+    }
+
+    protected function getFunction($trace)
+    {
+        if (!isset($trace['function'])) {
+            return '';
+        }
+
+        return $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
     }
 }
