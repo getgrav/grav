@@ -296,8 +296,7 @@ class Debugger
     public function setErrorHandler()
     {
         $this->errorHandler = set_error_handler(
-            [$this, 'deprecatedErrorHandler'],
-            E_USER_DEPRECATED
+            [$this, 'deprecatedErrorHandler']
         );
     }
 
@@ -310,8 +309,11 @@ class Debugger
      */
     public function deprecatedErrorHandler($errno, $errstr, $errfile, $errline)
     {
-        if (!$this->enabled()) {
-            return true;
+        if ($errno !== E_USER_DEPRECATED || !$this->enabled()) {
+            if ($this->errorHandler) {
+                return \call_user_func($this->errorHandler, $errno, $errstr, $errfile, $errline);
+            }
+            return false;
         }
 
         $backtrace = debug_backtrace(false);
@@ -319,12 +321,12 @@ class Debugger
         // Skip current call.
         array_shift($backtrace);
 
-        // Skip vendor libraries and method where error was triggered.
+        // Skip vendor libraries and the method where error was triggered.
         while ($current = array_shift($backtrace)) {
             if (isset($current['file']) && strpos($current['file'], 'vendor') !== false) {
                 continue;
             }
-            if (isset($current['function']) && $current['function'] === 'user_error') {
+            if (isset($current['function']) && ($current['function'] === 'user_error' || $current['function'] === 'trigger_error')) {
                 $current = array_shift($backtrace);
             }
 
@@ -365,6 +367,7 @@ class Debugger
             'trace' => $backtrace,
         ];
 
+        // Do not pass forward.
         return true;
     }
 
@@ -380,21 +383,7 @@ class Debugger
 
         /** @var array $deprecated */
         foreach ($this->deprecations as $deprecated) {
-            if (stripos($deprecated['message'], 'grav') !== false) {
-                $scope = 'grav';
-            } elseif (!isset($deprecated['file'])) {
-                $scope = 'unknown';
-            } elseif (stripos($deprecated['file'], 'twig') !== false) {
-                $scope = 'twig';
-            } elseif (stripos($deprecated['file'], 'yaml') !== false) {
-                $scope = 'yaml';
-            } elseif (stripos($deprecated['file'], 'vendor') !== false) {
-                $scope = 'vendor';
-            } else {
-                $scope = 'unknown';
-            }
-
-            $message = $this->getDepracatedMessage($deprecated);
+            list($message, $scope) = $this->getDepracatedMessage($deprecated);
 
             $collector->addMessage($message, $scope);
         }
@@ -402,6 +391,19 @@ class Debugger
 
     protected function getDepracatedMessage($deprecated)
     {
+        $scope = 'unknown';
+        if (stripos($deprecated['message'], 'grav') !== false) {
+            $scope = 'grav';
+        } elseif (!isset($deprecated['file'])) {
+            $scope = 'unknown';
+        } elseif (stripos($deprecated['file'], 'twig') !== false) {
+            $scope = 'twig';
+        } elseif (stripos($deprecated['file'], 'yaml') !== false) {
+            $scope = 'yaml';
+        } elseif (stripos($deprecated['file'], 'vendor') !== false) {
+            $scope = 'vendor';
+        }
+
         $trace = [];
         foreach ($deprecated['trace'] as $current) {
             $class = isset($current['class']) ? $current['class'] : '';
@@ -417,8 +419,11 @@ class Debugger
         }
 
         return [
-            'message' => $deprecated['message'],
-            'trace' => $trace
+            [
+                'message' => $deprecated['message'],
+                'trace' => $trace
+            ],
+            $scope
         ];
     }
 
