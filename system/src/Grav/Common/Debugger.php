@@ -382,6 +382,8 @@ class Debugger
         foreach ($this->deprecations as $deprecated) {
             if (strpos($deprecated['message'], 'Grav') !== false) {
                 $scope = 'grav';
+            } elseif (!isset($deprecated['file'])) {
+                $scope = 'unknown';
             } elseif (strpos($deprecated['file'], 'Twig') !== false) {
                 $scope = 'twig';
             } elseif (strpos($deprecated['file'], 'yaml') !== false) {
@@ -405,7 +407,9 @@ class Debugger
             $class = isset($current['class']) ? $current['class'] : '';
             $type = isset($current['type']) ? $current['type'] : '';
             $function = $this->getFunction($current);
-            $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
+            if (isset($current['file'])) {
+                $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
+            }
 
             unset($current['class'], $current['type'], $current['function'], $current['args']);
 
