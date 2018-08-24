@@ -380,15 +380,15 @@ class Debugger
 
         /** @var array $deprecated */
         foreach ($this->deprecations as $deprecated) {
-            if (strpos($deprecated['message'], 'Grav') !== false) {
+            if (stripos($deprecated['message'], 'grav') !== false) {
                 $scope = 'grav';
             } elseif (!isset($deprecated['file'])) {
                 $scope = 'unknown';
-            } elseif (strpos($deprecated['file'], 'Twig') !== false) {
+            } elseif (stripos($deprecated['file'], 'twig') !== false) {
                 $scope = 'twig';
-            } elseif (strpos($deprecated['file'], 'yaml') !== false) {
+            } elseif (stripos($deprecated['file'], 'yaml') !== false) {
                 $scope = 'yaml';
-            } elseif (strpos($deprecated['file'], 'vendor') !== false) {
+            } elseif (stripos($deprecated['file'], 'vendor') !== false) {
                 $scope = 'vendor';
             } else {
                 $scope = 'unknown';
