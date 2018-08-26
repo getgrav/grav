@@ -764,7 +764,7 @@ class Page implements PageInterface
 
         // pages.markdown_extra is deprecated, but still check it...
         if (!isset($defaults['extra']) && (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null)) {
-            //user_error('Configuration option \'system.pages.markdown_extra\' is deprecated since Grav 1.5, use \'system.pages.markdown.extra\' instead', E_USER_DEPRECATED);
+            user_error('Configuration option \'system.pages.markdown_extra\' is deprecated since Grav 1.5, use \'system.pages.markdown.extra\' instead', E_USER_DEPRECATED);
 
             $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }

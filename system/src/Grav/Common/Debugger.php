@@ -309,11 +309,16 @@ class Debugger
      */
     public function deprecatedErrorHandler($errno, $errstr, $errfile, $errline)
     {
-        if ($errno !== E_USER_DEPRECATED || !$this->enabled()) {
+        if ($errno !== E_USER_DEPRECATED) {
             if ($this->errorHandler) {
                 return \call_user_func($this->errorHandler, $errno, $errstr, $errfile, $errline);
             }
-            return false;
+
+            return true;
+        }
+
+        if (!$this->enabled()) {
+            return true;
         }
 
         $backtrace = debug_backtrace(false);

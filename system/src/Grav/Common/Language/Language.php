@@ -181,7 +181,7 @@ class Language
                 $uri = preg_replace("/\\" . $matches[1] . '/', '', $uri, 1);
 
                 // Store in session if language is different.
-                if (isset($this->grav['session']) && $this->grav['session']->started()
+                if (isset($this->grav['session']) && $this->grav['session']->isStarted()
                     && $this->config->get('system.languages.session_store_active', true)
                     && $this->grav['session']->active_language != $this->active
                 ) {
@@ -189,7 +189,7 @@ class Language
                 }
             } else {
                 // Try getting language from the session, else no active.
-                if (isset($this->grav['session']) && $this->grav['session']->started()
+                if (isset($this->grav['session']) && $this->grav['session']->isStarted()
                     && $this->config->get('system.languages.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
                 }
