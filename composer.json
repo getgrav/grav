@@ -35,7 +35,8 @@
         "league/climate": "^3.2",
         "antoligy/dom-string-iterators": "^1.0",
         "miljar/php-exif": "^0.6.3",
-        "composer/ca-bundle": "^1.0"
+        "composer/ca-bundle": "^1.0",
+        "dragonmantank/cron-expression": "^1.2"
     },
     "require-dev": {
         "codeception/codeception": "^2.1",
