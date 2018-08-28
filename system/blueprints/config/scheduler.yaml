@@ -1,0 +1,35 @@
+title: PLUGIN_ADMIN.SCHEDULER
+form:
+  validation: loose
+  fields:
+    info_title:
+      type: section
+      title: PLUGIN_ADMIN.SCHEDULER_INFO_TITLE
+      underline: true
+    info:
+      type: display
+      style: vertical
+      content: PLUGIN_ADMIN.SCHEDULER_INFO
+      markdown: true
+    jobs:
+      type: list
+      style: vertical
+      label: PLUGIN_ADMIN.SCHEDULER_INFO.JOBS
+      help: PLUGIN_ADMIN.SCHEDULER_JOBS_HELP
+      fields:
+        .id:
+          type: text
+          label: Name
+          validate:
+              required: true
+        .command:
+          type: text
+          label: Command
+          validate:
+              required: true
+        .args:
+          type: text
+          label: Arguments
+        .at:
+          type: text
+          label: Run At

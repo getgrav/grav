@@ -64,34 +64,41 @@ class Scheduler
     public function loadSavedJobs()
     {
         if (!$this->jobs) {
-            /** @var CompiledYamlFile $jobs_data */
-            $jobs_file = $this->getJobsDataFile();
-            $jobs_data = $jobs_file->content();
+            $saved_jobs = (array) Grav::instance()['config']->get('scheduler.jobs');
 
-            if (isset($jobs_data['jobs'])) {
-                $jobs = (array) $jobs_data['jobs'];
-                foreach ($jobs as $j) {
-                    $args = isset($j['args']) ? json_decode($j['args'], true) : [];
-                    $job = new Job($j['command'], $args, $j['id']);
+            foreach ($saved_jobs as $j) {
+                $job = new Job($j['command'], $this->convertArgs($j['args']), $j['id']);
 
-                    // store in saved_jobs and main jobs list
-                    $this->saved_jobs[] = $job;
-                    $this->job = $job;
+                if (isset($j['at'])) {
+                    $job->at($j['at']);
                 }
+
+                if (isset($j['output'])) {
+                    $job->output($j['output']);
+                }
+
+                // store in saved_jobs and main jobs list
+                $this->saved_jobs[] = $job;
+                $this->addCommand($job);
             }
+
         }
     }
 
-    public function storeSavedJobs()
+    private function convertArgs($args)
     {
-        $jobs_data = [];
-        $jobs_file = $this->getJobsDataFile();
+        $newargs = json_decode($args, true);
 
-        foreach ($this->saved_jobs as $job) {
-            $jobs_data[] = $job->toArray();
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            foreach ((array) $args as $key => $value) {
+                if (is_integer($key)) {
+                    $newargs[$value] = null;
+                } else {
+                    $newargs[$key] = $value;
+                }
+            }
         }
-
-        $jobs_file->save(['jobs' => $jobs_data]);
+        return $newargs;
     }
 
 
@@ -145,6 +152,11 @@ class Scheduler
         }
         $this->queueJob($job->configure($this->config));
         return $job;
+    }
+
+    public function addStaticMethod($method, $args, $id = null) {
+
+
     }
 
     /**

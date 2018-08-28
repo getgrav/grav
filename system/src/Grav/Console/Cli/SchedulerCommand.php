@@ -38,7 +38,7 @@ class SchedulerCommand extends ConsoleCommand
     {
         $scheduler = new Scheduler();
 
-        $scheduler->loadJobs();
+        $scheduler->loadSavedJobs();
 
         $scheduler->run();
         if ($this->input->getOption('details')) {
