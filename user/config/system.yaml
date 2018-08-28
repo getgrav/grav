@@ -20,7 +20,9 @@ home:
   alias: /home
   hide_in_urls: false
 pages:
-  theme: g5_hydrogen
+  theme: quark
+  markdown:
+    extra: false
   order:
     by: default
     dir: asc

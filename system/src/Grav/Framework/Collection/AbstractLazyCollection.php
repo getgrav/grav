@@ -2,7 +2,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -40,6 +40,15 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     {
         $this->initialize();
         return $this->collection->shuffle();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function chunk($size)
+    {
+        $this->initialize();
+        return $this->collection->chunk($size);
     }
 
     /**

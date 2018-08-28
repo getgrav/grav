@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -38,14 +38,12 @@ class VideoMedium extends Medium
      */
     public function controls($display = true)
     {
-        if($display)
-        {
+        if($display) {
             $this->attributes['controls'] = true;
-        }
-        else
-        {
+        } else {
             unset($this->attributes['controls']);
         }
+
         return $this;
     }
 
@@ -58,6 +56,7 @@ class VideoMedium extends Medium
     public function poster($urlImage)
     {
         $this->attributes['poster'] = $urlImage;
+
         return $this;
     }
 
@@ -69,14 +68,12 @@ class VideoMedium extends Medium
      */
     public function loop($status = false)
     {
-        if($status)
-        {
+        if($status) {
             $this->attributes['loop'] = true;
-        }
-        else
-        {
+        } else {
             unset($this->attributes['loop']);
         }
+
         return $this;
     }
 
@@ -88,14 +85,46 @@ class VideoMedium extends Medium
      */
     public function autoplay($status = false)
     {
-        if($status)
-        {
+        if($status) {
             $this->attributes['autoplay'] = true;
-        }
-        else
-        {
+        } else {
             unset($this->attributes['autoplay']);
         }
+
+        return $this;
+    }
+
+    /**
+     * Allows to set the playsinline attribute
+     *
+     * @param bool $status
+     * @return $this
+     */
+    public function playsinline($status = false)
+    {
+        if($status) {
+            $this->attributes['playsinline'] = true;
+        } else {
+            unset($this->attributes['playsinline']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Allows to set the muted attribute
+     *
+     * @param bool $status
+     * @return $this
+     */
+    public function muted($status = false)
+    {
+        if($status) {
+            $this->attributes['muted'] = true;
+        } else {
+            unset($this->attributes['muted']);
+        }
+
         return $this;
     }
 
@@ -109,6 +138,7 @@ class VideoMedium extends Medium
         parent::reset();
 
         $this->attributes['controls'] = true;
+
         return $this;
     }
 }

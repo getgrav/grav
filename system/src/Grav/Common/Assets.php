@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,11 +35,15 @@ class Assets
     const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 
     /** @const Regex to match CSS sourcemap comments */
-    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*) \*\/}';
+    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
 
     /** @const Regex to match CSS import content */
-    const CSS_IMPORT_REGEX = '{@import(.*);}';
+    const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
+    /**
+     * @const Regex to match <script> or <style> tag when adding inline style/script. Note that this only supports a
+     * single tag, so the check is greedy to avoid issues in JS.
+     */
     const HTML_TAG_REGEX = '#(<([A-Z][A-Z0-9]*)>)+(.*)(<\/\2>)#is';
 
 
@@ -465,12 +469,13 @@ class Assets
      * For adding chunks of string-based inline JS
      *
      * @param  mixed $asset
-     * @param  int   $priority the priority, bigger comes first
-     * @param string $group    name of the group
+     * @param  int $priority the priority, bigger comes first
+     * @param string $group name of the group
+     * @param null $attributes
      *
      * @return $this
      */
-    public function addInlineJs($asset, $priority = null, $group = null)
+    public function addInlineJs($asset, $priority = null, $group = null, $attributes = null)
     {
         $asset = trim($asset);
 
@@ -485,7 +490,8 @@ class Assets
             'asset'    => $asset,
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
-            'group'    => $group ?: 'head'
+            'group'    => $group ?: 'head',
+            'type'     => $attributes ?: '',
         ];
 
         // check for dynamic array and merge with defaults
@@ -611,7 +617,7 @@ class Assets
 
         $inlineGroup = array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline';
 
-        $attributes = $this->attributes(array_merge(['type' => 'text/javascript'], $attributes));
+        $attributes = $this->attributes($attributes);
 
         $output = '';
         $inline_js = '';
@@ -667,7 +673,8 @@ class Assets
         }
 
         if ($inline_js) {
-            $output .= "\n<script>\n" . $inline_js . "\n</script>\n";
+            $attribute_string = isset($inline) && $inline['type'] ? " type=\"" . $inline['type'] . "\"" : '';
+            $output .= "\n<script" . $attribute_string . ">\n" . $inline_js . "\n</script>\n";
         }
 
         return $output;

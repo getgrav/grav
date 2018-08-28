@@ -835,6 +835,8 @@ form:
                         -1: PLUGIN_ADMIN.ERROR_SYSTEM
                         0: PLUGIN_ADMIN.ERROR_SIMPLE
                         1: PLUGIN_ADMIN.ERROR_FULL_BACKTRACE
+                    validate:
+                        type: int
 
 
                 errors.log:
@@ -934,15 +936,6 @@ form:
                     validate:
                         type: bool
 
-                media.upload_limit:
-                    type: text
-                    append: bytes
-                    label: PLUGIN_ADMIN.UPLOAD_LIMIT
-                    help: PLUGIN_ADMIN.UPLOAD_LIMIT_HELP
-                    classes: small
-                    validate:
-                        type: number
-
                 media.enable_media_timestamp:
                     type: toggle
                     label: PLUGIN_ADMIN.ENABLE_MEDIA_TIMESTAMP
@@ -995,6 +988,18 @@ form:
                     type: hidden
                     label: PLUGIN_ADMIN.ENABLED
                     help: PLUGIN_ADMIN.SESSION_ENABLED_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
+
+                session.initialize:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_INITIALIZE
+                    help: PLUGIN_ADMIN.SESSION_INITIALIZE_HELP
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
@@ -1140,6 +1145,16 @@ form:
                     label: PLUGIN_ADMIN.PWD_REGEX
                     help: PLUGIN_ADMIN.PWD_REGEX_HELP
 
+                intl_enabled:
+                    type: toggle
+                    label: PLUGIN_ADMIN.INTL_ENABLED
+                    highlight: 1
+                    help: PLUGIN_ADMIN.INTL_ENABLED_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
 
                 wrapped_site:
                     type: toggle
@@ -1157,17 +1172,6 @@ form:
                     label: PLUGIN_ADMIN.ABSOLUTE_URLS
                     highlight: 0
                     help: PLUGIN_ADMIN.ABSOLUTE_URLS_HELP
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    validate:
-                        type: bool
-
-                case_insensitive_urls:
-                    type: toggle
-                    label: PLUGIN_ADMIN.CASE_INSENSITIVE_URLS
-                    highlight: 0
-                    help: PLUGIN_ADMIN.CASE_INSENSITIVE_URLS_HELP
                     options:
                         1: PLUGIN_ADMIN.YES
                         0: PLUGIN_ADMIN.NO
@@ -1196,9 +1200,45 @@ form:
                     validate:
                         type: bool
 
+                force_lowercase_urls:
+                    type: toggle
+                    label: PLUGIN_ADMIN.FORCE_LOWERCASE_URLS
+                    highlight: 1
+                    default: 1
+                    help: PLUGIN_ADMIN.FORCE_LOWERCASE_URLS_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 custom_base_url:
                     type: text
                     size: medium
                     placeholder: "e.g. http://yoursite.com/yourpath"
                     label: PLUGIN_ADMIN.CUSTOM_BASE_URL
                     help: PLUGIN_ADMIN.CUSTOM_BASE_URL_HELP
+
+                strict_mode.yaml_compat:
+                    type: toggle
+                    label: PLUGIN_ADMIN.STRICT_YAML_COMPAT
+                    highlight: 1
+                    default: 1
+                    help: PLUGIN_ADMIN.STRICT_YAML_COMPAT_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                strict_mode.twig_compat:
+                    type: toggle
+                    label: PLUGIN_ADMIN.STRICT_TWIG_COMPAT
+                    highlight: 1
+                    default: 1
+                    help: PLUGIN_ADMIN.STRICT_TWIG_COMPAT_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -98,7 +98,7 @@ class Themes extends Iterator
                 continue;
             }
 
-            $theme = $directory->getBasename();
+            $theme = $directory->getFilename();
             $result = self::get($theme);
 
             if ($result) {

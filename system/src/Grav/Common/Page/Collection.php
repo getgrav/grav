@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -609,5 +609,24 @@ class Collection extends Iterator
         $this->items = $items;
 
         return $this;
+    }
+
+    /**
+     * Get the extended version of this Collection with each page keyed by route
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function toExtendedArray()
+    {
+        $items  = [];
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+
+            if ($page !== null) {
+                $items[$page->route()] = $page->toArray();
+            }
+        }
+        return $items;
     }
 }

@@ -2,19 +2,19 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\Event\EventDispatcher;
 
 class Grav extends Container
 {
@@ -38,8 +38,7 @@ class Grav extends Container
         'uri'                     => 'Grav\Common\Uri',
         'events'                  => 'RocketTheme\Toolbox\Event\EventDispatcher',
         'cache'                   => 'Grav\Common\Cache',
-        'session'                 => 'Grav\Common\Session',
-        'Grav\Common\Service\MessagesServiceProvider',
+        'Grav\Common\Service\SessionServiceProvider',
         'plugins'                 => 'Grav\Common\Plugins',
         'themes'                  => 'Grav\Common\Themes',
         'twig'                    => 'Grav\Common\Twig\Twig',
@@ -148,7 +147,7 @@ class Grav extends Container
         // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
             $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, count($language < 3) ? ($language . '_' . strtoupper($language)) : $language);
+            setlocale(LC_ALL, strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
         } elseif ($this['config']->get('system.default_locale')) {
             setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
@@ -205,11 +204,8 @@ class Grav extends Container
      */
     public function redirectLangSafe($route, $code = null)
     {
-        /** @var Language $language */
-        $language = $this['language'];
-
-        if (!$this['uri']->isExternal($route) && $language->enabled() && $language->isIncludeDefaultLanguage()) {
-            $this->redirect($language->getLanguage() . $route, $code);
+        if (!$this['uri']->isExternal($route)) {
+            $this->redirect($this['pages']->route($route), $code);
         } else {
             $this->redirect($route, $code);
         }
@@ -254,11 +250,6 @@ class Grav extends Container
         // Calculate a Hash based on the raw file
         if ($page->eTag()) {
             header('ETag: "' . md5($page->raw() . $page->modified()).'"');
-        }
-
-        // Set debugger data in headers
-        if (!($format === null || $format == 'html')) {
-            $this['debugger']->enabled(false);
         }
 
         // Set HTTP response code
@@ -440,7 +431,7 @@ class Grav extends Container
      */
     public function fallbackUrl($path)
     {
-      	$this->fireEvent('onPageFallBackUrl');
+        $this->fireEvent('onPageFallBackUrl');
 
         /** @var Uri $uri */
         $uri = $this['uri'];
@@ -448,15 +439,16 @@ class Grav extends Container
         /** @var Config $config */
         $config = $this['config'];
 
-        $uri_extension = $uri->extension();
+        $uri_extension = strtolower($uri->extension());
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
         $supported_types = $config->get('media.types');
 
         // Check whitelist first, then ensure extension is a valid media type
-        if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types)) {
-            return;
-        } elseif (!array_key_exists($uri_extension, $supported_types)) {
-            return;
+        if (!empty($fallback_types) && !\in_array($uri_extension, $fallback_types, true)) {
+            return false;
+        }
+        if (!array_key_exists($uri_extension, $supported_types)) {
+            return false;
         }
 
         $path_parts = pathinfo($path);
@@ -499,6 +491,11 @@ class Grav extends Container
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
             }
+
+            // Nothing found
+            return false;
         }
+
+        return $page;
     }
 }

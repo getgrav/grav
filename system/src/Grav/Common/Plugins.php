@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2017 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -33,7 +33,7 @@ class Plugins extends Iterator
             if (!$directory->isDir()) {
                 continue;
             }
-            $plugins[] = $directory->getBasename();
+            $plugins[] = $directory->getFilename();
         }
 
         natsort($plugins);
