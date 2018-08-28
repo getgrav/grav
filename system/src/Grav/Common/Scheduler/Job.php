@@ -528,10 +528,5 @@ class Job
         }
         return $this;
     }
-
-    public function toArray()
-    {
-        return ['id' => $this->id, 'command' => $this->command, 'args' => json_encode($this->args)];
-    }
 }
 

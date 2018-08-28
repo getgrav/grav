@@ -33,3 +33,6 @@ form:
         .at:
           type: text
           label: Run At
+        .output:
+          type: text
+          label: Output

@@ -67,7 +67,7 @@ class Scheduler
             $saved_jobs = (array) Grav::instance()['config']->get('scheduler.jobs');
 
             foreach ($saved_jobs as $j) {
-                $job = new Job($j['command'], $this->convertArgs($j['args']), $j['id']);
+                $job = $this->addCommand($j['command'], $this->parseArgs($j['args']), $j['id']);
 
                 if (isset($j['at'])) {
                     $job->at($j['at']);
@@ -77,27 +77,27 @@ class Scheduler
                     $job->output($j['output']);
                 }
 
-                // store in saved_jobs and main jobs list
+                // store in saved_jobs
                 $this->saved_jobs[] = $job;
-                $this->addCommand($job);
             }
 
         }
     }
 
-    private function convertArgs($args)
+    private function parseArgs($args)
     {
-        $newargs = json_decode($args, true);
+        $newargs = [];
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            foreach ((array) $args as $key => $value) {
-                if (is_integer($key)) {
-                    $newargs[$value] = null;
-                } else {
-                    $newargs[$key] = $value;
+        if (is_string($args)) {
+            foreach (explode(',', $args) as $arg) {
+                $arg_parts = explode('=', $arg);
+                if (!isset($arg_parts[1])) {
+                    $arg_parts[1] = null;
                 }
+                $newargs[$arg_parts[0]] = $arg_parts[1];
             }
         }
+
         return $newargs;
     }
 
