@@ -8,14 +8,14 @@
 
 namespace Grav\Common\Processors;
 
-class AssetsProcessor extends ProcessorBase implements ProcessorInterface
+class SchedulerProcessor extends ProcessorBase implements ProcessorInterface
 {
-    public $id = '_assets';
-    public $title = 'Assets';
+    public $id = '_scheduler';
+    public $title = 'Scheduler';
 
     public function process()
     {
-        $this->container['assets']->init();
-        $this->container->fireEvent('onAssetsInitialized');
+        $this->container['scheduler']->loadSavedJobs();
+        $this->container->fireEvent('onSchedulerInitialized');
     }
 }

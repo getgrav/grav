@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 trait ConsoleTrait
 {
-    use GravTrait;
+//    use GravTrait;
 
     /**
      * @var

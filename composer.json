@@ -36,7 +36,8 @@
         "antoligy/dom-string-iterators": "^1.0",
         "miljar/php-exif": "^0.6.3",
         "composer/ca-bundle": "^1.0",
-        "dragonmantank/cron-expression": "^1.2"
+        "dragonmantank/cron-expression": "^1.2",
+        "symfony/process": "^3.4"
     },
     "require-dev": {
         "codeception/codeception": "^2.1",

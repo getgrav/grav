@@ -55,19 +55,22 @@ class Scheduler
      *
      * @param  array  $config
      */
-    public function __construct(array $config = [])
+    public function __construct()
     {
+        $config = Grav::instance()['config']->get('scheduler.defaults', []);
         $this->config = $config;
         $this->loadSavedJobs();
+
     }
 
     public function loadSavedJobs()
     {
         if (!$this->jobs) {
-            $saved_jobs = (array) Grav::instance()['config']->get('scheduler.jobs');
+            $saved_jobs = (array) Grav::instance()['config']->get('scheduler.jobs', []);
 
             foreach ($saved_jobs as $j) {
-                $job = $this->addCommand($j['command'], $this->parseArgs($j['args']), $j['id']);
+                $args = isset($j['args']) ? $this->parseArgs($j['args']) : [];
+                $job = $this->addCommand($j['command'], $args, $j['id']);
 
                 if (isset($j['at'])) {
                     $job->at($j['at']);
@@ -155,8 +158,9 @@ class Scheduler
     }
 
     public function addStaticMethod($method, $args, $id = null) {
-
-
+        $job = new Job($method, $args, $id);
+        $this->queueJob($job->configure($this->config));
+        return $job;
     }
 
     /**
@@ -262,19 +266,6 @@ class Scheduler
         return $this;
     }
 
-    public function getJobsDataFile()
-    {
-        if (!isset($this->jobs_file)) {
-            $path = Grav::instance()['locator']->findResource('user://data') . '/scheduler/jobs.yaml';
-            if (!file_exists($path)) {
-                touch($path);
-            }
-            $this->jobs_file = CompiledYamlFile::instance($path);
-        }
-
-        return $this->jobs_file;
-    }
-
     /**
      * Queue a job for execution in the correct queue.
      *
@@ -320,7 +311,7 @@ class Scheduler
         $compiled = $job->compile();
         // If callable, log the string Closure
         if (is_callable($compiled)) {
-            $compiled = 'Closure';
+            $compiled = is_string($compiled) ? $compiled : 'Closure';
         }
         $this->addSchedulerVerboseOutput("{$e->getMessage()}: {$compiled}");
         return $job;
@@ -352,7 +343,7 @@ class Scheduler
         $compiled = $job->compile();
         // If callable, log the string Closure
         if (is_callable($compiled)) {
-            $compiled = 'Closure';
+            $compiled = is_string($compiled) ? $compiled : 'Closure';
         }
         $this->addSchedulerVerboseOutput("Executing {$compiled}");
         return $job;

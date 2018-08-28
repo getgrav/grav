@@ -8,6 +8,7 @@
 
 namespace Grav\Console\Cli;
 
+use Grav\Common\Grav;
 use Grav\Common\Scheduler\Scheduler;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
@@ -36,13 +37,27 @@ class SchedulerCommand extends ConsoleCommand
      */
     protected function serve()
     {
-        $scheduler = new Scheduler();
+//        error_reporting(1);
+        $grav = Grav::instance();
 
-        $scheduler->loadSavedJobs();
+        $grav['uri']->init();
+        $grav['config']->init();
+        $grav['streams'];
+        $grav['plugins']->init();
+        $grav['themes']->init();
+
+        // Initialize Plugins
+        $grav->fireEvent('onPluginsInitialized');
+
+        /** @var Scheduler $scheduler */
+        $scheduler = $grav['scheduler'];
+        $grav->fireEvent('onSchedulerInitialized');
 
         $scheduler->run();
+
         if ($this->input->getOption('details')) {
-            $this->output->writeln('<green>Run</green>');
+            $output = $scheduler->getVerboseOutput();
+            $this->output->writeln('<green>'.$output.'</green>');
         }
     }
 }
