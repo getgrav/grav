@@ -121,7 +121,7 @@ class Twig
             }
 
             if (empty($params['autoescape'])) {
-                user_error('Grav 2.0 will have Twig auto-escaping forced on (can be emulated with \'system.strict_mode.twig_compat\' setting in your configuration)', E_USER_DEPRECATED);
+                user_error('Grav 2.0 will have Twig auto-escaping forced on (can be emulated by turning off \'system.strict_mode.twig_compat\' setting in your configuration)', E_USER_DEPRECATED);
             }
 
             $this->twig = new TwigEnvironment($loader_chain, $params);
