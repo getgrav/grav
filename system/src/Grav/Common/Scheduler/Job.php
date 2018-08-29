@@ -8,6 +8,9 @@
 
 namespace Grav\Common\Scheduler;
 
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+
 class Job
 {
     use IntervalTrait;
@@ -139,6 +142,10 @@ class Job
      */
     private $outputMode;
 
+    /**
+     * @var Process
+     */
+    private $process;
 
     /**
      * Create a new Job instance.
@@ -164,6 +171,24 @@ class Job
         $this->tempDir = sys_get_temp_dir();
         $this->command = $command;
         $this->args = $args;
+    }
+
+    /**
+     * Get the command
+     *
+     * @return callable|mixed|object|string
+     */
+    public function getCommand()
+    {
+        return $this->command;
+    }
+
+    public function getArguments()
+    {
+        if (is_string($this->args)) {
+            return $this->args;
+        }
+        return;
     }
 
     /**
@@ -223,7 +248,7 @@ class Job
      *
      * @return bool
      */
-    public function canRunInBackground()
+    public function runInBackground()
     {
         if (is_callable($this->command) || $this->runInBackground === false) {
             return false;
@@ -261,47 +286,6 @@ class Job
     }
 
     /**
-     * Compile the Job command.
-     *
-     * @return mixed
-     */
-    public function compile()
-    {
-        $compiled = $this->command;
-        // If callable, return the function itself
-        if (is_callable($compiled)) {
-            return $compiled;
-        }
-        // Augment with any supplied arguments
-        foreach ($this->args as $key => $value) {
-            $compiled .= ' ' . escapeshellarg($key);
-            if ($value !== null) {
-                $compiled .= ' ' . escapeshellarg($value);
-            }
-        }
-        // Add the boilerplate to redirect the output to file/s
-        if (count($this->outputTo) > 0) {
-            $compiled .= ' | tee ';
-            $compiled .= $this->outputMode === 'a' ? '-a ' : '';
-            foreach ($this->outputTo as $file) {
-                $compiled .= $file . ' ';
-            }
-            $compiled = trim($compiled);
-        }
-        // Add boilerplate to remove lockfile after execution
-        if ($this->lockFile) {
-            $compiled .= '; rm ' . $this->lockFile;
-        }
-        // Add boilerplate to run in background
-        if ($this->canRunInBackground()) {
-            // Parentheses are need execute the chain of commands in a subshell
-            // that can then run in background
-            $compiled = '(' . $compiled . ') > /dev/null 2>&1 &';
-        }
-        return trim($compiled);
-    }
-
-    /**
      * Configure the job.
      *
      * @param  array $config
@@ -309,12 +293,6 @@ class Job
      */
     public function configure(array $config = [])
     {
-        if (isset($config['email'])) {
-            if (!is_array($config['email'])) {
-                throw new InvalidArgumentException('Email configuration should be an array.');
-            }
-            $this->emailConfig = $config['email'];
-        }
         // Check if config has defined a tempDir
         if (isset($config['tempDir']) && is_dir($config['tempDir'])) {
             $this->tempDir = $config['tempDir'];
@@ -349,19 +327,67 @@ class Job
         if ($this->isOverlapping()) {
             return false;
         }
-        $compiled = $this->compile();
         // Write lock file if necessary
         $this->createLockFile();
         if (is_callable($this->before)) {
             call_user_func($this->before);
         }
-        if (is_callable($compiled)) {
-            $this->output = $this->exec($compiled);
+        if (is_callable($this->command)) {
+            $this->output = $this->exec();
         } else {
-            exec($compiled, $this->output, $this->returnCode);
+            /** @var Process process */
+            $args = is_string($this->args) ? $this->args : implode(' ', $this->args);
+            $command = $this->command . ' ' . $args;
+            $process = new Process($command);
+
+            $this->process = $process;
+
+            if ($this->runInBackground()) {
+                $process->start();
+            } else {
+                $process->run();
+                $this->finalize();
+            }
         }
-        $this->finalise();
         return true;
+    }
+
+    /**
+     * Finish up processing the job
+     *
+     * @return void
+     */
+    public function finalize()
+    {
+        $process = $this->process;
+
+        if ($process) {
+            $process->wait();
+
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            $this->output =  $process->getOutput();
+
+            if (count($this->outputTo) > 0) {
+                foreach ($this->outputTo as $file) {
+                    $output_mode = $this->outputMode === 'a' ? FILE_APPEND | LOCK_EX : LOCK_EX;
+                    file_put_contents($file, $this->output, $output_mode);
+                }
+            }
+
+            // Send output to email
+            $this->emailOutput();
+            // Call any callback defined
+            if (is_callable($this->after)) {
+                call_user_func($this->after, $this->output, $this->returnCode);
+            }
+
+            unset($this->process);
+
+            $this->removeLockFile();
+        }
     }
 
     /**
@@ -395,15 +421,14 @@ class Job
     /**
      * Execute a callable job.
      *
-     * @param  callable $fn
      * @throws Exception
      * @return string
      */
-    private function exec(callable $fn)
+    private function exec()
     {
         ob_start();
         try {
-            $returnData = call_user_func_array($fn, $this->args);
+            $returnData = call_user_func_array($this->command, $this->args);
         } catch (Exception $e) {
             ob_end_clean();
             throw $e;
@@ -462,21 +487,6 @@ class Job
         // Force the job to run in foreground
         $this->inForeground();
         return $this;
-    }
-
-    /**
-     * Finalize the job after execution.
-     *
-     * @return void
-     */
-    private function finalise()
-    {
-        // Send output to email
-        $this->emailOutput();
-        // Call any callback defined
-        if (is_callable($this->after)) {
-            call_user_func($this->after, $this->output, $this->returnCode);
-        }
     }
 
     /**
