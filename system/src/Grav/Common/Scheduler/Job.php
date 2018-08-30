@@ -30,6 +30,13 @@ class Job
     private $command;
 
     /**
+     * Cron format of time
+     *
+     * @var string
+     */
+    private $at;
+
+    /**
      * Arguments to be passed to the command.
      *
      * @var array
@@ -181,6 +188,11 @@ class Job
     public function getCommand()
     {
         return $this->command;
+    }
+
+    public function getAt()
+    {
+        return $this->at;
     }
 
     public function getArguments()

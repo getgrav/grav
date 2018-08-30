@@ -291,7 +291,7 @@ class Scheduler
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
 
-            if (preg_match('$bin\/grav chedule$', $output)) {
+            if (preg_match('$bin\/grav schedule$', $output)) {
                 return 1;
             } else {
                 return 0;
