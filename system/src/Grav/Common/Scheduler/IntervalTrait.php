@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    Grav.Common.Scheduler
- * @author     Based on peppeocchi/php-cron-scheduler modified for Grav integration
+ * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
  * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */

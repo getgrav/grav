@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    Grav.Common.Scheduler
- * @author     Based on peppeocchi/php-cron-scheduler modified for Grav integration
+ * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
  * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
@@ -9,6 +9,8 @@
 namespace Grav\Common\Scheduler;
 
 use Grav\Common\Grav;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 
 class Scheduler
 {
@@ -77,7 +79,8 @@ class Scheduler
                 }
 
                 if (isset($j['output'])) {
-                    $job->output($j['output']);
+                    $mode = isset($j['output_mode']) && $j['output_mode'] === 'append' ? true : false;
+                    $job->output($j['output'], $mode);
                 }
 
                 // store in saved_jobs
@@ -269,6 +272,33 @@ class Scheduler
     {
         $this->jobs = [];
         return $this;
+    }
+
+    public function getCronCommand()
+    {
+        $phpBinaryFinder = new PhpExecutableFinder();
+        $php = $phpBinaryFinder->find();
+        $command = 'cd ' . GRAV_ROOT . ';' . $php . ' bin/grav scheduler';
+
+        return "* * * * * {$command} 1>> /dev/null 2>&1";
+    }
+
+    public function isCrontabSetup()
+    {
+        $process = new Process('crontab -l');
+        $process->run();
+
+        if ($process->isSuccessful()) {
+            $output = $process->getOutput();
+
+            if (preg_match('$bin\/grav chedule$', $output)) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 2;
+        }
     }
 
     /**

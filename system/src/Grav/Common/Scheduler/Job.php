@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    Grav.Common.Scheduler
- * @author     Based on peppeocchi/php-cron-scheduler modified for Grav integration
+ * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
  * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
@@ -372,7 +372,7 @@ class Job
 
             if (count($this->outputTo) > 0) {
                 foreach ($this->outputTo as $file) {
-                    $output_mode = $this->outputMode === 'a' ? FILE_APPEND | LOCK_EX : LOCK_EX;
+                    $output_mode = $this->outputMode === 'append' ? FILE_APPEND | LOCK_EX : LOCK_EX;
                     file_put_contents($file, $this->output, $output_mode);
                 }
             }
@@ -456,7 +456,7 @@ class Job
     public function output($filename, $append = false)
     {
         $this->outputTo = is_array($filename) ? $filename : [$filename];
-        $this->outputMode = $append === false ? 'w' : 'a';
+        $this->outputMode = $append === false ? 'overwrite' : 'append';
         return $this;
     }
 
