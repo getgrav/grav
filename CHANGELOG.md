@@ -4,6 +4,8 @@
 1. [](#new)
     * Added `Deprecated` tab to DebugBar to catch future incompatibilities with later Grav versions
     * Added deprecation notices for features which will be removed in Grav 2.0
+1. [](#bugfix)
+    * Allow `$page->slug()` to be called before `$page->init()` without breaking the page
 
 # v1.5.1
 ## 08/23/2018
