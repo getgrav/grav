@@ -34,7 +34,6 @@ class Grav extends Container
      */
     protected static $diMap = [
         'Grav\Common\Service\LoggerServiceProvider',
-        'Grav\Common\Service\InflectorServiceProvider',
         'Grav\Common\Service\ErrorServiceProvider',
         'uri'                     => 'Grav\Common\Uri',
         'events'                  => 'RocketTheme\Toolbox\Event\EventDispatcher',
@@ -55,6 +54,7 @@ class Grav extends Container
         'exif'                    => 'Grav\Common\Helpers\Exif',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\ConfigServiceProvider',
+        'Grav\Common\Service\InflectorServiceProvider',
         'inflector'               => 'Grav\Common\Inflector',
         'siteSetupProcessor'      => 'Grav\Common\Processors\SiteSetupProcessor',
         'configurationProcessor'  => 'Grav\Common\Processors\ConfigurationProcessor',
