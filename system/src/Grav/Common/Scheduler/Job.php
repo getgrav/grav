@@ -8,6 +8,7 @@
 
 namespace Grav\Common\Scheduler;
 
+use Grav\Common\Grav;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -15,144 +16,28 @@ class Job
 {
     use IntervalTrait;
 
-    /**
-     * Job identifier.
-     *
-     * @var string
-     */
     private $id;
-
-    /**
-     * Command to execute.
-     *
-     * @var mixed
-     */
+    private $enabled = true;
     private $command;
-
-    /**
-     * Cron format of time
-     *
-     * @var string
-     */
     private $at;
-
-    /**
-     * Arguments to be passed to the command.
-     *
-     * @var array
-     */
     private $args = [];
-
-    /**
-     * Defines if the job should run in background.
-     *
-     * @var bool
-     */
     private $runInBackground = true;
-
-    /**
-     * Creation time.
-     *
-     * @var \DateTime
-     */
     private $creationTime;
-
-    /**
-     * Job schedule time.
-     *
-     * @var Cron\CronExpression
-     */
     private $executionTime;
-
-    /**
-     * Temporary directory path for
-     * lock files to prevent overlapping.
-     *
-     * @var string
-     */
     private $tempDir;
-
-    /**
-     * Path to the lock file.
-     *
-     * @var string
-     */
     private $lockFile;
-
-    /**
-     * This could prevent the job to run.
-     * If true, the job will run (if due).
-     *
-     * @var bool
-     */
     private $truthTest = true;
-
-    /**
-     * The output of the executed job.
-     *
-     * @var mixed
-     */
     private $output;
-
-    /**
-     * The return code of the executed job.
-     *
-     * @var int
-     */
     private $returnCode = 0;
-
-    /**
-     * Files to write the output of the job.
-     *
-     * @var array
-     */
     private $outputTo = [];
-
-    /**
-     * Email addresses where the output should be sent to.
-     *
-     * @var array
-     */
     private $emailTo = [];
-
-    /**
-     * Configuration for email sending.
-     *
-     * @var array
-     */
     private $emailConfig = [];
-
-    /**
-     * A function to execute before the job is executed.
-     *
-     * @var callable
-     */
     private $before;
-
-    /**
-     * A function to execute after the job is executed.
-     *
-     * @var callable
-     */
     private $after;
-
-    /**
-     * A function to ignore an overlapping job.
-     * If true, the job will run also if it's overlapping.
-     *
-     * @var callable
-     */
     private $whenOverlapping;
-
-    /**
-     * @var string
-     */
     private $outputMode;
-
-    /**
-     * @var Process
-     */
     private $process;
+    private $successful = false;
 
     /**
      * Create a new Job instance.
@@ -178,6 +63,9 @@ class Job
         $this->tempDir = sys_get_temp_dir();
         $this->command = $command;
         $this->args = $args;
+        // Set enabled state
+        $status = Grav::instance()['config']->get('scheduler.status');
+        $this->enabled = isset($status[$id]) && $status[$id] === 'disabled' ? false : true;
     }
 
     /**
@@ -203,6 +91,11 @@ class Job
         return;
     }
 
+    public function isSuccessful()
+    {
+        return $this->successful;
+    }
+
     /**
      * Get the Job id.
      *
@@ -211,6 +104,11 @@ class Job
     public function getId()
     {
         return $this->id;
+    }
+
+    public function enabled()
+    {
+        return $this->enabled;
     }
 
     /**
@@ -341,9 +239,12 @@ class Job
         }
         // Write lock file if necessary
         $this->createLockFile();
+
+        // Call before if required
         if (is_callable($this->before)) {
             call_user_func($this->before);
         }
+        // If command is callable...
         if (is_callable($this->command)) {
             $this->output = $this->exec();
         } else {
@@ -371,35 +272,46 @@ class Job
      */
     public function finalize()
     {
+        /** @var Process $process */
         $process = $this->process;
 
         if ($process) {
             $process->wait();
 
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
+            if ($process->isSuccessful()) {
+                $this->successful = true;
+                $this->output =  $process->getOutput();
+            } else {
+                $this->successful = false;
+                $this->output =  $process->getErrorOutput();
             }
 
-            $this->output =  $process->getOutput();
-
-            if (count($this->outputTo) > 0) {
-                foreach ($this->outputTo as $file) {
-                    $output_mode = $this->outputMode === 'append' ? FILE_APPEND | LOCK_EX : LOCK_EX;
-                    file_put_contents($file, $this->output, $output_mode);
-                }
-            }
-
-            // Send output to email
-            $this->emailOutput();
-            // Call any callback defined
-            if (is_callable($this->after)) {
-                call_user_func($this->after, $this->output, $this->returnCode);
-            }
+            $this->postRun();
 
             unset($this->process);
 
-            $this->removeLockFile();
+
         }
+    }
+
+    private function postRun()
+    {
+        if (count($this->outputTo) > 0) {
+            foreach ($this->outputTo as $file) {
+                $output_mode = $this->outputMode === 'append' ? FILE_APPEND | LOCK_EX : LOCK_EX;
+                file_put_contents($file, $this->output, $output_mode);
+            }
+        }
+
+        // Send output to email
+        $this->emailOutput();
+
+        // Call any callback defined
+        if (is_callable($this->after)) {
+            call_user_func($this->after, $this->output, $this->returnCode);
+        }
+
+        $this->removeLockFile();
     }
 
     /**
@@ -438,24 +350,17 @@ class Job
      */
     private function exec()
     {
+        $return_data = '';
         ob_start();
         try {
-            $returnData = call_user_func_array($this->command, $this->args);
+            $return_data = call_user_func_array($this->command, $this->args);
+            $this->successful = true;
         } catch (Exception $e) {
-            ob_end_clean();
-            throw $e;
+            $this->successful = false;
         }
-        $outputBuffer = ob_get_clean();
-        foreach ($this->outputTo as $filename) {
-            if ($outputBuffer) {
-                file_put_contents($filename, $outputBuffer, $this->outputMode === 'a' ? FILE_APPEND : 0);
-            }
-            if ($returnData) {
-                file_put_contents($filename, $returnData, FILE_APPEND);
-            }
-        }
-        $this->removeLockFile();
-        return $outputBuffer . (is_string($returnData) ? $returnData : '');
+        $this->output = ob_get_clean() . (is_string($return_data) ? $return_data : '');
+
+        $this->postRun();
     }
 
     /**

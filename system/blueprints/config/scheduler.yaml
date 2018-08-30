@@ -27,6 +27,8 @@ form:
 
                     status:
                         type: cronstatus
+                        validate:
+                            type: commalist
 
             custom_tab:
                 type: tab
@@ -42,7 +44,7 @@ form:
                       style: vertical
                       label:
                       fields:
-                        .id:
+                        .name:
                           type: text
                           label: Name
                           placeholder: 'process-name'

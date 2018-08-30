@@ -8,9 +8,11 @@
 
 namespace Grav\Common\Scheduler;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+use RocketTheme\Toolbox\File\YamlFile;
 
 class Scheduler
 {
@@ -20,34 +22,11 @@ class Scheduler
      * @var array
      */
     private $jobs = [];
-
     private $saved_jobs = [];
-
-    /**
-     * Successfully executed jobs.
-     *
-     * @var array
-     */
-    private $executedJobs = [];
-
-    /**
-     * Failed jobs.
-     *
-     * @var array
-     */
-    private $failedJobs = [];
-
-    /**
-     * The verbose output of the scheduled jobs.
-     *
-     * @var array
-     */
+    private $jobs_run = [];
     private $outputSchedule = [];
-
-    /**
-     * @var array
-     */
     private $config;
+    private $status_path;
 
     /**
      * Create new instance.
@@ -59,6 +38,11 @@ class Scheduler
         $config = Grav::instance()['config']->get('scheduler.defaults', []);
         $this->config = $config;
         $this->loadSavedJobs();
+
+        $this->status_path = Grav::instance()['locator']->findResource('user://data/scheduler', true, true);
+        if (!file_exists($this->status_path)) {
+            Folder::create($this->status_path);
+        }
 
     }
 
@@ -72,7 +56,8 @@ class Scheduler
 
             foreach ($saved_jobs as $j) {
                 $args = isset($j['args']) ? $j['args'] : [];
-                $job = $this->addCommand($j['command'], $args, $j['id']);
+                $id = Grav::instance()['inflector']->hyphenize($j['name']);
+                $job = $this->addCommand($j['command'], $args, $id);
 
                 if (isset($j['at'])) {
                     $job->at($j['at']);
@@ -90,22 +75,38 @@ class Scheduler
     }
 
     /**
-     * Get the queued jobs.
+     * Get the queued jobs as background/foreground
      *
+     * @param bool $all
      * @return array
      */
-    public function getQueuedJobs()
+    public function getQueuedJobs($all = false)
     {
         $background = [];
         $foreground = [];
         foreach ($this->jobs as $job) {
-            if ($job->runInBackground()) {
-                $background[] = $job;
-            } else {
-                $foreground[] = $job;
+            if ($all || $job->enabled()) {
+                if ($job->runInBackground()) {
+                    $background[] = $job;
+                } else {
+                    $foreground[] = $job;
+                }
             }
+
         }
-        return [$foreground, $background];
+        return [$background, $foreground];
+    }
+
+    /**
+     * Get all jobs if they are disabled or not as one array
+     *
+     * @param bool $all
+     * @return array
+     */
+    public function getAllJobs()
+    {
+        list($background, $foreground) = $this->getQueuedJobs(true);
+        return array_merge($background, $foreground);
     }
 
     /**
@@ -187,19 +188,18 @@ class Scheduler
      */
     public function run(\Datetime $runTime = null)
     {
-        list($foreground, $background) = $this->getQueuedJobs();
+        list($background, $foreground) = $this->getQueuedJobs(false);
         $alljobs = array_merge($background, $foreground);
+
         if (is_null($runTime)) {
             $runTime = new \DateTime('now');
         }
+
+        // Star processing jobs
         foreach ($alljobs as $job) {
             if ($job->isDue($runTime)) {
-                try {
-                    $job->run();
-                    $this->pushExecutedJob($job);
-                } catch (\Exception $e) {
-                    $this->pushFailedJob($job, $e);
-                }
+                $job->run();
+                $this->jobs_run[] = $job;
             }
         }
 
@@ -208,7 +208,8 @@ class Scheduler
             $job->finalize();
         }
 
-        return $this->getExecutedJobs();
+        // Store states
+        $this->saveJobStates();
     }
 
     /**
@@ -223,26 +224,6 @@ class Scheduler
         $this->failedJobs = [];
         $this->outputSchedule = [];
         return $this;
-    }
-
-    /**
-     * Get the executed jobs.
-     *
-     * @return array
-     */
-    public function getExecutedJobs()
-    {
-        return $this->executedJobs;
-    }
-
-    /**
-     * Get the failed jobs.
-     *
-     * @return array
-     */
-    public function getFailedJobs()
-    {
-        return $this->failedJobs;
     }
 
     /**
@@ -301,6 +282,27 @@ class Scheduler
         }
     }
 
+    private function saveJobStates()
+    {
+        $now = time();
+        $new_states = [];
+
+        foreach ($this->jobs_run as $job) {
+            if ($job->isSuccessful()) {
+                $new_states[$job->getId()] = ['state' => 'success', 'last-run' => $now];
+                $this->pushExecutedJob($job);
+            } else {
+                $new_states[$job->getId()] = ['state' => 'failure', 'last-run' => $now, 'error' => $job->getOutput()];
+                $this->pushFailedJob($job);
+            }
+        }
+
+        $saved_states = YamlFile::instance($this->status_path . '/status.yaml');
+        $current_states = $saved_states->content();
+
+        $saved_states->save(array_merge($current_states, $new_states));
+    }
+
     /**
      * Queue a job for execution in the correct queue.
      *
@@ -343,7 +345,7 @@ class Scheduler
         if (is_callable($command)) {
             $command = is_string($command) ? $command : 'Closure';
         }
-        $this->addSchedulerVerboseOutput("Executing {$command} {$args}");
+        $this->addSchedulerVerboseOutput("Success: {$command} {$args}");
         return $job;
     }
 
@@ -351,10 +353,9 @@ class Scheduler
      * Push a failed job.
      *
      * @param  Job  $job
-     * @param  \Exception  $e
      * @return Job
      */
-    private function pushFailedJob(Job $job, \Exception $e)
+    private function pushFailedJob(Job $job)
     {
         $this->failedJobs[] = $job;
         $command = $job->getCommand();
@@ -362,7 +363,7 @@ class Scheduler
         if (is_callable($command)) {
             $command = is_string($command) ? $command : 'Closure';
         }
-        $this->addSchedulerVerboseOutput("{$e->getMessage()}: {$command}");
+        $this->addSchedulerVerboseOutput("Error: {$command} : ({$job->getOutput()})");
         return $job;
     }
 }
