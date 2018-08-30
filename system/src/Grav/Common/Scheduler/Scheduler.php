@@ -282,6 +282,12 @@ class Scheduler
         }
     }
 
+    public function getJobStates()
+    {
+        $file = YamlFile::instance($this->status_path . '/status.yaml');
+        return $file;
+    }
+
     private function saveJobStates()
     {
         $now = time();
@@ -296,11 +302,8 @@ class Scheduler
                 $this->pushFailedJob($job);
             }
         }
-
-        $saved_states = YamlFile::instance($this->status_path . '/status.yaml');
-        $current_states = $saved_states->content();
-
-        $saved_states->save(array_merge($current_states, $new_states));
+        $saved_states = $this->getJobStates();
+        $saved_states->save(array_merge($saved_states->content(), $new_states));
     }
 
     /**

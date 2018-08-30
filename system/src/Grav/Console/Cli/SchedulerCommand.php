@@ -22,12 +22,6 @@ class SchedulerCommand extends ConsoleCommand
     {
         $this
             ->setName('scheduler')
-            ->addOption(
-                'details',
-                'd',
-                InputOption::VALUE_NONE,
-                'Verbose output from command'
-            )
             ->setDescription('Run the Grav Scheduler.  Best when integrated with system cron')
             ->setHelp("flush this out...");
     }
@@ -55,7 +49,7 @@ class SchedulerCommand extends ConsoleCommand
 
         $scheduler->run();
 
-        if ($this->input->getOption('details')) {
+        if ($this->input->getOption('verbose')) {
             $output = $scheduler->getVerboseOutput();
             $this->output->writeln('<green>'.$output.'</green>');
         }
