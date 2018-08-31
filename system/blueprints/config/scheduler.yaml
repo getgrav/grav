@@ -51,6 +51,8 @@ form:
                           placeholder: 'process-name'
                           validate:
                               required: true
+                              max: 20
+                              message: Name must be less than 20 characters
                         .command:
                           type: text
                           label: Command
@@ -61,7 +63,7 @@ form:
                           type: text
                           label: Extra Arguments
                         .at:
-                          type: text
+                          type: cron
                           label: Run At
                           help: Cron formated "at" syntax
                           placeholder: '* * * * *'

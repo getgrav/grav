@@ -83,6 +83,11 @@ class Job
         return $this->at;
     }
 
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
     public function getArguments()
     {
         if (is_string($this->args)) {
