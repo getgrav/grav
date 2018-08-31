@@ -696,6 +696,8 @@ abstract class Utils
      */
     public static function resolve(array $array, $path, $default = null)
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getDotNotation() method instead', E_USER_DEPRECATED);
+
         return static::getDotNotation($array, $path, $default);
     }
 

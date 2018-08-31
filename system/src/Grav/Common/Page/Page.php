@@ -15,7 +15,6 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
-use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -23,10 +22,9 @@ use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Common\Yaml;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
@@ -766,6 +764,8 @@ class Page implements PageInterface
 
         // pages.markdown_extra is deprecated, but still check it...
         if (!isset($defaults['extra']) && (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null)) {
+            user_error('Configuration option \'system.pages.markdown_extra\' is deprecated since Grav 1.5, use \'system.pages.markdown.extra\' instead', E_USER_DEPRECATED);
+
             $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }
 
@@ -1584,7 +1584,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->slug)) {
-            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
+            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder)) ?: null;
         }
 
 

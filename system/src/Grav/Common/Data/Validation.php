@@ -10,8 +10,7 @@ namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
 use Grav\Common\Utils;
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
+use Grav\Common\Yaml;
 use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYaml;
 
 class Validation
@@ -649,19 +648,8 @@ class Validation
             return $value;
         }
 
-        try {
-            return (array) Yaml::parse($value);
-        } catch (ParseException $e) {
-            // If YAML compatibility mode is set on, fall back to older YAML parser.
-            if (Grav::instance()['config']->get('system.strict_mode.yaml_compat', true)) {
-                try {
-                    return (array) FallbackYaml::parse($value);
-                } catch (ParseException $e2) {
-                }
-            }
+        return (array) Yaml::parse($value);
 
-            return $value;
-        }
     }
 
     /**

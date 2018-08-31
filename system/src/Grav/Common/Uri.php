@@ -1336,11 +1336,6 @@ class Uri
         $scriptPath = str_replace('\\', '/', $_SERVER['PHP_SELF']);
         $rootPath = str_replace(' ', '%20', rtrim(substr($scriptPath, 0, strpos($scriptPath, 'index.php')), '/'));
 
-        // check if userdir in the path and workaround PHP bug with PHP_SELF
-        if (strpos($this->uri, '/~') !== false && strpos($scriptPath, '/~') === false) {
-            $rootPath = substr($this->uri, 0, strpos($this->uri, '/', 1)) . $rootPath;
-        }
-
         return $rootPath;
     }
 

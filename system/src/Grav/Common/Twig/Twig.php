@@ -115,9 +115,13 @@ class Twig
 
             if (!$config->get('system.strict_mode.twig_compat', true)) {
                 // Force autoescape on for all files if in strict mode.
-                $params['autoescape'] = true;
+                $params['autoescape'] = 'html';
             } elseif (!empty($this->autoescape)) {
-                $params['autoescape'] = $this->autoescape;
+                $params['autoescape'] = $this->autoescape ? 'html' : false;
+            }
+
+            if (empty($params['autoescape'])) {
+                user_error('Grav 2.0 will have Twig auto-escaping forced on (can be emulated by turning off \'system.strict_mode.twig_compat\' setting in your configuration)', E_USER_DEPRECATED);
             }
 
             $this->twig = new TwigEnvironment($loader_chain, $params);
@@ -125,10 +129,10 @@ class Twig
             if ($config->get('system.twig.undefined_functions')) {
                 $this->twig->registerUndefinedFunctionCallback(function ($name) {
                     if (function_exists($name)) {
-                        return new \Twig_Function_Function($name);
+                        return new \Twig_SimpleFunction($name, $name);
                     }
 
-                    return new \Twig_Function_Function(function () {
+                    return new \Twig_SimpleFunction($name, function () {
                     });
                 });
             }
@@ -136,10 +140,10 @@ class Twig
             if ($config->get('system.twig.undefined_filters')) {
                 $this->twig->registerUndefinedFilterCallback(function ($name) {
                     if (function_exists($name)) {
-                        return new \Twig_Filter_Function($name);
+                        return new \Twig_SimpleFilter($name, $name);
                     }
 
-                    return new \Twig_Filter_Function(function () {
+                    return new \Twig_SimpleFilter($name, function () {
                     });
                 });
             }
@@ -148,7 +152,7 @@ class Twig
 
             // set default date format if set in config
             if ($config->get('system.pages.dateformat.long')) {
-                $this->twig->getExtension('core')->setDateFormat($config->get('system.pages.dateformat.long'));
+                $this->twig->getExtension('Twig_Extension_Core')->setDateFormat($config->get('system.pages.dateformat.long'));
             }
             // enable the debug extension if required
             if ($config->get('system.twig.debug')) {
@@ -162,7 +166,7 @@ class Twig
             $pages = $this->grav['pages'];
 
             // Set some standard variables for twig
-            $this->twig_vars = $this->twig_vars + [
+            $this->twig_vars += [
                     'config'            => $config,
                     'system'            => $config->get('system'),
                     'theme'             => $config->get('theme'),
@@ -411,8 +415,14 @@ class Twig
      * Overrides the autoescape setting
      *
      * @param boolean $state
+     * @deprecated 1.5
      */
-    public function setAutoescape($state) {
+    public function setAutoescape($state)
+    {
+        if (!$state) {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '(false) is deprecated since Grav 1.5', E_USER_DEPRECATED);
+        }
+
         $this->autoescape = (bool) $state;
     }
 }

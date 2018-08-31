@@ -77,11 +77,11 @@ class InstallCommand extends ConsoleCommand
         } else {
             $this->output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
             if ($this->input->getArgument('destination')) {
-                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install a plugin or a theme? Make sure you use <cyan>bin/gpm install <something></cyan>, not <cyan>bin/grav install</cyan>. This command is only used to install Grav skeletons.');    
+                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install a plugin or a theme? Make sure you use <cyan>bin/gpm install <something></cyan>, not <cyan>bin/grav install</cyan>. This command is only used to install Grav skeletons.');
             } else {
-                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install Grav? Grav is already installed. You need to run this command only if you download a skeleton from GitHub directly.');    
+                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install Grav? Grav is already installed. You need to run this command only if you download a skeleton from GitHub directly.');
             }
-            
+
             return;
         }
 
@@ -169,19 +169,18 @@ class InstallCommand extends ConsoleCommand
             }
 
             if (!$from) {
-                $this->output->writeln('<red>source: ' . $from . ' does not exists, skipping...</red>');
-                $this->output->writeln('');
-            }
-
-            if (!file_exists($to)) {
-                symlink($from, $to);
-                $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
+                $this->output->writeln('<red>source for ' . $data['src'] . ' does not exists, skipping...</red>');
                 $this->output->writeln('');
             } else {
-                $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
-                $this->output->writeln('');
+                if (!file_exists($to)) {
+                    symlink($from, $to);
+                    $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
+                    $this->output->writeln('');
+                } else {
+                    $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
+                    $this->output->writeln('');
+                }
             }
-
         }
     }
 }

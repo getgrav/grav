@@ -7,6 +7,26 @@
     * Updated Doctrine Cache to 1.7
     * Updated Symfony Components to 4.1
 
+# v1.5.2
+## mm/dd/2018
+
+1. [](#new)
+    * Added `Deprecated` tab to DebugBar to catch future incompatibilities with later Grav versions
+    * Added deprecation notices for features which will be removed in Grav 2.0
+1. [](#bugfix)
+    * Allow `$page->slug()` to be called before `$page->init()` without breaking the page
+
+# v1.5.1
+## 08/23/2018
+
+1. [](#new)
+    * Added static `Grav\Common\Yaml` class which should be used instead of `Symfony\Component\Yaml\Yaml`
+1. [](#improved)
+    * Updated deprecated Twig code so it works in both in Twig 1.34+ and Twig 2.4+
+    * Switched to new Grav Yaml class to support Native + Fallback YAML libraries
+1. [](#bugfix)
+    * Broken handling of user folder in Grav URI object [#2151](https://github.com/getgrav/grav/issues/2151)
+
 # v1.5.0
 ## 08/17/2018
 
