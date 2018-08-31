@@ -9,7 +9,6 @@
 namespace Grav\Common\Scheduler;
 
 use Grav\Common\Grav;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class Job
@@ -49,7 +48,7 @@ class Job
     public function __construct($command, $args = [], $id = null)
     {
         if (is_string($id)) {
-            $this->id = $id;
+            $this->id = Grav::instance()['inflector']->hyphenize($id);
         } else {
             if (is_string($command)) {
                 $this->id = md5($command);
@@ -71,23 +70,38 @@ class Job
     /**
      * Get the command
      *
-     * @return callable|mixed|object|string
+     * @return string
      */
     public function getCommand()
     {
         return $this->command;
     }
 
+    /**
+     * Get the cron 'at' syntax for this job
+     *
+     * @return string
+     */
     public function getAt()
     {
         return $this->at;
     }
 
+    /**
+     * Get the status of this job
+     *
+     * @return bool
+     */
     public function getEnabled()
     {
         return $this->enabled;
     }
 
+    /**
+     * Get optional arguments
+     *
+     * @return array|string|void
+     */
     public function getArguments()
     {
         if (is_string($this->args)) {
@@ -96,6 +110,11 @@ class Job
         return;
     }
 
+    /**
+     * Get the status of the last run for this job
+     *
+     * @return bool
+     */
     public function isSuccessful()
     {
         return $this->successful;
@@ -109,11 +128,6 @@ class Job
     public function getId()
     {
         return $this->id;
-    }
-
-    public function enabled()
-    {
-        return $this->enabled;
     }
 
     /**
@@ -294,11 +308,12 @@ class Job
             $this->postRun();
 
             unset($this->process);
-
-
         }
     }
 
+    /**
+     * Things to run after job has run
+     */
     private function postRun()
     {
         if (count($this->outputTo) > 0) {

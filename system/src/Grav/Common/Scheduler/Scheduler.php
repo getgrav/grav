@@ -52,11 +52,11 @@ class Scheduler
     public function loadSavedJobs()
     {
         if (!$this->jobs) {
-            $saved_jobs = (array) Grav::instance()['config']->get('scheduler.jobs', []);
+            $saved_jobs = (array) Grav::instance()['config']->get('scheduler.custom_jobs', []);
 
-            foreach ($saved_jobs as $j) {
+            foreach ($saved_jobs as $id => $j) {
                 $args = isset($j['args']) ? $j['args'] : [];
-                $id = Grav::instance()['inflector']->hyphenize($j['name']);
+                $id = Grav::instance()['inflector']->hyphenize($id);
                 $job = $this->addCommand($j['command'], $args, $id);
 
                 if (isset($j['at'])) {

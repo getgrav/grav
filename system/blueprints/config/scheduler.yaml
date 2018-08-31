@@ -1,4 +1,5 @@
 title: PLUGIN_ADMIN.SCHEDULER
+
 form:
   validation: loose
   fields:
@@ -39,16 +40,26 @@ form:
                         type: section
                         title: PLUGIN_ADMIN.SCHEDULER_JOBS
                         underline: false
-                    jobs:
+                    custom_jobs:
                       type: list
                       style: vertical
                       label:
                       classes: cron-job-list
+                      key: id
                       fields:
+                        .id:
+                          type: key
+                          label: ID
+                          placeholder: 'process-name'
+                          validate:
+                              required: true
+                              pattern: '[a-zа-я0-9_\-]+'
+                              max: 20
+                              message: ID must be lowercase with dashes/underscores only and less than 20 characters
                         .name:
                           type: text
                           label: Name
-                          placeholder: 'process-name'
+                          placeholder: 'Process Name'
                           validate:
                               required: true
                               max: 20
@@ -67,6 +78,8 @@ form:
                           label: Run At
                           help: Cron formated "at" syntax
                           placeholder: '* * * * *'
+                          validate:
+                              required: true
                         .output:
                           type: text
                           label: Output File
