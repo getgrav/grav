@@ -68,6 +68,10 @@ class Scheduler
                     $job->output($j['output'], $mode);
                 }
 
+                if (isset($j['email'])) {
+                    $job->email($j['email']);
+                }
+
                 // store in saved_jobs
                 $this->saved_jobs[] = $job;
             }

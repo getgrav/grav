@@ -436,8 +436,14 @@ class Job
         if (!count($this->outputTo) || !count($this->emailTo)) {
             return false;
         }
-        /** TODO: Implement Grav emailer */
-//        $this->sendToEmails($this->outputTo);
+
+        if (is_callable('Grav\Plugin\Email\Utils::sendEmail')) {
+            $subject ='Grav Scheduled Job [' . $this->getId() . ']';
+            $content = "<h1>Output from Job ID: {$this->getId()}</h1>\n<h4>Command: {$this->getCommand()}</h4><br /><pre style=\"font-size: 12px; font-family: Monaco, Consolas, monospace\">\n".$this->getOutput()."\n</pre>";
+            $to = $this->emailTo;
+
+            \Grav\Plugin\Email\Utils::sendEmail($subject, $content, $to);
+        }
         return true;
     }
 

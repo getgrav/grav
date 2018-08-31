@@ -56,14 +56,6 @@ form:
                               pattern: '[a-zа-я0-9_\-]+'
                               max: 20
                               message: ID must be lowercase with dashes/underscores only and less than 20 characters
-                        .name:
-                          type: text
-                          label: Name
-                          placeholder: 'Process Name'
-                          validate:
-                              required: true
-                              max: 20
-                              message: Name must be less than 20 characters
                         .command:
                           type: text
                           label: Command
