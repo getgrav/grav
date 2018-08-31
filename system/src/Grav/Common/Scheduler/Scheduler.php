@@ -85,7 +85,7 @@ class Scheduler
         $background = [];
         $foreground = [];
         foreach ($this->jobs as $job) {
-            if ($all || $job->enabled()) {
+            if ($all || $job->getEnabled()) {
                 if ($job->runInBackground()) {
                     $background[] = $job;
                 } else {
