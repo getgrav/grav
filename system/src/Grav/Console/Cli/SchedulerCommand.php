@@ -11,6 +11,7 @@ namespace Grav\Console\Cli;
 use Grav\Common\Grav;
 use Grav\Common\Scheduler\Scheduler;
 use Grav\Console\ConsoleCommand;
+use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Input\InputOption;
 
 class SchedulerCommand extends ConsoleCommand
@@ -45,13 +46,16 @@ class SchedulerCommand extends ConsoleCommand
 
         /** @var Scheduler $scheduler */
         $scheduler = $grav['scheduler'];
-        $grav->fireEvent('onSchedulerInitialized');
+        $grav->fireEvent('onSchedulerInitialized', new Event(['scheduler' => $scheduler]));
 
         $scheduler->run();
 
         if ($this->input->getOption('verbose')) {
+            $this->output->writeln('');
+            $this->output->writeln('<magenta>Running Scheduled Jobs</magenta>');
+            $this->output->writeln('');
             $output = $scheduler->getVerboseOutput();
-            $this->output->writeln('<green>'.$output.'</green>');
+            $this->output->writeln($output);
         }
     }
 }

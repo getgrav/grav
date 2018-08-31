@@ -43,6 +43,7 @@ form:
                       type: list
                       style: vertical
                       label:
+                      classes: cron-job-list
                       fields:
                         .name:
                           type: text

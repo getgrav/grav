@@ -110,55 +110,14 @@ class Scheduler
     }
 
     /**
-     * Queues a php script execution.
-     *
-     * @param  string  $script  The path to the php script to execute
-     * @param  string  $bin     Optional path to the php binary
-     * @param  array  $args     Optional arguments to pass to the php script
-     * @param  string  $id      Optional custom identifier
-     * @return Job
-     */
-    public function addScript($script, $bin = null, $args = [], $id = null)
-    {
-        if (! is_string($script)) {
-            throw new \InvalidArgumentException('The script should be a valid path to a file.');
-        }
-        $bin = $bin !== null && is_string($bin) && file_exists($bin) ?
-            $bin : (PHP_BINARY === '' ? '/usr/bin/php' : PHP_BINARY);
-        $job = new Job($bin . ' ' . $script, $args, $id);
-        if (! file_exists($script)) {
-            $this->pushFailedJob(
-                $job,
-                new \InvalidArgumentException('The script should be a valid path to a file.')
-            );
-        }
-        $this->queueJob($job->configure($this->config));
-        return $job;
-    }
-
-    /**
-     * Queues a static method for execution
-     *
-     * @param  string  $method  The class::method to execute
-     * @param  array  $args  Optional arguments to pass to the php script
-     * @param  string  $id   Optional custom identifier
-     * @return Job
-     */
-    public function addStaticMethod($method, $args, $id = null) {
-        $job = new Job($method, $args, $id);
-        $this->queueJob($job->configure($this->config));
-        return $job;
-    }
-
-    /**
-     * Queues a closure PHP function execution.
+     * Queues a PHP function execution.
      *
      * @param  callable  $fn  The function to execute
      * @param  array  $args  Optional arguments to pass to the php script
      * @param  string  $id   Optional custom identifier
      * @return Job
      */
-    public function addClosure(callable $fn, $args = [], $id = null)
+    public function addFunction(callable $fn, $args = [], $id = null)
     {
         $job = new Job($fn, $args, $id);
         $this->queueJob($job->configure($this->config));
@@ -255,6 +214,11 @@ class Scheduler
         return $this;
     }
 
+    /**
+     * Helper to get the full Cron command
+     *
+     * @return string
+     */
     public function getCronCommand()
     {
         $phpBinaryFinder = new PhpExecutableFinder();
@@ -264,6 +228,11 @@ class Scheduler
         return "* * * * * {$command} 1>> /dev/null 2>&1";
     }
 
+    /**
+     * Helper to determine if cron job is setup
+     *
+     * @return int
+     */
     public function isCrontabSetup()
     {
         $process = new Process('crontab -l');
@@ -282,12 +251,20 @@ class Scheduler
         }
     }
 
+    /**
+     * Get the Job states file
+     *
+     * @return \RocketTheme\Toolbox\File\FileInterface|YamlFile
+     */
     public function getJobStates()
     {
         $file = YamlFile::instance($this->status_path . '/status.yaml');
         return $file;
     }
 
+    /**
+     * Save job states to statys file
+     */
     private function saveJobStates()
     {
         $now = time();
@@ -348,7 +325,7 @@ class Scheduler
         if (is_callable($command)) {
             $command = is_string($command) ? $command : 'Closure';
         }
-        $this->addSchedulerVerboseOutput("Success: {$command} {$args}");
+        $this->addSchedulerVerboseOutput("<green>Success</green>: <white>{$command} {$args}</white>");
         return $job;
     }
 
@@ -366,7 +343,8 @@ class Scheduler
         if (is_callable($command)) {
             $command = is_string($command) ? $command : 'Closure';
         }
-        $this->addSchedulerVerboseOutput("Error: {$command} : ({$job->getOutput()})");
+        $output = trim($job->getOutput());
+        $this->addSchedulerVerboseOutput("<red>Error</red>:   <white>{$command}</white> → <normal>{$output}</normal>");
         return $job;
     }
 }
