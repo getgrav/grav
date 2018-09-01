@@ -26,7 +26,6 @@
         "symfony/console": "~4.1",
         "symfony/event-dispatcher": "~4.1",
         "symfony/var-dumper": "~4.1",
-        "symfony/process": "~4.1",
         "doctrine/cache": "^1.7",
         "doctrine/collections": "^1.5",
         "guzzlehttp/psr7": "^1.4",
@@ -41,9 +40,15 @@
         "maximebf/debugbar": "~1.15",
         "league/climate": "^3.4",
         "antoligy/dom-string-iterators": "^1.0",
-        "miljar/php-exif": "^0.6.4",
+<<<<<<< HEAD
+        "miljar/php-exif": "^0.6.3",
         "composer/ca-bundle": "^1.0",
-        "dragonmantank/cron-expression": "^1.2"
+        "dragonmantank/cron-expression": "^1.2",
+        "symfony/process": "^3.4"
+=======
+        "miljar/php-exif": "^0.6.4",
+        "composer/ca-bundle": "^1.0"
+>>>>>>> 1.6
     },
     "require-dev": {
         "codeception/codeception": "^2.4",
