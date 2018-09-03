@@ -68,7 +68,7 @@ form:
                         .at:
                           type: cron
                           label: Run At
-                          help: 'Cron formated "at" syntax'
+                          help: 'Cron formatted "at" syntax'
                           placeholder: '* * * * *'
                           validate:
                               required: true

@@ -93,6 +93,23 @@ NICETIME:
     MO_PLURAL: mos
     YR_PLURAL: yrs
     DEC_PLURAL: decs
+CRON:
+    EVERY: every
+    EVERY_HOUR: every hour
+    EVERY_MINUTE: every minute
+    EVERY_DAY_OF_WEEK: every day of the week
+    EVERY_DAY_OF_MONTH: every day of the month
+    EVERY_MONTH: every month
+    TEXT_PERIOD: Every <b />
+    TEXT_MINS: ' at <b /> minute(s) past the hour'
+    TEXT_TIME: ' at <b />:<b />'
+    TEXT_DOW: ' on <b />'
+    TEXT_MONTH: ' of <b />'
+    TEXT_DOM: ' on <b />'
+    ERROR1: The tag %s is not supported!
+    ERROR2: Bad number of elements
+    ERROR3: The jquery_element should be set into jqCron settings
+    ERROR4: Unrecognized expression
 FORM:
     VALIDATION_FAIL: <b>Validation failed:</b>
     INVALID_INPUT: Invalid input in
