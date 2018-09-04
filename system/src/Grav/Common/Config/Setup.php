@@ -38,7 +38,7 @@ class Setup extends Data
             // If not defined, environment will be set up in the constructor.
         ],
         'asset' => [
-            'type' => 'ReadOnlyStream',
+            'type' => 'Stream',
             'prefixes' => [
                 '' => ['assets'],
             ]
@@ -109,7 +109,7 @@ class Setup extends Data
             ]
         ],
         'image' => [
-            'type' => 'ReadOnlyStream',
+            'type' => 'Stream',
             'prefixes' => [
                 '' => ['user://images', 'system://images']
             ]
