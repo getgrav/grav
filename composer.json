@@ -26,7 +26,7 @@
         "symfony/console": "~4.1",
         "symfony/event-dispatcher": "~4.1",
         "symfony/var-dumper": "~4.1",
-        "doctrine/cache": "^1.7",
+        "doctrine/cache": "^1.8",
         "doctrine/collections": "^1.5",
         "guzzlehttp/psr7": "^1.4",
         "filp/whoops": "~2.2",
