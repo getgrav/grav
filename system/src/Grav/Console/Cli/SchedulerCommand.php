@@ -92,7 +92,12 @@ class SchedulerCommand extends ConsoleCommand
                 $table[] = $row;
             }
 
-            $climate->table($table);
+            if (!empty($table)) {
+                $climate->table($table);
+            } else {
+                $this->output->writeln('no jobs found...');
+            }
+
 
             $this->output->writeln('');
             $this->output->writeln('<yellow>NOTE: For error details run "bin/grav scheduler -e"</yellow>');
