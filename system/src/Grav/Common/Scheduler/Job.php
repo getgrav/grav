@@ -8,6 +8,7 @@
 
 namespace Grav\Common\Scheduler;
 
+use Cron\CronExpression;
 use Grav\Common\Grav;
 use Symfony\Component\Process\Process;
 
@@ -108,6 +109,11 @@ class Job
             return $this->args;
         }
         return;
+    }
+
+    public function getCronExpression()
+    {
+        return CronExpression::factory($this->at);
     }
 
     /**
