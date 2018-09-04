@@ -12,6 +12,7 @@ use Cron\CronExpression;
 use Grav\Common\Grav;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
+use Grav\Common\Scheduler\Cron;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
 use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
@@ -110,6 +111,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('bool', [$this, 'boolFilter']),
             new \Twig_SimpleFilter('float', [$this, 'floatFilter'], ['is_safe' => true]),
             new \Twig_SimpleFilter('array', [$this, 'arrayFilter']),
+            new \Twig_SimpleFilter('nicecron', [$this, 'niceCronFilter']),
         ];
     }
 
@@ -158,6 +160,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
             new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFilter']),
             new \Twig_SimpleFunction('cron', [$this, 'cronFunc']),
+
 
             // Translations
             new \Twig_simpleFunction('t', [$this, 'translate']),
@@ -435,6 +438,12 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function containsFilter($haystack, $needle)
     {
         return (strpos($haystack, $needle) !== false);
+    }
+
+    public function niceCronFilter($at)
+    {
+        $cron = new Cron($at);
+        return $cron->getText('en');
     }
 
     /**
