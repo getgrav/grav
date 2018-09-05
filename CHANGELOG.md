@@ -6,6 +6,7 @@
     * Updated Doctrine Collections to 1.5
     * Updated Doctrine Cache to 1.8
     * Updated Symfony Components to 4.1
+    * Added new `{% throw 404 'Not Found' %}` twig tag (with custom code/message)
 
 # v1.5.2
 ## mm/dd/2018
