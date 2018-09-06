@@ -108,9 +108,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
             // Casting values
             new \Twig_SimpleFilter('string', [$this, 'stringFilter']),
-            new \Twig_SimpleFilter('int', [$this, 'intFilter'], ['is_safe' => true]),
+            new \Twig_SimpleFilter('int', [$this, 'intFilter'], ['is_safe' => ['all']]),
             new \Twig_SimpleFilter('bool', [$this, 'boolFilter']),
-            new \Twig_SimpleFilter('float', [$this, 'floatFilter'], ['is_safe' => true]),
+            new \Twig_SimpleFilter('float', [$this, 'floatFilter'], ['is_safe' => ['all']]),
             new \Twig_SimpleFilter('array', [$this, 'arrayFilter']),
             new \Twig_SimpleFilter('nicecron', [$this, 'niceCronFilter']),
         ];

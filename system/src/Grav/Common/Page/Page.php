@@ -195,7 +195,7 @@ class Page implements PageInterface
 
                 $route = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
                 if (!$route) {
-                    $route = $aPage->slug();
+                    $route = $aPage->route();
                 }
 
                 if ($onlyPublished && !$aPage->published()) {
