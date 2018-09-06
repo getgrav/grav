@@ -6,6 +6,7 @@
     * Added deprecation notices for features which will be removed in Grav 2.0
 1. [](#bugfix)
     * Allow `$page->slug()` to be called before `$page->init()` without breaking the page
+    * Fix for `Page::translatedLanguages()` to use routes always [#2163](https://github.com/getgrav/grav/issues/2163)
 
 # v1.5.1
 ## 08/23/2018
