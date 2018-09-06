@@ -6,7 +6,9 @@ if (!file_exists(__DIR__ . '/../vendor')){
     require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
 }
 
+use Grav\Common\Grav;
 use Grav\Common\Composer;
+use Symfony\Component\Console\Application;
 
 if (!file_exists(__DIR__ . '/../vendor')){
     // Before we can even start, we need to run composer first
@@ -16,9 +18,8 @@ if (!file_exists(__DIR__ . '/../vendor')){
     echo "\n\n";
 }
 
-use Symfony\Component\Console\Application;
-
-require_once __DIR__ . '/../vendor/autoload.php';
+$autoload = require_once(__DIR__ . '/../vendor/autoload.php');
+Grav::instance(array('loader' => $autoload));
 
 if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
     exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
@@ -41,5 +42,6 @@ $app->addCommands(array(
     new \Grav\Console\Cli\ClearCacheCommand(),
     new \Grav\Console\Cli\BackupCommand(),
     new \Grav\Console\Cli\NewProjectCommand(),
+    new \Grav\Console\Cli\SchedulerCommand(),
 ));
 $app->run();

@@ -10,7 +10,7 @@ namespace Grav\Common\Processors;
 
 class AssetsProcessor extends ProcessorBase implements ProcessorInterface
 {
-    public $id = 'assets';
+    public $id = '_assets';
     public $title = 'Assets';
 
     public function process()
