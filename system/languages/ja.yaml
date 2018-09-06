@@ -30,7 +30,6 @@ NICETIME:
     SEC: 秒
     MIN: 分
     HR: 時
-    DAY: 日
     WK: 週
     MO: 月
     YR: 年
@@ -46,7 +45,6 @@ NICETIME:
     SEC_PLURAL: 秒
     MIN_PLURAL: 分
     HR_PLURAL: 時
-    DAY_PLURAL: 日
     WK_PLURAL: 週
     MO_PLURAL: 月
     YR_PLURAL: 年
