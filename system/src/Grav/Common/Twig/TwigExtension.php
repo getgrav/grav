@@ -159,9 +159,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('read_file', [$this, 'readFileFunc']),
             new \Twig_SimpleFunction('nicenumber', [$this, 'niceNumberFunc']),
             new \Twig_SimpleFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
-            new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFilter']),
+            new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFunc']),
             new \Twig_SimpleFunction('cron', [$this, 'cronFunc']),
-
 
             // Translations
             new \Twig_simpleFunction('t', [$this, 'translate']),

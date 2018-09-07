@@ -17,6 +17,8 @@
 1. [](#bugfix)
     * Allow `$page->slug()` to be called before `$page->init()` without breaking the page
     * Fix for `Page::translatedLanguages()` to use routes always [#2163](https://github.com/getgrav/grav/issues/2163)
+    * Fixed `nicetime()` twig function
+    * Allow twig tags `{% script %}`, `{% style %}` and `{% switch %}` to be placed outside of blocks
 
 # v1.5.1
 ## 08/23/2018
