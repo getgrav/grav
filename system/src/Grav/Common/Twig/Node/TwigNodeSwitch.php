@@ -8,7 +8,7 @@
 
 namespace Grav\Common\Twig\Node;
 
-class TwigNodeSwitch extends \Twig_Node implements \Twig_NodeOutputInterface
+class TwigNodeSwitch extends \Twig_Node
 {
     public function __construct(
         \Twig_Node $value,
