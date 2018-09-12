@@ -7,6 +7,7 @@
     * Updated Doctrine Cache to 1.8
     * Updated Symfony Components to 4.1
     * Added new `{% throw 404 'Not Found' %}` twig tag (with custom code/message)
+    * Added `Grav\Framework\File` classes for handling YAML, Markdown, JSON, INI and PHP serialized files
 
 # v1.5.2
 ## mm/dd/2018
