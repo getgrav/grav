@@ -11,6 +11,7 @@ namespace Grav\Framework\Object;
 
 use Doctrine\Common\Collections\Criteria;
 use Grav\Framework\Collection\AbstractIndexCollection;
+use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 
 /**
@@ -20,7 +21,7 @@ use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
  * This is an abstract class and has some protected abstract methods to load objects which you need to implement in
  * order to use the class.
  */
-abstract class ObjectIndex extends AbstractIndexCollection implements ObjectCollectionInterface
+abstract class ObjectIndex extends AbstractIndexCollection implements ObjectCollectionInterface, NestedObjectInterface
 {
     /** @var string */
     static protected $type;
@@ -111,6 +112,58 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
     public function unsetProperty($property)
     {
         return $this->__call('unsetProperty', [$property]);
+    }
+
+    /**
+     * @param string $property      Object property name.
+     * @param string $separator     Separator, defaults to '.'
+     * @return bool                 True if property has been defined (can be null).
+     */
+    public function hasNestedProperty($property, $separator = null)
+    {
+        return $this->__call('hasNestedProperty', [$property, $separator]);
+    }
+
+    /**
+     * @param string $property      Object property to be fetched.
+     * @param mixed  $default       Default value if property has not been set.
+     * @param string $separator     Separator, defaults to '.'
+     * @return mixed                Property value.
+     */
+    public function getNestedProperty($property, $default = null, $separator = null)
+    {
+        return $this->__call('getNestedProperty', [$property, $default, $separator]);
+    }
+
+    /**
+     * @param string $property      Object property to be updated.
+     * @param string $value         New value.
+     * @param string $separator     Separator, defaults to '.'
+     * @return ObjectCollectionInterface
+     */
+    public function setNestedProperty($property, $value, $separator = null)
+    {
+        return $this->__call('setNestedProperty', [$property, $value, $separator]);
+    }
+
+    /**
+     * @param string  $property     Object property to be defined.
+     * @param mixed   $default      Default value.
+     * @param string  $separator    Separator, defaults to '.'
+     * @return ObjectCollectionInterface
+     */
+    public function defNestedProperty($property, $default, $separator = null)
+    {
+        return $this->__call('defNestedProperty', [$property, $default, $separator]);
+    }
+
+    /**
+     * @param string  $property     Object property to be unset.
+     * @return ObjectCollectionInterface
+     */
+    public function unsetNestedProperty($property, $separator = null)
+    {
+        return $this->__call('unsetNestedProperty', [$property, $separator]);
     }
 
     /**

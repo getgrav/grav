@@ -13,13 +13,6 @@ namespace Grav\Framework\File\Interfaces;
 
 interface FileInterface
 {
-    public function __construct($filepath);
-
-    /**
-     * Unlock file when the object gets destroyed.
-     */
-    public function __destruct();
-
     /**
      * Get full path to the file.
      *
