@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
@@ -84,9 +85,9 @@ class SerializeFormatter implements FormatterInterface
      */
     protected function preserveLines($data, $search, $replace)
     {
-        if (is_string($data)) {
+        if (\is_string($data)) {
             $data = str_replace($search, $replace, $data);
-        } elseif (is_array($data)) {
+        } elseif (\is_array($data)) {
             foreach ($data as &$value) {
                 $value = $this->preserveLines($value, $search, $replace);
             }

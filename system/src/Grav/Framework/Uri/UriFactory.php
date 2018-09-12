@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Uri
  *
@@ -57,13 +58,13 @@ class UriFactory
         if (isset($env['REQUEST_SCHEME'])) {
             $scheme = strtolower($env['REQUEST_SCHEME']);
         } else {
-            $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
+            $https = $env['HTTPS'] ?? '';
             $scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
         }
 
         // Build user and password.
-        $user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : '';
-        $pass = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : '';
+        $user = $env['PHP_AUTH_USER'] ?? '';
+        $pass = $env['PHP_AUTH_PW'] ?? '';
 
         // Build host.
         $host = 'localhost';
@@ -79,11 +80,11 @@ class UriFactory
         $port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
 
         // Build path.
-        $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
+        $request_uri = $env['REQUEST_URI'] ?? '';
         $path = parse_url('http://example.com' . $request_uri, PHP_URL_PATH);
 
         // Build query string.
-        $query = isset($env['QUERY_STRING']) ? $env['QUERY_STRING'] : '';
+        $query = $env['QUERY_STRING'] ?? '';
         if ($query === '') {
             $query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY);
         }
@@ -115,7 +116,7 @@ class UriFactory
      */
     public static function parseUrl($url)
     {
-        if (!is_string($url)) {
+        if (!\is_string($url)) {
             throw new \InvalidArgumentException('URL must be a string');
         }
 

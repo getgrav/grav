@@ -58,9 +58,9 @@ trait NestedPropertyTrait
 
             $offset = array_shift($path);
 
-            if ((is_array($current) || is_a($current, 'ArrayAccess')) && isset($current[$offset])) {
+            if ((\is_array($current) || is_a($current, 'ArrayAccess')) && isset($current[$offset])) {
                 $current = $current[$offset];
-            } elseif (is_object($current) && isset($current->{$offset})) {
+            } elseif (\is_object($current) && isset($current->{$offset})) {
                 $current = $current->{$offset};
             } else {
                 return $default;
@@ -98,7 +98,7 @@ trait NestedPropertyTrait
             // Handle arrays and scalars.
             if ($current === null) {
                 $current = [$offset => []];
-            } elseif (is_array($current)) {
+            } elseif (\is_array($current)) {
                 if (!isset($current[$offset])) {
                     $current[$offset] = [];
                 }
@@ -142,7 +142,7 @@ trait NestedPropertyTrait
             if ($current === null) {
                 return $this;
             }
-            if (is_array($current)) {
+            if (\is_array($current)) {
                 if (!isset($current[$offset])) {
                     return $this;
                 }

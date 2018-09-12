@@ -111,7 +111,7 @@ trait ObjectPropertyTrait
             if ($doCreate === true) {
                 $this->_definedProperties[$property] = true;
                 $this->{$property} = null;
-            } elseif (is_callable($doCreate)) {
+            } elseif (\is_callable($doCreate)) {
                 $this->_definedProperties[$property] = true;
                 $this->{$property} = $this->offsetLoad($property, $doCreate());
             } else {
@@ -153,7 +153,7 @@ trait ObjectPropertyTrait
     protected function initObjectProperties()
     {
         $this->_definedProperties = [];
-        foreach (get_object_vars($this) as $property => $value) {
+        foreach (\get_object_vars($this) as $property => $value) {
             if ($property[0] !== '_') {
                 $this->_definedProperties[$property] = ($value !== null);
             }

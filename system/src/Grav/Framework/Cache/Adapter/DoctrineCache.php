@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *
@@ -10,7 +11,6 @@ namespace Grav\Framework\Cache\Adapter;
 
 use Doctrine\Common\Cache\CacheProvider;
 use Grav\Framework\Cache\AbstractCache;
-use Grav\Framework\Cache\Exception\InvalidArgumentException;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using Doctrine Cache backend.
@@ -100,16 +100,6 @@ class DoctrineCache extends AbstractCache
      */
     public function doDeleteMultiple($keys)
     {
-        // TODO: Remove when Doctrine Cache has been updated to support the feature.
-        if (!method_exists($this->driver, 'deleteMultiple')) {
-            $success = true;
-            foreach ($keys as $key) {
-                $success = $this->delete($key) && $success;
-            }
-
-            return $success;
-        }
-
         return $this->driver->deleteMultiple($keys);
     }
 

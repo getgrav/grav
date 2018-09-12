@@ -30,7 +30,7 @@ trait ObjectCollectionTrait
     {
         $list = [];
         foreach ($this->getIterator() as $key => $value) {
-            $list[$key] = is_object($value) ? clone $value : $value;
+            $list[$key] = \is_object($value) ? clone $value : $value;
         }
 
         return $this->createFrom($list);
@@ -132,7 +132,7 @@ trait ObjectCollectionTrait
 
         foreach ($this->getIterator() as $id => $element) {
             $list[$id] = method_exists($element, $method)
-                ? call_user_func_array([$element, $method], $arguments) : null;
+                ? \call_user_func_array([$element, $method], $arguments) : null;
         }
 
         return $list;

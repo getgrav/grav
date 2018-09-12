@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *
@@ -120,11 +121,11 @@ trait CacheTrait
     {
         if ($keys instanceof \Traversable) {
             $keys = iterator_to_array($keys, false);
-        } elseif (!is_array($keys)) {
+        } elseif (!\is_array($keys)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache keys must be array or Traversable, "%s" given',
-                    is_object($keys) ? get_class($keys) : gettype($keys)
+                    \is_object($keys) ? \get_class($keys) : \gettype($keys)
                 )
             );
         }
@@ -164,7 +165,7 @@ trait CacheTrait
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache values must be array or Traversable, "%s" given',
-                    is_object($values) ? get_class($values) : gettype($values)
+                    \is_object($values) ? \get_class($values) : \gettype($values)
                 )
             );
         }
@@ -195,7 +196,7 @@ trait CacheTrait
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache keys must be array or Traversable, "%s" given',
-                    is_object($keys) ? get_class($keys) : gettype($keys)
+                    \is_object($keys) ? \get_class($keys) : \gettype($keys)
                 )
             );
         }
@@ -283,20 +284,20 @@ trait CacheTrait
      */
     protected function validateKey($key)
     {
-        if (!is_string($key)) {
+        if (!\is_string($key)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache key must be string, "%s" given',
-                    is_object($key) ? get_class($key) : gettype($key)
+                    \is_object($key) ? \get_class($key) : \gettype($key)
                 )
             );
         }
         if (!isset($key[0])) {
             throw new InvalidArgumentException('Cache key length must be greater than zero');
         }
-        if (strlen($key) > 64) {
+        if (\strlen($key) > 64) {
             throw new InvalidArgumentException(
-                sprintf('Cache key length must be less than 65 characters, key had %s characters', strlen($key))
+                sprintf('Cache key length must be less than 65 characters, key had %s characters', \strlen($key))
             );
         }
         if (strpbrk($key, '{}()/\@:') !== false) {
@@ -332,7 +333,7 @@ trait CacheTrait
             return $this->getDefaultLifetime();
         }
 
-        if (is_int($ttl)) {
+        if (\is_int($ttl)) {
             return $ttl;
         }
 

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File
  *
@@ -51,7 +54,7 @@ class DataFile extends AbstractFile
      */
     public function save($data)
     {
-        if (is_string($data)) {
+        if (\is_string($data)) {
             try {
                 $this->formatter->decode($data);
             } catch (\RuntimeException $e) {

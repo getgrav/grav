@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *

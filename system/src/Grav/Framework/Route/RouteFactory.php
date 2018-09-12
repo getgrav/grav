@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Route
  *
@@ -108,7 +109,7 @@ class RouteFactory
             return $path;
         }
 
-        $path = dirname(substr($path, 0, $pos));
+        $path = \dirname(substr($path, 0, $pos));
         if ($path === '.') {
             return '';
         }
@@ -122,7 +123,7 @@ class RouteFactory
      */
     public static function getParams($path)
     {
-        $params = ltrim(substr($path, strlen(static::stripParams($path))), '/');
+        $params = ltrim(substr($path, \strlen(static::stripParams($path))), '/');
 
         return $params !== '' ? static::parseParams($params) : [];
     }

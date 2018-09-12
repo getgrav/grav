@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Route
  *
@@ -101,7 +102,7 @@ class Route
         $parts = explode('/', $this->route);
 
         if ($offset !== 0 || $length !== null) {
-            $parts = array_slice($parts, $offset, $length);
+            $parts = \array_slice($parts, $offset, $length);
         }
 
         return $parts;
@@ -159,7 +160,7 @@ class Route
      */
     public function getGravParam($param)
     {
-        return isset($this->gravParams[$param]) ? $this->gravParams[$param] : null;
+        return $this->gravParams[$param] ?? null;
     }
 
     /**
@@ -168,7 +169,7 @@ class Route
      */
     public function getQueryParam($param)
     {
-        return isset($this->queryParams[$param]) ? $this->queryParams[$param] : null;
+        return $this->queryParams[$param] ?? null;
     }
 
     /**
@@ -221,7 +222,7 @@ class Route
      */
     protected function withParam($type, $param, $value)
     {
-        $oldValue = isset($this->{$type}[$param]) ? $this->{$type}[$param] : null;
+        $oldValue = $this->{$type}[$param] ?? null;
 
         if ($oldValue === $value) {
             return $this;
@@ -284,7 +285,7 @@ class Route
             $this->root = RouteFactory::getRoot();
             $this->language = RouteFactory::getLanguage();
 
-            $path = isset($parts['path']) ? $parts['path'] : '/';
+            $path = $parts['path'] ?? '/';
             if (isset($parts['params'])) {
                 $this->route = trim(rawurldecode($path), '/');
                 $this->gravParams = $parts['params'];

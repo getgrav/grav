@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
@@ -80,7 +81,7 @@ class YamlFormatter implements FormatterInterface
     public function decode($data)
     {
         // Try native PECL YAML PHP extension first if available.
-        if ($this->config['native'] && function_exists('yaml_parse')) {
+        if (\function_exists('yaml_parse') && $this->config['native']) {
             // Safely decode YAML.
             $saved = @ini_get('yaml.decode_php');
             @ini_set('yaml.decode_php', 0);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *
@@ -66,7 +67,7 @@ class SessionCache extends AbstractCache
 
     protected function doGetStored($key)
     {
-        $stored = isset($_SESSION[$this->getNamespace()][$key]) ? $_SESSION[$this->getNamespace()][$key] : null;
+        $stored = $_SESSION[$this->getNamespace()][$key] ?? null;
 
         if (isset($stored[self::LIFETIME]) && $stored[self::LIFETIME] < time()) {
             unset($_SESSION[$this->getNamespace()][$key]);

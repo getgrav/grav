@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Session
  *
@@ -158,7 +159,7 @@ class Session implements SessionInterface
         ];
 
         foreach ($options as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 // Allow nested options.
                 foreach ($value as $key2 => $value2) {
                     $ckey = "{$key}.{$key2}";
@@ -293,7 +294,7 @@ class Session implements SessionInterface
      */
     public function __get($name)
     {
-        return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+        return $_SESSION[$name] ?? null;
     }
 
     /**
@@ -328,8 +329,8 @@ class Session implements SessionInterface
      */
     protected function ini_set($key, $value)
     {
-        if (!is_string($value)) {
-            if (is_bool($value)) {
+        if (!\is_string($value)) {
+            if (\is_bool($value)) {
                 $value = $value ? '1' : '0';
             }
             $value = (string)$value;

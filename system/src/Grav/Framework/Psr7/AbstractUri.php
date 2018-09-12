@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Psr7
  *
@@ -156,10 +157,10 @@ abstract class AbstractUri implements UriInterface
      * @inheritdoc
      * @throws \InvalidArgumentException
      */
-    public function withUserInfo($user, $password = '')
+    public function withUserInfo($user, $password = null)
     {
         $user = UriPartsFilter::filterUserInfo($user);
-        $password = UriPartsFilter::filterUserInfo($password);
+        $password = UriPartsFilter::filterUserInfo($password ?? '');
 
         if ($this->user === $user && $this->password === $password) {
             return $this;

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File
  *
@@ -8,7 +11,9 @@
 
 namespace Grav\Framework\File;
 
-class AbstractFile
+use Grav\Framework\File\Interfaces\FileInterface;
+
+class AbstractFile implements FileInterface
 {
     /** @var string */
     private $filepath;
@@ -58,7 +63,7 @@ class AbstractFile
      *
      * @return string
      */
-    public function getFilePath()
+    public function getFilePath() : string
     {
         return $this->filepath;
     }
@@ -68,7 +73,7 @@ class AbstractFile
      *
      * @return string
      */
-    public function getPath()
+    public function getPath() : string
     {
         if (null === $this->path) {
             $this->setPathInfo();
@@ -82,7 +87,7 @@ class AbstractFile
      *
      * @return string
      */
-    public function getFilename()
+    public function getFilename() : string
     {
         if (null === $this->filename) {
             $this->setPathInfo();
@@ -96,7 +101,7 @@ class AbstractFile
      *
      * @return string
      */
-    public function getBasename()
+    public function getBasename() : string
     {
         if (null === $this->basename) {
             $this->setPathInfo();
@@ -111,7 +116,7 @@ class AbstractFile
      * @param $withDot
      * @return string
      */
-    public function getExtension($withDot = false)
+    public function getExtension($withDot = false) : string
     {
         if (null === $this->extension) {
             $this->setPathInfo();
@@ -125,7 +130,7 @@ class AbstractFile
      *
      * @return bool
      */
-    public function exists()
+    public function exists() : bool
     {
         return is_file($this->filepath);
     }
@@ -157,7 +162,7 @@ class AbstractFile
      * @return bool
      * @throws \RuntimeException
      */
-    public function lock($block = true)
+    public function lock($block = true) : bool
     {
         if (!$this->handle) {
             if (!$this->mkdir($this->getPath())) {
@@ -179,7 +184,7 @@ class AbstractFile
      *
      * @return bool
      */
-    public function unlock()
+    public function unlock() : bool
     {
         if (!$this->handle) {
             return false;
@@ -199,7 +204,7 @@ class AbstractFile
      *
      * @return bool True = locked, false = not locked.
      */
-    public function isLocked()
+    public function isLocked() : bool
     {
         return $this->locked;
     }
@@ -209,7 +214,7 @@ class AbstractFile
      *
      * @return bool
      */
-    public function isWritable()
+    public function isWritable() : bool
     {
         return is_writable($this->filepath) || $this->isWritableDir($this->getPath());
     }
@@ -261,7 +266,7 @@ class AbstractFile
      * @param string $path
      * @return bool
      */
-    public function rename($path)
+    public function rename($path) : bool
     {
         if ($this->exists() && !@rename($this->filepath, $path)) {
             return false;
@@ -277,7 +282,7 @@ class AbstractFile
      *
      * @return bool
      */
-    public function delete()
+    public function delete() : bool
     {
         return @unlink($this->filepath);
     }
@@ -288,7 +293,7 @@ class AbstractFile
      * @throws \RuntimeException
      * @internal
      */
-    protected function mkdir($dir)
+    protected function mkdir($dir) : bool
     {
         // Silence error for open_basedir; should fail in mkdir instead.
         if (!@is_dir($dir)) {
@@ -309,7 +314,7 @@ class AbstractFile
      * @return bool
      * @internal
      */
-    protected function isWritableDir($dir)
+    protected function isWritableDir($dir) : bool
     {
         if ($dir && !file_exists($dir)) {
             return $this->isWritableDir(dirname($dir));
@@ -318,7 +323,7 @@ class AbstractFile
         return $dir && is_dir($dir) && is_writable($dir);
     }
 
-    protected function setFilepath($filepath)
+    protected function setFilepath($filepath) : void
     {
         $this->filepath = $filepath;
         $this->filename = null;
@@ -327,7 +332,7 @@ class AbstractFile
         $this->extension = null;
     }
 
-    protected function setPathInfo()
+    protected function setPathInfo() : void
     {
         $pathInfo = static::pathinfo($this->filepath);
         $this->filename = $pathInfo['filename'];

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\ContentBlock
  *
@@ -104,7 +105,7 @@ class ContentBlock implements ContentBlockInterface
         }
 
         $array = [
-            '_type' => get_class($this),
+            '_type' => \get_class($this),
             '_version' => $this->version,
             'id' => $this->id
         ];
@@ -163,8 +164,8 @@ class ContentBlock implements ContentBlockInterface
     {
         $this->checkVersion($serialized);
 
-        $this->id = isset($serialized['id']) ? $serialized['id'] : $this->generateId();
-        $this->checksum = isset($serialized['checksum']) ? $serialized['checksum'] : null;
+        $this->id = $serialized['id'] ?? $this->generateId();
+        $this->checksum = $serialized['checksum'] ?? null;
 
         if (isset($serialized['content'])) {
             $this->setContent($serialized['content']);

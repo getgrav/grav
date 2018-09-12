@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Uri
  *
@@ -23,7 +24,7 @@ class UriPartsFilter
      */
     public static function filterScheme($scheme)
     {
-        if (!is_string($scheme)) {
+        if (!\is_string($scheme)) {
             throw new \InvalidArgumentException('Uri scheme must be a string');
         }
 
@@ -39,7 +40,7 @@ class UriPartsFilter
      */
     public static function filterUserInfo($info)
     {
-        if (!is_string($info)) {
+        if (!\is_string($info)) {
             throw new \InvalidArgumentException('Uri user info must be a string');
         }
 
@@ -59,7 +60,7 @@ class UriPartsFilter
      */
     public static function filterHost($host)
     {
-        if (!is_string($host)) {
+        if (!\is_string($host)) {
             throw new \InvalidArgumentException('Uri host must be a string');
         }
 
@@ -83,7 +84,7 @@ class UriPartsFilter
      */
     public static function filterPort($port = null)
     {
-        if (null === $port || (is_int($port) && ($port >= 1 && $port <= 65535))) {
+        if (null === $port || (\is_int($port) && ($port >= 1 && $port <= 65535))) {
             return $port;
         }
 
@@ -103,7 +104,7 @@ class UriPartsFilter
      */
     public static function filterPath($path)
     {
-        if (!is_string($path)) {
+        if (!\is_string($path)) {
             throw new \InvalidArgumentException('Uri path must be a string');
         }
 
@@ -125,7 +126,7 @@ class UriPartsFilter
      */
     public static function filterQueryOrFragment($query)
     {
-        if (!is_string($query)) {
+        if (!\is_string($query)) {
             throw new \InvalidArgumentException('Uri query string and fragment must be a string');
         }
 

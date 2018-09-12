@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *
@@ -48,7 +49,7 @@ class ChainCache extends AbstractCache
                 throw new InvalidArgumentException(
                     sprintf(
                         "The class '%s' does not implement the '%s' interface",
-                        get_class($cache),
+                        \get_class($cache),
                         CacheInterface::class
                     )
                 );
@@ -56,7 +57,7 @@ class ChainCache extends AbstractCache
         }
 
         $this->caches = array_values($caches);
-        $this->count = count($caches);
+        $this->count = \count($caches);
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Uri
  *
@@ -81,7 +82,7 @@ class Uri extends AbstractUri
     {
         $queryParams = $this->getQueryParams();
 
-        return isset($queryParams[$key]) ? $queryParams[$key] : null;
+        return $queryParams[$key] ?? null;
     }
 
     /**

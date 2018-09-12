@@ -44,7 +44,7 @@ trait ObjectTrait
             return $type . static::$type;
         }
 
-        $class = get_class($this);
+        $class = \get_class($this);
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
