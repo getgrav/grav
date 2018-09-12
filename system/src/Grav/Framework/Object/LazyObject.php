@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
@@ -16,11 +17,16 @@ use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Object\Property\LazyPropertyTrait;
 
 /**
- * Lazy Object class.
+ * Lazy Objects keep their data in both protected object properties and falls back to a stored array if property does
+ * not exist or is not initialized.
  *
  * @package Grav\Framework\Object
  */
 class LazyObject implements NestedObjectInterface, \ArrayAccess
 {
-    use ObjectTrait, LazyPropertyTrait, NestedPropertyTrait, OverloadedPropertyTrait, NestedArrayAccessTrait;
+    use ObjectTrait;
+    use LazyPropertyTrait;
+    use NestedPropertyTrait;
+    use OverloadedPropertyTrait;
+    use NestedArrayAccessTrait;
 }

@@ -42,7 +42,7 @@ trait MediaTrait
        $locator = Grav::instance()['locator'];
        $user = $locator->findResource('user://');
        if (strpos($folder, $user) === 0) {
-           return 'user://' . substr($folder, strlen($user)+1);
+           return 'user://' . substr($folder, \strlen($user)+1);
        }
 
        return null;

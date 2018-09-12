@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
@@ -16,11 +17,13 @@ use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Object\Property\ArrayPropertyTrait;
 
 /**
- * Array Object class.
- *
- * @package Grav\Framework\Object
+ * Array Objects keep the data in private array property.
  */
 class ArrayObject implements NestedObjectInterface, \ArrayAccess
 {
-    use ObjectTrait, ArrayPropertyTrait, NestedPropertyTrait, OverloadedPropertyTrait, NestedArrayAccessTrait;
+    use ObjectTrait;
+    use ArrayPropertyTrait;
+    use NestedPropertyTrait;
+    use OverloadedPropertyTrait;
+    use NestedArrayAccessTrait;
 }

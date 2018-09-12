@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
@@ -17,12 +18,12 @@ use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 
 /**
- * Object Collection
- * @package Grav\Framework\Object
+ * Class contains a collection of objects.
  */
 class ObjectCollection extends ArrayCollection implements ObjectCollectionInterface, NestedObjectInterface
 {
-    use ObjectCollectionTrait, NestedPropertyCollectionTrait {
+    use ObjectCollectionTrait;
+    use NestedPropertyCollectionTrait {
         NestedPropertyCollectionTrait::group insteadof ObjectCollectionTrait;
     }
 
@@ -55,7 +56,7 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
         if ($orderings = $criteria->getOrderings()) {
             $next = null;
             foreach (array_reverse($orderings) as $field => $ordering) {
-                $next = ObjectExpressionVisitor::sortByField($field, $ordering == Criteria::DESC ? -1 : 1, $next);
+                $next = ObjectExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
             }
 
             uasort($filtered, $next);
@@ -65,7 +66,7 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
         $length = $criteria->getMaxResults();
 
         if ($offset || $length) {
-            $filtered = array_slice($filtered, (int)$offset, $length);
+            $filtered = \array_slice($filtered, (int)$offset, $length);
         }
 
         return $this->createFrom($filtered);
