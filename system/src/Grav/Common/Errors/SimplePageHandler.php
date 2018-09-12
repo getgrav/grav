@@ -35,6 +35,10 @@ class SimplePageHandler extends Handler
         $cssFile      = $this->getResource("error.css");
 
         $code = $inspector->getException()->getCode();
+        if ( ($code >= 400) && ($code < 600) )
+        {
+            $this->getRun()->sendHttpCode($code);    
+        }
         $message = $inspector->getException()->getMessage();
 
         if ($inspector->getException() instanceof \ErrorException) {
