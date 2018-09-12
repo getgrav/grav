@@ -18,8 +18,8 @@ use Grav\Framework\Cache\AbstractCache;
  */
 class SessionCache extends AbstractCache
 {
-    const VALUE = 0;
-    const LIFETIME = 1;
+    public const VALUE = 0;
+    public const LIFETIME = 1;
 
     public function doGet($key, $miss)
     {

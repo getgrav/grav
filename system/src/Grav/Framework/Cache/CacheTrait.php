@@ -344,7 +344,7 @@ trait CacheTrait
         throw new InvalidArgumentException(
             sprintf(
                 'Expiration date must be an integer, a DateInterval or null, "%s" given',
-                is_object($ttl) ? get_class($ttl) : gettype($ttl)
+                \is_object($ttl) ? \get_class($ttl) : \gettype($ttl)
             )
         );
     }

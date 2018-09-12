@@ -140,22 +140,17 @@ class Session implements SessionInterface
             'cache_limiter' => true,
             'cache_expire' => true,
             'use_trans_sid' => true,
-            'trans_sid_tags' => true,           // PHP 7.1
-            'trans_sid_hosts' => true,          // PHP 7.1
-            'sid_length' => true,               // PHP 7.1
-            'sid_bits_per_character' => true,   // PHP 7.1
+            'trans_sid_tags' => true,
+            'trans_sid_hosts' => true,
+            'sid_length' => true,
+            'sid_bits_per_character' => true,
             'upload_progress.enabled' => true,
             'upload_progress.cleanup' => true,
             'upload_progress.prefix' => true,
             'upload_progress.name' => true,
             'upload_progress.freq' => true,
             'upload_progress.min-freq' => true,
-            'lazy_write' => true,
-            'url_rewriter.tags' => true,        // Not used in PHP 7.1
-            'hash_function' => true,            // Not used in PHP 7.1
-            'hash_bits_per_character' => true,  // Not used in PHP 7.1
-            'entropy_file' => true,             // Not used in PHP 7.1
-            'entropy_length' => true,           // Not used in PHP 7.1
+            'lazy_write' => true
         ];
 
         foreach ($options as $key => $value) {
@@ -332,8 +327,9 @@ class Session implements SessionInterface
         if (!\is_string($value)) {
             if (\is_bool($value)) {
                 $value = $value ? '1' : '0';
+            } else {
+                $value = (string)$value;
             }
-            $value = (string)$value;
         }
 
         ini_set($key, $value);

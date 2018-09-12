@@ -47,10 +47,10 @@ class ContentBlock implements ContentBlockInterface
     public static function fromArray(array $serialized)
     {
         try {
-            $type = isset($serialized['_type']) ? $serialized['_type'] : null;
-            $id = isset($serialized['id']) ? $serialized['id'] : null;
+            $type = $serialized['_type'] ?? null;
+            $id = $serialized['id'] ?? null;
 
-            if (!$type || !$id || !is_a($type, 'Grav\Framework\ContentBlock\ContentBlockInterface', true)) {
+            if (!$type || !$id || !is_a($type, ContentBlockInterface::class, true)) {
                 throw new \InvalidArgumentException('Bad data');
             }
 

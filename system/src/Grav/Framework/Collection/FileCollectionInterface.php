@@ -18,9 +18,9 @@ use Doctrine\Common\Collections\Selectable;
  */
 interface FileCollectionInterface extends CollectionInterface, Selectable
 {
-    const INCLUDE_FILES = 1;
-    const INCLUDE_FOLDERS = 2;
-    const RECURSIVE = 4;
+    public const INCLUDE_FILES = 1;
+    public const INCLUDE_FOLDERS = 2;
+    public const RECURSIVE = 4;
 
     /**
      * @return string

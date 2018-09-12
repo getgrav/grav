@@ -14,6 +14,7 @@ use Grav\Common\Grav;
 use Grav\Common\Media\Traits\MediaTrait;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 
 /**
  * Implements Grav Page content and header manipulation methods.
@@ -31,14 +32,14 @@ trait FlexMediaTrait
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
-                throw new \RuntimeException($language->translate('PLUGIN_ADMIN.NO_FILES_SENT'), 400);
+                throw new RuntimeException($language->translate('PLUGIN_ADMIN.NO_FILES_SENT'), 400);
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                throw new \RuntimeException($language->translate('PLUGIN_ADMIN.EXCEEDED_FILESIZE_LIMIT'), 400);
+                throw new RuntimeException($language->translate('PLUGIN_ADMIN.EXCEEDED_FILESIZE_LIMIT'), 400);
             case UPLOAD_ERR_NO_TMP_DIR:
-                throw new \RuntimeException($language->translate('PLUGIN_ADMIN.UPLOAD_ERR_NO_TMP_DIR'), 400);
+                throw new RuntimeException($language->translate('PLUGIN_ADMIN.UPLOAD_ERR_NO_TMP_DIR'), 400);
             default:
-                throw new \RuntimeException($language->translate('PLUGIN_ADMIN.UNKNOWN_ERRORS'), 400);
+                throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNKNOWN_ERRORS'), 400);
         }
 
         /** @var Config $config */
@@ -46,7 +47,7 @@ trait FlexMediaTrait
         $grav_limit = (int) $config->get('system.media.upload_limit', 0);
 
         if ($grav_limit > 0 && $uploadedFile->getSize() > $grav_limit) {
-            throw new \RuntimeException($language->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
         }
 
         // Check the file extension.
@@ -56,7 +57,7 @@ trait FlexMediaTrait
 
         // If not a supported type, return
         if (!$extension || !$config->get("media.types.{$extension}")) {
-            throw new \RuntimeException($language->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
         }
 
         $media = $this->getMedia();
@@ -73,7 +74,7 @@ trait FlexMediaTrait
             // Upload it
             $uploadedFile->moveTo(sprintf('%s/%s', $path, $filename));
         } catch (\Exception $e) {
-            throw new \RuntimeException($language->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
         }
 
         $this->clearMediaCache();
@@ -103,7 +104,7 @@ trait FlexMediaTrait
 
             $result = unlink($targetPath);
             if (!$result) {
-                throw new \RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+                throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
             }
         }
 
@@ -119,7 +120,7 @@ trait FlexMediaTrait
 
                 $result = unlink($targetPath);
                 if (!$result) {
-                    throw new \RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+                    throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
                 }
 
                 $found = true;
@@ -129,7 +130,7 @@ trait FlexMediaTrait
         $this->clearMediaCache();
 
         if (!$found) {
-            throw new \RuntimeException($language->translate('PLUGIN_ADMIN.FILE_NOT_FOUND') . ': ' . $filename, 500);
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_NOT_FOUND') . ': ' . $filename, 500);
         }
     }
 }
