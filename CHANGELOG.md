@@ -10,6 +10,7 @@
     * Added `Grav\Framework\File` classes for handling YAML, Markdown, JSON, INI and PHP serialized files
     * Added `Grav\Framework\Collection\AbstractIndexCollection` class
     * Added `Grav\Framework\Object\ObjectIndex` class
+    * Added `Grav\Framework\Flex` classes
 
 # v1.5.2
 ## mm/dd/2018
