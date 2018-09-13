@@ -56,8 +56,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $storage;
     /** @var CacheInterface */
     protected $cache;
-
+    /** @var string */
     protected $objectClassName;
+    /** @var string */
     protected $collectionClassName;
 
     /**

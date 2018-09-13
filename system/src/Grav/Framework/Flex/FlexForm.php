@@ -23,19 +23,14 @@ class FlexForm implements \Serializable
 {
     /** @var string */
     private $name;
-
     /** @var bool */
     private $submitted;
-
     /** @var string[] */
     private $errors;
-
     /** @var Data */
     private $data;
-
     /** @var UploadedFileInterface[] */
     private $files;
-
     /** @var FlexObject */
     private $object;
 
