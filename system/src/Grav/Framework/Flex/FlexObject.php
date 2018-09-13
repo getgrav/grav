@@ -44,7 +44,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     use FlexAuthorizeTrait;
 
     /** @var FlexDirectory */
-    private $flexDirectory;
+    private $_flexDirectory;
     /** @var string */
     private $storageKey;
     /** @var int */
@@ -93,7 +93,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function __construct(array $elements, $key, FlexDirectory $flexDirectory, $validate = false)
     {
-        $this->flexDirectory = $flexDirectory;
+        $this->_flexDirectory = $flexDirectory;
 
         if ($validate) {
             $blueprint = $this->getFlexDirectory()->getBlueprint();
@@ -148,7 +148,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         $type = $prefix ? $this->getTypePrefix() : '';
 
-        return $type . $this->flexDirectory->getType();
+        return $type . $this->_flexDirectory->getType();
     }
 
     /**
@@ -156,7 +156,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexDirectory() : FlexDirectory
     {
-        return $this->flexDirectory;
+        return $this->_flexDirectory;
     }
 
     /**
@@ -177,7 +177,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getBlueprint()
     {
-        return $this->flexDirectory->getBlueprint();
+        return $this->_flexDirectory->getBlueprint();
     }
 
     /**
@@ -275,7 +275,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         if ($key !== false) {
             $key = md5($this->getCacheKey() . '.' . $layout . json_encode($context));
-            $cache = $this->flexDirectory->getCache('render');
+            $cache = $this->_flexDirectory->getCache('render');
         }
 
         try {
@@ -484,7 +484,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if (!$directory) {
             throw new \InvalidArgumentException("Cannot unserialize '{$type}': Not found");
         }
-        $this->flexDirectory = $directory;
+        $this->_flexDirectory = $directory;
         $this->storageKey = $serialized['storage_key'];
         $this->timestamp = $serialized['storage_timestamp'];
 

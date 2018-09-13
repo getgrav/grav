@@ -26,7 +26,7 @@ use RocketTheme\Toolbox\Event\Event;
 class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 {
     /** @var FlexDirectory */
-    private $flexDirectory;
+    private $_flexDirectory;
 
     /**
      * @return array
@@ -77,7 +77,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     protected function createFrom(array $elements)
     {
-        return new static($elements, $this->flexDirectory);
+        return new static($elements, $this->_flexDirectory);
     }
 
     /**
@@ -96,7 +96,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     {
         $type = $prefix ? $this->getTypePrefix() : '';
 
-        return $type . $this->flexDirectory->getType();
+        return $type . $this->_flexDirectory->getType();
     }
 
     /**
@@ -129,7 +129,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         if ($key !== false) {
             $key = md5($this->getCacheKey() . '.' . $layout . json_encode($context));
-            $cache = $this->flexDirectory->getCache('render');
+            $cache = $this->_flexDirectory->getCache('render');
         }
 
         try {
@@ -183,7 +183,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function setFlexDirectory(FlexDirectory $type)
     {
-        $this->flexDirectory = $type;
+        $this->_flexDirectory = $type;
 
         return $this;
     }
@@ -193,7 +193,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getFlexDirectory() : FlexDirectory
     {
-        return $this->flexDirectory;
+        return $this->_flexDirectory;
     }
 
     /**
@@ -327,7 +327,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Syntax
      */
-    protected function getTemplate($layout)
+    protected function getTemplate($layout) : \Twig_Template
     {
         $grav = Grav::instance();
 
@@ -348,17 +348,12 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param $type
      * @return FlexDirectory
-     * @throws \RuntimeException
      */
-    protected function getRelatedDirectory($type)
+    protected function getRelatedDirectory($type) : ?FlexDirectory
     {
         /** @var Flex $flex */
         $flex = Grav::instance()['flex_objects'];
-        $directory = $flex->getDirectory($type);
-        if (!$directory) {
-            throw new \RuntimeException(ucfirst($type). ' directory does not exist!');
-        }
 
-        return $directory;
+        return $flex->getDirectory($type);
     }
 }

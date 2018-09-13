@@ -191,7 +191,7 @@ class AbstractFile implements FileInterface
         }
         if ($this->locked) {
             flock($this->handle, LOCK_UN);
-            $this->locked = null;
+            $this->locked = false;
         }
         fclose($this->handle);
         $this->handle = null;
@@ -317,7 +317,7 @@ class AbstractFile implements FileInterface
     protected function isWritableDir($dir) : bool
     {
         if ($dir && !file_exists($dir)) {
-            return $this->isWritableDir(dirname($dir));
+            return $this->isWritableDir(\dirname($dir));
         }
 
         return $dir && is_dir($dir) && is_writable($dir);

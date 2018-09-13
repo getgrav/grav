@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\File;
 
 use Grav\Framework\File\Formatter\FormatterInterface;
+use RuntimeException;
 
 class DataFile extends AbstractFile
 {
@@ -34,6 +35,7 @@ class DataFile extends AbstractFile
      * (Re)Load a file and return RAW file contents.
      *
      * @return array
+     * @throws RuntimeException
      */
     public function load()
     {
@@ -41,8 +43,8 @@ class DataFile extends AbstractFile
 
         try {
             return $this->formatter->decode($raw);
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf("Failed to load file '%s': %s", $this->getFilePath(), $e->getMessage()), $e->getCode(), $e);
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf("Failed to load file '%s': %s", $this->getFilePath(), $e->getMessage()), $e->getCode(), $e);
         }
     }
 
@@ -50,15 +52,15 @@ class DataFile extends AbstractFile
      * Save file.
      *
      * @param  string|array  $data  Data to be saved.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function save($data)
     {
         if (\is_string($data)) {
             try {
                 $this->formatter->decode($data);
-            } catch (\RuntimeException $e) {
-                throw new \RuntimeException(sprintf("Failed to save file '%s': %s", $this->getFilePath(), $e->getMessage()), $e->getCode(), $e);
+            } catch (RuntimeException $e) {
+                throw new RuntimeException(sprintf("Failed to save file '%s': %s", $this->getFilePath(), $e->getMessage()), $e->getCode(), $e);
             }
             $encoded = $data;
         } else {

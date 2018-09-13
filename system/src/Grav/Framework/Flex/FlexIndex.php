@@ -22,7 +22,7 @@ use PSR\SimpleCache\InvalidArgumentException;
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface
 {
     /** @var FlexDirectory */
-    private $flexDirectory;
+    private $_flexDirectory;
 
     /**
      * Initializes a new FlexIndex.
@@ -34,7 +34,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
     {
         parent::__construct($entries);
 
-        $this->flexDirectory = $flexDirectory;
+        $this->_flexDirectory = $flexDirectory;
     }
 
     /**
@@ -42,7 +42,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
      */
     public function getFlexDirectory() : FlexDirectory
     {
-        return $this->flexDirectory;
+        return $this->_flexDirectory;
     }
 
     /**
@@ -53,7 +53,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
     {
         $type = $prefix ? $this->getTypePrefix() : '';
 
-        return $type . $this->flexDirectory->getType();
+        return $type . $this->_flexDirectory->getType();
     }
 
     /**
@@ -165,13 +165,13 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
         $debugger = Grav::instance()['debugger'];
 
         /** @var FlexCollection $className */
-        $className = $this->flexDirectory->getCollectionClass();
+        $className = $this->_flexDirectory->getCollectionClass();
         $cachedMethods = $className::getCachedMethods();
 
         if (!empty($cachedMethods[$name])) {
             $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey());
 
-            $cache = $this->flexDirectory->getCache('object');
+            $cache = $this->_flexDirectory->getCache('object');
 
             $test = new \stdClass;
             try {
@@ -227,7 +227,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
     {
         $data = unserialize($serialized);
 
-        $this->flexDirectory = Grav::instance()['flex_objects']->getDirectory($data['type']);
+        $this->_flexDirectory = Grav::instance()['flex_objects']->getDirectory($data['type']);
         $this->setEntries($data['entries']);
     }
 
@@ -238,7 +238,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
      */
     protected function createFrom(array $entries)
     {
-        return new static($entries, $this->flexDirectory);
+        return new static($entries, $this->_flexDirectory);
     }
 
     /**
@@ -256,7 +256,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
      */
     protected function loadElement($key, $value) : ?ObjectInterface
     {
-        $objects = $this->flexDirectory->loadObjects([$key => $value]);
+        $objects = $this->_flexDirectory->loadObjects([$key => $value]);
 
         return $objects ? reset($objects) : null;
     }
@@ -267,7 +267,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
      */
     protected function loadElements(array $entries = null) : array
     {
-        return $this->flexDirectory->loadObjects($entries ?? $this->getEntries());
+        return $this->_flexDirectory->loadObjects($entries ?? $this->getEntries());
     }
 
     /**
@@ -276,7 +276,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
      */
     protected function loadCollection(array $entries = null) : CollectionInterface
     {
-        return $this->flexDirectory->loadCollection($entries ?? $this->getEntries());
+        return $this->_flexDirectory->loadCollection($entries ?? $this->getEntries());
     }
 
     /**
