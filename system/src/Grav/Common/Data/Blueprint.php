@@ -15,14 +15,10 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Blueprint extends BlueprintForm
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $context = 'blueprints://';
 
-    /**
-     * @var BlueprintSchema
-     */
+    /** @var BlueprintSchema */
     protected $blueprintSchema;
 
     /**
@@ -127,13 +123,15 @@ class Blueprint extends BlueprintForm
      */
     protected function initInternals()
     {
-        if (!isset($this->blueprintSchema)) {
+        if (null === $this->blueprintSchema) {
             $types = Grav::instance()['plugins']->formFieldTypes;
 
             $this->blueprintSchema = new BlueprintSchema;
+
             if ($types) {
                 $this->blueprintSchema->setTypes($types);
             }
+
             $this->blueprintSchema->embed('', $this->items);
             $this->blueprintSchema->init();
         }
@@ -162,17 +160,19 @@ class Blueprint extends BlueprintForm
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
-        if (is_string($path) && !$locator->isStream($path)) {
+        if (\is_string($path) && !$locator->isStream($path)) {
             // Find path overrides.
-            $paths = isset($this->overrides[$path]) ? (array) $this->overrides[$path] : [];
+            $paths = (array) ($this->overrides[$path] ?? null);
 
             // Add path pointing to default context.
             if ($context === null) {
                 $context = $this->context;
             }
-            if ($context && $context[strlen($context)-1] !== '/') {
+
+            if ($context && $context[\strlen($context)-1] !== '/') {
                 $context .= '/';
             }
+
             $path = $context . $path;
 
             if (!preg_match('/\.yaml$/', $path)) {
@@ -186,7 +186,7 @@ class Blueprint extends BlueprintForm
 
         $files = [];
         foreach ($paths as $lookup) {
-            if (is_string($lookup) && strpos($lookup, '://')) {
+            if (\is_string($lookup) && strpos($lookup, '://')) {
                 $files = array_merge($files, $locator->findResources($lookup));
             } else {
                 $files[] = $lookup;
@@ -205,27 +205,29 @@ class Blueprint extends BlueprintForm
     {
         $params = $call['params'];
 
-        if (is_array($params)) {
+        if (\is_array($params)) {
             $function = array_shift($params);
         } else {
             $function = $params;
             $params = [];
         }
 
-        list($o, $f) = preg_split('/::/', $function, 2);
+        [$o, $f] = explode('::', $function, 2);
+
+        $data = null;
         if (!$f) {
-            if (function_exists($o)) {
-                $data = call_user_func_array($o, $params);
+            if (\function_exists($o)) {
+                $data = \call_user_func_array($o, $params);
             }
         } else {
             if (method_exists($o, $f)) {
-                $data = call_user_func_array(array($o, $f), $params);
+                $data = \call_user_func_array([$o, $f], $params);
             }
         }
 
         // If function returns a value,
-        if (isset($data)) {
-            if (isset($field[$property]) && is_array($field[$property]) && is_array($data)) {
+        if (null !== $data) {
+            if (\is_array($data) && isset($field[$property]) && \is_array($field[$property])) {
                 // Combine field and @data-field together.
                 $field[$property] += $data;
             } else {
@@ -243,11 +245,10 @@ class Blueprint extends BlueprintForm
     protected function dynamicConfig(array &$field, $property, array &$call)
     {
         $value = $call['params'];
-
-        $default = isset($field[$property]) ? $field[$property] : null;
+        $default = $field[$property] ?? null;
         $config = Grav::instance()['config']->get($value, $default);
 
-        if (!is_null($config)) {
+        if (null !== $config) {
             $field[$property] = $config;
         }
     }

@@ -19,24 +19,23 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
 {
     use NestedArrayAccessWithGetters, Countable, Export;
 
+    /** @var string */
     protected $gettersVariable = 'items';
+
+    /** @var array */
     protected $items;
 
-    /**
-     * @var Blueprints
-     */
+    /** @var Blueprints */
     protected $blueprints;
 
-    /**
-     * @var File
-     */
+    /** @var File */
     protected $storage;
 
     /**
      * @param array $items
      * @param Blueprint|callable $blueprints
      */
-    public function __construct(array $items = array(), $blueprints = null)
+    public function __construct(array $items = [], $blueprints = null)
     {
         $this->items = $items;
         $this->blueprints = $blueprints;
@@ -70,14 +69,16 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
     {
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
-            if (!is_array($old)) {
+            if (!\is_array($old)) {
                 throw new \RuntimeException('Value ' . $old);
             }
-            if (is_object($value)) {
+
+            if (\is_object($value)) {
                 $value = (array) $value;
-            } elseif (!is_array($value)) {
+            } elseif (!\is_array($value)) {
                 throw new \RuntimeException('Value ' . $value);
             }
+
             $value = $this->blueprints()->mergeData($old, $value, $name, $separator);
         }
 
@@ -108,9 +109,10 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function joinDefaults($name, $value, $separator = '.')
     {
-        if (is_object($value)) {
+        if (\is_object($value)) {
             $value = (array) $value;
         }
+
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
             $value = $this->blueprints()->mergeData($value, $old, $name, $separator);
@@ -125,16 +127,16 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      * Get value from the configuration and join it with given data.
      *
      * @param string  $name       Dot separated path to the requested value.
-     * @param array   $value      Value to be joined.
+     * @param array|object $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return array
      * @throws \RuntimeException
      */
     public function getJoined($name, $value, $separator = '.')
     {
-        if (is_object($value)) {
+        if (\is_object($value)) {
             $value = (array) $value;
-        } elseif (!is_array($value)) {
+        } elseif (!\is_array($value)) {
             throw new \RuntimeException('Value ' . $value);
         }
 
@@ -145,7 +147,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
             return $value;
         }
 
-        if (!is_array($old)) {
+        if (!\is_array($old)) {
             throw new \RuntimeException('Value ' . $old);
         }
 
@@ -223,7 +225,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
     {
         if (!$this->blueprints){
             $this->blueprints = new Blueprint;
-        } elseif (is_callable($this->blueprints)) {
+        } elseif (\is_callable($this->blueprints)) {
             // Lazy load blueprints.
             $blueprints = $this->blueprints;
             $this->blueprints = $blueprints();
@@ -282,6 +284,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
         if ($storage) {
             $this->storage = $storage;
         }
+
         return $this->storage;
     }
 }

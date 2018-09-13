@@ -29,7 +29,7 @@ class Validation
         $validate = isset($field['validate']) ? (array) $field['validate'] : [];
         // Validate type with fallback type text.
         $type = (string) isset($validate['type']) ? $validate['type'] : $field['type'];
-        $method = 'type'.strtr($type, '-', '_');
+        $method = 'type' . str_replace('-', '_', $type);
 
         // If value isn't required, we will stop validation if empty value is given.
         if ((empty($validate['required']) || (isset($validate['required']) && $validate['required'] !== true)) && ($value === null || $value === '' || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))) {
@@ -43,14 +43,14 @@ class Validation
         // Get language class.
         $language = Grav::instance()['language'];
 
-        $name = ucfirst(isset($field['label']) ? $field['label'] : $field['name']);
+        $name = ucfirst($field['label'] ?? $field['name']);
         $message = (string) isset($field['validate']['message'])
             ? $language->translate($field['validate']['message'])
             : $language->translate('FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
 
         // If this is a YAML field validate/filter as such
-        if ($type != 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
+        if ($type !== 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
             $method = 'typeYaml';
         }
 
@@ -66,7 +66,7 @@ class Validation
 
         // Check individual rules.
         foreach ($validate as $rule => $params) {
-            $method = 'validate' . ucfirst(strtr($rule, '-', '_'));
+            $method = 'validate' . ucfirst(str_replace('-', '_', $rule));
 
             if (method_exists(__CLASS__, $method)) {
                 $success = self::$method($value, $params);
@@ -92,7 +92,7 @@ class Validation
         $validate = isset($field['validate']) ? (array) $field['validate'] : [];
 
         // If value isn't required, we will return null if empty value is given.
-        if (empty($validate['required']) && ($value === null || $value === '')) {
+        if (($value === null || $value === '') && empty($validate['required'])) {
             return null;
         }
 
@@ -103,7 +103,7 @@ class Validation
 
         // Validate type with fallback type text.
         $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
-        $method = 'filter' . ucfirst(strtr($type, '-', '_'));
+        $method = 'filter' . ucfirst(str_replace('-', '_', $type));
 
         // If this is a YAML field validate/filter as such
         if ($type !== 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
@@ -127,22 +127,22 @@ class Validation
      */
     public static function typeText($value, array $params, array $field)
     {
-        if (!is_string($value) && !is_numeric($value)) {
+        if (!\is_string($value) && !is_numeric($value)) {
             return false;
         }
 
         $value = (string)$value;
 
-        if (isset($params['min']) && strlen($value) < $params['min']) {
+        if (isset($params['min']) && \strlen($value) < $params['min']) {
             return false;
         }
 
-        if (isset($params['max']) && strlen($value) > $params['max']) {
+        if (isset($params['max']) && \strlen($value) > $params['max']) {
             return false;
         }
 
-        $min = isset($params['min']) ? $params['min'] : 0;
-        if (isset($params['step']) && (strlen($value) - $min) % $params['step'] == 0) {
+        $min = $params['min'] ?? 0;
+        if (isset($params['step']) && (\strlen($value) - $min) % $params['step'] === 0) {
             return false;
         }
 
@@ -160,12 +160,12 @@ class Validation
 
     protected static function filterCommaList($value, array $params, array $field)
     {
-        return is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        return \is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
     }
 
     public static function typeCommaList($value, array $params, array $field)
     {
-        return is_array($value) ? true : self::typeText($value, $params, $field);
+        return \is_array($value) ? true : self::typeText($value, $params, $field);
     }
 
     protected static function filterLower($value, array $params)
@@ -234,6 +234,7 @@ class Validation
     {
         // Set multiple: true so checkboxes can easily use min/max counts to control number of options required
         $field['multiple'] = true;
+
         return self::typeArray((array) $value, $params, $field);
     }
 
@@ -253,15 +254,9 @@ class Validation
     public static function typeCheckbox($value, array $params, array $field)
     {
         $value = (string) $value;
+        $field_value = (string) ($field['value'] ?? '1');
 
-        if (!isset($field['value'])) {
-            $field['value'] = 1;
-        }
-        if (isset($value) && $value != $field['value']) {
-            return false;
-        }
-
-        return true;
+        return $value === $field_value;
     }
 
     /**
@@ -343,12 +338,9 @@ class Validation
             return false;
         }
 
-        $min = isset($params['min']) ? $params['min'] : 0;
-        if (isset($params['step']) && fmod($value - $min, $params['step']) == 0) {
-            return false;
-        }
+        $min = $params['min'] ?? 0;
 
-        return true;
+        return !(isset($params['step']) && fmod($value - $min, $params['step']) === 0);
     }
 
     protected static function filterNumber($value, array $params, array $field)
@@ -408,10 +400,10 @@ class Validation
      */
     public static function typeEmail($value, array $params, array $field)
     {
-        $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
+        $values = !\is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
 
-        foreach ($values as $value) {
-            if (!(self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_EMAIL))) {
+        foreach ($values as $val) {
+            if (!(self::typeText($val, $params, $field) && filter_var($val, FILTER_VALIDATE_EMAIL))) {
                 return false;
             }
         }
@@ -445,9 +437,11 @@ class Validation
     {
         if ($value instanceof \DateTime) {
             return true;
-        } elseif (!is_string($value)) {
+        }
+        if (!\is_string($value)) {
             return false;
-        } elseif (!isset($params['format'])) {
+        }
+        if (!isset($params['format'])) {
             return false !== strtotime($value);
         }
 
@@ -479,10 +473,10 @@ class Validation
      */
     public static function typeDate($value, array $params, array $field)
     {
-        $params = array($params);
         if (!isset($params['format'])) {
             $params['format'] = 'Y-m-d';
         }
+
         return self::typeDatetime($value, $params, $field);
     }
 
@@ -496,10 +490,10 @@ class Validation
      */
     public static function typeTime($value, array $params, array $field)
     {
-        $params = array($params);
         if (!isset($params['format'])) {
             $params['format'] = 'H:i';
         }
+
         return self::typeDatetime($value, $params, $field);
     }
 
@@ -513,10 +507,10 @@ class Validation
      */
     public static function typeMonth($value, array $params, array $field)
     {
-        $params = array($params);
         if (!isset($params['format'])) {
             $params['format'] = 'Y-m';
         }
+
         return self::typeDatetime($value, $params, $field);
     }
 
@@ -533,6 +527,7 @@ class Validation
         if (!isset($params['format']) && !preg_match('/^\d{4}-W\d{2}$/u', $value)) {
             return false;
         }
+
         return self::typeDatetime($value, $params, $field);
     }
 
@@ -546,72 +541,69 @@ class Validation
      */
     public static function typeArray($value, array $params, array $field)
     {
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             return false;
         }
 
         if (isset($field['multiple'])) {
-            if (isset($params['min']) && count($value) < $params['min']) {
+            if (isset($params['min']) && \count($value) < $params['min']) {
                 return false;
             }
 
-            if (isset($params['max']) && count($value) > $params['max']) {
+            if (isset($params['max']) && \count($value) > $params['max']) {
                 return false;
             }
 
-            $min = isset($params['min']) ? $params['min'] : 0;
-            if (isset($params['step']) && (count($value) - $min) % $params['step'] == 0) {
+            $min = $params['min'] ?? 0;
+            if (isset($params['step']) && (\count($value) - $min) % $params['step'] === 0) {
                 return false;
             }
         }
 
-        $options = isset($field['options']) ? array_keys($field['options']) : array();
-        $values = isset($field['use']) && $field['use'] == 'keys' ? array_keys($value) : $value;
-        if ($options && array_diff($values, $options)) {
-            return false;
-        }
+        $options = isset($field['options']) ? array_keys($field['options']) : [];
+        $values = isset($field['use']) && $field['use'] === 'keys' ? array_keys($value) : $value;
 
-        return true;
+        return !($options && array_diff($values, $options));
     }
 
     protected static function filterArray($value, $params, $field)
     {
         $values = (array) $value;
-        $options = isset($field['options']) ? array_keys($field['options']) : array();
-        $multi = isset($field['multiple']) ? $field['multiple'] : false;
+        $options = isset($field['options']) ? array_keys($field['options']) : [];
+        $multi = $field['multiple'] ?? false;
 
-        if (count($values) == 1 && isset($values[0]) && $values[0] == '') {
+        if (\count($values) === 1 && isset($values[0]) && $values[0] === '') {
             return null;
         }
 
 
         if ($options) {
-            $useKey = isset($field['use']) && $field['use'] == 'keys';
-            foreach ($values as $key => $value) {
-                $values[$key] = $useKey ? (bool) $value : $value;
+            $useKey = isset($field['use']) && $field['use'] === 'keys';
+            foreach ($values as $key => $val) {
+                $values[$key] = $useKey ? (bool) $val : $val;
             }
         }
 
         if ($multi) {
-            foreach ($values as $key => $value) {
-                if (is_array($value)) {
-                    $value = implode(',', $value);
-                    $values[$key] =  array_map('trim', explode(',', $value));
+            foreach ($values as $key => $val) {
+                if (\is_array($val)) {
+                    $val = implode(',', $val);
+                    $values[$key] =  array_map('trim', explode(',', $val));
                 } else {
-                    $values[$key] =  trim($value);
+                    $values[$key] =  trim($val);
                 }
             }
         }
 
         if (isset($field['ignore_empty']) && Utils::isPositive($field['ignore_empty'])) {
-            foreach ($values as $key => $value) {
-                foreach ($value as $inner_key => $inner_value) {
+            foreach ($values as $key => $val) {
+                foreach ($val as $inner_key => $inner_value) {
                     if ($inner_value == '') {
-                        unset($value[$inner_key]);
+                        unset($val[$inner_key]);
                     }
                 }
 
-                $values[$key] = $value;
+                $values[$key] = $val;
             }
         }
 
@@ -620,7 +612,7 @@ class Validation
 
     public static function typeList($value, array $params, array $field)
     {
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             return false;
         }
 
@@ -628,7 +620,7 @@ class Validation
             foreach ($value as $key => $item) {
                 foreach ($field['fields'] as $subKey => $subField) {
                     $subKey = trim($subKey, '.');
-                    $subValue = isset($item[$subKey]) ? $item[$subKey] : null;
+                    $subValue = $item[$subKey] ?? null;
                     self::validate($subValue, $subField);
                 }
             }
@@ -644,7 +636,7 @@ class Validation
 
     public static function filterYaml($value, $params)
     {
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             return $value;
         }
 
@@ -677,9 +669,9 @@ class Validation
     {
         if (is_scalar($value)) {
             return (bool) $params !== true || $value !== '';
-        } else {
-            return (bool) $params !== true || !empty($value);
         }
+
+        return (bool) $params !== true || !empty($value);
     }
 
     public static function validatePattern($value, $params)
@@ -702,12 +694,12 @@ class Validation
 
     public static function typeBool($value, $params)
     {
-        return is_bool($value) || $value == 1 || $value == 0;
+        return \is_bool($value) || $value == 1 || $value == 0;
     }
 
     public static function validateBool($value, $params)
     {
-        return is_bool($value) || $value == 1 || $value == 0;
+        return \is_bool($value) || $value == 1 || $value == 0;
     }
 
     protected static function filterBool($value, $params)
@@ -722,7 +714,7 @@ class Validation
 
     public static function validateFloat($value, $params)
     {
-        return is_float(filter_var($value, FILTER_VALIDATE_FLOAT));
+        return \is_float(filter_var($value, FILTER_VALIDATE_FLOAT));
     }
 
     protected static function filterFloat($value, $params)
@@ -747,7 +739,7 @@ class Validation
 
     public static function validateArray($value, $params)
     {
-        return is_array($value)
+        return \is_array($value)
         || ($value instanceof \ArrayAccess
             && $value instanceof \Traversable
             && $value instanceof \Countable);

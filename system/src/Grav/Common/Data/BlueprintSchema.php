@@ -69,13 +69,13 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         $messages = $this->checkRequired($data, $rules);
 
         foreach ($data as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : (isset($rules['*']) ? $rules['*'] : null);
-            $rule = is_string($val) ? $this->items[$val] : null;
+            $val = $rules[$key] ?? $rules['*'] ?? null;
+            $rule = \is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
                 // Item has been defined in blueprints.
                 $messages += Validation::validate($field, $rule);
-            } elseif (is_array($field) && is_array($val)) {
+            } elseif (\is_array($field) && \is_array($val)) {
                 // Array has been defined in blueprints.
                 $messages += $this->validateArray($field, $val);
             } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
@@ -95,22 +95,22 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      */
     protected function filterArray(array $data, array $rules)
     {
-        $results = array();
+        $results = [];
         foreach ($data as $key => $field) {
-            $val = isset($rules[$key]) ? $rules[$key] : (isset($rules['*']) ? $rules['*'] : null);
-            $rule = is_string($val) ? $this->items[$val] : null;
+            $val = $rules[$key] ?? $rules['*'] ?? null;
+            $rule = \is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
                 // Item has been defined in blueprints.
                 $field = Validation::filter($field, $rule);
-            } elseif (is_array($field) && is_array($val)) {
+            } elseif (\is_array($field) && \is_array($val)) {
                 // Array has been defined in blueprints.
                 $field = $this->filterArray($field, $val);
             } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
                 $field = null;
             }
 
-            if (isset($field) && (!is_array($field) || !empty($field))) {
+            if (null !== $field && (!\is_array($field) || !empty($field))) {
                 $results[$key] = $field;
             }
         }
@@ -128,9 +128,10 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         $messages = [];
 
         foreach ($fields as $name => $field) {
-            if (!is_string($field)) {
+            if (!\is_string($field)) {
                 continue;
             }
+
             $field = $this->items[$field];
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true) {
@@ -142,7 +143,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                     continue;
                 }
 
-                $value = isset($field['label']) ? $field['label'] : $field['name'];
+                $value = $field['label'] ?? $field['name'];
                 $language = Grav::instance()['language'];
                 $message  = sprintf($language->translate('FORM.MISSING_REQUIRED_FIELD', null, true) . ' %s', $language->translate($value));
                 $messages[$field['name']][] = $message;
@@ -161,7 +162,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     {
         $value = $call['params'];
 
-        $default = isset($field[$property]) ? $field[$property] : null;
+        $default = $field[$property] ?? null;
         $config = Grav::instance()['config']->get($value, $default);
 
         if (null !== $config) {
