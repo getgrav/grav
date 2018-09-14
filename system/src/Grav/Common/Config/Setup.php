@@ -133,12 +133,12 @@ class Setup extends Data
      */
     public function __construct($container)
     {
-        $environment = null !== static::$environment ? static::$environment : ($container['uri']->environment() ?: 'localhost');
+        $environment = static::$environment ?? $container['uri']->environment() ?: 'localhost';
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
         // If "GRAVE_SETUP_PATH" has been defined, use it, otherwise use defaults.
-        $file = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH :  GRAV_ROOT . '/setup.php';
+        $file = \defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH :  GRAV_ROOT . '/setup.php';
         $setup = is_file($file) ? (array) include $file : [];
 
         // Add default streams defined in beginning of the class.
@@ -152,7 +152,7 @@ class Setup extends Data
 
         // Set up environment.
         $this->def('environment', $environment ?: 'cli');
-        $this->def('streams.schemes.environment.prefixes', ['' => $environment ? ["user://{$this->environment}"] : []]);
+        $this->def('streams.schemes.environment.prefixes', ['' => $environment ? ["user://{$environment}"] : []]);
     }
 
     /**
@@ -212,8 +212,8 @@ class Setup extends Data
                 $locator->addPath($scheme, '', $config['paths']);
             }
 
-            $override = isset($config['override']) ? $config['override'] : false;
-            $force = isset($config['force']) ? $config['force'] : false;
+            $override = $config['override'] ?? false;
+            $force = $config['force'] ?? false;
 
             if (isset($config['prefixes'])) {
                 foreach ((array)$config['prefixes'] as $prefix => $paths) {
@@ -232,7 +232,7 @@ class Setup extends Data
     {
         $schemes = [];
         foreach ((array) $this->get('streams.schemes') as $scheme => $config) {
-            $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
+            $type = $config['type'] ?? 'ReadOnlyStream';
             if ($type[0] !== '\\') {
                 $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
@@ -251,8 +251,8 @@ class Setup extends Data
      */
     protected function check(UniformResourceLocator $locator)
     {
-        $streams = isset($this->items['streams']['schemes']) ? $this->items['streams']['schemes'] : null;
-        if (!is_array($streams)) {
+        $streams = $this->items['streams']['schemes'] ?? null;
+        if (!\is_array($streams)) {
             throw new \InvalidArgumentException('Configuration is missing streams.schemes!');
         }
         $diff = array_keys(array_diff_key($this->streams, $streams));

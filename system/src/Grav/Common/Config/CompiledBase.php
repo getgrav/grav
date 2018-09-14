@@ -128,7 +128,7 @@ abstract class CompiledBase
      */
     public function checksum()
     {
-        if (!isset($this->checksum)) {
+        if (null === $this->checksum) {
             $this->checksum = md5(json_encode($this->files) . $this->version);
         }
 
@@ -197,11 +197,11 @@ abstract class CompiledBase
 
         $cache = include $filename;
         if (
-            !is_array($cache)
+            !\is_array($cache)
             || !isset($cache['checksum'])
             || !isset($cache['data'])
             || !isset($cache['@class'])
-            || $cache['@class'] != get_class($this)
+            || $cache['@class'] !== \get_class($this)
         ) {
             return false;
         }
@@ -212,7 +212,7 @@ abstract class CompiledBase
         }
 
         $this->createObject($cache['data']);
-        $this->timestamp = isset($cache['timestamp']) ? $cache['timestamp'] : 0;
+        $this->timestamp = $cache['timestamp'] ?? 0;
 
         $this->finalizeObject();
 
@@ -243,7 +243,7 @@ abstract class CompiledBase
         }
 
         $cache = [
-            '@class' => get_class($this),
+            '@class' => \get_class($this),
             'timestamp' => time(),
             'checksum' => $this->checksum(),
             'files' => $this->files,

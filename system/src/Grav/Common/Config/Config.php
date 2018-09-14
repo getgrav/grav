@@ -16,6 +16,8 @@ use Grav\Common\Utils;
 
 class Config extends Data
 {
+    public $environment;
+
     /** @var string */
     protected $checksum;
     protected $modified = false;
@@ -90,7 +92,7 @@ class Config extends Data
     {
         $setup = Grav::instance()['setup']->toArray();
         foreach ($setup as $key => $value) {
-            if ($key === 'streams' || !is_array($value)) {
+            if ($key === 'streams' || !\is_array($value)) {
                 // Optimized as streams and simple values are fully defined in setup.
                 $this->items[$key] = $value;
             } else {

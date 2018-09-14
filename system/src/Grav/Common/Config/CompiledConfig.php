@@ -63,7 +63,7 @@ class CompiledConfig extends CompiledBase
      */
     protected function createObject(array $data = [])
     {
-        if ($this->withDefaults && empty($data) && is_callable($this->callable)) {
+        if ($this->withDefaults && empty($data) && \is_callable($this->callable)) {
             $blueprints = $this->callable;
             $data = $blueprints()->getDefaults();
         }
