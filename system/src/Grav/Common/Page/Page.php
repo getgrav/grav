@@ -1234,7 +1234,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->template_format)) {
-            $this->template_format = Grav::instance()['uri']->extension('html');
+            $this->template_format = Grav::instance()['uri']->extension();
         }
 
         return $this->template_format;
