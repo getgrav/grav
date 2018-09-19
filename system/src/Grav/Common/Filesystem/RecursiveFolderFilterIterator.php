@@ -12,19 +12,23 @@ use Grav\Common\Grav;
 
 class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
 {
-    protected static $folder_ignores;
+    protected static $ignore_folders;
 
     /**
      * Create a RecursiveFilterIterator from a RecursiveIterator
      *
      * @param \RecursiveIterator $iterator
+     * @param array $ignore_folders
      */
-    public function __construct(\RecursiveIterator $iterator)
+    public function __construct(\RecursiveIterator $iterator, $ignore_folders = [])
     {
         parent::__construct($iterator);
-        if (empty($this::$folder_ignores)) {
-            $this::$folder_ignores = Grav::instance()['config']->get('system.pages.ignore_folders');
+
+        if (empty($ignore_folders)) {
+            $ignore_folders = Grav::instance()['config']->get('system.pages.ignore_folders');
         }
+
+        $this::$ignore_folders = $ignore_folders;
     }
 
     /**
@@ -37,7 +41,7 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
         /** @var $current \SplFileInfo */
         $current = $this->current();
 
-        if ($current->isDir() && !in_array($current->getFilename(), $this::$folder_ignores, true)) {
+        if ($current->isDir() && !in_array($current->getFilename(), $this::$ignore_folders, true)) {
             return true;
         }
         return false;

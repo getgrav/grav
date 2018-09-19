@@ -463,11 +463,12 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * displays a facebook style 'time ago' formatted date/time
      *
      * @param $date
-     * @param $long_strings
+     * @param bool $long_strings
      *
+     * @param bool $show_tense
      * @return boolean
      */
-    public function nicetimeFunc($date, $long_strings = true)
+    public function nicetimeFunc($date, $long_strings = true, $show_tense = true)
     {
         if (empty($date)) {
             return $this->grav['language']->translate('NICETIME.NO_DATE_PROVIDED', null, true);
@@ -551,7 +552,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return "{$tense}";
         }
 
-            return "$difference $periods[$j] {$tense}";
+        $time = "$difference $periods[$j]";
+        $time = $time . ($show_tense ? " {$tense}" : "");
+
+        return  $time;
     }
 
     /**
@@ -1181,34 +1185,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function niceFilesizeFunc($bytes)
     {
-        if ($bytes >= 1073741824)
-        {
-            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        elseif ($bytes >= 1048576)
-        {
-            $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        }
-        elseif ($bytes >= 1024)
-        {
-            $bytes = number_format($bytes / 1024, 1) . ' KB';
-        }
-        elseif ($bytes > 1)
-        {
-            $bytes = $bytes . ' bytes';
-        }
-        elseif ($bytes == 1)
-        {
-            $bytes = $bytes . ' byte';
-        }
-        else
-        {
-            $bytes = '0 bytes';
-        }
-
-        return $bytes;
+        return Utils::prettySize($bytes);
     }
-
 
     /**
      * Returns a nicer more readable number
