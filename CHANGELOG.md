@@ -5,6 +5,7 @@
     * Added `Deprecated` tab to DebugBar to catch future incompatibilities with later Grav versions
     * Added deprecation notices for features which will be removed in Grav 2.0
     * Added `Utils::detectXssFromArray()` and `Utils::detectXss()` methods
+    * Added `onHttpPostFilter` event to allow plugins to globally clean up XSS in the forms and tasks
 1. [](#bugfix)
     * Allow `$page->slug()` to be called before `$page->init()` without breaking the page
     * Fix for `Page::translatedLanguages()` to use routes always [#2163](https://github.com/getgrav/grav/issues/2163)

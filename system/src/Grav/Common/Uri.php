@@ -15,6 +15,7 @@ use Grav\Common\Page\Pages;
 use Grav\Framework\Route\RouteFactory;
 use Grav\Framework\Uri\UriFactory;
 use Grav\Framework\Uri\UriPartsFilter;
+use RocketTheme\Toolbox\Event\Event;
 
 class Uri
 {
@@ -1284,6 +1285,9 @@ class Uri
             } elseif (!empty($_POST)) {
                 $this->post = (array)$_POST;
             }
+
+            $event = new Event(['post' => &$this->post]);
+            Grav::instance()->fireEvent('onHttpPostFilter', $event);
         }
 
         if ($this->post && null !== $element) {
