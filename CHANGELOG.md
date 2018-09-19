@@ -4,7 +4,7 @@
 1. [](#new)
     * Set minimum requirements to [PHP 7.1.3](https://getgrav.org/blog/raising-php-requirements-2018) 
     * New Scheduler functionality for periodic jobs
-    * New Backup functionality with multiple backup configurations and scheduler integration
+    * New Backup functionality with multiple backup profiles and scheduler integration
     * Updated Doctrine Collections to 1.5
     * Updated Doctrine Cache to 1.8
     * Updated Symfony Components to 4.1
