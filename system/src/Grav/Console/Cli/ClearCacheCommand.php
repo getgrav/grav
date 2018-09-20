@@ -9,6 +9,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Cache;
+use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -23,11 +24,14 @@ class ClearCacheCommand extends ConsoleCommand
             ->setName('clear-cache')
             ->setAliases(['clearcache'])
             ->setDescription('Clears Grav cache')
+            ->addOption('purge', null, InputOption::VALUE_NONE, 'If set purge old caches')
             ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all including compiled, twig, doctrine caches')
             ->addOption('assets-only', null, InputOption::VALUE_NONE, 'If set will remove only assets/*')
             ->addOption('images-only', null, InputOption::VALUE_NONE, 'If set will remove only images/*')
             ->addOption('cache-only', null, InputOption::VALUE_NONE, 'If set will remove only cache/*')
             ->addOption('tmp-only', null, InputOption::VALUE_NONE, 'If set will remove only tmp/*')
+            ->addOption('tmp-only', null, InputOption::VALUE_NONE, 'If set will remove only tmp/*')
+
             ->setHelp('The <info>clear-cache</info> deletes all cache files');
     }
 
@@ -45,25 +49,35 @@ class ClearCacheCommand extends ConsoleCommand
     private function cleanPaths()
     {
         $this->output->writeln('');
-        $this->output->writeln('<magenta>Clearing cache</magenta>');
-        $this->output->writeln('');
 
-        if ($this->input->getOption('all')) {
-            $remove = 'all';
-        } elseif ($this->input->getOption('assets-only')) {
-            $remove = 'assets-only';
-        } elseif ($this->input->getOption('images-only')) {
-            $remove = 'images-only';
-        } elseif ($this->input->getOption('cache-only')) {
-            $remove = 'cache-only';
-        } elseif ($this->input->getOption('tmp-only')) {
-            $remove = 'tmp-only';
+
+        if ($this->input->getOption('purge')) {
+            $this->output->writeln('<magenta>Purging old cache</magenta>');
+            $this->output->writeln('');
+
+            $cache = Grav::instance()['cache'];
+            $cache->purgeOldCache();
         } else {
-            $remove = 'standard';
-        }
+            $this->output->writeln('<magenta>Clearing cache</magenta>');
+            $this->output->writeln('');
 
-        foreach (Cache::clearCache($remove) as $result) {
-            $this->output->writeln($result);
+            if ($this->input->getOption('all')) {
+                $remove = 'all';
+            } elseif ($this->input->getOption('assets-only')) {
+                $remove = 'assets-only';
+            } elseif ($this->input->getOption('images-only')) {
+                $remove = 'images-only';
+            } elseif ($this->input->getOption('cache-only')) {
+                $remove = 'cache-only';
+            } elseif ($this->input->getOption('tmp-only')) {
+                $remove = 'tmp-only';
+            } else {
+                $remove = 'standard';
+            }
+
+            foreach (Cache::clearCache($remove) as $result) {
+                $this->output->writeln($result);
+            }
         }
     }
 }

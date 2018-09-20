@@ -514,6 +514,12 @@ form:
                     help: PLUGIN_ADMIN.CACHE_PREFIX_HELP
                     placeholder: PLUGIN_ADMIN.CACHE_PREFIX_PLACEHOLDER
 
+                cache.purge_at:
+                    type: cron
+                    label: PLUGIN_ADMIN.CACHE_PURGE_JOB
+                    help: PLUGIN_ADMIN.CACHE_PURGE_JOB_HELP
+                    default: '* 3 * * *'
+
                 cache.clear_images_by_default:
                     type: toggle
                     label: PLUGIN_ADMIN.CLEAR_IMAGES_BY_DEFAULT
