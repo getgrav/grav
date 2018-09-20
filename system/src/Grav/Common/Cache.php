@@ -332,6 +332,19 @@ class Cache extends Getters
     }
 
     /**
+     * Deletes all cache
+     *
+     * @return bool
+     */
+    public function deleteAll()
+    {
+        if ($this->enabled) {
+            return $this->driver->deleteAll();
+        }
+        return false;
+    }
+
+    /**
      * Returns a boolean state of whether or not the item exists in the cache based on id key
      *
      * @param string $id    the id of the cached data entry
@@ -398,6 +411,12 @@ class Cache extends Getters
                     $remove_paths = self::$standard_remove_no_images;
                 }
 
+        }
+
+        // Delete entries in the doctrine cache if required
+        if (in_array($remove, ['all', 'standard'])) {
+            $cache = Grav::instance()['cache'];
+            $cache->driver->deleteAll();
         }
 
         // Clearing cache event to add paths to clear
@@ -530,7 +549,8 @@ class Cache extends Getters
     {
         $cache = Grav::instance()['cache'];
         $deleted_folders = $cache->purgeOldCache();
-        echo 'Deleted ' . $deleted_folders . ' folders...';
+        $msg = 'Cleared ' . $deleted_folders . ' old cache folders...';
+        return $msg;
     }
 
     public function onSchedulerInitialized(Event $event)

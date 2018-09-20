@@ -13,7 +13,7 @@ use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-class ClearCacheCommand extends ConsoleCommand
+class CacheCommand extends ConsoleCommand
 {
     /**
      *
@@ -21,8 +21,8 @@ class ClearCacheCommand extends ConsoleCommand
     protected function configure()
     {
         $this
-            ->setName('clear-cache')
-            ->setAliases(['clearcache'])
+            ->setName('cache')
+            ->setAliases(['clearcache', 'cache-clear'])
             ->setDescription('Clears Grav cache')
             ->addOption('purge', null, InputOption::VALUE_NONE, 'If set purge old caches')
             ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all including compiled, twig, doctrine caches')
@@ -55,8 +55,8 @@ class ClearCacheCommand extends ConsoleCommand
             $this->output->writeln('<magenta>Purging old cache</magenta>');
             $this->output->writeln('');
 
-            $cache = Grav::instance()['cache'];
-            $cache->purgeOldCache();
+            $msg = Cache::purgeJob();
+            $this->output->writeln($msg);
         } else {
             $this->output->writeln('<magenta>Clearing cache</magenta>');
             $this->output->writeln('');
