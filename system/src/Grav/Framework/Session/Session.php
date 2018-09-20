@@ -15,6 +15,8 @@ namespace Grav\Framework\Session;
  */
 class Session implements SessionInterface
 {
+    protected $options;
+
     /**
      * @var bool
      */
@@ -178,7 +180,10 @@ class Session implements SessionInterface
             unset($_COOKIE[session_name()]);
         }
 
-        $options = $readonly ? ['read_and_close' => '1'] : [];
+        $options = $this->options;
+        if ($readonly) {
+            $options['read_and_close'] = '1';
+        }
 
         $success = @session_start($options);
         if (!$success) {
@@ -332,6 +337,7 @@ class Session implements SessionInterface
             }
         }
 
+        $this->options[$key] = $value;
         ini_set($key, $value);
     }
 }
