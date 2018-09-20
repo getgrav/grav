@@ -549,7 +549,7 @@ class Cache extends Getters
     {
         $cache = Grav::instance()['cache'];
         $deleted_folders = $cache->purgeOldCache();
-        $msg = 'Cleared ' . $deleted_folders . ' old cache folders...';
+        $msg = 'Purged ' . $deleted_folders . ' old cache folders...';
         return $msg;
     }
 
