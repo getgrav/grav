@@ -8,6 +8,7 @@
     * Updated Doctrine Collections to 1.5
     * Updated Doctrine Cache to 1.8
     * Updated Symfony Components to 4.1
+    * Added a new Deferred Twig extension to allow adding content to Twig blocks after render
     * Added ability to **purge** old cache manually via CLI/Admin as well as scheduler integration
     * Added new `{% throw 404 'Not Found' %}` twig tag (with custom code/message)
     * Added `Grav\Framework\File` classes for handling YAML, Markdown, JSON, INI and PHP serialized files
