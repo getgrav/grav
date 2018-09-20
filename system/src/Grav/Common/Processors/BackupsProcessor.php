@@ -10,14 +10,14 @@ namespace Grav\Common\Processors;
 
 use RocketTheme\Toolbox\Event\Event;
 
-class SchedulerProcessor extends ProcessorBase implements ProcessorInterface
+class BackupsProcessor extends ProcessorBase implements ProcessorInterface
 {
-    public $id = '_scheduler';
-    public $title = 'Scheduler';
+    public $id = '_backups';
+    public $title = 'Backups';
 
     public function process()
     {
-        $scheduler = $this->container['scheduler'];
-        $this->container->fireEvent('onSchedulerInitialized', new Event(['scheduler' => $scheduler]));
+        $backups = $this->container['backups'];
+        $backups->init();
     }
 }

@@ -58,6 +58,7 @@ class SchedulerCommand extends ConsoleCommand
         $grav['streams'];
         $grav['plugins']->init();
         $grav['themes']->init();
+        $grav['backups']->init();
 
         // Initialize Plugins
         $grav->fireEvent('onPluginsInitialized');
