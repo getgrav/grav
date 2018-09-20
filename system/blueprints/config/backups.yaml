@@ -119,7 +119,7 @@ form:
             .schedule_at:
                 type: cron
                 label: Run Scheduled Job
-                default: '* * * * *'
+                default: '* 3 * * *'
                 validate:
                     required: true
 

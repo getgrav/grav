@@ -117,27 +117,45 @@ class Cache extends Getters
         $this->config = $grav['config'];
         $this->now = time();
 
-        $this->cache_dir = $grav['locator']->findResource('cache://doctrine', true, true);
+        if (is_null($this->enabled)) {
+            $this->enabled = (bool)$this->config->get('system.cache.enabled');
+        }
 
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
         $prefix = $this->config->get('system.cache.prefix');
-
-        if (is_null($this->enabled)) {
-            $this->enabled = (bool)$this->config->get('system.cache.enabled');
-        }
+        $uniqueness = substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION), 2, 8);
 
         // Cache key allows us to invalidate all cache on configuration changes.
-        $this->key = ($prefix ? $prefix : 'g') . '-' . substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION),
-                2, 8);
-
+        $this->key = ($prefix ? $prefix : 'g') . '-' . $uniqueness;
+        $this->cache_dir = $grav['locator']->findResource('cache://doctrine/' . $uniqueness, true, true);
         $this->driver_setting = $this->config->get('system.cache.driver');
-
         $this->driver = $this->getCacheDriver();
-
-        // Set the cache namespace to our unique key
         $this->driver->setNamespace($this->key);
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = Grav::instance()['events'];
+        $dispatcher->addListener('onSchedulerInitialized', [$this, 'onSchedulerInitialized']);
+    }
+
+    public function purgeOldCache()
+    {
+        $cache_dir = dirname($this->cache_dir);
+        $current = basename($this->cache_dir);
+        $count = 0;
+
+        foreach (new \DirectoryIterator($cache_dir) as $file) {
+            $dir = $file->getBasename();
+            if ($file->isDot() || $file->isFile() || $dir === $current) {
+                continue;
+            }
+
+            Folder::delete($file->getPathname());
+            $count++;
+        }
+
+        return $count;
     }
 
     /**
@@ -314,6 +332,19 @@ class Cache extends Getters
     }
 
     /**
+     * Deletes all cache
+     *
+     * @return bool
+     */
+    public function deleteAll()
+    {
+        if ($this->enabled) {
+            return $this->driver->deleteAll();
+        }
+        return false;
+    }
+
+    /**
      * Returns a boolean state of whether or not the item exists in the cache based on id key
      *
      * @param string $id    the id of the cached data entry
@@ -380,6 +411,12 @@ class Cache extends Getters
                     $remove_paths = self::$standard_remove_no_images;
                 }
 
+        }
+
+        // Delete entries in the doctrine cache if required
+        if (in_array($remove, ['all', 'standard'])) {
+            $cache = Grav::instance()['cache'];
+            $cache->driver->deleteAll();
         }
 
         // Clearing cache event to add paths to clear
@@ -507,4 +544,30 @@ class Cache extends Getters
             return false;
         }
     }
+
+    public static function purgeJob()
+    {
+        $cache = Grav::instance()['cache'];
+        $deleted_folders = $cache->purgeOldCache();
+        $msg = 'Purged ' . $deleted_folders . ' old cache folders...';
+        return $msg;
+    }
+
+    public function onSchedulerInitialized(Event $event)
+    {
+        /** @var Scheduler $scheduler */
+        $scheduler = $event['scheduler'];
+        $config = Grav::instance()['config'];
+
+        $at = $config->get('system.cache.purge_at');
+        $name = 'cache-purge';
+        $logs = 'logs/' . $name . '.out';
+
+        $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', null, $name );
+        $job->at($at);
+        $job->output($logs);
+
+    }
+
+
 }
