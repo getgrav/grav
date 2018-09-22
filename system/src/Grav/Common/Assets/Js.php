@@ -10,5 +10,7 @@ namespace Grav\Common\Assets;
 
 class Js extends BaseAsset
 {
+    public function render() {
 
+    }
 }

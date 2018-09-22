@@ -11,4 +11,7 @@ namespace Grav\Common\Assets;
 class Css extends BaseAsset
 {
 
+    public function render() {
+
+    }
 }

@@ -13,6 +13,7 @@ use FilesystemIterator;
 use Grav\Common\Assets\Traits\LegacyAssetsTrait;
 use Grav\Common\Config\Config;
 use Grav\Framework\Object\PropertyObject;
+use Grav\Framework\Route\RouteFactory;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
@@ -22,6 +23,11 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 class Assets extends PropertyObject
 {
     use LegacyAssetsTrait;
+
+    const CSS_TYPE = 'Css';
+    const JS_TYPE = 'Js';
+    const INLINE_CSS_TYPE = 'InlineCss';
+    const INLINE_JS_TYPE = 'InlineJs';
 
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
@@ -49,6 +55,7 @@ class Assets extends PropertyObject
     protected $fetch_command;
     protected $autoload;
     protected $enable_asset_timestamp;
+    protected $collections;
 
     protected $pipeline_options = [];
 
@@ -73,9 +80,8 @@ class Assets extends PropertyObject
         $this->base_url = ($config->get('system.absolute_urls') ? '' : '/') . ltrim(ltrim($base_url, '/') . '/', '/');
 
         // Register any preconfigured collections
-        $collections = $config->get('system.assets.collections', []);
-        foreach ((array) $collections as $name => $collection) {
-            $this->addCollection($name, (array)$collection);
+        foreach ((array) $this->collections as $name => $collection) {
+            $this->registerCollection($name, (array)$collection);
         }
     }
 
@@ -108,11 +114,99 @@ class Assets extends PropertyObject
      * It automatically detects the asset type (JavaScript, CSS or collection).
      * You may add more than one asset passing an array as argument.
      *
+     * @param $asset
      * @return $this
      */
     public function add($asset)
     {
         $options = $this->unifyLegacyArguments(func_get_args());
+
+        // More than one asset
+        if (is_array($asset)) {
+            foreach ($asset as $a) {
+                $this->add($a, $options);
+            }
+        } elseif (isset($this->collections[$asset])) {
+            $this->add($this->collections[$asset], $options);
+        } else {
+            // Get extension
+            $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
+
+            // JavaScript or CSS
+            if (strlen($extension) > 0) {
+                $extension = strtolower($extension);
+                if ($extension === 'css') {
+                    $this->addCss($asset, $options);
+                } elseif ($extension === 'js') {
+                    $this->addJs($asset, $options);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    protected function addType($type, $asset, $options)
+    {
+        if (is_array($asset)) {
+            foreach ($asset as $a) {
+                $this->addType($type, $a, $options);
+            }
+            return $this;
+        } elseif (isset($this->collections[$asset])) {
+            $this->addType($type, $this->collections[$asset], $options);
+            return $this;
+        }
+
+        $modified = false;
+        $remote = $this->isRemoteLink($asset);
+
+        if (!$remote) {
+
+            $asset_parts = parse_url($asset);
+            if (isset($asset_parts['query'])) {
+                $query[] = $asset_parts['query'];
+                unset($asset_parts['query']);
+                $asset = Uri::buildUrl($asset_parts);
+            }
+
+            $modified = $this->getLastModificationTime($asset);
+            $asset = $this->buildLocalLink($asset);
+        }
+
+        // Check for existence
+        if ($asset === false) {
+            return $this;
+        }
+
+        // Create asset of correct type
+        $asset_class = "\\Grav\\Common\\Assets\\{$type}";
+        $asset_obj = new $asset_class();
+
+        $data = [
+            'asset'    => $asset,
+            'remote'   => $remote,
+            'priority' => intval($priority ?: 10),
+            'order'    => count($assembly),
+            'pipeline' => (bool) $pipeline,
+            'loading'  => $loading ?: '',
+            'group'    => $group ?: 'head',
+            'modified' => $modified,
+            'query'    => implode('&', $query),
+        ];
+
+        // check for dynamic array and merge with defaults
+        if (func_num_args() > 2) {
+            $dynamic_arg = func_get_arg(2);
+            if (is_array($dynamic_arg)) {
+                $data = array_merge($data, $dynamic_arg);
+            }
+        }
+
+        $key = md5($asset);
+        if ($asset) {
+            $assembly[$key] = $data;
+        }
 
         return $this;
     }
@@ -124,9 +218,7 @@ class Assets extends PropertyObject
      */
     public function addCss($asset)
     {
-        $options = $this->unifyLegacyArguments(func_get_args());
-
-        return $this;
+        return $this->addType(Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
     /**
@@ -136,9 +228,7 @@ class Assets extends PropertyObject
      */
     public function addInlineCss($asset)
     {
-        $options = $this->unifyLegacyArguments(func_get_args());
-
-        return $this;
+        return $this->addType(Assets::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
     /**
@@ -148,9 +238,7 @@ class Assets extends PropertyObject
      */
     public function addJs($asset)
     {
-        $options = $this->unifyLegacyArguments(func_get_args());
-
-        return $this;
+        return $this->addType(Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
     /**
@@ -160,9 +248,7 @@ class Assets extends PropertyObject
      */
     public function addInlineJs($asset)
     {
-        $options = $this->unifyLegacyArguments(func_get_args());
-
-        return $this;
+        return $this->addType(Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
 
@@ -175,9 +261,13 @@ class Assets extends PropertyObject
      *
      * @return $this
      */
-    public function addCollection($collectionName, Array $assets, $overwrite = false)
+    public function registerCollection($collectionName, Array $assets, $overwrite = false)
     {
+        if ($overwrite || !isset($this->collections[$collectionName])) {
+            $this->collections[$collectionName] = $assets;
+        }
 
+        return $this;
     }
 
 
@@ -218,7 +308,6 @@ class Assets extends PropertyObject
 
 
     /**
-     * TODO: Do we need?
      *
      * Determine whether a link is local or remote.
      *
@@ -242,7 +331,6 @@ class Assets extends PropertyObject
     }
 
     /**
-     * TODO: Do we need?
      *
      * Build local links including grav asset shortcodes
      *
@@ -253,9 +341,11 @@ class Assets extends PropertyObject
      */
     protected function buildLocalLink($asset, $absolute = false)
     {
-        try {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        if ($locator->isStream($asset)) {
             $asset = Grav::instance()['locator']->findResource($asset, $absolute);
-        } catch (\Exception $e) {
         }
 
         $uri = $absolute ? $asset : $this->base_url . ltrim($asset, '/');
@@ -263,7 +353,6 @@ class Assets extends PropertyObject
     }
 
     /**
-     * TODO: Do we need?
      *
      * Get the last modification time of asset
      *

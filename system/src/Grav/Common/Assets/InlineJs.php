@@ -11,5 +11,7 @@ namespace Grav\Common\Assets;
 
 class InlineJs extends BaseAsset
 {
+    public function render() {
 
+    }
 }

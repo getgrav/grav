@@ -8,9 +8,13 @@
 
 namespace Grav\Common\Assets;
 
-use Grav\Framework\Object\ArrayObject;
+use Grav\Framework\Object\PropertyObject;
 
-class BaseAsset extends ArrayObject
+abstract class BaseAsset extends PropertyObject
 {
+    protected $group;
+    protected $position;
+    protected $priority;
 
+    abstract function render();
 }
