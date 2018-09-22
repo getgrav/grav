@@ -13,7 +13,6 @@ use FilesystemIterator;
 use Grav\Common\Assets\Traits\LegacyAssetsTrait;
 use Grav\Common\Config\Config;
 use Grav\Framework\Object\PropertyObject;
-use Grav\Framework\Route\RouteFactory;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
@@ -46,7 +45,8 @@ class Assets extends PropertyObject
 
     protected $assets_dir;
     protected $assets_url;
-    protected $base_url;
+
+    protected $assets = [];
 
     // Config Options
     protected $css_pipeline;
@@ -68,7 +68,7 @@ class Assets extends PropertyObject
         $grav = Grav::instance();
         /** @var Config $config */
         $config = $grav['config'];
-        $base_url = $grav['base_url'];
+
         $asset_config = (array)$config->get('system.assets');
 
         /** @var UniformResourceLocator $locator */
@@ -77,7 +77,6 @@ class Assets extends PropertyObject
         $this->assets_url = $locator->findResource('asset://', false);
 
         $this->config($asset_config);
-        $this->base_url = ($config->get('system.absolute_urls') ? '' : '/') . ltrim(ltrim($base_url, '/') . '/', '/');
 
         // Register any preconfigured collections
         foreach ((array) $this->collections as $name => $collection) {
@@ -158,22 +157,6 @@ class Assets extends PropertyObject
             return $this;
         }
 
-        $modified = false;
-        $remote = $this->isRemoteLink($asset);
-
-        if (!$remote) {
-
-            $asset_parts = parse_url($asset);
-            if (isset($asset_parts['query'])) {
-                $query[] = $asset_parts['query'];
-                unset($asset_parts['query']);
-                $asset = Uri::buildUrl($asset_parts);
-            }
-
-            $modified = $this->getLastModificationTime($asset);
-            $asset = $this->buildLocalLink($asset);
-        }
-
         // Check for existence
         if ($asset === false) {
             return $this;
@@ -181,34 +164,9 @@ class Assets extends PropertyObject
 
         // Create asset of correct type
         $asset_class = "\\Grav\\Common\\Assets\\{$type}";
-        $asset_obj = new $asset_class();
+        $asset_object = new $asset_class();
+        $this->assets[md5($asset)] = $asset_object->init($asset, $options);
 
-        $data = [
-            'asset'    => $asset,
-            'remote'   => $remote,
-            'priority' => intval($priority ?: 10),
-            'order'    => count($assembly),
-            'pipeline' => (bool) $pipeline,
-            'loading'  => $loading ?: '',
-            'group'    => $group ?: 'head',
-            'modified' => $modified,
-            'query'    => implode('&', $query),
-        ];
-
-        // check for dynamic array and merge with defaults
-        if (func_num_args() > 2) {
-            $dynamic_arg = func_get_arg(2);
-            if (is_array($dynamic_arg)) {
-                $data = array_merge($data, $dynamic_arg);
-            }
-        }
-
-        $key = md5($asset);
-        if ($asset) {
-            $assembly[$key] = $data;
-        }
-
-        return $this;
     }
 
     /**
@@ -298,15 +256,6 @@ class Assets extends PropertyObject
     }
 
 
-
-
-
-
-
-
-
-
-
     /**
      *
      * Determine whether a link is local or remote.
@@ -317,7 +266,7 @@ class Assets extends PropertyObject
      *
      * @return bool
      */
-    protected function isRemoteLink($link)
+    public static function isRemoteLink($link)
     {
         $base = Grav::instance()['uri']->rootUrl(true);
 
@@ -330,45 +279,7 @@ class Assets extends PropertyObject
                 2));
     }
 
-    /**
-     *
-     * Build local links including grav asset shortcodes
-     *
-     * @param  string $asset    the asset string reference
-     * @param  bool   $absolute build absolute asset link
-     *
-     * @return string           the final link url to the asset
-     */
-    protected function buildLocalLink($asset, $absolute = false)
-    {
-        /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
 
-        if ($locator->isStream($asset)) {
-            $asset = Grav::instance()['locator']->findResource($asset, $absolute);
-        }
-
-        $uri = $absolute ? $asset : $this->base_url . ltrim($asset, '/');
-        return $asset ? $uri : false;
-    }
-
-    /**
-     *
-     * Get the last modification time of asset
-     *
-     * @param  string $asset    the asset string reference
-     *
-     * @return string           the last modifcation time or false on error
-     */
-    protected function getLastModificationTime($asset)
-    {
-        $file = GRAV_ROOT . $asset;
-        if (Grav::instance()['locator']->isStream($asset)) {
-            $file = $this->buildLocalLink($asset, true);
-        }
-
-        return file_exists($file) ? filemtime($file) : false;
-    }
 
     /**
      * TODO: Do we need?
