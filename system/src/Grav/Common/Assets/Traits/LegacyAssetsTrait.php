@@ -8,10 +8,45 @@
 
 namespace Grav\Common\Assets\Traits;
 
-trait LegacyAssets
+trait LegacyAssetsTrait
 {
 
     protected $timestamp;
+
+    protected function unifyLegacyArguments($args)
+    {
+        $arguments = [];
+
+        // First argument is always the asset
+        array_shift($args);
+
+        if (count($args) === 0) {
+            return [];
+        } elseif (count($args) === 1 && is_array($args[0])) {
+            return $args[0];
+        }
+
+        // $asset, $priority = null, $pipeline = true, $group = null, $loading = null
+
+        foreach ($args as $index => $arg) {
+            switch ($index) {
+                case 0:
+                    $arguments['priority'] = $args[0] ?? null;
+                    break;
+                case 1:
+                    $arguments['pipeline'] = $args[1] ?? null;
+                    break;
+                case 2:
+                    $arguments['group'] = $args[2] ?? null;
+                    break;
+                case 3:
+                    $arguments['loading'] = $args[3] ?? null;
+                    break;
+            }
+        }
+
+        return $arguments;
+    }
 
     /**
      * Determines if an asset exists as a collection, CSS or JS reference

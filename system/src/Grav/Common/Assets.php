@@ -10,7 +10,7 @@ namespace Grav\Common;
 
 
 use FilesystemIterator;
-use Grav\Common\Assets\Traits\LegacyAssets;
+use Grav\Common\Assets\Traits\LegacyAssetsTrait;
 use Grav\Common\Config\Config;
 use Grav\Framework\Object\PropertyObject;
 use RecursiveDirectoryIterator;
@@ -21,7 +21,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Assets extends PropertyObject
 {
-    use LegacyAssets;
+    use LegacyAssetsTrait;
 
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
@@ -103,99 +103,28 @@ class Assets extends PropertyObject
     }
 
     /**
-     * Handle method overrides
-     *
-     * @param $method
-     * @param $args
-     *
-     * @return mixed
-     */
-    public function __call($method, $args) {
-
-        switch ($method) {
-            case 'add':
-                if (!$this->isLegacyAddCall($args)) {
-                    return $this->_add($args[0], $args[1] ?? null);
-                } else {
-                    return $this->_legacyAdd($args[0], $args[1] ?? null,  $args[2] ?? null);
-                }
-                break;
-
-            case 'addCss':
-                if (!$this->isLegacyAddCall($args)) {
-                    return $this->_addCss($args[0], $args[1] ?? null);
-                } else {
-                    return $this->_legacyAddCss($args[0], $args[1] ?? null,  $args[2] ?? null, $args[3] ?? null, $args[4] ?? null);
-                }
-                break;
-
-            case 'addInlineCss':
-                if (!$this->isLegacyAddCall($args)) {
-                    return $this->_addInlineCss($args[0], $args[1] ?? null);
-                } else {
-                    return $this->_legacyAddInlineCss($args[0], $args[1] ?? null,  $args[2] ?? null);
-                }
-                break;
-
-
-            case 'addJs':
-                if (!$this->isLegacyAddCall($args)) {
-                    return $this->_addJs($args[0], $args[1] ?? null);
-                } else {
-                    return $this->_legacyAddJs($args[0], $args[1] ?? null,  $args[2] ?? null, $args[3] ?? null, $args[4] ?? null);
-                }
-                break;
-
-            case 'addInlineJs':
-                if (!$this->isLegacyAddCall($args)) {
-                    return $this->_addInlineJs($args[0], $args[1] ?? null);
-                } else {
-                    return $this->_legacyAddInlineJs($args[0], $args[1] ?? null,  $args[2] ?? null);
-                }
-                break;
-
-        }
-    }
-
-    /**
-     * Rules to determine if this should be a legacy call based on number of args
-     *
-     * @param $args
-     * @return bool
-     */
-    protected function isLegacyAddCall($args)
-    {
-        if (count($args) === 1 || (count($args) === 2 && is_array($args[1]))) {
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
      * Add an asset or a collection of assets.
      *
      * It automatically detects the asset type (JavaScript, CSS or collection).
      * You may add more than one asset passing an array as argument.
      *
-     * @param  mixed $asset
-     *
      * @return $this
      */
-    protected function _add($asset, $options = null)
+    public function add($asset)
     {
+        $options = $this->unifyLegacyArguments(func_get_args());
+
         return $this;
     }
 
     /**
      * Add a CSS asset or a collection of assets.
      *
-     * @param  mixed $asset
-     *
      * @return $this
      */
-    protected function _addCss($asset, $options = null)
+    public function addCss($asset)
     {
+        $options = $this->unifyLegacyArguments(func_get_args());
 
         return $this;
     }
@@ -203,12 +132,11 @@ class Assets extends PropertyObject
     /**
      * Add an Inline CSS asset or a collection of assets.
      *
-     * @param  mixed $asset
-     *
      * @return $this
      */
-    protected function _addInlineCss($asset, $options = null)
+    public function addInlineCss($asset)
     {
+        $options = $this->unifyLegacyArguments(func_get_args());
 
         return $this;
     }
@@ -216,24 +144,24 @@ class Assets extends PropertyObject
     /**
      * Add a JS asset or a collection of assets.
      *
-     * @param  mixed $asset
-     *
      * @return $this
      */
-    protected function _addJs($asset, $options = null)
+    public function addJs($asset)
     {
+        $options = $this->unifyLegacyArguments(func_get_args());
+
         return $this;
     }
 
     /**
      * Add an Inline JS asset or a collection of assets.
      *
-     * @param  mixed $asset
-     *
      * @return $this
      */
-    protected function _addInlineJs($asset, $options = null)
+    public function addInlineJs($asset)
     {
+        $options = $this->unifyLegacyArguments(func_get_args());
+
         return $this;
     }
 
