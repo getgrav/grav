@@ -11,8 +11,6 @@ namespace Grav\Common\Assets\Traits;
 trait LegacyAssetsTrait
 {
 
-    protected $timestamp;
-
     protected function unifyLegacyArguments($args)
     {
         $arguments = [];
@@ -222,6 +220,7 @@ trait LegacyAssetsTrait
      */
     public function reset()
     {
+        $this->assets = [];
         return $this;
     }
 
@@ -232,6 +231,7 @@ trait LegacyAssetsTrait
      */
     public function resetJs()
     {
+        $this->reset();
         return $this;
     }
 
@@ -242,7 +242,8 @@ trait LegacyAssetsTrait
      */
     public function resetCss()
     {
-
+        $this->reset();
+        return $this;
     }
 
     /**

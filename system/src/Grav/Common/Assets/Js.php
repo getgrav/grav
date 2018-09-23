@@ -24,6 +24,6 @@ class Js extends BaseAsset
     }
 
     public function render() {
-        return "\n<script src=\"" . $this->asset . "\"" . $this->renderAttributes(). "></script>";
+        return "<script src=\"" . trim($this->asset) . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
     }
 }

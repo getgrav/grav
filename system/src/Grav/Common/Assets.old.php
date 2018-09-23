@@ -398,6 +398,7 @@ class Assets
      * Convenience wrapper for deferred loading of JavaScript
      *
      * @param        $asset
+     * @param        $asset
      * @param int    $priority
      * @param bool   $pipeline
      * @param string $group name of the group

@@ -56,6 +56,7 @@ class Assets extends PropertyObject
     protected $autoload;
     protected $enable_asset_timestamp;
     protected $collections;
+    protected $timestamp;
 
     protected $pipeline_options = [];
 
@@ -75,6 +76,11 @@ class Assets extends PropertyObject
         $locator = $grav['locator'];
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
+
+        // Add timestamp if it's enabled
+        if ($this->enable_asset_timestamp) {
+            $this->timestamp = Grav::instance()['cache']->getKey();
+        }
 
         $this->config($asset_config);
 
@@ -157,10 +163,14 @@ class Assets extends PropertyObject
             return $this;
         }
 
-        // Handle some special cases
-        if (isset($options['pipeline'])) {
-            $foo = true;
+        // If pipeline disabled, set to position if provided, else after
+        if (isset($options['pipeline']) && $options['pipeline'] === false) {
+            $options['position'] = $options['position'] ?? 'after';
+            unset($options['pipeline']);
         }
+
+        // Add timestamp
+        $options['timestamp'] = $this->timestamp;
 
         // Set order
         $options['order'] = count($this->assets);

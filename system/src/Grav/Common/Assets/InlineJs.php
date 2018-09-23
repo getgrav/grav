@@ -25,6 +25,6 @@ class InlineJs extends BaseAsset
     }
 
     public function render() {
-        return "\n<script" . $this->renderAttributes(). ">\n" . $this->asset . "\n</script>\n";
+        return "<script" . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</script>\n";
     }
 }

@@ -29,6 +29,6 @@ class Css extends BaseAsset
 
 
     public function render() {
-        return "\n<link href=\"" . $this->asset . "\"" . $this->renderAttributes(). ">";
+        return "<link href=\"" . trim($this->asset) . $this->renderQueryString() . "\"" . $this->renderAttributes() . ">\n";
     }
 }

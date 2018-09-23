@@ -32,7 +32,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test.css');
 
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
         $this->assertSame([
@@ -68,7 +68,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addCSS('test.css');
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
         $this->assertSame([
@@ -87,7 +87,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addCSS('http://www.somesite.com/test.css');
         $css = $this->assets->css();
-        $this->assertSame('<link href="http://www.somesite.com/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="http://www.somesite.com/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
         $this->assertSame([
@@ -106,7 +106,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addCSS('test.css', ['group' => 'alternate']);
         $css = $this->assets->css('alternate', ['rel' => 'alternate']);
-        $this->assertSame('<link href="/test.css" type="text/css" rel="alternate" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="alternate">' . PHP_EOL, $css);
 
         //test addJs()
         $this->assets->reset();
@@ -133,7 +133,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $this->assets->css();
         $this->assertEmpty($css);
         $css = $this->assets->css('footer');
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
         $this->assertSame([
@@ -226,7 +226,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->add('test.css', ['media' => 'only screen and (min-width: 640px)']);
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" media="only screen and (min-width: 640px)" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" media="only screen and (min-width: 640px)">' . PHP_EOL, $css);
     }
 
     public function testAddingAssetPropertiesWithArray()
@@ -284,25 +284,25 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addCss('test', ['priority' => 1]);
         $this->assets->addCss('test.css', ['priority' => 2]);
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL .
-            '<link href="/system/assets/whoops.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL .
+            '<link href="/system/assets/whoops.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         //Test multiple groups
         $this->assets->reset();
         $this->assets->addCss('test', ['priority' => 1, 'group' => 'footer']);
         $this->assets->addCss('test.css', ['priority' => 2]);
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
         $css = $this->assets->css('footer');
-        $this->assertSame('<link href="/system/assets/whoops.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/system/assets/whoops.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         //Test adding array of assets
         //Test priority too
         $this->assets->reset();
         $this->assets->addCss(['test', 'test.css'], ['loading' => 'async']);
         $css = $this->assets->css();
-        $this->assertSame('<link href="/system/assets/whoops.css" type="text/css" rel="stylesheet" />' . PHP_EOL .
-            '<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/system/assets/whoops.css" type="text/css" rel="stylesheet" async>' . PHP_EOL .
+            '<link href="/test.css" type="text/css" rel="stylesheet" async>' . PHP_EOL, $css);
     }
 
     public function testPriorityOfAssets()
@@ -312,8 +312,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test-after.css');
 
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL .
-            '<link href="/test-after.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL .
+            '<link href="/test-after.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         //----------------
         $this->assets->reset();
@@ -321,8 +321,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test.css', 2);
 
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL .
-            '<link href="/test-after.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL .
+            '<link href="/test-after.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         //----------------
         $this->assets->reset();
@@ -331,9 +331,9 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test-before.css', 3);
 
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test-before.css" type="text/css" rel="stylesheet" />' . PHP_EOL .
-            '<link href="/test.css" type="text/css" rel="stylesheet" />' . PHP_EOL .
-            '<link href="/test-after.css" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test-before.css" type="text/css" rel="stylesheet">' . PHP_EOL .
+            '<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL .
+            '<link href="/test-after.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
     }
 
     public function testPipeline()
@@ -350,7 +350,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('/system/assets/debugger.css', null, true);
         $css = $this->assets->css();
         $this->assertContains('<link href=', $css);
-        $this->assertContains('type="text/css" rel="stylesheet" />', $css);
+        $this->assertContains('type="text/css" rel="stylesheet">', $css);
     }
 
     public function testPipelineWithTimestamp()
@@ -362,7 +362,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('/system/assets/debugger.css', null, true);
         $css = $this->assets->css();
         $this->assertContains('<link href=', $css);
-        $this->assertContains('type="text/css" rel="stylesheet" />', $css);
+        $this->assertContains('type="text/css" rel="stylesheet">', $css);
         $this->assertContains($this->assets->getTimestamp(), $css);
     }
 
@@ -407,56 +407,56 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->setTimestamp('foo');
         $this->assets->addCSS('test.css');
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css?foo" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css?foo" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         // local CSS already with param
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addCSS('test.css?bar');
         $css = $this->assets->css();
-        $this->assertSame('<link href="/test.css?bar&foo" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="/test.css?bar&foo" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         // external CSS already
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addCSS('http://somesite.com/test.css');
         $css = $this->assets->css();
-        $this->assertSame('<link href="http://somesite.com/test.css?foo" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="http://somesite.com/test.css?foo" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         // external CSS already with param
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addCSS('http://somesite.com/test.css?bar');
         $css = $this->assets->css();
-        $this->assertSame('<link href="http://somesite.com/test.css?bar&foo" type="text/css" rel="stylesheet" />' . PHP_EOL, $css);
+        $this->assertSame('<link href="http://somesite.com/test.css?bar&foo" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         // local JS nothing extra
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addJs('test.js');
         $css = $this->assets->js();
-        $this->assertSame('<script src="/test.js?foo" ></script>' . PHP_EOL, $css);
+        $this->assertSame('<script src="/test.js?foo"></script>' . PHP_EOL, $css);
 
         // local JS already with param
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addJs('test.js?bar');
         $css = $this->assets->js();
-        $this->assertSame('<script src="/test.js?bar&foo" ></script>' . PHP_EOL, $css);
+        $this->assertSame('<script src="/test.js?bar&foo"></script>' . PHP_EOL, $css);
 
         // external JS already
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addJs('http://somesite.com/test.js');
         $css = $this->assets->js();
-        $this->assertSame('<script src="http://somesite.com/test.js?foo" ></script>' . PHP_EOL, $css);
+        $this->assertSame('<script src="http://somesite.com/test.js?foo"></script>' . PHP_EOL, $css);
 
         // external JS already with param
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
         $this->assets->addJs('http://somesite.com/test.js?bar');
         $css = $this->assets->js();
-        $this->assertSame('<script src="http://somesite.com/test.js?bar&foo" ></script>' . PHP_EOL, $css);
+        $this->assertSame('<script src="http://somesite.com/test.js?bar&foo"></script>' . PHP_EOL, $css);
     }
 
     public function testAddInlineCss()
@@ -464,7 +464,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addInlineCss('body { color: black }');
         $css = $this->assets->css();
-        $this->assertSame(PHP_EOL . '<style>' . PHP_EOL . 'body { color: black }' . PHP_EOL . PHP_EOL . '</style>' . PHP_EOL, $css);
+        $this->assertSame('<style>' . PHP_EOL . 'body { color: black }' . PHP_EOL . '</style>' . PHP_EOL, $css);
     }
 
     public function testAddInlineJs()
@@ -472,7 +472,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addInlineJs('alert("test")');
         $js = $this->assets->js();
-        $this->assertSame(PHP_EOL . '<script>' . PHP_EOL . 'alert("test")' . PHP_EOL . PHP_EOL . '</script>' . PHP_EOL, $js);
+        $this->assertSame('<script>' . PHP_EOL . 'alert("test")' . PHP_EOL . '</script>' . PHP_EOL, $js);
     }
 
     public function testGetCollections()

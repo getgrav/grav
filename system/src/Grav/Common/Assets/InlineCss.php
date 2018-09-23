@@ -25,6 +25,6 @@ class InlineCss extends BaseAsset
     }
 
     public function render() {
-        return "\n<style" . $this->renderAttributes(). ">\n" . $this->asset . "\n</style>\n";
+        return "<style" . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</style>\n";
     }
 }
