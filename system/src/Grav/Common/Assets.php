@@ -162,6 +162,11 @@ class Assets extends PropertyObject
             return $this;
         }
 
+        // Handle some special cases
+        if (isset($options['pipeline'])) {
+            $foo = true;
+        }
+
         // Create asset of correct type
         $asset_class = "\\Grav\\Common\\Assets\\{$type}";
         $asset_object = new $asset_class();
@@ -230,13 +235,27 @@ class Assets extends PropertyObject
         return $this;
     }
 
-    protected function filterAssets($assets, $key, $value)
+    protected function filterAssets($assets, $key, $value, $sort = false)
     {
         $results = array_filter($assets, function($asset) use ($key, $value) {
             if ($asset[$key] === $value) return true;
             return false;
         });
+
+        if ($sort) {
+            $results = $this->sortAssets($results);
+        }
+
+
         return $results;
+    }
+
+    protected function sortAssets($assets)
+    {
+        uasort ($assets, function($a, $b) {
+            return $b['priority'] - $a['priority'];
+        });
+        return $assets;
     }
 
 
@@ -255,9 +274,9 @@ class Assets extends PropertyObject
         $css_assets = $this->filterAssets($this->assets, 'asset_type', 'css');
         $group_assets = $this->filterAssets($css_assets, 'group', $group);
 
-        $before_assets = $this->filterAssets($group_assets, 'position', 'before');
-        $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline');
-        $after_assets = $this->filterAssets($group_assets, 'position', 'after');
+        $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
+        $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline', true);
+        $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
 
         foreach ($before_assets as $asset) {
             $output .= $asset->render();
