@@ -55,7 +55,11 @@ trait LegacyAssetsTrait
      */
     public function exists($asset)
     {
-        return true;
+        if (isset($this->collections[$asset]) || isset($this->assets[$asset])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -65,7 +69,7 @@ trait LegacyAssetsTrait
      */
     public function getCollections()
     {
-        return [];
+        return $this->collections;
     }
 
     /**
@@ -77,6 +81,7 @@ trait LegacyAssetsTrait
      */
     public function setCollection($collections)
     {
+        $this->collections = $collections;
         return $this;
     }
 
