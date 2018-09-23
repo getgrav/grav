@@ -167,6 +167,8 @@ class Assets extends PropertyObject
         $asset_object = new $asset_class();
         $this->assets[md5($asset)] = $asset_object->init($asset, $options);
 
+        return $this;
+
     }
 
     /**
@@ -228,6 +230,15 @@ class Assets extends PropertyObject
         return $this;
     }
 
+    protected function filterAssets($assets, $key, $value)
+    {
+        $results = array_filter($assets, function($asset) use ($key, $value) {
+            if ($asset[$key] === $value) return true;
+            return false;
+        });
+        return $results;
+    }
+
 
     /**
      * Build the CSS link tags.
@@ -239,7 +250,28 @@ class Assets extends PropertyObject
      */
     public function css($group = 'head', $attributes = [])
     {
+        $output = '';
 
+        $css_assets = $this->filterAssets($this->assets, 'asset_type', 'css');
+        $group_assets = $this->filterAssets($css_assets, 'group', $group);
+
+        $before_assets = $this->filterAssets($group_assets, 'position', 'before');
+        $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline');
+        $after_assets = $this->filterAssets($group_assets, 'position', 'after');
+
+        foreach ($before_assets as $asset) {
+            $output .= $asset->render();
+        }
+
+        foreach ($pipeline_assets as $asset) {
+            $output .= $asset->render();
+        }
+
+        foreach ($after_assets as $asset) {
+            $output .= $asset->render();
+        }
+
+        return $output;
     }
 
     /**
@@ -252,7 +284,28 @@ class Assets extends PropertyObject
      */
     public function js($group = 'head', $attributes = [])
     {
+        $output = '';
 
+        $js_assets = $this->filterAssets($this->assets, 'asset_type', 'js');
+        $group_assets = $this->filterAssets($js_assets, 'group', $group);
+
+        $before_assets = $this->filterAssets($group_assets, 'position', 'before');
+        $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline');
+        $after_assets = $this->filterAssets($group_assets, 'position', 'after');
+
+        foreach ($before_assets as $asset) {
+            $output .= $asset->render();
+        }
+
+        foreach ($pipeline_assets as $asset) {
+            $output .= $asset->render();
+        }
+
+        foreach ($after_assets as $asset) {
+            $output .= $asset->render();
+        }
+
+        return $output;
     }
 
 

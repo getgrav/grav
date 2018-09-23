@@ -8,9 +8,22 @@
 
 namespace Grav\Common\Assets;
 
+use Grav\Common\Utils;
+
 class Js extends BaseAsset
 {
-    public function render() {
+    public function __construct(array $elements = [], $key = null)
+    {
+        $base_options = [
+            'asset_type' => 'js',
+        ];
 
+        $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);
+
+        parent::__construct($merged_attributes, $key);
+    }
+
+    public function render() {
+        return "\n<script src=\"" . $this->asset . "\"" . $this->renderAttributes(). "></script>";
     }
 }

@@ -20,10 +20,11 @@ abstract class BaseAsset extends PropertyObject
 
     protected $asset;
 
+    protected $asset_type;
     protected $group;
     protected $position;
     protected $priority;
-    protected $attributes;
+    protected $attributes = [];
 
     protected $base_url;
     protected $modified;
@@ -32,7 +33,22 @@ abstract class BaseAsset extends PropertyObject
 
     abstract function render();
 
-    public function init($asset, $options) {
+    public function __construct(array $elements = [], $key = null)
+    {
+        $base_config = [
+            'group' => 'head',
+            'position' => 'pipeline',
+            'priority' => 10
+        ];
+
+        // Merge base defaults
+        $elements = array_merge($base_config, $elements);
+
+        parent::__construct($elements, $key);
+    }
+
+    public function init($asset, $options)
+    {
 
         // set attributes
         foreach ($options as $key => $value) {
@@ -124,9 +140,19 @@ abstract class BaseAsset extends PropertyObject
             $asset = $locator->findResource($asset, $absolute);
         }
 
-        $uri = $absolute ? $asset : $this->base_url . ltrim($asset, '/');
+        $uri = $absolute ? $asset : $this->base_url . '/' . ltrim($asset, '/');
 
 
         return $asset ? $uri : false;
+    }
+
+    protected function renderAttributes()
+    {
+        $output = '';
+        foreach ($this->attributes as $key => $value) {
+            $output .= " ${key}=\"{$value}\"";
+        }
+
+        return $output;
     }
 }

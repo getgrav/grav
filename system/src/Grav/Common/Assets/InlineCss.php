@@ -8,10 +8,23 @@
 
 namespace Grav\Common\Assets;
 
+use Grav\Common\Utils;
 
 class InlineCss extends BaseAsset
 {
-    public function render() {
+    public function __construct(array $elements = [], $key = null)
+    {
+        $base_options = [
+            'asset_type' => 'css',
+            'position' => 'after'
+        ];
 
+        $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);
+
+        parent::__construct($merged_attributes, $key);
+    }
+
+    public function render() {
+        return "\n<style" . $this->renderAttributes(). ">\n" . $this->asset . "\n</style>\n";
     }
 }
