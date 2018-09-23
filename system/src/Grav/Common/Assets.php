@@ -334,86 +334,30 @@ class Assets extends PropertyObject
 
 
 
-    /**
-     * TODO: Do we need?
-     *
-     * Build an HTML attribute string from an array.
-     *
-     * @param  array $attributes
-     *
-     * @return string
-     */
-    protected function attributes(array $attributes)
-    {
-        $html = '';
-        $no_key = ['loading'];
 
-        foreach ($attributes as $key => $value) {
-            // For numeric keys we will assume that the key and the value are the same
-            // as this will convert HTML attributes such as "required" to a correct
-            // form like required="required" instead of using incorrect numerics.
-            if (is_numeric($key)) {
-                $key = $value;
-            }
-            if (is_array($value)) {
-                $value = implode(' ', $value);
-            }
-
-            if (in_array($key, $no_key)) {
-                $element = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
-            } else {
-                $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
-            }
-
-            $html .= ' ' . $element;
-        }
-
-        return $html;
-    }
-
-
-    /**
-     * TODO: Do we need?
-     *
-     * Recursively get files matching $pattern within $directory.
-     *
-     * @param  string $directory
-     * @param  string $pattern (regex)
-     * @param  string $ltrim   Will be trimmed from the left of the file path
-     *
-     * @return array
-     */
-    protected function rglob($directory, $pattern, $ltrim = null)
-    {
-        $iterator = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory,
-            FilesystemIterator::SKIP_DOTS)), $pattern);
-        $offset = strlen($ltrim);
-        $files = [];
-
-        foreach ($iterator as $file) {
-            $files[] = substr($file->getPathname(), $offset);
-        }
-
-        return $files;
-    }
-
-
-
-    /**
-     * TODO: Do we need?
-     *
-     * @param $a
-     * @param $b
-     *
-     * @return mixed
-     */
-    protected function sortAssetsByPriorityThenOrder($a, $b)
-    {
-        if ($a['priority'] == $b['priority']) {
-            return $a['order'] - $b['order'];
-        }
-
-        return $b['priority'] - $a['priority'];
-    }
+//    /**
+//     * TODO: Do we need?
+//     *
+//     * Recursively get files matching $pattern within $directory.
+//     *
+//     * @param  string $directory
+//     * @param  string $pattern (regex)
+//     * @param  string $ltrim   Will be trimmed from the left of the file path
+//     *
+//     * @return array
+//     */
+//    protected function rglob($directory, $pattern, $ltrim = null)
+//    {
+//        $iterator = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory,
+//            FilesystemIterator::SKIP_DOTS)), $pattern);
+//        $offset = strlen($ltrim);
+//        $files = [];
+//
+//        foreach ($iterator as $file) {
+//            $files[] = substr($file->getPathname(), $offset);
+//        }
+//
+//        return $files;
+//    }
 
 }

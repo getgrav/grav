@@ -146,13 +146,37 @@ abstract class BaseAsset extends PropertyObject
         return $asset ? $uri : false;
     }
 
+    /**
+     * TODO: Do we need?
+     *
+     * Build an HTML attribute string from an array.
+     *
+     * @param  array $attributes
+     *
+     * @return string
+     */
     protected function renderAttributes()
     {
-        $output = '';
+        $html = '';
+        $no_key = ['loading'];
+
         foreach ($this->attributes as $key => $value) {
-            $output .= " ${key}=\"{$value}\"";
+            if (is_numeric($key)) {
+                $key = $value;
+            }
+            if (is_array($value)) {
+                $value = implode(' ', $value);
+            }
+
+            if (in_array($key, $no_key)) {
+                $element = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+            } else {
+                $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
+            }
+
+            $html .= ' ' . $element;
         }
 
-        return $output;
+        return $html;
     }
 }
