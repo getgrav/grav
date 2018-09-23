@@ -9,8 +9,8 @@
 namespace Grav\Common\Assets;
 
 use Grav\Common\Grav;
-use Grav\Common\Assets;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -21,6 +21,7 @@ abstract class BaseAsset extends PropertyObject
     protected $asset;
 
     protected $asset_type;
+    protected $order;
     protected $group;
     protected $position;
     protected $priority;
@@ -59,21 +60,24 @@ abstract class BaseAsset extends PropertyObject
             }
         }
 
-        $this->base_url = Grav::instance()['uri']->rootUrl(Grav::instance()['config']->get('system.absolute_urls'));
-        $this->remote = Assets::isRemoteLink($asset);
+        // Do some special stuff for CSS/JS (not inline)
+        if (!Utils::startsWith($this->getType(), 'inline')) {
+            $this->base_url = Grav::instance()['uri']->rootUrl(Grav::instance()['config']->get('system.absolute_urls'));
+            $this->remote = $this->isRemoteLink($asset);
 
-        // Move this to render?
-        if (!$this->remote) {
+            // Move this to render?
+            if (!$this->remote) {
 
-            $asset_parts = parse_url($asset);
-            if (isset($asset_parts['query'])) {
-                $this->query = $asset_parts['query'];
-                unset($asset_parts['query']);
-                $asset = Uri::buildUrl($asset_parts);
+                $asset_parts = parse_url($asset);
+                if (isset($asset_parts['query'])) {
+                    $this->query = $asset_parts['query'];
+                    unset($asset_parts['query']);
+                    $asset = Uri::buildUrl($asset_parts);
+                }
+
+                $this->modified = $this->getLastModificationTime($asset);
+                $asset = $this->buildLocalLink($asset);
             }
-
-            $this->modified = $this->getLastModificationTime($asset);
-            $asset = $this->buildLocalLink($asset);
         }
 
         $this->asset = $asset;
@@ -144,6 +148,29 @@ abstract class BaseAsset extends PropertyObject
 
 
         return $asset ? $uri : false;
+    }
+
+    /**
+     *
+     * Determine whether a link is local or remote.
+     *
+     * Understands both "http://" and "https://" as well as protocol agnostic links "//"
+     *
+     * @param  string $link
+     *
+     * @return bool
+     */
+    public static function isRemoteLink($link)
+    {
+        $base = Grav::instance()['uri']->rootUrl(true);
+
+        // sanity check for local URLs with absolute URL's enabled
+        if (Utils::startsWith($link, $base)) {
+            return false;
+        }
+
+        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8) || '//' === substr($link, 0,
+                2));
     }
 
     /**

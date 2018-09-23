@@ -152,13 +152,8 @@ class Assets extends PropertyObject
                 $this->addType($type, $a, $options);
             }
             return $this;
-        } elseif (isset($this->collections[$asset])) {
+        } elseif (($type === $this::CSS_TYPE || $type === $this::JS_TYPE) && isset($this->collections[$asset])) {
             $this->addType($type, $this->collections[$asset], $options);
-            return $this;
-        }
-
-        // Check for existence
-        if ($asset === false) {
             return $this;
         }
 
@@ -166,6 +161,9 @@ class Assets extends PropertyObject
         if (isset($options['pipeline'])) {
             $foo = true;
         }
+
+        // Set order
+        $options['order'] = count($this->assets);
 
         // Create asset of correct type
         $asset_class = "\\Grav\\Common\\Assets\\{$type}";
@@ -242,7 +240,7 @@ class Assets extends PropertyObject
             return false;
         });
 
-        if ($sort) {
+        if ($sort && !empty($results)) {
             $results = $this->sortAssets($results);
         }
 
@@ -253,6 +251,9 @@ class Assets extends PropertyObject
     protected function sortAssets($assets)
     {
         uasort ($assets, function($a, $b) {
+            if ($a['priority'] == $b['priority']) {
+                return $a['order'] - $b['order'];
+            }
             return $b['priority'] - $a['priority'];
         });
         return $assets;
@@ -308,9 +309,9 @@ class Assets extends PropertyObject
         $js_assets = $this->filterAssets($this->assets, 'asset_type', 'js');
         $group_assets = $this->filterAssets($js_assets, 'group', $group);
 
-        $before_assets = $this->filterAssets($group_assets, 'position', 'before');
-        $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline');
-        $after_assets = $this->filterAssets($group_assets, 'position', 'after');
+        $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
+        $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline', true);
+        $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
 
         foreach ($before_assets as $asset) {
             $output .= $asset->render();
@@ -326,57 +327,4 @@ class Assets extends PropertyObject
 
         return $output;
     }
-
-
-    /**
-     *
-     * Determine whether a link is local or remote.
-     *
-     * Understands both "http://" and "https://" as well as protocol agnostic links "//"
-     *
-     * @param  string $link
-     *
-     * @return bool
-     */
-    public static function isRemoteLink($link)
-    {
-        $base = Grav::instance()['uri']->rootUrl(true);
-
-        // sanity check for local URLs with absolute URL's enabled
-        if (Utils::startsWith($link, $base)) {
-            return false;
-        }
-
-        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8) || '//' === substr($link, 0,
-                2));
-    }
-
-
-
-
-//    /**
-//     * TODO: Do we need?
-//     *
-//     * Recursively get files matching $pattern within $directory.
-//     *
-//     * @param  string $directory
-//     * @param  string $pattern (regex)
-//     * @param  string $ltrim   Will be trimmed from the left of the file path
-//     *
-//     * @return array
-//     */
-//    protected function rglob($directory, $pattern, $ltrim = null)
-//    {
-//        $iterator = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory,
-//            FilesystemIterator::SKIP_DOTS)), $pattern);
-//        $offset = strlen($ltrim);
-//        $files = [];
-//
-//        foreach ($iterator as $file) {
-//            $files[] = substr($file->getPathname(), $offset);
-//        }
-//
-//        return $files;
-//    }
-
 }
