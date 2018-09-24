@@ -15,6 +15,7 @@
     * Added `Grav\Framework\Collection\AbstractIndexCollection` class
     * Added `Grav\Framework\Object\ObjectIndex` class
     * Added `Grav\Framework\Flex` classes
+    * Added proper support for hiding form fields in blueprints by using dynamic property like `security@: admin.foobar` to any field
 1. [](#improved)
     * Doctrine filecache is now namespaced with prefix to support purging
     
