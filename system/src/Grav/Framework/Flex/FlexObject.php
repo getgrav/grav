@@ -48,9 +48,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /** @var FlexForm[] */
     private $_forms = [];
     /** @var string */
-    private $storageKey;
+    private $_storageKey;
     /** @var int */
-    private $timestamp = 0;
+    private $_timestamp = 0;
 
     /**
      * @return array
@@ -212,7 +212,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getStorageKey()
     {
-        return $this->storageKey;
+        return $this->_storageKey;
     }
 
     /**
@@ -221,7 +221,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function setStorageKey($key = null)
     {
-        $this->storageKey = $key;
+        $this->_storageKey = $key;
 
         return $this;
     }
@@ -231,7 +231,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getTimestamp() : int
     {
-        return $this->timestamp;
+        return $this->_timestamp;
     }
 
     /**
@@ -240,7 +240,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function setTimestamp($timestamp = null)
     {
-        $this->timestamp = $timestamp ?? time();
+        $this->_timestamp = $timestamp ?? time();
 
         return $this;
     }
@@ -485,8 +485,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             throw new \InvalidArgumentException("Cannot unserialize '{$type}': Not found");
         }
         $this->_flexDirectory = $directory;
-        $this->storageKey = $serialized['storage_key'];
-        $this->timestamp = $serialized['storage_timestamp'];
+        $this->_storageKey = $serialized['storage_key'];
+        $this->_timestamp = $serialized['storage_timestamp'];
 
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
@@ -571,10 +571,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     protected function filterElements(array &$elements)
     {
         if (!empty($elements['storage_key'])) {
-            $this->storageKey = trim($elements['storage_key']);
+            $this->_storageKey = trim($elements['storage_key']);
         }
         if (!empty($elements['storage_timestamp'])) {
-            $this->timestamp = (int)$elements['storage_timestamp'];
+            $this->_timestamp = (int)$elements['storage_timestamp'];
         }
 
         unset ($elements['storage_key'], $elements['storage_timestamp']);
