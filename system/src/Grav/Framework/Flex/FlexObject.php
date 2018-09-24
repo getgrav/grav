@@ -45,12 +45,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /** @var FlexDirectory */
     private $_flexDirectory;
+    /** @var FlexForm[] */
+    private $_forms = [];
     /** @var string */
     private $storageKey;
     /** @var int */
     private $timestamp = 0;
-    /** @var FlexForm[] */
-    private $forms = [];
 
     /**
      * @return array
@@ -165,11 +165,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getForm($name = 'default')
     {
-        if (!isset($this->forms[$name])) {
-            $this->forms[$name] = new FlexForm($name, $this);
+        if (!isset($this->_forms[$name])) {
+            $this->_forms[$name] = new FlexForm($name, $this);
         }
 
-        return $this->forms[$name];
+        return $this->_forms[$name];
     }
 
     /**

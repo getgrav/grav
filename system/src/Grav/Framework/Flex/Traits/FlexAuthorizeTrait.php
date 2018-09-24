@@ -19,7 +19,7 @@ use Grav\Common\User\User;
  */
 trait FlexAuthorizeTrait
 {
-    private $authorize = '%s.flex-object.%s';
+    private $_authorize = '%s.flex-object.%s';
 
     public function authorize(string $action, string $scope = null) : bool
     {
@@ -34,11 +34,11 @@ trait FlexAuthorizeTrait
             $action = $this->exists() ? 'update' : 'create';
         }
 
-        return $user->authorize(sprintf($this->authorize, $scope, $action)) || $user->authorize('admin.super');
+        return $user->authorize(sprintf($this->_authorize, $scope, $action)) || $user->authorize('admin.super');
     }
 
     protected function setAuthorizeRule(string $authorize) : void
     {
-        $this->authorize = $authorize;
+        $this->_authorize = $authorize;
     }
 }
