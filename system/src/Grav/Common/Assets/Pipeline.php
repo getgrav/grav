@@ -8,10 +8,19 @@
 
 namespace Grav\Common\Assets;
 
-use Grav\Framework\Object\ArrayObject;
+use Grav\Common\Assets\Traits\AssetUtilsTrait;
+use Grav\Common\Config\Config;
+use Grav\Common\Grav;
+use Grav\Common\Uri;
+use Grav\Common\Utils;
+use Grav\Framework\Object\PropertyObject;
 
-class Pipeline extends ArrayObject
+class Pipeline extends PropertyObject
 {
+    use AssetUtilsTrait;
+
+    const CSS_ASSET = true;
+    const JS_ASSET = false;
 
     /** @const Regex to match CSS urls */
     const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
@@ -22,7 +31,21 @@ class Pipeline extends ArrayObject
     /** @const Regex to match CSS import content */
     const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
+    protected $css_minify;
+    protected $css_minify_windows;
+    protected $css_rewrite;
 
+    protected $js_minify;
+    protected $js_minify_windows;
+
+    protected $base_url;
+    protected $assets_dir;
+    protected $assets_url;
+    protected $timestamp;
+    protected $attributes;
+
+    protected $css_pipeline_include_externals;
+    protected $js_pipeline_include_externals;
 
     /**
      * Closure used by the pipeline to fetch assets.
@@ -38,114 +61,116 @@ class Pipeline extends ArrayObject
      */
     protected $fetch_command;
 
+    public function __construct(array $elements = [], ?string $key = null)
+    {
+        parent::__construct($elements, $key);
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        $this->base_url = $uri->rootUrl($config->get('system.absolute_urls'));
+        $this->assets_dir = $locator->findResource('asset://') . DS;
+        $this->assets_url = $locator->findResource('asset://', false);
+
+
+    }
+
     /**
      * Minify and concatenate CSS
      *
+     * @param array $assets
      * @param string $group
-     * @param bool $returnURL  true if pipeline should return the URL, otherwise the content
+     * @param array $attributes
+     * @param array $no_pipeline
      *
      * @return bool|string     URL or generated content if available, else false
      */
-    protected function pipelineCss($group = 'head', $returnURL = true)
+    public function renderCss($assets, $group, $attributes = [], &$no_pipeline = [])
     {
         // temporary list of assets to pipeline
-        $temp_css = [];
+        $inline_group = false;
 
-        // clear no-pipeline assets lists
-        $this->css_no_pipeline = [];
+        if (array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline') {
+            $inline_group = true;
+            unset($attributes['loading']);
+        }
+
+        // Attributes
+        $this->attributes = array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes);
 
         // Compute uid based on assets and timestamp
-        $uid = md5(json_encode($this->css) . $this->css_minify . $this->css_rewrite . $group);
-        $file =  $uid . '.css';
-        $inline_file = $uid . '-inline.css';
+        $json_assets = json_encode($assets);
+        $uid = md5($json_assets . $this->css_minify . $this->css_rewrite . $group);
+        $file = $uid . '.css';
+        $relative_path = "{$this->base_url}/{$this->assets_url}/{$file}";
 
-        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
+        $buffer = null;
 
-        // If inline files exist set them on object
-        if (file_exists($this->assets_dir . $inline_file)) {
-            $this->css_no_pipeline = json_decode(file_get_contents($this->assets_dir . $inline_file), true);
-        }
-
-        // If pipeline exist return its URL or content
         if (file_exists($this->assets_dir . $file)) {
-            if ($returnURL) {
-                return $relative_path . $this->getTimestamp();
-            }
-            else {
-                return file_get_contents($this->assets_dir . $file) . "\n";
-            }
-        }
+            $buffer = file_get_contents($this->assets_dir . $file) . "\n";
+        } else {
 
-        // Remove any non-pipeline files
-        foreach ($this->css as $id => $asset) {
-            if ($asset['group'] == $group) {
-                if (!$asset['pipeline'] ||
-                    ($asset['remote'] && $this->css_pipeline_include_externals === false)) {
-                    $this->css_no_pipeline[$id] = $asset;
-                } else {
-                    $temp_css[$id] = $asset;
+            foreach ($assets as $id => $asset) {
+                if ($asset->getRemote() && $this->css_pipeline_include_externals === false) {
+                    $no_pipeline[$id] = $asset;
+                    unset($assets[$id]);
                 }
             }
-        }
 
-        //if nothing found get out of here!
-        if (count($temp_css) == 0) {
-            return false;
-        }
-
-        // Write non-pipeline files out
-        if (!empty($this->css_no_pipeline)) {
-            file_put_contents($this->assets_dir . $inline_file, json_encode($this->css_no_pipeline));
-        }
-
-
-        $css_minify = $this->css_minify;
-
-        // If this is a Windows server, and minify_windows is false (default value) skip the
-        // minification process because it will cause Apache to die/crash due to insufficient
-        // ThreadStackSize in httpd.conf - See: https://bugs.php.net/bug.php?id=47689
-        if (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN' && !$this->css_minify_windows) {
-            $css_minify = false;
-        }
-
-        // Concatenate files
-        $buffer = $this->gatherLinks($temp_css, CSS_ASSET);
-        if ($css_minify) {
-            $minifier = new \MatthiasMullie\Minify\CSS();
-            $minifier->add($buffer);
-            $buffer = $minifier->minify();
-        }
-
-        // Write file
-        if (strlen(trim($buffer)) > 0) {
-            file_put_contents($this->assets_dir . $file, $buffer);
-
-            if ($returnURL) {
-                return $relative_path . $this->getTimestamp();
+            //if nothing found get out of here!
+            if (empty($assets) && empty($no_pipeline)) {
+                return false;
             }
-            else {
-                return $buffer . "\n";
+
+            // Concatenate files
+            $buffer = $this->gatherLinks($assets, $this::CSS_ASSET);
+
+            // Minify if required
+            if ($this->shouldMinify('css')) {
+                $minifier = new \MatthiasMullie\Minify\CSS();
+                $minifier->add($buffer);
+                $buffer = $minifier->minify();
             }
+
+            // Write file
+            if (strlen(trim($buffer)) > 0) {
+                file_put_contents($this->assets_dir . $file, $buffer);
+            }
+        }
+
+        if ($inline_group) {
+            $output = "<style>\n" . $buffer . "\n</style>\n";
         } else {
-            return false;
+            $output = "<link href=\"" . $relative_path . "\"" . $this->renderAttributes($attributes) . ">\n";
         }
+
+        return $output;
     }
 
     /**
      * Minify and concatenate JS files.
      *
+     * @param array $assets
      * @param string $group
-     * @param bool $returnURL  true if pipeline should return the URL, otherwise the content
+     * @param array  $attributes
      *
      * @return bool|string     URL or generated content if available, else false
      */
-    protected function pipelineJs($group = 'head', $returnURL = true)
+    public function js($assets, $group = 'head', $attributes = [])
     {
         // temporary list of assets to pipeline
         $temp_js = [];
 
         // clear no-pipeline assets lists
         $this->js_no_pipeline = [];
+
+        $inline_group = array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline';
 
         // Compute uid based on assets and timestamp
         $uid = md5(json_encode($this->js) . $this->js_minify . $group);
@@ -161,7 +186,7 @@ class Pipeline extends ArrayObject
 
         // If pipeline exist return its URL or content
         if (file_exists($this->assets_dir . $file)) {
-            if ($returnURL) {
+            if ($inline_group) {
                 return $relative_path . $this->getTimestamp();
             }
             else {
@@ -171,14 +196,14 @@ class Pipeline extends ArrayObject
 
         // Remove any non-pipeline files
         foreach ($this->js as $id => $asset) {
-            if ($asset['group'] == $group) {
-                if (!$asset['pipeline'] ||
-                    ($asset['remote'] && $this->js_pipeline_include_externals === false)) {
-                    $this->js_no_pipeline[] = $asset;
-                } else {
-                    $temp_js[$id] = $asset;
-                }
+
+            if (!$asset['pipeline'] ||
+                ($asset['remote'] && $this->js_pipeline_include_externals === false)) {
+                $this->js_no_pipeline[] = $asset;
+            } else {
+                $temp_js[$id] = $asset;
             }
+
         }
 
         //if nothing found get out of here!
@@ -203,7 +228,7 @@ class Pipeline extends ArrayObject
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
-            if ($returnURL) {
+            if ($inline_group) {
                 return $relative_path . $this->getTimestamp();
             }
             else {
@@ -231,7 +256,7 @@ class Pipeline extends ArrayObject
             $relative_dir = '';
             $local = true;
 
-            $link = $asset['asset'];
+            $link = $asset->getAsset();
             $relative_path = $link;
 
             if ($this->isRemoteLink($link)) {
@@ -320,14 +345,31 @@ class Pipeline extends ArrayObject
      */
     protected function moveImports($file)
     {
-        $this->imports = [];
+        $imports = [];
 
         $file = preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) {
-            $this->imports[] = $matches[0];
+            $imports[] = $matches[0];
 
             return '';
         }, $file);
 
-        return implode("\n", $this->imports) . "\n\n" . $file;
+        return implode("\n", $imports) . "\n\n" . $file;
+    }
+
+    private function shouldMinify($type = 'css')
+    {
+        $check = $type . '_minify';
+        $win_check = $type . '_minify_windows';
+
+        $minify = (bool) $this->$check;
+
+        // If this is a Windows server, and minify_windows is false (default value) skip the
+        // minification process because it will cause Apache to die/crash due to insufficient
+        // ThreadStackSize in httpd.conf - See: https://bugs.php.net/bug.php?id=47689
+        if (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN' && !$this->$win_check) {
+            $minify = false;
+        }
+
+        return $minify;
     }
 }

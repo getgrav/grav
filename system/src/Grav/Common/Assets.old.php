@@ -24,8 +24,6 @@ class Assets
 {
 
 
-
-
     /** @const Regex to match CSS urls */
     const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 

@@ -8,19 +8,16 @@
 
 namespace Grav\Common;
 
-
-use FilesystemIterator;
+use Grav\Common\Assets\Pipeline;
 use Grav\Common\Assets\Traits\LegacyAssetsTrait;
+use Grav\Common\Assets\Traits\TestingAssetsTrait;
 use Grav\Common\Config\Config;
 use Grav\Framework\Object\PropertyObject;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use RegexIterator;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-
 
 class Assets extends PropertyObject
 {
+    use TestingAssetsTrait;
     use LegacyAssetsTrait;
 
     const CSS_TYPE = 'Css';
@@ -46,19 +43,22 @@ class Assets extends PropertyObject
     protected $assets_dir;
     protected $assets_url;
 
-    protected $assets = [];
+    protected $assets_css = [];
+    protected $assets_js = [];
 
     // Config Options
     protected $css_pipeline;
+    protected $css_pipeline_before_excludes;
     protected $js_pipeline;
+    protected $js_pipeline_before_excludes;
+    protected $pipeline_options = [];
+
 
     protected $fetch_command;
     protected $autoload;
     protected $enable_asset_timestamp;
     protected $collections;
     protected $timestamp;
-
-    protected $pipeline_options = [];
 
 
     /**
@@ -151,17 +151,20 @@ class Assets extends PropertyObject
         return $this;
     }
 
-    protected function addType($type, $asset, $options)
+    protected function addType($group, $type, $asset, $options)
     {
         if (is_array($asset)) {
             foreach ($asset as $a) {
-                $this->addType($type, $a, $options);
+                $this->addType($group, $type, $a, $options);
             }
             return $this;
         } elseif (($type === $this::CSS_TYPE || $type === $this::JS_TYPE) && isset($this->collections[$asset])) {
-            $this->addType($type, $this->collections[$asset], $options);
+            $this->addType($group, $type, $this->collections[$asset], $options);
             return $this;
         }
+
+        // Get assets group
+        $asset_group = 'assets_' . strtolower($group);
 
         // If pipeline disabled, set to position if provided, else after
         if (isset($options['pipeline']) && $options['pipeline'] === false) {
@@ -173,12 +176,12 @@ class Assets extends PropertyObject
         $options['timestamp'] = $this->timestamp;
 
         // Set order
-        $options['order'] = count($this->assets);
+        $options['order'] = count($this->$asset_group);
 
         // Create asset of correct type
         $asset_class = "\\Grav\\Common\\Assets\\{$type}";
         $asset_object = new $asset_class();
-        $this->assets[md5($asset)] = $asset_object->init($asset, $options);
+        $this->$asset_group[md5($asset)] = $asset_object->init($asset, $options);
 
         return $this;
 
@@ -191,7 +194,7 @@ class Assets extends PropertyObject
      */
     public function addCss($asset)
     {
-        return $this->addType(Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
+        return $this->addType(Assets::CSS_TYPE,Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
     /**
@@ -201,7 +204,7 @@ class Assets extends PropertyObject
      */
     public function addInlineCss($asset)
     {
-        return $this->addType(Assets::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
+        return $this->addType(Assets::CSS_TYPE, Assets::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
     /**
@@ -211,7 +214,7 @@ class Assets extends PropertyObject
      */
     public function addJs($asset)
     {
-        return $this->addType(Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
+        return $this->addType(Assets::JS_TYPE, Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
     /**
@@ -221,7 +224,7 @@ class Assets extends PropertyObject
      */
     public function addInlineJs($asset)
     {
-        return $this->addType(Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
+        return $this->addType(Assets::JS_TYPE, Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
     }
 
 
@@ -280,28 +283,48 @@ class Assets extends PropertyObject
      */
     public function css($group = 'head', $attributes = [])
     {
-        $output = '';
+        $before_output = '';
+        $pipeline_output = '';
+        $after_output = '';
+        $no_pipeline = [];
 
-        $css_assets = $this->filterAssets($this->assets, 'asset_type', 'css');
-        $group_assets = $this->filterAssets($css_assets, 'group', $group);
-
-        $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
+        $group_assets = $this->filterAssets($this->assets_css, 'group', $group);
         $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline', true);
+        $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
         $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
 
+        // Pipeline
+        if ($this->css_pipeline) {
+            $options = array_merge($this->pipeline_options, ['timestamp' => $this->timestamp]);
+
+            $pipeline = new Pipeline($options);
+            $pipeline_output = $pipeline->renderCss($pipeline_assets, $group, $attributes, $no_pipeline);
+        } else {
+            foreach ($pipeline_assets as $asset) {
+                $pipeline_output .= $asset->render();
+            }
+        }
+
+        // Handle stuff that couldn't be pipelined
+        if (!empty($no_pipeline)) {
+            if ($this->css_pipeline_before_excludes) {
+                $after_assets = array_merge($after_assets, $no_pipeline);
+            } else {
+                $before_assets = array_merge($before_assets, $no_pipeline);
+            }
+        }
+
+        // Before Pipeline
         foreach ($before_assets as $asset) {
-            $output .= $asset->render();
+            $before_output .= $asset->render();
         }
 
-        foreach ($pipeline_assets as $asset) {
-            $output .= $asset->render();
-        }
-
+        // After Pipeline
         foreach ($after_assets as $asset) {
-            $output .= $asset->render();
+            $after_output .= $asset->render();
         }
 
-        return $output;
+        return $before_output . $pipeline_output . $after_output;
     }
 
     /**
@@ -316,9 +339,7 @@ class Assets extends PropertyObject
     {
         $output = '';
 
-        $js_assets = $this->filterAssets($this->assets, 'asset_type', 'js');
-        $group_assets = $this->filterAssets($js_assets, 'group', $group);
-
+        $group_assets = $this->filterAssets($this->assets_js, 'group', $group);
         $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
         $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline', true);
         $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);

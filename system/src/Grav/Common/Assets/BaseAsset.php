@@ -8,6 +8,7 @@
 
 namespace Grav\Common\Assets;
 
+use Grav\Common\Assets\Traits\AssetUtilsTrait;
 use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -16,7 +17,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class BaseAsset extends PropertyObject
 {
-//    protected $base_url;
+    use AssetUtilsTrait;
 
     protected $asset;
 
@@ -40,7 +41,9 @@ abstract class BaseAsset extends PropertyObject
         $base_config = [
             'group' => 'head',
             'position' => 'pipeline',
-            'priority' => 10
+            'priority' => 10,
+            'modified' => null,
+            'asset' => null
         ];
 
         // Merge base defaults
@@ -84,30 +87,18 @@ abstract class BaseAsset extends PropertyObject
 
         $this->asset = $asset;
 
-//
-//        $data = [
-//            'asset'    => $asset,
-//            'remote'   => $remote,
-//            'priority' => intval($priority ?: 10),
-//            'order'    => count($assembly),
-//            'pipeline' => (bool) $pipeline,
-//            'loading'  => $loading ?: '',
-//            'group'    => $group ?: 'head',
-//            'modified' => $modified,
-//            'query'    => implode('&', $query),
-//        ];
-//
-//        // check for dynamic array and merge with defaults
-//        if (func_num_args() > 2) {
-//            $dynamic_arg = func_get_arg(2);
-//            if (is_array($dynamic_arg)) {
-//                $data = array_merge($data, $dynamic_arg);
-//            }
-//        }
-
         return $this;
     }
 
+    public function getAsset()
+    {
+        return $this->asset;
+    }
+
+    public function getRemote()
+    {
+        return $this->remote;
+    }
 
 
     /**
@@ -152,62 +143,6 @@ abstract class BaseAsset extends PropertyObject
         return $asset ? $uri : false;
     }
 
-    /**
-     *
-     * Determine whether a link is local or remote.
-     *
-     * Understands both "http://" and "https://" as well as protocol agnostic links "//"
-     *
-     * @param  string $link
-     *
-     * @return bool
-     */
-    public static function isRemoteLink($link)
-    {
-        $base = Grav::instance()['uri']->rootUrl(true);
-
-        // sanity check for local URLs with absolute URL's enabled
-        if (Utils::startsWith($link, $base)) {
-            return false;
-        }
-
-        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8) || '//' === substr($link, 0,
-                2));
-    }
-
-    /**
-     * TODO: Do we need?
-     *
-     * Build an HTML attribute string from an array.
-     *
-     * @param  array $attributes
-     *
-     * @return string
-     */
-    protected function renderAttributes()
-    {
-        $html = '';
-        $no_key = ['loading'];
-
-        foreach ($this->attributes as $key => $value) {
-            if (is_numeric($key)) {
-                $key = $value;
-            }
-            if (is_array($value)) {
-                $value = implode(' ', $value);
-            }
-
-            if (in_array($key, $no_key)) {
-                $element = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
-            } else {
-                $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
-            }
-
-            $html .= ' ' . $element;
-        }
-
-        return $html;
-    }
 
     protected function renderQueryString()
     {
@@ -230,5 +165,15 @@ abstract class BaseAsset extends PropertyObject
         }
 
         return $querystring;
+    }
+
+    /**
+     * Implements JsonSerializable interface.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return ['type' => $this->getType(), 'elements' => $this->getElements()];
     }
 }
