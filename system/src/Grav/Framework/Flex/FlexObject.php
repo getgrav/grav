@@ -125,9 +125,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         $blueprint->validate($data + ['storage_key' => $this->getStorageKey()]);
         $data = $blueprint->filter($data);
-
         $this->filterElements($data);
-        $this->setElements($data);
+
+        if ($data) {
+            $this->setElements($data);
+        }
 
         return $this;
     }
