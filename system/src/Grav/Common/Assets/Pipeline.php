@@ -131,7 +131,7 @@ class Pipeline extends PropertyObject
             }
 
             // Concatenate files
-            $buffer = $this->gatherLinks($assets, $this::CSS_ASSET);
+            $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
 
             // Minify if required
             if ($this->shouldMinify('css')) {
@@ -203,7 +203,7 @@ class Pipeline extends PropertyObject
             }
 
             // Concatenate files
-            $buffer = $this->gatherLinks($assets, $this::JS_ASSET);
+            $buffer = $this->gatherLinks($assets, self::JS_ASSET);
 
             // Minify if required
             if ($this->shouldMinify('js')) {
@@ -228,70 +228,7 @@ class Pipeline extends PropertyObject
         return $output;
     }
 
-    /**
-     * Download and concatenate the content of several links.
-     *
-     * @param  array $links
-     * @param  bool  $css
-     *
-     * @return string
-     */
-    protected function gatherLinks(array $links, $css = true)
-    {
-        $buffer = '';
 
-
-        foreach ($links as $asset) {
-            $relative_dir = '';
-            $local = true;
-
-            $link = $asset->getAsset();
-            $relative_path = $link;
-
-            if ($this->isRemoteLink($link)) {
-                $local = false;
-                if ('//' === substr($link, 0, 2)) {
-                    $link = 'http:' . $link;
-                }
-            } else {
-                // Fix to remove relative dir if grav is in one
-                if (($this->base_url != '/') && (strpos($this->base_url, $link) == 0)) {
-                    $base_url = '#' . preg_quote($this->base_url, '#') . '#';
-                    $relative_path = ltrim(preg_replace($base_url, '/', $link, 1), '/');
-                }
-
-                $relative_dir = dirname($relative_path);
-                $link = ROOT_DIR . $relative_path;
-            }
-
-            $file = ($this->fetch_command instanceof Closure) ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
-
-            // No file found, skip it...
-            if ($file === false) {
-                continue;
-            }
-
-            // Double check last character being
-            if (!$css) {
-                $file = rtrim($file, ' ;') . ';';
-            }
-
-            // If this is CSS + the file is local + rewrite enabled
-            if ($css && $local && $this->css_rewrite) {
-                $file = $this->cssRewrite($file, $relative_dir);
-            }
-
-            $file = rtrim($file) . PHP_EOL;
-            $buffer .= $file;
-        }
-
-        // Pull out @imports and move to top
-        if ($css) {
-            $buffer = $this->moveImports($buffer);
-        }
-
-        return $buffer;
-    }
 
     /**
      * Finds relative CSS urls() and rewrites the URL with an absolute one
@@ -325,25 +262,7 @@ class Pipeline extends PropertyObject
         return $file;
     }
 
-    /**
-     * Moves @import statements to the top of the file per the CSS specification
-     *
-     * @param  string $file the file containing the combined CSS files
-     *
-     * @return string       the modified file with any @imports at the top of the file
-     */
-    protected function moveImports($file)
-    {
-        $imports = [];
 
-        $file = preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) {
-            $imports[] = $matches[0];
-
-            return '';
-        }, $file);
-
-        return implode("\n", $imports) . "\n\n" . $file;
-    }
 
     private function shouldMinify($type = 'css')
     {

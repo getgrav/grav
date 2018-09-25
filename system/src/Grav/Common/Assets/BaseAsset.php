@@ -19,6 +19,12 @@ abstract class BaseAsset extends PropertyObject
 {
     use AssetUtilsTrait;
 
+    const CSS_ASSET = true;
+    const JS_ASSET = false;
+
+    /** @const Regex to match CSS import content */
+    const CSS_IMPORT_REGEX = '{@import(.*?);}';
+
     protected $asset;
 
     protected $asset_type;
@@ -33,6 +39,11 @@ abstract class BaseAsset extends PropertyObject
     protected $modified;
     protected $remote;
     protected $query = '';
+
+    // Needed for 'inline' support
+    protected $fetch_command;
+    protected $css_rewrite = false;
+    protected $css_minify = false;
 
     abstract function render();
 

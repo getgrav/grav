@@ -24,6 +24,11 @@ class Js extends BaseAsset
     }
 
     public function render() {
-        return "<script src=\"" . trim($this->asset) . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
+        if (isset($this->attributes['loading']) && $this->attributes['loading'] === 'inline') {
+            $buffer = $this->gatherLinks( [$this], self::JS_ASSET);
+            return "<script" . $this->renderAttributes() . ">\n" . trim($buffer) . "\n</script>\n";
+        } else {
+            return "<script src=\"" . trim($this->asset) . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
+        }
     }
 }

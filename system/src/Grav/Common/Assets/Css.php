@@ -27,8 +27,13 @@ class Css extends BaseAsset
         parent::__construct($merged_attributes, $key);
     }
 
-
     public function render() {
-        return "<link href=\"" . trim($this->asset) . $this->renderQueryString() . "\"" . $this->renderAttributes() . ">\n";
+        if (isset($this->attributes['loading']) && $this->attributes['loading'] === 'inline') {
+            $buffer = $this->gatherLinks( [$this], self::CSS_ASSET);
+            return "<style>\n" . trim($buffer) . "\n</style>\n";
+        } else {
+            return "<link href=\"" . trim($this->asset) . $this->renderQueryString() . "\"" . $this->renderAttributes() . ">\n";
+        }
+
     }
 }
