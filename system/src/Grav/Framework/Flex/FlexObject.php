@@ -116,15 +116,18 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function update(array $data, $isFullUpdate = false)
     {
+        // Validate and filter the incoming data.
         $blueprint = $this->getFlexDirectory()->getBlueprint();
+        $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
+        $data = $blueprint->filter($data);
 
         if (!$isFullUpdate) {
+            // Partial update: merge data to the existing object.
             $elements = $this->getElements();
             $data = $blueprint->mergeData($elements, $data);
         }
 
-        $blueprint->validate($data + ['storage_key' => $this->getStorageKey()]);
-        $data = $blueprint->filter($data);
+        // Filter object data.
         $this->filterElements($data);
 
         if ($data) {
