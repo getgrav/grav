@@ -24,6 +24,7 @@ class Css extends BaseAsset
         ];
 
         $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);
+
         parent::__construct($merged_attributes, $key);
     }
 

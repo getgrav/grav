@@ -93,8 +93,19 @@ abstract class BaseAsset extends PropertyObject
                     $asset = Uri::buildUrl($asset_parts);
                 }
 
-                $this->modified = $this->getLastModificationTime($asset);
-                $asset = $this->buildLocalLink($asset);
+                $locator = Grav::instance()['locator'];
+
+                if ($locator->isStream($asset)) {
+                    $path = $locator->findResource($asset, true);
+                } else {
+                    $path = GRAV_ROOT . $asset;
+                }
+
+                $file = new \SplFileInfo($path);
+
+                $asset = $this->buildLocalLink($file->getPathname());
+
+                $this->modified = $file->getMTime();
             }
         }
 
@@ -122,15 +133,15 @@ abstract class BaseAsset extends PropertyObject
      *
      * @return string           the last modifcation time or false on error
      */
-    protected function getLastModificationTime($asset)
-    {
-        $file = GRAV_ROOT . $asset;
-        if (Grav::instance()['locator']->isStream($asset)) {
-            $file = $this->buildLocalLink($asset, true);
-        }
-
-        return file_exists($file) ? filemtime($file) : false;
-    }
+//    protected function getLastModificationTime($asset)
+//    {
+//        $file = GRAV_ROOT . $asset;
+//        if (Grav::instance()['locator']->isStream($asset)) {
+//            $file = $this->buildLocalLink($asset, true);
+//        }
+//
+//        return file_exists($file) ? filemtime($file) : false;
+//    }
 
     /**
      *
@@ -141,22 +152,13 @@ abstract class BaseAsset extends PropertyObject
      *
      * @return string           the final link url to the asset
      */
-    protected function buildLocalLink($asset, $absolute = false)
+    protected function buildLocalLink($asset)
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
-
-        if ($locator->isStream($asset)) {
-            $asset = $locator->findResource($asset, $absolute);
+        if ($asset) {
+            return $this->base_url . ltrim(Utils::replaceFirstOccurrence(GRAV_ROOT, '', $asset), '/');
         }
-
-        $uri = $absolute ? $asset : $this->base_url . ltrim($asset, '/');
-
-
-        return $asset ? $uri : false;
+        return false;
     }
-
-
 
 
     /**
