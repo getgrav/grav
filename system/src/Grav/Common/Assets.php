@@ -168,7 +168,14 @@ class Assets extends PropertyObject
 
         // If pipeline disabled, set to position if provided, else after
         if (isset($options['pipeline']) && $options['pipeline'] === false) {
-            $options['position'] = $options['position'] ?? 'after';
+            $excludes = strtolower($type . '_pipeline_before_excludes');
+            if ($this->$excludes) {
+                $default = 'after';
+            } else {
+                $default = 'before';
+            }
+
+            $options['position'] = $options['position'] ?? $default;
             unset($options['pipeline']);
         }
 
@@ -272,33 +279,29 @@ class Assets extends PropertyObject
         return $assets;
     }
 
-
-    /**
-     * Build the CSS link tags.
-     *
-     * @param  string $group name of the group
-     * @param  array  $attributes
-     *
-     * @return string
-     */
-    public function css($group = 'head', $attributes = [])
+    public function render($type, $group = 'head', $attributes = [])
     {
         $before_output = '';
         $pipeline_output = '';
         $after_output = '';
         $no_pipeline = [];
 
-        $group_assets = $this->filterAssets($this->assets_css, 'group', $group);
+        $assets = 'assets_' . $type;
+        $pipeline_enabled = $type . '_pipeline';
+        $before_excludes = $type . '_pipeline_before_excludes';
+        $render_pipeline = 'render' . ucfirst($type);
+
+        $group_assets = $this->filterAssets($this->$assets, 'group', $group);
         $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline', true);
         $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
         $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
 
         // Pipeline
-        if ($this->css_pipeline) {
+        if ($this->$pipeline_enabled) {
             $options = array_merge($this->pipeline_options, ['timestamp' => $this->timestamp]);
 
             $pipeline = new Pipeline($options);
-            $pipeline_output = $pipeline->renderCss($pipeline_assets, $group, $attributes, $no_pipeline);
+            $pipeline_output = $pipeline->$render_pipeline($pipeline_assets, $group, $attributes, $no_pipeline);
         } else {
             foreach ($pipeline_assets as $asset) {
                 $pipeline_output .= $asset->render();
@@ -307,7 +310,7 @@ class Assets extends PropertyObject
 
         // Handle stuff that couldn't be pipelined
         if (!empty($no_pipeline)) {
-            if ($this->css_pipeline_before_excludes) {
+            if ($this->$before_excludes) {
                 $after_assets = array_merge($after_assets, $no_pipeline);
             } else {
                 $before_assets = array_merge($before_assets, $no_pipeline);
@@ -327,6 +330,20 @@ class Assets extends PropertyObject
         return $before_output . $pipeline_output . $after_output;
     }
 
+
+    /**
+     * Build the CSS link tags.
+     *
+     * @param  string $group name of the group
+     * @param  array  $attributes
+     *
+     * @return string
+     */
+    public function css($group = 'head', $attributes = [])
+    {
+        return $this->render('css', $group, $attributes);
+    }
+
     /**
      * Build the JavaScript script tags.
      *
@@ -337,25 +354,6 @@ class Assets extends PropertyObject
      */
     public function js($group = 'head', $attributes = [])
     {
-        $output = '';
-
-        $group_assets = $this->filterAssets($this->assets_js, 'group', $group);
-        $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
-        $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline', true);
-        $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
-
-        foreach ($before_assets as $asset) {
-            $output .= $asset->render();
-        }
-
-        foreach ($pipeline_assets as $asset) {
-            $output .= $asset->render();
-        }
-
-        foreach ($after_assets as $asset) {
-            $output .= $asset->render();
-        }
-
-        return $output;
+        return $this->render('js', $group, $attributes);
     }
 }

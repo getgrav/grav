@@ -43,6 +43,8 @@ class Pipeline extends PropertyObject
     protected $assets_url;
     protected $timestamp;
     protected $attributes;
+    protected $query;
+    protected $asset;
 
     protected $css_pipeline_include_externals;
     protected $js_pipeline_include_externals;
@@ -74,7 +76,7 @@ class Pipeline extends PropertyObject
         /** @var Uri $uri */
         $uri = Grav::instance()['uri'];
 
-        $this->base_url = $uri->rootUrl($config->get('system.absolute_urls'));
+        $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
 
@@ -101,14 +103,14 @@ class Pipeline extends PropertyObject
             unset($attributes['loading']);
         }
 
-        // Attributes
+        // Store Attributes
         $this->attributes = array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes);
 
         // Compute uid based on assets and timestamp
         $json_assets = json_encode($assets);
         $uid = md5($json_assets . $this->css_minify . $this->css_rewrite . $group);
         $file = $uid . '.css';
-        $relative_path = "{$this->base_url}/{$this->assets_url}/{$file}";
+        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
 
         $buffer = null;
 
@@ -147,7 +149,8 @@ class Pipeline extends PropertyObject
         if ($inline_group) {
             $output = "<style>\n" . $buffer . "\n</style>\n";
         } else {
-            $output = "<link href=\"" . $relative_path . "\"" . $this->renderAttributes($attributes) . ">\n";
+            $this->asset = $relative_path;
+            $output = "<link href=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . ">\n";
         }
 
         return $output;
@@ -162,81 +165,67 @@ class Pipeline extends PropertyObject
      *
      * @return bool|string     URL or generated content if available, else false
      */
-    public function js($assets, $group = 'head', $attributes = [])
+    public function renderJs($assets, $group, $attributes = [], &$no_pipeline = [])
     {
         // temporary list of assets to pipeline
-        $temp_js = [];
+        $inline_group = false;
 
-        // clear no-pipeline assets lists
-        $this->js_no_pipeline = [];
+        if (array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline') {
+            $inline_group = true;
+            unset($attributes['loading']);
+        }
 
-        $inline_group = array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline';
+        // Store Attributes
+        $this->attributes = $attributes;
 
         // Compute uid based on assets and timestamp
-        $uid = md5(json_encode($this->js) . $this->js_minify . $group);
-        $file =  $uid . '.js';
-        $inline_file = $uid . '-inline.js';
-
+        $json_assets = json_encode($assets);
+        $uid = md5($json_assets . $this->js_minify . $group);
+        $file = $uid . '.js';
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
 
-        // If inline files exist set them on object
-        if (file_exists($this->assets_dir . $inline_file)) {
-            $this->js_no_pipeline = json_decode(file_get_contents($this->assets_dir . $inline_file), true);
-        }
+        $buffer = null;
 
-        // If pipeline exist return its URL or content
         if (file_exists($this->assets_dir . $file)) {
-            if ($inline_group) {
-                return $relative_path . $this->getTimestamp();
-            }
-            else {
-                return file_get_contents($this->assets_dir . $file) . "\n";
-            }
-        }
-
-        // Remove any non-pipeline files
-        foreach ($this->js as $id => $asset) {
-
-            if (!$asset['pipeline'] ||
-                ($asset['remote'] && $this->js_pipeline_include_externals === false)) {
-                $this->js_no_pipeline[] = $asset;
-            } else {
-                $temp_js[$id] = $asset;
-            }
-
-        }
-
-        //if nothing found get out of here!
-        if (count($temp_js) == 0) {
-            return false;
-        }
-
-        // Write non-pipeline files out
-        if (!empty($this->js_no_pipeline)) {
-            file_put_contents($this->assets_dir . $inline_file, json_encode($this->js_no_pipeline));
-        }
-
-        // Concatenate files
-        $buffer = $this->gatherLinks($temp_js, JS_ASSET);
-        if ($this->js_minify) {
-            $minifier = new \MatthiasMullie\Minify\JS();
-            $minifier->add($buffer);
-            $buffer = $minifier->minify();
-        }
-
-        // Write file
-        if (strlen(trim($buffer)) > 0) {
-            file_put_contents($this->assets_dir . $file, $buffer);
-
-            if ($inline_group) {
-                return $relative_path . $this->getTimestamp();
-            }
-            else {
-                return $buffer . "\n";
-            }
+            $buffer = file_get_contents($this->assets_dir . $file) . "\n";
         } else {
-            return false;
+
+            foreach ($assets as $id => $asset) {
+                if ($asset->getRemote() && $this->js_pipeline_include_externals === false) {
+                    $no_pipeline[$id] = $asset;
+                    unset($assets[$id]);
+                }
+            }
+
+            //if nothing found get out of here!
+            if (empty($assets) && empty($no_pipeline)) {
+                return false;
+            }
+
+            // Concatenate files
+            $buffer = $this->gatherLinks($assets, $this::JS_ASSET);
+
+            // Minify if required
+            if ($this->shouldMinify('js')) {
+                $minifier = new \MatthiasMullie\Minify\JS();
+                $minifier->add($buffer);
+                $buffer = $minifier->minify();
+            }
+
+            // Write file
+            if (strlen(trim($buffer)) > 0) {
+                file_put_contents($this->assets_dir . $file, $buffer);
+            }
         }
+
+        if ($inline_group) {
+            $output = "<script" . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
+        } else {
+            $this->asset = $relative_path;
+            $output = "<script src=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
+        }
+
+        return $output;
     }
 
     /**

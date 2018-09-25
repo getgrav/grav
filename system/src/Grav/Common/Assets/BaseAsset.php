@@ -55,6 +55,7 @@ abstract class BaseAsset extends PropertyObject
     public function init($asset, $options)
     {
         $config = Grav::instance()['config'];
+        $uri = Grav::instance()['uri'];
 
         // set attributes
         foreach ($options as $key => $value) {
@@ -67,7 +68,7 @@ abstract class BaseAsset extends PropertyObject
 
         // Do some special stuff for CSS/JS (not inline)
         if (!Utils::startsWith($this->getType(), 'inline')) {
-            $this->base_url = Grav::instance()['uri']->rootUrl($config->get('system.absolute_urls'));
+            $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
             $this->remote = $this->isRemoteLink($asset);
 
             // Move this to render?
@@ -137,35 +138,14 @@ abstract class BaseAsset extends PropertyObject
             $asset = $locator->findResource($asset, $absolute);
         }
 
-        $uri = $absolute ? $asset : $this->base_url . '/' . ltrim($asset, '/');
+        $uri = $absolute ? $asset : $this->base_url . ltrim($asset, '/');
 
 
         return $asset ? $uri : false;
     }
 
 
-    protected function renderQueryString()
-    {
-        $querystring = '';
 
-        if (!empty($this->query)) {
-            if (Utils::contains($this->asset, '?')) {
-                $querystring .=  '&' . $this->query;
-            } else {
-                $querystring .= '?' . $this->query;
-            }
-        }
-
-        if ($this->timestamp) {
-            if (Utils::contains($this->asset, '?') || $querystring) {
-                $querystring .=  '&' . $this->timestamp;
-            } else {
-                $querystring .= '?' . $this->timestamp;
-            }
-        }
-
-        return $querystring;
-    }
 
     /**
      * Implements JsonSerializable interface.

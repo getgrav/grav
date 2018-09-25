@@ -65,4 +65,34 @@ trait AssetUtilsTrait
 
         return $html;
     }
+
+    /**
+     * Render Querystring
+     *
+     * @return string
+     */
+    protected function renderQueryString($asset = null)
+    {
+        $querystring = '';
+
+        $asset = $asset ?? $this->asset;
+
+        if (!empty($this->query)) {
+            if (Utils::contains($asset, '?')) {
+                $querystring .=  '&' . $this->query;
+            } else {
+                $querystring .= '?' . $this->query;
+            }
+        }
+
+        if ($this->timestamp) {
+            if (Utils::contains($asset, '?') || $querystring) {
+                $querystring .=  '&' . $this->timestamp;
+            } else {
+                $querystring .= '?' . $this->timestamp;
+            }
+        }
+
+        return $querystring;
+    }
 }
