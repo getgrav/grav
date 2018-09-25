@@ -77,11 +77,6 @@ class Assets extends PropertyObject
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
 
-        // Add timestamp if it's enabled
-        if ($this->enable_asset_timestamp) {
-            $this->timestamp = Grav::instance()['cache']->getKey();
-        }
-
         $this->config($asset_config);
 
         // Register any preconfigured collections
@@ -110,6 +105,12 @@ class Assets extends PropertyObject
                 $this->pipeline_options[$key] = $value;
             }
         }
+
+        // Add timestamp if it's enabled
+        if ($this->enable_asset_timestamp) {
+            $this->timestamp = Grav::instance()['cache']->getKey();
+        }
+
         return $this;
     }
 
