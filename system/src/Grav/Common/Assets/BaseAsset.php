@@ -34,16 +34,17 @@ abstract class BaseAsset extends PropertyObject
     protected $priority;
     protected $attributes = [];
 
-    protected $base_url;
+
     protected $timestamp;
     protected $modified;
     protected $remote;
     protected $query = '';
 
-    // Needed for 'inline' support
-    protected $fetch_command;
-    protected $css_rewrite = false;
-    protected $css_minify = false;
+    // Private Bits
+    private $base_url;
+    private $fetch_command;
+    private $css_rewrite = false;
+    private $css_minify = false;
 
     abstract function render();
 
