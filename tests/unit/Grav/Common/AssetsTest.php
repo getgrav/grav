@@ -35,34 +35,59 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
-        $this->assertSame([
-            'asset'    => '/test.css',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading' => '',
-            'group'    => 'head',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {  
+           "type":"css",
+           "elements":{  
+              "asset":"\/test.css",
+              "asset_type":"css",
+              "order":0,
+              "group":"head",
+              "position":"pipeline",
+              "priority":10,
+              "attributes":{  
+                 "type":"text\/css",
+                 "rel":"stylesheet"
+              },
+              "timestamp":null,
+              "modified":false,
+              "query":""
+           }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         $this->assets->add('test.js');
         $js = $this->assets->js();
-        $this->assertSame('<script src="/test.js" ></script>' . PHP_EOL, $js);
+        $this->assertSame('<script src="/test.js"></script>' . PHP_EOL, $js);
 
-        $array = $this->assets->getCss();
-        $this->assertSame([
-            'asset'    => '/test.css',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading' => '',
-            'group'    => 'head',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        $array = $this->assets->getJs();
+
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {  
+           "type":"js",
+           "elements":{  
+              "asset":"\/test.js",
+              "asset_type":"js",
+              "order":0,
+              "group":"head",
+              "position":"pipeline",
+              "priority":10,
+              "attributes":[  
+        
+              ],
+              "timestamp":null,
+              "modified":false,
+              "query":""
+           }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         //test addCss(). Test adding asset to a separate group
         $this->assets->reset();
@@ -71,17 +96,29 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
-        $this->assertSame([
-            'asset'    => '/test.css',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading' => '',
-            'group'    => 'head',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {  
+           "type":"css",
+           "elements":{  
+              "asset":"\/test.css",
+              "asset_type":"css",
+              "order":0,
+              "group":"head",
+              "position":"pipeline",
+              "priority":10,
+              "attributes":{  
+                 "type":"text\/css",
+                 "rel":"stylesheet"
+              },
+              "timestamp":null,
+              "modified":false,
+              "query":""
+           }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         //test addCss(). Testing with remote URL
         $this->assets->reset();
@@ -90,143 +127,217 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertSame('<link href="http://www.somesite.com/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
-        $this->assertSame([
-            'asset'    => 'http://www.somesite.com/test.css',
-            'remote'   => true,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading' => '',
-            'group'    => 'head',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {  
+           "type":"css",
+           "elements":{  
+              "asset":"http:\/\/www.somesite.com\/test.css",
+              "asset_type":"css",
+              "order":0,
+              "group":"head",
+              "position":"pipeline",
+              "priority":10,
+              "attributes":{  
+                 "type":"text\/css",
+                 "rel":"stylesheet"
+              },
+              "timestamp":null,
+              "modified":null,
+              "query":""
+           }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         //test addCss() adding asset to a separate group, and with an alternate rel attribute
         $this->assets->reset();
-        $this->assets->addCSS('test.css', ['group' => 'alternate']);
-        $css = $this->assets->css('alternate', ['rel' => 'alternate']);
+        $this->assets->addCSS('test.css', ['group' => 'alternate', 'rel' => 'alternate']);
+        $css = $this->assets->css('alternate');
         $this->assertSame('<link href="/test.css" type="text/css" rel="alternate">' . PHP_EOL, $css);
 
         //test addJs()
         $this->assets->reset();
         $this->assets->addJs('test.js');
         $js = $this->assets->js();
-        $this->assertSame('<script src="/test.js" ></script>' . PHP_EOL, $js);
+        $this->assertSame('<script src="/test.js"></script>' . PHP_EOL, $js);
 
         $array = $this->assets->getJs();
-        $this->assertSame([
-            'asset'    => '/test.js',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading'  => '',
-            'group'    => 'head',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {  
+           "type":"js",
+           "elements":{  
+              "asset":"\/test.js",
+              "asset_type":"js",
+              "order":0,
+              "group":"head",
+              "position":"pipeline",
+              "priority":10,
+              "attributes":[],
+              "timestamp":null,
+              "modified":false,
+              "query":""
+           }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         //Test CSS Groups
         $this->assets->reset();
-        $this->assets->addCSS('test.css', null, true, 'footer');
+        $this->assets->addCSS('test.css', null, null, 'footer');
         $css = $this->assets->css();
         $this->assertEmpty($css);
         $css = $this->assets->css('footer');
         $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
         $array = $this->assets->getCss();
-        $this->assertSame([
-            'asset'    => '/test.css',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading' => '',
-            'group'    => 'footer',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {
+          "type": "css",
+          "elements": {
+            "asset": "/test.css",
+            "asset_type": "css",
+            "order": 0,
+            "group": "footer",
+            "position": "pipeline",
+            "priority": 10,
+            "attributes": {
+              "type": "text/css",
+              "rel": "stylesheet"
+            },
+            "timestamp": null,
+            "modified": false,
+            "query": ""
+          }
+        }
+        ';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         //Test JS Groups
         $this->assets->reset();
-        $this->assets->addJs('test.js', null, true, null, 'footer');
+        $this->assets->addJs('test.js', null, null, 'footer');
         $js = $this->assets->js();
         $this->assertEmpty($js);
         $js = $this->assets->js('footer');
-        $this->assertSame('<script src="/test.js" ></script>' . PHP_EOL, $js);
+        $this->assertSame('<script src="/test.js"></script>' . PHP_EOL, $js);
 
         $array = $this->assets->getJs();
-        $this->assertSame([
-            'asset'    => '/test.js',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading'  => '',
-            'group'    => 'footer',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {
+          "type": "js",
+          "elements": {
+            "asset": "/test.js",
+            "asset_type": "js",
+            "order": 0,
+            "group": "footer",
+            "position": "pipeline",
+            "priority": 10,
+            "attributes": [],
+            "timestamp": null,
+            "modified": false,
+            "query": ""
+          }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         //Test async / defer
         $this->assets->reset();
-        $this->assets->addJs('test.js', null, true, 'async', null);
+        $this->assets->addJs('test.js', null, null, null, 'async');
         $js = $this->assets->js();
         $this->assertSame('<script src="/test.js" async></script>' . PHP_EOL, $js);
 
         $array = $this->assets->getJs();
-        $this->assertSame([
-            'asset'    => '/test.js',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading'  => 'async',
-            'group'    => 'head',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {
+          "type": "js",
+          "elements": {
+            "asset": "/test.js",
+            "asset_type": "js",
+            "order": 0,
+            "group": "head",
+            "position": "pipeline",
+            "priority": 10,
+            "attributes": {
+              "loading": "async"
+            },
+            "timestamp": null,
+            "modified": false,
+            "query": ""
+          }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         $this->assets->reset();
-        $this->assets->addJs('test.js', null, true, 'defer', null);
+        $this->assets->addJs('test.js', null, null, null, 'defer');
         $js = $this->assets->js();
         $this->assertSame('<script src="/test.js" defer></script>' . PHP_EOL, $js);
 
         $array = $this->assets->getJs();
-        $this->assertSame([
-            'asset'    => '/test.js',
-            'remote'   => false,
-            'priority' => 10,
-            'order'    => 0,
-            'pipeline' => true,
-            'loading'  => 'defer',
-            'group'    => 'head',
-            'modified' => false,
-            'query' => ''
-        ], reset($array));
+        $array = $this->assets->getJs();
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {
+          "type": "js",
+          "elements": {
+            "asset": "/test.js",
+            "asset_type": "js",
+            "order": 0,
+            "group": "head",
+            "position": "pipeline",
+            "priority": 10,
+            "attributes": {
+              "loading": "defer"
+            },
+            "timestamp": null,
+            "modified": false,
+            "query": ""
+          }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         //Test inline
         $this->assets->reset();
-        $this->assets->addJs('/system/assets/jquery/jquery-2.x.min.js', null, true, 'inline', null);
-        $js = $this->assets->js();
-        $this->assertContains('jQuery Foundation', $js);
+        $this->assets->setJsPipeline(true);
+        $this->assets->addJs('/system/assets/jquery/jquery-3.x.min.js');
+        $js = $this->assets->js('head', ['loading' => 'inline']);
+        $this->assertContains('"jquery",[],function()', $js);
 
         $this->assets->reset();
-        $this->assets->addCss('/system/assets/debugger.css', null, true, null, 'inline');
-        $css = $this->assets->css();
+        $this->assets->setCssPipeline(true);
+        $this->assets->addCss('/system/assets/debugger.css');
+        $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('div.phpdebugbar', $css);
 
         $this->assets->reset();
-        $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', null, true, null, 'inline');
-        $css = $this->assets->css();
-        $this->assertContains('font-family: \'Roboto\';', $css);
+        $this->assets->setCssPipeline(true);
+        $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto');
+        $css = $this->assets->css('head', ['loading' => 'inline']);
+        $this->assertContains('font-family:\'Roboto\';', $css);
+
+        $this->assets->setCssPipeline(false);
+        $this->assets->setJsPipeline(false);
 
         //Test adding media queries
         $this->assets->reset();
         $this->assets->add('test.css', ['media' => 'only screen and (min-width: 640px)']);
         $css = $this->assets->css();
         $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" media="only screen and (min-width: 640px)">' . PHP_EOL, $css);
+
+
     }
 
     public function testAddingAssetPropertiesWithArray()
@@ -344,37 +455,37 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test.css', null, true);
         $this->assets->setCssPipeline(true);
         $css = $this->assets->css();
-        $this->assertSame('', $css);
+        $this->assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
 
         //Add a core Grav CSS file, which is found. Pipeline will now return a file
         $this->assets->add('/system/assets/debugger.css', null, true);
         $css = $this->assets->css();
-        $this->assertContains('<link href=', $css);
-        $this->assertContains('type="text/css" rel="stylesheet">', $css);
+        $this->assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
 
     public function testPipelineWithTimestamp()
     {
         $this->assets->reset();
         $this->assets->setTimestamp('foo');
+        $this->assets->setCssPipeline(true);
 
         //Add a core Grav CSS file, which is found. Pipeline will now return a file
         $this->assets->add('/system/assets/debugger.css', null, true);
         $css = $this->assets->css();
-        $this->assertContains('<link href=', $css);
-        $this->assertContains('type="text/css" rel="stylesheet">', $css);
-        $this->assertContains($this->assets->getTimestamp(), $css);
+        $this->assertRegExp('#<link href=\"\/assets\/(.*).css\?foo\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
+
+        $this->assets->setCssPipeline(false);
     }
 
     public function testInlinePipeline()
     {
         $this->assets->reset();
+        $this->assets->setCssPipeline(true);
 
         //File not existing. Pipeline searches for that file without reaching it. Output is empty.
-        $this->assets->add('test.css', null, true);
-        $this->assets->setCssPipeline(true);
+        $this->assets->add('test.css');
         $css = $this->assets->css('head', ['loading' => 'inline']);
-        $this->assertSame('', $css);
+        $this->assertSame("<style>\n\n</style>\n", $css);
 
         //Add a core Grav CSS file, which is found. Pipeline will now return its content.
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', null, true);
@@ -382,6 +493,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('font-family:\'Roboto\';', $css);
         $this->assertContains('div.phpdebugbar', $css);
+
+        $this->assets->setCssPipeline(false);
     }
 
     public function testAddAsyncJs()
@@ -499,49 +612,41 @@ class AssetsTest extends \Codeception\TestCase\Test
     {
         $this->assets->addInlineJs('alert("test")');
         $this->assets->reset();
-        $this->assertCount(0, (array) $this->assets->js());
+        $this->assertCount(0, (array) $this->assets->getJs());
 
         $this->assets->addAsyncJs('jquery');
         $this->assets->reset();
-
-        $this->assertCount(0, (array) $this->assets->js());
+        $this->assertCount(0, (array) $this->assets->getJs());
 
         $this->assets->addInlineCss('body { color: black }');
         $this->assets->reset();
-
-        $this->assertCount(0, (array) $this->assets->css());
+        $this->assertCount(0, (array) $this->assets->getCss());
 
         $this->assets->add('/system/assets/debugger.css', null, true);
         $this->assets->reset();
-
-        $this->assertCount(0, (array) $this->assets->css());
+        $this->assertCount(0, (array) $this->assets->getCss());
     }
 
     public function testResetJs()
     {
         $this->assets->addInlineJs('alert("test")');
         $this->assets->resetJs();
-        $this->assertCount(0, (array) $this->assets->js());
+        $this->assertCount(0, (array) $this->assets->getJs());
 
         $this->assets->addAsyncJs('jquery');
         $this->assets->resetJs();
-
-        $this->assertCount(0, (array) $this->assets->js());
+        $this->assertCount(0, (array) $this->assets->getJs());
     }
 
     public function testResetCss()
     {
-        $this->assertCount(0, (array) $this->assets->js());
-
         $this->assets->addInlineCss('body { color: black }');
         $this->assets->resetCss();
-
-        $this->assertCount(0, (array) $this->assets->css());
+        $this->assertCount(0, (array) $this->assets->getCss());
 
         $this->assets->add('/system/assets/debugger.css', null, true);
         $this->assets->resetCss();
-
-        $this->assertCount(0, (array) $this->assets->css());
+        $this->assertCount(0, (array) $this->assets->getCss());
     }
 
     public function testAddDirCss()

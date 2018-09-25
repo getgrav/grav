@@ -29,16 +29,16 @@ trait LegacyAssetsTrait
         foreach ($args as $index => $arg) {
             switch ($index) {
                 case 0:
-                    $arguments['priority'] = $args[0] ?? null;
+                    if (isset($args[0])) { $arguments['priority'] = $args[0]; }
                     break;
                 case 1:
-                    $arguments['pipeline'] = $args[1] ?? null;
+                    if (isset($args[1])) { $arguments['pipeline'] = $args[1]; }
                     break;
                 case 2:
-                    $arguments['group'] = $args[2] ?? null;
+                    if (isset($args[2])) { $arguments['group'] = $args[2]; }
                     break;
                 case 3:
-                    $arguments['loading'] = $args[3] ?? null;
+                    if (isset($args[3])) { $arguments['loading'] = $args[3]; }
                     break;
             }
         }
@@ -60,7 +60,7 @@ trait LegacyAssetsTrait
      */
     public function addAsyncJs($asset, $priority = null, $pipeline = true, $group = null)
     {
-        return $this->addJs($asset, $priority, $pipeline, 'async', $group);
+        return $this->addJs($asset, $priority, $pipeline, $group, 'async');
     }
 
     /**
@@ -77,47 +77,7 @@ trait LegacyAssetsTrait
      */
     public function addDeferJs($asset, $priority = null, $pipeline = true, $group = null)
     {
-        return $this->addJs($asset, $priority, $pipeline, 'defer', $group);
+        return $this->addJs($asset, $priority, $pipeline, $group, 'defer');
     }
 
-
-    /**
-     * TODO: Needed??
-     *
-     * @param $asset
-     * @return string
-     */
-    public function getQuerystring($asset)
-    {
-        $querystring = '';
-
-        if (!empty($asset['query'])) {
-            if (Utils::contains($asset['asset'], '?')) {
-                $querystring .=  '&' . $asset['query'];
-            } else {
-                $querystring .= '?' . $asset['query'];
-            }
-        }
-
-        if ($this->timestamp) {
-            if (Utils::contains($asset['asset'], '?') || $querystring) {
-                $querystring .=  '&' . $this->timestamp;
-            } else {
-                $querystring .= '?' . $this->timestamp;
-            }
-        }
-
-        return $querystring;
-    }
-
-
-    /**
-     * TODO: needed?
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return '';
-    }
 }

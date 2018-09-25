@@ -8,6 +8,8 @@
 
 namespace Grav\Common\Assets\Traits;
 
+use Grav\Common\Grav;
+
 trait TestingAssetsTrait
 {
     /**
@@ -59,7 +61,16 @@ trait TestingAssetsTrait
      */
     public function getCss($key = null)
     {
-        return [];
+        if (!empty($key)) {
+            $asset_key = md5($key);
+            if (isset($this->assets_css[$asset_key])) {
+                return $this->assets_css[$asset_key];
+            } else {
+                return null;
+            }
+        }
+
+        return $this->assets_css;
     }
 
     /**
@@ -72,7 +83,16 @@ trait TestingAssetsTrait
      */
     public function getJs($key = null)
     {
-        return [];
+        if (!empty($key)) {
+            $asset_key = md5($key);
+            if (isset($this->assets_js[$asset_key])) {
+                return $this->assets_js[$asset_key];
+            } else {
+                return null;
+            }
+        }
+
+        return $this->assets_js;
     }
 
     /**
@@ -84,6 +104,7 @@ trait TestingAssetsTrait
      */
     public function setCss($css)
     {
+        $this->assets_css = $css;
         return $this;
     }
 
@@ -96,6 +117,7 @@ trait TestingAssetsTrait
      */
     public function setJs($js)
     {
+        $this->assets_js = $js;
         return $this;
     }
 
@@ -108,6 +130,10 @@ trait TestingAssetsTrait
      */
     public function removeCss($key)
     {
+        $asset_key = md5($key);
+        if (isset($this->assets_css[$asset_key])) {
+            unset($this->assets_css[$asset_key]);
+        }
         return $this;
     }
 
@@ -120,6 +146,10 @@ trait TestingAssetsTrait
      */
     public function removeJs($key)
     {
+        $asset_key = md5($key);
+        if (isset($this->assets_js[$asset_key])) {
+            unset($this->assets_js[$asset_key]);
+        }
         return $this;
     }
 
@@ -132,6 +162,7 @@ trait TestingAssetsTrait
      */
     public function setCssPipeline($value)
     {
+        $this->css_pipeline = (bool)$value;
         return $this;
     }
 
@@ -144,6 +175,7 @@ trait TestingAssetsTrait
      */
     public function setJsPipeline($value)
     {
+        $this->js_pipeline = (bool)$value;
         return $this;
     }
 
@@ -212,11 +244,48 @@ trait TestingAssetsTrait
      * @param  string $pattern   (regex)
      *
      * @return $this
-     * @throws Exception
      */
     public function addDir($directory, $pattern = self::DEFAULT_REGEX)
     {
+        $root_dir = rtrim(ROOT_DIR, '/');
 
+        // Check if $directory is a stream.
+        if (strpos($directory, '://')) {
+            $directory = Grav::instance()['locator']->findResource($directory, null);
+        }
+
+        // Get files
+        $files = $this->rglob($root_dir . DIRECTORY_SEPARATOR . $directory, $pattern, $root_dir . '/');
+
+        // No luck? Nothing to do
+        if (!$files) {
+            return $this;
+        }
+
+        // Add CSS files
+        if ($pattern === self::CSS_REGEX) {
+            foreach ($files as $file) {
+                $this->addCss($file);
+            }
+
+            return $this;
+        }
+
+        // Add JavaScript files
+        if ($pattern === self::JS_REGEX) {
+            foreach ($files as $file) {
+                $this->addJs($file);
+            }
+
+            return $this;
+        }
+
+        // Unknown pattern.
+        foreach ($files as $asset) {
+            $this->add($asset);
+        }
+
+        return $this;
     }
 
     /**
@@ -241,6 +310,29 @@ trait TestingAssetsTrait
     public function addDirCss($directory)
     {
         return $this->addDir($directory, self::CSS_REGEX);
+    }
+
+    /**
+     * Recursively get files matching $pattern within $directory.
+     *
+     * @param  string $directory
+     * @param  string $pattern (regex)
+     * @param  string $ltrim   Will be trimmed from the left of the file path
+     *
+     * @return array
+     */
+    protected function rglob($directory, $pattern, $ltrim = null)
+    {
+        $iterator = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory,
+            \FilesystemIterator::SKIP_DOTS)), $pattern);
+        $offset = strlen($ltrim);
+        $files = [];
+
+        foreach ($iterator as $file) {
+            $files[] = substr($file->getPathname(), $offset);
+        }
+
+        return $files;
     }
 
 

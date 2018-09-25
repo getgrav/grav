@@ -167,17 +167,21 @@ class Assets extends PropertyObject
         $asset_group = 'assets_' . strtolower($group);
 
         // If pipeline disabled, set to position if provided, else after
-        if (isset($options['pipeline']) && $options['pipeline'] === false) {
-            $excludes = strtolower($type . '_pipeline_before_excludes');
-            if ($this->$excludes) {
-                $default = 'after';
-            } else {
-                $default = 'before';
-            }
+        if (isset($options['pipeline'])) {
+            if ($options['pipeline'] === false) {
+                $excludes = strtolower($type . '_pipeline_before_excludes');
+                if ($this->$excludes) {
+                    $default = 'after';
+                } else {
+                    $default = 'before';
+                }
 
-            $options['position'] = $options['position'] ?? $default;
-            unset($options['pipeline']);
+                $options['position'] = $options['position'] ?? $default;
+            }
         }
+
+        // Unset Pipeline if set
+        unset($options['pipeline']);
 
         // Add timestamp
         $options['timestamp'] = $this->timestamp;
