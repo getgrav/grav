@@ -188,6 +188,8 @@ trait TestingAssetsTrait
     {
         $this->resetCss();
         $this->resetJs();
+        $this->setCssPipeline(false);
+        $this->setJsPipeline(false);
         return $this;
     }
 

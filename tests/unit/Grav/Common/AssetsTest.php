@@ -328,9 +328,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('font-family:\'Roboto\';', $css);
 
-        $this->assets->setCssPipeline(false);
-        $this->assets->setJsPipeline(false);
-
         //Test adding media queries
         $this->assets->reset();
         $this->assets->add('test.css', ['media' => 'only screen and (min-width: 640px)']);
@@ -473,8 +470,24 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('/system/assets/debugger.css', null, true);
         $css = $this->assets->css();
         $this->assertRegExp('#<link href=\"\/assets\/(.*).css\?foo\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
+    }
 
-        $this->assets->setCssPipeline(false);
+    public function testInline()
+    {
+        $this->assets->reset();
+
+        //File not existing. Pipeline searches for that file without reaching it. Output is empty.
+        $this->assets->add('test.css', ['loading' => 'inline']);
+        $css = $this->assets->css();
+        $this->assertSame("<style>\n\n</style>\n", $css);
+
+        $this->assets->reset();
+        //Add a core Grav CSS file, which is found. Pipeline will now return its content.
+        $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', ['loading' => 'inline']);
+        $this->assets->addCss('/system/assets/debugger.css', ['loading' => 'inline']);
+        $css = $this->assets->css();
+        $this->assertContains('font-family: \'Roboto\';', $css);
+        $this->assertContains('div.phpdebugbar-header', $css);
     }
 
     public function testInlinePipeline()
@@ -493,8 +506,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('font-family:\'Roboto\';', $css);
         $this->assertContains('div.phpdebugbar', $css);
-
-        $this->assets->setCssPipeline(false);
     }
 
     public function testAddAsyncJs()
