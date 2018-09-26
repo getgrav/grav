@@ -105,7 +105,7 @@ abstract class BaseAsset extends PropertyObject
 
                 $asset = $this->buildLocalLink($file->getPathname());
 
-                $this->modified = $file->getMTime();
+                $this->modified = $file->isFile() ? $file->getMTime() : false;
             }
         }
 
