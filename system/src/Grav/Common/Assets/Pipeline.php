@@ -1,0 +1,283 @@
+<?php
+/**
+ * @package    Grav.Common.Assets
+ *
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
+namespace Grav\Common\Assets;
+
+use Grav\Common\Assets\Traits\AssetUtilsTrait;
+use Grav\Common\Config\Config;
+use Grav\Common\Grav;
+use Grav\Common\Uri;
+use Grav\Common\Utils;
+use Grav\Framework\Object\PropertyObject;
+
+class Pipeline extends PropertyObject
+{
+    use AssetUtilsTrait;
+
+    const CSS_ASSET = true;
+    const JS_ASSET = false;
+
+    /** @const Regex to match CSS urls */
+    const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
+
+    /** @const Regex to match CSS sourcemap comments */
+    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
+
+    /** @const Regex to match CSS import content */
+    const CSS_IMPORT_REGEX = '{@import(.*?);}';
+
+    protected $css_minify;
+    protected $css_minify_windows;
+    protected $css_rewrite;
+
+    protected $js_minify;
+    protected $js_minify_windows;
+
+    protected $base_url;
+    protected $assets_dir;
+    protected $assets_url;
+    protected $timestamp;
+    protected $attributes;
+    protected $query;
+    protected $asset;
+
+    protected $css_pipeline_include_externals;
+    protected $js_pipeline_include_externals;
+
+    /**
+     * Closure used by the pipeline to fetch assets.
+     *
+     * Useful when file_get_contents() function is not available in your PHP
+     * installation or when you want to apply any kind of preprocessing to
+     * your assets before they get pipelined.
+     *
+     * The closure will receive as the only parameter a string with the path/URL of the asset and
+     * it should return the content of the asset file as a string.
+     *
+     * @var Closure
+     */
+    protected $fetch_command;
+
+    public function __construct(array $elements = [], ?string $key = null)
+    {
+        parent::__construct($elements, $key);
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
+        $this->assets_dir = $locator->findResource('asset://') . DS;
+        $this->assets_url = $locator->findResource('asset://', false);
+
+
+    }
+
+    /**
+     * Minify and concatenate CSS
+     *
+     * @param array $assets
+     * @param string $group
+     * @param array $attributes
+     * @param array $no_pipeline
+     *
+     * @return bool|string     URL or generated content if available, else false
+     */
+    public function renderCss($assets, $group, $attributes = [], &$no_pipeline = [])
+    {
+        // temporary list of assets to pipeline
+        $inline_group = false;
+
+        if (array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline') {
+            $inline_group = true;
+            unset($attributes['loading']);
+        }
+
+        // Store Attributes
+        $this->attributes = array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes);
+
+        // Compute uid based on assets and timestamp
+        $json_assets = json_encode($assets);
+        $uid = md5($json_assets . $this->css_minify . $this->css_rewrite . $group);
+        $file = $uid . '.css';
+        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
+
+        $buffer = null;
+
+        if (file_exists($this->assets_dir . $file)) {
+            $buffer = file_get_contents($this->assets_dir . $file) . "\n";
+        } else {
+
+            foreach ($assets as $id => $asset) {
+                if ($asset->getRemote() && $this->css_pipeline_include_externals === false) {
+                    $no_pipeline[$id] = $asset;
+                    unset($assets[$id]);
+                }
+            }
+
+            //if nothing found get out of here!
+            if (empty($assets) && empty($no_pipeline)) {
+                return false;
+            }
+
+            // Concatenate files
+            $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
+
+            // Minify if required
+            if ($this->shouldMinify('css')) {
+                $minifier = new \MatthiasMullie\Minify\CSS();
+                $minifier->add($buffer);
+                $buffer = $minifier->minify();
+            }
+
+            // Write file
+            if (strlen(trim($buffer)) > 0) {
+                file_put_contents($this->assets_dir . $file, $buffer);
+            }
+        }
+
+        if ($inline_group) {
+            $output = "<style>\n" . $buffer . "\n</style>\n";
+        } else {
+            $this->asset = $relative_path;
+            $output = "<link href=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . ">\n";
+        }
+
+        return $output;
+    }
+
+    /**
+     * Minify and concatenate JS files.
+     *
+     * @param array $assets
+     * @param string $group
+     * @param array  $attributes
+     *
+     * @return bool|string     URL or generated content if available, else false
+     */
+    public function renderJs($assets, $group, $attributes = [], &$no_pipeline = [])
+    {
+        // temporary list of assets to pipeline
+        $inline_group = false;
+
+        if (array_key_exists('loading', $attributes) && $attributes['loading'] === 'inline') {
+            $inline_group = true;
+            unset($attributes['loading']);
+        }
+
+        // Store Attributes
+        $this->attributes = $attributes;
+
+        // Compute uid based on assets and timestamp
+        $json_assets = json_encode($assets);
+        $uid = md5($json_assets . $this->js_minify . $group);
+        $file = $uid . '.js';
+        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
+
+        $buffer = null;
+
+        if (file_exists($this->assets_dir . $file)) {
+            $buffer = file_get_contents($this->assets_dir . $file) . "\n";
+        } else {
+
+            foreach ($assets as $id => $asset) {
+                if ($asset->getRemote() && $this->js_pipeline_include_externals === false) {
+                    $no_pipeline[$id] = $asset;
+                    unset($assets[$id]);
+                }
+            }
+
+            //if nothing found get out of here!
+            if (empty($assets) && empty($no_pipeline)) {
+                return false;
+            }
+
+            // Concatenate files
+            $buffer = $this->gatherLinks($assets, self::JS_ASSET);
+
+            // Minify if required
+            if ($this->shouldMinify('js')) {
+                $minifier = new \MatthiasMullie\Minify\JS();
+                $minifier->add($buffer);
+                $buffer = $minifier->minify();
+            }
+
+            // Write file
+            if (strlen(trim($buffer)) > 0) {
+                file_put_contents($this->assets_dir . $file, $buffer);
+            }
+        }
+
+        if ($inline_group) {
+            $output = "<script" . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
+        } else {
+            $this->asset = $relative_path;
+            $output = "<script src=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
+        }
+
+        return $output;
+    }
+
+
+
+    /**
+     * Finds relative CSS urls() and rewrites the URL with an absolute one
+     *
+     * @param string $file          the css source file
+     * @param string $relative_path relative path to the css file
+     *
+     * @return mixed
+     */
+    protected function cssRewrite($file, $relative_path)
+    {
+        // Strip any sourcemap comments
+        $file = preg_replace(self::CSS_SOURCEMAP_REGEX, '', $file);
+
+        // Find any css url() elements, grab the URLs and calculate an absolute path
+        // Then replace the old url with the new one
+        $file = preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($relative_path) {
+
+            $old_url = $matches[2];
+
+            // Ensure link is not rooted to webserver, a data URL, or to a remote host
+            if (Utils::startsWith($old_url, '/') || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
+                return $matches[0];
+            }
+
+            $new_url = $this->base_url . ltrim(Utils::normalizePath($relative_path . '/' . $old_url), '/');
+
+            return str_replace($old_url, $new_url, $matches[0]);
+        }, $file);
+
+        return $file;
+    }
+
+
+
+    private function shouldMinify($type = 'css')
+    {
+        $check = $type . '_minify';
+        $win_check = $type . '_minify_windows';
+
+        $minify = (bool) $this->$check;
+
+        // If this is a Windows server, and minify_windows is false (default value) skip the
+        // minification process because it will cause Apache to die/crash due to insufficient
+        // ThreadStackSize in httpd.conf - See: https://bugs.php.net/bug.php?id=47689
+        if (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN' && !$this->$win_check) {
+            $minify = false;
+        }
+
+        return $minify;
+    }
+}

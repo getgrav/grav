@@ -672,7 +672,8 @@ class Uri
      */
     public static function isExternal($url)
     {
-        return Utils::startsWith($url, 'http');
+        return ('http://' === substr($url, 0, 7) || 'https://' === substr($url, 0, 8) || '//' === substr($url, 0,
+                2));
     }
 
     /**
