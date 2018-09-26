@@ -226,7 +226,7 @@ class Assets extends PropertyObject
      */
     public function addJs($asset)
     {
-        return $this->addType(Assets::JS_TYPE, Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
+        return $this->addType(Assets::JS_TYPE, Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()), Assets::JS_TYPE);
     }
 
     /**
@@ -236,7 +236,7 @@ class Assets extends PropertyObject
      */
     public function addInlineJs($asset)
     {
-        return $this->addType(Assets::JS_TYPE, Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()));
+        return $this->addType(Assets::JS_TYPE, Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args()), Assets::JS_TYPE);
     }
 
 

@@ -8,10 +8,12 @@
 
 namespace Grav\Common\Assets\Traits;
 
+use Grav\Common\Assets;
+
 trait LegacyAssetsTrait
 {
 
-    protected function unifyLegacyArguments($args)
+    protected function unifyLegacyArguments($args, $type = Assets::CSS_TYPE)
     {
         $arguments = [];
 
@@ -35,10 +37,18 @@ trait LegacyAssetsTrait
                     if (isset($args[1])) { $arguments['pipeline'] = $args[1]; }
                     break;
                 case 2:
-                    if (isset($args[2])) { $arguments['group'] = $args[2]; }
+                    if ($type === Assets::CSS_TYPE) {
+                        if (isset($args[2])) { $arguments['group'] = $args[2]; }
+                    } else {
+                        if (isset($args[2])) { $arguments['loading'] = $args[2]; }
+                    }
                     break;
                 case 3:
-                    if (isset($args[3])) { $arguments['loading'] = $args[3]; }
+                    if ($type === Assets::CSS_TYPE) {
+                        if (isset($args[3])) { $arguments['loading'] = $args[3]; }
+                    } else {
+                        if (isset($args[3])) { $arguments['group'] = $args[3]; }
+                    }
                     break;
             }
         }
