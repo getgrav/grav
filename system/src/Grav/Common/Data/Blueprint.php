@@ -10,6 +10,7 @@ namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\User\User;
 use RocketTheme\Toolbox\Blueprints\BlueprintForm;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -250,6 +251,47 @@ class Blueprint extends BlueprintForm
 
         if (null !== $config) {
             $field[$property] = $config;
+        }
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicSecurity(array &$field, $property, array &$call)
+    {
+        if ($property) {
+            return;
+        }
+
+        $grav = Grav::instance();
+        $actions = (array)$call['params'];
+
+        /** @var User $user */
+        if (isset($grav['user'])) {
+            $user = Grav::instance()['user'] ?? null;
+            foreach ($actions as $action) {
+                if (!$user->authorize($action)) {
+                    $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
+                    return;
+                }
+            }
+        }
+    }
+
+    protected function addPropertyRecursive(array &$field, $property, $value)
+    {
+        if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
+            $field[$property] = array_merge_recursive($field[$property], $value);
+        } else {
+            $field[$property] = $value;
+        }
+
+        if (!empty($field['fields'])) {
+            foreach ($field['fields'] as $key => &$child) {
+                $this->addPropertyRecursive($child, $property, $value);
+            }
         }
     }
 }

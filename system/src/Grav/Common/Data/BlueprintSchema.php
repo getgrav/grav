@@ -49,20 +49,20 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     /**
      * Filter data by using blueprints.
      *
-     * @param  array $data
+     * @param  array $data                  Incoming data, for example from a form.
+     * @param  bool  $missingValuesAsNull   Include missing values as nulls.
      * @return array
      */
-    public function filter(array $data)
+    public function filter(array $data, $missingValuesAsNull = false)
     {
-        return $this->filterArray($data, $this->nested);
+        return $this->filterArray($data, $this->nested, $missingValuesAsNull);
     }
 
     /**
      * @param array $data
      * @param array $rules
-     * @returns array
+     * @return array
      * @throws \RuntimeException
-     * @internal
      */
     protected function validateArray(array $data, array $rules)
     {
@@ -74,6 +74,11 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
             if ($rule) {
                 // Item has been defined in blueprints.
+                if (!empty($rule['validate']['ignore'])) {
+                    // Skip validation in the ignored field.
+                    continue;
+                }
+
                 $messages += Validation::validate($field, $rule);
             } elseif (\is_array($field) && \is_array($val)) {
                 // Array has been defined in blueprints.
@@ -90,22 +95,42 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     /**
      * @param array $data
      * @param array $rules
+     * @param bool  $missingValuesAsNull
      * @return array
-     * @internal
      */
-    protected function filterArray(array $data, array $rules)
+    protected function filterArray(array $data, array $rules, $missingValuesAsNull)
     {
         $results = [];
+
+        if ($missingValuesAsNull) {
+            // First pass is to fill up all the fields with null. This is done to lock the ordering of the fields.
+            foreach ($rules as $key => $rule) {
+                if ($key && !isset($results[$key])) {
+                    $val = $rules[$key] ?? $rules['*'] ?? null;
+                    $rule = \is_string($val) ? $this->items[$val] : null;
+
+                    if (empty($rule['validate']['ignore'])) {
+                        $results[$key] = null;
+                    }
+                }
+            }
+        }
+
         foreach ($data as $key => $field) {
             $val = $rules[$key] ?? $rules['*'] ?? null;
             $rule = \is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
                 // Item has been defined in blueprints.
+                if (!empty($rule['validate']['ignore'])) {
+                    // Skip any data in the ignored field.
+                    continue;
+                }
+
                 $field = Validation::filter($field, $rule);
             } elseif (\is_array($field) && \is_array($val)) {
                 // Array has been defined in blueprints.
-                $field = $this->filterArray($field, $val);
+                $field = $this->filterArray($field, $val, $missingValuesAsNull);
             } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
                 $field = null;
             }
@@ -133,6 +158,13 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             }
 
             $field = $this->items[$field];
+
+            // Skip ignored field, it will not be required.
+            if (!empty($field['validate']['ignore'])) {
+                continue;
+            }
+
+            // Check if required.
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true) {
 
