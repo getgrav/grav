@@ -38,8 +38,9 @@ Thumbs.db
 # phpstorm
 .idea/*
 
+# testing stuff
 tests/_output/*
 tests/_support/_generated/*
 tests/cache/*
 tests/error.log
-/system/templates/test.html.twig
+system/templates/testing/*
