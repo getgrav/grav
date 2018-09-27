@@ -24,7 +24,8 @@ class InlineCss extends BaseAsset
         parent::__construct($merged_attributes, $key);
     }
 
-    public function render() {
-        return "<style" . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</style>\n";
+    public function render()
+    {
+        return '<style' . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</style>\n";
     }
 }

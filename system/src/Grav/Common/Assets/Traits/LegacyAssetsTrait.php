@@ -20,9 +20,10 @@ trait LegacyAssetsTrait
         // First argument is always the asset
         array_shift($args);
 
-        if (count($args) === 0) {
+        if (\count($args) === 0) {
             return [];
-        } elseif (count($args) === 1 && is_array($args[0])) {
+        }
+        if (\count($args) === 1 && \is_array($args[0])) {
             return $args[0];
         }
 
