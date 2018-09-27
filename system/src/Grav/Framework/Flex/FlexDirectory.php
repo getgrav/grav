@@ -134,6 +134,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         if (empty($this->blueprints_init[$type])) {
             $this->blueprints_init[$type] = true;
 
+            $blueprint->setScope('object');
             $blueprint->init();
             if (empty($blueprint->fields())) {
                 throw new RuntimeException(sprintf('Flex: Blueprint for %s is missing', $this->type));

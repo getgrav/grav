@@ -19,8 +19,15 @@ class Blueprint extends BlueprintForm
     /** @var string */
     protected $context = 'blueprints://';
 
+    protected $scope;
+
     /** @var BlueprintSchema */
     protected $blueprintSchema;
+
+    public function setScope($scope)
+    {
+        $this->scope = $scope;
+    }
 
     /**
      * Set default values for field types.
@@ -277,6 +284,29 @@ class Blueprint extends BlueprintForm
                     return;
                 }
             }
+        }
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicScope(array &$field, $property, array &$call)
+    {
+        if ($property && $property !== 'ignore') {
+            return;
+        }
+
+        $scopes = (array)$call['params'];
+        $matches = \in_array($this->scope, $scopes, true);
+        if ($this->scope && $property !== 'ignore') {
+            $matches = !$matches;
+        }
+
+        if ($matches) {
+            $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
+            return;
         }
     }
 
