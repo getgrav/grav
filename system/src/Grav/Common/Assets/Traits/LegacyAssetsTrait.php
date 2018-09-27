@@ -15,8 +15,6 @@ trait LegacyAssetsTrait
 
     protected function unifyLegacyArguments($args, $type = Assets::CSS_TYPE)
     {
-        $arguments = [];
-
         // First argument is always the asset
         array_shift($args);
 
@@ -27,31 +25,34 @@ trait LegacyAssetsTrait
             return $args[0];
         }
 
-        // $asset, $priority = null, $pipeline = true, $group = null, $loading = null
+        switch ($type) {
+            case(Assets::INLINE_CSS_TYPE):
+                $keys = ['priority', 'group'];
+                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
+                break;
 
-        foreach ($args as $index => $arg) {
-            switch ($index) {
-                case 0:
-                    if (isset($args[0])) { $arguments['priority'] = $args[0]; }
-                    break;
-                case 1:
-                    if (isset($args[1])) { $arguments['pipeline'] = $args[1]; }
-                    break;
-                case 2:
-                    if ($type === Assets::CSS_TYPE) {
-                        if (isset($args[2])) { $arguments['group'] = $args[2]; }
-                    } else {
-                        if (isset($args[2])) { $arguments['loading'] = $args[2]; }
-                    }
-                    break;
-                case 3:
-                    if ($type === Assets::CSS_TYPE) {
-                        if (isset($args[3])) { $arguments['loading'] = $args[3]; }
-                    } else {
-                        if (isset($args[3])) { $arguments['group'] = $args[3]; }
-                    }
-                    break;
-            }
+            case(Assets::JS_TYPE):
+                $keys = ['priority', 'pipeline', 'loading', 'group'];
+                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
+                break;
+
+            case(Assets::INLINE_JS_TYPE):
+                $keys = ['priority', 'group', 'attributes'];
+                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
+
+                // special case to handle old attributes being passed in
+                if (isset($arguments['attributes'])) {
+                    $old_attributes = $arguments['attributes'];
+                    $arguments = array_merge($arguments, $old_attributes);
+                }
+                unset($arguments['attributes']);
+
+                break;
+
+            default:
+            case(Assets::CSS_TYPE):
+                $keys = ['priority', 'pipeline', 'group', 'loading'];
+                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
         }
 
         return $arguments;
@@ -69,9 +70,9 @@ trait LegacyAssetsTrait
      *
      * @return \Grav\Common\Assets
      */
-    public function addAsyncJs($asset, $priority = null, $pipeline = true, $group = null)
+    public function addAsyncJs($asset, $priority = 10, $pipeline = true, $group = 'head')
     {
-        return $this->addJs($asset, $priority, $pipeline, $group, 'async');
+        return $this->addJs($asset, $priority, $pipeline, 'async', $group);
     }
 
     /**
@@ -86,9 +87,9 @@ trait LegacyAssetsTrait
      *
      * @return \Grav\Common\Assets
      */
-    public function addDeferJs($asset, $priority = null, $pipeline = true, $group = null)
+    public function addDeferJs($asset, $priority = 10, $pipeline = true, $group = 'head')
     {
-        return $this->addJs($asset, $priority, $pipeline, $group, 'defer');
+        return $this->addJs($asset, $priority, $pipeline, 'defer', $group);
     }
 
 }
