@@ -30,9 +30,8 @@ class CacheCommand extends ConsoleCommand
             ->addOption('images-only', null, InputOption::VALUE_NONE, 'If set will remove only images/*')
             ->addOption('cache-only', null, InputOption::VALUE_NONE, 'If set will remove only cache/*')
             ->addOption('tmp-only', null, InputOption::VALUE_NONE, 'If set will remove only tmp/*')
-            ->addOption('tmp-only', null, InputOption::VALUE_NONE, 'If set will remove only tmp/*')
 
-            ->setHelp('The <info>clear-cache</info> deletes all cache files');
+            ->setHelp('The <info>cache</info> command allows you to interact with Grav cache');
     }
 
     /**
