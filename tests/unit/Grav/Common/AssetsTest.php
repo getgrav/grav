@@ -187,7 +187,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         //Test CSS Groups
         $this->assets->reset();
-        $this->assets->addCSS('test.css', null, null, 'footer');
+        $this->assets->addCSS('test.css', ['group' => 'footer']);
         $css = $this->assets->css();
         $this->assertEmpty($css);
         $css = $this->assets->css('footer');
@@ -221,7 +221,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         //Test JS Groups
         $this->assets->reset();
-        $this->assets->addJs('test.js', null, null, 'footer');
+        $this->assets->addJs('test.js', ['group' => 'footer']);
         $js = $this->assets->js();
         $this->assertEmpty($js);
         $js = $this->assets->js('footer');
@@ -251,7 +251,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         //Test async / defer
         $this->assets->reset();
-        $this->assets->addJs('test.js', null, null, null, 'async');
+        $this->assets->addJs('test.js', ['loading' => 'async']);
         $js = $this->assets->js();
         $this->assertSame('<script src="/test.js" async></script>' . PHP_EOL, $js);
 
@@ -280,11 +280,10 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertJsonStringEqualsJsonString($expected, $actual);
 
         $this->assets->reset();
-        $this->assets->addJs('test.js', null, null, null, 'defer');
+        $this->assets->addJs('test.js', ['loading' => 'defer']);
         $js = $this->assets->js();
         $this->assertSame('<script src="/test.js" defer></script>' . PHP_EOL, $js);
 
-        $array = $this->assets->getJs();
         $array = $this->assets->getJs();
         /** @var Assets\BaseAsset $item */
         $item = reset($array);
@@ -381,6 +380,83 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $this->assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL .
             '<script src="/test.js" async></script>' . PHP_EOL, $js);
+    }
+
+    public function testAddingLegacyFormat()
+    {
+        // regular CSS add
+        //test addCss(). Test adding asset to a separate group
+        $this->assets->reset();
+        $this->assets->addCSS('test.css', 15, true, 'bottom', 'async');
+        $css = $this->assets->css('bottom');
+        $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" async>' . PHP_EOL, $css);
+
+        $array = $this->assets->getCss();
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {  
+           "type":"css",
+           "elements":{  
+              "asset":"\/test.css",
+              "asset_type":"css",
+              "order":0,
+              "group":"bottom",
+              "position":"pipeline",
+              "priority":15,
+              "attributes":{  
+                 "type":"text\/css",
+                 "rel":"stylesheet",
+                 "loading":"async"
+              },
+              "timestamp":null,
+              "modified":false,
+              "query":""
+           }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
+
+        $this->assets->reset();
+        $this->assets->addJs('test.js', 15, false, 'defer', 'bottom');
+        $js = $this->assets->js('bottom');
+        $this->assertSame('<script src="/test.js" defer></script>' . PHP_EOL, $js);
+
+        $array = $this->assets->getJs();
+        /** @var Assets\BaseAsset $item */
+        $item = reset($array);
+        $actual = json_encode($item);
+        $expected = '
+        {
+          "type": "js",
+          "elements": {
+            "asset": "/test.js",
+            "asset_type": "js",
+            "order": 0,
+            "group": "bottom",
+            "position": "after",
+            "priority": 15,
+            "attributes": {
+              "loading": "defer"
+            },
+            "timestamp": null,
+            "modified": false,
+            "query": ""
+          }
+        }';
+        $this->assertJsonStringEqualsJsonString($expected, $actual);
+
+
+        $this->assets->reset();
+        $this->assets->addInlineCss('body { color: black }', 15, 'bottom');
+        $css = $this->assets->css('bottom');
+        $this->assertSame('<style>' . PHP_EOL . 'body { color: black }' . PHP_EOL . '</style>' . PHP_EOL, $css);
+
+        $this->assets->reset();
+        $this->assets->addInlineJs('alert("test")', 15, 'bottom', ['id' => 'foo']);
+        $js = $this->assets->js('bottom');
+        $this->assertSame('<script id="foo">' . PHP_EOL . 'alert("test")' . PHP_EOL . '</script>' . PHP_EOL, $js);
+
     }
 
     public function testAddingCSSAssetPropertiesWithArrayFromCollection()

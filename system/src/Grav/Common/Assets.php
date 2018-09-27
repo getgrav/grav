@@ -125,15 +125,19 @@ class Assets extends PropertyObject
      */
     public function add($asset)
     {
-        $options = $this->unifyLegacyArguments(func_get_args());
+        $args = func_get_args();
 
         // More than one asset
         if (\is_array($asset)) {
             foreach ($asset as $a) {
-                $this->add($a, $options);
+                array_shift($args);
+                $args = array_merge([$a], $args);
+                call_user_func_array([$this, 'add'], $args);
             }
         } elseif (isset($this->collections[$asset])) {
-            $this->add($this->collections[$asset], $options);
+            array_shift($args);
+            $args = array_merge([$this->collections[$asset]], $args);
+            call_user_func_array([$this, 'add'], $args);
         } else {
             // Get extension
             $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
@@ -142,9 +146,9 @@ class Assets extends PropertyObject
             if (\strlen($extension) > 0) {
                 $extension = strtolower($extension);
                 if ($extension === 'css') {
-                    $this->addCss($asset, $options);
+                    call_user_func_array([$this, 'addCss'], $args);
                 } elseif ($extension === 'js') {
-                    $this->addJs($asset, $options);
+                    call_user_func_array([$this, 'addJs'], $args);
                 }
             }
         }
@@ -208,7 +212,7 @@ class Assets extends PropertyObject
      */
     public function addCss($asset)
     {
-        return $this->addType(Assets::CSS_TYPE,Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args()));
+        return $this->addType(Assets::CSS_TYPE,Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::CSS_TYPE));
     }
 
     /**
@@ -218,7 +222,7 @@ class Assets extends PropertyObject
      */
     public function addInlineCss($asset)
     {
-        return $this->addType(Assets::CSS_TYPE, Assets::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args()));
+        return $this->addType(Assets::CSS_TYPE, Assets::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::INLINE_CSS_TYPE));
     }
 
     /**
@@ -228,7 +232,7 @@ class Assets extends PropertyObject
      */
     public function addJs($asset)
     {
-        return $this->addType(Assets::JS_TYPE, Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args()), Assets::JS_TYPE);
+        return $this->addType(Assets::JS_TYPE, Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::JS_TYPE));
     }
 
     /**
@@ -238,7 +242,7 @@ class Assets extends PropertyObject
      */
     public function addInlineJs($asset)
     {
-        return $this->addType(Assets::JS_TYPE, Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args()), Assets::JS_TYPE);
+        return $this->addType(Assets::JS_TYPE, Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::INLINE_JS_TYPE));
     }
 
 
