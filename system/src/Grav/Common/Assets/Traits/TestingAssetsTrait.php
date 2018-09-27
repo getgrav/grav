@@ -21,11 +21,7 @@ trait TestingAssetsTrait
      */
     public function exists($asset)
     {
-        if (isset($this->collections[$asset]) || isset($this->assets_css[$asset]) || isset($this->assets_js[$asset])) {
-            return true;
-        } else {
-            return false;
-        }
+        return isset($this->collections[$asset]) || isset($this->assets_css[$asset]) || isset($this->assets_js[$asset]);
     }
 
     /**
@@ -61,13 +57,10 @@ trait TestingAssetsTrait
      */
     public function getCss($key = null)
     {
-        if (!empty($key)) {
+        if (null !== $key) {
             $asset_key = md5($key);
-            if (isset($this->assets_css[$asset_key])) {
-                return $this->assets_css[$asset_key];
-            } else {
-                return null;
-            }
+
+            return $this->assets_css[$asset_key] ?? null;
         }
 
         return $this->assets_css;
@@ -83,13 +76,10 @@ trait TestingAssetsTrait
      */
     public function getJs($key = null)
     {
-        if (!empty($key)) {
+        if (null !== $key) {
             $asset_key = md5($key);
-            if (isset($this->assets_js[$asset_key])) {
-                return $this->assets_js[$asset_key];
-            } else {
-                return null;
-            }
+
+            return $this->assets_js[$asset_key] ?? null;
         }
 
         return $this->assets_js;
@@ -105,6 +95,7 @@ trait TestingAssetsTrait
     public function setCss($css)
     {
         $this->assets_css = $css;
+
         return $this;
     }
 
@@ -118,6 +109,7 @@ trait TestingAssetsTrait
     public function setJs($js)
     {
         $this->assets_js = $js;
+
         return $this;
     }
 
@@ -134,6 +126,7 @@ trait TestingAssetsTrait
         if (isset($this->assets_css[$asset_key])) {
             unset($this->assets_css[$asset_key]);
         }
+
         return $this;
     }
 
@@ -150,6 +143,7 @@ trait TestingAssetsTrait
         if (isset($this->assets_js[$asset_key])) {
             unset($this->assets_js[$asset_key]);
         }
+
         return $this;
     }
 
@@ -163,6 +157,7 @@ trait TestingAssetsTrait
     public function setCssPipeline($value)
     {
         $this->css_pipeline = (bool)$value;
+
         return $this;
     }
 
@@ -176,6 +171,7 @@ trait TestingAssetsTrait
     public function setJsPipeline($value)
     {
         $this->js_pipeline = (bool)$value;
+
         return $this;
     }
 
@@ -190,6 +186,7 @@ trait TestingAssetsTrait
         $this->resetJs();
         $this->setCssPipeline(false);
         $this->setJsPipeline(false);
+
         return $this;
     }
 
@@ -201,6 +198,7 @@ trait TestingAssetsTrait
     public function resetJs()
     {
         $this->assets_js = [];
+
         return $this;
     }
 
@@ -212,6 +210,7 @@ trait TestingAssetsTrait
     public function resetCss()
     {
         $this->assets_css = [];
+
         return $this;
     }
 
@@ -228,14 +227,15 @@ trait TestingAssetsTrait
     /**
      * Get the timestamp for assets
      *
+     * @param  bool  $include_join
      * @return string
      */
     public function getTimestamp($include_join = true)
     {
         if ($this->timestamp) {
-            $timestamp = $include_join ? '?' . $this->timestamp : $this->timestamp;
-            return $timestamp;
+            return $include_join ? '?' . $this->timestamp : $this->timestamp;
         }
+
         return null;
     }
 
@@ -327,7 +327,7 @@ trait TestingAssetsTrait
     {
         $iterator = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory,
             \FilesystemIterator::SKIP_DOTS)), $pattern);
-        $offset = strlen($ltrim);
+        $offset = \strlen($ltrim);
         $files = [];
 
         foreach ($iterator as $file) {

@@ -63,7 +63,7 @@ class Uri
         if (is_string($env)) {
             $this->createFromString($env);
         } else {
-            $this->createFromEnvironment(is_array($env) ? $env : $_SERVER);
+            $this->createFromEnvironment(\is_array($env) ? $env : $_SERVER);
         }
     }
 
@@ -173,7 +173,7 @@ class Uri
         }
 
         // Get the path. If there's no path, make sure pathinfo() still returns dirname variable
-        $path = isset($bits['path']) ? $bits['path'] : '/';
+        $path = $bits['path'] ?? '/';
 
         // remove the extension if there is one set
         $parts = pathinfo($path);
@@ -250,7 +250,7 @@ class Uri
     public function query($id = null, $raw = false)
     {
         if ($id !== null) {
-            return isset($this->queries[$id]) ? $this->queries[$id] : null;
+            return $this->queries[$id] ?? null;
         }
 
         if ($raw) {
@@ -542,7 +542,7 @@ class Uri
      */
     public function currentPage()
     {
-        return isset($this->params['page']) ? $this->params['page'] : 1;
+        return $this->params['page'] ?? 1;
     }
 
     /**
@@ -555,7 +555,7 @@ class Uri
      */
     public function referrer($default = null, $attributes = null)
     {
-        $referrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+        $referrer = $_SERVER['HTTP_REFERER'] ?? null;
 
         // Check that referrer came from our site.
         $root = $this->rootUrl(true);
@@ -672,8 +672,7 @@ class Uri
      */
     public static function isExternal($url)
     {
-        return ('http://' === substr($url, 0, 7) || 'https://' === substr($url, 0, 8) || '//' === substr($url, 0,
-                2));
+        return (0 === strpos($url, 'http://') || 0 === strpos($url, 'https://') || 0 === strpos($url, '//'));
     }
 
     /**
@@ -687,12 +686,12 @@ class Uri
     {
         $scheme    = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . ':' : '';
         $authority = isset($parsed_url['host']) ? '//' : '';
-        $host      = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $host      = $parsed_url['host'] ?? '';
         $port      = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user      = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+        $user      = $parsed_url['user'] ?? '';
         $pass      = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
         $pass      = ($user || $pass) ? "{$pass}@" : '';
-        $path      = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $path      = $parsed_url['path'] ?? '';
         $path      = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
         $query     = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment  = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
@@ -822,7 +821,7 @@ class Uri
         }
 
         // handle absolute URLs
-        if (is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
+        if (\is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
 
             $url['scheme'] = $uri->scheme(true);
             $url['host'] = $uri->host();
@@ -922,7 +921,7 @@ class Uri
 
             foreach ($matches as $match) {
                 $param = explode($delimiter, $match[1]);
-                if (count($param) === 2) {
+                if (\count($param) === 2) {
                     $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
                     $params[$param[0]] = $plain_var;
                     $uri = str_replace($match[0], '', $uri);
@@ -1052,7 +1051,7 @@ class Uri
         $uri = new static($url);
         $parts = $uri->toArray();
         $nonce = Utils::getNonce($action);
-        $parts['params'] = (isset($parts['params']) ? $parts['params'] : []) + [$nonceParamName => $nonce];
+        $parts['params'] = ($parts['params'] ?? []) + [$nonceParamName => $nonce];
 
         if ($fake) {
             unset($parts['scheme'], $parts['host']);
@@ -1144,13 +1143,13 @@ class Uri
         } elseif (isset($env['REQUEST_SCHEME'])) {
            $this->scheme = $env['REQUEST_SCHEME'];
         } else {
-            $https = isset($env['HTTPS']) ? $env['HTTPS'] : '';
+            $https = $env['HTTPS'] ?? '';
             $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
         }
 
         // Build user and password.
-        $this->user = isset($env['PHP_AUTH_USER']) ? $env['PHP_AUTH_USER'] : null;
-        $this->password = isset($env['PHP_AUTH_PW']) ? $env['PHP_AUTH_PW'] : null;
+        $this->user = $env['PHP_AUTH_USER'] ?? null;
+        $this->password = $env['PHP_AUTH_PW'] ?? null;
 
         // Build host.
         $hostname = 'localhost';
@@ -1180,11 +1179,11 @@ class Uri
         }
 
         // Build path.
-        $request_uri = isset($env['REQUEST_URI']) ? $env['REQUEST_URI'] : '';
+        $request_uri = $env['REQUEST_URI'] ?? '';
         $this->path = rawurldecode(parse_url('http://example.com' . $request_uri, PHP_URL_PATH));
 
         // Build query string.
-        $this->query = isset($env['QUERY_STRING']) ? $env['QUERY_STRING'] : '';
+        $this->query =  $env['QUERY_STRING'] ?? '';
         if ($this->query === '') {
             $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY);
         }
@@ -1228,14 +1227,14 @@ class Uri
         if ($parts === false) {
             throw new \RuntimeException('Malformed URL: ' . $url);
         }
-        $this->scheme = isset($parts['scheme']) ? $parts['scheme'] : null;
-        $this->user = isset($parts['user']) ? $parts['user'] : null;
-        $this->password = isset($parts['pass']) ? $parts['pass'] : null;
-        $this->host = isset($parts['host']) ? $parts['host'] : null;
+        $this->scheme = $parts['scheme'] ?? null;
+        $this->user = $parts['user'] ?? null;
+        $this->password = $parts['pass'] ?? null;
+        $this->host = $parts['host'] ?? null;
         $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
-        $this->path = isset($parts['path']) ? $parts['path'] : '';
-        $this->query = isset($parts['query']) ? $parts['query'] : '';
-        $this->fragment = isset($parts['fragment']) ? $parts['fragment'] : null;
+        $this->path = $parts['path'] ?? '';
+        $this->query = $parts['query'] ?? '';
+        $this->fragment = $parts['fragment'] ?? null;
 
         // Validate the hostname
         if ($this->host) {

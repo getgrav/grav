@@ -24,7 +24,8 @@ class InlineJs extends BaseAsset
         parent::__construct($merged_attributes, $key);
     }
 
-    public function render() {
-        return "<script" . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</script>\n";
+    public function render()
+    {
+        return '<script' . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</script>\n";
     }
 }

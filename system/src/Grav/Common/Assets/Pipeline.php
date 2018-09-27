@@ -14,6 +14,7 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Pipeline extends PropertyObject
 {
@@ -59,7 +60,7 @@ class Pipeline extends PropertyObject
      * The closure will receive as the only parameter a string with the path/URL of the asset and
      * it should return the content of the asset file as a string.
      *
-     * @var Closure
+     * @var \Closure
      */
     protected $fetch_command;
 
@@ -79,8 +80,6 @@ class Pipeline extends PropertyObject
         $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
         $this->assets_dir = $locator->findResource('asset://') . DS;
         $this->assets_url = $locator->findResource('asset://', false);
-
-
     }
 
     /**
@@ -119,7 +118,7 @@ class Pipeline extends PropertyObject
         } else {
 
             foreach ($assets as $id => $asset) {
-                if ($asset->getRemote() && $this->css_pipeline_include_externals === false) {
+                if ($this->css_pipeline_include_externals === false && $asset->getRemote()) {
                     $no_pipeline[$id] = $asset;
                     unset($assets[$id]);
                 }
@@ -141,7 +140,7 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (strlen(trim($buffer)) > 0) {
+            if (\strlen(trim($buffer)) > 0) {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
@@ -150,7 +149,7 @@ class Pipeline extends PropertyObject
             $output = "<style>\n" . $buffer . "\n</style>\n";
         } else {
             $this->asset = $relative_path;
-            $output = "<link href=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . ">\n";
+            $output = '<link href="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . ">\n";
         }
 
         return $output;
@@ -191,7 +190,7 @@ class Pipeline extends PropertyObject
         } else {
 
             foreach ($assets as $id => $asset) {
-                if ($asset->getRemote() && $this->js_pipeline_include_externals === false) {
+                if ($this->js_pipeline_include_externals === false && $asset->getRemote()) {
                     $no_pipeline[$id] = $asset;
                     unset($assets[$id]);
                 }
@@ -213,7 +212,7 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (strlen(trim($buffer)) > 0) {
+            if (\strlen(trim($buffer)) > 0) {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
@@ -245,7 +244,7 @@ class Pipeline extends PropertyObject
 
         // Find any css url() elements, grab the URLs and calculate an absolute path
         // Then replace the old url with the new one
-        $file = preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($relative_path) {
+        $file = (string)preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($relative_path) {
 
             $old_url = $matches[2];
 
@@ -274,7 +273,7 @@ class Pipeline extends PropertyObject
         // If this is a Windows server, and minify_windows is false (default value) skip the
         // minification process because it will cause Apache to die/crash due to insufficient
         // ThreadStackSize in httpd.conf - See: https://bugs.php.net/bug.php?id=47689
-        if (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN' && !$this->$win_check) {
+        if (stripos(php_uname('s'), 'WIN') === 0 && !$this->{$win_check}) {
             $minify = false;
         }
 

@@ -29,8 +29,7 @@ trait AssetUtilsTrait
             return false;
         }
 
-        return ('http://' === substr($link, 0, 7) || 'https://' === substr($link, 0, 8) || '//' === substr($link, 0,
-                2));
+        return (0 === strpos($link, 'http://') || 0 === strpos($link, 'https://') || 0 === strpos($link, '//'));
     }
 
     /**
@@ -55,12 +54,12 @@ trait AssetUtilsTrait
 
             if ($this->isRemoteLink($link)) {
                 $local = false;
-                if ('//' === substr($link, 0, 2)) {
+                if (0 === strpos($link, '//')) {
                     $link = 'http:' . $link;
                 }
             } else {
                 // Fix to remove relative dir if grav is in one
-                if (($this->base_url != '/') && (strpos($this->base_url, $link) == 0)) {
+                if (($this->base_url !== '/') && strpos($this->base_url, $link) === 0) {
                     $base_url = '#' . preg_quote($this->base_url, '#') . '#';
                     $relative_path = ltrim(preg_replace($base_url, '/', $link, 1), '/');
                 }
@@ -69,7 +68,7 @@ trait AssetUtilsTrait
                 $link = ROOT_DIR . $relative_path;
             }
 
-            $file = ($this->fetch_command instanceof Closure) ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+            $file = ($this->fetch_command instanceof \Closure) ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
 
             // No file found, skip it...
             if ($file === false) {
@@ -109,7 +108,7 @@ trait AssetUtilsTrait
     {
         $imports = [];
 
-        $file = preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) {
+        $file = (string)preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) {
             $imports[] = $matches[0];
 
             return '';
@@ -135,11 +134,11 @@ trait AssetUtilsTrait
             if (is_numeric($key)) {
                 $key = $value;
             }
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $value = implode(' ', $value);
             }
 
-            if (in_array($key, $no_key)) {
+            if (\in_array($key, $no_key, true)) {
                 $element = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
             } else {
                 $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
