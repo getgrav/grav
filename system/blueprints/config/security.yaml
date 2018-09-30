@@ -6,14 +6,14 @@ form:
 
         security_section:
             type: section
-            title: XSS Security
+            title: PLUGIN_ADMIN.XSS_SECURITY
             underline: true
 
         xss_whitelist:
             type: selectize
             size: large
-            label: Whitelist Permissions
-            help: Users with these permissions will skip the XSS rules when saving content
+            label: PLUGIN_ADMIN.XSS_WHITELIST_PERMISSIONS
+            help: PLUGIN_ADMIN.XSS_WHITELIST_PERMISSIONS_HELP
             placeholder: 'admin.super'
             classes: fancy
             validate:
@@ -22,18 +22,18 @@ form:
 
         xss_rules:
             type: list
-            label: Rules
-            help: Be careful when tweaking these rules, a broken regex will break things badly!
+            label: PLUGIN_ADMIN.XSS_RULES
+            help: PLUGIN_ADMIN.XSS_RULES_HELP
             classes: compact
             fields:
                 .label:
                     type: text
-                    label: Label
+                    label: PLUGIN_ADMIN.XSS_RULE_LABEL
                     validate:
                         required: true
                 .enabled:
                     type: toggle
-                    label: Rule Enabled
+                    label: PLUGIN_ADMIN.ENABLED
                     highlight: 1
                     options:
                         1: PLUGIN_ADMIN.YES
@@ -43,7 +43,7 @@ form:
                         type: bool
                 .regex:
                     type: text
-                    label: Regex
+                    label: PLUGIN_ADMIN.XSS_RULE_REGEX
                     validate:
                         required: true
 
