@@ -1,0 +1,22 @@
+xss_whitelist: [admin.super]                     # Whitelist of user access that should 'skip' XSS checking
+xss_rules:                                       # Array of XSS tests to run through
+    -
+        label: On-Events
+        enabled: true
+        regex: '#(<[^>]+[\x00-\x20\"''\/])(on|xmlns)[^>]*>?#iUu'
+    -
+        label: JavaScript
+        enabled: true
+        regex: '!((java|live|vb)script|mocha|feed|data):(\w)*!iUu'
+    -
+        label: Moz-Binding
+        enabled: true
+        regex: '#-moz-binding[\x00-\x20]*:#u'
+    -
+        label: 'Style Attributes'
+        enabled: false
+        regex: '#(<[^>]+[\x00-\x20\"''\/])style=[^>]*>?#iUu'
+    -
+        label: 'Dangerous Tags'
+        enabled: true
+        regex: '#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base)[^>]*>?#ui'
