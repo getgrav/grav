@@ -22,6 +22,7 @@ form:
 
         xss_rules:
             type: list
+            style: vertical
             label: PLUGIN_ADMIN.XSS_RULES
             help: PLUGIN_ADMIN.XSS_RULES_HELP
             classes: compact
