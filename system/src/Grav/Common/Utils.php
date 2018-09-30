@@ -266,12 +266,16 @@ abstract class Utils
             if (\is_array($value)) {
                 $list[] = static::detectXssFromArray($value, $prefix . $key . '.');
             }
-            if (static::detectXss($value)) {
-                $list[] = [$prefix . $key];
+            if ($result = static::detectXss($value)) {
+                $list[] = [$prefix . $key => $result];
             }
         }
 
-        return array_merge(...$list);
+        if (!empty($list)) {
+            return array_merge(...$list);
+        }
+
+        return $list;
     }
 
     /**
