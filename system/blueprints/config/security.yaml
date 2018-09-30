@@ -32,6 +32,11 @@ form:
                     label: PLUGIN_ADMIN.XSS_RULE_LABEL
                     validate:
                         required: true
+                .regex:
+                    type: text
+                    label: PLUGIN_ADMIN.XSS_RULE_REGEX
+                    validate:
+                        required: true
                 .enabled:
                     type: toggle
                     label: PLUGIN_ADMIN.ENABLED
@@ -42,9 +47,4 @@ form:
                     default: true
                     validate:
                         type: bool
-                .regex:
-                    type: text
-                    label: PLUGIN_ADMIN.XSS_RULE_REGEX
-                    validate:
-                        required: true
 
