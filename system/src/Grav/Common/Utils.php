@@ -280,7 +280,7 @@ abstract class Utils
      * their content.
      *
      * @param string $string The string to run XSS detection logic on
-     * @return boolean       True if the given `$string` may contain XSS, false otherwise.
+     * @return boolean|string       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
      *
      * Copies the code from: https://github.com/symphonycms/xssfilter/blob/master/extension.driver.php#L138
      */
@@ -311,30 +311,23 @@ abstract class Utils
         // Strip whitespace characters
         $string = preg_replace('!\s!u','', $string);
 
-        // Set the patterns we'll test against
-        $patterns = [
-            // Match any attribute starting with "on" or xmlns
-            '#(<[^>]+[\x00-\x20\"\'\/])(on|xmlns)[^>]*>?#iUu',
+        // Get XSS rules from security configuration
+        $xss_rules = Grav::instance()['config']->get('security.xss_rules');
 
-            // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            '!((java|live|vb)script|mocha|feed|data):(\w)*!iUu',
+        // Iterate over rules and return label if fail
+        foreach ((array) $xss_rules as $rule) {
+            if ($rule['enabled'] === true) {
+                $label = $rule['label'];
+                $regex = $rule['regex'];
 
-            // Match -moz-bindings
-            '#-moz-binding[\x00-\x20]*:#u',
-
-            // Match style attributes
-            '#(<[^>]+[\x00-\x20\"\'\/])style=[^>]*>?#iUu',
-
-            // Match potentially dangerous tags
-            '#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base)[^>]*>?#ui'
-        ];
-
-        foreach ($patterns as $pattern) {
-            // Test both the original string and clean string
-            if (preg_match($pattern, $string) || preg_match($pattern, $orig)) {
-                return true;
+                if ($label && $regex) {
+                    if (preg_match($regex, $string) || preg_match($regex, $orig)) {
+                        return $label;
+                    }
+                }
             }
         }
+
         return false;
     }
     /**
