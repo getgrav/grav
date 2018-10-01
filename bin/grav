@@ -43,5 +43,6 @@ $app->addCommands(array(
     new \Grav\Console\Cli\BackupCommand(),
     new \Grav\Console\Cli\NewProjectCommand(),
     new \Grav\Console\Cli\SchedulerCommand(),
+    new \Grav\Console\Cli\SecurityCommand(),
 ));
 $app->run();
