@@ -1,16 +1,16 @@
 # v1.6.0-dev
-## mm/dd/2018
+## 10/01/2018
 
 1. [](#new)
     * Set minimum requirements to [PHP 7.1.3](https://getgrav.org/blog/raising-php-requirements-2018) 
-    * New Scheduler functionality for periodic jobs
-    * New Backup functionality with multiple backup profiles and scheduler integration
-    * Refactored Assets Manager to be more powerful and flexible
+    * New `Scheduler` functionality for periodic jobs
+    * New `Backup` functionality with multiple backup profiles and scheduler integration
+    * Refactored `Assets Manager` to be more powerful and flexible
     * Updated Doctrine Collections to 1.5
     * Updated Doctrine Cache to 1.8
     * Updated Symfony Components to 4.1
     * Added a new Deferred Twig extension to allow adding content to Twig blocks after render
-    * Added ability to **purge** old cache manually via CLI/Admin as well as scheduler integration
+    * Added new Cache purge functionality old cache manually via CLI/Admin as well as scheduler integration
     * Added new `{% throw 404 'Not Found' %}` twig tag (with custom code/message)
     * Added `Grav\Framework\File` classes for handling YAML, Markdown, JSON, INI and PHP serialized files
     * Added `Grav\Framework\Collection\AbstractIndexCollection` class
@@ -22,14 +22,17 @@
     * Register all page types into `blueprint://pages` stream
     
 # v1.5.2
-## mm/dd/2018
+## 10/01/2018
 
 1. [](#new)
+    * Added new `Security` class for Grav security functionality including XSS checks
+    * Added new `bin/grav security` command to scan for security issues
+    * Added new `xss()` Twig function to allow for XSS checks on strings and arrays
+    * Added `onHttpPostFilter` event to allow plugins to globally clean up XSS in the forms and tasks
     * Added `Deprecated` tab to DebugBar to catch future incompatibilities with later Grav versions
     * Added deprecation notices for features which will be removed in Grav 2.0
-    * Added new `bin/grav security` command to scan for security issues (XSS currently)
-    * Added new `Security` class for Grav security functionality
-    * Added `onHttpPostFilter` event to allow plugins to globally clean up XSS in the forms and tasks
+1. [](#improved)
+    * Updated vendor libraries to latest
 1. [](#bugfix)
     * Allow `$page->slug()` to be called before `$page->init()` without breaking the page
     * Fix for `Page::translatedLanguages()` to use routes always [#2163](https://github.com/getgrav/grav/issues/2163)
