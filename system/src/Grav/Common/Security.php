@@ -116,20 +116,38 @@ class Security
         // Strip whitespace characters
         $string = preg_replace('!\s!u','', $string);
 
-        // Get XSS rules from security configuration
-        $xss_rules = Grav::instance()['config']->get('security.xss_rules');
+        $config = Grav::instance()['config'];
+
+        $dangerous_tags = $config->get('security.xss_dangerous_tags');
+        $enabled_rules = $config->get('security.xss_enabled');
+
+        // Set the patterns we'll test against
+        $patterns = [
+            // Match any attribute starting with "on" or xmlns
+            'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])(\son|\sxmlns)[a-z].*=>?#iUu',
+
+            // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
+            'invalid_protocols' => '#((java|live|vb)script|mocha|feed|data):.*?#!iUu',
+
+            // Match -moz-bindings
+            'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',
+
+            // Match style attributes
+            'html_inline_styles' => '#(<[^>]+[a-z\x00-\x20\"\'\/])(style=[^>]*(url\:|x\:expression).*)>?#iUu',
+
+            // Match potentially dangerous tags
+            'dangerous_tags' => '#</*(' . implode('|', array_map("trim",$dangerous_tags)) . ')[^>]*>?#ui'
+        ];
+
 
         // Iterate over rules and return label if fail
-        foreach ((array) $xss_rules as $rule) {
-            if ($rule['enabled'] === true) {
-                $label = $rule['label'];
-                $regex = $rule['regex'];
+        foreach ((array) $patterns as $name => $regex) {
+            if ($enabled_rules[$name] === true) {
 
-                if ($label && $regex) {
-                    if (preg_match($regex, $string) || preg_match($regex, $orig)) {
-                        return $label;
-                    }
+                if (preg_match($regex, $string) || preg_match($regex, $orig)) {
+                    return $name;
                 }
+
             }
         }
 

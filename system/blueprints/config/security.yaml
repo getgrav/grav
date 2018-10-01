@@ -19,32 +19,66 @@ form:
             validate:
                 type: commalist
 
+        xss_enabled.on_events:
+            type: toggle
+            label: PLUGIN_ADMIN.XSS_ON_EVENTS
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
 
-        xss_rules:
-            type: list
-            style: vertical
-            label: PLUGIN_ADMIN.XSS_RULES
-            help: PLUGIN_ADMIN.XSS_RULES_HELP
-            classes: compact
-            fields:
-                .label:
-                    type: text
-                    label: PLUGIN_ADMIN.XSS_RULE_LABEL
-                    validate:
-                        required: true
-                .regex:
-                    type: text
-                    label: PLUGIN_ADMIN.XSS_RULE_REGEX
-                    validate:
-                        required: true
-                .enabled:
-                    type: toggle
-                    label: PLUGIN_ADMIN.ENABLED
-                    highlight: 1
-                    options:
-                        1: PLUGIN_ADMIN.YES
-                        0: PLUGIN_ADMIN.NO
-                    default: true
-                    validate:
-                        type: bool
+        xss_enabled.invalid_protocols:
+            type: toggle
+            label: PLUGIN_ADMIN.XSS_INVALID_PROTOCOLS
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        xss_enabled.moz_binding:
+            type: toggle
+            label: PLUGIN_ADMIN.XSS_MOZ_BINDINGS
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        xss_enabled.html_inline_styles:
+            type: toggle
+            label: PLUGIN_ADMIN.XSS_HTML_INLINE_STYLES
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        xss_enabled.dangerous_tags:
+            type: toggle
+            label: PLUGIN_ADMIN.XSS_DANGEROUS_TAGS
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        xss_dangerous_tags:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.XSS_DANGEROUS_TAGS_LIST
+            classes: fancy
+            validate:
+                type: commalist
 
