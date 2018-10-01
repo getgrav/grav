@@ -19,6 +19,7 @@
     * Added support for hiding form fields in blueprints by using dynamic property like `security@: admin.foobar`, `scope@: object` or `scope-ignore@: object` to any field
 1. [](#improved)
     * Doctrine filecache is now namespaced with prefix to support purging
+    * Register all page types into `blueprint://pages` stream
     
 # v1.5.2
 ## mm/dd/2018

@@ -137,7 +137,7 @@ class Page implements PageInterface
         $this->metadata();
         $this->url();
         $this->visible();
-        $this->modularTwig($this->slug[0] === '_');
+        $this->modularTwig(strpos($this->slug(), '_') === 0);
         $this->setPublishState();
         $this->published();
         $this->urlExtension();
