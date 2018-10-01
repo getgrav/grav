@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
+use Grav\Common\Security;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
 use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
@@ -161,6 +162,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
             new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFunc']),
             new \Twig_SimpleFunction('cron', [$this, 'cronFunc']),
+            new \Twig_SimpleFunction('xss', [$this, 'xssFunc']),
+
 
             // Translations
             new \Twig_simpleFunction('t', [$this, 'translate']),
@@ -556,6 +559,27 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         $time = $time . ($show_tense ? " {$tense}" : "");
 
         return  $time;
+    }
+
+    /**
+     * Allow quick check of a string for XSS Vulnerabilities
+     *
+     * @param $string
+     * @return bool|string|array
+     */
+    public function xssFunc($data)
+    {
+        if (is_array($data)) {
+            $results = Security::detectXssFromArray($data);
+        } else {
+            return Security::detectXss($data);
+        }
+
+        $results_parts = array_map(function($value, $key) {
+            return $key.': \''.$value . '\'';
+        }, array_values($results), array_keys($results));
+
+         return implode(', ', $results_parts);
     }
 
     /**
