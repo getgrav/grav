@@ -710,7 +710,6 @@ class Pages
     public static function getTypes()
     {
         if (!self::$types) {
-
             $grav = Grav::instance();
 
             $scanBlueprintsAndTemplates = function () use ($grav) {
@@ -748,6 +747,18 @@ class Pages
                 $scanBlueprintsAndTemplates();
             }
 
+            // Register custom paths to the locator.
+            $locator = $grav['locator'];
+            foreach (self::$types as $type => $paths) {
+                foreach ($paths as $k => $path) {
+                    if (strpos($path, 'blueprints://') === 0) {
+                        unset($paths[$k]);
+                    }
+                }
+                if ($paths) {
+                    $locator->addPath('blueprints', "pages/$type.yaml", $paths);
+                }
+            }
         }
 
         return self::$types;
