@@ -119,6 +119,8 @@ class Security
         $config = Grav::instance()['config'];
 
         $dangerous_tags = $config->get('security.xss_dangerous_tags');
+        $dangerous_tags = array_map('preg_quote', array_map("trim", $dangerous_tags));
+
         $enabled_rules = $config->get('security.xss_enabled');
 
         // Set the patterns we'll test against
@@ -127,7 +129,7 @@ class Security
             'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])(\son|\sxmlns)[a-z].*=>?#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            'invalid_protocols' => '#((java|live|vb)script|mocha|feed|data):.*?#!iUu',
+            'invalid_protocols' => '#((java|live|vb)script|mocha|feed|data):.*?#iUu',
 
             // Match -moz-bindings
             'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',
@@ -136,7 +138,7 @@ class Security
             'html_inline_styles' => '#(<[^>]+[a-z\x00-\x20\"\'\/])(style=[^>]*(url\:|x\:expression).*)>?#iUu',
 
             // Match potentially dangerous tags
-            'dangerous_tags' => '#</*(' . implode('|', array_map("trim",$dangerous_tags)) . ')[^>]*>?#ui'
+            'dangerous_tags' => '#</*(' . implode('|', $dangerous_tags ) . ')[^>]*>?#ui'
         ];
 
 
