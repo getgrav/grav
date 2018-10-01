@@ -11,24 +11,32 @@ namespace Grav\Common;
 class Security
 {
 
-    public static function detectXssFromPages($pages, callable $messager = null)
+    public static function detectXssFromPages($pages, callable $status = null)
     {
         $routes = $pages->routes();
 
+        // Remove duplicate for homepage
+        unset($routes['/']);
+
         $list = [];
+
+//        // This needs Symfony 4.1 to work
+//        $status && $status([
+//            'type' => 'count',
+//            'steps' => count($routes),
+//        ]);
 
         foreach ($routes as $route => $path) {
 
-            $messager && $messager([
+            $status && $status([
                 'type' => 'progress',
-                'percentage' => false,
-                'complete' => false
             ]);
 
             try {
                 $page = $pages->get($path);
+
                 // call the content to load/cache it
-                $header = $page->header();
+                $header = (array) $page->header();
                 $content = $page->content();
 
                 $data = ['header' => $header, 'content' => $content];
@@ -43,7 +51,7 @@ class Security
             }
         }
 
-        dump($list);
+        return $list;
     }
 
     /**

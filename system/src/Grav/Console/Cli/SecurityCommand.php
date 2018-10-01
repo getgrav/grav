@@ -13,12 +13,10 @@ use Grav\Common\Security;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class SecurityCommand extends ConsoleCommand
 {
-    /** @var string $source */
-    protected $source;
-
     /** @var ProgressBar $progress */
     protected $progress;
 
@@ -29,13 +27,7 @@ class SecurityCommand extends ConsoleCommand
     {
         $this
             ->setName("security")
-            ->addArgument(
-                'xss',
-                InputArgument::OPTIONAL,
-                'Perform XSS security checks on all pages'
-
-            )
-            ->setDescription("Capable of running XSS Security checks")
+            ->setDescription("Capable of running various Security checks")
             ->setHelp('The <info>security</info> runs various security checks on your Grav site');
 
         $this->source = getcwd();
@@ -46,34 +38,69 @@ class SecurityCommand extends ConsoleCommand
      */
     protected function serve()
     {
-        $this->progress = new ProgressBar($this->output);
-        $this->progress->setFormat('Archiving <cyan>%current%</cyan> files [<green>%bar%</green>] %elapsed:6s% %memory:6s%');
+
 
         /** @var Grav $grav */
         $grav = Grav::instance();
 
+        $grav['uri']->init();
         $grav['config']->init();
         $grav['debugger']->enabled(false);
+        $grav['streams'];
+        $grav['plugins']->init();
+        $grav['themes']->init();
+
+
         $grav['twig']->init();
         $grav['pages']->init();
 
-        $results = Security::detectXssFromPages($grav['pages'], [$this, 'output']);
+        $this->progress = new ProgressBar($this->output, (count($grav['pages']->routes()) - 1));
+        $this->progress->setFormat('Scanning <cyan>%current%</cyan> pages [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s%');
+        $this->progress->setBarWidth(100);
 
-        print_r($results);
+        $io = new SymfonyStyle($this->input, $this->output);
+        $io->title('Grav Security Check');
+
+        $output = Security::detectXssFromPages($grav['pages'], [$this, 'outputProgress']);
+
+        $io->newline(2);
+
+        if (!empty($output)) {
+
+            $counter = 1;
+            foreach ($output as $route => $results) {
+
+                $results_parts = array_map(function($value, $key) {
+                    return $key.': \''.$value . '\'';
+                }, array_values($results), array_keys($results));
+
+                $io->writeln($counter++ .' - <cyan>' . $route . '</cyan> → <red>' . implode(', ', $results_parts) . '</red>');
+            }
+
+            $io->error('Security Scan complete: ' . count($output) . ' potential XSS issues found...');
+
+        } else {
+            $io->success('Security Scan complete: No issues found...');
+        }
+
+        $io->newline(1);
 
     }
 
     /**
      * @param $args
      */
-    public function output($args)
+    public function outputProgress($args)
     {
         switch ($args['type']) {
-            case 'message':
-                $this->output->writeln($args['message']);
+            case 'count':
+                $steps = $args['steps'];
+                $freq = intval($steps > 100 ? round($steps / 100) : $steps);
+                $this->progress->setMaxSteps($steps);
+                $this->progress->setRedrawFrequency($freq);
                 break;
             case 'progress':
-                if ($args['complete']) {
+                if (isset($args['complete']) && $args['complete']) {
                     $this->progress->finish();
                 } else {
                     $this->progress->advance();
