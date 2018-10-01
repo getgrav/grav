@@ -137,7 +137,7 @@ class Page implements PageInterface
         $this->metadata();
         $this->url();
         $this->visible();
-        $this->modularTwig($this->slug[0] === '_');
+        $this->modularTwig(strpos($this->slug(), '_') === 0);
         $this->setPublishState();
         $this->published();
         $this->urlExtension();
@@ -195,7 +195,7 @@ class Page implements PageInterface
 
                 $route = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
                 if (!$route) {
-                    $route = $aPage->slug();
+                    $route = $aPage->route();
                 }
 
                 if ($onlyPublished && !$aPage->published()) {
@@ -764,6 +764,8 @@ class Page implements PageInterface
 
         // pages.markdown_extra is deprecated, but still check it...
         if (!isset($defaults['extra']) && (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null)) {
+            user_error('Configuration option \'system.pages.markdown_extra\' is deprecated since Grav 1.5, use \'system.pages.markdown.extra\' instead', E_USER_DEPRECATED);
+
             $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }
 
@@ -1582,7 +1584,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->slug)) {
-            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
+            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder)) ?: null;
         }
 
 

@@ -11,6 +11,7 @@ namespace Grav\Common\Twig;
 use Grav\Common\Grav;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
+use Grav\Common\Security;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
 use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
@@ -105,9 +106,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
             // Casting values
             new \Twig_SimpleFilter('string', [$this, 'stringFilter']),
-            new \Twig_SimpleFilter('int', [$this, 'intFilter'], ['is_safe' => true]),
+            new \Twig_SimpleFilter('int', [$this, 'intFilter'], ['is_safe' => ['all']]),
             new \Twig_SimpleFilter('bool', [$this, 'boolFilter']),
-            new \Twig_SimpleFilter('float', [$this, 'floatFilter'], ['is_safe' => true]),
+            new \Twig_SimpleFilter('float', [$this, 'floatFilter'], ['is_safe' => ['all']]),
             new \Twig_SimpleFilter('array', [$this, 'arrayFilter']),
         ];
     }
@@ -155,7 +156,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('read_file', [$this, 'readFileFunc']),
             new \Twig_SimpleFunction('nicenumber', [$this, 'niceNumberFunc']),
             new \Twig_SimpleFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
-            new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFilter']),
+            new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFunc']),
+            new \Twig_SimpleFunction('xss', [$this, 'xssFunc']),
 
             // Translations
             new \Twig_simpleFunction('t', [$this, 'translate']),
@@ -528,6 +530,27 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         }
 
             return "$difference $periods[$j] {$tense}";
+    }
+
+    /**
+     * Allow quick check of a string for XSS Vulnerabilities
+     *
+     * @param $string
+     * @return bool|string|array
+     */
+    public function xssFunc($data)
+    {
+        if (is_array($data)) {
+            $results = Security::detectXssFromArray($data);
+        } else {
+            return Security::detectXss($data);
+        }
+
+        $results_parts = array_map(function($value, $key) {
+            return $key.': \''.$value . '\'';
+        }, array_values($results), array_keys($results));
+
+         return implode(', ', $results_parts);
     }
 
     /**

@@ -32,6 +32,7 @@
         "ext-openssl": "*",
         "ext-curl": "*",
         "ext-zip": "*",
+        "ext-json": "*",
         "league/climate": "^3.2",
         "antoligy/dom-string-iterators": "^1.0",
         "miljar/php-exif": "^0.6.3",
