@@ -113,11 +113,6 @@ errors:
   display: 0                                     # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
   log: true                                      # Log errors to /logs folder
 
-log:
-  handler: file                                 # Log handler. Currently supported: file | syslog
-  syslog:
-    facility: local6                            # Syslog facilities output
-
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
   shutdown:
