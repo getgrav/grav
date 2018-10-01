@@ -1,5 +1,5 @@
 # v1.5.2
-## mm/dd/2018
+## 10/01/2018
 
 1. [](#new)
     * Added new `Security` class for Grav security functionality including XSS checks
