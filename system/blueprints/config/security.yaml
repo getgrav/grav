@@ -1,0 +1,50 @@
+title: PLUGIN_ADMIN.SECURITY
+
+form:
+    validation: loose
+    fields:
+
+        security_section:
+            type: section
+            title: PLUGIN_ADMIN.XSS_SECURITY
+            underline: true
+
+        xss_whitelist:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.XSS_WHITELIST_PERMISSIONS
+            help: PLUGIN_ADMIN.XSS_WHITELIST_PERMISSIONS_HELP
+            placeholder: 'admin.super'
+            classes: fancy
+            validate:
+                type: commalist
+
+
+        xss_rules:
+            type: list
+            style: vertical
+            label: PLUGIN_ADMIN.XSS_RULES
+            help: PLUGIN_ADMIN.XSS_RULES_HELP
+            classes: compact
+            fields:
+                .label:
+                    type: text
+                    label: PLUGIN_ADMIN.XSS_RULE_LABEL
+                    validate:
+                        required: true
+                .regex:
+                    type: text
+                    label: PLUGIN_ADMIN.XSS_RULE_REGEX
+                    validate:
+                        required: true
+                .enabled:
+                    type: toggle
+                    label: PLUGIN_ADMIN.ENABLED
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
+
