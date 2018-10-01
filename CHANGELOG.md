@@ -2,11 +2,14 @@
 ## mm/dd/2018
 
 1. [](#new)
+    * Added new `Security` class for Grav security functionality including XSS checks
+    * Added new `bin/grav security` command to scan for security issues
+    * Added new `xss()` Twig function to allow for XSS checks on strings and arrays
+    * Added `onHttpPostFilter` event to allow plugins to globally clean up XSS in the forms and tasks
     * Added `Deprecated` tab to DebugBar to catch future incompatibilities with later Grav versions
     * Added deprecation notices for features which will be removed in Grav 2.0
-    * Added new `bin/grav security` command to scan for security issues (XSS currently)
-    * Added new `Security` class for Grav security functionality
-    * Added `onHttpPostFilter` event to allow plugins to globally clean up XSS in the forms and tasks
+1. [](#improved)
+    * Updated vendor libraries to latest
 1. [](#bugfix)
     * Allow `$page->slug()` to be called before `$page->init()` without breaking the page
     * Fix for `Page::translatedLanguages()` to use routes always [#2163](https://github.com/getgrav/grav/issues/2163)
