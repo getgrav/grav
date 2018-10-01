@@ -26,7 +26,7 @@ class Security
 //            'steps' => count($routes),
 //        ]);
 
-        foreach ($routes as $route => $path) {
+        foreach ($routes as $path) {
 
             $status && $status([
                 'type' => 'progress',
@@ -37,13 +37,13 @@ class Security
 
                 // call the content to load/cache it
                 $header = (array) $page->header();
-                $content = $page->content();
+                $content = $page->value('content');
 
                 $data = ['header' => $header, 'content' => $content];
                 $results = Security::detectXssFromArray($data);
 
                 if (!empty($results)) {
-                    $list[$route] = $results;
+                    $list[$page->filePathClean()] = $results;
                 }
 
             } catch (\Exception $e) {
