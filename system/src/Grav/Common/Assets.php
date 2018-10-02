@@ -199,7 +199,11 @@ class Assets extends PropertyObject
         // Create asset of correct type
         $asset_class = "\\Grav\\Common\\Assets\\{$type}";
         $asset_object = new $asset_class();
-        $this->$asset_group[md5($asset)] = $asset_object->init($asset, $options);
+
+        // If exists
+        if ($asset_object->init($asset, $options)) {
+            $this->$collection[md5($asset)] = $asset_object;
+        }
 
         return $this;
 
