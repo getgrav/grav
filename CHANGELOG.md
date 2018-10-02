@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Added support for syslog and syslog facility logging (default: 'file')
+1. [](#bugfix)
+    * Fixed asset manager to not add empty assets when they don't exist in the filesystem
 
 # v1.6.0-beta.1
 ## 10/01/2018
