@@ -1,4 +1,10 @@
-# v1.6.0-dev
+# v1.6.0-beta.1
+## mm/dd/2018
+
+1. [](#improved)
+    * Added support for syslog and syslog facility logging (default: 'file')
+
+# v1.6.0-beta.1
 ## 10/01/2018
 
 1. [](#new)
