@@ -856,6 +856,43 @@ form:
                     validate:
                         type: bool
 
+                log.handler:
+                    type: select
+                    size: small
+                    label: PLUGIN_ADMIN.LOG_HANDLER
+                    help: PLUGIN_ADMIN.LOG_HANDLER_HELP
+                    default: 'file'
+                    options:
+                        'file': 'File'
+                        'syslog': 'Syslog'
+
+                log.syslog.facility:
+                    type: select
+                    size: small
+                    label: PLUGIN_ADMIN.SYSLOG_FACILITY
+                    help: PLUGIN_ADMIN.SYSLOG_FACILITY_HELP
+                    default: local6
+                    options:
+                      auth: auth
+                      authpriv: authpriv
+                      cron: cron
+                      daemon: daemon
+                      kern: kern
+                      lpr: lpr
+                      mail: mail
+                      news: news
+                      syslog: syslog
+                      user: user
+                      uucp: uucp
+                      local0: local0
+                      local1: local1
+                      local2: local2
+                      local3: local3
+                      local4: local4
+                      local5: local5
+                      local6: local6
+                      local7: local7
+
         debugger:
             type: section
             title: PLUGIN_ADMIN.DEBUGGER

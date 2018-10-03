@@ -1,10 +1,13 @@
-# v1.6.1-dev
+# v1.6.0-beta.2
 ## mm/dd/2018
 
+1. [](#improved)
+    * Added support for syslog and syslog facility logging (default: 'file')
 1. [](#bugfix)
-    * Regression: Asset methods with default legacy attributes were not working
+    * Fixed asset manager to not add empty assets when they don't exist in the filesystem
+    * Regression: Fixed asset manager methods with default legacy attributes
 
-# v1.6.0-dev
+# v1.6.0-beta.1
 ## 10/01/2018
 
 1. [](#new)

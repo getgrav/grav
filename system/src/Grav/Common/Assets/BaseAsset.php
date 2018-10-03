@@ -101,6 +101,11 @@ abstract class BaseAsset extends PropertyObject
                     $path = GRAV_ROOT . $asset;
                 }
 
+                // If local file is missing return
+                if ($path === false) {
+                    return false;
+                }
+
                 $file = new \SplFileInfo($path);
 
                 $asset = $this->buildLocalLink($file->getPathname());

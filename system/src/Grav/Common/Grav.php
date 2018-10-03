@@ -59,6 +59,7 @@ class Grav extends Container
         'inflector'               => 'Grav\Common\Inflector',
         'siteSetupProcessor'      => 'Grav\Common\Processors\SiteSetupProcessor',
         'configurationProcessor'  => 'Grav\Common\Processors\ConfigurationProcessor',
+        'loggerProcessor'         => 'Grav\Common\Processors\LoggerProcessor',
         'errorsProcessor'         => 'Grav\Common\Processors\ErrorsProcessor',
         'debuggerInitProcessor'   => 'Grav\Common\Processors\DebuggerInitProcessor',
         'initializeProcessor'     => 'Grav\Common\Processors\InitializeProcessor',
@@ -80,6 +81,7 @@ class Grav extends Container
     protected $processors = [
         'siteSetupProcessor',
         'configurationProcessor',
+        'loggerProcessor',
         'errorsProcessor',
         'debuggerInitProcessor',
         'initializeProcessor',
