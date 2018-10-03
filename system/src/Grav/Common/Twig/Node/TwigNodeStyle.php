@@ -41,12 +41,14 @@ class TwigNodeStyle extends \Twig_Node implements \Twig_NodeCaptureInterface
     {
         $compiler->addDebugInfo($this);
 
+        $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];\n");
+
         if ($this->getNode('attributes') !== null) {
             $compiler
                 ->write('$attributes = ')
                 ->subcompile($this->getNode('attributes'))
                 ->raw(";\n")
-                ->write("if (\$attributes !== null && !is_array(\$attributes)) {\n")
+                ->write("if (!is_array(\$attributes)) {\n")
                 ->indent()
                 ->write("throw new UnexpectedValueException('{% {$this->tagName} with x %}: x is not an array');\n")
                 ->outdent()
@@ -57,42 +59,34 @@ class TwigNodeStyle extends \Twig_Node implements \Twig_NodeCaptureInterface
 
         if ($this->getNode('group') !== null) {
             $compiler
-                ->write('$group = ')
+                ->write("\$attributes['group'] = ")
                 ->subcompile($this->getNode('group'))
                 ->raw(";\n")
-                ->write("if (\$group !== null && !is_string(\$group)) {\n")
+                ->write("if (!is_string(\$attributes['group'])) {\n")
                 ->indent()
                 ->write("throw new UnexpectedValueException('{% {$this->tagName} in x %}: x is not a string');\n")
                 ->outdent()
                 ->write("}\n");
-        } else {
-            $compiler->write('$group = null;' . "\n");
         }
 
         if ($this->getNode('priority') !== null) {
             $compiler
-                ->write('$priority = (int)(')
+                ->write("\$attributes['priority'] = (int)(")
                 ->subcompile($this->getNode('priority'))
                 ->raw(");\n");
-        } else {
-            $compiler->write('$priority = null;' . "\n");
         }
-
-        $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];\n");
 
         if ($this->getNode('file') !== null) {
             $compiler
-                ->write('$file = ')
+                ->write('$assets->addCss(')
                 ->subcompile($this->getNode('file'))
-                ->write(";\n")
-                ->write("\$pipeline = !empty(\$attributes['pipeline']);\n")
-                ->write("\$assets->addCss(\$file, \$priority, \$pipeline, \$group);\n");
+                ->raw(", \$attributes);\n");
         } else {
             $compiler
                 ->write("ob_start();\n")
                 ->subcompile($this->getNode('body'))
-                ->write("\$content = ob_get_clean();")
-                ->write("\$assets->addInlineCss(\$content, \$priority, \$group);\n");
+                ->write('$content = ob_get_clean();' . "\n")
+                ->write("\$assets->addInlineCss(\$content, \$attributes);\n");
         }
     }
 }

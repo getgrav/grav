@@ -127,19 +127,19 @@ class Assets extends PropertyObject
      */
     public function add($asset)
     {
-        $args = func_get_args();
+        $args = \func_get_args();
 
         // More than one asset
         if (\is_array($asset)) {
             foreach ($asset as $a) {
                 array_shift($args);
                 $args = array_merge([$a], $args);
-                call_user_func_array([$this, 'add'], $args);
+                \call_user_func_array([$this, 'add'], $args);
             }
         } elseif (isset($this->collections[$asset])) {
             array_shift($args);
             $args = array_merge([$this->collections[$asset]], $args);
-            call_user_func_array([$this, 'add'], $args);
+            \call_user_func_array([$this, 'add'], $args);
         } else {
             // Get extension
             $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
@@ -148,9 +148,9 @@ class Assets extends PropertyObject
             if (\strlen($extension) > 0) {
                 $extension = strtolower($extension);
                 if ($extension === 'css') {
-                    call_user_func_array([$this, 'addCss'], $args);
+                    \call_user_func_array([$this, 'addCss'], $args);
                 } elseif ($extension === 'js') {
-                    call_user_func_array([$this, 'addJs'], $args);
+                    \call_user_func_array([$this, 'addJs'], $args);
                 }
             }
         }
@@ -310,7 +310,7 @@ class Assets extends PropertyObject
         $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
 
         // Pipeline
-        if ($this->$pipeline_enabled) {
+        if ($this->{$pipeline_enabled}) {
             $options = array_merge($this->pipeline_options, ['timestamp' => $this->timestamp]);
 
             $pipeline = new Pipeline($options);
@@ -323,7 +323,7 @@ class Assets extends PropertyObject
 
         // Handle stuff that couldn't be pipelined
         if (!empty($no_pipeline)) {
-            if ($this->$before_excludes) {
+            if ($this->{$before_excludes}) {
                 $after_assets = array_merge($after_assets, $no_pipeline);
             } else {
                 $before_assets = array_merge($before_assets, $no_pipeline);
