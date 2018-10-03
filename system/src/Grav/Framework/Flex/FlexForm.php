@@ -284,7 +284,26 @@ class FlexForm implements \Serializable
         $this->object = $data['object'];
     }
 
-    protected function checkUploads(array $files)
+
+    public function getMediaTaskRoute() : string
+    {
+        $grav = Grav::instance();
+        /** @var Flex $flex */
+        $flex = $grav['flex_objects'];
+
+        if (method_exists($flex, 'adminRoute')) {
+            return $flex->adminRoute($this->object) . '.json';
+        }
+
+        return '';
+    }
+
+    public function getMediaRoute() : string
+    {
+        return '/' . $this->object->getKey();
+    }
+
+    protected function checkUploads(array $files) : void
     {
         foreach ($files as $file) {
             if ($file instanceof UploadedFileInterface) {

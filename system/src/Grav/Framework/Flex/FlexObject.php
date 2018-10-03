@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Flex;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\ValidationException;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
@@ -178,7 +179,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @return \Grav\Common\Data\Blueprint
+     * @return Blueprint
      */
     public function getBlueprint()
     {
@@ -188,7 +189,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * Alias of getBlueprint()
      *
-     * @return \Grav\Common\Data\Blueprint
+     * @return Blueprint
      * @deprecated Admin compatibility
      */
     public function blueprints()

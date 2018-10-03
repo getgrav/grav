@@ -31,5 +31,5 @@ interface FlexCollectionInterface extends ObjectCollectionInterface, NestedObjec
     /**
      * @return FlexDirectory
      */
-    public function getFlexDirectory() : FlexDirectory;
+    public function getFlexDirectory(); //: FlexDirectory;
 }

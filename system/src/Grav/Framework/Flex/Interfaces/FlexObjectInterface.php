@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Interfaces;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Flex\FlexDirectory;
 
@@ -37,4 +38,9 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
      * @return int
      */
     public function getTimestamp() : int;
+
+    /**
+     * @return Blueprint
+     */
+    public function getBlueprint();
 }

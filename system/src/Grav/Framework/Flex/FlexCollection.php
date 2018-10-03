@@ -191,7 +191,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @return FlexDirectory
      */
-    public function getFlexDirectory() : FlexDirectory
+    public function getFlexDirectory() //: FlexDirectory
     {
         return $this->_flexDirectory;
     }
@@ -327,7 +327,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Syntax
      */
-    protected function getTemplate($layout) : \Twig_Template
+    protected function getTemplate($layout) //: \Twig_Template
     {
         $grav = Grav::instance();
 
