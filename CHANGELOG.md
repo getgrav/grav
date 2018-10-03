@@ -1,3 +1,9 @@
+# v1.6.1-dev
+## mm/dd/2018
+
+1. [](#bugfix)
+    * Regression: Asset methods with default legacy attributes were not working
+
 # v1.6.0-dev
 ## 10/01/2018
 

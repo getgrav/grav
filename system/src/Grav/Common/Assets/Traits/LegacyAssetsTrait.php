@@ -27,18 +27,18 @@ trait LegacyAssetsTrait
 
         switch ($type) {
             case(Assets::INLINE_CSS_TYPE):
-                $keys = ['priority', 'group'];
-                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
+                $defaults = ['priority' => null, 'group' => null];
+                $arguments = $this->createArgumentsFromLegacy($args, $defaults);
                 break;
 
             case(Assets::JS_TYPE):
-                $keys = ['priority', 'pipeline', 'loading', 'group'];
-                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
+                $defaults = ['priority' => null, 'pipeline' => true, 'loading' => null, 'group' => null];
+                $arguments = $this->createArgumentsFromLegacy($args, $defaults);
                 break;
 
             case(Assets::INLINE_JS_TYPE):
-                $keys = ['priority', 'group', 'attributes'];
-                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
+                $defaults = ['priority' => null, 'group' => null, 'attributes' => null];
+                $arguments = $this->createArgumentsFromLegacy($args, $defaults);
 
                 // special case to handle old attributes being passed in
                 if (isset($arguments['attributes'])) {
@@ -51,8 +51,23 @@ trait LegacyAssetsTrait
 
             default:
             case(Assets::CSS_TYPE):
-                $keys = ['priority', 'pipeline', 'group', 'loading'];
-                $arguments = array_combine(array_slice($keys, 0, count($args)), $args);
+                $defaults = ['priority' => null, 'pipeline' => true, 'group' => null, 'loading' => null];
+                $arguments = $this->createArgumentsFromLegacy($args, $defaults);
+        }
+
+        return $arguments;
+    }
+
+    protected function createArgumentsFromLegacy(array $args, array $defaults)
+    {
+        // Remove arguments with old default values.
+        $arguments = [];
+        foreach ($args as $arg) {
+            $default = current($defaults);
+            if ($arg !== $default) {
+                $arguments[key($defaults)] = $arg;
+            }
+            next($defaults);
         }
 
         return $arguments;

@@ -177,7 +177,7 @@ class Assets extends PropertyObject
         if (isset($options['pipeline'])) {
             if ($options['pipeline'] === false) {
                 $excludes = strtolower($type . '_pipeline_before_excludes');
-                if ($this->$excludes) {
+                if ($this->{$excludes}) {
                     $default = 'after';
                 } else {
                     $default = 'before';
@@ -185,10 +185,9 @@ class Assets extends PropertyObject
 
                 $options['position'] = $options['position'] ?? $default;
             }
-        }
 
-        // Unset Pipeline if set
-        unset($options['pipeline']);
+            unset($options['pipeline']);
+        }
 
         // Add timestamp
         $options['timestamp'] = $this->timestamp;
