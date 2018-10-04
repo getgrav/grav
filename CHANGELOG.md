@@ -1,3 +1,9 @@
+# v1.5.3
+## mm/dd/2018
+
+1. [](#new)
+    * Added `Utils::getMimeByFilename()`, `Utils::getMimeByLocalFile()` and `Utils::checkFilename()` methods
+
 # v1.5.2
 ## 10/01/2018
 
