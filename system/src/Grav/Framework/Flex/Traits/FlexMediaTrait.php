@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex\Traits;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Media\Traits\MediaTrait;
+use Grav\Common\Utils;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
@@ -23,7 +24,7 @@ trait FlexMediaTrait
 {
     use MediaTrait;
 
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile) : void
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null) : void
     {
         $grav = Grav::instance();
         $language = $grav['language'];
@@ -42,6 +43,14 @@ trait FlexMediaTrait
                 throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNKNOWN_ERRORS'), 400);
         }
 
+        if (!$filename) {
+            $filename = (string)$uploadedFile->getClientFilename();
+        }
+
+        if (!Utils::checkFilename($filename)) {
+            throw new RuntimeException(sprintf($language->translate('PLUGIN_ADMIN.FILEUPLOAD_UNABLE_TO_UPLOAD'), $filename, 'Bad filename'), 400);
+        }
+
         /** @var Config $config */
         $config = $grav['config'];
         $grav_limit = (int) $config->get('system.media.upload_limit', 0);
@@ -51,9 +60,7 @@ trait FlexMediaTrait
         }
 
         // Check the file extension.
-        $filename = $uploadedFile->getClientFilename();
-        $fileParts = pathinfo($filename);
-        $extension = isset($fileParts['extension']) ? strtolower($fileParts['extension']) : '';
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
         // If not a supported type, return
         if (!$extension || !$config->get("media.types.{$extension}")) {
@@ -84,6 +91,10 @@ trait FlexMediaTrait
     {
         $grav = Grav::instance();
         $language = $grav['language'];
+
+        if (!Utils::checkFilename($filename)) {
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': Bad filename: ' . $filename, 400);
+        }
 
         $media = $this->getMedia();
 
