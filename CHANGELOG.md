@@ -2,7 +2,7 @@
 ## mm/dd/2018
 
 1. [](#new)
-    * Added Flex suppot for custom media tasks
+    * Added Flex support for custom media tasks
 1. [](#improved)
     * Added support for syslog and syslog facility logging (default: 'file')
 1. [](#bugfix)
