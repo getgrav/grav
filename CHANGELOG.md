@@ -38,6 +38,7 @@
 
 1. [](#new)
     * Added `Utils::getMimeByFilename()`, `Utils::getMimeByLocalFile()` and `Utils::checkFilename()` methods
+    * Added configurable dangerous upload extensions in `security.yaml`
 
 # v1.5.2
 ## 10/01/2018
