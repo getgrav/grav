@@ -23,4 +23,9 @@ xss_dangerous_tags:
     - bgsound
     - title
     - base
-
+uploads_dangerous_extensions:
+    - php
+    - html
+    - htm
+    - js
+    - exe
