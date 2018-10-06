@@ -11,7 +11,7 @@ namespace Grav\Common;
 class Security
 {
 
-    public static function detectXssFromPages($pages, callable $status = null)
+    public static function detectXssFromPages($pages, $route = true, callable $status = null)
     {
         $routes = $pages->routes();
 
@@ -20,11 +20,11 @@ class Security
 
         $list = [];
 
-//        // This needs Symfony 4.1 to work
-//        $status && $status([
-//            'type' => 'count',
-//            'steps' => count($routes),
-//        ]);
+        // This needs Symfony 4.1 to work
+        $status && $status([
+            'type' => 'count',
+            'steps' => count($routes),
+        ]);
 
         foreach ($routes as $path) {
 
@@ -43,7 +43,12 @@ class Security
                 $results = Security::detectXssFromArray($data);
 
                 if (!empty($results)) {
-                    $list[$page->filePathClean()] = $results;
+                    if ($route) {
+                        $list[$page->route()] = $results;
+                    } else {
+                        $list[$page->filePathClean()] = $results;
+                    }
+
                 }
 
             } catch (\Exception $e) {

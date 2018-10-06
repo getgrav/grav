@@ -61,7 +61,7 @@ class SecurityCommand extends ConsoleCommand
         $io = new SymfonyStyle($this->input, $this->output);
         $io->title('Grav Security Check');
 
-        $output = Security::detectXssFromPages($grav['pages'], [$this, 'outputProgress']);
+        $output = Security::detectXssFromPages($grav['pages'], false, [$this, 'outputProgress']);
 
         $io->newline(2);
 
