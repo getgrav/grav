@@ -4,13 +4,6 @@ form:
     validation: loose
 
     fields:
-        setup_title:
-            type: section
-            title: PLUGIN_ADMIN.SCHEDULER_SETUP
-            underline: true
-
-        setup:
-            type: croninstall
 
         status_title:
             type: section
