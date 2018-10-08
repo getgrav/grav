@@ -35,18 +35,18 @@ trait AssetUtilsTrait
     /**
      * Download and concatenate the content of several links.
      *
-     * @param  array $links
-     * @param  bool  $css
+     * @param  array $assets
+     * @param  bool $css
+     * @param array $no_pipeline
      *
      * @return string
      */
-    protected function gatherLinks(array $links, $css = true)
+    protected function gatherLinks(array $assets, $css = true, &$no_pipeline = [])
     {
         $buffer = '';
 
 
-        foreach ($links as $asset) {
-            $relative_dir = '';
+        foreach ($assets as $id => $asset) {
             $local = true;
 
             $link = $asset->getAsset();
@@ -57,9 +57,10 @@ trait AssetUtilsTrait
                 if (0 === strpos($link, '//')) {
                     $link = 'http:' . $link;
                 }
+                $relative_dir = dirname($relative_path);
             } else {
                 // Fix to remove relative dir if grav is in one
-                if (($this->base_url !== '/') && strpos($this->base_url, $link) === 0) {
+                if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
                     $base_url = '#' . preg_quote($this->base_url, '#') . '#';
                     $relative_path = ltrim(preg_replace($base_url, '/', $link, 1), '/');
                 }
@@ -72,6 +73,9 @@ trait AssetUtilsTrait
 
             // No file found, skip it...
             if ($file === false) {
+                if (!$local) { // Assume we coudln't download this file for some reason assume it's not pipeline compatible
+                    $no_pipeline[$id] = $asset;
+                }
                 continue;
             }
 
@@ -81,8 +85,8 @@ trait AssetUtilsTrait
             }
 
             // If this is CSS + the file is local + rewrite enabled
-            if ($css && $local && $this->css_rewrite) {
-                $file = $this->cssRewrite($file, $relative_dir);
+            if ($css && $this->css_rewrite) {
+                $file = $this->cssRewrite($file, $relative_dir, $local);
             }
 
             $file = rtrim($file) . PHP_EOL;

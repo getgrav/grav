@@ -130,7 +130,7 @@ class Pipeline extends PropertyObject
             }
 
             // Concatenate files
-            $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
+            $buffer = $this->gatherLinks($assets, self::CSS_ASSET, $no_pipeline);
 
             // Minify if required
             if ($this->shouldMinify('css')) {
@@ -160,7 +160,8 @@ class Pipeline extends PropertyObject
      *
      * @param array $assets
      * @param string $group
-     * @param array  $attributes
+     * @param array $attributes
+     * @param array $no_pipeline
      *
      * @return bool|string     URL or generated content if available, else false
      */
@@ -202,7 +203,7 @@ class Pipeline extends PropertyObject
             }
 
             // Concatenate files
-            $buffer = $this->gatherLinks($assets, self::JS_ASSET);
+            $buffer = $this->gatherLinks($assets, self::JS_ASSET, $no_pipeline);
 
             // Minify if required
             if ($this->shouldMinify('js')) {
@@ -228,23 +229,23 @@ class Pipeline extends PropertyObject
     }
 
 
-
     /**
      * Finds relative CSS urls() and rewrites the URL with an absolute one
      *
-     * @param string $file          the css source file
-     * @param string $relative_path relative path to the css file
+     * @param string $file the css source file
+     * @param string $dir , $local relative path to the css file
+     * @param boolean $local is this a local or remote asset
      *
      * @return mixed
      */
-    protected function cssRewrite($file, $relative_path)
+    protected function cssRewrite($file, $dir, $local)
     {
         // Strip any sourcemap comments
         $file = preg_replace(self::CSS_SOURCEMAP_REGEX, '', $file);
 
         // Find any css url() elements, grab the URLs and calculate an absolute path
         // Then replace the old url with the new one
-        $file = (string)preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($relative_path) {
+        $file = (string)preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($dir, $local) {
 
             $old_url = $matches[2];
 
@@ -253,7 +254,7 @@ class Pipeline extends PropertyObject
                 return $matches[0];
             }
 
-            $new_url = $this->base_url . ltrim(Utils::normalizePath($relative_path . '/' . $old_url), '/');
+            $new_url = ($local ? $this->base_url: '') . ltrim(Utils::normalizePath($dir . '/' . $old_url), '/');
 
             return str_replace($old_url, $new_url, $matches[0]);
         }, $file);

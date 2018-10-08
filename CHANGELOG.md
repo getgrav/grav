@@ -10,6 +10,7 @@
     * Fixed asset manager to not add empty assets when they don't exist in the filesystem
     * Regression: Fixed asset manager methods with default legacy attributes
     * Update `script` and `style` Twig tags to use the new `Assets` classes
+    * Fixed asset pipeline to rewrite remote URLs as well as local [#2216](https://github.com/getgrav/grav/issues/2216)
 
 # v1.6.0-beta.1
 ## 10/01/2018
