@@ -4,7 +4,7 @@ form:
     validation: loose
     fields:
 
-        security_section:
+        xss_section:
             type: section
             title: PLUGIN_ADMIN.XSS_SECURITY
             underline: true
@@ -78,6 +78,21 @@ form:
             type: selectize
             size: large
             label: PLUGIN_ADMIN.XSS_DANGEROUS_TAGS_LIST
+            classes: fancy
+            validate:
+                type: commalist
+
+        uploads_section:
+            type: section
+            title: PLUGIN_ADMIN.UPLOADS_SECURITY
+            underline: true
+
+
+        uploads_dangerous_extensions:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.UPLOADS_DANGEROUS_EXTENSIONS
+            help: PLUGIN_ADMIN.UPLOADS_DANGEROUS_EXTENSIONS_HELP
             classes: fancy
             validate:
                 type: commalist

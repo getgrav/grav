@@ -479,6 +479,51 @@ abstract class Utils
     }
 
     /**
+     * Return the mimetype based on filename
+     *
+     * @param string $filename Filename or path to file
+     * @param string $default default value
+     *
+     * @return string
+     */
+    public static function getMimeByFilename($filename, $default = 'application/octet-stream')
+    {
+        return static::getMimeByExtension(pathinfo($filename, PATHINFO_EXTENSION), $default);
+    }
+
+    /**
+     * Return the mimetype based on existing local file
+     *
+     * @param string $filename Path to the file
+     *
+     * @return string|bool
+     */
+    public static function getMimeByLocalFile($filename, $default = 'application/octet-stream')
+    {
+        $type = false;
+
+        // For local files we can detect type by the file content.
+        if (!stream_is_local($filename) || !file_exists($filename)) {
+            return false;
+        }
+
+        // Prefer using finfo if it exists.
+        if (\extension_loaded('fileinfo')) {
+            $finfo = finfo_open(FILEINFO_SYMLINK | FILEINFO_MIME_TYPE);
+            $type = finfo_file($finfo, $filename);
+            finfo_close($finfo);
+        } else {
+            // Fall back to use getimagesize() if it is available (not recommended, but better than nothing)
+            $info = @getimagesize($filename);
+            if ($info) {
+                $type = $info['mime'];
+            }
+        }
+
+        return $type ?: static::getMimeByFilename($filename, $default);
+    }
+
+    /**
      * Return the mimetype based on filename extension
      *
      * @param string $mime mime type (eg "text/html")
@@ -518,6 +563,33 @@ abstract class Utils
         }
 
         return $default;
+    }
+
+    /**
+     * Returns true if filename is considered safe.
+     *
+     * @param string $filename
+     * @return bool
+     */
+    public static function checkFilename($filename)
+    {
+        $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
+        array_walk($dangerous_extensions, function(&$val) {
+            $val = '.' . $val;
+        });
+
+        $extension = '.' . pathinfo($filename, PATHINFO_EXTENSION);
+
+        return !(
+            // Empty filenames are not allowed.
+            !$filename
+            // Filename should not contain horizontal/vertical tabs, newlines, nils or back/forward slashes.
+            || strtr($filename, "\t\v\n\r\0\\/", '_______') !== $filename
+            // Filename should not start or end with dot or space.
+            || trim($filename, '. ') !== $filename
+            // Filename should not contain .php in it.
+            || static::contains($extension, $dangerous_extensions)
+        );
     }
 
     /**
