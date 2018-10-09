@@ -1,5 +1,5 @@
 # v1.6.0-beta.2
-## mm/dd/2018
+## 10/09/2018
 
 1. [](#new)
     * Added Flex support for custom media tasks
@@ -36,11 +36,13 @@
     * Register all page types into `blueprint://pages` stream
     
 # v1.5.3
-## mm/dd/2018
+## 10/08/2018
 
 1. [](#new)
     * Added `Utils::getMimeByFilename()`, `Utils::getMimeByLocalFile()` and `Utils::checkFilename()` methods
     * Added configurable dangerous upload extensions in `security.yaml`
+1. [](#improved)
+    * Updated vendor libraries to latest
 
 # v1.5.2
 ## 10/01/2018
