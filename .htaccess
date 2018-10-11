@@ -13,7 +13,7 @@ RewriteEngine On
 
 ## End - RewriteBase
 
-## Begin - X-Forwarded-Proto
+## Begin - X-Forwarded-Proto//comment added
 # In some hosted or load balanced environments, SSL negotiation happens upstream.
 # In order for Grav to recognize the connection as secure, you need to uncomment
 # the following lines.
