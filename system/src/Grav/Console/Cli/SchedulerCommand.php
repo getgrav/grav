@@ -10,6 +10,7 @@ namespace Grav\Console\Cli;
 
 use Cron\CronExpression;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use Grav\Common\Scheduler\Scheduler;
 use Grav\Console\ConsoleCommand;
 use RocketTheme\Toolbox\Event\Event;
@@ -134,7 +135,11 @@ class SchedulerCommand extends ConsoleCommand
 
                 $row = [];
                 $row[] = $job->getId();
-                $row[] = "<yellow>" . date('Y-m-d H:i', $job_state['last-run']) . "</yellow>";
+                if (!is_null($job_state['last-run'])) {
+                    $row[] = "<yellow>" . date('Y-m-d H:i', $job_state['last-run']) . "</yellow>";
+                } else {
+                    $row[] = "<yellow>" . "Never" . "</yellow>";
+                }
                 $row[] = "<yellow>" . $next_run->format('Y-m-d H:i') . "</yellow>";
 
                 if ($error) {
@@ -156,9 +161,14 @@ class SchedulerCommand extends ConsoleCommand
             } else {
                 $io->error('You still need to set up Grav\'s Scheduler in your crontab');
             }
-            $io->note('To install, run the following command from your terminal:');
-            $io->newLine();
-            $io->text(trim($scheduler->getCronCommand()));
+            if (!Utils::isWindows()) {
+                $io->note('To install, run the following command from your terminal:');
+                $io->newLine();
+                $io->text(trim($scheduler->getCronCommand()));
+            } else {
+                $io->note('To install, create a scheduled task in Windows.');
+                $io->text('Learn more at https://learn.getgrav.org/advanced/scheduler');
+            }
         } else {
             // Run scheduler
             $scheduler->run();
