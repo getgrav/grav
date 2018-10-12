@@ -6,6 +6,7 @@
 1. [](#improved)
     * Added support for syslog and syslog facility logging (default: 'file')
     * Improved usability of `System` configuration blueprint with side-tabs
+    * Call `onFatalException` event also on internal PHP errors
 1. [](#bugfix)
     * Fixed asset manager to not add empty assets when they don't exist in the filesystem
     * Regression: Fixed asset manager methods with default legacy attributes

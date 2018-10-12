@@ -156,7 +156,7 @@ class Grav extends Container
         // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
             $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
+            setlocale(LC_ALL, \strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
         } elseif ($this['config']->get('system.default_locale')) {
             setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
@@ -295,7 +295,7 @@ class Grav extends Container
     public function shutdown()
     {
         // Prevent user abort allowing onShutdown event to run without interruptions.
-        if (function_exists('ignore_user_abort')) {
+        if (\function_exists('ignore_user_abort')) {
             @ignore_user_abort(true);
         }
 
@@ -309,7 +309,7 @@ class Grav extends Container
             // the connection to the client open. This will make page loads to feel much faster.
 
             // FastCGI allows us to flush all response data to the client and finish the request.
-            $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
+            $success = \function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
 
             if (!$success) {
                 // Unfortunately without FastCGI there is no way to force close the connection.
@@ -332,7 +332,7 @@ class Grav extends Container
 
                 // Get length and close the connection.
                 header('Content-Length: ' . ob_get_length());
-                header("Connection: close");
+                header('Connection: close');
 
                 ob_end_flush();
                 @ob_flush();
@@ -351,8 +351,8 @@ class Grav extends Container
      */
     public function __call($method, $args)
     {
-        $closure = $this->$method;
-        call_user_func_array($closure, $args);
+        $closure = $this->{$method};
+        \call_user_func_array($closure, $args);
     }
 
     /**
@@ -398,7 +398,7 @@ class Grav extends Container
     protected function registerServices()
     {
         foreach (self::$diMap as $serviceKey => $serviceClass) {
-            if (is_int($serviceKey)) {
+            if (\is_int($serviceKey)) {
                 $this->registerServiceProvider($serviceClass);
             } else {
                 $this->registerService($serviceKey, $serviceClass);
@@ -475,8 +475,8 @@ class Grav extends Container
                 /** @var Medium $medium */
                 $medium = $media[$media_file];
                 foreach ($uri->query(null, true) as $action => $params) {
-                    if (in_array($action, ImageMedium::$magic_actions)) {
-                        call_user_func_array([&$medium, $action], explode(',', $params));
+                    if (\in_array($action, ImageMedium::$magic_actions, true)) {
+                        \call_user_func_array([&$medium, $action], explode(',', $params));
                     }
                 }
                 Utils::download($medium->path(), false);
@@ -495,7 +495,7 @@ class Grav extends Container
 
             if ($extension) {
                 $download = true;
-                if (in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []))) {
+                if (\in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []), true)) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
