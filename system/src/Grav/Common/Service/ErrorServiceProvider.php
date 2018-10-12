@@ -16,7 +16,6 @@ class ErrorServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $errors = new Errors;
-        $container['errors'] = $errors;
+        $container['errors'] = new Errors;
     }
 }

@@ -399,38 +399,13 @@ class Grav extends Container
     {
         foreach (self::$diMap as $serviceKey => $serviceClass) {
             if (\is_int($serviceKey)) {
-                $this->registerServiceProvider($serviceClass);
+                $this->register(new $serviceClass);
             } else {
-                $this->registerService($serviceKey, $serviceClass);
+                $this[$serviceKey] = function ($c) use ($serviceClass) {
+                    return new $serviceClass($c);
+                };
             }
         }
-    }
-
-    /**
-     * Register a service provider with the container.
-     *
-     * @param  string $serviceClass
-     *
-     * @return void
-     */
-    protected function registerServiceProvider($serviceClass)
-    {
-        $this->register(new $serviceClass);
-    }
-
-    /**
-     * Register a service with the container.
-     *
-     * @param  string $serviceKey
-     * @param  string $serviceClass
-     *
-     * @return void
-     */
-    protected function registerService($serviceKey, $serviceClass)
-    {
-        $this[$serviceKey] = function ($c) use ($serviceClass) {
-            return new $serviceClass($c);
-        };
     }
 
     /**

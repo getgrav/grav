@@ -12,14 +12,11 @@ use Grav\Common\Grav;
 
 abstract class ProcessorBase
 {
-    /**
-     * @var Grav
-     */
+    /** @var Grav */
     protected $container;
 
     public function __construct(Grav $container)
     {
         $this->container = $container;
     }
-
 }
