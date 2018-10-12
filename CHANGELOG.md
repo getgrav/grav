@@ -1,3 +1,12 @@
+# v1.6.0-beta.3
+## mm/dd/2018
+
+1. [](#improved)
+    * Call `onFatalException` event also on internal PHP errors
+    * Built-in PHP Webserver: log requests before handling them
+1. [](#bugfix)
+    * Grav 1.6: Scheduler Fallback for never runs and Windows support [#2202](https://github.com/getgrav/grav/pull/2202)
+
 # v1.6.0-beta.2
 ## 10/09/2018
 
@@ -6,7 +15,6 @@
 1. [](#improved)
     * Added support for syslog and syslog facility logging (default: 'file')
     * Improved usability of `System` configuration blueprint with side-tabs
-    * Call `onFatalException` event also on internal PHP errors
 1. [](#bugfix)
     * Fixed asset manager to not add empty assets when they don't exist in the filesystem
     * Regression: Fixed asset manager methods with default legacy attributes
