@@ -1,5 +1,5 @@
 # v1.6.0-beta.3
-## mm/dd/2018
+## 10/15/2018
 
 1. [](#improved)
     * Call `onFatalException` event also on internal PHP errors
