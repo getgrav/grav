@@ -9,6 +9,7 @@
 
 namespace Grav;
 
+\define('GRAV_REQUEST_TIME', microtime(true));
 \define('GRAV_PHP_MIN', '7.1.3');
 
 if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
