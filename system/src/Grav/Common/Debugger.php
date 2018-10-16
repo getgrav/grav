@@ -9,7 +9,13 @@
 namespace Grav\Common;
 
 use DebugBar\DataCollector\ConfigCollector;
+use DebugBar\DataCollector\ExceptionsCollector;
+use DebugBar\DataCollector\MemoryCollector;
 use DebugBar\DataCollector\MessagesCollector;
+use DebugBar\DataCollector\PhpInfoCollector;
+use DebugBar\DataCollector\RequestDataCollector;
+use DebugBar\DataCollector\TimeDataCollector;
+use DebugBar\DebugBar;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
@@ -28,13 +34,16 @@ class Debugger
     /** @var StandardDebugBar $debugbar */
     protected $debugbar;
 
+    /** @var bool */
     protected $enabled;
 
+    /** @var array */
     protected $timers = [];
 
     /** @var string[] $deprecations */
     protected $deprecations = [];
 
+    /** @var callable */
     protected $errorHandler;
 
     /**
@@ -42,11 +51,26 @@ class Debugger
      */
     public function __construct()
     {
+        $currentTime = microtime(true);
+
+        if (!\defined('GRAV_REQUEST_TIME')) {
+            \define('GRAV_REQUEST_TIME', $currentTime);
+        }
+
         // Enable debugger until $this->init() gets called.
         $this->enabled = true;
 
-        $this->debugbar = new StandardDebugBar();
-        $this->debugbar['time']->addMeasure('Loading', $this->debugbar['time']->getRequestStartTime(), microtime(true));
+        $debugbar = new DebugBar();
+        $debugbar->addCollector(new PhpInfoCollector());
+        $debugbar->addCollector(new MessagesCollector());
+        $debugbar->addCollector(new RequestDataCollector());
+        $debugbar->addCollector(new TimeDataCollector($_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME));
+
+        $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
+        $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $currentTime);
+        $debugbar['time']->addMeasure('Debugger', $currentTime, microtime(true));
+
+        $this->debugbar = $debugbar;
 
         // Set deprecation collector.
         $this->setErrorHandler();
@@ -72,9 +96,11 @@ class Debugger
 
             ksort($plugins_config);
 
-
-            $this->debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
-            $this->debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
+            $debugbar = $this->debugbar;
+            $debugbar->addCollector(new MemoryCollector());
+            $debugbar->addCollector(new ExceptionsCollector());
+            $debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
+            $debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
             $this->addMessage('Grav v' . GRAV_VERSION);
         }
 
@@ -229,7 +255,7 @@ class Debugger
     /**
      * Start a timer with an associated name and description
      *
-     * @param             $name
+     * @param string      $name
      * @param string|null $description
      *
      * @return $this
@@ -253,7 +279,7 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (in_array($name, $this->timers, true) && ($name[0] === '_' || $this->enabled())) {
+        if (\in_array($name, $this->timers, true) && ($name[0] === '_' || $this->enabled())) {
             $this->debugbar['time']->stopMeasure($name);
         }
 
@@ -411,8 +437,8 @@ class Debugger
 
         $trace = [];
         foreach ($deprecated['trace'] as $current) {
-            $class = isset($current['class']) ? $current['class'] : '';
-            $type = isset($current['type']) ? $current['type'] : '';
+            $class = $current['class'] ?? '';
+            $type = $current['type'] ?? '';
             $function = $this->getFunction($current);
             if (isset($current['file'])) {
                 $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);

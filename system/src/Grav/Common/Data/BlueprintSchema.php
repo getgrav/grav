@@ -27,6 +27,23 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     ];
 
     /**
+     * @return array
+     */
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public function getType($name)
+    {
+        return $this->types[$name] ?? [];
+    }
+
+    /**
      * Validate data against blueprints.
      *
      * @param  array $data
