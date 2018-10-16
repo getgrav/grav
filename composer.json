@@ -53,6 +53,7 @@
         "victorjonsson/markdowndocs": "dev-master"
     },
     "config": {
+        "apcu-autoloader": true,
         "platform": {
             "php": "7.1.3"
         }
