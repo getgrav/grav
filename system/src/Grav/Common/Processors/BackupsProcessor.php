@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,16 +9,22 @@
 
 namespace Grav\Common\Processors;
 
-use RocketTheme\Toolbox\Event\Event;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class BackupsProcessor extends ProcessorBase implements ProcessorInterface
+class BackupsProcessor extends ProcessorBase
 {
     public $id = '_backups';
     public $title = 'Backups';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
         $backups = $this->container['backups'];
         $backups->init();
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

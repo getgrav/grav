@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,16 +9,24 @@
 
 namespace Grav\Common\Processors;
 
-class TasksProcessor extends ProcessorBase implements ProcessorInterface
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class TasksProcessor extends ProcessorBase
 {
     public $id = 'tasks';
     public $title = 'Tasks';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
         $task = $this->container['task'];
         if ($task) {
             $this->container->fireEvent('onTask.' . $task);
         }
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

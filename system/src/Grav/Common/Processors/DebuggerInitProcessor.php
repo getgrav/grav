@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,13 +9,21 @@
 
 namespace Grav\Common\Processors;
 
-class DebuggerInitProcessor extends ProcessorBase implements ProcessorInterface
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class DebuggerInitProcessor extends ProcessorBase
 {
     public $id = '_debugger';
     public $title = 'Init Debugger';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
         $this->container['debugger']->init();
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

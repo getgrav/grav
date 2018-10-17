@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,14 +9,21 @@
 
 namespace Grav\Common\Processors;
 
-class TwigProcessor extends ProcessorBase implements ProcessorInterface
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class TwigProcessor extends ProcessorBase
 {
     public $id = 'twig';
     public $title = 'Twig';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
         $this->container['twig']->init();
-    }
+        $this->stopTimer();
 
+        return $handler->handle($request);
+    }
 }

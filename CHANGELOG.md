@@ -7,6 +7,7 @@
     * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
 1. [](#improved)
     * Added apcu autoloader optimization
+    * Updated Grav `Processor` classes to implement PSR-15
     
 # v1.6.0-beta.3
 ## 10/15/2018

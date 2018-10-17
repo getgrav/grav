@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -9,15 +10,22 @@
 namespace Grav\Common\Processors;
 
 use RocketTheme\Toolbox\Event\Event;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class SchedulerProcessor extends ProcessorBase implements ProcessorInterface
+class SchedulerProcessor extends ProcessorBase
 {
     public $id = '_scheduler';
     public $title = 'Scheduler';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
         $scheduler = $this->container['scheduler'];
         $this->container->fireEvent('onSchedulerInitialized', new Event(['scheduler' => $scheduler]));
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

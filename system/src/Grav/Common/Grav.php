@@ -12,6 +12,26 @@ use Grav\Common\Config\Config;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
+use Grav\Common\Processors\AssetsProcessor;
+use Grav\Common\Processors\BackupsProcessor;
+use Grav\Common\Processors\ConfigurationProcessor;
+use Grav\Common\Processors\DebuggerAssetsProcessor;
+use Grav\Common\Processors\DebuggerInitProcessor;
+use Grav\Common\Processors\ErrorsProcessor;
+use Grav\Common\Processors\InitializeProcessor;
+use Grav\Common\Processors\LoggerProcessor;
+use Grav\Common\Processors\PagesProcessor;
+use Grav\Common\Processors\PluginsProcessor;
+use Grav\Common\Processors\RenderProcessor;
+use Grav\Common\Processors\SchedulerProcessor;
+use Grav\Common\Processors\SiteSetupProcessor;
+use Grav\Common\Processors\TasksProcessor;
+use Grav\Common\Processors\ThemesProcessor;
+use Grav\Common\Processors\TwigProcessor;
+use Grav\Framework\Psr7\Response;
+use Grav\Framework\RequestHandler\RequestHandler;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
@@ -33,6 +53,7 @@ class Grav extends Container
      *            to the dependency injection container.
      */
     protected static $diMap = [
+        'Grav\Common\Service\RequestServiceProvider',
         'Grav\Common\Service\LoggerServiceProvider',
         'Grav\Common\Service\ErrorServiceProvider',
         'uri'                     => 'Grav\Common\Uri',
@@ -57,28 +78,12 @@ class Grav extends Container
         'Grav\Common\Service\InflectorServiceProvider',
         'Grav\Common\Service\BackupsServiceProvider',
         'inflector'               => 'Grav\Common\Inflector',
-        'siteSetupProcessor'      => 'Grav\Common\Processors\SiteSetupProcessor',
-        'configurationProcessor'  => 'Grav\Common\Processors\ConfigurationProcessor',
-        'loggerProcessor'         => 'Grav\Common\Processors\LoggerProcessor',
-        'errorsProcessor'         => 'Grav\Common\Processors\ErrorsProcessor',
-        'debuggerInitProcessor'   => 'Grav\Common\Processors\DebuggerInitProcessor',
-        'initializeProcessor'     => 'Grav\Common\Processors\InitializeProcessor',
-        'backupsProcessor'        => 'Grav\Common\Processors\BackupsProcessor',
-        'pluginsProcessor'        => 'Grav\Common\Processors\PluginsProcessor',
-        'themesProcessor'         => 'Grav\Common\Processors\ThemesProcessor',
-        'schedulerProcessor'      => 'Grav\Common\Processors\SchedulerProcessor',
-        'tasksProcessor'          => 'Grav\Common\Processors\TasksProcessor',
-        'assetsProcessor'         => 'Grav\Common\Processors\AssetsProcessor',
-        'twigProcessor'           => 'Grav\Common\Processors\TwigProcessor',
-        'pagesProcessor'          => 'Grav\Common\Processors\PagesProcessor',
-        'debuggerAssetsProcessor' => 'Grav\Common\Processors\DebuggerAssetsProcessor',
-        'renderProcessor'         => 'Grav\Common\Processors\RenderProcessor',
     ];
 
     /**
-     * @var array All processors that are processed in $this->process()
+     * @var array All middleware processors that are processed in $this->process()
      */
-    protected $processors = [
+    protected $middleware = [
         'siteSetupProcessor',
         'configurationProcessor',
         'loggerProcessor',
@@ -133,16 +138,73 @@ class Grav extends Container
      */
     public function process()
     {
-        // process all processors (e.g. config, initialize, assets, ..., render)
-        foreach ($this->processors as $processor) {
-            $processor = $this[$processor];
-            $this->measureTime($processor->id, $processor->title, function () use ($processor) {
-                $processor->process();
-            });
-        }
+        $container = new \Pimple\Psr11\Container(new Container(
+            [
+                'siteSetupProcessor' => function () {
+                    return new SiteSetupProcessor($this);
+                },
+                'configurationProcessor' => function () {
+                    return new ConfigurationProcessor($this);
+                },
+                'loggerProcessor' => function () {
+                    return new LoggerProcessor($this);
+                },
+                'errorsProcessor' => function () {
+                    return new ErrorsProcessor($this);
+                },
+                'debuggerInitProcessor' => function () {
+                    return new DebuggerInitProcessor($this);
+                },
+                'initializeProcessor' => function () {
+                    return new InitializeProcessor($this);
+                },
+                'backupsProcessor' => function () {
+                    return new BackupsProcessor($this);
+                },
+                'pluginsProcessor' => function () {
+                    return new PluginsProcessor($this);
+                },
+                'themesProcessor' => function () {
+                    return new ThemesProcessor($this);
+                },
+                'schedulerProcessor' => function () {
+                    return new SchedulerProcessor($this);
+                },
+                'tasksProcessor' => function () {
+                    return new TasksProcessor($this);
+                },
+                'assetsProcessor' => function () {
+                    return new AssetsProcessor($this);
+                },
+                'twigProcessor' => function () {
+                    return new TwigProcessor($this);
+                },
+                'pagesProcessor' => function () {
+                    return new PagesProcessor($this);
+                },
+                'debuggerAssetsProcessor' => function () {
+                    return new DebuggerAssetsProcessor($this);
+                },
+                'renderProcessor' => function () {
+                    return new RenderProcessor($this);
+                },
+            ]
+        ));
+
+        $default = function (ServerRequestInterface $request) {
+            return new Response(404);
+        };
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
+
+        $collection = new RequestHandler($this->middleware, $default, $container);
+
+        $response = $collection->handle($this['request']);
+
+        $this->header($response);
+        echo $response->getBody();
+
         $debugger->render();
 
         register_shutdown_function([$this, 'shutdown']);
@@ -222,53 +284,22 @@ class Grav extends Container
 
     /**
      * Set response header.
+     *
+     * @param ResponseInterface|null $response
      */
-    public function header()
+    public function header(ResponseInterface $response = null)
     {
-        /** @var Page $page */
-        $page = $this['page'];
+        if (null === $response) {
+            /** @var Page $page */
+            $page = $this['page'];
+            $response = new Response($page->httpResponseCode(), $page->httpHeaders(), '');
+        }
 
-        $format = $page->templateFormat();
-
-        header('Content-type: ' . Utils::getMimeByExtension($format, 'text/html'));
-
-        $cache_control = $page->cacheControl();
-
-        // Calculate Expires Headers if set to > 0
-        $expires = $page->expires();
-
-        if ($expires > 0) {
-            $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
-            if (!$cache_control) {
-                header('Cache-Control: max-age=' . $expires);
+        http_response_code($response->getStatusCode());
+        foreach ($response->getHeaders() as $key => $values) {
+            foreach ($values as $i => $value) {
+                header($key . ': ' . $value, $i === 0);
             }
-            header('Expires: ' . $expires_date);
-        }
-
-        // Set cache-control header
-        if ($cache_control) {
-            header('Cache-Control: ' . strtolower($cache_control));
-        }
-
-        // Set the last modified time
-        if ($page->lastModified()) {
-            $last_modified_date = gmdate('D, d M Y H:i:s', $page->modified()) . ' GMT';
-            header('Last-Modified: ' . $last_modified_date);
-        }
-
-        // Calculate a Hash based on the raw file
-        if ($page->eTag()) {
-            header('ETag: "' . md5($page->raw() . $page->modified()).'"');
-        }
-
-        // Set HTTP response code
-        if (isset($this['page']->header()->http_response_code)) {
-            http_response_code($this['page']->header()->http_response_code);
-        }
-
-        // Vary: Accept-Encoding
-        if ($this['config']->get('system.pages.vary_accept_encoding', false)) {
-            header('Vary: Accept-Encoding');
         }
     }
 

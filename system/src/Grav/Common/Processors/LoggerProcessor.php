@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -11,23 +12,27 @@ namespace Grav\Common\Processors;
 use Grav\Common\Config\Config;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\SyslogHandler;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class LoggerProcessor extends ProcessorBase implements ProcessorInterface
+class LoggerProcessor extends ProcessorBase
 {
     public $id = '_logger';
     public $title = 'Logger';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
+
         $grav = $this->container;
+
         /** @var Config $config */
         $config = $grav['config'];
-        $log = $grav['log'];
-        $handler = $config->get('system.log.handler', 'file');
 
-
-        switch ($handler) {
+        switch ($config->get('system.log.handler', 'file')) {
             case 'syslog':
+                $log = $grav['log'];
                 $log->popHandler();
 
                 $facility = $config->get('system.log.syslog.facility', 'local6');
@@ -38,7 +43,8 @@ class LoggerProcessor extends ProcessorBase implements ProcessorInterface
                 $log->pushHandler($logHandler);
                 break;
         }
+        $this->stopTimer();
 
-        return $log;
+        return $handler->handle($request);
     }
 }

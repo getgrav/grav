@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,7 +9,8 @@
 
 namespace Grav\Common\Processors;
 
-interface ProcessorInterface
+use Psr\Http\Server\MiddlewareInterface;
+
+interface ProcessorInterface extends MiddlewareInterface
 {
-    public function process();
 }

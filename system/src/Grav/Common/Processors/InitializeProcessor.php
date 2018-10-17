@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -11,14 +12,19 @@ namespace Grav\Common\Processors;
 use Grav\Common\Config\Config;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class InitializeProcessor extends ProcessorBase implements ProcessorInterface
+class InitializeProcessor extends ProcessorBase
 {
     public $id = 'init';
     public $title = 'Initialize';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
+
         /** @var Config $config */
         $config = $this->container['config'];
         $config->debug();
@@ -51,5 +57,8 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
         }
 
         $this->container->setLocale();
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

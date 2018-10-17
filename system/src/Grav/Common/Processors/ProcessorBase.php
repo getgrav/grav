@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,9 +9,10 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Debugger;
 use Grav\Common\Grav;
 
-abstract class ProcessorBase
+abstract class ProcessorBase implements ProcessorInterface
 {
     /** @var Grav */
     protected $container;
@@ -18,5 +20,19 @@ abstract class ProcessorBase
     public function __construct(Grav $container)
     {
         $this->container = $container;
+    }
+
+    protected function startTimer()
+    {
+        /** @var Debugger $debugger */
+        $debugger = $this->container['debugger'];
+        $debugger->startTimer($this->id, $this->title);
+    }
+
+    protected function stopTimer()
+    {
+        /** @var Debugger $debugger */
+        $debugger = $this->container['debugger'];
+        $debugger->stopTimer($this->id);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,14 +9,22 @@
 
 namespace Grav\Common\Processors;
 
-class PluginsProcessor extends ProcessorBase implements ProcessorInterface
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class PluginsProcessor extends ProcessorBase
 {
     public $id = 'plugins';
     public $title = 'Plugins';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
         $this->container['plugins']->init();
         $this->container->fireEvent('onPluginsInitialized');
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

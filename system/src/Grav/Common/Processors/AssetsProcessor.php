@@ -8,14 +8,22 @@
 
 namespace Grav\Common\Processors;
 
-class AssetsProcessor extends ProcessorBase implements ProcessorInterface
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class AssetsProcessor extends ProcessorBase
 {
     public $id = '_assets';
     public $title = 'Assets';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
         $this->container['assets']->init();
         $this->container->fireEvent('onAssetsInitialized');
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

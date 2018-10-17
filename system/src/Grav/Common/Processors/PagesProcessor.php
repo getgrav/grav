@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -10,14 +11,19 @@ namespace Grav\Common\Processors;
 
 use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\Event\Event;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class PagesProcessor extends ProcessorBase implements ProcessorInterface
+class PagesProcessor extends ProcessorBase
 {
     public $id = 'pages';
     public $title = 'Pages';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
+
         // Dump Cache state
         $this->container['debugger']->addMessage($this->container['cache']->getCacheStatus());
 
@@ -39,6 +45,8 @@ class PagesProcessor extends ProcessorBase implements ProcessorInterface
                 throw new \RuntimeException('Page Not Found', 404);
             }
         }
+        $this->stopTimer();
 
+        return $handler->handle($request);
     }
 }

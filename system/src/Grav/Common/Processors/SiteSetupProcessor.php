@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Common.Processors
  *
@@ -8,14 +9,23 @@
 
 namespace Grav\Common\Processors;
 
-class SiteSetupProcessor extends ProcessorBase implements ProcessorInterface
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class SiteSetupProcessor extends ProcessorBase
 {
     public $id = '_setup';
     public $title = 'Site Setup';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
+        $this->container['request'];
         $this->container['setup']->init();
         $this->container['streams'];
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }
