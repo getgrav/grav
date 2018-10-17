@@ -2,6 +2,8 @@
 ## mm/dd/2018
 
 1. [](#new)
+    * Added PSR-7 classes
+    * Added PSR-15 `RequestHandler` class
     * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
 1. [](#improved)
     * Added apcu autoloader optimization
