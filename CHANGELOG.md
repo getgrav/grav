@@ -1,6 +1,8 @@
 # v1.6.0-beta.4
 ## mm/dd/2018
 
+1. [](#new)
+    * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
 1. [](#improved)
     * Added apcu autoloader optimization
     

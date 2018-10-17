@@ -483,6 +483,59 @@ class Page implements PageInterface
     }
 
     /**
+     * @return int
+     */
+    public function httpResponseCode()
+    {
+        return (int)($this->header()->http_response_code ?? 200);
+    }
+
+    public function httpHeaders()
+    {
+        $headers = [];
+
+        $grav = Grav::instance();
+        $format = $this->templateFormat();
+        $cache_control = $this->cacheControl();
+        $expires = $this->expires();
+
+        // Set Content-Type header
+        $headers['Content-Type'] = Utils::getMimeByExtension($format, 'text/html');
+
+        // Calculate Expires Headers if set to > 0
+        if ($expires > 0) {
+            $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
+            if (!$cache_control) {
+                $headers['Cache-Control'] = 'max-age=' . $expires;
+            }
+            $headers['Expires'] = $expires_date;
+        }
+
+        // Set Cache-Control header
+        if ($cache_control) {
+            $headers['Cache-Control'] = strtolower($cache_control);
+        }
+
+        // Set Last-Modified header
+        if ($this->lastModified()) {
+            $last_modified_date = gmdate('D, d M Y H:i:s', $this->modified()) . ' GMT';
+            $headers['Last-Modified'] = $last_modified_date;
+        }
+
+        // Calculate ETag based on the raw file
+        if ($this->eTag()) {
+            $headers['ETag'] = '"' . md5($this->raw() . $this->modified()).'"';
+        }
+
+        // Set Vary: Accept-Encoding header
+        if ($grav['config']->get('system.pages.vary_accept_encoding', false)) {
+            $headers['Vary'] = 'Accept-Encoding';
+        }
+
+        return $headers;
+    }
+
+    /**
      * Get the summary.
      *
      * @param  int $size Max summary size.
