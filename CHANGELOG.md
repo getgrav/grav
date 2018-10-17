@@ -2,12 +2,12 @@
 ## mm/dd/2018
 
 1. [](#new)
-    * Added PSR-7 classes
-    * Added PSR-15 `RequestHandler` class
+    * Added PSR-7 and PSR-15 classes
+    * Added `RequestHandler` class
     * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
 1. [](#improved)
     * Added apcu autoloader optimization
-    * Updated Grav `Processor` classes to implement PSR-15
+    * Updated Grav `Processor` classes to implement PSR-15 `MiddlewareInterface`
     
 # v1.6.0-beta.3
 ## 10/15/2018
