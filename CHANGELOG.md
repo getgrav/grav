@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Added apcu autoloader optimization
+1. [](#bugfix)
+    * Use login provider User avatar if set
     
 # v1.6.0-beta.3
 ## 10/15/2018

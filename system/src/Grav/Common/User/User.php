@@ -282,6 +282,13 @@ class User extends Data
             $avatar = $this->avatar;
             $avatar = array_shift($avatar);
             return Grav::instance()['base_url'] . '/' . $avatar['path'];
+        } elseif ($this->provider) {
+            $provider = $this->provider;
+            if (isset($this->$provider['avatar_url'])) {
+                return $this->$provider['avatar_url'];
+            } elseif (isset($this->$provider['avatar'])) {
+                return $this->$provider['avatar'];
+            }
         }
 
         return 'https://www.gravatar.com/avatar/' . md5($this->email);
