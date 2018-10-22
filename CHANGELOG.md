@@ -7,6 +7,8 @@
     * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
 1. [](#improved)
     * Added apcu autoloader optimization
+1. [](#bugfix)
+    * Use login provider User avatar if set
     * Updated Grav `Processor` classes to implement PSR-15 `MiddlewareInterface`
     
 # v1.6.0-beta.3
