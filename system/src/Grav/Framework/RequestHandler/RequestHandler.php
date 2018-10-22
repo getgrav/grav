@@ -22,9 +22,6 @@ class RequestHandler implements RequestHandlerInterface
     /** @var ContainerInterface */
     private $container;
 
-    /** @var callable */
-    private $wrapper;
-
     /**
      * Delegate constructor.
      *
@@ -40,24 +37,31 @@ class RequestHandler implements RequestHandlerInterface
     }
 
     /**
-     * @param callable $wrapper
+     * Add callable initializing Middleware that will be executed as soon as possible.
+     *
+     * @param $name
+     * @param callable $callable
      * @return $this
      */
-    public function setWrapper(callable $wrapper)
+    public function addCallable($name, callable $callable)
     {
-        $this->wrapper = $wrapper;
+        $this->container[$name] = $callable;
+        array_unshift($this->middleware, $name);
 
         return $this;
     }
 
     /**
+     * Add Middleware that will be executed as soon as possible.
+     *
      * @param $name
      * @param callable $callable
      * @return $this
      */
-    public function add($name, callable $callable)
+    public function addMiddleware($name, MiddlewareInterface $middleware)
     {
-        $this->container[$name] = $callable;
+        $this->container[$name] = $middleware;
+        array_unshift($this->middleware, $name);
 
         return $this;
     }

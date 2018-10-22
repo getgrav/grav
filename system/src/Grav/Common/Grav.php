@@ -23,6 +23,7 @@ use Grav\Common\Processors\LoggerProcessor;
 use Grav\Common\Processors\PagesProcessor;
 use Grav\Common\Processors\PluginsProcessor;
 use Grav\Common\Processors\RenderProcessor;
+use Grav\Common\Processors\RequestProcessor;
 use Grav\Common\Processors\SchedulerProcessor;
 use Grav\Common\Processors\SiteSetupProcessor;
 use Grav\Common\Processors\TasksProcessor;
@@ -92,9 +93,10 @@ class Grav extends Container
         'initializeProcessor',
         'pluginsProcessor',
         'themesProcessor',
+        'requestProcessor',
+        'tasksProcessor',
         'backupsProcessor',
         'schedulerProcessor',
-        'tasksProcessor',
         'assetsProcessor',
         'twigProcessor',
         'pagesProcessor',
@@ -169,6 +171,9 @@ class Grav extends Container
                 },
                 'schedulerProcessor' => function () {
                     return new SchedulerProcessor($this);
+                },
+                'requestProcessor' => function () {
+                    return new RequestProcessor($this);
                 },
                 'tasksProcessor' => function () {
                     return new TasksProcessor($this);
