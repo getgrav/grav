@@ -3,14 +3,15 @@
 
 1. [](#new)
     * Added PSR-7 and PSR-15 classes
-    * Added `Grav\Framework\DI\Container` class, Grav object now extends PSR-11
+    * Added `Grav\Framework\DI\Container` class
     * Added `Grav\Framework\RequestHandler\RequestHandler` class
     * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
 1. [](#improved)
     * Added apcu autoloader optimization
+    * Updated `Grav` container object to implement PSR-11 `ContainerInterface`
+    * Updated Grav `Processor` classes to implement PSR-15 `MiddlewareInterface`
 1. [](#bugfix)
     * Use login provider User avatar if set
-    * Updated Grav `Processor` classes to implement PSR-15 `MiddlewareInterface`
     
 # v1.6.0-beta.3
 ## 10/15/2018
