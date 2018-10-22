@@ -13,7 +13,7 @@ use Grav\Framework\RequestHandler\RequestHandler;
 use Psr\Http\Server\MiddlewareInterface;
 use RocketTheme\Toolbox\Event\Event;
 
-class RequestHandlerInitEvent extends Event
+class RequestHandlerEvent extends Event
 {
     public function addMiddleware($name, MiddlewareInterface $middleware)
     {

@@ -29,11 +29,11 @@ use Grav\Common\Processors\SiteSetupProcessor;
 use Grav\Common\Processors\TasksProcessor;
 use Grav\Common\Processors\ThemesProcessor;
 use Grav\Common\Processors\TwigProcessor;
+use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RocketTheme\Toolbox\DI\Container;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 
@@ -140,7 +140,7 @@ class Grav extends Container
      */
     public function process()
     {
-        $container = new \Pimple\Psr11\Container(new Container(
+        $container = new Container(
             [
                 'siteSetupProcessor' => function () {
                     return new SiteSetupProcessor($this);
@@ -194,7 +194,7 @@ class Grav extends Container
                     return new RenderProcessor($this);
                 },
             ]
-        ));
+        );
 
         $default = function (ServerRequestInterface $request) {
             return new Response(404);

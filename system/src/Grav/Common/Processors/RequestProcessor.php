@@ -9,11 +9,11 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Processors\Events\RequestHandlerEvent;
 use Grav\Common\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RocketTheme\Toolbox\Event\Event;
 
 class RequestProcessor extends ProcessorBase
 {
@@ -28,7 +28,7 @@ class RequestProcessor extends ProcessorBase
             ->withAttribute('route', Uri::getCurrentRoute())
             ->withAttribute('referrer', $this->container['uri']->referrer());
 
-        $event = new Event(['handler' => $handler]);
+        $event = new RequestHandlerEvent(['handler' => $handler]);
         $this->container->fireEvent('onRequestHandlerInit', $event);
         $this->stopTimer();
 

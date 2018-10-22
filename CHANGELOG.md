@@ -5,6 +5,7 @@
     * Added PSR-7 and PSR-15 classes
     * Added `RequestHandler` class
     * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
+    * Added `Grav\Framework\DI\Container` class
 1. [](#improved)
     * Added apcu autoloader optimization
 1. [](#bugfix)
