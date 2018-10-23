@@ -2,6 +2,7 @@
 ## mm/dd/2018
 
 1. [](#new)
+    * Added new system config option to `pages.hide_empty_folders` if a folder has no valid `.md` file available. Default behavior is `false` for compatibility.
     * Added `Utils::arrayFlattenDotNotation()` and `Utils::arrayUnflattenDotNotation()` helper methods
 1. [](#improved)
     * Added apcu autoloader optimization

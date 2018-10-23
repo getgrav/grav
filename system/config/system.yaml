@@ -65,6 +65,7 @@ pages:
   ignore_files: [.DS_Store]                      # Files to ignore in Pages
   ignore_folders: [.git, .idea]                  # Folders to ignore in Pages
   ignore_hidden: true                            # Ignore all Hidden files and folders
+  hide_empty_folders: false                      # If folder has no .md file, should it be hidden
   url_taxonomy_filters: true                     # Enable auto-magic URL-based taxonomy filters for page collections
   frontmatter:
     process_twig: false                          # Should the frontmatter be processed to replace Twig variables?

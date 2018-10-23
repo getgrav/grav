@@ -1134,9 +1134,15 @@ class Pages
             }
         }
 
-        // Set routability to false if no page found
+
         if (!$content_exists) {
+            // Set routability to false if no page found
             $page->routable(false);
+
+            // Hide empty folders if option set
+            if ($config->get('system.pages.hide_empty_folders')) {
+                $page->visible(false);
+            }
         }
 
         // Override the modified time if modular
