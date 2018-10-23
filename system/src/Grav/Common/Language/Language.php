@@ -289,11 +289,18 @@ class Language
                 if ($this->active) {
                     $active_extension = '.' . $this->active . $file_ext;
                     $key = array_search($active_extension, $valid_lang_extensions);
-                    unset($valid_lang_extensions[$key]);
-                    array_unshift($valid_lang_extensions, $active_extension);
-                }
 
-                $this->page_extensions = array_merge($valid_lang_extensions, (array)$file_ext);
+                    // Default behavior is to find any language other than active
+                    if ($this->config->get('system.languages.pages_fallback_only')) {
+                        $slice = array_slice($valid_lang_extensions, 0, $key+1);
+                        $valid_lang_extensions = array_reverse($slice);
+                    } else {
+                        unset($valid_lang_extensions[$key]);
+                        array_unshift($valid_lang_extensions, $active_extension);
+                    }
+                }
+                array_push($valid_lang_extensions, $file_ext);
+                $this->page_extensions = $valid_lang_extensions;
             } else {
                 $this->page_extensions = (array)$file_ext;
             }

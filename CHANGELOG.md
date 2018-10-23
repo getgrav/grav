@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added new system config option to `pages.hide_empty_folders` if a folder has no valid `.md` file available. Default behavior is `false` for compatibility.
+    * Added new system config option for `languages.pages_fallback_only` forcing only 'fallback' to find page content through supported languages, default behavior is to display any language found if active language is missing
     * Added `Utils::arrayFlattenDotNotation()` and `Utils::arrayUnflattenDotNotation()` helper methods
 1. [](#improved)
     * Added apcu autoloader optimization
