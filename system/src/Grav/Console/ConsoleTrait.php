@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Console
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,11 +12,11 @@ use Grav\Common\Grav;
 use Grav\Common\Composer;
 use Grav\Common\GravTrait;
 use Grav\Console\Cli\ClearCacheCommand;
+use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Yaml;
 
 trait ConsoleTrait
 {
@@ -123,7 +123,9 @@ trait ConsoleTrait
         $local_config_file = $home_folder . '/.grav/config';
 
         if (file_exists($local_config_file)) {
-            $this->local_config = Yaml::parse(file_get_contents($local_config_file));
+            $file = YamlFile::instance($local_config_file);
+            $this->local_config = $file->content();
+            $file->free();
             return $local_config_file;
         }
 

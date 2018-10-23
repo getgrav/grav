@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -42,6 +42,11 @@ class Installer
      * @var integer Error Code
      */
     protected static $error = 0;
+
+    /**
+     * @var integer Zip Error Code
+     */
+    protected static $error_zip = 0;
 
     /**
      * @var string Post install message
@@ -190,9 +195,9 @@ class Installer
         }
 
         self::$error = self::ZIP_EXTRACT_ERROR;
+        self::$error_zip = $archive;
         return false;
     }
-
 
     /**
      * Instantiates and returns the package installer class
@@ -236,6 +241,12 @@ class Installer
 
         if (class_exists($class_name)) {
             return $class_name;
+        }
+
+        $class_name_alphanumeric = preg_replace('/[^a-zA-Z0-9]+/', '', $class_name);
+
+        if (class_exists($class_name_alphanumeric)) {
+            return $class_name_alphanumeric;
         }
 
         return $installer;
@@ -285,17 +296,17 @@ class Installer
     {
         foreach (new \DirectoryIterator($source_path) as $file) {
 
-            if ($file->isLink() || $file->isDot() || in_array($file->getBasename(),$ignores)) {
+            if ($file->isLink() || $file->isDot() || in_array($file->getFilename(), $ignores)) {
                 continue;
             }
 
-            $path = $install_path . DS . $file->getBasename();
+            $path = $install_path . DS . $file->getFilename();
 
             if ($file->isDir()) {
                 Folder::delete($path);
                 Folder::move($file->getPathname(), $path);
 
-                if ($file->getBasename() == 'bin') {
+                if ($file->getFilename() === 'bin') {
                     foreach (glob($path . DS . '*') as $bin_file) {
                         @chmod($bin_file, 0755);
                     }
@@ -454,7 +465,42 @@ class Installer
                 break;
 
             case self::ZIP_EXTRACT_ERROR:
-                $msg = 'An error occurred while extracting the package';
+                $msg = 'Unable to extract the package. ';
+                if (self::$error_zip) {
+                    switch(self::$error_zip) {
+                        case \ZipArchive::ER_EXISTS:
+                            $msg .= "File already exists.";
+                            break;
+
+                        case \ZipArchive::ER_INCONS:
+                            $msg .= "Zip archive inconsistent.";
+                            break;
+
+                        case \ZipArchive::ER_MEMORY:
+                            $msg .= "Malloc failure.";
+                            break;
+
+                        case \ZipArchive::ER_NOENT:
+                            $msg .= "No such file.";
+                            break;
+
+                        case \ZipArchive::ER_NOZIP:
+                            $msg .= "Not a zip archive.";
+                            break;
+
+                        case \ZipArchive::ER_OPEN:
+                            $msg .= "Can't open file.";
+                            break;
+
+                        case \ZipArchive::ER_READ:
+                            $msg .= "Read error.";
+                            break;
+
+                        case \ZipArchive::ER_SEEK:
+                            $msg .= "Seek error.";
+                            break;
+                    }
+                }
                 break;
 
             default:

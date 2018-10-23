@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Helpers
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,7 +34,7 @@ class Truncator {
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
-    public static function truncateWords($html, $limit = 0, $ellipsis = "")
+    public static function truncateWords($html, $limit = 0, $ellipsis = '')
     {
         if ($limit <= 0) {
             return $html;
@@ -47,6 +47,7 @@ class Truncator {
 
         // Iterate over words.
         $words = new DOMWordsIterator($body);
+        $truncated = false;
         foreach ($words as $word) {
 
             // If we have exceeded the limit, we delete the remainder of the content.
@@ -70,12 +71,19 @@ class Truncator {
                     self::insertEllipsis($curNode, $ellipsis);
                 }
 
+                $truncated = true;
+
                 break;
             }
 
         }
 
-        return self::innerHTML($body);
+        // Return original HTML if not truncated.
+        if ($truncated) {
+            return self::innerHTML($body);
+        } else {
+            return $html;
+        }
     }
 
     /**
@@ -94,28 +102,36 @@ class Truncator {
         $dom = self::htmlToDomDocument($html);
 
         // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
+        $body = $dom->getElementsByTagName('body')->item(0);
 
         // Iterate over letters.
         $letters = new DOMLettersIterator($body);
+        $truncated = false;
         foreach ($letters as $letter) {
 
             // If we have exceeded the limit, we want to delete the remainder of this document.
             if ($letters->key() >= $limit) {
 
                 $currentText = $letters->currentTextPosition();
-                $currentText[0]->nodeValue = substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
+                $currentText[0]->nodeValue = mb_substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
                 self::removeProceedingNodes($currentText[0], $body);
 
                 if (!empty($ellipsis)) {
                     self::insertEllipsis($currentText[0], $ellipsis);
                 }
 
+                $truncated = true;
+
                 break;
             }
         }
 
-        return self::innerHTML($body);
+        // Return original HTML if not truncated.
+        if ($truncated) {
+            return self::innerHTML($body);
+        } else {
+            return $html;
+        }
     }
 
     /**
@@ -181,7 +197,7 @@ class Truncator {
     {
         $avoid = array('a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5'); //html tags to avoid appending the ellipsis to
 
-        if (in_array($domNode->parentNode->nodeName, $avoid) && $domNode->parentNode->parentNode !== null) {
+        if ($domNode->parentNode->parentNode !== null && in_array($domNode->parentNode->nodeName, $avoid, true)) {
             // Append as text node to parent instead
             $textNode = new DOMText($ellipsis);
 
@@ -204,7 +220,7 @@ class Truncator {
      * @return string
      */
     private static function innerHTML($element) {
-        $innerHTML = "";
+        $innerHTML = '';
         $children = $element->childNodes;
         foreach ($children as $child)
         {

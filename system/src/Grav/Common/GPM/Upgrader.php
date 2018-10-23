@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,11 +24,14 @@ class Upgrader
      */
     private $remote;
 
+    private $min_php;
+
     /**
      * Creates a new GPM instance with Local and Remote packages available
      *
      * @param boolean  $refresh  Applies to Remote Packages only and forces a refetch of data
      * @param callable $callback Either a function or callback in array notation
+     * @throws \InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)
     {
@@ -88,15 +91,31 @@ class Upgrader
     }
 
     /**
+     * Make sure this meets minimum PHP requirements
+     *
      * @return bool
      */
     public function meetsRequirements()
     {
-        if (version_compare(PHP_VERSION, GRAV_PHP_MIN, '<')) {
+        $current_php_version = phpversion();
+        if (version_compare($current_php_version, $this->minPHPVersion(), '<')) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Get minimum PHP version from remote
+     *
+     * @return null
+     */
+    public function minPHPVersion()
+    {
+        if (is_null($this->min_php)) {
+            $this->min_php = $this->remote->getMinPHPVersion();
+        }
+        return $this->min_php;
     }
 
     /**

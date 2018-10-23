@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Data
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -65,11 +65,11 @@ class Blueprints
 
             /** @var \DirectoryIterator $file */
             foreach ($iterator as $file) {
-                if (!$file->isFile() || '.' . $file->getExtension() != YAML_EXT) {
+                if (!$file->isFile() || '.' . $file->getExtension() !== YAML_EXT) {
                     continue;
                 }
                 $name = $file->getBasename(YAML_EXT);
-                $this->types[$name] = ucfirst(strtr($name, '_', ' '));
+                $this->types[$name] = ucfirst(str_replace('_', ' ', $name));
             }
         }
 

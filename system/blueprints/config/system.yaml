@@ -22,15 +22,15 @@ form:
                     help: PLUGIN_ADMIN.HOME_PAGE_HELP
 
                 home.hide_in_urls:
-                      type: toggle
-                      label: PLUGIN_ADMIN.HIDE_HOME_IN_URLS
-                      help: PLUGIN_ADMIN.HIDE_HOME_IN_URLS_HELP
-                      highlight: 0
-                      options:
-                          1: PLUGIN_ADMIN.YES
-                          0: PLUGIN_ADMIN.NO
-                      validate:
-                          type: bool
+                    type: toggle
+                    label: PLUGIN_ADMIN.HIDE_HOME_IN_URLS
+                    help: PLUGIN_ADMIN.HIDE_HOME_IN_URLS_HELP
+                    highlight: 0
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
 
 
                 pages.theme:
@@ -377,6 +377,12 @@ form:
                     validate:
                         type: number
                         min: 1
+                pages.cache_control:
+                    type: text
+                    size: medium
+                    label: PLUGIN_ADMIN.CACHE_CONTROL
+                    help: PLUGIN_ADMIN.CACHE_CONTROL_HELP
+                    placeholder: 'e.g. public, max-age=31536000'
                 pages.last_modified:
                     type: toggle
                     label: PLUGIN_ADMIN.LAST_MODIFIED
@@ -508,6 +514,17 @@ form:
                     help: PLUGIN_ADMIN.CACHE_PREFIX_HELP
                     placeholder: PLUGIN_ADMIN.CACHE_PREFIX_PLACEHOLDER
 
+                cache.clear_images_by_default:
+                    type: toggle
+                    label: PLUGIN_ADMIN.CLEAR_IMAGES_BY_DEFAULT
+                    help: PLUGIN_ADMIN.CLEAR_IMAGES_BY_DEFAULT_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 cache.cli_compatibility:
                     type: toggle
                     label: PLUGIN_ADMIN.CLI_COMPATIBILITY
@@ -598,6 +615,12 @@ form:
                     label: PLUGIN_ADMIN.REDIS_PORT
                     help: PLUGIN_ADMIN.REDIS_PORT_HELP
                     placeholder: "6379"
+
+                cache.redis.password:
+                    type: text
+                    size: small
+                    label: PLUGIN_ADMIN.REDIS_PASSWORD
+
 
 
         twig:
@@ -789,10 +812,12 @@ form:
                         type: bool
 
                 assets.collections:
-                    type: array
+                    type: multilevel
                     label: PLUGIN_ADMIN.COLLECTIONS
                     placeholder_key: collection_name
                     placeholder_value: collection_path
+                    validate:
+                        type: array
 
         errors:
             type: section
@@ -810,6 +835,8 @@ form:
                         -1: PLUGIN_ADMIN.ERROR_SYSTEM
                         0: PLUGIN_ADMIN.ERROR_SIMPLE
                         1: PLUGIN_ADMIN.ERROR_FULL_BACKTRACE
+                    validate:
+                        type: int
 
 
                 errors.log:
@@ -862,7 +889,6 @@ form:
                     append: '%'
                     label: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY
                     help: PLUGIN_ADMIN.DEFAULT_IMAGE_QUALITY_HELP
-                    classes: x-small
                     validate:
                         min: 1
                         max: 100
@@ -910,15 +936,6 @@ form:
                     validate:
                         type: bool
 
-                media.upload_limit:
-                    type: text
-                    append: bytes
-                    label: PLUGIN_ADMIN.UPLOAD_LIMIT
-                    help: PLUGIN_ADMIN.UPLOAD_LIMIT_HELP
-                    classes: small
-                    validate:
-                        type: number
-
                 media.enable_media_timestamp:
                     type: toggle
                     label: PLUGIN_ADMIN.ENABLE_MEDIA_TIMESTAMP
@@ -929,6 +946,17 @@ form:
                         0: PLUGIN_ADMIN.NO
                     validate:
                         type: bool
+
+                media.auto_metadata_exif:
+                      type: toggle
+                      label: PLUGIN_ADMIN.ENABLE_AUTO_METADATA
+                      help: PLUGIN_ADMIN.ENABLE_AUTO_METADATA_HELP
+                      highlight: 0
+                      options:
+                          1: PLUGIN_ADMIN.YES
+                          0: PLUGIN_ADMIN.NO
+                      validate:
+                          type: bool
 
 
 
@@ -968,6 +996,18 @@ form:
                     validate:
                         type: bool
 
+                session.initialize:
+                    type: toggle
+                    label: PLUGIN_ADMIN.SESSION_INITIALIZE
+                    help: PLUGIN_ADMIN.SESSION_INITIALIZE_HELP
+                    highlight: 1
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    default: true
+                    validate:
+                        type: bool
+
                 session.timeout:
                     type: text
                     size: small
@@ -976,7 +1016,7 @@ form:
                     help: PLUGIN_ADMIN.TIMEOUT_HELP
                     validate:
                         type: number
-                        min: 1
+                        min: 0
 
                 session.name:
                     type: text
@@ -1105,6 +1145,16 @@ form:
                     label: PLUGIN_ADMIN.PWD_REGEX
                     help: PLUGIN_ADMIN.PWD_REGEX_HELP
 
+                intl_enabled:
+                    type: toggle
+                    label: PLUGIN_ADMIN.INTL_ENABLED
+                    highlight: 1
+                    help: PLUGIN_ADMIN.INTL_ENABLED_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
 
                 wrapped_site:
                     type: toggle
@@ -1150,9 +1200,45 @@ form:
                     validate:
                         type: bool
 
+                force_lowercase_urls:
+                    type: toggle
+                    label: PLUGIN_ADMIN.FORCE_LOWERCASE_URLS
+                    highlight: 1
+                    default: 1
+                    help: PLUGIN_ADMIN.FORCE_LOWERCASE_URLS_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
                 custom_base_url:
                     type: text
                     size: medium
                     placeholder: "e.g. http://yoursite.com/yourpath"
                     label: PLUGIN_ADMIN.CUSTOM_BASE_URL
                     help: PLUGIN_ADMIN.CUSTOM_BASE_URL_HELP
+
+                strict_mode.yaml_compat:
+                    type: toggle
+                    label: PLUGIN_ADMIN.STRICT_YAML_COMPAT
+                    highlight: 1
+                    default: 1
+                    help: PLUGIN_ADMIN.STRICT_YAML_COMPAT_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool
+
+                strict_mode.twig_compat:
+                    type: toggle
+                    label: PLUGIN_ADMIN.STRICT_TWIG_COMPAT
+                    highlight: 1
+                    default: 1
+                    help: PLUGIN_ADMIN.STRICT_TWIG_COMPAT_HELP
+                    options:
+                        1: PLUGIN_ADMIN.YES
+                        0: PLUGIN_ADMIN.NO
+                    validate:
+                        type: bool

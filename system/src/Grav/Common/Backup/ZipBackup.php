@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Backup
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,7 +32,7 @@ class ZipBackup
     /**
      * Backup
      *
-     * @param null          $destination
+     * @param string|null   $destination
      * @param callable|null $messager
      *
      * @return null|string
@@ -107,18 +107,19 @@ class ZipBackup
      * @param $exclusiveLength
      * @param $messager
      */
-    private static function folderToZip($folder, \ZipArchive &$zipFile, $exclusiveLength, callable $messager = null)
+    private static function folderToZip($folder, \ZipArchive $zipFile, $exclusiveLength, callable $messager = null)
     {
         $handle = opendir($folder);
         while (false !== $f = readdir($handle)) {
-            if ($f != '.' && $f != '..') {
+            if ($f !== '.' && $f !== '..') {
                 $filePath = "$folder/$f";
                 // Remove prefix from file path before add to zip.
                 $localPath = substr($filePath, $exclusiveLength);
 
                 if (in_array($f, static::$ignoreFolders)) {
                     continue;
-                } elseif (in_array($localPath, static::$ignorePaths)) {
+                }
+                if (in_array($localPath, static::$ignorePaths)) {
                     $zipFile->addEmptyDir($f);
                     continue;
                 }

@@ -21,6 +21,9 @@ form:
           title: PLUGIN_ADMIN.CONTENT
 
           fields:
+            xss_check:
+              type: xss
+
             header.title:
               type: text
               autofocus: true
@@ -32,7 +35,7 @@ form:
                 validate:
                   type: textarea
 
-            uploads:
+            header.media_order:
               type: pagemedia
               label: PLUGIN_ADMIN.PAGE_MEDIA
 
@@ -309,6 +312,31 @@ form:
                   label: PLUGIN_ADMIN.APPEND_URL_EXT
                   toggleable: true
                   help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
+
+            routes_only:
+              type: section
+              title: PLUGIN_ADMIN.ROUTE_OVERRIDES
+              underline: true
+
+              fields:
+
+                header.routes.default:
+                  type: text
+                  toggleable: true
+                  label: PLUGIN_ADMIN.ROUTE_DEFAULT
+
+                header.routes.canonical:
+                  type: text
+                  toggleable: true
+                  label: PLUGIN_ADMIN.ROUTE_CANONICAL
+
+                header.routes.aliases:
+                  type: array
+                  toggleable: true
+                  value_only: true
+                  size: large
+                  label: PLUGIN_ADMIN.ROUTE_ALIASES
+
 
             admin_only:
               type: section

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Helpers
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,7 +32,7 @@ class Base32 {
      */
     public static function encode( $bytes ) {
         $i = 0; $index = 0; $digit = 0;
-        $base32 = "";
+        $base32 = '';
         $bytes_len = strlen($bytes);
         while( $i < $bytes_len ) {
             $currByte = ord($bytes{$i});
@@ -51,7 +51,7 @@ class Base32 {
             } else {
                 $digit = ($currByte >> (8 - ($index + 5))) & 0x1F;
                 $index = ($index + 5) % 8;
-                if( $index == 0 ) $i++;
+                if( $index === 0 ) $i++;
             }
             $base32 .= self::$base32Chars{$digit};
         }
@@ -96,7 +96,7 @@ class Base32 {
                 $bytes[$offset] |= $digit << (8 - $index);
             }
         }
-        $bites = "";
+        $bites = '';
         foreach( $bytes as $byte ) $bites .= chr($byte);
         return $bites;
     }

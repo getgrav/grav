@@ -2,105 +2,137 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
-use RocketTheme\Toolbox\Session\Session as BaseSession;
-
-class Session extends BaseSession
+class Session extends \Grav\Framework\Session\Session
 {
-    protected $grav;
-    protected $session;
+    /** @var bool */
+    protected $autoStart = false;
 
     /**
-     * Session constructor.
-     *
-     * @param Grav $grav
+     * @return \Grav\Framework\Session\Session
+     * @deprecated 1.5 Use getInstance() method instead
      */
-    public function __construct(Grav $grav)
+    public static function instance()
     {
-        $this->grav = $grav;
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getInstance() method instead', E_USER_DEPRECATED);
+
+        return static::getInstance();
     }
 
     /**
-     * Session init
+     * Initialize session.
+     *
+     * Code in this function has been moved into SessionServiceProvider class.
      */
     public function init()
     {
-        /** @var Uri $uri */
-        $uri = $this->grav['uri'];
-        $config = $this->grav['config'];
-
-        $is_admin = false;
-        $base_url = $uri->rootUrl(false);
-
-        $session_timeout = $config->get('system.session.timeout', 1800);
-        $session_path = $config->get('system.session.path');
-        if (!$session_path) {
-            $session_path = '/' . ltrim($base_url, '/');
-        }
-
-        // Activate admin if we're inside the admin path.
-        if ($config->get('plugins.admin.enabled')) {
-            $route = $config->get('plugins.admin.route');
-            // Uri::route() is not processed yet, let's quickly get what we need
-            $current_route = str_replace($base_url, '', parse_url($uri->url(true), PHP_URL_PATH));
-            $base = '/' . trim($route, '/');
-
-            if (substr($current_route, 0, strlen($base)) == $base || //handle no language specified
-                substr($current_route, 3, strlen($base)) == $base || //handle language (en)
-                substr($current_route, 6, strlen($base)) == $base) { //handle region specific language prefix (en-US)
-                $session_timeout = $config->get('plugins.admin.session.timeout', 1800);
-                $is_admin = true;
-            }
-        }
-
-        if ($config->get('system.session.enabled') || $is_admin) {
-            $domain = $uri->host();
-            if ($domain === 'localhost') {
-                $domain = '';
-            }
-
-            // Fix for HUGE session timeouts
-            if ($session_timeout > 99999999999) {
-                $session_timeout = 9999999999;
-            }
-
-            // Define session service.
-            parent::__construct($session_timeout, $session_path, $domain);
-
-            $secure = $config->get('system.session.secure', false);
-            $httponly = $config->get('system.session.httponly', true);
-
-            $unique_identifier = GRAV_ROOT;
-            $inflector = new Inflector();
-            $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5($unique_identifier), 0, 7);
-            $split_session = $config->get('system.session.split', true);
-            if ($is_admin && $split_session) {
-              $session_name .= '-admin';
-            }
-            $this->setName($session_name);
+        if ($this->autoStart) {
             $this->start();
-            setcookie(session_name(), session_id(), time() + $session_timeout, $session_path, $domain, $secure, $httponly);
+
+            $this->autoStart = false;
         }
     }
 
-    // Store something in session temporarily
+    /**
+     * @param bool $auto
+     * @return $this
+     */
+    public function setAutoStart($auto)
+    {
+        $this->autoStart = (bool)$auto;
+
+        return $this;
+    }
+
+    /**
+     * Returns attributes.
+     *
+     * @return array Attributes
+     * @deprecated 1.5 Use getAll() method instead
+     */
+    public function all()
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getAll() method instead', E_USER_DEPRECATED);
+
+        return $this->getAll();
+    }
+
+    /**
+     * Checks if the session was started.
+     *
+     * @return Boolean
+     * @deprecated 1.5 Use isStarted() method instead
+     */
+    public function started()
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use isStarted() method instead', E_USER_DEPRECATED);
+
+        return $this->isStarted();
+    }
+
+    /**
+     * Store something in session temporarily.
+     *
+     * @param string $name
+     * @param mixed $object
+     * @return $this
+     */
     public function setFlashObject($name, $object)
     {
-        $this->$name = serialize($object);
+        $this->{$name} = serialize($object);
+
+        return $this;
     }
 
-    // Return object and remove it from session
+    /**
+     * Return object and remove it from session.
+     *
+     * @param string $name
+     * @return mixed
+     */
     public function getFlashObject($name)
     {
-        $object = unserialize($this->$name);
+        $object = unserialize($this->{$name});
 
-        $this->$name = null;
+        $this->{$name} = null;
 
         return $object;
+    }
+
+    /**
+     * Store something in cookie temporarily.
+     *
+     * @param string $name
+     * @param mixed $object
+     * @param int $time
+     * @return $this
+     */
+    public function setFlashCookieObject($name, $object, $time = 60)
+    {
+        setcookie($name, json_encode($object), time() + $time, '/');
+
+        return $this;
+    }
+
+    /**
+     * Return object and remove it from the cookie.
+     *
+     * @param string $name
+     * @return mixed|null
+     */
+    public function getFlashCookieObject($name)
+    {
+        if (isset($_COOKIE[$name])) {
+            $object = json_decode($_COOKIE[$name]);
+            setcookie($name, '', time() - 3600, '/');
+            return $object;
+        }
+
+        return null;
     }
 }

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Data
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -78,7 +78,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $messages += $this->validateArray($field, $val);
-            } elseif (isset($rules['validation']) && $rules['validation'] == 'strict') {
+            } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
                 // Undefined/extra item.
                 throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }
@@ -106,7 +106,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $field = $this->filterArray($field, $val);
-            } elseif (isset($rules['validation']) && $rules['validation'] == 'strict') {
+            } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
                 $field = null;
             }
 
@@ -138,7 +138,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 if (isset($data[$name])) {
                     continue;
                 }
-                if ($field['type'] == 'file' && isset($data['data']['name'][$name])) { //handle case of file input fields required
+                if ($field['type'] === 'file' && isset($data['data']['name'][$name])) { //handle case of file input fields required
                     continue;
                 }
 
@@ -164,7 +164,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         $default = isset($field[$property]) ? $field[$property] : null;
         $config = Grav::instance()['config']->get($value, $default);
 
-        if (!is_null($config)) {
+        if (null !== $config) {
             $field[$property] = $config;
         }
     }

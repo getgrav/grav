@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -114,7 +114,7 @@ class Licenses
 
     {
         if (!isset(self::$file)) {
-            $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';;
+            $path = Grav::instance()['locator']->findResource('user://data') . '/licenses.yaml';
             if (!file_exists($path)) {
                 touch($path);
             }

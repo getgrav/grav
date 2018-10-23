@@ -2,15 +2,18 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Page;
 
+use Grav\Common\Grav;
+use Grav\Common\Yaml;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
+use RocketTheme\Toolbox\File\File;
 
 class Media extends AbstractMedia
 {
@@ -18,19 +21,30 @@ class Media extends AbstractMedia
 
     protected $path;
 
+    protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
+
     /**
-     * @param $path
+     * @param string $path
+     * @param array  $media_order
      */
-    public function __construct($path)
+    public function __construct($path, array $media_order = null)
     {
         $this->path = $path;
+        $this->media_order = $media_order;
 
+        $this->__wakeup();
+        $this->init();
+    }
+
+    /**
+     * Initialize static variables on unserialize.
+     */
+    public function __wakeup()
+    {
         if (!isset(static::$global)) {
             // Add fallback to global media.
-            static::$global = new GlobalMedia($path);
+            static::$global = new GlobalMedia();
         }
-
-        $this->init();
     }
 
     /**
@@ -58,6 +72,9 @@ class Media extends AbstractMedia
      */
     protected function init()
     {
+        $config = Grav::instance()['config'];
+        $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
+        $media_types = array_keys(Grav::instance()['config']->get('media.types'));
 
         // Handle special cases where page doesn't exist in filesystem.
         if (!is_dir($this->path)) {
@@ -71,12 +88,16 @@ class Media extends AbstractMedia
         /** @var \DirectoryIterator $info */
         foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() == 'md' || $info->getBasename()[0] === '.') {
+            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getFilename()[0] === '.') {
                 continue;
             }
 
             // Find out what type we're dealing with
             list($basename, $ext, $type, $extra) = $this->getFileParts($info->getFilename());
+
+            if (!in_array(strtolower($ext), $media_types)) {
+                continue;
+            }
 
             if ($type === 'alternative') {
                 $media["{$basename}.{$ext}"][$type][$extra] = [ 'file' => $path, 'size' => $info->getSize() ];
@@ -99,21 +120,46 @@ class Media extends AbstractMedia
                 }
             }
 
+            $file_path = null;
+
             // Create the base medium
             if (empty($types['base'])) {
                 if (!isset($types['alternative'])) {
                     continue;
                 }
+
                 $max = max(array_keys($types['alternative']));
                 $medium = $types['alternative'][$max]['file'];
+                $file_path = $medium->path();
                 $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
             } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
                 $medium && $medium->set('size', $types['base']['size']);
+                $file_path = $medium->path();
             }
 
             if (empty($medium)) {
                 continue;
+            }
+
+            // metadata file
+            $meta_path = $file_path . '.meta.yaml';
+
+            if (file_exists($meta_path)) {
+                $types['meta']['file'] = $meta_path;
+            } elseif ($file_path && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
+
+                $meta = $exif_reader->read($file_path);
+
+                if ($meta) {
+                    $meta_data = $meta->getData();
+                    $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
+                    if ($meta_trimmed) {
+                        $file = File::instance($meta_path);
+                        $file->save(Yaml::dump($meta_trimmed));
+                        $types['meta']['file'] = $meta_path;
+                    }
+                }
             }
 
             if (!empty($types['meta'])) {
@@ -153,5 +199,15 @@ class Media extends AbstractMedia
 
             $this->add($name, $medium);
         }
+    }
+
+    /**
+     * Enable accessing the media path
+     *
+     * @return mixed
+     */
+    public function path()
+    {
+        return $this->path;
     }
 }

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Errors
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -74,5 +74,8 @@ class Errors
         }
 
         $whoops->register();
+
+        // Re-register deprecation handler.
+        $grav['debugger']->setErrorHandler();
     }
 }

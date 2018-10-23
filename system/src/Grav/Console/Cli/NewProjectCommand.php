@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Console
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,7 +35,7 @@ class NewProjectCommand extends ConsoleCommand
                 'Symlink the required bits'
             )
             ->setDescription('Creates a new Grav project with all the dependencies installed')
-            ->setHelp('The <info>new-project</info> command is a combination of the `setup` and `install` commands.\nCreates a new Grav instance and performs the installation of all the required dependencies.');
+            ->setHelp("The <info>new-project</info> command is a combination of the `setup` and `install` commands.\nCreates a new Grav instance and performs the installation of all the required dependencies.");
     }
 
     /**

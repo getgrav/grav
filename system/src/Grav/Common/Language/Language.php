@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Language
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -174,23 +174,23 @@ class Language
 
         // if languages set
         if ($this->enabled()) {
-            // try setting from prefix of URL (/en/blah/blah)
+            // Try setting language from prefix of URL (/en/blah/blah).
             if (preg_match($regex, $uri, $matches)) {
                 $this->lang_in_url = true;
                 $this->active = $matches[2];
-                $uri = preg_replace("/\\" . $matches[1] . "/", '', $uri, 1);
+                $uri = preg_replace("/\\" . $matches[1] . '/', '', $uri, 1);
 
-                // store in session if different
-                if ($this->config->get('system.session.enabled', false)
+                // Store in session if language is different.
+                if (isset($this->grav['session']) && $this->grav['session']->isStarted()
                     && $this->config->get('system.languages.session_store_active', true)
                     && $this->grav['session']->active_language != $this->active
                 ) {
                     $this->grav['session']->active_language = $this->active;
                 }
             } else {
-                // try getting from session, else no active
-                if ($this->config->get('system.session.enabled', false) &&
-                    $this->config->get('system.languages.session_store_active', true)) {
+                // Try getting language from the session, else no active.
+                if (isset($this->grav['session']) && $this->grav['session']->isStarted()
+                    && $this->config->get('system.languages.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
                 }
                 // if still null, try from http_accept_language header
@@ -203,8 +203,8 @@ class Language
                         }
                     }
 
-                    // repeat if not found, try base language only - fixes Safari sending the language code always
-                    // with a locale (e.g. it-it or fr-fr)
+                    // Repeat if not found, try base language only - fixes Safari sending the language code always
+                    // with a locale (e.g. it-it or fr-fr).
                     foreach ($preferred as $lang) {
                         $lang = substr($lang, 0, 2);
                         if ($this->validate($lang)) {

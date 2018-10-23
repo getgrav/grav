@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -123,8 +123,8 @@ class ThumbnailImageMedium extends ImageMedium
     {
         if (!$testLinked || $this->linked) {
             return $this->parent ? call_user_func_array(array($this->parent, $method), $arguments) : $this;
-        } else {
-            return call_user_func_array(array($this, 'parent::' . $method), $arguments);
         }
+
+        return call_user_func_array(array($this, 'parent::' . $method), $arguments);
     }
 }

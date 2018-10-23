@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Console
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,9 +11,9 @@ namespace Grav\Console\Gpm;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Upgrader;
 use Grav\Console\ConsoleCommand;
+use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Yaml\Yaml;
 
 class VersionCommand extends ConsoleCommand
 {
@@ -84,7 +84,10 @@ class VersionCommand extends ConsoleCommand
                     }
                 }
 
-                $package_yaml = Yaml::parse(file_get_contents($blueprints_path));
+                $file = YamlFile::instance($blueprints_path);
+                $package_yaml = $file->content();
+                $file->free();
+
                 $version = $package_yaml['version'];
 
                 if (!$version) {

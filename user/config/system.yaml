@@ -4,7 +4,7 @@ home:
   alias: '/home'
 
 pages:
-  theme: antimatter
+  theme: quark
   markdown:
     extra: false
   process:
@@ -41,4 +41,5 @@ debugger:
   shutdown:
     close_connection: true
 gpm:
+  releases: stable
   verify_peer: true

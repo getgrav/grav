@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Config
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,11 +12,14 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Service\ConfigServiceProvider;
+use Grav\Common\Utils;
 
 class Config extends Data
 {
+    /** @var string */
     protected $checksum;
     protected $modified = false;
+    protected $timestamp = 0;
 
     public function key()
     {
@@ -39,6 +42,15 @@ class Config extends Data
         }
 
         return $this->modified;
+    }
+
+    public function timestamp($timestamp = null)
+    {
+        if ($timestamp !== null) {
+            $this->timestamp = $timestamp;
+        }
+
+        return $this->timestamp;
     }
 
     public function reload()
@@ -85,6 +97,10 @@ class Config extends Data
                 $this->joinDefaults($key, $value);
             }
         }
+
+        // Override the media.upload_limit based on PHP values
+        $upload_limit = Utils::getUploadLimit();
+        $this->items['system']['media']['upload_limit'] = $upload_limit > 0 ? $upload_limit : 1024*1024*1024;
     }
 
     /**
@@ -93,6 +109,8 @@ class Config extends Data
      */
     public function getLanguages()
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use Grav::instance()[\'languages\'] instead', E_USER_DEPRECATED);
+
         return Grav::instance()['languages'];
     }
 }

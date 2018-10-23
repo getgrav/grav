@@ -1,5 +1,5 @@
 title: PLUGIN_ADMIN:EXTERNAL
-@extends:
+extends@:
     type: default
     context: blueprints://pages
 
@@ -25,7 +25,7 @@ form:
             content:
               unset@: true
 
-            uploads:
+            header.media_order:
               unset@: true
 
             header.external_url:

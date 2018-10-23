@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Processors
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,6 +16,6 @@ class ConfigurationProcessor extends ProcessorBase implements ProcessorInterface
     public function process()
     {
         $this->container['config']->init();
-        return $this->container['plugins']->setup();
+        $this->container['plugins']->setup();
     }
 }

@@ -2,13 +2,14 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
 use DebugBar\DataCollector\ConfigCollector;
+use DebugBar\DataCollector\MessagesCollector;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
@@ -31,13 +32,24 @@ class Debugger
 
     protected $timers = [];
 
+    /** @var string[] $deprecations */
+    protected $deprecations = [];
+
+    protected $errorHandler;
+
     /**
      * Debugger constructor.
      */
     public function __construct()
     {
+        // Enable debugger until $this->init() gets called.
+        $this->enabled = true;
+
         $this->debugbar = new StandardDebugBar();
         $this->debugbar['time']->addMeasure('Loading', $this->debugbar['time']->getRequestStartTime(), microtime(true));
+
+        // Set deprecation collector.
+        $this->setErrorHandler();
     }
 
     /**
@@ -51,9 +63,19 @@ class Debugger
         $this->grav = Grav::instance();
         $this->config = $this->grav['config'];
 
+        // Enable/disable debugger based on configuration.
+        $this->enabled = $this->config->get('system.debugger.enabled');
+
         if ($this->enabled()) {
+
+            $plugins_config = (array)$this->config->get('plugins');
+
+            ksort($plugins_config);
+
+
             $this->debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
-            $this->debugbar->addCollector(new ConfigCollector((array)$this->config->get('plugins'), 'Plugins'));
+            $this->debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
+            $this->addMessage('Grav v' . GRAV_VERSION);
         }
 
         return $this;
@@ -68,12 +90,8 @@ class Debugger
      */
     public function enabled($state = null)
     {
-        if (isset($state)) {
+        if ($state !== null) {
             $this->enabled = $state;
-        } else {
-            if (!isset($this->enabled)) {
-                $this->enabled = $this->config->get('system.debugger.enabled');
-            }
         }
 
         return $this->enabled;
@@ -90,8 +108,7 @@ class Debugger
 
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
-            if ($page->templateFormat() != 'html') {
-                $this->enabled = false;
+            if ($page->templateFormat() !== 'html') {
                 return $this;
             }
 
@@ -106,18 +123,25 @@ class Debugger
 
             // Get the required CSS files
             list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
-            foreach ($css_files as $css) {
+            foreach ((array)$css_files as $css) {
                 $assets->addCss($css);
             }
 
             $assets->addCss('/system/assets/debugger.css');
 
-            foreach ($js_files as $js) {
+            foreach ((array)$js_files as $js) {
                 $assets->addJs($js);
             }
         }
 
         return $this;
+    }
+
+    public function getCaller($limit = 2)
+    {
+        $trace = debug_backtrace(false, $limit);
+
+        return array_pop($trace);
     }
 
     /**
@@ -156,6 +180,14 @@ class Debugger
     public function render()
     {
         if ($this->enabled()) {
+            // Only add assets if Page is HTML
+            $page = $this->grav['page'];
+            if (!$this->renderer || $page->templateFormat() !== 'html') {
+                return $this;
+            }
+
+            $this->addDeprecations();
+
             echo $this->renderer->render();
         }
 
@@ -169,9 +201,29 @@ class Debugger
      */
     public function sendDataInHeaders()
     {
-        $this->debugbar->sendDataInHeaders();
+        if ($this->enabled()) {
+            $this->addDeprecations();
+            $this->debugbar->sendDataInHeaders();
+        }
 
         return $this;
+    }
+
+    /**
+     * Returns collected debugger data.
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        if (!$this->enabled()) {
+            return null;
+        }
+
+        $this->addDeprecations();
+        $this->timers = [];
+
+        return $this->debugbar->getData();
     }
 
     /**
@@ -184,7 +236,7 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
-        if ($name[0] == '_' || $this->config->get('system.debugger.enabled')) {
+        if ($name[0] === '_' || $this->enabled()) {
             $this->debugbar['time']->startMeasure($name, $description);
             $this->timers[] = $name;
         }
@@ -201,7 +253,7 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (in_array($name, $this->timers) && ($name[0] == '_' || $this->config->get('system.debugger.enabled'))) {
+        if (in_array($name, $this->timers, true) && ($name[0] === '_' || $this->enabled())) {
             $this->debugbar['time']->stopMeasure($name);
         }
 
@@ -239,5 +291,153 @@ class Debugger
         }
 
         return $this;
+    }
+
+    public function setErrorHandler()
+    {
+        $this->errorHandler = set_error_handler(
+            [$this, 'deprecatedErrorHandler']
+        );
+    }
+
+    /**
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param int $errline
+     * @return bool
+     */
+    public function deprecatedErrorHandler($errno, $errstr, $errfile, $errline)
+    {
+        if ($errno !== E_USER_DEPRECATED) {
+            if ($this->errorHandler) {
+                return \call_user_func($this->errorHandler, $errno, $errstr, $errfile, $errline);
+            }
+
+            return true;
+        }
+
+        if (!$this->enabled()) {
+            return true;
+        }
+
+        $backtrace = debug_backtrace(false);
+
+        // Skip current call.
+        array_shift($backtrace);
+
+        // Skip vendor libraries and the method where error was triggered.
+        while ($current = array_shift($backtrace)) {
+            if (isset($current['file']) && strpos($current['file'], 'vendor') !== false) {
+                continue;
+            }
+            if (isset($current['function']) && ($current['function'] === 'user_error' || $current['function'] === 'trigger_error')) {
+                $current = array_shift($backtrace);
+            }
+
+            break;
+        }
+
+        // Add back last call.
+        array_unshift($backtrace, $current);
+
+        // Filter arguments.
+        foreach ($backtrace as &$current) {
+            if (isset($current['args'])) {
+                $args = [];
+                foreach ($current['args'] as $arg) {
+                    if (\is_string($arg)) {
+                        $args[] = "'" . $arg . "'";
+                    } elseif (\is_bool($arg)) {
+                        $args[] = $arg ? 'true' : 'false';
+                    } elseif (\is_scalar($arg)) {
+                        $args[] = $arg;
+                    } elseif (\is_object($arg)) {
+                        $args[] = get_class($arg) . ' $object';
+                    } elseif (\is_array($arg)) {
+                        $args[] = '$array';
+                    } else {
+                        $args[] = '$object';
+                    }
+                }
+                $current['args'] = $args;
+            }
+        }
+        unset($current);
+
+        $this->deprecations[] = [
+            'message' => $errstr,
+            'file' => $errfile,
+            'line' => $errline,
+            'trace' => $backtrace,
+        ];
+
+        // Do not pass forward.
+        return true;
+    }
+
+    protected function addDeprecations()
+    {
+        if (!$this->deprecations) {
+            return;
+        }
+
+        $collector = new MessagesCollector('deprecated');
+        $this->addCollector($collector);
+        $collector->addMessage('Your site is using following deprecated features:');
+
+        /** @var array $deprecated */
+        foreach ($this->deprecations as $deprecated) {
+            list($message, $scope) = $this->getDepracatedMessage($deprecated);
+
+            $collector->addMessage($message, $scope);
+        }
+    }
+
+    protected function getDepracatedMessage($deprecated)
+    {
+        $scope = 'unknown';
+        if (stripos($deprecated['message'], 'grav') !== false) {
+            $scope = 'grav';
+        } elseif (!isset($deprecated['file'])) {
+            $scope = 'unknown';
+        } elseif (stripos($deprecated['file'], 'twig') !== false) {
+            $scope = 'twig';
+        } elseif (stripos($deprecated['file'], 'yaml') !== false) {
+            $scope = 'yaml';
+        } elseif (stripos($deprecated['file'], 'vendor') !== false) {
+            $scope = 'vendor';
+        }
+
+        $trace = [];
+        foreach ($deprecated['trace'] as $current) {
+            $class = isset($current['class']) ? $current['class'] : '';
+            $type = isset($current['type']) ? $current['type'] : '';
+            $function = $this->getFunction($current);
+            if (isset($current['file'])) {
+                $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
+            }
+
+            unset($current['class'], $current['type'], $current['function'], $current['args']);
+
+            $trace[] = ['call' => $class . $type . $function] + $current;
+        }
+
+        return [
+            [
+                'message' => $deprecated['message'],
+                'trace' => $trace
+            ],
+            $scope
+        ];
+    }
+
+    protected function getFunction($trace)
+    {
+        if (!isset($trace['function'])) {
+            return '';
+        }
+
+        return $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
     }
 }

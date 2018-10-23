@@ -5,9 +5,11 @@ param_sep: ':'                                   # Parameter separator, use ';' 
 wrapped_site: false                              # For themes/plugins to know if Grav is wrapped by another platform
 reverse_proxy_setup: false                       # Running in a reverse proxy scenario with different webserver ports than proxy
 force_ssl: false                                 # If enabled, Grav forces to be accessed via HTTPS (NOTE: Not an ideal solution)
+force_lowercase_urls: true                       # If you want to support mixed cased URLs set this to false
 custom_base_url: ''                              # Set the base_url manually, e.g. http://yoursite.com/yourpath
 username_regex: '^[a-z0-9_-]{3,16}$'             # Only lowercase chars, digits, dashes, underscores. 3 - 16 chars
 pwd_regex: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' # At least one number, one uppercase and lowercase letter, and be at least 8+ chars
+intl_enabled: true                               # Special logic for PHP International Extension (mod_intl)
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
@@ -23,7 +25,7 @@ home:
   hide_in_urls: false                            # Hide the home route in URLs
 
 pages:
-  theme: antimatter                              # Default theme (defaults to "antimatter" theme)
+  theme: quark                                   # Default theme (defaults to "quark" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
     dir: asc                                     # Default ordering direction, "asc" or "desc"
@@ -53,12 +55,13 @@ pages:
   types: [txt,xml,html,htm,json,rss,atom]        # list of valid page types
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
+  cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
   last_modified: false                           # Set the last modified date header based on file modification timestamp
   etag: false                                    # Set the etag header tag
   vary_accept_encoding: false                    # Add `Vary: Accept-Encoding` header
   redirect_default_route: false                  # Automatically redirect to a page's default route
-  redirect_default_code: 301                     # Default code to use for redirects
-  redirect_trailing_slash: true                  # Handle automatically or 301 redirect a trailing / URL
+  redirect_default_code: 302                     # Default code to use for redirects
+  redirect_trailing_slash: true                  # Handle automatically or 302 redirect a trailing / URL
   ignore_files: [.DS_Store]                      # Files to ignore in Pages
   ignore_folders: [.git, .idea]                  # Folders to ignore in Pages
   ignore_hidden: true                            # Ignore all Hidden files and folders
@@ -73,6 +76,7 @@ cache:
     method: file                                 # Method to check for updates in pages: file|folder|hash|none
   driver: auto                                   # One of: auto|file|apc|xcache|memcache|wincache
   prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
+  clear_images_by_default: true                  # By default grav will include processed images in cache clear, this can be disabled
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                                    # GZip compress the page output
@@ -84,7 +88,7 @@ twig:
   cache: true                                    # Set to true to enable Twig caching
   debug: true                                    # Enable Twig debug
   auto_reload: true                              # Refresh cache on changes
-  autoescape: false                              # Autoescape Twig vars
+  autoescape: false                              # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
   undefined_functions: true                      # Allow undefined functions
   undefined_filters: true                        # Allow undefined filters
   umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
@@ -121,13 +125,14 @@ images:
   auto_fix_orientation: false                    # Automatically fix the image orientation based on the Exif data
 
 media:
-  enable_media_timestamp: false                  # Enable media timetsamps
-  upload_limit: 0                                # Set maximum upload size in bytes (0 is unlimited)
+  enable_media_timestamp: false                  # Enable media timestamps
   unsupported_inline_types: []                   # Array of supported media types to try to display inline
   allowed_fallback_types: []                     # Array of allowed media types of files found if accessed via Page route
+  auto_metadata_exif: false                      # Automatically create metadata files from Exif data where possible
 
 session:
   enabled: true                                  # Enable Session support
+  initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
   timeout: 1800                                  # Timeout in seconds
   name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   secure: false                                  # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
@@ -141,3 +146,7 @@ gpm:
   method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
   verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+
+strict_mode:
+  yaml_compat: true                              # Grav 1.5+: Enables YAML backwards compatibility
+  twig_compat: true                              # Grav 1.5+: Enables deprecated Twig autoescape setting (autoescape: false)

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,10 +11,16 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Grav;
 use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
+use Gregwar\Image\Source;
 use RocketTheme\Toolbox\Event\Event;
 
 class ImageFile extends Image
 {
+    public function __destruct()
+    {
+        $this->getAdapter()->deinit();
+    }
+
     /**
      * Clear previously applied operations
      */
@@ -30,15 +36,15 @@ class ImageFile extends Image
      * @param int    $quality the quality (for JPEG)
      * @param bool   $actual
      *
-     * @return mixed|string
+     * @return string
      */
     public function cacheFile($type = 'jpg', $quality = 80, $actual = false)
     {
-        if ($type == 'guess') {
+        if ($type === 'guess') {
             $type = $this->guessType();
         }
 
-        if (!count($this->operations) && $type == $this->guessType() && !$this->forceCache) {
+        if (!$this->forceCache && !count($this->operations) && $type === $this->guessType()) {
             return $this->getFilename($this->getFilePath());
         }
 
@@ -60,8 +66,7 @@ class ImageFile extends Image
             $cacheFile .= $this->prettyName;
         }
 
-
-        $cacheFile .= '.'.$type;
+        $cacheFile .= '.' . $type;
 
         // If the files does not exists, save it
         $image = $this;
@@ -76,7 +81,7 @@ class ImageFile extends Image
         $generate = function ($target) use ($image, $type, $quality) {
             $result = $image->save($target, $type, $quality);
 
-            if ($result != $target) {
+            if ($result !== $target) {
                 throw new GenerationError($result);
             }
 
@@ -87,15 +92,19 @@ class ImageFile extends Image
         try {
             $perms = Grav::instance()['config']->get('system.images.cache_perms', '0755');
             $perms = octdec($perms);
-            $file = $this->cache->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
+            $file = $this->getCacheSystem()->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {
             $file = $e->getNewFile();
         }
 
+        // Nulling the resource
+        $this->getAdapter()->setSource(new Source\File($file));
+        $this->getAdapter()->deinit();
+
         if ($actual) {
             return $file;
-        } else {
-            return $this->getFilename($file);
         }
+
+        return $this->getFilename($file);
     }
 }

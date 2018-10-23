@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -98,7 +98,7 @@ class Themes extends Iterator
                 continue;
             }
 
-            $theme = $directory->getBasename();
+            $theme = $directory->getFilename();
             $result = self::get($theme);
 
             if ($result) {
@@ -168,7 +168,7 @@ class Themes extends Iterator
     /**
      * Load current theme.
      *
-     * @return Theme|object
+     * @return Theme
      */
     public function load()
     {
@@ -253,7 +253,7 @@ class Themes extends Iterator
                 stream_wrapper_unregister($scheme);
             }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
-            if ($type[0] != '\\') {
+            if ($type[0] !== '\\') {
                 $type = '\\RocketTheme\\Toolbox\\StreamWrapper\\' . $type;
             }
 
@@ -301,7 +301,7 @@ class Themes extends Iterator
 
                 /** @var \DirectoryIterator $directory */
                 foreach ($iterator as $file) {
-                    if ($file->getExtension() != 'yaml') {
+                    if ($file->getExtension() !== 'yaml') {
                         continue;
                     }
                     $languages[$file->getBasename('.yaml')] = CompiledYamlFile::instance($file->getPathname())->content();
@@ -321,27 +321,36 @@ class Themes extends Iterator
      */
     protected function autoloadTheme($class)
     {
-        $prefix = "Grav\\Theme";
+        $prefix = 'Grav\\Theme\\';
         if (false !== strpos($class, $prefix)) {
             // Remove prefix from class
             $class = substr($class, strlen($prefix));
+            $locator = $this->grav['locator'];
 
-            // Try Old style theme classes
-            $path = strtolower(ltrim(preg_replace('#\\\|_(?!.+\\\)#', '/', $class), '/'));
-            $file = $this->grav['locator']->findResource("themes://{$path}/{$path}.php");
+            // First try lowercase version of the classname.
+            $path = strtolower($class);
+            $file = $locator("themes://{$path}/theme.php") ?: $locator("themes://{$path}/{$path}.php");
 
-            // Load class
-            if (file_exists($file)) {
-                return include_once($file);
+            if ($file) {
+                return include_once $file;
             }
 
             // Replace namespace tokens to directory separators
-            $path = $this->grav['inflector']->hyphenize(ltrim($class,"\\"));
-            $file = $this->grav['locator']->findResource("themes://{$path}/{$path}.php");
+            $path = $this->grav['inflector']->hyphenize($class);
+            $file = $locator("themes://{$path}/theme.php") ?: $locator("themes://{$path}/{$path}.php");
 
             // Load class
-            if (file_exists($file)) {
-                return include_once($file);
+            if ($file) {
+                return include_once $file;
+            }
+
+            // Try Old style theme classes
+            $path = strtolower(preg_replace('#\\\|_(?!.+\\\)#', '/', $class));
+            $file = $locator("themes://{$path}/theme.php") ?: $locator("themes://{$path}/{$path}.php");
+
+            // Load class
+            if ($file) {
+                return include_once $file;
             }
         }
 

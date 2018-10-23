@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,15 +26,15 @@ class MediumFactory
             return null;
         }
 
-        $path = dirname($file);
-        $filename = basename($file);
-        $parts = explode('.', $filename);
-        $ext = array_pop($parts);
-        $basename = implode('.', $parts);
+        $parts = pathinfo($file);
+        $path = $parts['dirname'];
+        $filename = $parts['basename'];
+        $ext = $parts['extension'];
+        $basename = $parts['filename'];
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get("media.types.".strtolower($ext));
+        $media_params = $config->get("media.types." . strtolower($ext));
         if (!$media_params) {
             return null;
         }
@@ -106,7 +106,7 @@ class MediumFactory
      * @param  ImageMedium $medium
      * @param  int         $from
      * @param  int         $to
-     * @return Medium
+     * @return Medium|array
      */
     public static function scaledFromMedium($medium, $from, $to)
     {

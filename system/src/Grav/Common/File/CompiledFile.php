@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.File
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,14 +20,11 @@ trait CompiledFile
      */
     public function content($var = null)
     {
-        // Set some options
-        $this->settings(['native' => true, 'compat' => true]);
-
         try {
             // If nothing has been loaded, attempt to get pre-compiled version of the file first.
             if ($var === null && $this->raw === null && $this->content === null) {
                 $key = md5($this->filename);
-                $file = PhpFile::instance(CACHE_DIR . DS . "compiled/files/{$key}{$this->extension}.php");
+                $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
 
                 $modified = $this->modified();
 
@@ -42,9 +39,9 @@ trait CompiledFile
                 // Load real file if cache isn't up to date (or is invalid).
                 if (
                     !isset($cache['@class'])
-                    || $cache['@class'] != $class
-                    || $cache['modified'] != $modified
-                    || $cache['filename'] != $this->filename
+                    || $cache['@class'] !== $class
+                    || $cache['modified'] !== $modified
+                    || $cache['filename'] !== $this->filename
                 ) {
                     // Attempt to lock the file for writing.
                     try {

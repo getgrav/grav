@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Data
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -233,6 +233,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
 
     /**
      * Save data if storage has been defined.
+     * @throws \RuntimeException
      */
     public function save()
     {
@@ -251,7 +252,9 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function exists()
     {
-        return $this->file()->exists();
+        $file = $this->file();
+
+        return $file && $file->exists();
     }
 
     /**
@@ -263,7 +266,9 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function raw()
     {
-        return $this->file()->raw();
+        $file = $this->file();
+
+        return $file ? $file->raw() : '';
     }
 
     /**

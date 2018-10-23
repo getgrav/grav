@@ -60,6 +60,7 @@ NICETIME:
     BAD_DATE: Bad date
     AGO: ago
     FROM_NOW: from now
+    JUST_NOW: just now
     SECOND: second
     MINUTE: minute
     HOUR: hour
@@ -71,7 +72,6 @@ NICETIME:
     SEC: sec
     MIN: min
     HR: hr
-    DAY: day
     WK: wk
     MO: mo
     YR: yr
@@ -87,7 +87,6 @@ NICETIME:
     SEC_PLURAL: secs
     MIN_PLURAL: mins
     HR_PLURAL: hrs
-    DAY_PLURAL: days
     WK_PLURAL: wks
     MO_PLURAL: mos
     YR_PLURAL: yrs

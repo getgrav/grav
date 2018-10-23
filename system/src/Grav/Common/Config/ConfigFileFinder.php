@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Config
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -207,7 +207,7 @@ class ConfigFileFinder
                     continue;
                 }
 
-                $name = $directory->getBasename();
+                $name = $directory->getFilename();
                 $find = ($lookup ?: $name) . '.yaml';
                 $filename = "{$path}/{$name}/{$find}";
 

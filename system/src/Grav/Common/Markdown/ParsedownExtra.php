@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common.Markdown
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,10 +17,12 @@ class ParsedownExtra extends \ParsedownExtra
      *
      * @param $page
      * @param $defaults
+     * @throws \Exception
      */
     public function __construct($page, $defaults)
     {
         parent::__construct();
+
         $this->init($page, $defaults);
     }
 }

@@ -2,7 +2,7 @@
 /**
  * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2014 - 2016 RocketTheme, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -10,77 +10,133 @@ namespace Grav\Common;
 
 use DateTime;
 use Grav\Common\Helpers\Truncator;
+use Grav\Common\Page\Page;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class Utils
 {
     protected static $nonces = [];
 
     /**
+     * Simple helper method to make getting a Grav URL easier
+     *
+     * @param $input
+     * @param bool $domain
+     * @return bool|null|string
+     */
+    public static function url($input, $domain = false)
+    {
+        if (!trim((string)$input)) {
+            return false;
+        }
+
+        if (Grav::instance()['config']->get('system.absolute_urls', false)) {
+            $domain = true;
+        }
+
+        if (Grav::instance()['uri']->isExternal($input)) {
+            return $input;
+        }
+
+        $input = ltrim((string)$input, '/');
+
+        if (Utils::contains((string)$input, '://')) {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+
+            $parts = Uri::parseUrl($input);
+
+            if ($parts) {
+                $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
+
+                if (isset($parts['query'])) {
+                    $resource = $resource . '?' . $parts['query'];
+                }
+            } else {
+                // Not a valid URL (can still be a stream).
+                $resource = $locator->findResource($input, false);
+            }
+
+
+        } else {
+            $resource = $input;
+        }
+
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        return $resource ? rtrim($uri->rootUrl($domain), '/') . '/' . $resource : null;
+    }
+
+    /**
      * Check if the $haystack string starts with the substring $needle
      *
      * @param  string $haystack
-     * @param  string $needle
+     * @param  string|string[] $needle
      *
      * @return bool
      */
     public static function startsWith($haystack, $needle)
     {
-        if (is_array($needle)) {
-            $status = false;
-            foreach ($needle as $each_needle) {
-                $status = $status || ($each_needle === '' || strpos($haystack, $each_needle) === 0);
-                if ($status) {
-                    return $status;
-                }
-            }
+        $status = false;
 
-            return $status;
+        foreach ((array)$needle as $each_needle) {
+            $status = $each_needle === '' || strpos($haystack, $each_needle) === 0;
+            if ($status) {
+                break;
+            }
         }
 
-        return $needle === '' || strpos($haystack, $needle) === 0;
+        return $status;
     }
 
     /**
      * Check if the $haystack string ends with the substring $needle
      *
      * @param  string $haystack
-     * @param  string $needle
+     * @param  string|string[] $needle
      *
      * @return bool
      */
     public static function endsWith($haystack, $needle)
     {
-        if (is_array($needle)) {
-            $status = false;
-            foreach ($needle as $each_needle) {
-                $status = $status || ($each_needle === '' || substr($haystack, -strlen($each_needle)) === $each_needle);
-                if ($status) {
-                    return $status;
-                }
-            }
+        $status = false;
 
-            return $status;
+        foreach ((array)$needle as $each_needle) {
+            $status = $each_needle === '' || substr($haystack, -strlen($each_needle)) === $each_needle;
+            if ($status) {
+                break;
+            }
         }
 
-        return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
+        return $status;
     }
 
     /**
      * Check if the $haystack string contains the substring $needle
      *
      * @param  string $haystack
-     * @param  string $needle
+     * @param  string|string[] $needle
      *
      * @return bool
      */
     public static function contains($haystack, $needle)
     {
-        return $needle === '' || strpos($haystack, $needle) !== false;
+        $status = false;
+
+        foreach ((array)$needle as $each_needle) {
+            $status = $each_needle === '' || strpos($haystack, $each_needle) !== false;
+            if ($status) {
+                break;
+            }
+        }
+
+        return $status;
     }
 
     /**
-     * Returns the substring of a string up to a specified needle.  if not found, return the whole haytack
+     * Returns the substring of a string up to a specified needle.  if not found, return the whole haystack
      *
      * @param $haystack
      * @param $needle
@@ -94,6 +150,46 @@ abstract class Utils
         }
 
         return $haystack;
+    }
+
+    /**
+     * Utility method to replace only the first occurrence in a string
+     *
+     * @param $search
+     * @param $replace
+     * @param $subject
+     * @return mixed
+     */
+    public static function replaceFirstOccurrence($search, $replace, $subject)
+    {
+        if (!$search) {
+            return $subject;
+        }
+        $pos = strpos($subject, $search);
+        if ($pos !== false) {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+        return $subject;
+    }
+
+    /**
+     * Utility method to replace only the last occurrence in a string
+     *
+     * @param $search
+     * @param $replace
+     * @param $subject
+     * @return mixed
+     */
+    public static function replaceLastOccurrence($search, $replace, $subject)
+    {
+        $pos = strrpos($subject, $search);
+
+        if($pos !== false)
+        {
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+        }
+
+        return $subject;
     }
 
     /**
@@ -118,14 +214,18 @@ abstract class Utils
      */
     public static function arrayMergeRecursiveUnique($array1, $array2)
     {
-        if (empty($array1)) return $array2; //optimize the base case
+        if (empty($array1)) {
+            // Optimize the base case
+            return $array2;
+        }
 
         foreach ($array2 as $key => $value) {
-            if (is_array($value) && is_array(@$array1[$key])) {
+            if (is_array($value) && isset($array1[$key]) && is_array($array1[$key])) {
                 $value = static::arrayMergeRecursiveUnique($array1[$key], $value);
             }
             $array1[$key] = $value;
         }
+
         return $array1;
     }
 
@@ -174,7 +274,7 @@ abstract class Utils
         // is $break present between $limit and the end of the string?
         if ($up_to_break && false !== ($breakpoint = mb_strpos($string, $break, $limit))) {
             if ($breakpoint < mb_strlen($string) - 1) {
-                $string = mb_substr($string, 0, $breakpoint) . $break;
+                $string = mb_substr($string, 0, $breakpoint) . $pad;
             }
         } else {
             $string = mb_substr($string, 0, $limit) . $pad;
@@ -208,11 +308,7 @@ abstract class Utils
      */
     public static function truncateHtml($text, $length = 100, $ellipsis = '...')
     {
-        if (mb_strlen($text) <= $length) {
-            return $text;
-        } else {
-        	return Truncator::truncateLetters($text, $length, $ellipsis);
-        }
+        return Truncator::truncateLetters($text, $length, $ellipsis);
     }
 
     /**
@@ -238,7 +334,7 @@ abstract class Utils
      */
     public static function generateRandomString($length = 5)
     {
-        return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
+        return substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, $length);
     }
 
     /**
@@ -257,7 +353,7 @@ abstract class Utils
             Grav::instance()->fireEvent('onBeforeDownload', new Event(['file' => $file]));
 
             $file_parts = pathinfo($file);
-            $mimetype = Utils::getMimeByExtension($file_parts['extension']);
+            $mimetype = static::getMimeByExtension($file_parts['extension']);
             $size   = filesize($file); // File size
 
             // clean all buffers
@@ -270,7 +366,7 @@ abstract class Utils
                 ini_set('zlib.output_compression', 'Off');
             }
 
-            header("Content-Type: " . $mimetype);
+            header('Content-Type: ' . $mimetype);
             header('Accept-Ranges: bytes');
 
             if ($force_download) {
@@ -280,22 +376,23 @@ abstract class Utils
 
             // multipart-download and download resuming support
             if (isset($_SERVER['HTTP_RANGE'])) {
-                list($a, $range) = explode("=", $_SERVER['HTTP_RANGE'], 2);
-                list($range) = explode(",", $range, 2);
-                list($range, $range_end) = explode("-", $range);
-                $range = intval($range);
+                list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+                list($range) = explode(',', $range, 2);
+                list($range, $range_end) = explode('-', $range);
+                $range = (int)$range;
                 if (!$range_end) {
                     $range_end = $size - 1;
                 } else {
-                    $range_end = intval($range_end);
+                    $range_end = (int)$range_end;
                 }
                 $new_length = $range_end - $range + 1;
-                header("HTTP/1.1 206 Partial Content");
-                header("Content-Length: $new_length");
-                header("Content-Range: bytes $range-$range_end/$size");
+                header('HTTP/1.1 206 Partial Content');
+                header("Content-Length: {$new_length}");
+                header("Content-Range: bytes {$range}-{$range_end}/{$size}");
             } else {
+                $range = 0;
                 $new_length = $size;
-                header("Content-Length: " . $size);
+                header('Content-Length: ' . $size);
 
                 if (Grav::instance()['config']->get('system.cache.enabled')) {
                     $expires = Grav::instance()['config']->get('system.pages.expires');
@@ -305,7 +402,7 @@ abstract class Utils
                         header('Expires: ' . $expires_date);
                         header('Pragma: cache');
                     }
-                    header('Last-Modified: ' . gmdate("D, d M Y H:i:s T", filemtime($file)));
+                    header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', filemtime($file)));
 
                     // Return 304 Not Modified if the file is already cached in the browser
                     if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
@@ -321,9 +418,9 @@ abstract class Utils
             $chunksize = $bytes * 8; //you may want to change this
             $bytes_send = 0;
 
-            $fp = @fopen($file, 'r');
+            $fp = @fopen($file, 'rb');
             if ($fp) {
-                if (isset($_SERVER['HTTP_RANGE'])) {
+                if ($range) {
                     fseek($fp, $range);
                 }
                 while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length) ) {
@@ -335,7 +432,7 @@ abstract class Utils
                 }
                 fclose($fp);
             } else {
-                throw new \Exception('Error - can not open file.');
+                throw new \RuntimeException('Error - can not open file.');
             }
 
             exit;
@@ -382,6 +479,51 @@ abstract class Utils
     }
 
     /**
+     * Return the mimetype based on filename
+     *
+     * @param string $filename Filename or path to file
+     * @param string $default default value
+     *
+     * @return string
+     */
+    public static function getMimeByFilename($filename, $default = 'application/octet-stream')
+    {
+        return static::getMimeByExtension(pathinfo($filename, PATHINFO_EXTENSION), $default);
+    }
+
+    /**
+     * Return the mimetype based on existing local file
+     *
+     * @param string $filename Path to the file
+     *
+     * @return string|bool
+     */
+    public static function getMimeByLocalFile($filename, $default = 'application/octet-stream')
+    {
+        $type = false;
+
+        // For local files we can detect type by the file content.
+        if (!stream_is_local($filename) || !file_exists($filename)) {
+            return false;
+        }
+
+        // Prefer using finfo if it exists.
+        if (\extension_loaded('fileinfo')) {
+            $finfo = finfo_open(FILEINFO_SYMLINK | FILEINFO_MIME_TYPE);
+            $type = finfo_file($finfo, $filename);
+            finfo_close($finfo);
+        } else {
+            // Fall back to use getimagesize() if it is available (not recommended, but better than nothing)
+            $info = @getimagesize($filename);
+            if ($info) {
+                $type = $info['mime'];
+            }
+        }
+
+        return $type ?: static::getMimeByFilename($filename, $default);
+    }
+
+    /**
      * Return the mimetype based on filename extension
      *
      * @param string $mime mime type (eg "text/html")
@@ -409,18 +551,45 @@ abstract class Utils
                 return 'xml';
         }
 
-        $media_types = Grav::instance()['config']->get('media.types');
+        $media_types = (array)Grav::instance()['config']->get('media.types');
 
         foreach ($media_types as $extension => $type) {
-            if ($extension == 'defaults') {
+            if ($extension === 'defaults') {
                 continue;
             }
-            if (isset($type['mime']) && $type['mime'] == $mime) {
+            if (isset($type['mime']) && $type['mime'] === $mime) {
                 return $extension;
             }
         }
 
         return $default;
+    }
+
+    /**
+     * Returns true if filename is considered safe.
+     *
+     * @param string $filename
+     * @return bool
+     */
+    public static function checkFilename($filename)
+    {
+        $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
+        array_walk($dangerous_extensions, function(&$val) {
+            $val = '.' . $val;
+        });
+
+        $extension = '.' . pathinfo($filename, PATHINFO_EXTENSION);
+
+        return !(
+            // Empty filenames are not allowed.
+            !$filename
+            // Filename should not contain horizontal/vertical tabs, newlines, nils or back/forward slashes.
+            || strtr($filename, "\t\v\n\r\0\\/", '_______') !== $filename
+            // Filename should not start or end with dot or space.
+            || trim($filename, '. ') !== $filename
+            // Filename should not contain .php in it.
+            || static::contains($extension, $dangerous_extensions)
+        );
     }
 
     /**
@@ -437,13 +606,13 @@ abstract class Utils
         $segments = explode('/', trim($path, '/'));
         $ret = [];
         foreach ($segments as $segment) {
-            if (($segment == '.') || strlen($segment) == 0) {
+            if (($segment === '.') || $segment === '') {
                 continue;
             }
-            if ($segment == '..') {
+            if ($segment === '..') {
                 array_pop($ret);
             } else {
-                array_push($ret, $segment);
+                $ret[] = $segment;
             }
         }
 
@@ -459,7 +628,7 @@ abstract class Utils
      */
     public static function isFunctionDisabled($function)
     {
-        return in_array($function, explode(',', ini_get('disable_functions')));
+        return in_array($function, explode(',', ini_get('disable_functions')), true);
     }
 
     /**
@@ -521,7 +690,7 @@ abstract class Utils
     /**
      * Flatten an array
      *
-     * @param $array
+     * @param array $array
      * @return array
      */
     public static function arrayFlatten($array)
@@ -554,7 +723,7 @@ abstract class Utils
 
         $languages_enabled = Grav::instance()['config']->get('system.languages.supported', []);
 
-        if ($string[0] == '/' && $string[3] == '/' && in_array(substr($string, 1, 2), $languages_enabled)) {
+        if ($string[0] === '/' && $string[3] === '/' && in_array(substr($string, 1, 2), $languages_enabled)) {
             return true;
         }
 
@@ -581,20 +750,26 @@ abstract class Utils
             $datetime = new DateTime($date);
         }
 
-        // fallback to strtotime if DateTime approach failed
+        // fallback to strtotime() if DateTime approach failed
         if ($datetime !== false) {
             return $datetime->getTimestamp();
-        } else {
-            return strtotime($date);
         }
+
+        return strtotime($date);
     }
 
     /**
-     * @deprecated Use getDotNotation() method instead
+     * @param array $array
+     * @param string $path
+     * @param null $default
+     * @return mixed
      *
+     * @deprecated Use getDotNotation() method instead
      */
     public static function resolve(array $array, $path, $default = null)
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getDotNotation() method instead', E_USER_DEPRECATED);
+
         return static::getDotNotation($array, $path, $default);
     }
 
@@ -616,11 +791,11 @@ abstract class Utils
      * with reverse proxy setups.
      *
      * @param string $action
-     * @param bool   $plusOneTick if true, generates the token for the next tick (the next 12 hours)
+     * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
      *
      * @return string the nonce string
      */
-    private static function generateNonceString($action, $plusOneTick = false)
+    private static function generateNonceString($action, $previousTick = false)
     {
         $username = '';
         if (isset(Grav::instance()['user'])) {
@@ -631,29 +806,8 @@ abstract class Utils
         $token = session_id();
         $i = self::nonceTick();
 
-        if ($plusOneTick) {
-            $i++;
-        }
-
-        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
-    }
-
-    //Added in version 1.0.8 to ensure that existing nonces are not broken.
-    private static function generateNonceStringOldStyle($action, $plusOneTick = false)
-    {
-        if (isset(Grav::instance()['user'])) {
-            $user = Grav::instance()['user'];
-            $username = $user->username;
-            if (isset($_SERVER['REMOTE_ADDR'])) {
-                $username .= $_SERVER['REMOTE_ADDR'];
-            }
-        } else {
-            $username = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
-        }
-        $token = session_id();
-        $i = self::nonceTick();
-        if ($plusOneTick) {
-            $i++;
+        if ($previousTick) {
+            $i--;
         }
 
         return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
@@ -671,7 +825,7 @@ abstract class Utils
     {
         $secondsInHalfADay = 60 * 60 * 12;
 
-        return (int)ceil(time() / ($secondsInHalfADay));
+        return (int)ceil(time() / $secondsInHalfADay);
     }
 
     /**
@@ -679,39 +833,26 @@ abstract class Utils
      * action is the same for 12 hours.
      *
      * @param string $action      the action the nonce is tied to (e.g. save-user-admin or move-page-homepage)
-     * @param bool   $plusOneTick if true, generates the token for the next tick (the next 12 hours)
+     * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
      *
      * @return string the nonce
      */
-    public static function getNonce($action, $plusOneTick = false)
+    public static function getNonce($action, $previousTick = false)
     {
         // Don't regenerate this again if not needed
-        if (isset(static::$nonces[$action])) {
-            return static::$nonces[$action];
+        if (isset(static::$nonces[$action][$previousTick])) {
+            return static::$nonces[$action][$previousTick];
         }
-        $nonce = md5(self::generateNonceString($action, $plusOneTick));
-        static::$nonces[$action] = $nonce;
+        $nonce = md5(self::generateNonceString($action, $previousTick));
+        static::$nonces[$action][$previousTick] = $nonce;
 
-        return static::$nonces[$action];
-    }
-
-    //Added in version 1.0.8 to ensure that existing nonces are not broken.
-    public static function getNonceOldStyle($action, $plusOneTick = false)
-    {
-        // Don't regenerate this again if not needed
-        if (isset(static::$nonces[$action])) {
-            return static::$nonces[$action];
-        }
-        $nonce = md5(self::generateNonceStringOldStyle($action, $plusOneTick));
-        static::$nonces[$action] = $nonce;
-
-        return static::$nonces[$action];
+        return static::$nonces[$action][$previousTick];
     }
 
     /**
      * Verify the passed nonce for the give action
      *
-     * @param string $nonce  the nonce to verify
+     * @param string|string[] $nonce  the nonce to verify
      * @param string $action the action to verify the nonce to
      *
      * @return boolean verified or not
@@ -724,26 +865,13 @@ abstract class Utils
         }
 
         //Nonce generated 0-12 hours ago
-        if ($nonce == self::getNonce($action)) {
+        if ($nonce === self::getNonce($action)) {
             return true;
         }
 
         //Nonce generated 12-24 hours ago
-        $plusOneTick = true;
-        if ($nonce == self::getNonce($action, $plusOneTick)) {
-            return true;
-        }
-
-
-        //Added in version 1.0.8 to ensure that existing nonces are not broken.
-        //Nonce generated 0-12 hours ago
-        if ($nonce == self::getNonceOldStyle($action)) {
-            return true;
-        }
-
-        //Nonce generated 12-24 hours ago
-        $plusOneTick = true;
-        if ($nonce == self::getNonceOldStyle($action, $plusOneTick)) {
+        $previousTick = true;
+        if ($nonce === self::getNonce($action, $previousTick)) {
             return true;
         }
 
@@ -775,15 +903,16 @@ abstract class Utils
      */
     public static function getDotNotation($array, $key, $default = null)
     {
-        if (is_null($key)) return $array;
+        if (null === $key) {
+            return $array;
+        }
 
-        if (isset($array[$key])) return $array[$key];
+        if (isset($array[$key])) {
+            return $array[$key];
+        }
 
-        foreach (explode('.', $key) as $segment)
-        {
-            if ( ! is_array($array) ||
-                ! array_key_exists($segment, $array))
-            {
+        foreach (explode('.', $key) as $segment) {
+            if (!is_array($array) || !array_key_exists($segment, $array)) {
                 return $default;
             }
 
@@ -806,12 +935,13 @@ abstract class Utils
      */
     public static function setDotNotation(&$array, $key, $value, $merge = false)
     {
-        if (is_null($key)) return $array = $value;
+        if (null === $key) {
+            return $array = $value;
+        }
 
         $keys = explode('.', $key);
 
-        while (count($keys) > 1)
-        {
+        while (count($keys) > 1) {
             $key = array_shift($keys);
 
             if ( ! isset($array[$key]) || ! is_array($array[$key]))
@@ -839,8 +969,9 @@ abstract class Utils
      *
      * @return bool
      */
-    public static function isWindows() {
-        return strncasecmp(PHP_OS, 'WIN', 3) == 0;
+    public static function isWindows()
+    {
+        return strncasecmp(PHP_OS, 'WIN', 3) === 0;
     }
 
     /**
@@ -849,6 +980,170 @@ abstract class Utils
      * @return bool
      */
     public static function isApache() {
-        return strpos($_SERVER["SERVER_SOFTWARE"], 'Apache') !== false;
+        return isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false;
+    }
+
+    /**
+     * Sort a multidimensional array  by another array of ordered keys
+     *
+     * @param array $array
+     * @param array $orderArray
+     * @return array
+     */
+    public static function sortArrayByArray(array $array, array $orderArray)
+    {
+        $ordered = array();
+        foreach ($orderArray as $key) {
+            if (array_key_exists($key, $array)) {
+                $ordered[$key] = $array[$key];
+                unset($array[$key]);
+            }
+        }
+        return $ordered + $array;
+    }
+
+    /**
+     * Sort an array by a key value in the array
+     *
+     * @param $array
+     * @param $array_key
+     * @param int $direction
+     * @param int $sort_flags
+     * @return array
+     */
+    public static function sortArrayByKey($array, $array_key, $direction = SORT_DESC, $sort_flags = SORT_REGULAR )
+    {
+        $output = [];
+
+        if (!is_array($array) || !$array) {
+            return $output;
+        }
+
+        foreach ($array as $key => $row) {
+            $output[$key] = $row[$array_key];
+        }
+
+        array_multisort($output, $direction, $sort_flags, $array);
+
+        return $array;
+    }
+
+    /**
+     * Get's path based on a token
+     *
+     * @param $path
+     * @param Page|null $page
+     * @return string
+     * @throws \RuntimeException
+     */
+    public static function getPagePathFromToken($path, $page = null)
+    {
+        $path_parts = pathinfo($path);
+        $grav       = Grav::instance();
+
+        $basename = '';
+        if (isset($path_parts['extension'])) {
+            $basename = '/' . $path_parts['basename'];
+            $path     = rtrim($path_parts['dirname'], ':');
+        }
+
+        $regex = '/(@self|self@)|((?:@page|page@):(?:.*))|((?:@theme|theme@):(?:.*))/';
+        preg_match($regex, $path, $matches);
+
+        if ($matches) {
+            if ($matches[1]) {
+                if (null === $page) {
+                    throw new \RuntimeException('Page not available for this self@ reference');
+                }
+            } elseif ($matches[2]) {
+                // page@
+                $parts = explode(':', $path);
+                $route = $parts[1];
+                $page  = $grav['page']->find($route);
+            } elseif ($matches[3]) {
+                // theme@
+                $parts = explode(':', $path);
+                $route = $parts[1];
+                $theme = str_replace(ROOT_DIR, '', $grav['locator']->findResource("theme://"));
+
+                return $theme . $route . $basename;
+            }
+        } else {
+            return $path . $basename;
+        }
+
+        if (!$page) {
+            throw new \RuntimeException('Page route not found: ' . $path);
+        }
+
+        $path = str_replace($matches[0], rtrim($page->relativePagePath(), '/'), $path);
+
+        return $path . $basename;
+    }
+
+    public static function getUploadLimit()
+    {
+        static $max_size = -1;
+
+        if ($max_size < 0) {
+            $post_max_size = static::parseSize(ini_get('post_max_size'));
+            if ($post_max_size > 0) {
+                $max_size = $post_max_size;
+            }
+
+            $upload_max = static::parseSize(ini_get('upload_max_filesize'));
+            if ($upload_max > 0 && $upload_max < $max_size) {
+                $max_size = $upload_max;
+            }
+        }
+
+        return $max_size;
+    }
+
+    /**
+     * Parse a readable file size and return a value in bytes
+     *
+     * @param $size
+     * @return int
+     */
+    public static function parseSize($size)
+    {
+        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
+        $size = preg_replace('/[^0-9\.]/', '', $size);
+        if ($unit) {
+            return (int)($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+        }
+
+        return (int)$size;
+    }
+
+    /**
+     * Multibyte-safe Parse URL function
+     *
+     * @param $url
+     * @return mixed
+     * @throws \InvalidArgumentException
+     */
+    public static function multibyteParseUrl($url)
+    {
+        $enc_url = preg_replace_callback(
+            '%[^:/@?&=#]+%usD',
+            function ($matches) {
+                return urlencode($matches[0]);
+            },
+            $url
+        );
+
+        $parts = parse_url($enc_url);
+
+        if($parts === false) {
+            throw new \InvalidArgumentException('Malformed URL: ' . $url);
+        }
+
+        foreach($parts as $name => $value) {
+            $parts[$name] = urldecode($value);
+        }
+
+        return $parts;
     }
 }
