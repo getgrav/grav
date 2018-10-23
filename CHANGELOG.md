@@ -10,6 +10,7 @@
     * Additional helper methods in `Language`, `Languages`, and `LanguageCodes` classes
 1. [](#bugfix)
     * Use login provider User avatar if set
+    * Fixed `Folder::doDelete($folder, false)` removing symlink when it should not
     
 # v1.6.0-beta.3
 ## 10/15/2018
