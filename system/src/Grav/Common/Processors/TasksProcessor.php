@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Framework\RequestHandler\Exception\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -21,8 +22,21 @@ class TasksProcessor extends ProcessorBase
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
         $this->startTimer();
+
         $task = $this->container['task'];
         if ($task) {
+            $params = $request->getAttribute('controller');
+            $controllerClass = $params['class'] ?? null;
+            if ($controllerClass) {
+                /** @var RequestHandlerInterface $controller */
+                $controller = new $controllerClass($params);
+                try {
+                    return $controller->handle($request);
+                } catch (NotFoundException $e) {
+                    // Task not found: Let it pass through.
+                }
+            }
+
             $this->container->fireEvent('onTask.' . $task);
         }
         $this->stopTimer();

@@ -22,17 +22,24 @@ abstract class ProcessorBase implements ProcessorInterface
         $this->container = $container;
     }
 
-    protected function startTimer()
+    protected function startTimer($id = null, $title = null)
     {
         /** @var Debugger $debugger */
         $debugger = $this->container['debugger'];
-        $debugger->startTimer($this->id, $this->title);
+        $debugger->startTimer($id ?? $this->id, $title ?? $this->title);
     }
 
-    protected function stopTimer()
+    protected function stopTimer($id = null)
     {
         /** @var Debugger $debugger */
         $debugger = $this->container['debugger'];
-        $debugger->stopTimer($this->id);
+        $debugger->stopTimer($id ?? $this->id);
+    }
+
+    protected function addMessage($message, $label = 'info', $isString = true)
+    {
+        /** @var Debugger $debugger */
+        $debugger = $this->container['debugger'];
+        $debugger->addMessage($message, $label, $isString);
     }
 }
