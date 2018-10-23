@@ -504,4 +504,16 @@ class Language
         return $this->http_accept_language;
     }
 
+    /**
+     * Accessible wrapper to LanguageCodes
+     *
+     * @param $code
+     * @param string $type
+     * @return bool
+     */
+    public function getLanguageCode($code, $type = 'name')
+    {
+        return LanguageCodes::get($code, $type);
+    }
+
 }

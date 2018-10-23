@@ -1,8 +1,11 @@
 # v1.6.0-beta.4
 ## mm/dd/2018
 
+1. [](#new)
+    * Added `Utils::arrayFlattenDotNotation()` and `Utils::arrayUnflattenDotNotation()` helper methods
 1. [](#improved)
     * Added apcu autoloader optimization
+    * Additional helper methods in `Language`, `Languages`, and `LanguageCodes` classes
 1. [](#bugfix)
     * Use login provider User avatar if set
     
