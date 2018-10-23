@@ -196,7 +196,7 @@ class LanguageCodes
         return $results;
     }
 
-    protected static function get($code, $type)
+    public static function get($code, $type)
     {
         if (isset(static::$codes[$code][$type])) {
             return static::$codes[$code][$type];

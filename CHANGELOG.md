@@ -2,16 +2,21 @@
 ## mm/dd/2018
 
 1. [](#new)
+    * Added new system config option to `pages.hide_empty_folders` if a folder has no valid `.md` file available. Default behavior is `false` for compatibility.
+    * Added new system config option for `languages.pages_fallback_only` forcing only 'fallback' to find page content through supported languages, default behavior is to display any language found if active language is missing
+    * Added `Utils::arrayFlattenDotNotation()` and `Utils::arrayUnflattenDotNotation()` helper methods
     * Added PSR-7 and PSR-15 classes
     * Added `Grav\Framework\DI\Container` class
     * Added `Grav\Framework\RequestHandler\RequestHandler` class
     * Added `Page::httpResponseCode()` and `Page::httpHeaders()` methods
 1. [](#improved)
     * Added apcu autoloader optimization
+    * Additional helper methods in `Language`, `Languages`, and `LanguageCodes` classes
     * Updated `Grav` container object to implement PSR-11 `ContainerInterface`
     * Updated Grav `Processor` classes to implement PSR-15 `MiddlewareInterface`
 1. [](#bugfix)
     * Use login provider User avatar if set
+    * Fixed `Folder::doDelete($folder, false)` removing symlink when it should not
     
 # v1.6.0-beta.3
 ## 10/15/2018

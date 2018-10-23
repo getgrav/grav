@@ -709,6 +709,55 @@ abstract class Utils
     }
 
     /**
+     * Flatten a multi-dimensional associative array into dot notation
+     *
+     * @param  array   $array
+     * @param  string  $prepend
+     * @return array
+     */
+    public static function arrayFlattenDotNotation($array, $prepend = '')
+    {
+        $results = array();
+        foreach ($array as $key => $value)
+        {
+            if (is_array($value))
+            {
+                $results = array_merge($results, static::arrayFlattenDotNotation($value, $prepend.$key.'.'));
+            }
+            else
+            {
+                $results[$prepend.$key] = $value;
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * Opposite of flatten, convert flat dot notation array to multi dimensional array
+     *
+     * @param $array
+     * @param string $separator
+     * @return array
+     */
+    public static function arrayUnflattenDotNotation($array, $separator = '.') {
+        $newArray = array();
+        foreach($array as $key => $value) {
+            $dots = explode($separator, $key);
+            if(count($dots) > 1) {
+                $last = &$newArray[ $dots[0] ];
+                foreach($dots as $k => $dot) {
+                    if($k == 0) continue;
+                    $last = &$last[$dot];
+                }
+                $last = $value;
+            } else {
+                $newArray[$key] = $value;
+            }
+        }
+        return $newArray;
+    }
+
+    /**
      * Checks if the passed path contains the language code prefix
      *
      * @param string $string The path

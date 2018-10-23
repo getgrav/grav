@@ -233,6 +233,15 @@ form:
                             validate:
                                 type: commalist
 
+                        pages.hide_empty_folders:
+                            type: selectize
+                            size: large
+                            label: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS
+                            help: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS_HELP
+                            classes: fancy
+                            validate:
+                                type: commalist
+
                         pages.url_taxonomy_filters:
                             type: toggle
                             label: PLUGIN_ADMIN.ALLOW_URL_TAXONOMY_FILTERS
@@ -318,6 +327,16 @@ form:
                             validate:
                                 type: bool
 
+                        languages.pages_fallback_only:
+                            type: toggle
+                            label: PLUGIN_ADMIN.PAGES_FALLBACK_ONLY
+                            help: PLUGIN_ADMIN.PAGES_FALLBACK_ONLY_HELP
+                            highlight: 0
+                            options:
+                                1: PLUGIN_ADMIN.YES
+                                0: PLUGIN_ADMIN.NO
+                            validate:
+                                type: bool
 
                         languages.translations:
                             type: toggle

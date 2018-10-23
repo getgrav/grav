@@ -52,4 +52,15 @@ class Languages extends Data
     {
         $this->items = Utils::arrayMergeRecursiveUnique($this->items, $data);
     }
+
+    public function flattenByLang($lang)
+    {
+        $language = $this->items[$lang];
+        return Utils::arrayFlattenDotNotation($language);
+    }
+
+    public function unflatten($array)
+    {
+        return Utils::arrayUnflattenDotNotation($array);
+    }
 }

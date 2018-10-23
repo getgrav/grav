@@ -14,6 +14,7 @@ intl_enabled: true                               # Special logic for PHP Interna
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
   include_default_lang: true                     # Include the default lang prefix in all URLs
+  pages_fallback_only: false                     # Only fallback to find page content through supported languages
   translations: true                             # Enable translations by default
   translations_fallback: true                    # Fallback through supported translations if active lang doesn't exist
   session_store_active: false                    # Store active language in session
@@ -65,6 +66,7 @@ pages:
   ignore_files: [.DS_Store]                      # Files to ignore in Pages
   ignore_folders: [.git, .idea]                  # Folders to ignore in Pages
   ignore_hidden: true                            # Ignore all Hidden files and folders
+  hide_empty_folders: false                      # If folder has no .md file, should it be hidden
   url_taxonomy_filters: true                     # Enable auto-magic URL-based taxonomy filters for page collections
   frontmatter:
     process_twig: false                          # Should the frontmatter be processed to replace Twig variables?
