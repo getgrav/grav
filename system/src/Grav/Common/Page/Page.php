@@ -342,7 +342,7 @@ class Page implements PageInterface
                     }
                 } catch (ParseException $e) {
                     $file->raw(Grav::instance()['language']->translate([
-                        'FRONTMATTER_ERROR_PAGE',
+                        'GRAV.FRONTMATTER_ERROR_PAGE',
                         $this->slug(),
                         $file->filename(),
                         $e->getMessage(),

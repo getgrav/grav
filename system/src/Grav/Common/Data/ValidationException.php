@@ -18,7 +18,7 @@ class ValidationException extends \RuntimeException
         $this->messages = $messages;
 
         $language = Grav::instance()['language'];
-        $this->message = $language->translate('FORM.VALIDATION_FAIL', null, true) . ' ' . $this->message;
+        $this->message = $language->translate('GRAV.FORM.VALIDATION_FAIL', null, true) . ' ' . $this->message;
 
         foreach ($messages as $variable => &$list) {
             $list = array_unique($list);
