@@ -1,3 +1,9 @@
+# v1.5.4
+## mm/dd/2018
+
+1. [](#bugfix)
+    * Fixed fatal error if calling `$session->invalidate()` when there's no active session
+    
 # v1.5.3
 ## 10/08/2018
 

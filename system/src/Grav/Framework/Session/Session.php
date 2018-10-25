@@ -229,8 +229,10 @@ class Session implements SessionInterface
             $params['httponly']
         );
 
-        session_unset();
-        session_destroy();
+        if ($this->isSessionStarted()) {
+            session_unset();
+            session_destroy();
+        }
 
         $this->started = false;
 
