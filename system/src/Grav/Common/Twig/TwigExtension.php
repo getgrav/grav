@@ -474,7 +474,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function nicetimeFunc($date, $long_strings = true, $show_tense = true)
     {
         if (empty($date)) {
-            return $this->grav['language']->translate('NICETIME.NO_DATE_PROVIDED', null, true);
+            return $this->grav['language']->translate('GRAV.NICETIME.NO_DATE_PROVIDED', null, true);
         }
 
         if ($long_strings) {
@@ -514,21 +514,21 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         // check validity of date
         if (empty($unix_date)) {
-            return $this->grav['language']->translate('NICETIME.BAD_DATE', null, true);
+            return $this->grav['language']->translate('GRAV.NICETIME.BAD_DATE', null, true);
         }
 
         // is it future date or past date
         if ($now > $unix_date) {
             $difference = $now - $unix_date;
-            $tense      = $this->grav['language']->translate('NICETIME.AGO', null, true);
+            $tense      = $this->grav['language']->translate('GRAV.NICETIME.AGO', null, true);
 
         } else if ($now == $unix_date) {
             $difference = $now - $unix_date;
-            $tense      = $this->grav['language']->translate('NICETIME.JUST_NOW', null, false);
+            $tense      = $this->grav['language']->translate('GRAV.NICETIME.JUST_NOW', null, false);
 
         } else {
             $difference = $unix_date - $now;
-            $tense      = $this->grav['language']->translate('NICETIME.FROM_NOW', null, true);
+            $tense      = $this->grav['language']->translate('GRAV.NICETIME.FROM_NOW', null, true);
         }
 
         for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths) - 1; $j++) {
@@ -549,7 +549,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             }
         }
 
-        $periods[$j] = $this->grav['language']->translate($periods[$j], null, true);
+        $periods[$j] = $this->grav['language']->translate('GRAV.'.$periods[$j], null, true);
 
         if ($now == $unix_date) {
             return "{$tense}";

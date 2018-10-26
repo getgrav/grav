@@ -1,0 +1,63 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\njudul: %1$s\n---\n\n# Error: Frontmatter Tidak Valid\n\nLokasi Path: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  NICETIME:
+    NO_DATE_PROVIDED: Tanggal tidak ada
+    BAD_DATE: Format tanggal salah
+    AGO: yang lalu
+    FROM_NOW: sejak sekarang
+    SECOND: detik
+    MINUTE: menit
+    HOUR: jam
+    DAY: hari
+    WEEK: pekan
+    MONTH: bulan
+    YEAR: tahun
+    DECADE: dekade
+    SEC: dtk
+    MIN: mnt
+    HR: j
+    WK: mgg
+    MO: bln
+    YR: thn
+    DEC: desimal
+    SECOND_PLURAL: detik
+    MINUTE_PLURAL: menit
+    HOUR_PLURAL: jam
+    DAY_PLURAL: hari
+    WEEK_PLURAL: pekan
+    MONTH_PLURAL: bulan
+    YEAR_PLURAL: tahun
+    DECADE_PLURAL: dekade
+    SEC_PLURAL: dtk
+    MIN_PLURAL: mnt
+    HR_PLURAL: j
+    WK_PLURAL: mgg
+    MO_PLURAL: bln
+    YR_PLURAL: thn
+    DEC_PLURAL: dekade
+  FORM:
+    VALIDATION_FAIL: <b>Validasi gagal:</b>
+    INVALID_INPUT: Input tidak valid di
+    MISSING_REQUIRED_FIELD: 'Data yang diperlukan belum terisi:'
+  MONTHS_OF_THE_YEAR:
+    - 'Januari'
+    - 'Februari'
+    - 'Maret'
+    - 'April'
+    - 'Mei'
+    - 'Juni'
+    - 'Juli'
+    - 'Agustus'
+    - 'September'
+    - 'Oktober'
+    - 'November'
+    - 'Desember'
+  DAYS_OF_THE_WEEK:
+    - 'Senin'
+    - 'Selasa'
+    - 'Rabu'
+    - 'Kamis'
+    - 'Jumat'
+    - 'Sabtu'
+    - 'Minggu'

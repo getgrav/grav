@@ -1,81 +1,83 @@
 ---
-INFLECTOR_UNCOUNTABLE:
-  - vybavení
-  - informace
-  - rýže
-  - peníze
-  - druhy
-  - série
-  - ryba
-  - ovce
-INFLECTOR_IRREGULAR:
-  person: lidé
-  man: muži
-  child: děti
-  sex: pohlaví
-  move: pohyby
-INFLECTOR_ORDINALS:
-  default: '.'
-  first: '.'
-  second: '.'
-  third: '.'
-NICETIME:
-  NO_DATE_PROVIDED: Datum nebylo vloženo
-  BAD_DATE: Chybné datum
-  AGO: zpět
-  FROM_NOW: od teď
-  SECOND: sekunda
-  MINUTE: minuta
-  HOUR: hodina
-  DAY: den
-  WEEK: týden
-  MONTH: měsíc
-  YEAR: rok
-  DECADE: dekáda
-  SEC: sek
-  MIN: min
-  HR: hod
-  WK: t
-  MO: m
-  YR: r
-  DEC: dek
-  SECOND_PLURAL: sekundy
-  MINUTE_PLURAL: minuty
-  HOUR_PLURAL: hodiny
-  DAY_PLURAL: dny
-  WEEK_PLURAL: týdny
-  MONTH_PLURAL: měsíce
-  YEAR_PLURAL: roky
-  DECADE_PLURAL: dekády
-  SEC_PLURAL: sek
-  MIN_PLURAL: min
-  HR_PLURAL: hod
-  WK_PLURAL: t
-  MO_PLURAL: m
-  YR_PLURAL: r
-  DEC_PLURAL: dek
-FORM:
-  VALIDATION_FAIL: '<b>Ověření se nezdařilo:</b>'
-  INVALID_INPUT: Neplatný vstup v
-  MISSING_REQUIRED_FIELD: 'Chybí požadované pole:'
-MONTHS_OF_THE_YEAR:
-  - ledna
-  - února
-  - března
-  - dubna
-  - května
-  - června
-  - července
-  - srpna
-  - září
-  - října
-  - listopadu
-  - prosince
-DAYS_OF_THE_WEEK:
-  - Pondělí
-  - Úterý
-  - Středa
-  - Čtvrtek
-  - Pátek
-  - Sobota
-  - Neděle
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Chyba: Chybný frontmatter\n\nPath: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'vybavení'
+    - 'informace'
+    - 'rýže'
+    - 'peníze'
+    - 'druhy'
+    - 'série'
+    - 'ryba'
+    - 'ovce'
+  INFLECTOR_IRREGULAR:
+    'person': 'lidé'
+    'man': 'muži'
+    'child': 'děti'
+    'sex': 'pohlaví'
+    'move': 'pohyby'
+  INFLECTOR_ORDINALS:
+    'default': '.'
+    'first': '.'
+    'second': '.'
+    'third': '.'
+  NICETIME:
+    NO_DATE_PROVIDED: Datum nebylo vloženo
+    BAD_DATE: Chybné datum
+    AGO: zpět
+    FROM_NOW: od teď
+    SECOND: sekunda
+    MINUTE: minuta
+    HOUR: hodina
+    DAY: den
+    WEEK: týden
+    MONTH: měsíc
+    YEAR: rok
+    DECADE: dekáda
+    SEC: sek
+    MIN: min
+    HR: hod
+    WK: t
+    MO: m
+    YR: r
+    DEC: dek
+    SECOND_PLURAL: sekundy
+    MINUTE_PLURAL: minuty
+    HOUR_PLURAL: hodiny
+    DAY_PLURAL: dny
+    WEEK_PLURAL: týdny
+    MONTH_PLURAL: měsíce
+    YEAR_PLURAL: roky
+    DECADE_PLURAL: dekády
+    SEC_PLURAL: sek
+    MIN_PLURAL: min
+    HR_PLURAL: hod
+    WK_PLURAL: t
+    MO_PLURAL: m
+    YR_PLURAL: r
+    DEC_PLURAL: dek
+  FORM:
+    VALIDATION_FAIL: <b>Ověření se nezdařilo:</b>
+    INVALID_INPUT: Neplatný vstup v
+    MISSING_REQUIRED_FIELD: 'Chybí požadované pole:'
+  MONTHS_OF_THE_YEAR:
+    - 'leden'
+    - 'únor'
+    - 'březen'
+    - 'duben'
+    - 'květen'
+    - 'červen'
+    - 'červenec'
+    - 'srpen'
+    - 'září'
+    - 'říjen'
+    - 'listopad'
+    - 'prosinec'
+  DAYS_OF_THE_WEEK:
+    - 'pondělí'
+    - 'úterý'
+    - 'středa'
+    - 'čtvrtek'
+    - 'pátek'
+    - 'sobota'
+    - 'neděle'
