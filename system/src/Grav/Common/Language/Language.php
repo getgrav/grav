@@ -46,6 +46,7 @@ class Language
     public function init()
     {
         $this->default = reset($this->languages);
+        $this->page_extensions = null;
 
         if (empty($this->languages)) {
             $this->enabled = false;
