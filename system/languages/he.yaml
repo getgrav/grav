@@ -1,0 +1,63 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\nכותרת: %1$s\n---\n# שגיאה: Fronmatter לא חוקי\nנתיב: `%2$s`\n**%3$s**\n```\n%4$s\n```"
+  NICETIME:
+    NO_DATE_PROVIDED: לא סופק תאריך
+    BAD_DATE: תאריך פגום
+    AGO: לפני
+    FROM_NOW: כרגע
+    SECOND: שנייה
+    MINUTE: דקה
+    HOUR: שעה
+    DAY: יום
+    WEEK: שבוע
+    MONTH: חודש
+    YEAR: שנה
+    DECADE: עשור
+    SEC: שנ'
+    MIN: דק'
+    HR: ש'
+    WK: שב'
+    MO: חו'
+    YR: שני'
+    DEC: עש'
+    SECOND_PLURAL: שניות
+    MINUTE_PLURAL: דקות
+    HOUR_PLURAL: שעות
+    DAY_PLURAL: ימים
+    WEEK_PLURAL: שבועות
+    MONTH_PLURAL: חודשים
+    YEAR_PLURAL: שנים
+    DECADE_PLURAL: עשורים
+    SEC_PLURAL: שנ'
+    MIN_PLURAL: דק'
+    HR_PLURAL: ש'
+    WK_PLURAL: שב'
+    MO_PLURAL: חו'
+    YR_PLURAL: שני'
+    DEC_PLURAL: עש'
+  FORM:
+    VALIDATION_FAIL: <b>האימות נכשל:</b>
+    INVALID_INPUT: קלט לא חוקי
+    MISSING_REQUIRED_FIELD: 'שדות חובה חסרים:'
+  MONTHS_OF_THE_YEAR:
+    - 'ינואר'
+    - 'פברואר'
+    - 'מרץ'
+    - 'אפריל'
+    - 'מאי'
+    - 'יוני'
+    - 'יולי'
+    - 'אוגוסט'
+    - 'ספטמבר'
+    - 'אוקטובר'
+    - 'נובמבר'
+    - 'דצמבר'
+  DAYS_OF_THE_WEEK:
+    - 'שני'
+    - 'שלישי'
+    - 'רביעי'
+    - 'חמישי'
+    - 'שישי'
+    - 'שבת'
+    - 'ראשון'

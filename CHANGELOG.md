@@ -1,5 +1,5 @@
 # v1.6.0-beta.4
-## mm/dd/2018
+## 10/24/2018
 
 1. [](#new)
     * Added new system config option to `pages.hide_empty_folders` if a folder has no valid `.md` file available. Default behavior is `false` for compatibility.
@@ -63,6 +63,12 @@
 1. [](#improved)
     * Doctrine filecache is now namespaced with prefix to support purging
     * Register all page types into `blueprint://pages` stream
+    
+# v1.5.4
+## mm/dd/2018
+
+1. [](#bugfix)
+    * Fixed fatal error if calling `$session->invalidate()` when there's no active session
     
 # v1.5.3
 ## 10/08/2018

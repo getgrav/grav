@@ -46,7 +46,7 @@ class Validation
         $name = ucfirst($field['label'] ?? $field['name']);
         $message = (string) isset($field['validate']['message'])
             ? $language->translate($field['validate']['message'])
-            : $language->translate('FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
+            : $language->translate('GRAV.FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
 
         // If this is a YAML field validate/filter as such

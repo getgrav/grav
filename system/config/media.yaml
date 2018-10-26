@@ -53,7 +53,7 @@ types:
     thumb: media/thumb-flv.png
     mime: video/x-flv
   webm:
-    type: file
+    type: video
     thumb: media/thumb-webm.png
     mime: video/webm
   ogv:
