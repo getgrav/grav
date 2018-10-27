@@ -1051,7 +1051,7 @@ class Pages
 
         $folders = [];
         $page_found = null;
-        $page_extension = '';
+        $page_extension = '.md';
         $last_modified = 0;
 
         $iterator = new \FilesystemIterator($directory);

@@ -126,6 +126,17 @@ class Page implements PageInterface
     {
         $config = Grav::instance()['config'];
 
+        // some extension logic
+        if (empty($extension)) {
+            $this->extension('.' . $file->getExtension());
+        } else {
+            $this->extension($extension);
+        }
+
+        // extract page language from page extension
+        $language = trim(basename($this->extension(), 'md'), '.') ?: null;
+        $this->language($language);
+
         $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
         $this->home_route = $this->adjustRouteCase($config->get('system.home.alias'));
         $this->filePath($file->getPathName());
@@ -142,16 +153,6 @@ class Page implements PageInterface
         $this->published();
         $this->urlExtension();
 
-        // some extension logic
-        if (empty($extension)) {
-            $this->extension('.' . $file->getExtension());
-        } else {
-            $this->extension($extension);
-        }
-
-        // extract page language from page extension
-        $language = trim(basename($this->extension(), 'md'), '.') ?: null;
-        $this->language($language);
 
         return $this;
     }
