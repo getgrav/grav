@@ -117,7 +117,7 @@ class FileStorage extends AbstractCache
 
                 return rename($this->tmp, $file);
             } catch (\CacheException $e) {
-                throw new \CacheException($e);
+                throw $e;
             } finally {
                 restore_error_handler();
             }
