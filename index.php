@@ -23,6 +23,7 @@ if (PHP_SAPI === 'cli-server') {
     }
 }
 
+
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
 
