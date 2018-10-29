@@ -10,6 +10,7 @@
     * Updated `Grav` container object to implement PSR-11 `ContainerInterface`
     * Updated Grav `Processor` classes to implement PSR-15 `MiddlewareInterface`
     * Make `Data` class to extend `JsonSerializable`
+    * Modified debugger icon to use retina space-dude version
 
 # v1.6.0-beta.4
 ## 10/24/2018
