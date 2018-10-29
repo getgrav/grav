@@ -199,10 +199,10 @@ class Collection extends Iterator
     {
         if ($key instanceof Page) {
             $key = $key->path();
-        } elseif (is_null($key)) {
+        } elseif (null === $key) {
             $key = key($this->items);
         }
-        if (!is_string($key)) {
+        if (!\is_string($key)) {
             throw new \InvalidArgumentException('Invalid argument $key.');
         }
 
@@ -237,11 +237,7 @@ class Collection extends Iterator
      */
     public function isFirst($path)
     {
-        if ($this->items && $path == array_keys($this->items)[0]) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->items && $path === array_keys($this->items)[0];
     }
 
     /**
@@ -253,11 +249,7 @@ class Collection extends Iterator
      */
     public function isLast($path)
     {
-        if ($this->items && $path == array_keys($this->items)[count($this->items) - 1]) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->items && $path === array_keys($this->items)[\count($this->items) - 1];
     }
 
     /**
@@ -290,7 +282,7 @@ class Collection extends Iterator
      * @param  string  $path
      * @param  integer $direction either -1 or +1
      *
-     * @return Page    The sibling item.
+     * @return Page|Collection    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {
@@ -316,7 +308,7 @@ class Collection extends Iterator
      */
     public function currentPosition($path)
     {
-        return array_search($path, array_keys($this->items));
+        return \array_search($path, \array_keys($this->items), true);
     }
 
     /**
@@ -518,7 +510,7 @@ class Collection extends Iterator
     /**
      * Creates new collection with only pages of the specified type
      *
-     * @param $type
+     * @param string $type
      *
      * @return Collection The collection
      */
@@ -528,7 +520,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && $page->template() == $type) {
+            if ($page !== null && $page->template() === $type) {
                 $items[$path] = $slug;
             }
         }
@@ -541,7 +533,7 @@ class Collection extends Iterator
     /**
      * Creates new collection with only pages of one of the specified types
      *
-     * @param $types
+     * @param string[] $types
      *
      * @return Collection The collection
      */
@@ -551,7 +543,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && in_array($page->template(), $types)) {
+            if ($page !== null && \in_array($page->template(), $types, true)) {
                 $items[$path] = $slug;
             }
         }
@@ -564,7 +556,7 @@ class Collection extends Iterator
     /**
      * Creates new collection with only pages of one of the specified access levels
      *
-     * @param $accessLevels
+     * @param array $accessLevels
      *
      * @return Collection The collection
      */
@@ -576,19 +568,19 @@ class Collection extends Iterator
             $page = $this->pages->get($path);
 
             if ($page !== null && isset($page->header()->access)) {
-                if (is_array($page->header()->access)) {
+                if (\is_array($page->header()->access)) {
                     //Multiple values for access
                     $valid = false;
 
                     foreach ($page->header()->access as $index => $accessLevel) {
-                        if (is_array($accessLevel)) {
+                        if (\is_array($accessLevel)) {
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                if (in_array($innerAccessLevel, $accessLevels)) {
+                                if (\in_array($innerAccessLevel, $accessLevels)) {
                                     $valid = true;
                                 }
                             }
                         } else {
-                            if (in_array($index, $accessLevels)) {
+                            if (\in_array($index, $accessLevels)) {
                                 $valid = true;
                             }
                         }
@@ -598,7 +590,7 @@ class Collection extends Iterator
                     }
                 } else {
                     //Single value for access
-                    if (in_array($page->header()->access, $accessLevels)) {
+                    if (\in_array($page->header()->access, $accessLevels)) {
                         $items[$path] = $slug;
                     }
                 }
