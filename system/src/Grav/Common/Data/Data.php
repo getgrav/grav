@@ -15,7 +15,7 @@ use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\FileInterface;
 
-class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
+class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable, ExportInterface
 {
     use NestedArrayAccessWithGetters, Countable, Export;
 
@@ -286,5 +286,10 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
         }
 
         return $this->storage;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->items;
     }
 }
