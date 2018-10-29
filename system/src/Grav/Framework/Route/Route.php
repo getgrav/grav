@@ -173,6 +173,17 @@ class Route
     }
 
     /**
+     * @param string $path
+     * @return Route
+     */
+    public function withAddedPath($path)
+    {
+        $this->route .= '/' . ltrim($path, '/');
+
+        return $this;
+    }
+
+    /**
      * @param string $param
      * @param mixed $value
      * @return Route
