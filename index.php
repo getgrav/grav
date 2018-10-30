@@ -26,6 +26,7 @@ if (PHP_SAPI === 'cli-server') {
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
 
+// Checks version
 if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
     die(sprintf('You are running PHP %s, but Grav needs at least <strong>PHP %s</strong> to run.', $ver, $req));
 }
