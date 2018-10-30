@@ -85,10 +85,27 @@ class VideoMedium extends Medium
      */
     public function autoplay($status = false)
     {
-        if($status) {
-            $this->attributes['autoplay'] = true;
+        if ($status) {
+            $this->attributes['autoplay'] = '';
         } else {
             unset($this->attributes['autoplay']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Allows ability to set the preload option
+     *
+     * @param null $status
+     * @return $this
+     */
+    public function preload($status = null)
+    {
+        if ($status) {
+            $this->attributes['preload'] = $status;
+        } else {
+            unset($this->attributes['preload']);
         }
 
         return $this;
