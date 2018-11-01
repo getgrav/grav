@@ -246,7 +246,9 @@ abstract class AbstractIndexCollection implements CollectionInterface
             throw new \InvalidArgumentException('Invalid argument $value');
         }
 
-        $value->setKey($key);
+        if ($key !== $value->getKey()) {
+            $value->setKey($key);
+        }
 
         $this->entries[$key] = $this->getElementMeta($value);
     }
