@@ -91,6 +91,7 @@ if (!$name) {
     $output->writeln("  {$bin} error log -l 1 --trace");
     $list = Folder::all('plugins://', ['compare' => 'Pathname', 'pattern' => '/\/cli\/' . $pattern . '$/usm', 'levels' => 2]);
 
+    $total = 0;
     if (count($list)) {
         $available = [];
         $output->writeln('');
@@ -99,13 +100,15 @@ if (!$name) {
             $split = explode('/', $entry);
             $entry = array_shift($split);
             $index = str_pad($index++ + 1, 2, '0', STR_PAD_LEFT);
-
+            $total = str_pad($total++ + 1, 2, '0', STR_PAD_LEFT);
             if (in_array($entry, $available)) {
+                $total -= 1;
                 continue;
             }
 
             $available[] = $entry;
-            $output->writeln('  ' . $index . '. <red>' . str_pad($entry, 15) . "</red> <white>${bin} ${entry} list</white>");
+            $commands_count = $index - $total + 1;
+            $output->writeln('  ' . $total . '. <red>' . str_pad($entry, 15) . "</red> <white>${bla} ${bin} ${entry} list</white>");
         }
     }
 
