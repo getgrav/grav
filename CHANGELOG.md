@@ -12,6 +12,7 @@
     * Make `Data` class to extend `JsonSerializable`
     * Modified debugger icon to use retina space-dude version
     * Added missing `Video::preload()` method
+    * Added option to configure list of `xss_invalid_protocols` in `Security` config [#2250](https://github.com/getgrav/grav/issues/2250)
 
 # v1.6.0-beta.4
 ## 10/24/2018

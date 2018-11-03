@@ -41,6 +41,14 @@ form:
             validate:
                 type: bool
 
+        xss_invalid_protocols:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.XSS_INVALID_PROTOCOLS_LIST
+            classes: fancy
+            validate:
+                type: commalist
+
         xss_enabled.moz_binding:
             type: toggle
             label: PLUGIN_ADMIN.XSS_MOZ_BINDINGS
