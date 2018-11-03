@@ -12,6 +12,7 @@
     * Make `Data` class to extend `JsonSerializable`
     * Modified debugger icon to use retina space-dude version
     * Added missing `Video::preload()` method
+    * Set session name based on `security.salt` rather than `GRAV_ROOT` [#2242](https://github.com/getgrav/grav/issues/2242)
     * Added option to configure list of `xss_invalid_protocols` in `Security` config [#2250](https://github.com/getgrav/grav/issues/2250)
     * Smarter `security.salt` checking now we use `security.yaml` for other options
 

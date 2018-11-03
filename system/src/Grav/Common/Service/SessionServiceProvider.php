@@ -68,7 +68,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             }
 
             $inflector = new Inflector();
-            $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav_site')) . '-' . substr(md5(GRAV_ROOT), 0, 7);
+            $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav-site')) . '-' . md5($config->get('security.salt'));
             if ($is_admin && $config->get('system.session.split', true)) {
                 $session_name .= '-admin';
             }
