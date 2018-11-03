@@ -271,10 +271,14 @@ class Setup extends Data
 
             // Create security.yaml if it doesn't exist.
             $filename = $locator->findResource('config://security.yaml', true, true);
-            $file = YamlFile::instance($filename);
-            if (!$file->exists()) {
-                $file->save(['salt' => Utils::generateRandomString(14)]);
-                $file->free();
+            $security_file = CompiledYamlFile::instance($filename);
+            $security_content = $security_file->content();
+
+            if (!isset($security_content['salt'])) {
+                $security_content = array_merge($security_content, ['salt' => Utils::generateRandomString(14)]);
+                $security_file->content($security_content);
+                $security_file->save();
+                $security_file->free();
             }
         } catch (\RuntimeException $e) {
             throw new \RuntimeException(sprintf('Grav failed to initialize: %s', $e->getMessage()), 500, $e);
