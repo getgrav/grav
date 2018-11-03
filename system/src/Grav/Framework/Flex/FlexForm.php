@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -23,6 +24,8 @@ class FlexForm implements \Serializable
 {
     /** @var string */
     private $name;
+    /** @var string */
+    private $uniqueid;
     /** @var bool */
     private $submitted;
     /** @var string[] */
@@ -58,6 +61,15 @@ class FlexForm implements \Serializable
         $object = $this->object;
 
         return "flex-{$object->getType(false)}-{$this->name}";
+    }
+
+    public function getUniqueId() : string
+    {
+        if (null === $this->uniqueid) {
+            $this->uniqueid = Utils::generateRandomString(20);
+        }
+
+        return $this->uniqueid;
     }
 
     /**
