@@ -67,8 +67,11 @@ class SessionServiceProvider implements ServiceProviderInterface
                 $cookie_lifetime = 9999999999;
             }
 
-            $inflector = new Inflector();
-            $session_name = $inflector->hyphenize($config->get('system.session.name', 'grav-site')) . '-' . md5($config->get('security.salt'));
+            $session_prefix = $c['inflector']->hyphenize($config->get('system.session.name', 'grav-site'));
+            $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5($config->get('security.salt'));
+
+            $session_name = $session_prefix . '-' . $session_uniqueness;
+
             if ($is_admin && $config->get('system.session.split', true)) {
                 $session_name .= '-admin';
             }

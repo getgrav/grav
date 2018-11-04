@@ -1132,6 +1132,17 @@ form:
                             label: PLUGIN_ADMIN.NAME
                             help: PLUGIN_ADMIN.SESSION_NAME_HELP
 
+                        session.uniqueness:
+                            type: select
+                            size: medium
+                            label: PLUGIN_ADMIN.SESSION_UNIQUENESS
+                            help: PLUGIN_ADMIN.SESSION_UNIQUENESS_HELP
+                            highlight: path
+                            default: path
+                            options:
+                                path: Grav's root file path
+                                salt: Grav's random security salt
+
                         session.secure:
                             type: toggle
                             label: PLUGIN_ADMIN.SESSION_SECURE
