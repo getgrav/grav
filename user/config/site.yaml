@@ -1,7 +1,8 @@
-title: Grav
+title: Nexumport
+default_lang: es
 author:
-  name: Joe Bloggs
-  email: 'joe@example.com'
+  name: Francisco Bahamondes
+  email: francisco.bahamondes90@gmail.com
 metadata:
-    description: 'Grav is an easy to use, yet powerful, open source flat-file CMS'
+    description: 'Nexumport inportaciones'
 

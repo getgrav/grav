@@ -2,9 +2,10 @@ absolute_urls: false
 
 home:
   alias: '/home'
+  hide_in_urls: true
 
 pages:
-  theme: quark
+  theme: nexumport_template
   markdown:
     extra: false
   process:
@@ -43,3 +44,12 @@ debugger:
 gpm:
   releases: stable
   verify_peer: true
+
+languages:
+  supported: [es, en]
+  include_default_lang: true
+  translations: true
+  translations_fallback: true
+  session_store_active: false
+  http_accept_language: false
+  override_locale: false
