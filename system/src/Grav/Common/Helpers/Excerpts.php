@@ -117,7 +117,7 @@ class Excerpts
      */
     public static function processLinkExcerpt($excerpt, Page $page, $type = 'link')
     {
-        $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['href']));
+        $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']));
 
         $url_parts = static::parseUrl($url);
 
