@@ -169,7 +169,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param string $name
      * @return FlexForm
      */
-    public function getForm($name = 'default')
+    public function getForm(string $name = '')
     {
         if (!isset($this->_forms[$name])) {
             $this->_forms[$name] = new FlexForm($name, $this);
@@ -181,9 +181,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return Blueprint
      */
-    public function getBlueprint()
+    public function getBlueprint(string $name = '')
     {
-        return $this->_flexDirectory->getBlueprint();
+        return $this->_flexDirectory->getBlueprint($name ? '.' . $name : $name);
     }
 
     /**

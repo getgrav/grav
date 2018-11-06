@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Flex;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
 use Grav\Common\Grav;
@@ -42,7 +43,7 @@ class FlexForm implements \Serializable
      * @param string $name
      * @param FlexObject|null $object
      */
-    public function __construct(string $name, FlexObject $object = null)
+    public function __construct(string $name = '', FlexObject $object = null)
     {
         $this->name = $name;
 
@@ -59,8 +60,9 @@ class FlexForm implements \Serializable
     public function getName() : string
     {
         $object = $this->object;
+        $name = $this->name ?: 'object';
 
-        return "flex-{$object->getType(false)}-{$this->name}";
+        return "flex-{$object->getType(false)}-{$name}";
     }
 
     public function getUniqueId() : string
@@ -257,7 +259,15 @@ class FlexForm implements \Serializable
      */
     public function getFields() : array
     {
-        return $this->getObject()->getBlueprint()->fields();
+        return $this->getBlueprint()->fields();
+    }
+
+    /**
+     * @return Blueprint
+     */
+    public function getBlueprint() : Blueprint
+    {
+        return $this->getObject()->getBlueprint($this->name);
     }
 
     /**
