@@ -145,14 +145,24 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
+     * @param string $view
      * @return string
      */
-    public function getBlueprintFile() : string
+    public function getBlueprintFile(string $view = '') : string
     {
-        return $this->blueprint_file;
+        $file = $this->blueprint_file;
+        if ($view !== '') {
+            $file = preg_replace('/\.yaml/', "/{$view}.yaml", $file);
+        }
+
+        return $file;
     }
 
     /**
+     * Get collection. In the site this will be filtered by the default filters (published etc).
+     *
+     * Use $directory->getIndex() if you want unfiltered collection.
+     *
      * @param array|null $keys  Array of keys.
      * @return FlexIndex|FlexCollection
      */
@@ -348,6 +358,10 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
+     * Get the full collection of all stored objects.
+     *
+     * Use $directory->getCollection() if you want a filtered collection.
+     *
      * @param array|null $keys  Array of keys.
      * @return FlexIndex|FlexCollection
      * @internal
@@ -486,17 +500,22 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
-     * @param string $type
+     * @param string $type_view
      * @param string $context
      * @return Blueprint
      */
-    protected function getBlueprintInternal(string $type = '', string $context = '') : Blueprint
+    protected function getBlueprintInternal(string $type_view = '', string $context = '') : Blueprint
     {
-        if (!isset($this->blueprints[$type])) {
+        if (!isset($this->blueprints[$type_view])) {
             if (!file_exists($this->blueprint_file)) {
                 throw new RuntimeException(sprintf('Flex: Blueprint file for %s is missing', $this->type));
             }
-            $blueprint = new Blueprint($this->blueprint_file);
+
+            $parts = explode('.', rtrim($type_view, '.'), 2);
+            $type = array_shift($parts);
+            $view = array_shift($parts) ?: '';
+
+            $blueprint = new Blueprint($this->getBlueprintFile($view));
             if ($context) {
                 $blueprint->setContext($context);
             }
@@ -507,10 +526,10 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $blueprint->extend($blueprintBase, true);
             }
 
-            $this->blueprints[$type] = $blueprint;
+            $this->blueprints[$type_view] = $blueprint;
         }
 
-        return $this->blueprints[$type];
+        return $this->blueprints[$type_view];
     }
 
     /**
