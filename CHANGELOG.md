@@ -1,3 +1,10 @@
+# v1.6.0-beta.6
+## mm/dd/2018
+
+1. [](#improved)
+    * Allow custom Flex form views
+    * Cleaned up and sorted the Service `idMap`
+
 # v1.6.0-beta.5
 ## 11/05/2018
 
