@@ -7,6 +7,7 @@
     * Allow request headers `Content-Type` to set the template type [form#221](https://github.com/getgrav/grav-plugin-form/issues/221)
 1. [](#bugfix)
     * Fixed `Uri::hasStandardPort()` to support reverse proxy configurations [#1786](https://github.com/getgrav/grav/issues/1786)
+    * Use `append_url_extension` from page header to set template format if set [#2604](https://github.com/getgrav/grav/pull/2064)
 
 # v1.6.0-beta.5
 ## 11/05/2018
