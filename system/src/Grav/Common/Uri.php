@@ -1214,7 +1214,7 @@ class Uri
      */
     protected function hasStandardPort()
     {
-        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
+        return ($this->port === 80 || $this->port === 443);
     }
 
     /**
