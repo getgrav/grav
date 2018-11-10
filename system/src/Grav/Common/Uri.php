@@ -1307,7 +1307,7 @@ class Uri
      * @param bool $short
      * @return null|string
      */
-    private function getContentType($short = true)
+    public function getContentType($short = true)
     {
         if (isset($_SERVER['CONTENT_TYPE'])) {
             $content_type = $_SERVER['CONTENT_TYPE'];

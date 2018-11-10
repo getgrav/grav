@@ -4,6 +4,7 @@
 1. [](#improved)
     * Allow custom Flex form views
     * Cleaned up and sorted the Service `idMap`
+    * Allow request headers `Content-Type` to set the template type [form#221](https://github.com/getgrav/grav-plugin-form/issues/221)
 
 # v1.6.0-beta.5
 ## 11/05/2018
