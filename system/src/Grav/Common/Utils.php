@@ -479,6 +479,85 @@ abstract class Utils
     }
 
     /**
+     * Get all the mimetypes for an array of extensions
+     *
+     * @param array $extensions
+     * @return array
+     */
+    public static function getMimeTypes(array $extensions)
+    {
+        $mimetypes = [];
+        foreach ($extensions as $extension) {
+            $mimetype = static::getMimeByExtension($extension, false);
+            if ($mimetype && !in_array($mimetype, $mimetypes)) {
+                $mimetypes[] = $mimetype;
+            }
+        }
+        return $mimetypes;
+    }
+
+
+    /**
+     * Return the mimetype based on filename extension
+     *
+     * @param string $mime mime type (eg "text/html")
+     * @param string $default default value
+     *
+     * @return string
+     */
+    public static function getExtensionByMime($mime, $default = 'html')
+    {
+        $mime = strtolower($mime);
+
+        // look for some standard mime types
+        switch ($mime) {
+            case '*/*':
+            case 'text/*':
+            case 'text/html':
+                return 'html';
+            case 'application/json':
+                return 'json';
+            case 'application/atom+xml':
+                return 'atom';
+            case 'application/rss+xml':
+                return 'rss';
+            case 'application/xml':
+                return 'xml';
+        }
+
+        $media_types = (array)Grav::instance()['config']->get('media.types');
+
+        foreach ($media_types as $extension => $type) {
+            if ($extension === 'defaults') {
+                continue;
+            }
+            if (isset($type['mime']) && $type['mime'] === $mime) {
+                return $extension;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get all the extensions for an array of mimetypes
+     *
+     * @param array $mimetypes
+     * @return array
+     */
+    public static function getExtensions(array $mimetypes)
+    {
+        $extensions = [];
+        foreach ($mimetypes as $mimetype) {
+            $extension = static::getExtensionByMime($mimetype, false);
+            if ($extension && !in_array($extension, $extensions)) {
+                $extensions[] = $extension;
+            }
+        }
+        return $extensions;
+    }
+
+    /**
      * Return the mimetype based on filename
      *
      * @param string $filename Filename or path to file
@@ -523,47 +602,6 @@ abstract class Utils
         return $type ?: static::getMimeByFilename($filename, $default);
     }
 
-    /**
-     * Return the mimetype based on filename extension
-     *
-     * @param string $mime mime type (eg "text/html")
-     * @param string $default default value
-     *
-     * @return string
-     */
-    public static function getExtensionByMime($mime, $default = 'html')
-    {
-        $mime = strtolower($mime);
-
-        // look for some standard mime types
-        switch ($mime) {
-            case '*/*':
-            case 'text/*':
-            case 'text/html':
-                return 'html';
-            case 'application/json':
-                return 'json';
-            case 'application/atom+xml':
-                return 'atom';
-            case 'application/rss+xml':
-                return 'rss';
-            case 'application/xml':
-                return 'xml';
-        }
-
-        $media_types = (array)Grav::instance()['config']->get('media.types');
-
-        foreach ($media_types as $extension => $type) {
-            if ($extension === 'defaults') {
-                continue;
-            }
-            if (isset($type['mime']) && $type['mime'] === $mime) {
-                return $extension;
-            }
-        }
-
-        return $default;
-    }
 
     /**
      * Returns true if filename is considered safe.

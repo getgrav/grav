@@ -23,6 +23,7 @@ use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
+use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
 
@@ -1287,12 +1288,31 @@ class Page implements PageInterface
             $this->template_format = $var;
         }
 
+        // Set from URL extension set on page
         if (empty($this->template_format)) {
             $this->template_format = $this->url_extension;
         }
 
+        // Set from uri extension
         if (empty($this->template_format)) {
-            $this->template_format = Grav::instance()['uri']->extension('html');
+            $this->template_format = Grav::instance()['uri']->extension();
+        }
+
+        // Use content negotitation via the `accept:` header
+        if (empty($this->template_format) && $accept = $_SERVER['HTTP_ACCEPT'] ?? false) {
+            $negotiator = new Negotiator();
+
+            $supported_types = Grav::instance()['config']->get('system.pages.types', ['html', 'json']);
+            $priorities = Utils::getMimeTypes($supported_types);
+
+            $media_type = $negotiator->getBest($accept, $priorities);
+            $mimetype = $media_type->getValue();
+            $this->template_format = Utils::getExtensionByMime($mimetype);
+        }
+
+        // Last chance set a default type
+        if (empty($this->template_format)) {
+            $this->template_format = 'html';
         }
 
         return $this->template_format;

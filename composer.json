@@ -48,7 +48,8 @@
         "miljar/php-exif": "^0.6.4",
         "composer/ca-bundle": "^1.0",
         "dragonmantank/cron-expression": "^1.2",
-        "phive/twig-extensions-deferred": "^1.0"
+        "phive/twig-extensions-deferred": "^1.0",
+        "willdurand/negotiation": "^2.3"
     },
     "require-dev": {
         "codeception/codeception": "^2.4",
