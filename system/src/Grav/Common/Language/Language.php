@@ -10,6 +10,7 @@ namespace Grav\Common\Language;
 
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
+use Negotiation\LanguageNegotiator;
 
 class Language
 {
@@ -190,29 +191,24 @@ class Language
                 }
             } else {
                 // Try getting language from the session, else no active.
-                if (isset($this->grav['session']) && $this->grav['session']->isStarted()
-                    && $this->config->get('system.languages.session_store_active', true)) {
+                if (isset($this->grav['session']) && $this->grav['session']->isStarted() &&
+                    $this->config->get('system.languages.session_store_active', true)) {
                     $this->active = $this->grav['session']->active_language ?: null;
                 }
                 // if still null, try from http_accept_language header
-                if ($this->active === null && $this->config->get('system.languages.http_accept_language')) {
-                    $preferred = $this->getBrowserLanguages();
-                    foreach ($preferred as $lang) {
-                        if ($this->validate($lang)) {
-                            $this->active = $lang;
-                            break;
-                        }
+                if ($this->active === null &&
+                    $this->config->get('system.languages.http_accept_language') &&
+                    $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? false) {
+
+                    $negotiator = new LanguageNegotiator();
+                    $best_language = $negotiator->getBest($accept, $this->languages);
+
+                    if ($best_language) {
+                        $this->active = $best_language->getType();
+                    } else {
+                        $this->active = $this->getDefault();
                     }
 
-                    // Repeat if not found, try base language only - fixes Safari sending the language code always
-                    // with a locale (e.g. it-it or fr-fr).
-                    foreach ($preferred as $lang) {
-                        $lang = substr($lang, 0, 2);
-                        if ($this->validate($lang)) {
-                            $this->active = $lang;
-                            break;
-                        }
-                    }
                 }
             }
         }
@@ -482,8 +478,9 @@ class Language
     /**
      * Get the browser accepted languages
      *
-     * @param array $accept_langs
+     * @deprecated 1.6.0 no longer used - using content negotiation
      *
+     * @param array $accept_langs
      * @return array
      */
     public function getBrowserLanguages($accept_langs = [])

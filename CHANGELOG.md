@@ -2,6 +2,8 @@
 ## mm/dd/2018
 
 1. [](#improved)
+    * Support negotiated content types set via the Request `Accept:` header
+    * Support negotiated language types set via the Request `Accept-Language:` header
     * Allow custom Flex form views
     * Cleaned up and sorted the Service `idMap`
 1. [](#bugfix)
