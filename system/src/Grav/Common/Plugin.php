@@ -98,13 +98,23 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
-     * Determine if this is running under the admin
+     * Determine if plugin is running under the admin
      *
      * @return bool
      */
     public function isAdmin()
     {
         return Utils::isAdminPlugin();
+    }
+
+    /**
+     * Determine if plugin is running under the CLI
+     *
+     * @return bool
+     */
+    public function isCli()
+    {
+        return \defined('GRAV_CLI');
     }
 
     /**
@@ -137,13 +147,13 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (is_string($params)) {
+            if (\is_string($params)) {
                 $dispatcher->addListener($eventName, [$this, $params]);
-            } elseif (is_string($params[0])) {
-                $dispatcher->addListener($eventName, [$this, $params[0]], isset($params[1]) ? $params[1] : 0);
+            } elseif (\is_string($params[0])) {
+                $dispatcher->addListener($eventName, [$this, $params[0]], $params[1] ?? 0);
             } else {
                 foreach ($params as $listener) {
-                    $dispatcher->addListener($eventName, [$this, $listener[0]], isset($listener[1]) ? $listener[1] : 0);
+                    $dispatcher->addListener($eventName, [$this, $listener[0]], $listener[1] ?? 0);
                 }
             }
         }
@@ -158,9 +168,9 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (is_string($params)) {
+            if (\is_string($params)) {
                 $dispatcher->removeListener($eventName, [$this, $params]);
-            } elseif (is_string($params[0])) {
+            } elseif (\is_string($params[0])) {
                 $dispatcher->removeListener($eventName, [$this, $params[0]]);
             } else {
                 foreach ($params as $listener) {
@@ -199,7 +209,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         if ($offset === 'title') {
             $offset = 'name';
         }
-        return isset($this->blueprint[$offset]) ? $this->blueprint[$offset] : null;
+        return $this->blueprint[$offset] ?? null;
     }
 
     /**
@@ -265,10 +275,10 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $page_header = $page->header();
         $header = [];
 
-        if (!isset($page_header->$class_name_merged) && isset($page_header->$class_name)) {
+        if (!isset($page_header->{$class_name_merged}) && isset($page_header->{$class_name})) {
             // Get default plugin configurations and retrieve page header configuration
-            $config = $page_header->$class_name;
-            if (is_bool($config)) {
+            $config = $page_header->{$class_name};
+            if (\is_bool($config)) {
                 // Overwrite enabled option with boolean value in page header
                 $config = ['enabled' => $config];
             }
@@ -277,8 +287,8 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
 
             // Create new config object and set it on the page object so it's cached for next time
             $page->modifyHeader($class_name_merged, new Data($header));
-        } else if (isset($page_header->$class_name_merged)) {
-            $merged = $page_header->$class_name_merged;
+        } else if (isset($page_header->{$class_name_merged})) {
+            $merged = $page_header->{$class_name_merged};
             $header = $merged->toArray();
         }
         if (empty($header)) {
