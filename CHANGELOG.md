@@ -1,5 +1,5 @@
 # v1.6.0-beta.6
-## mm/dd/2018
+## 11/12/2018
 
 1. [](#new)
     * Added `CsvFormatter` and `CsvFile` classes
