@@ -102,6 +102,28 @@ class Twig
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
 
+            // Register all other prefixes as namespaces in twig
+            foreach ($locator->getPaths('theme') as $prefix => $_) {
+                if ($prefix === '') {
+                    continue;
+                }
+
+                $twig_paths = [];
+
+                // handle language templates if available
+                if ($language->enabled()) {
+                    $lang_templates = $locator->findResource('theme://'.$prefix.'templates/' . ($active_language ? $active_language : $language->getDefault()));
+                    if ($lang_templates) {
+                        $twig_paths[] = $lang_templates;
+                    }
+                }
+
+                $twig_paths = array_merge($twig_paths, $locator->findResources('theme://'.$prefix.'templates'));
+
+                $namespace = trim($prefix, '/');
+                $this->loader->setPaths($twig_paths, $namespace);
+            }
+
             $this->grav->fireEvent('onTwigLoader');
 
             $this->loaderArray = new \Twig_Loader_Array([]);
