@@ -94,6 +94,7 @@ class Language
     {
         $languagesArray = $this->languages; //Make local copy
         sort($languagesArray);
+
         return implode('|', array_reverse($languagesArray));
     }
 
@@ -245,11 +246,7 @@ class Language
             $lang = $this->getLanguage();
         }
 
-        if ($this->default == $lang && $this->config->get('system.languages.include_default_lang') === false) {
-            return false;
-        } else {
-            return true;
-        }
+        return !($this->default === $lang && $this->config->get('system.languages.include_default_lang') === false);
     }
 
     /**
@@ -273,7 +270,7 @@ class Language
     public function getFallbackPageExtensions($file_ext = null)
     {
         if (empty($this->page_extensions)) {
-            if (empty($file_ext)) {
+            if (!$file_ext) {
                 $file_ext = CONTENT_EXT;
             }
 
@@ -285,18 +282,18 @@ class Language
 
                 if ($this->active) {
                     $active_extension = '.' . $this->active . $file_ext;
-                    $key = array_search($active_extension, $valid_lang_extensions);
+                    $key = \array_search($active_extension, $valid_lang_extensions, true);
 
                     // Default behavior is to find any language other than active
                     if ($this->config->get('system.languages.pages_fallback_only')) {
-                        $slice = array_slice($valid_lang_extensions, 0, $key+1);
+                        $slice = \array_slice($valid_lang_extensions, 0, $key+1);
                         $valid_lang_extensions = array_reverse($slice);
                     } else {
                         unset($valid_lang_extensions[$key]);
                         array_unshift($valid_lang_extensions, $active_extension);
                     }
                 }
-                array_push($valid_lang_extensions, $file_ext);
+                $valid_lang_extensions[] = $file_ext;
                 $this->page_extensions = $valid_lang_extensions;
             } else {
                 $this->page_extensions = (array)$file_ext;
@@ -334,7 +331,7 @@ class Language
 
                 if ($this->active) {
                     $active_extension = $this->active;
-                    $key = array_search($active_extension, $fallback_languages);
+                    $key = \array_search($active_extension, $fallback_languages, true);
                     unset($fallback_languages[$key]);
                     array_unshift($fallback_languages, $active_extension);
                 }
@@ -356,11 +353,7 @@ class Language
      */
     public function validate($lang)
     {
-        if (in_array($lang, $this->languages)) {
-            return true;
-        }
-
-        return false;
+        return \in_array($lang, $this->languages, true);
     }
 
     /**
@@ -376,7 +369,7 @@ class Language
      */
     public function translate($args, array $languages = null, $array_support = false, $html_out = false)
     {
-        if (is_array($args)) {
+        if (\is_array($args)) {
             $lookup = array_shift($args);
         } else {
             $lookup = $args;
@@ -400,20 +393,20 @@ class Language
                 $translation = $this->getTranslation($lang, $lookup, $array_support);
 
                 if ($translation) {
-                    if (count($args) >= 1) {
+                    if (\count($args) >= 1) {
                         return vsprintf($translation, $args);
-                    } else {
-                        return $translation;
                     }
+
+                    return $translation;
                 }
             }
         }
 
         if ($html_out) {
             return '<span class="untranslated">' . $lookup . '</span>';
-        } else {
-            return $lookup;
         }
+
+        return $lookup;
     }
 
     /**
@@ -451,9 +444,9 @@ class Language
 
         if ($html_out) {
             return '<span class="untranslated">' . $key . '[' . $index . ']</span>';
-        } else {
-            return $key . '[' . $index . ']';
         }
+
+        return $key . '[' . $index . ']';
     }
 
     /**
@@ -485,6 +478,8 @@ class Language
      */
     public function getBrowserLanguages($accept_langs = [])
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, no longer used', E_USER_DEPRECATED);
+
         if (empty($this->http_accept_language)) {
             if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
                 $accept_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
