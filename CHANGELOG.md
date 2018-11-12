@@ -1,3 +1,13 @@
+# v1.5.5
+## 11/12/2018
+
+1. [](#new)
+    * Register theme prefixes as namespaces in Twig [#2210](https://github.com/getgrav/grav/pull/2210)
+1. [](#improved)
+    * Propogate error code between 400 and 600 for production sites [#2181](https://github.com/getgrav/grav/pull/2181)
+1. [](#bugfix)
+    * Remove hardcoded `302` when redirecting trailing slash [#2155](https://github.com/getgrav/grav/pull/2155)
+
 # v1.5.4
 ## 11/05/2018
 
