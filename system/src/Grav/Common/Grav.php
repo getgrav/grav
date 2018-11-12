@@ -9,6 +9,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Config\Setup;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Page;
@@ -25,7 +26,6 @@ use Grav\Common\Processors\PluginsProcessor;
 use Grav\Common\Processors\RenderProcessor;
 use Grav\Common\Processors\RequestProcessor;
 use Grav\Common\Processors\SchedulerProcessor;
-use Grav\Common\Processors\SiteSetupProcessor;
 use Grav\Common\Processors\TasksProcessor;
 use Grav\Common\Processors\ThemesProcessor;
 use Grav\Common\Processors\TwigProcessor;
@@ -64,6 +64,7 @@ class Grav extends Container
         'Grav\Common\Service\PageServiceProvider',
         'Grav\Common\Service\RequestServiceProvider',
         'Grav\Common\Service\SessionServiceProvider',
+        'Grav\Common\Service\SetupServiceProvider',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\TaskServiceProvider',
         'browser'   => 'Grav\Common\Browser',
@@ -85,7 +86,6 @@ class Grav extends Container
      * @var array All middleware processors that are processed in $this->process()
      */
     protected $middleware = [
-        'siteSetupProcessor',
         'configurationProcessor',
         'loggerProcessor',
         'errorsProcessor',
@@ -103,6 +103,8 @@ class Grav extends Container
         'debuggerAssetsProcessor',
         'renderProcessor',
     ];
+
+    protected $initialized = [];
 
     /**
      * Reset the Grav instance.
@@ -136,15 +138,50 @@ class Grav extends Container
     }
 
     /**
+     * Setup Grav instance using specific environment.
+     *
+     * Initializes Grav streams by
+     *
+     * @param string|null $environment
+     * @return $this
+     */
+    public function setup(string $environment = null)
+    {
+        if (isset($this->initialized['setup'])) {
+            return $this;
+        }
+
+        $this->initialized['setup'] = true;
+
+        $this->measureTime('_setup', 'Site Setup', function () use ($environment) {
+            // Force environment if passed to the method.
+            if ($environment) {
+                Setup::$environment = $environment;
+            }
+
+            $this['setup'];
+            $this['streams'];
+        });
+
+        return $this;
+    }
+
+    /**
      * Process a request
      */
     public function process()
     {
+        if (isset($this->initialized['process'])) {
+            return;
+        }
+
+        // Initialize Grav if needed.
+        $this->setup();
+
+        $this->initialized['process'] = true;
+
         $container = new Container(
             [
-                'siteSetupProcessor' => function () {
-                    return new SiteSetupProcessor($this);
-                },
                 'configurationProcessor' => function () {
                     return new ConfigurationProcessor($this);
                 },
@@ -382,13 +419,33 @@ class Grav extends Container
 
     /**
      * Magic Catch All Function
-     * Used to call closures like measureTime on the instance.
+     *
+     * Used to call closures.
+     *
      * Source: http://stackoverflow.com/questions/419804/closures-as-class-members
      */
     public function __call($method, $args)
     {
         $closure = $this->{$method};
         \call_user_func_array($closure, $args);
+    }
+
+    /**
+     * Measure how long it takes to do an action.
+     *
+     * @param string $timerId
+     * @param string $timerTitle
+     * @param callable $callback
+     * @return mixed   Returns value returned by the callable.
+     */
+    public function measureTime(string $timerId, string $timerTitle, callable $callback)
+    {
+        $debugger = $this['debugger'];
+        $debugger->startTimer($timerId, $timerTitle);
+        $result = $callback();
+        $debugger->stopTimer($timerId);
+
+        return $result;
     }
 
     /**
@@ -402,18 +459,11 @@ class Grav extends Container
     {
         $container = new static($values);
 
-        $container['grav'] = $container;
-
         $container['debugger'] = new Debugger();
-        $debugger = $container['debugger'];
+        $container['grav'] = function (Container $container) {
+            user_error('Calling $grav[\'grav\'] or {{ grav.grav }} is deprecated since Grav 1.6, just use $grav or {{ grav }}', E_USER_DEPRECATED);
 
-        // closure that measures time by wrapping a function into startTimer and stopTimer
-        // The debugger can be passed to the closure. Should be more performant
-        // then to get it from the container all time.
-        $container->measureTime = function ($timerId, $timerTitle, $callback) use ($debugger) {
-            $debugger->startTimer($timerId, $timerTitle);
-            $callback();
-            $debugger->stopTimer($timerId);
+            return $container;
         };
 
         $container->measureTime('_services', 'Services', function () use ($container) {

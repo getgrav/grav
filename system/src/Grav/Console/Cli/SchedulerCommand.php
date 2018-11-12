@@ -53,10 +53,10 @@ class SchedulerCommand extends ConsoleCommand
     {
 //        error_reporting(1);
         $grav = Grav::instance();
+        $grav->setup();
 
         $grav['uri']->init();
         $grav['config']->init();
-        $grav['streams'];
         $grav['plugins']->init();
         $grav['themes']->init();
         $grav['backups']->init();

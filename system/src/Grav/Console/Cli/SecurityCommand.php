@@ -38,18 +38,15 @@ class SecurityCommand extends ConsoleCommand
      */
     protected function serve()
     {
-
-
         /** @var Grav $grav */
         $grav = Grav::instance();
+        $grav->setup();
 
         $grav['uri']->init();
         $grav['config']->init();
         $grav['debugger']->enabled(false);
-        $grav['streams'];
         $grav['plugins']->init();
         $grav['themes']->init();
-
 
         $grav['twig']->init();
         $grav['pages']->init();

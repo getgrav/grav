@@ -93,12 +93,15 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $paths = $locator->findResources('plugins://');
         $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths);
 
-        $config = new CompiledConfig($cache, $files, GRAV_ROOT);
-        $config->setBlueprints(function() use ($container) {
+        $compiled = new CompiledConfig($cache, $files, GRAV_ROOT);
+        $compiled->setBlueprints(function() use ($container) {
             return $container['blueprints'];
         });
 
-        return $config->name("master-{$setup->environment}")->load();
+        $config = $compiled->name("master-{$setup->environment}")->load();
+        $config->environment = $setup->environment;
+
+        return $config;
     }
 
     public static function languages(Container $container)

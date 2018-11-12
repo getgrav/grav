@@ -4,6 +4,7 @@
 1. [](#new)
     * Added `CsvFormatter` and `CsvFile` classes
     * Register theme prefixes as namespaces in Twig [#2210](https://github.com/getgrav/grav/pull/2210)
+    * Added `$grav->setup()` to simplify CLI and custom access points
 1. [](#improved)
     * Support negotiated content types set via the Request `Accept:` header
     * Support negotiated language types set via the Request `Accept-Language:` header
@@ -14,6 +15,7 @@
     * Fixed `Uri::hasStandardPort()` to support reverse proxy configurations [#1786](https://github.com/getgrav/grav/issues/1786)
     * Use `append_url_extension` from page header to set template format if set [#2604](https://github.com/getgrav/grav/pull/2064)
     * Remove hardcoded `302` when redirecting trailing slash [#2155](https://github.com/getgrav/grav/pull/2155)
+    * Fixed some bugs in environment selection
 
 # v1.6.0-beta.5
 ## 11/05/2018

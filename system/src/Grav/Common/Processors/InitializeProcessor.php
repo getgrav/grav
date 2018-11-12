@@ -37,8 +37,9 @@ class InitializeProcessor extends ProcessorBase
         }
 
         // Initialize the timezone.
-        if ($config->get('system.timezone')) {
-            date_default_timezone_set($this->container['config']->get('system.timezone'));
+        $timezone = $config->get('system.timezone');
+        if ($timezone) {
+            date_default_timezone_set($timezone);
         }
 
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
