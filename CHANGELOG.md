@@ -1,15 +1,19 @@
 # v1.6.0-beta.6
 ## mm/dd/2018
 
+1. [](#new)
+    * Added `CsvFormatter` and `CsvFile` classes
+    * Register theme prefixes as namespaces in Twig [#2210](https://github.com/getgrav/grav/pull/2210)
 1. [](#improved)
     * Support negotiated content types set via the Request `Accept:` header
     * Support negotiated language types set via the Request `Accept-Language:` header
     * Allow custom Flex form views
     * Cleaned up and sorted the Service `idMap`
+    * Propogate error code between 400 and 600 for production sites [#2181](https://github.com/getgrav/grav/pull/2181)
 1. [](#bugfix)
     * Fixed `Uri::hasStandardPort()` to support reverse proxy configurations [#1786](https://github.com/getgrav/grav/issues/1786)
     * Use `append_url_extension` from page header to set template format if set [#2604](https://github.com/getgrav/grav/pull/2064)
-    * Remove hardcoded 302 when redirecting trailing slash [#2155](https://github.com/getgrav/grav/pull/2155)
+    * Remove hardcoded `302` when redirecting trailing slash [#2155](https://github.com/getgrav/grav/pull/2155)
 
 # v1.6.0-beta.5
 ## 11/05/2018
