@@ -218,7 +218,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getStorageKey()
     {
-        return $this->_storageKey;
+        return $this->_storageKey ?? $this->__toString();
     }
 
     /**

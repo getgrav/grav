@@ -1,3 +1,9 @@
+# v1.6.0-beta.7
+## mm/dd/2018
+
+1. [](#improved)
+    * Improve Flex storage
+
 # v1.6.0-beta.6
 ## 11/12/2018
 

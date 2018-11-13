@@ -222,7 +222,6 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
 
             $object->save();
-            //$rows = $storage->updateRows([$newKey => $object->triggerEvent('onSave')->prepareStorage()]);
         }
 
         try {
@@ -234,13 +233,6 @@ class FlexDirectory implements FlexAuthorizeInterface
 
             // Caching failed, but we can ignore that for now.
         }
-
-        /** @var FlexObject $class */
-        //$class = $this->getObjectClass();
-        //
-        //$row = $object;
-        //$index = $class::createIndex([key($rows) => time()]);
-        //$object = $this->createObject($row, key($index), false);
 
         return $object;
     }

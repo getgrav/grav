@@ -115,7 +115,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function generateKey() : string
     {
-        return Base32::encode(Utils::generateRandomString(10));
+        return substr(hash('sha256', random_bytes(32)), 0, 32);
     }
 
     /**
