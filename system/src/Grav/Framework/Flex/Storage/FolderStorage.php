@@ -26,7 +26,9 @@ class FolderStorage extends AbstractFilesystemStorage
     /** @var string */
     protected $dataFolder;
     /** @var string */
-    protected $dataPattern = '%1s/%2s/item';
+    protected $dataPattern = '{FOLDER}/{KEY}/item';
+    /** @var bool */
+    protected $indexed;
 
     /**
      * {@inheritdoc}
@@ -198,7 +200,7 @@ class FolderStorage extends AbstractFilesystemStorage
         if (null === $key) {
             $path = $this->dataFolder;
         } else {
-            $path = sprintf($this->dataPattern, $this->dataFolder, $key);
+            $path = sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
         }
 
         return $path;
@@ -220,7 +222,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function getPathFromKey(string $key) : string
     {
-        return sprintf($this->dataPattern, $this->dataFolder, $key);
+        return sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
     }
 
     /**
@@ -379,8 +381,10 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $extension = $this->dataFormatter->getDefaultFileExtension();
         $pattern = !empty($options['pattern']) ? $options['pattern'] : $this->dataPattern;
+        $pattern = preg_replace(['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/'], ['%1$s', '%2$s', '%3$s'], $pattern);
 
         $this->dataPattern = \dirname($pattern) . '/' . basename($pattern, $extension) . $extension;
         $this->dataFolder = $options['folder'];
+        $this->indexed = (bool)($options['indexed'] ?? false);
     }
 }

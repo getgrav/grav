@@ -422,7 +422,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function save()
     {
-        $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
+        $result = $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
 
         try {
             $this->getFlexDirectory()->clearCache();
@@ -435,6 +435,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $debugger->addException($e);
 
             // Caching failed, but we can ignore that for now.
+        }
+
+        $value = reset($result);
+        $storageKey = key($result);
+        if ($value && $storageKey) {
+            $this->setStorageKey($storageKey);
         }
 
         return $this;
