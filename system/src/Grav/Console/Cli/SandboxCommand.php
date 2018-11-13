@@ -48,6 +48,7 @@ class SandboxCommand extends ConsoleCommand
      */
     protected $mappings = [
         '/.gitignore'           => '/.gitignore',
+        '/.editorconfig'        => '/.editorconfig',
         '/CHANGELOG.md'         => '/CHANGELOG.md',
         '/LICENSE.txt'          => '/LICENSE.txt',
         '/README.md'            => '/README.md',
