@@ -588,7 +588,7 @@ form:
                         cache.lifetime:
                             type: text
                             size: small
-                            append: NICETIME.SECOND_PLURAL
+                            append: GRAV.NICETIME.SECOND_PLURAL
                             label: PLUGIN_ADMIN.LIFETIME
                             help: PLUGIN_ADMIN.LIFETIME_HELP
                             validate:
@@ -1119,7 +1119,7 @@ form:
                         session.timeout:
                             type: text
                             size: small
-                            append: NICETIME.SECOND_PLURAL
+                            append: GRAV.NICETIME.SECOND_PLURAL
                             label: PLUGIN_ADMIN.TIMEOUT
                             help: PLUGIN_ADMIN.TIMEOUT_HELP
                             validate:
