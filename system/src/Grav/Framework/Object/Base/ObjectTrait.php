@@ -53,7 +53,7 @@ trait ObjectTrait
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getType() . '@' . spl_object_hash($this);
+        return $this->_key ?: $this->getType() . '@@' . spl_object_hash($this);
     }
 
     /**

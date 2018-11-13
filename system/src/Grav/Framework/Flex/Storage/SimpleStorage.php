@@ -68,7 +68,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function hasKey(string $key) : bool
     {
-        return isset($this->data[$key]);
+        return $key && !strpos($key, '@@') && isset($this->data[$key]);
     }
 
     /**

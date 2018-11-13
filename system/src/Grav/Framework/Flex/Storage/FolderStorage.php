@@ -26,7 +26,9 @@ class FolderStorage extends AbstractFilesystemStorage
     /** @var string */
     protected $dataFolder;
     /** @var string */
-    protected $dataPattern = '%1s/%2s/item';
+    protected $dataPattern = '{FOLDER}/{KEY}/item';
+    /** @var bool */
+    protected $indexed;
 
     /**
      * {@inheritdoc}
@@ -64,7 +66,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function hasKey(string $key) : bool
     {
-        return $key && file_exists($this->getPathFromKey($key));
+        return $key && !strpos($key, '@@') && file_exists($this->getPathFromKey($key));
     }
 
     /**
@@ -93,9 +95,13 @@ class FolderStorage extends AbstractFilesystemStorage
         foreach ($rows as $key => $row) {
             if (null === $row || (!\is_object($row) && !\is_array($row))) {
                 // Only load rows which haven't been loaded before.
-                $path = $this->getPathFromKey($key);
-                $file = $this->getFile($path);
-                $list[$key] = $this->hasKey($key) ? $this->loadFile($file) : null;
+                if (!$this->hasKey($key)) {
+                    $list[$key] = null;
+                } else {
+                    $path = $this->getPathFromKey($key);
+                    $file = $this->getFile($path);
+                    $list[$key] = $this->loadFile($file);
+                }
                 if (null !== $fetched) {
                     $fetched[$key] = $list[$key];
                 }
@@ -115,9 +121,13 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
-            $path = $this->getPathFromKey($key);
-            $file = $this->getFile($path);
-            $list[$key] = $this->hasKey($key) ? $this->saveFile($file, $row) : null;
+            if (!$this->hasKey($key)) {
+                $list[$key] = null;
+            } else {
+                $path = $this->getPathFromKey($key);
+                $file = $this->getFile($path);
+                $list[$key] = $this->saveFile($file, $row);
+            }
         }
 
         return $list;
@@ -130,15 +140,19 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
-            $path = $this->getPathFromKey($key);
-            $file = $this->getFile($path);
-            $list[$key] = $this->hasKey($key) ? $this->deleteFile($file) : null;
+            if (!$this->hasKey($key)) {
+                $list[$key] = null;
+            } else {
+                $path = $this->getPathFromKey($key);
+                $file = $this->getFile($path);
+                $list[$key] = $this->deleteFile($file);
 
-            $storage = $this->getStoragePath($key);
-            $media = $this->getMediaPath($key);
+                $storage = $this->getStoragePath($key);
+                $media = $this->getMediaPath($key);
 
-            $this->deleteFolder($storage, true);
-            $media && $this->deleteFolder($media, true);
+                $this->deleteFolder($storage, true);
+                $media && $this->deleteFolder($media, true);
+            }
         }
 
         return $list;
@@ -151,6 +165,9 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
+            if (strpos($key, '@@')) {
+                $key = $this->getNewKey();
+            }
             $path = $this->getPathFromKey($key);
             $file = $this->getFile($path);
             $list[$key] = $this->saveFile($file, $row);
@@ -183,7 +200,7 @@ class FolderStorage extends AbstractFilesystemStorage
         if (null === $key) {
             $path = $this->dataFolder;
         } else {
-            $path = sprintf($this->dataPattern, $this->dataFolder, $key);
+            $path = sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
         }
 
         return $path;
@@ -205,7 +222,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function getPathFromKey(string $key) : string
     {
-        return sprintf($this->dataPattern, $this->dataFolder, $key);
+        return sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
     }
 
     /**
@@ -364,8 +381,10 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $extension = $this->dataFormatter->getDefaultFileExtension();
         $pattern = !empty($options['pattern']) ? $options['pattern'] : $this->dataPattern;
+        $pattern = preg_replace(['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/'], ['%1$s', '%2$s', '%3$s'], $pattern);
 
         $this->dataPattern = \dirname($pattern) . '/' . basename($pattern, $extension) . $extension;
         $this->dataFolder = $options['folder'];
+        $this->indexed = (bool)($options['indexed'] ?? false);
     }
 }
