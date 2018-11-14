@@ -1224,9 +1224,8 @@ form:
                         gpm.official_gpm_only:
                             type: toggle
                             label: PLUGIN_ADMIN.GPM_OFFICIAL_ONLY
-                            highlight: auto
-                            help: PLUGIN_ADMIN.GPM_OFFICIAL_ONLY_HELP
                             highlight: 1
+                            help: PLUGIN_ADMIN.GPM_OFFICIAL_ONLY_HELP
                             options:
                                 1: PLUGIN_ADMIN.YES
                                 0: PLUGIN_ADMIN.NO
