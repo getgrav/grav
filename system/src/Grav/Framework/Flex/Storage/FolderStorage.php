@@ -28,6 +28,8 @@ class FolderStorage extends AbstractFilesystemStorage
     /** @var string */
     protected $dataPattern = '{FOLDER}/{KEY}/item';
     /** @var bool */
+    protected $prefixed;
+    /** @var bool */
     protected $indexed;
 
     /**
@@ -340,25 +342,63 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function findAllKeys() : array
     {
-        if (!file_exists($this->getStoragePath())) {
+        $path = $this->getStoragePath();
+        if (!file_exists($path)) {
             return [];
         }
 
-        $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
-        $iterator = new \FilesystemIterator($this->getStoragePath(), $flags);
-        $list = [];
-        /** @var \SplFileInfo $info */
-        foreach ($iterator as $filename => $info) {
-            if (!$info->isDir() || !($key = $this->getKeyFromPath($filename))) {
-                continue;
-            }
-
-            $list[$key] = $info->getMTime();
+        if ($this->prefixed) {
+            $list = $this->findPrefixedKeysFromFilesystem($path);
+        } else {
+            $list = $this->findKeysFromFilesystem($path);
         }
 
         ksort($list, SORT_NATURAL);
 
         return $list;
+    }
+
+    protected function findKeysFromFilesystem($path)
+    {
+        $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
+
+        $iterator = new \FilesystemIterator($path, $flags);
+        $list = [];
+        /** @var \SplFileInfo $info */
+        foreach ($iterator as $filename => $info) {
+            if (!$info->isDir()) {
+                continue;
+            }
+
+            $key = $this->getKeyFromPath($filename);
+            $filename = $this->getPathFromKey($key);
+            $modified = is_file($filename) ? filemtime($filename) : null;
+            if (null === $modified) {
+                continue;
+            }
+
+            $list[$key] = $modified;
+        }
+
+        return $list;
+    }
+
+    protected function findPrefixedKeysFromFilesystem($path)
+    {
+        $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
+
+        $iterator = new \FilesystemIterator($path, $flags);
+        $list = [];
+        /** @var \SplFileInfo $info */
+        foreach ($iterator as $filename => $info) {
+            if (!$info->isDir()) {
+                continue;
+            }
+
+            $list[] = $this->findKeysFromFilesystem($filename);
+        }
+
+        return array_merge(...$list);
     }
 
     /**
@@ -381,10 +421,12 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $extension = $this->dataFormatter->getDefaultFileExtension();
         $pattern = !empty($options['pattern']) ? $options['pattern'] : $this->dataPattern;
-        $pattern = preg_replace(['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/'], ['%1$s', '%2$s', '%3$s'], $pattern);
 
-        $this->dataPattern = \dirname($pattern) . '/' . basename($pattern, $extension) . $extension;
         $this->dataFolder = $options['folder'];
+        $this->prefixed = (bool)($options['prefixed'] ?? strpos($pattern, '/{KEY:2}/'));
         $this->indexed = (bool)($options['indexed'] ?? false);
+
+        $pattern = preg_replace(['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/'], ['%1$s', '%2$s', '%3$s'], $pattern);
+        $this->dataPattern = \dirname($pattern) . '/' . basename($pattern, $extension) . $extension;
     }
 }
