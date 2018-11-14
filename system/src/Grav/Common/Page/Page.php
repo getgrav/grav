@@ -452,6 +452,9 @@ class Page implements PageInterface
             if (isset($this->header->debugger)) {
                 $this->debugger = (bool)$this->header->debugger;
             }
+            if (isset($this->header->append_url_extension)) {
+                $this->url_extension = $this->header->append_url_extension;
+            }
         }
 
         return $this->header;
@@ -1286,35 +1289,43 @@ class Page implements PageInterface
     {
         if ($var !== null) {
             $this->template_format = $var;
+            return $this->template_format;
+        }
+
+        if (isset($this->template_format)) {
+            return $this->template_format;
         }
 
         // Set from URL extension set on page
-        if (empty($this->template_format)) {
-            $this->template_format = $this->url_extension;
+        $page_extension = trim($this->header->append_url_extension ?? '' , '.');
+        if (!empty($page_extension)) {
+            $this->template_format = $page_extension;
+            return $this->template_format;
         }
 
         // Set from uri extension
-        if (empty($this->template_format)) {
-            $this->template_format = Grav::instance()['uri']->extension();
+        $uri_extension = Grav::instance()['uri']->extension();
+        if (is_string($uri_extension)) {
+            $this->template_format = $uri_extension;
+            return $this->template_format;
         }
 
         // Use content negotitation via the `accept:` header
-        if (empty($this->template_format) && $accept = $_SERVER['HTTP_ACCEPT'] ?? false) {
+        $http_accept = $_SERVER['HTTP_ACCEPT'] ?? false;
+        if (is_string($http_accept)) {
             $negotiator = new Negotiator();
 
             $supported_types = Grav::instance()['config']->get('system.pages.types', ['html', 'json']);
             $priorities = Utils::getMimeTypes($supported_types);
 
-            $media_type = $negotiator->getBest($accept, $priorities);
+            $media_type = $negotiator->getBest($http_accept, $priorities);
             $mimetype = $media_type->getValue();
             $this->template_format = Utils::getExtensionByMime($mimetype);
+            return $this->template_format;
         }
 
         // Last chance set a default type
-        if (empty($this->template_format)) {
-            $this->template_format = 'html';
-        }
-
+        $this->template_format = 'html';
         return $this->template_format;
     }
 
@@ -1351,8 +1362,7 @@ class Page implements PageInterface
 
         // if not set in the page get the value from system config
         if (empty($this->url_extension)) {
-            $this->url_extension = trim(isset($this->header->append_url_extension) ? $this->header->append_url_extension : Grav::instance()['config']->get('system.pages.append_url_extension',
-                false));
+            $this->url_extension = Grav::instance()['config']->get('system.pages.append_url_extension', '');
         }
 
         return $this->url_extension;
