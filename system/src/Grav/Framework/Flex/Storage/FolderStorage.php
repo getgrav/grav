@@ -398,7 +398,11 @@ class FolderStorage extends AbstractFilesystemStorage
             $list[] = $this->findKeysFromFilesystem($filename);
         }
 
-        return array_merge(...$list);
+        if (!$list) {
+            return [];
+        }
+
+        return \count($list) > 1 ? array_merge(...$list) : $list[0];
     }
 
     /**
