@@ -316,7 +316,7 @@ abstract class Folder
 
         if (!$success) {
             $error = error_get_last();
-            throw new \RuntimeException($error['message']);
+            throw new \RuntimeException($error['message'] ?? 'Unknown error');
         }
 
         // Make sure that the change will be detected when caching.

@@ -64,7 +64,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
         // Get storage keys for the objects.
         $keys = [];
         foreach ($this->getEntries() as $key => $value) {
-            $keys[\is_array($value) ? $value[0] : $key] = $key;
+            $keys[\is_array($value) ? $value['storage_key'] ?? $value[0] : $key] = $key;
         }
 
         return $keys;
@@ -78,7 +78,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface
         // Get storage keys for the objects.
         $timestamps = [];
         foreach ($this->getEntries() as $key => $value) {
-            $timestamps[$key] = \is_array($value) ? $value[1] : $value;
+            $timestamps[$key] = \is_array($value) ? $value['storage_timestamp'] ?? $value[1] : $value;
         }
 
         return $timestamps;

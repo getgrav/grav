@@ -375,7 +375,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param bool $validate
      * @return FlexObject
      */
-    public function createObject(array $data, string $key, bool $validate = false) : FlexObject
+    public function createObject(array $data, string $key = '', bool $validate = false) : FlexObject
     {
         $className = $this->objectClassName ?: $this->getObjectClass();
 
@@ -442,7 +442,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $keys = [];
         $rows = [];
         foreach ($entries as $key => $value) {
-            $k = \is_array($value) ? $value[0] : $key;
+            $k = \is_array($value) ? $value['storage_key'] ?? $value[0] : $key;
             $keys[$k] = $key;
             $rows[$k] = null;
         }
@@ -479,7 +479,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
             $row += [
                 'storage_key' => $storageKey,
-                'storage_timestamp' => $entries[$key][1] ?? $entries[$key],
+                'storage_timestamp' => $entries[$key]['storage_timestamp'] ?? $entries[$key][1] ?? $entries[$key],
             ];
             $key = $keys[$storageKey];
             $object = $this->createObject($row, $key, false);
@@ -569,7 +569,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             if (null === $keys) {
                 /** @var FlexObject $className */
                 $className = $this->getObjectClass();
-                $keys = $className::createIndex($storage->getExistingKeys());
+                $keys = $className::createIndex($storage);
                 $debugger->addMessage(sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)), 'debug');
                 try {
                     $cache->set('__keys', $keys);

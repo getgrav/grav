@@ -18,6 +18,7 @@ use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
+use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Grav\Framework\Object\Access\NestedArrayAccessTrait;
 use Grav\Framework\Object\Access\NestedPropertyTrait;
@@ -76,12 +77,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param array $index
+     * @param FlexStorageInterface $storage
      * @return array
      */
-    public static function createIndex(array $index)
+    public static function createIndex(FlexStorageInterface $storage)
     {
-        return $index;
+        return $storage->getExistingKeys();
     }
 
     /**
