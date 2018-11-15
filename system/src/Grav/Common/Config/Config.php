@@ -19,13 +19,21 @@ class Config extends Data
     public $environment;
 
     /** @var string */
+    protected $key;
+    /** @var string */
     protected $checksum;
-    protected $modified = false;
+    /** @var int */
     protected $timestamp = 0;
+    /** @var bool */
+    protected $modified = false;
 
     public function key()
     {
-        return $this->checksum();
+        if (null === $this->key) {
+            $this->key = md5($this->checksum . $this->timestamp);
+        }
+
+        return $this->key;
     }
 
     public function checksum($checksum = null)
