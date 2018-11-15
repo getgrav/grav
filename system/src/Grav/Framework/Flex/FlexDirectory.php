@@ -308,13 +308,17 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function clearCache() : self
     {
+        $grav = Grav::instance();
+
         /** @var Debugger $debugger */
-        $debugger = Grav::instance()['debugger'];
+        $debugger = $grav['debugger'];
         $debugger->addMessage(sprintf('Flex: Clearing all %s cache', $this->type), 'debug');
 
         $this->getCache('index')->clear();
         $this->getCache('object')->clear();
         $this->getCache('render')->clear();
+
+        $this->index = null;
 
         return $this;
     }

@@ -226,6 +226,14 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @return int[]
+     */
+    public function getStorageKeys()
+    {
+        return array_flip($this->call('getStorageKey'));
+    }
+
+    /**
      * @param string $action
      * @param string|null $scope
      * @return static
