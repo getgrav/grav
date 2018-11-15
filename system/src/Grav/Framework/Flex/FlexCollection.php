@@ -163,6 +163,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
                 ['grav' => $grav, 'block' => $block, 'collection' => $this, 'layout' => $layout] + $context
             );
 
+            if ($debugger->enabled()) {
+                $name = $this->getType(false);
+                $output = "\n<!–– START {$name} collection ––>\n{$output}\n<!–– END {$name} collection ––>\n";
+            }
+
             $block->setContent($output);
 
             try {

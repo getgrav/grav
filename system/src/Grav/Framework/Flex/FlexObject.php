@@ -203,7 +203,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getCacheKey()
     {
-        return $this->getType(true) .'.'. $this->getStorageKey();
+        return $this->getType(true) . '.' . $this->getStorageKey();
     }
 
     /**
@@ -317,6 +317,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $output = $this->getTemplate($layout)->render(
                 ['grav' => $grav, 'block' => $block, 'object' => $this, 'layout' => $layout] + $context
             );
+
+            if ($debugger->enabled()) {
+                $name = $this->getKey() . ' (' . $this->getType(false) . ')';
+                $output = "\n<!–– START {$name} object ––>\n{$output}\n<!–– END {$name} object ––>\n";
+            }
 
             $block->setContent($output);
 
