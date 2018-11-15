@@ -96,7 +96,7 @@ If you discover a possible security issue related to Grav or one of its plugins,
 * [Install](https://learn.getgrav.org/basics/installation) Grav in few seconds
 * Understand the [Configuration](https://learn.getgrav.org/basics/grav-configuration)
 * Take a peek at our available free [Skeletons](https://getgrav.org/downloads/skeletons)
-* If you have questions, jump on our [Slack Room](https://getgrav.org/slack)!
+* If you have questions, jump on our [Discord Chat Server](https://chat.getgrav.org)!
 * Have fun!
 
 # Exploring More
