@@ -199,16 +199,6 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
     }
 
     /**
-     * @param int $start
-     * @param int|null $limit
-     * @return static
-     */
-    public function limit($start, $limit = null)
-    {
-        return $this->createFrom($this->slice($start, $limit));
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function call($method, array $arguments = [])
