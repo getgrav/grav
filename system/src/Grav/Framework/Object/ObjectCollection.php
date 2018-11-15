@@ -40,6 +40,27 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
     }
 
     /**
+     * @param array $ordering
+     * @return static
+     */
+    public function orderBy(array $ordering)
+    {
+        $criteria = Criteria::create()->orderBy($ordering);
+
+        return $this->matching($criteria);
+    }
+
+    /**
+     * @param int $start
+     * @param int|null $limit
+     * @return static
+     */
+    public function limit($start, $limit = null)
+    {
+        return $this->createFrom($this->slice($start, $limit));
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function matching(Criteria $criteria)

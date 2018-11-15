@@ -55,6 +55,24 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     /**
      * {@inheritDoc}
      */
+    public function select(array $keys)
+    {
+        $this->initialize();
+        return $this->collection->select($keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function unselect(array $keys)
+    {
+        $this->initialize();
+        return $this->collection->unselect($keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function jsonSerialize()
     {
         $this->initialize();

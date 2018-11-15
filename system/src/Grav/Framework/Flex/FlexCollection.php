@@ -223,7 +223,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param string $action
      * @param string|null $scope
-     * @return FlexCollection
+     * @return static
      */
     public function authorize(string $action, string $scope = null)
     {
@@ -236,7 +236,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param string $value
      * @param string $field
-     * @return object|null
+     * @return FlexObject|null
      */
     public function find($value, $field = 'id')
     {
@@ -247,60 +247,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         }
 
         return null;
-    }
-
-    /**
-     * @param array $ordering
-     * @return FlexCollection
-     */
-    public function orderBy(array $ordering)
-    {
-        $criteria = Criteria::create()->orderBy($ordering);
-
-        return $this->matching($criteria);
-    }
-
-    /**
-     * @param int $start
-     * @param int|null $limit
-     * @return FlexCollection
-     */
-    public function limit($start, $limit = null)
-    {
-        return $this->createFrom($this->slice($start, $limit));
-    }
-
-    /**
-     * Select items from collection.
-     *
-     * Collection is returned in the order of $keys given to the function.
-     *
-     * @param array $keys
-     * @return FlexCollection
-     */
-    public function select(array $keys)
-    {
-        $list = [];
-        foreach ($keys as $key) {
-            if ($this->containsKey($key)) {
-                $list[$key] = $this->get($key);
-            }
-        }
-
-        return $this->createFrom($list);
-    }
-
-    /**
-     * Un-select items from collection.
-     *
-     * Collection is returned in the order of $keys given to the function.
-     *
-     * @param array $keys
-     * @return FlexCollection
-     */
-    public function unselect(array $keys)
-    {
-        return $this->select(array_diff($this->getKeys(), $keys));
     }
 
     /**

@@ -65,4 +65,17 @@ interface ObjectCollectionInterface extends CollectionInterface, Selectable, Obj
      * @return static[]
      */
     public function collectionGroup($property);
+
+    /**
+     * @param array $ordering
+     * @return ObjectCollectionInterface
+     */
+    public function orderBy(array $ordering);
+
+    /**
+     * @param int $start
+     * @param int|null $limit
+     * @return ObjectCollectionInterface
+     */
+    public function limit($start, $limit = null);
 }

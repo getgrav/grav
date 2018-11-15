@@ -1,6 +1,9 @@
 # v1.6.0-beta.7
 ## mm/dd/2018
 
+1. [](#new)
+    * Added `select()` and `unselect()` methods to `CollectionInterface` and its base classes
+    * Added `orderBy()` and `limit()` methods to `ObjectCollectionInterface` and its base classes
 1. [](#improved)
     * Improve Flex storage
 1. [](#bugfix)

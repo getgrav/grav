@@ -397,6 +397,17 @@ abstract class AbstractIndexCollection implements CollectionInterface
     }
 
     /**
+     * Un-select items from collection.
+     *
+     * @param array $keys
+     * @return static
+     */
+    public function unselect(array $keys)
+    {
+        return $this->select(array_diff($this->getKeys(), $keys));
+    }
+
+    /**
      * Split collection into chunks.
      *
      * @param int $size     Size of each chunk.
