@@ -212,6 +212,34 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @return string[]
+     */
+    public function getFlexKeys()
+    {
+        // Get storage keys for the objects.
+        $keys = [];
+
+        foreach ($this as $key => $object) {
+            $keys[$object->getFlexKey()] = $key;
+        }
+
+        return $keys;
+    }
+
+    /**
+     * @param string $flexKey
+     * @return mixed|null
+     */
+    public function locate(string $flexKey)
+    {
+        $keys = $this->getFlexKeys();
+
+        $key = $keys[$flexKey] ?? null;
+
+        return $key ? $this->get($key) : null;
+    }
+
+    /**
      * @return string
      */
     public function getCacheKey()

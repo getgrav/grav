@@ -190,6 +190,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * Returns a string representation of this object.
+     *
+     * @return string
+     */
+    public function getFlexKey()
+    {
+        return $this->_flexDirectory->getType() . '.obj:' . $this->getStorageKey();
+    }
+
+    /**
      * @return string
      */
     public function getCacheKey()
@@ -210,7 +220,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getStorageKey()
     {
-        return $this->_storageKey ?? $this->__toString();
+        return $this->_storageKey ?? $this->getType() . '@@' . spl_object_hash($this);
     }
 
     /**
@@ -464,6 +474,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Returns a string representation of this object.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getFlexKey();
     }
 
     /**

@@ -94,10 +94,41 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Get storage keys for the objects.
         $keys = [];
         foreach ($this->getEntries() as $key => $value) {
-            $keys[\is_array($value) ? $value['storage_key'] ?? $value[0] : $key] = $key;
+            $keys[$value['storage_key'] ?? $key] = $key;
         }
 
         return $keys;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getFlexKeys()
+    {
+        // Get storage keys for the objects.
+        $keys = [];
+        $type = $this->_flexDirectory->getType() . '.obj:';
+
+        foreach ($this->getEntries() as $key => $value) {
+            $flexKey = $value['flex_key'] ?? $type . ($value['storage_key'] ?? $key);
+
+            $keys[$flexKey] = $key;
+        }
+
+        return $keys;
+    }
+
+    /**
+     * @param string $flexKey
+     * @return mixed|null
+     */
+    public function locate(string $flexKey)
+    {
+        $keys = $this->getFlexKeys();
+
+        $key = $keys[$flexKey] ?? null;
+
+        return $key ? $this->get($key) : null;
     }
 
     /**
