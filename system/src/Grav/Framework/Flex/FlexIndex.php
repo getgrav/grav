@@ -26,6 +26,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /** @var FlexDirectory */
     private $_flexDirectory;
 
+    /** @var string */
+    private $_keyField;
+
     /**
      * @param FlexDirectory $directory
      * @return static
@@ -36,7 +39,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
-     * @param array $entries
+     * @param array[] $entries
      * @param FlexDirectory $directory
      * @return static
      */
@@ -65,6 +68,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         parent::__construct($entries);
 
         $this->_flexDirectory = $flexDirectory;
+        $this->setKeyField(null);
     }
 
     /**
@@ -94,7 +98,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Get storage keys for the objects.
         $keys = [];
         foreach ($this->getEntries() as $key => $value) {
-            $keys[$value['storage_key'] ?? $key] = $key;
+            $keys[$value['storage_key']] = $key;
         }
 
         return $keys;
@@ -110,7 +114,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $type = $this->_flexDirectory->getType() . '.obj:';
 
         foreach ($this->getEntries() as $key => $value) {
-            $flexKey = $value['flex_key'] ?? $type . ($value['storage_key'] ?? $key);
+            $flexKey = $value['flex_key'] ?? $type . $value['storage_key'];
 
             $keys[$flexKey] = $key;
         }
@@ -119,16 +123,47 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
-     * @param string $flexKey
-     * @return mixed|null
+     * @return array
      */
-    public function locate(string $flexKey)
+    public function getMetaData(string $key) : array
     {
-        $keys = $this->getFlexKeys();
+        return $this->getEntries()[$key] ?? [];
+    }
 
-        $key = $keys[$flexKey] ?? null;
+    /**
+     * @param string $keyField
+     * @return FlexIndex
+     */
+    public function withKeyField(string $keyField = 'key') : self
+    {
+        // Get storage keys for the objects.
+        $type = $this->_flexDirectory->getType() . '.obj:';
 
-        return $key ? $this->get($key) : null;
+        $entries = [];
+        foreach ($this->getEntries() as $key => $value) {
+            $storageKey = $value['storage_key'];
+
+            if (!isset($value['key'])) {
+                $value['key'] = $key;
+            }
+            if (!isset($value['flex_key'])) {
+                $value['flex_key'] = $type . $storageKey;
+            }
+
+            if (isset($value[$keyField])) {
+                $entries[$value[$keyField]] = $value;
+            }
+        }
+
+        return $this->createFrom($entries, $keyField);
+    }
+
+    /**
+     * @return string
+     */
+    public function getKeyField() : string
+    {
+        return $this->_keyField;
     }
 
     /**
@@ -297,9 +332,17 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param array $indexes
      * @return static
      */
-    protected function createFrom(array $entries)
+    protected function createFrom(array $entries, $keyField = null)
     {
-        return new static($entries, $this->_flexDirectory);
+        $index = new static($entries, $this->_flexDirectory);
+        $index->setKeyField($keyField);
+
+        return $index;
+    }
+
+    protected function setKeyField($keyField = null)
+    {
+        $this->_keyField = $keyField ?? 'storage_key';
     }
 
     /**
@@ -356,5 +399,15 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     protected function getElementMeta($object)
     {
         return $object->getTimestamp();
+    }
+
+    public function __debugInfo()
+    {
+        return [
+            'type' => $this->getType(),
+            'key' => $this->getKey(),
+            'entries_key' => $this->getKeyField(),
+            'entries' => $this->getEntries()
+        ];
     }
 }

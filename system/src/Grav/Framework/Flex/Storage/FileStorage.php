@@ -65,7 +65,10 @@ class FileStorage extends FolderStorage
                 continue;
             }
 
-            $list[$key] = $info->getMTime();
+            $list[$key] = [
+                'storage_key' => $key,
+                'storage_timestamp' => $info->getMTime()
+            ];
         }
 
         ksort($list, SORT_NATURAL);

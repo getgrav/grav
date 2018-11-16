@@ -227,6 +227,17 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @return array
+     */
+    public function getMetaData(string $key) : array
+    {
+        /** @var FlexObject $object */
+        $object = $this->get($key);
+
+        return $object ? $object->getMetaData() : [];
+    }
+
+    /**
      * @param string $flexKey
      * @return mixed|null
      */
@@ -269,6 +280,27 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function getStorageKeys()
     {
         return array_flip($this->call('getStorageKey'));
+    }
+
+    /**
+     * @param string $keyField
+     * @return FlexIndex
+     */
+    public function withKeyField(string $keyField = 'key') : self
+    {
+        $entries = [];
+        foreach ($this as $key => $object) {
+            // TODO: remove hardcoded logic
+            if ($keyField === 'storage_key') {
+                $entries[$object->getStorageKey()] = $object;
+            } elseif ($keyField === 'flex_key') {
+                $entries[$object->getFlexKey()] = $object;
+            } elseif ($keyField === 'key') {
+                $entries[$object->getKey()] = $object;
+            }
+        }
+
+        return $this->createFrom($entries);
     }
 
     /**

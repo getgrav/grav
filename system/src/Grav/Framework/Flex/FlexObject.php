@@ -49,10 +49,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     private $_flexDirectory;
     /** @var FlexForm[] */
     private $_forms = [];
-    /** @var string */
-    private $_storageKey;
-    /** @var int */
-    private $_timestamp = 0;
+    /** @var array */
+    private $_storage;
 
     /**
      * @return array
@@ -74,6 +72,14 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             // FlexAclTrait
             'authorize' => true,
         ];
+    }
+
+    public static function createFromStorage(array $elements, array $storage, FlexDirectory $flexDirectory, $validate = false)
+    {
+        $instance = new static($elements, $storage['key'], $flexDirectory, $validate);
+        $instance->setStorage($storage);
+
+        return $instance;
     }
 
     /**
@@ -196,7 +202,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexKey()
     {
-        return $this->_flexDirectory->getType() . '.obj:' . $this->getStorageKey();
+        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getType() . '.obj:' . $this->getStorageKey();
     }
 
     /**
@@ -208,11 +214,19 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function getCacheChecksum()
     {
-        return $this->getTimestamp();
+        return (string)$this->getTimestamp();
+    }
+
+    /**
+     * @return array
+     */
+    public function getMetaData()
+    {
+        return $this->_storage;
     }
 
     /**
@@ -220,7 +234,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getStorageKey()
     {
-        return $this->_storageKey ?? $this->getType() . '@@' . spl_object_hash($this);
+        return $this->_storage['storage_key'] ?? $this->getType() . '@@' . spl_object_hash($this);
     }
 
     /**
@@ -229,7 +243,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function setStorageKey($key = null)
     {
-        $this->_storageKey = $key;
+        $this->_storage['storage_key'] = $key;
 
         return $this;
     }
@@ -239,7 +253,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getTimestamp() : int
     {
-        return $this->_timestamp;
+        return $this->_storage['timestamp'] ?? 0;
     }
 
     /**
@@ -248,7 +262,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function setTimestamp($timestamp = null)
     {
-        $this->_timestamp = $timestamp ?? time();
+        $this->_storage['timestamp'] = $timestamp ?? time();
 
         return $this;
     }
@@ -491,7 +505,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     protected function doSerialize()
     {
-        return $this->jsonSerialize() + ['storage_key' => $this->getStorageKey(), 'storage_timestamp' => $this->getTimestamp()];
+        return $this->jsonSerialize() + ['storage' => $this->_storage];
     }
 
     /**
@@ -502,7 +516,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $type = $serialized['type'] ?? 'unknown';
 
         if (!isset($serialized['key'], $serialized['type'], $serialized['elements'])) {
-            $type = $serialized['type'] ?? 'unknown';
             throw new \InvalidArgumentException("Cannot unserialize '{$type}': Bad data");
         }
 
@@ -514,11 +527,18 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             throw new \InvalidArgumentException("Cannot unserialize '{$type}': Not found");
         }
         $this->_flexDirectory = $directory;
-        $this->_storageKey = $serialized['storage_key'];
-        $this->_timestamp = $serialized['storage_timestamp'];
+        $this->_storage = $serialized['storage'];
 
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
+    }
+
+    /**
+     * @param array $storage
+     */
+    protected function setStorage(array $storage) : void
+    {
+        $this->_storage = $storage;
     }
 
     /**
@@ -600,10 +620,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     protected function filterElements(array &$elements)
     {
         if (!empty($elements['storage_key'])) {
-            $this->_storageKey = trim($elements['storage_key']);
+            $this->_storage['storage_key'] = trim($elements['storage_key']);
         }
         if (!empty($elements['storage_timestamp'])) {
-            $this->_timestamp = (int)$elements['storage_timestamp'];
+            $this->_storage['storage_timestamp'] = (int)$elements['storage_timestamp'];
         }
 
         unset ($elements['storage_key'], $elements['storage_timestamp']);

@@ -233,7 +233,10 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($this->data as $key => $info) {
-            $list[$key] = $modified;
+            $list[$key] = [
+                'storage_key' => $key,
+                'storage_timestamp' => $modified
+            ];
         }
 
         return $list;

@@ -385,6 +385,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function createObject(array $data, string $key = '', bool $validate = false) : FlexObject
     {
+        /** @var string|FlexObject $className */
         $className = $this->objectClassName ?: $this->getObjectClass();
 
         return new $className($data, $key, $this, $validate);
@@ -478,7 +479,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $keys = [];
         $rows = [];
         foreach ($entries as $key => $value) {
-            $k = \is_array($value) ? $value['storage_key'] ?? $value[0] : $key;
+            $k = $value['storage_key'];
             $keys[$k] = $key;
             $rows[$k] = null;
         }

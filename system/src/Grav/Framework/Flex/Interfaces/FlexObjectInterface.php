@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Grav\Framework\Flex\Interfaces;
 
 use Grav\Common\Data\Blueprint;
+use Grav\Framework\ContentBlock\HtmlBlock;
+use Grav\Framework\Flex\FlexForm;
 use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Flex\FlexDirectory;
 
@@ -30,17 +32,79 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
     public function __construct(array $elements, $key, FlexDirectory $type);
 
     /**
+     * Returns the directory where the object belongs into.
+     *
      * @return FlexDirectory
      */
     public function getFlexDirectory() : FlexDirectory;
 
     /**
+     * Returns a unique key for this object.
+     *
+     * NOTE: Please do not override the method!
+     *
+     * @return string
+     */
+    public function getFlexKey();
+
+    /**
+     * Returns a storage key which is used for figuring out the filename or database id.
+     *
+     * @return string
+     */
+    public function getStorageKey();
+
+    /**
+     * Returns a cache key which is used for caching the object.
+     *
+     * @return string
+     */
+    public function getCacheKey();
+
+    /**
+     * Returns cache checksum for the object. If checksum changes, cache gets invalided.
+     *
+     * @return string
+     */
+    public function getCacheChecksum();
+
+    /**
+     * Returns a last updated timestamp for the object.
+     *
      * @return int
      */
     public function getTimestamp() : int;
 
     /**
+     * Returns true if the object exists in the storage.
+     *
+     * @return bool
+     */
+    public function exists();
+
+    /**
+     * Returns the blueprint for the object.
+     *
      * @return Blueprint
      */
     public function getBlueprint();
+
+    /**
+     * Returns a form instance for the object.
+     *
+     * @param string $name
+     * @return FlexForm
+     */
+    public function getForm(string $name = '');
+
+    /**
+     * @param string $layout
+     * @param array $context
+     * @return HtmlBlock
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Syntax
+     */
+    public function render($layout = null, array $context = []);
 }
