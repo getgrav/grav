@@ -60,6 +60,8 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $objectClassName;
     /** @var string */
     protected $collectionClassName;
+    /** @var string */
+    protected $indexClassName;
 
     /**
      * FlexDirectory constructor.
@@ -398,13 +400,25 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
+     * @param array $entries
+     * @return FlexCollection
+     */
+    public function createIndex(array $entries) : CollectionInterface
+    {
+        $className = $this->indexClassName ?: $this->getIndexClass();
+
+        return new $className($entries, $this);
+    }
+
+    /**
      * @return string
      */
     public function getObjectClass() : string
     {
         if (!$this->objectClassName) {
-            $this->objectClassName = $this->getConfig('data.object', 'Grav\\Plugin\\FlexObjects\\FlexObject');
+            $this->objectClassName = $this->getConfig('data.object', 'Grav\\Framework\\Flex\\FlexObject');
         }
+
         return $this->objectClassName;
 
     }
@@ -415,9 +429,23 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getCollectionClass() : string
     {
         if (!$this->collectionClassName) {
-            $this->collectionClassName = $this->getConfig('data.collection', 'Grav\\Plugin\\FlexObjects\\FlexCollection');
+            $this->collectionClassName = $this->getConfig('data.collection', 'Grav\\Framework\\Flex\\FlexCollection');
         }
+
         return $this->collectionClassName;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getIndexClass() : string
+    {
+        if (!$this->indexClassName) {
+            $this->indexClassName = $this->getConfig('data.index', 'Grav\\Framework\\Flex\\FlexIndex');
+        }
+
+        return $this->indexClassName;
     }
 
     /**
@@ -584,7 +612,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
 
             // We need to do this in two steps as orderBy() calls loadIndex() again and we do not want infinite loop.
-            $this->index = new FlexIndex($keys, $this);
+            $this->index = $this->createIndex($keys);
             $this->index = $this->index->orderBy($this->getConfig('data.ordering', []));
 
             $debugger->stopTimer('flex-keys-' . $this->type . $j);
