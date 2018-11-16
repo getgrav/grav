@@ -163,7 +163,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getKeyField() : string
     {
-        return $this->_keyField;
+        return $this->_keyField ?? 'key';
     }
 
     /**

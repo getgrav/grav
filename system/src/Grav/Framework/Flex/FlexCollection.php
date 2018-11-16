@@ -28,6 +28,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /** @var FlexDirectory */
     private $_flexDirectory;
 
+    /** @var string */
+    private $_keyField;
+
     /**
      * @return array
      */
@@ -81,13 +84,17 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * instance should be created when constructor semantics have changed.
      *
      * @param array $elements Elements.
+     * @package string|null $keyField
      *
      * @return static
      * @throws \InvalidArgumentException
      */
-    protected function createFrom(array $elements)
+    protected function createFrom(array $elements, $keyField = null)
     {
-        return new static($elements, $this->_flexDirectory);
+        $collection = new static($elements, $this->_flexDirectory);
+        $collection->setKeyField($keyField);
+
+        return $collection;
     }
 
     /**
@@ -238,19 +245,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
-     * @param string $flexKey
-     * @return mixed|null
-     */
-    public function locate(string $flexKey)
-    {
-        $keys = $this->getFlexKeys();
-
-        $key = $keys[$flexKey] ?? null;
-
-        return $key ? $this->get($key) : null;
-    }
-
-    /**
      * @return string
      */
     public function getCacheKey()
@@ -300,7 +294,15 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             }
         }
 
-        return $this->createFrom($entries);
+        return $this->createFrom($entries, $keyField);
+    }
+
+    /**
+     * @return string
+     */
+    public function getKeyField() : string
+    {
+        return $this->_keyField ?? 'key';
     }
 
     /**
@@ -350,6 +352,16 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $elements;
     }
 
+    public function __debugInfo()
+    {
+        return [
+            'type' => $this->getType(),
+            'key' => $this->getKey(),
+            'entries_key' => $this->getKeyField(),
+            'objects' => $this->jsonSerialize()
+        ];
+    }
+
     /**
      * @param string $layout
      * @return \Twig_Template
@@ -384,5 +396,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $flex = Grav::instance()['flex_objects'];
 
         return $flex->getDirectory($type);
+    }
+
+    protected function setKeyField($keyField = null)
+    {
+        $this->_keyField = $keyField ?? 'storage_key';
     }
 }
