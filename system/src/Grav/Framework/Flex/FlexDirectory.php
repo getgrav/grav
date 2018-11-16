@@ -20,6 +20,8 @@ use Grav\Framework\Cache\Adapter\MemoryCache;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Storage\SimpleStorage;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
@@ -390,24 +392,26 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @return FlexCollection
+     * @return FlexCollectionInterface
      */
-    public function createCollection(array $entries) : FlexCollection
+    public function createCollection(array $entries) : FlexCollectionInterface
     {
+        /** @var string|FlexCollectionInterface $className */
         $className = $this->collectionClassName ?: $this->getCollectionClass();
 
-        return new $className($entries, $this);
+        return $className::createFromArray($entries, $this);
     }
 
     /**
      * @param array $entries
-     * @return FlexCollection
+     * @return FlexCollectionInterface
      */
-    public function createIndex(array $entries) : CollectionInterface
+    public function createIndex(array $entries) : FlexCollectionInterface
     {
+        /** @var string|FlexIndexInterface $className */
         $className = $this->indexClassName ?: $this->getIndexClass();
 
-        return new $className($entries, $this);
+        return $className::createFromArray($entries, $this);
     }
 
     /**
@@ -450,9 +454,9 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @return FlexCollection
+     * @return FlexCollectionInterface
      */
-    public function loadCollection(array $entries) : FlexCollection
+    public function loadCollection(array $entries) : FlexCollectionInterface
     {
         return $this->createCollection($this->loadObjects($entries));
     }
@@ -599,9 +603,9 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
 
             if (null === $keys) {
-                /** @var FlexObject $className */
-                $className = $this->getObjectClass();
-                $keys = $className::createIndex($storage);
+                /** @var string|FlexIndexInterface $className */
+                $className = $this->getIndexClass();
+                $keys = $className::loadEntriesFromStorage($storage);
                 $debugger->addMessage(sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)), 'debug');
                 try {
                     $cache->set('__keys', $keys);

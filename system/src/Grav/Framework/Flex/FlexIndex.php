@@ -13,16 +13,46 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
 use Grav\Framework\Object\ObjectIndex;
 use PSR\SimpleCache\InvalidArgumentException;
 
-class FlexIndex extends ObjectIndex implements FlexCollectionInterface
+class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
 {
     /** @var FlexDirectory */
     private $_flexDirectory;
+
+    /**
+     * @param FlexDirectory $directory
+     * @return static
+     */
+    public static function createFromStorage(FlexDirectory $directory) : FlexCollectionInterface
+    {
+        return static::createFromArray(static::loadEntriesFromStorage($directory->getStorage()), $directory);
+    }
+
+    /**
+     * @param array $entries
+     * @param FlexDirectory $directory
+     * @return static
+     */
+    public static function createFromArray(array $entries, FlexDirectory $directory) : FlexCollectionInterface
+    {
+        return new static($entries, $directory);
+    }
+
+    /**
+     * @param FlexStorageInterface $storage
+     * @return array
+     */
+    public static function loadEntriesFromStorage(FlexStorageInterface $storage) : array
+    {
+        return $storage->getExistingKeys();
+    }
 
     /**
      * Initializes a new FlexIndex.

@@ -21,6 +21,14 @@ use Grav\Framework\Flex\FlexDirectory;
  */
 interface FlexCollectionInterface extends ObjectCollectionInterface, NestedObjectInterface
 {
+
+    /**
+     * @param array $entries
+     * @param FlexDirectory $directory
+     * @return static
+     */
+    public static function createFromArray(array $entries, FlexDirectory $directory) : FlexCollectionInterface;
+
     /**
      * @param array $elements
      * @param FlexDirectory $type

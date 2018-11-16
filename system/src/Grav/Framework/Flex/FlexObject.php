@@ -77,15 +77,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param FlexStorageInterface $storage
-     * @return array
-     */
-    public static function createIndex(FlexStorageInterface $storage)
-    {
-        return $storage->getExistingKeys();
-    }
-
-    /**
      * @param array $elements
      * @param string $key
      * @param FlexDirectory $flexDirectory

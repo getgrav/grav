@@ -51,6 +51,16 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @param array $entries
+     * @param FlexDirectory $directory
+     * @return static
+     */
+    public static function createFromArray(array $entries, FlexDirectory $directory) : FlexCollectionInterface
+    {
+        return new static($entries, $directory);
+    }
+
+    /**
      * @param array $elements
      * @param FlexDirectory|null $flexDirectory
      * @throws \InvalidArgumentException
@@ -274,7 +284,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
          * @var FlexObject $object
          */
         foreach ($this->getElements() as $key => $object) {
-            $elements[$key] = $object->jsonSerialize();
+            $elements[$key] = \is_array($object) ? $object : $object->jsonSerialize();
         }
 
         return $elements;
