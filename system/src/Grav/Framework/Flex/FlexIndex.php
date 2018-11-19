@@ -70,12 +70,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
         parent::__construct($entries);
 
-        $first = reset($entries);
-        $keys = $first ? array_keys($first) : [];
-        $keys = array_combine($keys, $keys) + ['key' => 'key', 'flex_key' => 'flex_key'];
-
         $this->_flexDirectory = $flexDirectory;
-        $this->_indexKeys = $keys;
         $this->setKeyField(null);
     }
 
@@ -211,12 +206,12 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function orderBy(array $orderings)
     {
-        if (!$orderings) {
+        if (!$orderings || !$this->count()) {
             return $this;
         }
 
         // Check if ordering needs to load the objects.
-        if (array_diff_key($orderings, $this->_indexKeys)) {
+        if (array_diff_key($orderings, $this->getIndexKeys())) {
             return $this->__call('orderBy', [$orderings]);
         }
 
@@ -335,10 +330,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param array $entries
-     * @param array $indexes
+     * @param string $keyField
      * @return static
      */
-    protected function createFrom(array $entries, $keyField = null)
+    protected function createFrom(array $entries, string $keyField = null)
     {
         $index = new static($entries, $this->_flexDirectory);
         $index->setKeyField($keyField);
@@ -346,9 +341,47 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $index;
     }
 
-    protected function setKeyField($keyField = null)
+    /**
+     * @param string|null $keyField
+     */
+    protected function setKeyField(string $keyField = null)
     {
         $this->_keyField = $keyField ?? 'storage_key';
+    }
+
+    protected function getIndexKeys()
+    {
+        if (null === $this->_indexKeys) {
+            $entries = $this->getEntries();
+            $first = reset($entries);
+            if ($first) {
+                $keys = array_keys($first);
+                $keys = array_combine($keys, $keys);
+            } else {
+                $keys = [];
+            }
+
+            $this->setIndexKeys($keys);
+        }
+
+        return $this->_indexKeys;
+    }
+
+    /**
+     * @param array $indexKeys
+     */
+    protected function setIndexKeys(array $indexKeys)
+    {
+        // Add defaults.
+        $indexKeys += [
+            'key' => 'key',
+            'storage_key' => 'storage_key',
+            'storage_timestamp' => 'storage_timestamp',
+            'flex_key' => 'flex_key'
+        ];
+
+
+        $this->_indexKeys = $indexKeys;
     }
 
     /**
