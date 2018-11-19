@@ -177,6 +177,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
         if (!Utils::isAdminPlugin()) {
             $filters = (array)$this->getConfig('site.filter', []);
+
             foreach ($filters as $filter) {
                 $index = $index->{$filter}();
             }
@@ -472,6 +473,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param array $entries
      * @return FlexObject[]
+     * @internal
      */
     public function loadObjects(array $entries) : array
     {
@@ -521,13 +523,16 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $debugger->addMessage(sprintf('Flex: Object %s was not found from %s storage', $storageKey, $this->type), 'debug');
                 continue;
             }
+            $usedKey = $keys[$storageKey];
+            // TODO: add method to get a single storage index field
             $row += [
                 'storage_key' => $storageKey,
-                'storage_timestamp' => $entries[$key]['storage_timestamp'] ?? $entries[$key][1] ?? $entries[$key],
+                'storage_timestamp' => $entries[$usedKey]['storage_timestamp'],
             ];
-            $key = $keys[$storageKey];
+
+            $key = $entries[$usedKey]['key'] ?? $usedKey;
             $object = $this->createObject($row, $key, false);
-            $list[$key] = $object;
+            $list[$usedKey] = $object;
         }
 
         $debugger->stopTimer('flex-objects');

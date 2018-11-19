@@ -500,6 +500,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $this->getFlexKey();
     }
 
+    public function __debugInfo()
+    {
+        return [
+            'type:private' => $this->getType(),
+            'key:private' => $this->getKey(),
+            'elements:private' => $this->getElements(),
+            'storage:private' => $this->_storage
+        ];
+    }
+
     /**
      * @return array
      */

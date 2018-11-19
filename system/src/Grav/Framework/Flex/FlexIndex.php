@@ -346,7 +346,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function setKeyField(string $keyField = null)
     {
-        $this->_keyField = $keyField ?? 'storage_key';
+        $this->_keyField = $keyField ?? 'key';
     }
 
     protected function getIndexKeys()
@@ -443,10 +443,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     public function __debugInfo()
     {
         return [
-            'type' => $this->getType(),
-            'key' => $this->getKey(),
-            'entries_key' => $this->getKeyField(),
-            'entries' => $this->getEntries()
+            'type:private' => $this->getType(),
+            'key:private' => $this->getKey(),
+            'entries_key:private' => $this->getKeyField(),
+            'entries:private' => $this->getEntries()
         ];
     }
 }

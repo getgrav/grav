@@ -348,10 +348,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function __debugInfo()
     {
         return [
-            'type' => $this->getType(),
-            'key' => $this->getKey(),
-            'entries_key' => $this->getKeyField(),
-            'objects' => $this->jsonSerialize()
+            'type:private' => $this->getType(),
+            'key:private' => $this->getKey(),
+            'objects_key:private' => $this->getKeyField(),
+            'objects:private' => $this->getElements()
         ];
     }
 
