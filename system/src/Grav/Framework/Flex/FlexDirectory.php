@@ -168,11 +168,12 @@ class FlexDirectory implements FlexAuthorizeInterface
      * Use $directory->getIndex() if you want unfiltered collection.
      *
      * @param array|null $keys  Array of keys.
+     * @param string|null $keyField  Field to be used as the key.
      * @return FlexIndex|FlexCollection
      */
-    public function getCollection(array $keys = null) : CollectionInterface
+    public function getCollection(array $keys = null, string $keyField = null) : CollectionInterface
     {
-        $index = clone $this->getIndex($keys);
+        $index = $this->getIndex($keys, $keyField);
 
         if (!Utils::isAdminPlugin()) {
             $filters = (array)$this->getConfig('site.filter', []);
@@ -186,11 +187,12 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param string $key
+     * @param string|null $keyField  Field to be used as the key.
      * @return FlexObject|null
      */
-    public function getObject($key) : ?FlexObject
+    public function getObject($key, string $keyField = null) : ?FlexObject
     {
-        return $this->getCollection()->get($key);
+        return $this->getCollection(null, $keyField)->get($key);
     }
 
     /**
@@ -363,12 +365,17 @@ class FlexDirectory implements FlexAuthorizeInterface
      * Use $directory->getCollection() if you want a filtered collection.
      *
      * @param array|null $keys  Array of keys.
+     * @param string|null $keyField  Field to be used as the key.
      * @return FlexIndex|FlexCollection
      * @internal
      */
-    public function getIndex(array $keys = null) : CollectionInterface
+    public function getIndex(array $keys = null, string $keyField = null) : CollectionInterface
     {
         $index = clone $this->loadIndex();
+
+        if (null !== $keyField) {
+            $index = $index->withKeyField($keyField);
+        }
 
         if (null !== $keys) {
             $index = $index->select($keys);
