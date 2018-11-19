@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d5507fb2bcbb3cf1cb9c51f8df81397",
+    "content-hash": "4dd4422a267686fccf962dbfe54f22b2",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -1081,16 +1081,16 @@
         },
         {
             "name": "nyholm/psr7-server",
-            "version": "0.2.1",
+            "version": "0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nyholm/psr7-server.git",
-                "reference": "d7f72c4a57acf774d0049e46091929803976283b"
+                "reference": "1b71a848fcb066fb805b7a9ab3f41ff65bffcde8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nyholm/psr7-server/zipball/d7f72c4a57acf774d0049e46091929803976283b",
-                "reference": "d7f72c4a57acf774d0049e46091929803976283b",
+                "url": "https://api.github.com/repos/Nyholm/psr7-server/zipball/1b71a848fcb066fb805b7a9ab3f41ff65bffcde8",
+                "reference": "1b71a848fcb066fb805b7a9ab3f41ff65bffcde8",
                 "shasum": ""
             },
             "require": {
@@ -1129,7 +1129,7 @@
                 "psr-17",
                 "psr-7"
             ],
-            "time": "2018-08-02T20:01:51+00:00"
+            "time": "2018-09-02T10:41:28+00:00"
         },
         {
             "name": "phive/twig-extensions-deferred",
