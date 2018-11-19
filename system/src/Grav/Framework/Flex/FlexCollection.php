@@ -219,21 +219,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
-     * @return string[]
-     */
-    public function getFlexKeys()
-    {
-        // Get storage keys for the objects.
-        $keys = [];
-
-        foreach ($this as $key => $object) {
-            $keys[$object->getFlexKey()] = $key;
-        }
-
-        return $keys;
-    }
-
-    /**
      * @return array
      */
     public function getMetaData(string $key) : array
@@ -269,11 +254,19 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
-     * @return int[]
+     * @return string[]
      */
     public function getStorageKeys()
     {
-        return array_flip($this->call('getStorageKey'));
+        return $this->call('getStorageKey');
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getFlexKeys()
+    {
+        return $this->call('getFlexKey');
     }
 
     /**

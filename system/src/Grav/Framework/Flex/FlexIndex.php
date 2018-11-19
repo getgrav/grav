@@ -29,6 +29,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /** @var string */
     private $_keyField;
 
+    /** @var array */
+    private $_indexKeys;
+
     /**
      * @param FlexDirectory $directory
      * @return static
@@ -67,7 +70,11 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
         parent::__construct($entries);
 
+        $keys = array_keys(reset($entries));
+        $keys = array_combine($keys, $keys) + ['key' => 'key', 'flex_key' => 'flex_key'];
+
         $this->_flexDirectory = $flexDirectory;
+        $this->_indexKeys = $keys;
         $this->setKeyField(null);
     }
 
@@ -95,13 +102,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getStorageKeys()
     {
-        // Get storage keys for the objects.
-        $keys = [];
-        foreach ($this->getEntries() as $key => $value) {
-            $keys[$value['storage_key']] = $key;
-        }
-
-        return $keys;
+        return $this->getIndex('storage_key');
     }
 
     /**
@@ -114,12 +115,33 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $type = $this->_flexDirectory->getType() . '.obj:';
 
         foreach ($this->getEntries() as $key => $value) {
-            $flexKey = $value['flex_key'] ?? $type . $value['storage_key'];
-
-            $keys[$flexKey] = $key;
+            $keys[$key] = $value['flex_key'] ?? $type . $value['storage_key'];
         }
 
         return $keys;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getTimestamps()
+    {
+        return $this->getIndex('storage_timestamp');
+    }
+
+    /**
+     * @param string $indexKey
+     * @return array
+     */
+    public function getIndex(string $indexKey)
+    {
+        // Get storage keys for the objects.
+        $index = [];
+        foreach ($this->getEntries() as $key => $value) {
+            $index[$key] = $value[$indexKey] ?? null;
+        }
+
+        return $index;
     }
 
     /**
@@ -167,20 +189,6 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
-     * @return int[]
-     */
-    public function getTimestamps()
-    {
-        // Get storage keys for the objects.
-        $timestamps = [];
-        foreach ($this->getEntries() as $key => $value) {
-            $timestamps[$key] = \is_array($value) ? $value['storage_timestamp'] ?? $value[1] : $value;
-        }
-
-        return $timestamps;
-    }
-
-    /**
      * @return string
      */
     public function getCacheKey()
@@ -207,7 +215,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         }
 
         // Check if ordering needs to load the objects.
-        if (array_diff_key($orderings, ['key' => true, 'storage_key' => true, 'timestamp' => true])) {
+        if (array_diff_key($orderings, $this->_indexKeys)) {
             return $this->__call('orderBy', [$orderings]);
         }
 
@@ -219,14 +227,11 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                     $keys = $this->getKeys();
                     $search = array_combine($keys, $keys);
                     break;
-                case 'storage_key':
-                    $search = array_flip($this->getStorageKeys());
-                    break;
-                case 'timestamp':
-                    $search = $this->getTimestamps();
+                case 'flex_key':
+                    $search = $this->getFlexKeys();
                     break;
                 default:
-                    continue 2;
+                    $search = $this->getIndex($field);
             }
 
             // Update current search to match the previous ordering.
