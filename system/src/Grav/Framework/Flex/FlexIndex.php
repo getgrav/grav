@@ -70,7 +70,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
         parent::__construct($entries);
 
-        $keys = array_keys(reset($entries));
+        $first = reset($entries);
+        $keys = $first ? array_keys($first) : [];
         $keys = array_combine($keys, $keys) + ['key' => 'key', 'flex_key' => 'flex_key'];
 
         $this->_flexDirectory = $flexDirectory;
