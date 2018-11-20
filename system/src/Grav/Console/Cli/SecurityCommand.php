@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -12,7 +13,6 @@ use Grav\Common\Grav;
 use Grav\Common\Security;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class SecurityCommand extends ConsoleCommand
@@ -20,14 +20,16 @@ class SecurityCommand extends ConsoleCommand
     /** @var ProgressBar $progress */
     protected $progress;
 
+    protected $source;
+
     /**
      *
      */
     protected function configure()
     {
         $this
-            ->setName("security")
-            ->setDescription("Capable of running various Security checks")
+            ->setName('security')
+            ->setDescription('Capable of running various Security checks')
             ->setHelp('The <info>security</info> runs various security checks on your Grav site');
 
         $this->source = getcwd();
@@ -51,7 +53,7 @@ class SecurityCommand extends ConsoleCommand
         $grav['twig']->init();
         $grav['pages']->init();
 
-        $this->progress = new ProgressBar($this->output, (count($grav['pages']->routes()) - 1));
+        $this->progress = new ProgressBar($this->output, \count($grav['pages']->routes()) - 1);
         $this->progress->setFormat('Scanning <cyan>%current%</cyan> pages [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s%');
         $this->progress->setBarWidth(100);
 
@@ -74,7 +76,7 @@ class SecurityCommand extends ConsoleCommand
                 $io->writeln($counter++ .' - <cyan>' . $route . '</cyan> → <red>' . implode(', ', $results_parts) . '</red>');
             }
 
-            $io->error('Security Scan complete: ' . count($output) . ' potential XSS issues found...');
+            $io->error('Security Scan complete: ' . \count($output) . ' potential XSS issues found...');
 
         } else {
             $io->success('Security Scan complete: No issues found...');
@@ -92,7 +94,7 @@ class SecurityCommand extends ConsoleCommand
         switch ($args['type']) {
             case 'count':
                 $steps = $args['steps'];
-                $freq = intval($steps > 100 ? round($steps / 100) : $steps);
+                $freq = (int)($steps > 100 ? round($steps / 100) : $steps);
                 $this->progress->setMaxSteps($steps);
                 $this->progress->setRedrawFrequency($freq);
                 break;

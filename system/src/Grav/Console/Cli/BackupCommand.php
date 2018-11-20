@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -30,14 +31,14 @@ class BackupCommand extends ConsoleCommand
     protected function configure()
     {
         $this
-            ->setName("backup")
+            ->setName('backup')
             ->addArgument(
                 'id',
                 InputArgument::OPTIONAL,
                 'The ID of the backup to perform without prompting'
 
             )
-            ->setDescription("Creates a backup of the Grav instance")
+            ->setDescription('Creates a backup of the Grav instance')
             ->setHelp('The <info>backup</info> creates a zipped backup. Optionally can be saved in a different destination.');
 
         $this->source = getcwd();
@@ -65,12 +66,12 @@ class BackupCommand extends ConsoleCommand
         $id = null;
 
         $inline_id = $this->input->getArgument('id');
-        if (isset($inline_id) && is_numeric($inline_id)) {
+        if (null !== $inline_id && is_numeric($inline_id)) {
             $id = $inline_id;
         }
 
-        if (is_null($id)) {
-            if (count($backups_list) > 1) {
+        if (null === $id) {
+            if (\count($backups_list) > 1) {
                 $helper = $this->getHelper('question');
                 $question = new ChoiceQuestion(
                     'Choose a backup?',
@@ -79,7 +80,7 @@ class BackupCommand extends ConsoleCommand
                 );
                 $question->setErrorMessage('Option %s is invalid.');
                 $backup_name = $helper->ask($this->input, $this->output, $question);
-                $id = array_search($backup_name, $backups_names);
+                $id = array_search($backup_name, $backups_names, true);
 
                 $io->newLine();
                 $io->note('Selected backup: ' . $backup_name);

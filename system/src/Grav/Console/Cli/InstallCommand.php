@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -38,7 +39,7 @@ class InstallCommand extends ConsoleCommand
     protected function configure()
     {
         $this
-            ->setName("install")
+            ->setName('install')
             ->addOption(
                 'symlink',
                 's',
@@ -50,7 +51,7 @@ class InstallCommand extends ConsoleCommand
                 InputArgument::OPTIONAL,
                 'Where to install the required bits (default to current project)'
             )
-            ->setDescription("Installs the dependencies needed by Grav. Optionally can create symbolic links")
+            ->setDescription('Installs the dependencies needed by Grav. Optionally can create symbolic links')
             ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
     }
 
@@ -60,7 +61,7 @@ class InstallCommand extends ConsoleCommand
     protected function serve()
     {
         $dependencies_file = '.dependencies';
-        $this->destination = ($this->input->getArgument('destination')) ? $this->input->getArgument('destination') : ROOT_DIR;
+        $this->destination = $this->input->getArgument('destination') ?: ROOT_DIR;
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;

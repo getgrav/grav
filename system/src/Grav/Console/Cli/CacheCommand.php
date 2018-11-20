@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -9,7 +10,6 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Cache;
-use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 

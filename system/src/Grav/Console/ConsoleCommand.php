@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -34,7 +35,6 @@ class ConsoleCommand extends Command
      */
     protected function serve()
     {
-
     }
 
     protected function displayGPMRelease()

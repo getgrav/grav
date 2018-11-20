@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -81,7 +82,7 @@ trait ConsoleTrait
 
         if (!file_exists($path . DS . 'index.php') || !file_exists($path . DS . '.dependencies') || !file_exists($path . DS . 'system' . DS . 'config' . DS . 'system.yaml')) {
             $this->output->writeln('');
-            $this->output->writeln("<red>ERROR</red>: Destination chosen to install does not appear to be a Grav instance:");
+            $this->output->writeln('<red>ERROR</red>: Destination chosen to install does not appear to be a Grav instance:');
             $this->output->writeln("       <white>$path</white>");
             $this->output->writeln('');
             exit;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -255,8 +256,8 @@ class CleanCommand extends Command
     protected function configure()
     {
         $this
-            ->setName("clean")
-            ->setDescription("Handles cleaning chores for Grav distribution")
+            ->setName('clean')
+            ->setDescription('Handles cleaning chores for Grav distribution')
             ->setHelp('The <info>clean</info> clean extraneous folders and data');
     }
 

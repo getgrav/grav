@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -58,7 +59,7 @@ class SelfupgradeCommand extends ConsoleCommand
     protected function configure()
     {
         $this
-            ->setName("self-upgrade")
+            ->setName('self-upgrade')
             ->setAliases(['selfupgrade', 'selfupdate'])
             ->addOption(
                 'force',
@@ -78,7 +79,7 @@ class SelfupgradeCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'Option to overwrite packages if they already exist'
             )
-            ->setDescription("Detects and performs an update of Grav itself when available")
+            ->setDescription('Detects and performs an update of Grav itself when available')
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
 
@@ -100,26 +101,26 @@ class SelfupgradeCommand extends ConsoleCommand
         $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
 
         if (!$this->upgrader->meetsRequirements()) {
-            $this->output->writeln("<red>ATTENTION:</red>");
-            $this->output->writeln("   Grav has increased the minimum PHP requirement.");
-            $this->output->writeln("   You are currently running PHP <red>" . phpversion() . "</red>, but PHP <green>" . $this->upgrader->minPHPVersion() . "</green> is required.");
-            $this->output->writeln("   Additional information: <white>http://getgrav.org/blog/changing-php-requirements</white>");
-            $this->output->writeln("");
-            $this->output->writeln("Selfupgrade aborted.");
-            $this->output->writeln("");
+            $this->output->writeln('<red>ATTENTION:</red>');
+            $this->output->writeln('   Grav has increased the minimum PHP requirement.');
+            $this->output->writeln('   You are currently running PHP <red>' . phpversion() . '</red>, but PHP <green>' . $this->upgrader->minPHPVersion() . '</green> is required.');
+            $this->output->writeln('   Additional information: <white>http://getgrav.org/blog/changing-php-requirements</white>');
+            $this->output->writeln('');
+            $this->output->writeln('Selfupgrade aborted.');
+            $this->output->writeln('');
             exit;
         }
 
         if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
-            $this->output->writeln("You are already running the latest version of Grav (v" . $local . ") released on " . $release);
+            $this->output->writeln("You are already running the latest version of Grav (v{$local}) released on {$release}");
             exit;
         }
 
         Installer::isValidDestination(GRAV_ROOT . '/system');
         if (Installer::IS_LINK === Installer::lastErrorCode()) {
-            $this->output->writeln("<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...");
+            $this->output->writeln('<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...');
             $this->output->writeln('');
-            $this->output->writeln("You are currently running a symbolically linked Grav v" . $local . ". Latest available is v". $remote . ".");
+            $this->output->writeln("You are currently running a symbolically linked Grav v{$local}. Latest available is v{$remote}.");
             exit;
         }
 
@@ -129,51 +130,51 @@ class SelfupgradeCommand extends ConsoleCommand
         $questionHelper = $this->getHelper('question');
 
 
-        $this->output->writeln("Grav v<cyan>$remote</cyan> is now available [release date: $release].");
-        $this->output->writeln("You are currently using v<cyan>" . GRAV_VERSION . "</cyan>.");
+        $this->output->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
+        $this->output->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
 
         if (!$this->all_yes) {
-            $question = new ConfirmationQuestion("Would you like to read the changelog before proceeding? [y|N] ",
+            $question = new ConfirmationQuestion('Would you like to read the changelog before proceeding? [y|N] ',
                 false);
             $answer = $questionHelper->ask($this->input, $this->output, $question);
 
             if ($answer) {
                 $changelog = $this->upgrader->getChangelog(GRAV_VERSION);
 
-                $this->output->writeln("");
+                $this->output->writeln('');
                 foreach ($changelog as $version => $log) {
                     $title = $version . ' [' . $log['date'] . ']';
                     $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', function ($match) {
-                        return "\n" . ucfirst($match[1]) . ":";
+                        return "\n" . ucfirst($match[1]) . ':';
                     }, $log['content']);
 
                     $this->output->writeln($title);
-                    $this->output->writeln(str_repeat('-', strlen($title)));
+                    $this->output->writeln(str_repeat('-', \strlen($title)));
                     $this->output->writeln($content);
-                    $this->output->writeln("");
+                    $this->output->writeln('');
                 }
 
-                $question = new ConfirmationQuestion("Press [ENTER] to continue.", true);
+                $question = new ConfirmationQuestion('Press [ENTER] to continue.', true);
                 $questionHelper->ask($this->input, $this->output, $question);
             }
 
-            $question = new ConfirmationQuestion("Would you like to upgrade now? [y|N] ", false);
+            $question = new ConfirmationQuestion('Would you like to upgrade now? [y|N] ', false);
             $answer = $questionHelper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
-                $this->output->writeln("Aborting...");
+                $this->output->writeln('Aborting...');
 
                 exit;
             }
         }
 
-        $this->output->writeln("");
-        $this->output->writeln("Preparing to upgrade to v<cyan>$remote</cyan>..");
+        $this->output->writeln('');
+        $this->output->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
 
-        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($update['size']) . "]...     0%");
+        $this->output->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
         $this->file = $this->download($update);
 
-        $this->output->write("  |- Installing upgrade...  ");
+        $this->output->write('  |- Installing upgrade...  ');
         $installation = $this->upgrade();
 
         if (!$installation) {
@@ -202,7 +203,7 @@ class SelfupgradeCommand extends ConsoleCommand
         Folder::mkdir($this->tmp);
 
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($package['size']) . "]...   100%");
+        $this->output->write("  |- Downloading upgrade [{$this->formatBytes($package['size'])}]...   100%");
         $this->output->writeln('');
 
         file_put_contents($this->tmp . DS . $package['name'], $output);
@@ -223,7 +224,7 @@ class SelfupgradeCommand extends ConsoleCommand
         if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
-            $this->output->writeln("  |- Installing upgrade...    <red>error</red>                             ");
+            $this->output->writeln('  |- Installing upgrade...    <red>error</red>                             ');
             $this->output->writeln("  |  '- " . Installer::lastErrorMsg());
 
             return false;
@@ -231,7 +232,7 @@ class SelfupgradeCommand extends ConsoleCommand
 
         $this->output->write("\x0D");
         // extra white spaces to clear out the buffer properly
-        $this->output->writeln("  |- Installing upgrade...    <green>ok</green>                             ");
+        $this->output->writeln('  |- Installing upgrade...    <green>ok</green>                             ');
 
         return true;
     }
@@ -242,8 +243,8 @@ class SelfupgradeCommand extends ConsoleCommand
     public function progress($progress)
     {
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading upgrade [" . $this->formatBytes($progress["filesize"]) . "]... " . str_pad($progress['percent'],
-                5, " ", STR_PAD_LEFT) . '%');
+        $this->output->write("  |- Downloading upgrade [{$this->formatBytes($progress["filesize"]) }]... " . str_pad($progress['percent'],
+                5, ' ', STR_PAD_LEFT) . '%');
     }
 
     /**
@@ -257,6 +258,6 @@ class SelfupgradeCommand extends ConsoleCommand
         $base = log($size) / log(1024);
         $suffixes = array('', 'k', 'M', 'G', 'T');
 
-        return round(pow(1024, $base - floor($base)), $precision) . $suffixes[(int)floor($base)];
+        return round(1024 ** ($base - floor($base)), $precision) . $suffixes[(int)floor($base)];
     }
 }

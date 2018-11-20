@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -158,7 +159,7 @@ class SandboxCommand extends ConsoleCommand
 
 
         foreach ($this->mappings as $source => $target) {
-            if ((int)$source == $source) {
+            if ((string)(int)$source === (string)$source) {
                 $source = $target;
             }
 
@@ -180,7 +181,7 @@ class SandboxCommand extends ConsoleCommand
 
 
         foreach ($this->mappings as $source => $target) {
-            if ((int)$source == $source) {
+            if ((string)(int)$source === (string)$source) {
                 $source = $target;
             }
 
@@ -211,7 +212,7 @@ class SandboxCommand extends ConsoleCommand
 
         // Copy files if they do not exist
         foreach ($this->files as $source => $target) {
-            if ((int)$source == $source) {
+            if ((string)(int)$source === (string)$source) {
                 $source = $target;
             }
 
@@ -242,7 +243,7 @@ class SandboxCommand extends ConsoleCommand
         $pages_dir = $this->destination . '/user/pages';
         $pages_files = array_diff(scandir($pages_dir), ['..', '.']);
 
-        if (count($pages_files) == 0) {
+        if (\count($pages_files) === 0) {
             $destination = $this->source . '/user/pages';
             Folder::rcopy($destination, $pages_dir);
             $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package    Grav.Console
  *
@@ -70,7 +71,6 @@ class SchedulerCommand extends ConsoleCommand
 
         $this->setHelp('foo');
 
-        /** @var use new SymfonyStyle helper $io */
         $io = new SymfonyStyle($this->input, $this->output);
 
         if ($this->input->getOption('jobs')) {
@@ -90,13 +90,13 @@ class SchedulerCommand extends ConsoleCommand
                 $job_status = ucfirst($job_states[$job->getId()]['state'] ?? 'ready');
                 $last_run = $job_states[$job->getId()]['last-run'] ?? 0;
                 $status = $job_status === 'Failure' ? "<red>{$job_status}</red>" : "<green>{$job_status}</green>";
-                $state = $job->getEnabled() ? "<cyan>Enabled</cyan>" : "<red>Disabled</red>";
+                $state = $job->getEnabled() ? '<cyan>Enabled</cyan>' : '<red>Disabled</red>';
                 $row = [
                     $job->getId(),
                     "<white>{$job->getCommand()}</white>",
                     "<magenta>{$job->getAt()}</magenta>",
-                    "{$status}",
-                    "<yellow>" . ($last_run === 0 ? 'Never' : date('Y-m-d H:i', $last_run)) . "</yellow>",
+                    $status,
+                    '<yellow>' . ($last_run === 0 ? 'Never' : date('Y-m-d H:i', $last_run)) . '</yellow>',
                     $state,
 
                 ];
@@ -136,16 +136,16 @@ class SchedulerCommand extends ConsoleCommand
                 $row = [];
                 $row[] = $job->getId();
                 if (!is_null($job_state['last-run'])) {
-                    $row[] = "<yellow>" . date('Y-m-d H:i', $job_state['last-run']) . "</yellow>";
+                    $row[] = '<yellow>' . date('Y-m-d H:i', $job_state['last-run']) . '</yellow>';
                 } else {
-                    $row[] = "<yellow>" . "Never" . "</yellow>";
+                    $row[] = '<yellow>Never</yellow>';
                 }
-                $row[] = "<yellow>" . $next_run->format('Y-m-d H:i') . "</yellow>";
+                $row[] = '<yellow>' . $next_run->format('Y-m-d H:i') . '</yellow>';
 
                 if ($error) {
                     $row[] = "<error>{$error}</error>";
                 } else {
-                    $row[] = "<green>None</green>";
+                    $row[] = '<green>None</green>';
                 }
                 $rows[] = $row;
             }
