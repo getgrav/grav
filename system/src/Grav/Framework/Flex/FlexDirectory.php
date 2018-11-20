@@ -173,14 +173,38 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function getCollection(array $keys = null, string $keyField = null) : CollectionInterface
     {
+        // Get all selected entries.
         $index = $this->getIndex($keys, $keyField);
 
         if (!Utils::isAdminPlugin()) {
+            // If not in admin, filter the list by using default filters.
             $filters = (array)$this->getConfig('site.filter', []);
 
             foreach ($filters as $filter) {
                 $index = $index->{$filter}();
             }
+        }
+
+        return $index;
+    }
+
+    /**
+     * Get the full collection of all stored objects.
+     *
+     * Use $directory->getCollection() if you want a filtered collection.
+     *
+     * @param array|null $keys  Array of keys.
+     * @param string|null $keyField  Field to be used as the key.
+     * @return FlexIndex|FlexCollection
+     * @internal
+     */
+    public function getIndex(array $keys = null, string $keyField = null) : CollectionInterface
+    {
+        $index = clone $this->loadIndex();
+        $index = $index->withKeyField($keyField);
+
+        if (null !== $keys) {
+            $index = $index->select($keys);
         }
 
         return $index;
@@ -361,31 +385,6 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
-     * Get the full collection of all stored objects.
-     *
-     * Use $directory->getCollection() if you want a filtered collection.
-     *
-     * @param array|null $keys  Array of keys.
-     * @param string|null $keyField  Field to be used as the key.
-     * @return FlexIndex|FlexCollection
-     * @internal
-     */
-    public function getIndex(array $keys = null, string $keyField = null) : CollectionInterface
-    {
-        $index = clone $this->loadIndex();
-
-        if (null !== $keyField) {
-            $index = $index->withKeyField($keyField);
-        }
-
-        if (null !== $keys) {
-            $index = $index->select($keys);
-        }
-
-        return $index;
-    }
-
-    /**
      * @param array $data
      * @param string $key
      * @param bool $validate
@@ -524,7 +523,6 @@ class FlexDirectory implements FlexAuthorizeInterface
                 continue;
             }
             $usedKey = $keys[$storageKey];
-            // TODO: add method to get a single storage index field
             $row += [
                 'storage_key' => $storageKey,
                 'storage_timestamp' => $entries[$usedKey]['storage_timestamp'],

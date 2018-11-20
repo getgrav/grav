@@ -152,20 +152,17 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param string $keyField
      * @return FlexIndex
      */
-    public function withKeyField(string $keyField = 'key') : self
+    public function withKeyField(string $keyField = null) : self
     {
-        // Get storage keys for the objects.
-        $type = $this->_flexDirectory->getType() . '.obj:';
+        $keyField = $keyField ?: 'key';
+        if ($keyField === $this->getKeyField()) {
+            return $this;
+        }
 
         $entries = [];
         foreach ($this->getEntries() as $key => $value) {
-            $storageKey = $value['storage_key'];
-
             if (!isset($value['key'])) {
                 $value['key'] = $key;
-            }
-            if (!isset($value['flex_key'])) {
-                $value['flex_key'] = $type . $storageKey;
             }
 
             if (isset($value[$keyField])) {
@@ -181,7 +178,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getKeyField() : string
     {
-        return $this->_keyField ?? 'key';
+        return $this->_keyField ?? 'storage_key';
     }
 
     /**
@@ -218,16 +215,13 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Ordering can be done by using index only.
         $previous = null;
         foreach (array_reverse($orderings) as $field => $ordering) {
-            switch ($field) {
-                case 'key':
-                    $keys = $this->getKeys();
-                    $search = array_combine($keys, $keys);
-                    break;
-                case 'flex_key':
-                    $search = $this->getFlexKeys();
-                    break;
-                default:
-                    $search = $this->getIndex($field);
+            if ($this->getKeyField() === $field) {
+                $keys = $this->getKeys();
+                $search = array_combine($keys, $keys);
+            } elseif ($field === 'flex_key') {
+                $search = $this->getFlexKeys();
+            } else {
+                $search = $this->getIndex($field);
             }
 
             // Update current search to match the previous ordering.
@@ -266,7 +260,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $cachedMethods = $className::getCachedMethods();
 
         if (!empty($cachedMethods[$name])) {
-            $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey());
+            // TODO: We can optimize this by removing key field from the key and creating collection with proper key.
+            $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey(), $this->getKeyField());
 
             $cache = $this->_flexDirectory->getCache('object');
 
@@ -336,7 +331,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     protected function createFrom(array $entries, string $keyField = null)
     {
         $index = new static($entries, $this->_flexDirectory);
-        $index->setKeyField($keyField);
+        $index->setKeyField($keyField ?? $this->_keyField);
 
         return $index;
     }
@@ -346,7 +341,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function setKeyField(string $keyField = null)
     {
-        $this->_keyField = $keyField ?? 'key';
+        $this->_keyField = $keyField ?? 'storage_key';
     }
 
     protected function getIndexKeys()

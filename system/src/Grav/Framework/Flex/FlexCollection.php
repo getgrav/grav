@@ -84,7 +84,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * instance should be created when constructor semantics have changed.
      *
      * @param array $elements Elements.
-     * @package string|null $keyField
+     * @param string|null $keyField
      *
      * @return static
      * @throws \InvalidArgumentException
@@ -92,7 +92,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     protected function createFrom(array $elements, $keyField = null)
     {
         $collection = new static($elements, $this->_flexDirectory);
-        $collection->setKeyField($keyField);
+        $collection->setKeyField($keyField ?: $this->_keyField);
 
         return $collection;
     }
@@ -273,8 +273,13 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string $keyField
      * @return FlexIndex
      */
-    public function withKeyField(string $keyField = 'key') : self
+    public function withKeyField(string $keyField = null) : self
     {
+        $keyField = $keyField ?: 'key';
+        if ($keyField === $this->getKeyField()) {
+            return $this;
+        }
+
         $entries = [];
         foreach ($this as $key => $object) {
             // TODO: remove hardcoded logic
@@ -295,7 +300,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getKeyField() : string
     {
-        return $this->_keyField ?? 'key';
+        return $this->_keyField ?? 'storage_key';
     }
 
     /**
