@@ -37,6 +37,8 @@ class Debugger
     /** @var bool */
     protected $enabled;
 
+    protected $initialized = false;
+
     /** @var array */
     protected $timers = [];
 
@@ -84,6 +86,10 @@ class Debugger
      */
     public function init()
     {
+        if ($this->initialized) {
+            return $this;
+        }
+
         $this->grav = Grav::instance();
         $this->config = $this->grav['config'];
 
@@ -91,6 +97,7 @@ class Debugger
         $this->enabled = $this->config->get('system.debugger.enabled');
 
         if ($this->enabled()) {
+            $this->initialized = true;
 
             $plugins_config = (array)$this->config->get('plugins');
 
@@ -312,7 +319,7 @@ class Debugger
      */
     public function addException(\Exception $e)
     {
-        if ($this->enabled()) {
+        if ($this->enabled() && $this->initialized) {
             $this->debugbar['exceptions']->addException($e);
         }
 
