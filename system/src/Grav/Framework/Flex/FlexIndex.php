@@ -261,7 +261,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         if (!empty($cachedMethods[$name])) {
             // TODO: We can optimize this by removing key field from the key and creating collection with proper key.
-            $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey(), $this->getKeyField());
+            $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey(). $this->getKeyField());
 
             $cache = $this->_flexDirectory->getCache('object');
 
