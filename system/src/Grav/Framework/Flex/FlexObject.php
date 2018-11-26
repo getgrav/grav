@@ -357,15 +357,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      *
      * @param  string $name
      * @param  mixed  $default
+     * @param  string $separator
      * @return mixed
      */
-    public function value($name, $default = null)
+    public function value($name, $default = null, $separator = null)
     {
         if ($name === 'storage_key') {
             return $this->getStorageKey();
         }
 
-        return $this->getNestedProperty($name, $default);
+        return $this->getNestedProperty($name, $default, $separator);
     }
 
     /**

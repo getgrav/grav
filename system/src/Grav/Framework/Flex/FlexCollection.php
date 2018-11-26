@@ -49,6 +49,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             'getNestedProperty' => true,
             'orderBy' => true,
 
+            'render' => false,
             'authorize' => true
         ];
     }

@@ -298,7 +298,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $collection = $this->loadCollection();
             $result = $collection->{$name}(...$arguments);
             $class = \get_class($collection);
-            $debugger->addMessage("Call '{$class}:{$name}()' isn't cached", 'debug');
+            if (!isset($cachedMethods[$name])) {
+                $debugger->addMessage("Call '{$class}:{$name}()' isn't cached", 'debug');
+            }
         }
 
         return $result;
