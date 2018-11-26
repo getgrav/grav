@@ -17,7 +17,7 @@ NICETIME:
   WEEK: week
   MONTH: maand
   YEAR: jaar
-  DECADE: decenium
+  DECADE: decennium
   SEC: s
   MIN: min
   HR: u
@@ -45,15 +45,15 @@ MONTHS_OF_THE_YEAR:
   - Januari
   - Februari
   - Maart
-  - april
+  - April
   - Mei
   - Juni
   - Juli
   - Augustus
-  - september
+  - September
   - Oktober
-  - november
-  - december
+  - November
+  - December
 DAYS_OF_THE_WEEK:
   - Maandag
   - Dinsdag
