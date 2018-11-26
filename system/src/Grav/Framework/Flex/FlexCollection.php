@@ -325,7 +325,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function find($value, $field = 'id')
     {
         if ($value) foreach ($this as $element) {
-            if (strtolower($element->getProperty($field)) === strtolower($value)) {
+            if (mb_strtolower($element->getProperty($field)) === mb_strtolower($value)) {
                 return $element;
             }
         }

@@ -21,12 +21,15 @@ trait FlexAuthorizeTrait
 {
     private $_authorize = '%s.flex-object.%s';
 
-    public function authorize(string $action, string $scope = null) : bool
+    public function authorize(string $action, ?string $scope = null) : bool
     {
         $grav = Grav::instance();
+        if (!isset($grav['user'])) {
+            throw new \RuntimeException(__TRAIT__ . '::' . __METHOD__ . ' requires user service');
+        }
 
         /** @var User $user */
-        $user = Grav::instance()['user'];
+        $user = $grav['user'];
 
         $scope = $scope ?? isset($grav['admin']) ? 'admin' : 'site';
 

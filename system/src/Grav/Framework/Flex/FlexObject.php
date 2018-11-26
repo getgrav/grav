@@ -537,19 +537,33 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if (!$directory) {
             throw new \InvalidArgumentException("Cannot unserialize '{$type}': Not found");
         }
-        $this->_flexDirectory = $directory;
-        $this->_storage = $serialized['storage'];
-
+        $this->setFlexDirectory($directory);
+        $this->setStorage($serialized['storage']);
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
     }
 
+    /**
+     * @param FlexDirectory $directory
+     */
+    public function setFlexDirectory(FlexDirectory $directory)
+    {
+        $this->_flexDirectory = $directory;
+    }
     /**
      * @param array $storage
      */
     protected function setStorage(array $storage) : void
     {
         $this->_storage = $storage;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getStorage() : array
+    {
+        return $this->_storage ?? [];
     }
 
     /**
