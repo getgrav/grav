@@ -60,7 +60,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function getExistingKeys() : array
     {
-        return $this->findAllKeys();
+        return $this->buildIndex();
     }
 
     /**
@@ -340,7 +340,7 @@ class FolderStorage extends AbstractFilesystemStorage
      *
      * @return array
      */
-    protected function findAllKeys() : array
+    protected function buildIndex() : array
     {
         $path = $this->getStoragePath();
         if (!file_exists($path)) {
@@ -348,9 +348,9 @@ class FolderStorage extends AbstractFilesystemStorage
         }
 
         if ($this->prefixed) {
-            $list = $this->findPrefixedKeysFromFilesystem($path);
+            $list = $this->buildPrefixedIndexFromFilesystem($path);
         } else {
-            $list = $this->findKeysFromFilesystem($path);
+            $list = $this->buildIndexFromFilesystem($path);
         }
 
         ksort($list, SORT_NATURAL);
@@ -358,7 +358,7 @@ class FolderStorage extends AbstractFilesystemStorage
         return $list;
     }
 
-    protected function findKeysFromFilesystem($path)
+    protected function buildIndexFromFilesystem($path)
     {
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
 
@@ -386,7 +386,7 @@ class FolderStorage extends AbstractFilesystemStorage
         return $list;
     }
 
-    protected function findPrefixedKeysFromFilesystem($path)
+    protected function buildPrefixedIndexFromFilesystem($path)
     {
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
 
@@ -398,7 +398,7 @@ class FolderStorage extends AbstractFilesystemStorage
                 continue;
             }
 
-            $list[] = $this->findKeysFromFilesystem($filename);
+            $list[] = $this->buildIndexFromFilesystem($filename);
         }
 
         if (!$list) {

@@ -60,7 +60,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function getExistingKeys() : array
     {
-        return $this->findAllKeys();
+        return $this->buildIndex();
     }
 
     /**
@@ -224,7 +224,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      *
      * @return array
      */
-    protected function findAllKeys() : array
+    protected function buildIndex() : array
     {
         $file = $this->getFile($this->getStoragePath());
         $modified = $file->modified();
@@ -248,7 +248,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     protected function getNewKey() : string
     {
         if (null === $this->data) {
-            $this->findAllKeys();
+            $this->buildIndex();
         }
 
         // Make sure that the key doesn't exist.

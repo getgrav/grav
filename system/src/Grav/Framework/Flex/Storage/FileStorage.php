@@ -50,7 +50,7 @@ class FileStorage extends FolderStorage
     /**
      * {@inheritdoc}
      */
-    protected function findAllKeys() : array
+    protected function buildIndex() : array
     {
         if (!file_exists($this->getStoragePath())) {
             return [];
