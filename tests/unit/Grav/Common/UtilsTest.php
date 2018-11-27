@@ -35,6 +35,13 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::startsWith('ENGLISH', 'en'));
         $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'e'));
+
+        $this->assertTrue(Utils::startsWith('english', 'En', false));
+        $this->assertTrue(Utils::startsWith('English', 'EN', false));
+        $this->assertTrue(Utils::startsWith('ENGLISH', 'en', false));
+        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'e', false));
+
     }
 
     public function testEndsWith()
@@ -50,6 +57,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::endsWith('ENGLISH', 'Sh'));
         $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'DEUSTCH'));
+
+        $this->assertTrue(Utils::endsWith('english', 'SH', false));
+        $this->assertTrue(Utils::endsWith('EngliSh', 'sH', false));
+        $this->assertTrue(Utils::endsWith('ENGLISH', 'sh', false));
+        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english', false));
     }
 
     public function testContains()
@@ -65,6 +78,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::contains('ENGLISH', 'SCH'));
         $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'DEUSTCH'));
+
+        $this->assertTrue(Utils::contains('EngliSh', 'GLI', false));
+        $this->assertTrue(Utils::contains('EngliSh', 'ENGLISH', false));
+        $this->assertTrue(Utils::contains('ENGLISH', 'ish', false));
+        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english', false));
     }
 
     public function testSubstrToString()
@@ -72,6 +91,10 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('en', Utils::substrToString('english', 'glish'));
         $this->assertEquals('english', Utils::substrToString('english', 'test'));
         $this->assertNotEquals('en', Utils::substrToString('english', 'lish'));
+
+        $this->assertEquals('en', Utils::substrToString('english', 'GLISH', false));
+        $this->assertEquals('english', Utils::substrToString('english', 'TEST', false));
+        $this->assertNotEquals('en', Utils::substrToString('english', 'LISH', false));
     }
 
     public function testMergeObjects()

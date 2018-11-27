@@ -74,15 +74,18 @@ abstract class Utils
      *
      * @param  string $haystack
      * @param  string|string[] $needle
+     * @param bool $case_sensitive
      *
      * @return bool
      */
-    public static function startsWith($haystack, $needle)
+    public static function startsWith($haystack, $needle, $case_sensitive = true)
     {
         $status = false;
 
+        $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
+
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || strpos($haystack, $each_needle) === 0;
+            $status = $each_needle === '' || $compare_func($haystack, $each_needle) === 0;
             if ($status) {
                 break;
             }
@@ -96,15 +99,19 @@ abstract class Utils
      *
      * @param  string $haystack
      * @param  string|string[] $needle
+     * @param bool $case_sensitive
      *
      * @return bool
      */
-    public static function endsWith($haystack, $needle)
+    public static function endsWith($haystack, $needle, $case_sensitive = true)
     {
         $status = false;
 
+        $compare_func = $case_sensitive ? 'mb_strrpos' : 'mb_strripos';
+
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || substr($haystack, -strlen($each_needle)) === $each_needle;
+            $expectedPosition = mb_strlen($haystack) - mb_strlen($each_needle);
+            $status = $each_needle === '' || $compare_func($haystack, $each_needle, 0) === $expectedPosition;
             if ($status) {
                 break;
             }
@@ -118,15 +125,18 @@ abstract class Utils
      *
      * @param  string $haystack
      * @param  string|string[] $needle
+     * @param  bool $case_sensitive
      *
      * @return bool
      */
-    public static function contains($haystack, $needle)
+    public static function contains($haystack, $needle, $case_sensitive = true)
     {
         $status = false;
 
+        $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
+
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || strpos($haystack, $each_needle) !== false;
+            $status = $each_needle === '' || $compare_func($haystack, $each_needle) !== false;
             if ($status) {
                 break;
             }
@@ -140,13 +150,16 @@ abstract class Utils
      *
      * @param $haystack
      * @param $needle
+     * @param  bool $case_sensitive
      *
      * @return string
      */
-    public static function substrToString($haystack, $needle)
+    public static function substrToString($haystack, $needle, $case_sensitive = true)
     {
-        if (static::contains($haystack, $needle)) {
-            return substr($haystack, 0, strpos($haystack, $needle));
+        $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
+
+        if (static::contains($haystack, $needle, $case_sensitive)) {
+            return mb_substr($haystack, 0, $compare_func($haystack, $needle, $case_sensitive));
         }
 
         return $haystack;
@@ -158,6 +171,7 @@ abstract class Utils
      * @param $search
      * @param $replace
      * @param $subject
+     *
      * @return mixed
      */
     public static function replaceFirstOccurrence($search, $replace, $subject)
@@ -165,10 +179,13 @@ abstract class Utils
         if (!$search) {
             return $subject;
         }
-        $pos = strpos($subject, $search);
+
+        $pos = mb_strpos($subject, $search);
         if ($pos !== false) {
-            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+            $subject = static::mb_substr_replace($subject, $replace, $pos, mb_strlen($search));
         }
+
+
         return $subject;
     }
 
@@ -186,10 +203,29 @@ abstract class Utils
 
         if($pos !== false)
         {
-            $subject = substr_replace($subject, $replace, $pos, strlen($search));
+            $subject = static::mb_substr_replace($subject, $replace, $pos, mb_strlen($search));
         }
 
         return $subject;
+    }
+
+    /**
+     * Multibyte compatible substr_replace
+     *
+     * @param string $original
+     * @param string $replacement
+     * @param int $position
+     * @param int $length
+     * @return string
+     */
+    public static function mb_substr_replace($original, $replacement, $position, $length)
+    {
+        $startString = mb_substr($original, 0, $position, "UTF-8");
+        $endString = mb_substr($original, $position + $length, mb_strlen($original), "UTF-8");
+
+        $out = $startString . $replacement . $endString;
+
+        return $out;
     }
 
     /**
