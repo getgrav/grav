@@ -265,18 +265,15 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
             $cache = $this->_flexDirectory->getCache('object');
 
-            $test = new \stdClass;
             try {
-                $result = $cache->get($key, $test);
+                $result = $cache->get($key);
             } catch (InvalidArgumentException $e) {
                 /** @var Debugger $debugger */
                 $debugger = Grav::instance()['debugger'];
                 $debugger->addException($e);
-
-                $result = $test;
             }
 
-            if ($result === $test) {
+            if (null === $result) {
                 $result = $this->loadCollection()->{$name}(...$arguments);
 
                 try {
@@ -285,6 +282,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                         $cached = $result->getFlexDirectory()->getIndex($result->getKeys());
                     } else {
                         $cached = $result;
+                    }
+
+                    if ($cached === null) {
+                        throw new \RuntimeException('Flex: Internal error');
                     }
 
                     $cache->set($key, $cached);
