@@ -25,11 +25,11 @@ class TasksProcessor extends ProcessorBase
 
         $task = $this->container['task'];
         if ($task) {
-            $params = $request->getAttribute('controller');
-            $controllerClass = $params['class'] ?? null;
+            $attributes = $request->getAttribute('controller');
+            $controllerClass = $attributes['class'] ?? null;
             if ($controllerClass) {
                 /** @var RequestHandlerInterface $controller */
-                $controller = new $controllerClass($params);
+                $controller = new $controllerClass($attributes['path'] ?? '', $attributes['params'] ?? []);
                 try {
                     return $controller->handle($request);
                 } catch (NotFoundException $e) {
