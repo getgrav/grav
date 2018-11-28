@@ -26,6 +26,8 @@ class FlexForm implements \Serializable
     /** @var string */
     private $name;
     /** @var string */
+    private $id;
+    /** @var string */
     private $uniqueid;
     /** @var bool */
     private $submitted;
@@ -45,13 +47,24 @@ class FlexForm implements \Serializable
      */
     public function __construct(string $name = '', FlexObject $object = null)
     {
-        $this->name = $name;
-
         $this->reset();
 
         if ($object) {
             $this->setObject($object);
         }
+
+        $this->name = $name;
+        $this->id = $this->getName();
+    }
+
+    public function getId() : string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id)
+    {
+        $this->id = $id;
     }
 
     /**
@@ -97,12 +110,12 @@ class FlexForm implements \Serializable
     }
 
     /**
-     * @return Data
+     * @return Data|FlexObject
      */
-    public function getData() : Data
+    public function getData()
     {
         if (null === $this->data) {
-            $this->data = new Data($this->getObject()->jsonSerialize());
+            $this->data = $this->getObject();
         }
 
         return $this->data;
@@ -118,7 +131,8 @@ class FlexForm implements \Serializable
      */
     public function getValue(string $name)
     {
-        return $this->getData()->get($name);
+        $data = $this->getData();
+        return $data instanceof FlexObject ? $data->getNestedProperty($name) : $data->get($name);
     }
 
     /**
