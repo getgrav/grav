@@ -126,6 +126,16 @@ class Plugins extends Iterator
     }
 
     /**
+     * Return the real plugin instance.
+     *
+     * @return array
+     */
+    public function item($name)
+    {
+        return $this->items[$name];
+    }
+
+    /**
      * Return list of all plugin data with their blueprints.
      *
      * @return array
