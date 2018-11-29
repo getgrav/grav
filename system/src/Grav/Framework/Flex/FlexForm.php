@@ -153,7 +153,7 @@ class FlexForm implements \Serializable
         return $object->route('/edit.json/task:media.upload');
     }
 
-    public function getFileDeleteAjaxRoute()
+    public function getFileDeleteAjaxRoute($field, $filename)
     {
         $object = $this->getObject();
         if (!method_exists($object, 'route')) {

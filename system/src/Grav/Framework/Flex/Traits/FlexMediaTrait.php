@@ -108,7 +108,7 @@ trait FlexMediaTrait
             if ($uploadedFile instanceof FormFlashFile) {
                 $metadata = $uploadedFile->getMetaData();
                 if ($metadata) {
-                    $file = YamlFile::instance($filepath . '.yaml');
+                    $file = YamlFile::instance($filepath . '.meta.yaml');
                     $file->save(['upload' => $metadata]);
                 }
             }
