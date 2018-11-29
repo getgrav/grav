@@ -260,13 +260,17 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $cachedMethods = $className::getCachedMethods();
 
         if (!empty($cachedMethods[$name])) {
-            // TODO: We can optimize this by removing key field from the key and creating collection with proper key.
-            $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey(). $this->getKeyField());
+            $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey());
 
             $cache = $this->_flexDirectory->getCache('object');
 
             try {
                 $result = $cache->get($key);
+
+                // Make sure the keys aren't changed if the returned type is the same index type.
+                if ($result instanceof self && $this->getType() === $result->getType()) {
+                    $result = $result->withKeyField($this->getKeyField());
+                }
             } catch (InvalidArgumentException $e) {
                 /** @var Debugger $debugger */
                 $debugger = Grav::instance()['debugger'];
@@ -274,12 +278,13 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             }
 
             if (null === $result) {
-                $result = $this->loadCollection()->{$name}(...$arguments);
+                $collection = $this->loadCollection();
+                $result = $collection->{$name}(...$arguments);
 
                 try {
                     // If flex collection is returned, convert it back to flex index.
                     if ($result instanceof FlexCollection) {
-                        $cached = $result->getFlexDirectory()->getIndex($result->getKeys(), $this->getKeyField());
+                        $cached = $result->getFlexDirectory()->getIndex($result->getKeys());
                     } else {
                         $cached = $result;
                     }
@@ -408,7 +413,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadElements(array $entries = null) : array
     {
-        return $this->_flexDirectory->loadObjects($entries ?? $this->getEntries());
+        return $this->_flexDirectory->loadObjects($entries ?? $this->withKeyField()->getEntries());
     }
 
     /**
@@ -417,7 +422,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadCollection(array $entries = null) : CollectionInterface
     {
-        return $this->_flexDirectory->loadCollection($entries ?? $this->getEntries());
+        return $this->_flexDirectory->loadCollection($entries ?? $this->withKeyField()->getEntries());
     }
 
     /**
