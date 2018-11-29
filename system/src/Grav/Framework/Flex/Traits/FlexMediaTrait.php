@@ -14,7 +14,9 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Utils;
+use Grav\Plugin\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
+use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 
@@ -102,7 +104,14 @@ trait FlexMediaTrait
         try {
             // Upload it
             $filepath = sprintf('%s/%s', $path, $filename);
-            Folder::mkdir(dirname($filepath));
+            Folder::mkdir(\dirname($filepath));
+            if ($uploadedFile instanceof FormFlashFile) {
+                $metadata = $uploadedFile->getMetaData();
+                if ($metadata) {
+                    $file = YamlFile::instance($filepath . '.yaml');
+                    $file->save(['upload' => $metadata]);
+                }
+            }
             $uploadedFile->moveTo($filepath);
         } catch (\Exception $e) {
             $language = $grav['language'];
