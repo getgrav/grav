@@ -132,6 +132,13 @@ class Setup extends Data
                 '' => ['user://pages']
             ]
         ],
+        'user-data' => [
+            'type' => 'Stream',
+            'force' => true,
+            'prefixes' => [
+                '' => ['user://data']
+            ]
+        ],
         'account' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [

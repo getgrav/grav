@@ -5,6 +5,7 @@
     * Added `select()` and `unselect()` methods to `CollectionInterface` and its base classes
     * Added `orderBy()` and `limit()` methods to `ObjectCollectionInterface` and its base classes
     * Flex: Added support for custom object index classes (API compatibility break)
+    * Added `user-data://` which is a writable stream (`user://data` is not and should be avoided)
 1. [](#improved)
     * Improve Flex storage
 1. [](#bugfix)
