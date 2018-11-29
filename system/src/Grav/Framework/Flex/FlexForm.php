@@ -143,6 +143,26 @@ class FlexForm implements \Serializable
         return $this->files;
     }
 
+    public function getFileUploadAjaxRoute()
+    {
+        $object = $this->getObject();
+        if (!method_exists($object, 'route')) {
+            return null;
+        }
+
+        return $object->route('/edit.json/task:media.upload');
+    }
+
+    public function getFileDeleteAjaxRoute()
+    {
+        $object = $this->getObject();
+        if (!method_exists($object, 'route')) {
+            return null;
+        }
+
+        return $object->route('/edit.json/task:media.delete');
+    }
+
     /**
      * Note: this method clones the object.
      *
@@ -227,11 +247,20 @@ class FlexForm implements \Serializable
                 throw new \RuntimeException('Form has already been submitted');
             }
 
-            $this->data = new Data($data);
             $this->files = $files ?? [];
+            $this->data = new Data($this->decodeData($data['data'] ?? []));
+            if ($this->getErrors()) {
+                return $this;
+            }
+
+            // Validate and filter data based on the current form view.
+            $this->data->validate();
+            $this->data->filter();
+
             $this->submitted = true;
 
             $this->checkUploads($files);
+            print_r($this->data->toArray());
 
             $object = clone $this->object;
             $object->update($this->data->toArray());
@@ -362,5 +391,50 @@ class FlexForm implements \Serializable
                 sprintf($grav['language']->translate('PLUGIN_FORM.FILEUPLOAD_UNABLE_TO_UPLOAD', null, true), $filename, 'Bad filename')
             );
         }
+    }
+
+    /**
+     * Decode data
+     *
+     * @param array $data
+     * @return array
+     */
+    protected function decodeData($data) : array
+    {
+        if (!\is_array($data)) {
+            return [];
+        }
+
+        // Decode JSON encoded fields and merge them to data.
+        if (isset($data['_json'])) {
+            $data = array_replace_recursive($data, $this->jsonDecode($data['_json']));
+            unset($data['_json']);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Recursively JSON decode data.
+     *
+     * @param  array $data
+     *
+     * @return array
+     */
+    protected function jsonDecode(array $data) : array
+    {
+        foreach ($data as $key => &$value) {
+            if (\is_array($value)) {
+                $value = $this->jsonDecode($value);
+            } else {
+                $value = json_decode($value, true);
+                if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
+                    unset($data[$key]);
+                    $this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
+                }
+            }
+        }
+
+        return $data;
     }
 }
