@@ -41,7 +41,7 @@ class Scheduler
         $config = Grav::instance()['config']->get('scheduler.defaults', []);
         $this->config = $config;
 
-        $this->status_path = Grav::instance()['locator']->findResource('user://data/scheduler', true, true);
+        $this->status_path = Grav::instance()['locator']->findResource('user-data://scheduler', true, true);
         if (!file_exists($this->status_path)) {
             Folder::create($this->status_path);
         }

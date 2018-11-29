@@ -279,7 +279,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 try {
                     // If flex collection is returned, convert it back to flex index.
                     if ($result instanceof FlexCollection) {
-                        $cached = $result->getFlexDirectory()->getIndex($result->getKeys());
+                        $cached = $result->getFlexDirectory()->getIndex($result->getKeys(), $this->getKeyField());
                     } else {
                         $cached = $result;
                     }
