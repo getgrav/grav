@@ -184,11 +184,18 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      */
     public function relativePath($reset = true)
     {
+        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $this->get('filepath'));
+
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($output)) {
+            $output = $locator->findResource($output, false);
+        }
+
         if ($reset) {
             $this->reset();
         }
 
-        return str_replace(GRAV_ROOT, '', $this->get('filepath'));
+        return str_replace(GRAV_ROOT, '', $output);
     }
 
     /**
