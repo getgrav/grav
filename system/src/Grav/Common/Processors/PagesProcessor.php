@@ -40,11 +40,14 @@ class PagesProcessor extends ProcessorBase
 
             if (isset($event->page)) {
                 unset ($this->container['page']);
-                $this->container['page'] = $event->page;
+                $this->container['page'] = $page = $event->page;
             } else {
                 throw new \RuntimeException('Page Not Found', 404);
             }
         }
+
+        $this->addMessage("Routed to page {$page->rawRoute()} (type: {$page->template()})");
+
         $this->stopTimer();
 
         return $handler->handle($request);

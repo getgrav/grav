@@ -136,7 +136,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];
-        $debugger->startTimer('flex-collection-' . ($debugKey =  uniqid($this->getType(false), false)), 'Render Collection ' . $this->getType(false));
+        $debugger->startTimer('flex-collection-' . ($debugKey =  uniqid($this->getType(false), false)), 'Render Collection ' . $this->getType(false) . ' (' . $layout . ')');
 
         $cache = $key = null;
         foreach ($context as $value) {

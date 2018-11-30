@@ -286,7 +286,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];
-        $debugger->startTimer('flex-object-' . ($debugKey =  uniqid($this->getType(false), false)), 'Render Object ' . $this->getType(false));
+        $debugger->startTimer('flex-object-' . ($debugKey =  uniqid($this->getType(false), false)), 'Render Object ' . $this->getType(false) . ' (' . $layout . ')');
 
         $cache = $key = null;
         foreach ($context as $value) {
