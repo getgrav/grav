@@ -117,21 +117,21 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         // Validate and filter the incoming data.
         $blueprint = $this->getFlexDirectory()->getBlueprint();
 
+        // Filter updated data.
+        $this->filterElements($data);
+
         if (!$isFullUpdate) {
             // Partial update: merge data to the existing object.
             $elements = $this->getElements();
             $data = $blueprint->mergeData($elements, $data);
         }
 
-        // Filter object data.
-        $this->filterElements($data);
-
+        // Validate and filter elements and throw an error if any issues were found.
         $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
         $data = $blueprint->filter($data);
 
-        if ($data) {
-            $this->setElements($data);
-        }
+        // Finally update the object.
+        $this->setElements($data);
 
         return $this;
     }
@@ -645,6 +645,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * Filter data coming to constructor or $this->update() request.
+     *
+     * NOTE: The incoming data can be an arbitrary array so do not assume anything from its content.
+     *
      * @param array $elements
      */
     protected function filterElements(array &$elements)
