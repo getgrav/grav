@@ -296,12 +296,12 @@ class FlexForm implements FlexFormInterface
 
             $object = clone $this->object;
             $object->update($this->data->toArray());
-            /*
+            $object->triggerEvent('onSave');
+
             if (method_exists($object, 'upload')) {
                 $object->upload($this->files);
             }
             $object->save();
-            */
 
             $this->object = $object;
             $this->valid = true;
