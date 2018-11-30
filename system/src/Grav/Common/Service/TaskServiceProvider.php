@@ -24,5 +24,14 @@ class TaskServiceProvider implements ServiceProviderInterface
 
             return $task ?: null;
         };
+
+        $container['action'] = function (Grav $c) {
+            $action = $_POST['action'] ?? $c['uri']->param('action');
+            if (null !== $action) {
+                $action = filter_var($action, FILTER_SANITIZE_STRING);
+            }
+
+            return $action ?: null;
+        };
     }
 }

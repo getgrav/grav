@@ -24,7 +24,8 @@ class TasksProcessor extends ProcessorBase
         $this->startTimer();
 
         $task = $this->container['task'];
-        if ($task) {
+        $action = $this->container['action'];
+        if ($task || $action) {
             $attributes = $request->getAttribute('controller');
 
             $controllerClass = $attributes['class'] ?? null;
@@ -38,7 +39,9 @@ class TasksProcessor extends ProcessorBase
                 }
             }
 
-            $this->container->fireEvent('onTask.' . $task);
+            if ($task) {
+                $this->container->fireEvent('onTask.' . $task);
+            }
         }
         $this->stopTimer();
 
