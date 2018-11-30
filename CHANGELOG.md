@@ -6,7 +6,7 @@
     * Added `orderBy()` and `limit()` methods to `ObjectCollectionInterface` and its base classes
     * Flex: Added support for custom object index classes (API compatibility break)
     * Added `user-data://` which is a writable stream (`user://data` is not and should be avoided)
-    * Added support for `task:action` (like task but works without nonce)
+    * Added support for `action:xxx` (like task but works without nonce)
 1. [](#improved)
     * Improve Flex storage
 1. [](#bugfix)
