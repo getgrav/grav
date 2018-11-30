@@ -14,6 +14,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use Grav\Framework\Route\Route;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -78,6 +79,26 @@ class FlexForm implements \Serializable
         return "flex-{$object->getType(false)}-{$name}";
     }
 
+
+    /**
+     * @return string
+     */
+    public function getNonceName()
+    {
+        return 'nonce';
+    }
+
+    /**
+     * @return string
+     */
+    public function getNonceAction()
+    {
+        return 'flex-object';
+    }
+
+    /**
+     * @return string
+     */
     public function getUniqueId() : string
     {
         if (null === $this->uniqueid) {
@@ -143,6 +164,9 @@ class FlexForm implements \Serializable
         return $this->files;
     }
 
+    /**
+     * @return Route|null
+     */
     public function getFileUploadAjaxRoute()
     {
         $object = $this->getObject();
@@ -153,6 +177,11 @@ class FlexForm implements \Serializable
         return $object->route('/edit.json/task:media.upload');
     }
 
+    /**
+     * @param $field
+     * @param $filename
+     * @return Route|null
+     */
     public function getFileDeleteAjaxRoute($field, $filename)
     {
         $object = $this->getObject();
@@ -253,14 +282,9 @@ class FlexForm implements \Serializable
                 return $this;
             }
 
-            // Validate and filter data based on the current form view.
-            $this->data->validate();
-            $this->data->filter();
+            $this->validate();
 
             $this->submitted = true;
-
-            $this->checkUploads($files);
-            print_r($this->data->toArray());
 
             $object = clone $this->object;
             $object->update($this->data->toArray());
@@ -274,7 +298,12 @@ class FlexForm implements \Serializable
             $this->object = $object;
             $this->valid = true;
         } catch (ValidationException $e) {
-            $this->errors = $e->getMessages();
+            $list = [];
+            foreach ($e->getMessages() as $field => $errors) {
+                $list[] = $errors;
+            }
+            $list = array_merge(...$list);
+            $this->errors = $list;
         }  catch (\Exception $e) {
             $this->errors[] = $e->getMessage();
         }
@@ -368,6 +397,16 @@ class FlexForm implements \Serializable
         return '/' . $this->object->getKey();
     }
 
+    /**
+     * @throws \Exception
+     */
+    protected function validate() : void
+    {
+        $this->data->validate();
+        $this->data->filter();
+        $this->checkUploads($this->files);
+    }
+
     protected function checkUploads(array $files) : void
     {
         foreach ($files as $file) {
@@ -430,7 +469,8 @@ class FlexForm implements \Serializable
                 $value = json_decode($value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
                     unset($data[$key]);
-                    $this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
+                    // FIXME: add back
+                    //$this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
                 }
             }
         }
