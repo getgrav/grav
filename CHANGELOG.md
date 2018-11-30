@@ -13,6 +13,7 @@
     * Fixed a broken language string [#2261](https://github.com/getgrav/grav/issues/2261)
     * Fixed clearing cache having no effect on Doctrine cache
     * Fixed `Medium::relativePath()` for streams
+    * Fixed `FlexObject::update()` call with partial object update
 
 # v1.6.0-beta.6
 ## 11/12/2018

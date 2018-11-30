@@ -14,6 +14,8 @@ use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use Grav\Framework\Flex\Interfaces\FlexFormInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Route\Route;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -22,7 +24,7 @@ use Psr\Http\Message\UploadedFileInterface;
  * Class FlexForm
  * @package Grav\Framework\Flex
  */
-class FlexForm implements \Serializable
+class FlexForm implements FlexFormInterface
 {
     /** @var string */
     private $name;
@@ -38,15 +40,15 @@ class FlexForm implements \Serializable
     private $data;
     /** @var UploadedFileInterface[] */
     private $files;
-    /** @var FlexObject */
+    /** @var FlexObjectInterface */
     private $object;
 
     /**
      * FlexForm constructor.
      * @param string $name
-     * @param FlexObject|null $object
+     * @param FlexObjectInterface|null $object
      */
-    public function __construct(string $name = '', FlexObject $object = null)
+    public function __construct(string $name = '', FlexObjectInterface $object = null)
     {
         $this->reset();
 
@@ -58,12 +60,18 @@ class FlexForm implements \Serializable
         $this->id = $this->getName();
     }
 
-    public function getId() : string
+    /**
+     * @return string
+     */
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function setId(string $id)
+    /**
+     * @param string $id
+     */
+    public function setId(string $id): void
     {
         $this->id = $id;
     }
@@ -71,7 +79,7 @@ class FlexForm implements \Serializable
     /**
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         $object = $this->object;
         $name = $this->name ?: 'object';
@@ -83,7 +91,7 @@ class FlexForm implements \Serializable
     /**
      * @return string
      */
-    public function getNonceName()
+    public function getNonceName(): string
     {
         return 'nonce';
     }
@@ -91,7 +99,7 @@ class FlexForm implements \Serializable
     /**
      * @return string
      */
-    public function getNonceAction()
+    public function getNonceAction(): string
     {
         return 'flex-object';
     }
@@ -99,7 +107,7 @@ class FlexForm implements \Serializable
     /**
      * @return string
      */
-    public function getUniqueId() : string
+    public function getUniqueId(): string
     {
         if (null === $this->uniqueid) {
             $this->uniqueid = Utils::generateRandomString(20);
@@ -111,7 +119,7 @@ class FlexForm implements \Serializable
     /**
      * @return string
      */
-    public function getAction() : string
+    public function getAction(): string
     {
         // TODO:
         return '';
@@ -120,7 +128,7 @@ class FlexForm implements \Serializable
     /**
      * @return array
      */
-    public function getButtons() : array
+    public function getButtons(): array
     {
         return [
             [
@@ -131,7 +139,7 @@ class FlexForm implements \Serializable
     }
 
     /**
-     * @return Data|FlexObject
+     * @return Data|FlexObjectInterface
      */
     public function getData()
     {
@@ -159,7 +167,7 @@ class FlexForm implements \Serializable
     /**
      * @return UploadedFileInterface[]
      */
-    public function getFiles() : array
+    public function getFiles(): array
     {
         return $this->files;
     }
@@ -167,7 +175,7 @@ class FlexForm implements \Serializable
     /**
      * @return Route|null
      */
-    public function getFileUploadAjaxRoute()
+    public function getFileUploadAjaxRoute(): ?Route
     {
         $object = $this->getObject();
         if (!method_exists($object, 'route')) {
@@ -182,7 +190,7 @@ class FlexForm implements \Serializable
      * @param $filename
      * @return Route|null
      */
-    public function getFileDeleteAjaxRoute($field, $filename)
+    public function getFileDeleteAjaxRoute($field, $filename): ?Route
     {
         $object = $this->getObject();
         if (!method_exists($object, 'route')) {
@@ -195,10 +203,10 @@ class FlexForm implements \Serializable
     /**
      * Note: this method clones the object.
      *
-     * @param FlexObject $object
+     * @param FlexObjectInterface $object
      * @return $this
      */
-    public function setObject(FlexObject $object) : self
+    public function setObject(FlexObjectInterface $object): FlexFormInterface
     {
         $this->object = clone $object;
 
@@ -206,9 +214,9 @@ class FlexForm implements \Serializable
     }
 
     /**
-     * @return FlexObject
+     * @return FlexObjectInterface
      */
-    public function getObject() : FlexObject
+    public function getObject(): FlexObjectInterface
     {
         if (!$this->object) {
             throw new \RuntimeException('FlexForm: Object is not defined');
@@ -221,7 +229,7 @@ class FlexForm implements \Serializable
      * @param ServerRequestInterface $request
      * @return $this
      */
-    public function handleRequest(ServerRequestInterface $request) : self
+    public function handleRequest(ServerRequestInterface $request): FlexFormInterface
     {
         try {
             $method = $request->getMethod();
@@ -243,7 +251,7 @@ class FlexForm implements \Serializable
     /**
      * @return bool
      */
-    public function isValid() : bool
+    public function isValid(): bool
     {
         return !$this->errors;
     }
@@ -251,7 +259,7 @@ class FlexForm implements \Serializable
     /**
      * @return array
      */
-    public function getErrors() : array
+    public function getErrors(): array
     {
         return $this->errors;
     }
@@ -259,7 +267,7 @@ class FlexForm implements \Serializable
     /**
      * @return bool
      */
-    public function isSubmitted() : bool
+    public function isSubmitted(): bool
     {
         return $this->submitted;
     }
@@ -269,7 +277,7 @@ class FlexForm implements \Serializable
      * @param UploadedFileInterface[] $files
      * @return $this
      */
-    public function submit(array $data, array $files = null) : self
+    public function submit(array $data, array $files = null): FlexFormInterface
     {
         try {
             if ($this->isSubmitted()) {
@@ -314,7 +322,7 @@ class FlexForm implements \Serializable
     /**
      * @return $this
      */
-    public function reset() : self
+    public function reset(): FlexFormInterface
     {
         $this->data = null;
         $this->files = [];
@@ -329,7 +337,7 @@ class FlexForm implements \Serializable
      *
      * @return array
      */
-    public function getFields() : array
+    public function getFields(): array
     {
         return $this->getBlueprint()->fields();
     }
@@ -337,7 +345,7 @@ class FlexForm implements \Serializable
     /**
      * @return Blueprint
      */
-    public function getBlueprint() : Blueprint
+    public function getBlueprint(): Blueprint
     {
         return $this->getObject()->getBlueprint($this->name);
     }
@@ -347,7 +355,7 @@ class FlexForm implements \Serializable
      *
      * @return string
      */
-    public function serialize() : string
+    public function serialize(): string
     {
         $data = [
             'name' => $this->name,
@@ -366,7 +374,7 @@ class FlexForm implements \Serializable
      *
      * @param string $data
      */
-    public function unserialize($data) : void
+    public function unserialize($data): void
     {
         $data = unserialize($data, ['allowed_classes' => [FlexObject::class]]);
 
@@ -379,7 +387,7 @@ class FlexForm implements \Serializable
     }
 
 
-    public function getMediaTaskRoute() : string
+    public function getMediaTaskRoute(): string
     {
         $grav = Grav::instance();
         /** @var Flex $flex */
@@ -392,7 +400,7 @@ class FlexForm implements \Serializable
         return '';
     }
 
-    public function getMediaRoute() : string
+    public function getMediaRoute(): string
     {
         return '/' . $this->object->getKey();
     }
@@ -400,14 +408,14 @@ class FlexForm implements \Serializable
     /**
      * @throws \Exception
      */
-    protected function validate() : void
+    protected function validate(): void
     {
         $this->data->validate();
         $this->data->filter();
         $this->checkUploads($this->files);
     }
 
-    protected function checkUploads(array $files) : void
+    protected function checkUploads(array $files): void
     {
         foreach ($files as $file) {
             if ($file instanceof UploadedFileInterface) {
@@ -418,7 +426,7 @@ class FlexForm implements \Serializable
         }
     }
 
-    protected function checkUpload(UploadedFileInterface $file) : void
+    protected function checkUpload(UploadedFileInterface $file): void
     {
         // Handle bad filenames.
         $filename = $file->getClientFilename();
@@ -438,7 +446,7 @@ class FlexForm implements \Serializable
      * @param array $data
      * @return array
      */
-    protected function decodeData($data) : array
+    protected function decodeData($data): array
     {
         if (!\is_array($data)) {
             return [];
@@ -460,7 +468,7 @@ class FlexForm implements \Serializable
      *
      * @return array
      */
-    protected function jsonDecode(array $data) : array
+    protected function jsonDecode(array $data): array
     {
         foreach ($data as $key => &$value) {
             if (\is_array($value)) {

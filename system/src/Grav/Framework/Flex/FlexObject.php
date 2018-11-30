@@ -18,7 +18,6 @@ use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
-use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Grav\Framework\Object\Access\NestedArrayAccessTrait;
 use Grav\Framework\Object\Access\NestedPropertyTrait;
@@ -117,8 +116,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         // Validate and filter the incoming data.
         $blueprint = $this->getFlexDirectory()->getBlueprint();
-        $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
-        $data = $blueprint->filter($data);
 
         if (!$isFullUpdate) {
             // Partial update: merge data to the existing object.
@@ -128,6 +125,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         // Filter object data.
         $this->filterElements($data);
+
+        $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
+        $data = $blueprint->filter($data);
 
         if ($data) {
             $this->setElements($data);
