@@ -26,6 +26,7 @@ class TasksProcessor extends ProcessorBase
         $task = $this->container['task'];
         if ($task) {
             $attributes = $request->getAttribute('controller');
+
             $controllerClass = $attributes['class'] ?? null;
             if ($controllerClass) {
                 /** @var RequestHandlerInterface $controller */

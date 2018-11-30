@@ -16,9 +16,13 @@ class TaskServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container['task'] = function ($c) {
-            /** @var Grav $c */
-            return !empty($_POST['task']) ? $_POST['task'] : $c['uri']->param('task');
+        $container['task'] = function (Grav $c) {
+            $task = $_POST['task'] ?? $c['uri']->param('task');
+            if (null !== $task) {
+                $task = filter_var($task, FILTER_SANITIZE_STRING);
+            }
+
+            return $task ?: null;
         };
     }
 }
