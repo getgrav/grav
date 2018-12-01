@@ -41,6 +41,8 @@ class TasksProcessor extends ProcessorBase
 
             if ($task) {
                 $this->container->fireEvent('onTask.' . $task);
+            } elseif ($action) {
+                $this->container->fireEvent('onAction.' . $action);
             }
         }
         $this->stopTimer();
