@@ -168,7 +168,7 @@ class Page implements PageInterface
                     unset($process_fields[$field]);
                 }
             }
-            $text_header = Grav::instance()['twig']->processString(json_encode($process_fields), ['page' => $this]);
+            $text_header = Grav::instance()['twig']->processString(json_encode($process_fields, JSON_UNESCAPED_UNICODE), ['page' => $this]);
             $this->header((object)(json_decode($text_header, true) + $ignored_fields));
         }
     }
