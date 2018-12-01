@@ -80,7 +80,7 @@ trait FlexMediaTrait
         }
     }
 
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null) : void
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null) : void
     {
         $this->checkUploadedMediaFile($uploadedFile);
 
@@ -121,7 +121,7 @@ trait FlexMediaTrait
         $this->clearMediaCache();
     }
 
-    public function deleteMediaFile(string $filename) : void
+    public function deleteMediaFile(string $filename, string $field = null) : void
     {
         $grav = Grav::instance();
         $language = $grav['language'];

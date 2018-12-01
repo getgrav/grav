@@ -6,8 +6,10 @@
     * Added `orderBy()` and `limit()` methods to `ObjectCollectionInterface` and its base classes
     * Flex: Added support for custom object index classes (API compatibility break)
     * Added `user-data://` which is a writable stream (`user://data` is not and should be avoided)
-    * Added support for `/action:{$action}` (like task but works without nonce, used only for getting data)
+    * Added support for `/action:{$action}` (like task but used without nonce when only receiving data)
     * Added `onAction.{$action}` event
+    * Added `FormFlash` class to contain AJAX uploaded files in more reliable way
+    * Added `FormFlashFile` class which implements `UploadedFileInterface` from PSR-7
 1. [](#improved)
     * Improve Flex storage
 1. [](#bugfix)

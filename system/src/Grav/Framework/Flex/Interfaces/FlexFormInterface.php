@@ -34,6 +34,16 @@ interface FlexFormInterface extends \Serializable
     /**
      * @return string
      */
+    public function getUniqueId(): string;
+
+    /**
+     * @param string $uniqueId
+     */
+    public function setUniqueId(string $uniqueId): void;
+
+    /**
+     * @return string
+     */
     public function getName(): string;
 
 
@@ -50,17 +60,7 @@ interface FlexFormInterface extends \Serializable
     /**
      * @return string
      */
-    public function getUniqueId(): string;
-
-    /**
-     * @return string
-     */
     public function getAction(): string;
-
-    /**
-     * @return array
-     */
-    public function getButtons() : array;
 
     /**
      * @return Data|FlexObjectInterface
@@ -93,14 +93,6 @@ interface FlexFormInterface extends \Serializable
      * @return Route|null
      */
     public function getFileDeleteAjaxRoute($field, $filename): ?Route;
-
-    /**
-     * Note: this method clones the object.
-     *
-     * @param FlexObjectInterface $object
-     * @return $this
-     */
-    public function setObject(FlexObjectInterface $object): self;
 
     /**
      * @return FlexObjectInterface
@@ -151,20 +143,6 @@ interface FlexFormInterface extends \Serializable
      * @return Blueprint
      */
     public function getBlueprint(): Blueprint;
-
-    /**
-     * Implements \Serializable::serialize().
-     *
-     * @return string
-     */
-    public function serialize(): string;
-
-    /**
-     * Implements \Serializable::unserialize().
-     *
-     * @param string $data
-     */
-    public function unserialize($data): void;
 
     /**
      * @return string
