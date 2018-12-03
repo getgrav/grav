@@ -4,39 +4,40 @@
 1. [](#new)
     * Added `select()` and `unselect()` methods to `CollectionInterface` and its base classes
     * Added `orderBy()` and `limit()` methods to `ObjectCollectionInterface` and its base classes
-    * Flex: Added support for custom object index classes (API compatibility break)
     * Added `user-data://` which is a writable stream (`user://data` is not and should be avoided)
     * Added support for `/action:{$action}` (like task but used without nonce when only receiving data)
     * Added `onAction.{$action}` event
     * Added `Grav\Framework\Form\FormFlash` class to contain AJAX uploaded files in more reliable way
     * Added `Grav\Framework\Form\FormFlashFile` class which implements `UploadedFileInterface` from PSR-7
     * Added `Grav\Framework\Filesystem\Filesystem` class with methods to manipulate stream URLs
+    * Grav 1.6: Flex: Added support for custom object index classes (API compatibility break)
 1. [](#improved)
-    * Improved Flex storage classes
     * Improved `Grav\Framework\File\Formatter` classes to have abstract parent class and some useful methods
+    * Grav 1.6: Improved Flex storage classes
+    * Grav 1.6: Improved `Grav\Framework\File` classes to use better type hints and the new `Filesystem` class
 1. [](#bugfix)
     * Fixed handling of `append_url_extension` inside of `Page::templateFormat()` [#2264](https://github.com/getgrav/grav/issues/2264) 
     * Fixed a broken language string [#2261](https://github.com/getgrav/grav/issues/2261)
     * Fixed clearing cache having no effect on Doctrine cache
     * Fixed `Medium::relativePath()` for streams
-    * Fixed `FlexObject::update()` call with partial object update
     * Fixed `Object` serialization breaking if overriding `jsonSerialize()` method
+    * Grav 1.6: Fixed `FlexObject::update()` call with partial object update
 
 # v1.6.0-beta.6
 ## 11/12/2018
 
 1. [](#new)
-    * Added `CsvFormatter` and `CsvFile` classes
     * Added `$grav->setup()` to simplify CLI and custom access points
+    * Grav 1.6: Added `CsvFormatter` and `CsvFile` classes
 1. [](#improved)
     * Support negotiated content types set via the Request `Accept:` header
     * Support negotiated language types set via the Request `Accept-Language:` header
-    * Allow custom Flex form views
     * Cleaned up and sorted the Service `idMap`
+    * Grav 1.6: Allow custom Flex form views
 1. [](#bugfix)
     * Fixed `Uri::hasStandardPort()` to support reverse proxy configurations [#1786](https://github.com/getgrav/grav/issues/1786)
     * Use `append_url_extension` from page header to set template format if set [#2604](https://github.com/getgrav/grav/pull/2064)
-    * Fixed some bugs in environment selection
+    * Fixed some bugs in Grav environment selection logic
 
 # v1.6.0-beta.5
 ## 11/05/2018
@@ -55,7 +56,7 @@
     * Set session name based on `security.salt` rather than `GRAV_ROOT` [#2242](https://github.com/getgrav/grav/issues/2242)
     * Added option to configure list of `xss_invalid_protocols` in `Security` config [#2250](https://github.com/getgrav/grav/issues/2250)
     * Smarter `security.salt` checking now we use `security.yaml` for other options
-    * Merged Grav 1.5.4 fixes in
+    * Grav 1.6: Merged Grav 1.5.4 fixes in
 
 # v1.6.0-beta.4
 ## 10/24/2018
@@ -84,15 +85,15 @@
 ## 10/09/2018
 
 1. [](#new)
-    * Added Flex support for custom media tasks
+    * Grav 1.6: Added Flex support for custom media tasks
 1. [](#improved)
     * Added support for syslog and syslog facility logging (default: 'file')
     * Improved usability of `System` configuration blueprint with side-tabs
 1. [](#bugfix)
     * Fixed asset manager to not add empty assets when they don't exist in the filesystem
-    * Regression: Fixed asset manager methods with default legacy attributes
     * Update `script` and `style` Twig tags to use the new `Assets` classes
     * Fixed asset pipeline to rewrite remote URLs as well as local [#2216](https://github.com/getgrav/grav/issues/2216)
+    * Grav 1.6: Regression: Fixed asset manager methods with default legacy attributes
 
 # v1.6.0-beta.1
 ## 10/01/2018

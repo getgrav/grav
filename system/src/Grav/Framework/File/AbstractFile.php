@@ -12,9 +12,13 @@ declare(strict_types=1);
 namespace Grav\Framework\File;
 
 use Grav\Framework\File\Interfaces\FileInterface;
+use Grav\Framework\Filesystem\Filesystem;
 
 class AbstractFile implements FileInterface
 {
+    /** @var Filesystem */
+    private $filesystem;
+
     /** @var string */
     private $filepath;
 
@@ -36,8 +40,13 @@ class AbstractFile implements FileInterface
     /** @var bool */
     private $locked = false;
 
-    public function __construct($filepath)
+    /**
+     * @param string $filepath
+     * @param Filesystem|null $filesystem
+     */
+    public function __construct(string $filepath, Filesystem $filesystem = null)
     {
+        $this->filesystem = $filesystem ?? new Filesystem();
         $this->setFilepath($filepath);
     }
 
@@ -51,11 +60,26 @@ class AbstractFile implements FileInterface
         }
     }
 
-    /**
-     * Prevent cloning.
-     */
-    private function __clone()
+    public function __clone()
     {
+        $this->handle = null;
+        $this->locked = false;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize(): string
+    {
+        return serialize($this->doSerialize());
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized): void
+    {
+        $this->doUnserialize(unserialize($serialized, ['allowed_classes' => false]));
     }
 
     /**
@@ -63,7 +87,7 @@ class AbstractFile implements FileInterface
      *
      * @return string
      */
-    public function getFilePath() : string
+    public function getFilePath(): string
     {
         return $this->filepath;
     }
@@ -73,7 +97,7 @@ class AbstractFile implements FileInterface
      *
      * @return string
      */
-    public function getPath() : string
+    public function getPath(): string
     {
         if (null === $this->path) {
             $this->setPathInfo();
@@ -87,7 +111,7 @@ class AbstractFile implements FileInterface
      *
      * @return string
      */
-    public function getFilename() : string
+    public function getFilename(): string
     {
         if (null === $this->filename) {
             $this->setPathInfo();
@@ -101,7 +125,7 @@ class AbstractFile implements FileInterface
      *
      * @return string
      */
-    public function getBasename() : string
+    public function getBasename(): string
     {
         if (null === $this->basename) {
             $this->setPathInfo();
@@ -113,10 +137,10 @@ class AbstractFile implements FileInterface
     /**
      * Return file extension.
      *
-     * @param $withDot
+     * @param bool $withDot
      * @return string
      */
-    public function getExtension($withDot = false) : string
+    public function getExtension(bool $withDot = false): string
     {
         if (null === $this->extension) {
             $this->setPathInfo();
@@ -130,7 +154,7 @@ class AbstractFile implements FileInterface
      *
      * @return bool
      */
-    public function exists() : bool
+    public function exists(): bool
     {
         return is_file($this->filepath);
     }
@@ -138,21 +162,21 @@ class AbstractFile implements FileInterface
     /**
      * Return file modification time.
      *
-     * @return int|bool Timestamp or false if file doesn't exist.
+     * @return int Unix timestamp. If file does not exist, method returns current time.
      */
-    public function getCreationTime()
+    public function getCreationTime(): int
     {
-        return is_file($this->filepath) ? filectime($this->filepath) : false;
+        return is_file($this->filepath) ? filectime($this->filepath) : time();
     }
 
     /**
      * Return file modification time.
      *
-     * @return int|bool Timestamp or false if file doesn't exist.
+     * @return int Unix timestamp. If file does not exist, method returns current time.
      */
-    public function getModificationTime()
+    public function getModificationTime(): int
     {
-        return is_file($this->filepath) ? filemtime($this->filepath) : false;
+        return is_file($this->filepath) ? filemtime($this->filepath) : time();
     }
 
     /**
@@ -162,7 +186,7 @@ class AbstractFile implements FileInterface
      * @return bool
      * @throws \RuntimeException
      */
-    public function lock($block = true) : bool
+    public function lock(bool $block = true): bool
     {
         if (!$this->handle) {
             if (!$this->mkdir($this->getPath())) {
@@ -184,7 +208,7 @@ class AbstractFile implements FileInterface
      *
      * @return bool
      */
-    public function unlock() : bool
+    public function unlock(): bool
     {
         if (!$this->handle) {
             return false;
@@ -204,9 +228,19 @@ class AbstractFile implements FileInterface
      *
      * @return bool True = locked, false = not locked.
      */
-    public function isLocked() : bool
+    public function isLocked(): bool
     {
         return $this->locked;
+    }
+
+    /**
+     * Check if file exists and can be read.
+     *
+     * @return bool
+     */
+    public function isReadable(): bool
+    {
+        return is_readable($this->filepath) && is_file($this->filepath);
     }
 
     /**
@@ -214,15 +248,19 @@ class AbstractFile implements FileInterface
      *
      * @return bool
      */
-    public function isWritable() : bool
+    public function isWritable(): bool
     {
-        return is_writable($this->filepath) || $this->isWritableDir($this->getPath());
+        if (!file_exists($this->filepath)) {
+            return $this->isWritablePath($this->getPath());
+        }
+
+        return is_writable($this->filepath) && is_file($this->filepath);
     }
 
     /**
-     * (Re)Load a file and return RAW file contents.
+     * (Re)Load a file and return file contents.
      *
-     * @return string
+     * @return string|array|false
      */
     public function load()
     {
@@ -235,7 +273,7 @@ class AbstractFile implements FileInterface
      * @param  mixed $data
      * @throws \RuntimeException
      */
-    public function save($data)
+    public function save($data): void
     {
         $lock = false;
         if (!$this->locked) {
@@ -266,7 +304,7 @@ class AbstractFile implements FileInterface
      * @param string $path
      * @return bool
      */
-    public function rename($path) : bool
+    public function rename(string $path): bool
     {
         if ($this->exists() && !@rename($this->filepath, $path)) {
             return false;
@@ -282,7 +320,7 @@ class AbstractFile implements FileInterface
      *
      * @return bool
      */
-    public function delete() : bool
+    public function delete(): bool
     {
         return @unlink($this->filepath);
     }
@@ -293,7 +331,7 @@ class AbstractFile implements FileInterface
      * @throws \RuntimeException
      * @internal
      */
-    protected function mkdir($dir) : bool
+    protected function mkdir(string $dir): bool
     {
         // Silence error for open_basedir; should fail in mkdir instead.
         if (!@is_dir($dir)) {
@@ -310,20 +348,27 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * @param  string  $dir
-     * @return bool
-     * @internal
+     * @return array
      */
-    protected function isWritableDir($dir) : bool
+    protected function doSerialize(): array
     {
-        if ($dir && !file_exists($dir)) {
-            return $this->isWritableDir(\dirname($dir));
-        }
-
-        return $dir && is_dir($dir) && is_writable($dir);
+        return [
+            'filepath' => $this->filepath
+        ];
     }
 
-    protected function setFilepath($filepath) : void
+    /**
+     * @param array $serialized
+     */
+    protected function doUnserialize(array $serialized): void
+    {
+        $this->setFilepath($serialized['filepath']);
+    }
+
+    /**
+     * @param string $filepath
+     */
+    protected function setFilepath(string $filepath): void
     {
         $this->filepath = $filepath;
         $this->filename = null;
@@ -332,64 +377,32 @@ class AbstractFile implements FileInterface
         $this->extension = null;
     }
 
-    protected function setPathInfo() : void
+    protected function setPathInfo(): void
     {
-        $pathInfo = static::pathinfo($this->filepath);
-        $this->filename = $pathInfo['filename'];
-        $this->basename = $pathInfo['basename'];
-        $this->path = $pathInfo['dirname'];
-        $this->extension = $pathInfo['extension'];
+        $pathInfo = $this->filesystem->pathinfo($this->filepath);
+
+        $this->filename = $pathInfo['filename'] ?? null;
+        $this->basename = $pathInfo['basename'] ?? null;
+        $this->path = $pathInfo['dirname'] ?? null;
+        $this->extension = $pathInfo['extension'] ?? null;
     }
 
     /**
-     * Multi-byte-safe pathinfo replacement.
-     * Replacement for pathinfo(), but stream, multibyte and cross-platform safe.
-     *
-     * @see    http://www.php.net/manual/en/function.pathinfo.php
-     *
-     * @param string     $path    A filename or path, does not need to exist as a file
-     * @param int|string $options Either a PATHINFO_* constant,
-     *                            or a string name to return only the specified piece
-     *
-     * @return string|array
+     * @param  string  $dir
+     * @return bool
+     * @internal
      */
-    public static function pathinfo($path, $options = null)
+    protected function isWritablePath(string $dir): bool
     {
-        $ret = ['scheme' => '', 'dirname' => '', 'basename' => '', 'extension' => '', 'filename' => ''];
-        $pathinfo = [];
-        if (preg_match('#^((.*?)://)?(.*?)[\\\\/]*(([^/\\\\]*?)(\.([^\.\\\\/]+?)|))[\\\\/\.]*$#um', $path, $pathinfo)) {
-            if (array_key_exists(1, $pathinfo)) {
-                $ret['scheme'] = $pathinfo[2];
-                $ret['dirname'] = $pathinfo[1];
-            }
-            if (array_key_exists(3, $pathinfo)) {
-                $ret['dirname'] .= $pathinfo[3];
-            }
-            if (array_key_exists(4, $pathinfo)) {
-                $ret['basename'] = $pathinfo[4];
-            }
-            if (array_key_exists(7, $pathinfo)) {
-                $ret['extension'] = $pathinfo[7];
-            }
-            if (array_key_exists(5, $pathinfo)) {
-                $ret['filename'] = $pathinfo[5];
-            }
+        if ($dir === '') {
+            return false;
         }
-        switch ($options) {
-            case PATHINFO_DIRNAME:
-            case 'dirname':
-                return $ret['dirname'];
-            case PATHINFO_BASENAME:
-            case 'basename':
-                return $ret['basename'];
-            case PATHINFO_EXTENSION:
-            case 'extension':
-                return $ret['extension'];
-            case PATHINFO_FILENAME:
-            case 'filename':
-                return $ret['filename'];
-            default:
-                return $ret;
+
+        if (!file_exists($dir)) {
+            // Recursively look up in the directory tree.
+            return $this->isWritablePath($this->filesystem->parent($dir));
         }
+
+        return is_dir($dir) && is_writable($dir);
     }
 }
