@@ -2,6 +2,7 @@
 ## mm/dd/2018
 
 1. [](#new)
+    * Updated Symfony Components to 4.2
     * Added `select()` and `unselect()` methods to `CollectionInterface` and its base classes
     * Added `orderBy()` and `limit()` methods to `ObjectCollectionInterface` and its base classes
     * Added `user-data://` which is a writable stream (`user://data` is not and should be avoided)
