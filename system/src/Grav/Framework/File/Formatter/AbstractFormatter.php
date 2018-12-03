@@ -57,8 +57,10 @@ abstract class AbstractFormatter implements FormatterInterface
      */
     public function getSupportedFileExtensions(): array
     {
+        $extensions = $this->getConfig('file_extension');
+
         // Call fails on bad configuration.
-        return $this->getConfig('file_extension');
+        return \is_string($extensions) ? [$extensions] : $extensions;
     }
 
     /**
