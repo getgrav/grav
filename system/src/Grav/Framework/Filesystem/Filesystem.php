@@ -11,59 +11,98 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Filesystem;
 
-class Filesystem
+use Grav\Framework\Filesystem\Interfaces\FilesystemInterface;
+
+class Filesystem implements FilesystemInterface
 {
     /** @var bool|null */
-    private $normalizeNext;
+    private $normalize;
+
+    /** @var static */
+    static protected $default;
+    /** @var static */
+    static protected $unsafe;
+    /** @var static */
+    static protected $safe;
 
     /**
-     * Force paths to be normalized in the next call.
-     *
-     * Note: Normalizing option will be reset after the next method call.
-     *
-     * @return $this
+     * @param bool|null $normalize See $this->setNormalization()
+     * @return Filesystem
      */
-    public function unsafe()
+    public static function getInstance(bool $normalize = null): Filesystem
     {
-        $this->normalizeNext = true;
+        if ($normalize === true) {
+            $instance = &static::$safe;
+        } elseif ($normalize === false) {
+            $instance = &static::$unsafe;
+        } else {
+            $instance = &static::$default;
+        }
 
-        return $this;
+        if (null === $instance) {
+            $instance = new static($normalize);
+        }
+
+        return $instance;
     }
 
     /**
-     * Tell that all the paths are save to be used (already normalized) in the next call.
+     * Always use Filesystem::getInstance() instead.
      *
-     * Note: Normalizing option will be reset after the next method call.
-     *
-     * @return $this
+     * @param bool|null $normalize
      */
-    public function safe()
+    protected function __construct(bool $normalize = null)
     {
-        $this->normalizeNext = false;
-
-        return $this;
+        $this->normalize = $normalize;
     }
 
     /**
-     * Returns parent path. Empty path is returned if there are no segments remaining.
+     * Set path normalization.
      *
-     * Can be used recursively to get towards the root directory.
+     * Default option enables normalization for the streams only, but you can force the normalization to be either
+     * on or off for every path. Disabling path normalization speeds up the calls, but may cause issues if paths were
+     * not normalized.
      *
-     * @param string $path
-     * @param int $levels
-     * @return string
-     * @throws \RuntimeException
+     * @param bool|null $normalize
+     * @return Filesystem
+     */
+    public function setNormalization(bool $normalize = null): self
+    {
+        return static::getInstance($normalize);
+    }
+
+    /**
+     * Force all paths to be normalized.
+     *
+     * @return static
+     */
+    public function unsafe(): self
+    {
+        return static::getInstance(true);
+    }
+
+    /**
+     * Force all paths not to be normalized (speeds up the calls if given paths are known to be normalized).
+     *
+     * @return static
+     */
+    public function safe(): self
+    {
+        return static::getInstance(false);
+    }
+
+    /**
+     * @inheritdoc
      */
     public function parent(string $path, int $levels = 1): string
     {
         [$scheme, $path] = $this->getSchemeAndHierarchy($path);
 
-        if ($this->normalizeNext !== false) {
+        if ($this->normalize !== false) {
             $path = $this->normalizePathPart($path);
         }
-        $this->normalizeNext = null;
 
-        if ($path === '') {
+        if ($path === '' || $path === '.') {
             return '';
         }
 
@@ -73,20 +112,10 @@ class Filesystem
     }
 
     /**
-     * Normalize path by cleaning up \ , /./ , // and /../
-     *
-     * @param string $path
-     * @return string
-     * @throws \RuntimeException
+     * @inheritdoc
      */
     public function normalize(string $path): string
     {
-        if ($this->normalizeNext === false) {
-            $this->normalizeNext = null;
-
-            return $path;
-        }
-
         [$scheme, $path] = $this->getSchemeAndHierarchy($path);
 
         $path = $this->normalizePathPart($path);
@@ -95,23 +124,15 @@ class Filesystem
     }
 
     /**
-     * Stream safe dirname() replacement.
-     *
-     * @see   http://php.net/manual/en/function.dirname.php
-     *
-     * @param string $path
-     * @param int $levels
-     * @return string
-     * @throws \RuntimeException
+     * @inheritdoc
      */
     public function dirname(string $path, int $levels = 1): string
     {
         [$scheme, $path] = $this->getSchemeAndHierarchy($path);
 
-        if ($this->normalizeNext || ($scheme && null === $this->normalizeNext)) {
+        if ($this->normalize || ($scheme && null === $this->normalize)) {
             $path = $this->normalizePathPart($path);
         }
-        $this->normalizeNext = null;
 
         [$scheme, $path] = $this->dirnameInternal($scheme, $path, $levels);
 
@@ -119,25 +140,15 @@ class Filesystem
     }
 
     /**
-     * Multi-byte and stream-safe pathinfo() replacement.
-     *
-     * Replacement for pathinfo(), but stream, multibyte and cross-platform safe.
-     *
-     * @see   http://www.php.net/manual/en/function.pathinfo.php
-     *
-     * @param string     $path     A filename or path, does not need to exist as a file
-     * @param int|string $options Either a PATHINFO_* constant, or a string name to return only the specified piece
-     *
-     * @return array|string
+     * @inheritdoc
      */
     public function pathinfo(string $path, int $options = null)
     {
         [$scheme, $path] = $this->getSchemeAndHierarchy($path);
 
-        if ($this->normalizeNext || ($scheme && null === $this->normalizeNext)) {
+        if ($this->normalize || ($scheme && null === $this->normalize)) {
             $path = $this->normalizePathPart($path);
         }
-        $this->normalizeNext = null;
 
         return $this->pathinfoInternal($scheme, $path, $options);
     }
