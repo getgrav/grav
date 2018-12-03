@@ -11,7 +11,8 @@
     * Added `FormFlash` class to contain AJAX uploaded files in more reliable way
     * Added `FormFlashFile` class which implements `UploadedFileInterface` from PSR-7
 1. [](#improved)
-    * Improve Flex storage
+    * Improved Flex storage classes
+    * Improved `Grav\Framework\File\Formatter` classes to have abstract parent class and some useful methods
 1. [](#bugfix)
     * Fixed handling of `append_url_extension` inside of `Page::templateFormat()` [#2264](https://github.com/getgrav/grav/issues/2264) 
     * Fixed a broken language string [#2261](https://github.com/getgrav/grav/issues/2261)
