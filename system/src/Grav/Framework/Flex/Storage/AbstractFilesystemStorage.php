@@ -15,8 +15,6 @@ use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Common\Helpers\Base32;
-use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\FormatterInterface;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\MarkdownFormatter;

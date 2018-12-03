@@ -111,7 +111,7 @@ interface SessionInterface extends \IteratorAggregate
     /**
      * Checks if the session was started.
      *
-     * @return Boolean
+     * @return bool
      */
     public function isStarted();
 
