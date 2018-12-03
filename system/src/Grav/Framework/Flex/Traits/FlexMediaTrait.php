@@ -14,7 +14,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Utils;
-use Grav\Plugin\Form\FormFlashFile;
+use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -80,7 +80,7 @@ trait FlexMediaTrait
         }
     }
 
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null) : void
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null) : void
     {
         $this->checkUploadedMediaFile($uploadedFile);
 
@@ -121,7 +121,7 @@ trait FlexMediaTrait
         $this->clearMediaCache();
     }
 
-    public function deleteMediaFile(string $filename) : void
+    public function deleteMediaFile(string $filename, string $field = null) : void
     {
         $grav = Grav::instance();
         $language = $grav['language'];

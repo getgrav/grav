@@ -16,6 +16,7 @@ use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Form\FormFlash;
 use Grav\Framework\Route\Route;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -36,31 +37,33 @@ class FlexForm implements FlexFormInterface
     private $submitted;
     /** @var string[] */
     private $errors;
-    /** @var Data */
+    /** @var Data|FlexObjectInterface */
     private $data;
-    /** @var UploadedFileInterface[] */
+    /** @var array|UploadedFileInterface[] */
     private $files;
     /** @var FlexObjectInterface */
     private $object;
+    /** @var FormFlash */
+    private $flash;
 
     /**
      * FlexForm constructor.
      * @param string $name
-     * @param FlexObjectInterface|null $object
+     * @param FlexObjectInterface $object
      */
-    public function __construct(string $name = '', FlexObjectInterface $object = null)
+    public function __construct(string $name, FlexObjectInterface $object)
     {
-        $this->reset();
-
-        if ($object) {
-            $this->setObject($object);
-        }
-
         $this->name = $name;
-        $this->id = $this->getName();
+        $this->setObject($object);
+        $this->setId($this->getName());
+        $this->reset();
     }
 
     /**
+     * Get HTML id="..." attribute.
+     *
+     * Defaults to 'flex-[type]-[name]', where 'type' is object type and 'name' is the first parameter given in constructor.
+     *
      * @return string
      */
     public function getId(): string
@@ -69,6 +72,8 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * Sets HTML id="" attribute.
+     *
      * @param string $id
      */
     public function setId(string $id): void
@@ -77,34 +82,10 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        $object = $this->object;
-        $name = $this->name ?: 'object';
-
-        return "flex-{$object->getType(false)}-{$name}";
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getNonceName(): string
-    {
-        return 'nonce';
-    }
-
-    /**
-     * @return string
-     */
-    public function getNonceAction(): string
-    {
-        return 'flex-object';
-    }
-
-    /**
+     * Get unique id for the current form instance. By default regenerated on every page reload.
+     *
+     * This id is used to load the saved form state, if available.
+     *
      * @return string
      */
     public function getUniqueId(): string
@@ -117,6 +98,51 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * Sets unique form id allowing you to attach the form state to the object for example.
+     *
+     * @param string $uniqueId
+     */
+    public function setUniqueId(string $uniqueId): void
+    {
+        $this->uniqueid = $uniqueId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        $object = $this->getObject();
+        $name = $this->name ?: 'object';
+
+        return "flex-{$object->getType(false)}-{$name}";
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNonceName(): string
+    {
+        return 'form-nonce';
+    }
+
+    /**
+     * @return string
+     */
+    public function getNonceAction(): string
+    {
+        return 'form';
+    }
+
+    /**
      * @return string
      */
     public function getAction(): string
@@ -126,28 +152,19 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
-     * @return array
-     */
-    public function getButtons(): array
-    {
-        return [
-            [
-                'type' => 'submit',
-                'value' => 'Save'
-            ]
-        ];
-    }
-
-    /**
      * @return Data|FlexObjectInterface
      */
     public function getData()
     {
-        if (null === $this->data) {
-            $this->data = $this->getObject();
-        }
+        return $this->data ?? $this->getObject();
+    }
 
-        return $this->data;
+    /**
+     * @return array|UploadedFileInterface[]
+     */
+    public function getFiles(): array
+    {
+        return $this->files;
     }
 
     /**
@@ -160,57 +177,11 @@ class FlexForm implements FlexFormInterface
      */
     public function getValue(string $name)
     {
-        $data = $this->getData();
-        return $data instanceof FlexObject ? $data->getNestedProperty($name) : $data->get($name);
-    }
-
-    /**
-     * @return UploadedFileInterface[]
-     */
-    public function getFiles(): array
-    {
-        return $this->files;
-    }
-
-    /**
-     * @return Route|null
-     */
-    public function getFileUploadAjaxRoute(): ?Route
-    {
-        $object = $this->getObject();
-        if (!method_exists($object, 'route')) {
-            return null;
+        if (null === $this->data) {
+            return $this->getObject()->getNestedProperty($name);
         }
 
-        return $object->route('/edit.json/task:media.upload');
-    }
-
-    /**
-     * @param $field
-     * @param $filename
-     * @return Route|null
-     */
-    public function getFileDeleteAjaxRoute($field, $filename): ?Route
-    {
-        $object = $this->getObject();
-        if (!method_exists($object, 'route')) {
-            return null;
-        }
-
-        return $object->route('/edit.json/task:media.delete');
-    }
-
-    /**
-     * Note: this method clones the object.
-     *
-     * @param FlexObjectInterface $object
-     * @return $this
-     */
-    public function setObject(FlexObjectInterface $object): FlexFormInterface
-    {
-        $this->object = clone $object;
-
-        return $this;
+        return $this->data->get($name);
     }
 
     /**
@@ -218,10 +189,6 @@ class FlexForm implements FlexFormInterface
      */
     public function getObject(): FlexObjectInterface
     {
-        if (!$this->object) {
-            throw new \RuntimeException('FlexForm: Object is not defined');
-        }
-
         return $this->object;
     }
 
@@ -285,26 +252,14 @@ class FlexForm implements FlexFormInterface
             }
 
             $this->files = $files ?? [];
-            $this->data = new Data($this->decodeData($data['data'] ?? []));
+            $this->data = new Data($this->decodeData($data['data'] ?? []), $this->getBlueprint());
             if ($this->getErrors()) {
                 return $this;
             }
 
-            $this->validate();
+            $this->doSubmit($this->data->toArray(), $this->files);
 
             $this->submitted = true;
-
-            $object = clone $this->object;
-            $object->update($this->data->toArray());
-            $object->triggerEvent('onSave');
-
-            if (method_exists($object, 'upload')) {
-                $object->upload($this->files);
-            }
-            $object->save();
-
-            $this->object = $object;
-            $this->valid = true;
         } catch (ValidationException $e) {
             $list = [];
             foreach ($e->getMessages() as $field => $errors) {
@@ -386,6 +341,33 @@ class FlexForm implements FlexFormInterface
         $this->object = $data['object'];
     }
 
+    /**
+     * @return Route|null
+     */
+    public function getFileUploadAjaxRoute(): ?Route
+    {
+        $object = $this->getObject();
+        if (!method_exists($object, 'route')) {
+            return null;
+        }
+
+        return $object->route('/edit.json/task:media.upload');
+    }
+
+    /**
+     * @param $field
+     * @param $filename
+     * @return Route|null
+     */
+    public function getFileDeleteAjaxRoute($field, $filename): ?Route
+    {
+        $object = $this->getObject();
+        if (!method_exists($object, 'route')) {
+            return null;
+        }
+
+        return $object->route('/edit.json/task:media.delete');
+    }
 
     public function getMediaTaskRoute(): string
     {
@@ -406,6 +388,33 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * Note: this method clones the object.
+     *
+     * @param FlexObjectInterface $object
+     * @return $this
+     */
+    protected function setObject(FlexObjectInterface $object): FlexFormInterface
+    {
+        $this->object = clone $object;
+
+        return $this;
+    }
+
+    /**
+     * Get flash object
+     *
+     * @return FormFlash
+     */
+    protected function getFlash()
+    {
+        if (null === $this->flash) {
+            $this->flash = new FormFlash($this->getName(), $this->getUniqueId());
+        }
+
+        return $this->flash;
+    }
+
+    /**
      * @throws \Exception
      */
     protected function validate(): void
@@ -413,6 +422,41 @@ class FlexForm implements FlexFormInterface
         $this->data->validate();
         $this->data->filter();
         $this->checkUploads($this->files);
+    }
+
+    protected function setErrors(array $errors): void
+    {
+        $this->errors = array_merge($this->errors, $errors);
+    }
+
+    protected function setError(string $error): void
+    {
+        $this->errors[] = $error;
+    }
+
+    /**
+     * @param array $data
+     * @param array $files
+     * @throws \Exception
+     */
+    protected function doSubmit(array $data, array $files)
+    {
+        $this->validate();
+
+        $object = clone $this->object;
+        $object->update($data);
+
+        if (method_exists($object, 'triggerEvent')) {
+            $object->triggerEvent('onSave');
+        }
+
+        if (method_exists($object, 'upload')) {
+            $object->upload($files);
+        }
+
+        $object->save();
+
+        $this->object = $object;
     }
 
     protected function checkUploads(array $files): void

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
@@ -9,50 +11,37 @@
 
 namespace Grav\Framework\File\Formatter;
 
-class CsvFormatter implements FormatterInterface
+class CsvFormatter extends AbstractFormatter
 {
-    /** @var array */
-    private $config;
-
     /**
      * IniFormatter constructor.
      * @param array $config
      */
     public function __construct(array $config = [])
     {
-        $this->config = $config + [
-                'file_extension' => ['.csv', '.tsv'],
-                'delimiter' => ','
-            ];
+        $config += [
+            'file_extension' => ['.csv', '.tsv'],
+            'delimiter' => ','
+        ];
+
+        parent::__construct($config);
+    }
+
+    /**
+     * Returns delimiter used to both encode and decode CSV.
+     *
+     * @return string
+     */
+    public function getDelimiter(): string
+    {
+        // Call fails on bad configuration.
+        return $this->getConfig('delimiter');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultFileExtension()
-    {
-        $extensions = $this->getSupportedFileExtensions();
-
-        return (string) reset($extensions);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSupportedFileExtensions()
-    {
-        return (array) $this->config['file_extension'];
-    }
-
-    public function getDelimiter()
-    {
-        return $this->config['delimiter'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function encode($data, $delimiter = null)
+    public function encode($data, $delimiter = null): string
     {
         $delimiter = $delimiter ?? $this->getDelimiter();
         $header = array_keys(reset($lines));
@@ -71,7 +60,7 @@ class CsvFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function decode($data, $delimiter = null)
+    public function decode($data, $delimiter = null): array
     {
         $delimiter = $delimiter ?? $this->getDelimiter();
         $lines = preg_split('/\r\n|\r|\n/', $data);

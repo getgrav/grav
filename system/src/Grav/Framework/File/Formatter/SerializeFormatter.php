@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
@@ -9,44 +11,38 @@
 
 namespace Grav\Framework\File\Formatter;
 
-class SerializeFormatter implements FormatterInterface
+class SerializeFormatter extends AbstractFormatter
 {
-    /** @var array */
-    private $config;
-
     /**
      * IniFormatter constructor.
      * @param array $config
      */
     public function __construct(array $config = [])
     {
-        $this->config = $config + [
-                'file_extension' => '.ser'
-            ];
+        $config += [
+            'file_extension' => '.ser',
+            'decode_options' => ['allowed_classes' => [\stdClass::class]]
+        ];
+
+        parent::__construct($config);
     }
 
     /**
-     * {@inheritdoc}
+     * Returns options used in decode().
+     *
+     * By default only allow stdClass class.
+     *
+     * @return array|bool
      */
-    public function getDefaultFileExtension()
+    public function getOptions()
     {
-        $extensions = $this->getSupportedFileExtensions();
-
-        return (string) reset($extensions);
+        return $this->getConfig('decode_options');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSupportedFileExtensions()
-    {
-        return (array) $this->config['file_extension'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function encode($data)
+    public function encode($data): string
     {
         return serialize($this->preserveLines($data, ["\n", "\r"], ['\\n', '\\r']));
     }
@@ -56,9 +52,9 @@ class SerializeFormatter implements FormatterInterface
      */
     public function decode($data)
     {
-        $decoded = @unserialize($data);
+        $decoded = @unserialize($data, $this->getOptions());
 
-        if ($decoded === false) {
+        if ($decoded === false && $data !== serialize(false)) {
             throw new \RuntimeException('Decoding serialized data failed');
         }
 
@@ -73,7 +69,7 @@ class SerializeFormatter implements FormatterInterface
      * @param array $replace
      * @return mixed
      */
-    protected function preserveLines($data, $search, $replace)
+    protected function preserveLines($data, array $search, array $replace)
     {
         if (\is_string($data)) {
             $data = str_replace($search, $replace, $data);

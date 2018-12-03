@@ -140,7 +140,7 @@ trait ObjectTrait
      */
     protected function doSerialize()
     {
-        return $this->jsonSerialize();
+        return ['key' => $this->getKey(), 'type' => $this->getType(), 'elements' => $this->getElements()];
     }
 
     /**
@@ -163,7 +163,7 @@ trait ObjectTrait
      */
     public function jsonSerialize()
     {
-        return ['key' => $this->getKey(), 'type' => $this->getType(), 'elements' => $this->getElements()];
+        return $this->doSerialize();
     }
 
     /**

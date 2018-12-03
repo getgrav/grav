@@ -11,17 +11,6 @@ declare(strict_types=1);
 
 namespace Grav\Framework\RequestHandler\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
-
 class NotHandledException extends NotFoundException
 {
-    /**
-     * NotFoundException constructor.
-     * @param ServerRequestInterface $request
-     * @param \Throwable|null $previous
-     */
-    public function __construct(ServerRequestInterface $request, \Throwable $previous = null)
-    {
-        parent::__construct($request, $previous);
-    }
 }

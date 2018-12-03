@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
@@ -9,16 +11,16 @@
 
 namespace Grav\Framework\File\Formatter;
 
-class MarkdownFormatter implements FormatterInterface
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
+
+class MarkdownFormatter extends AbstractFormatter
 {
-    /** @var array */
-    private $config;
     /** @var FormatterInterface */
     private $headerFormatter;
 
-    public function __construct(array $config = [], FormatterInterface $headerFormatter = null)
+    public function __construct(array $config = [], FileFormatterInterface $headerFormatter = null)
     {
-        $this->config = $config + [
+        $config += [
             'file_extension' => '.md',
             'header' => 'header',
             'body' => 'markdown',
@@ -26,34 +28,58 @@ class MarkdownFormatter implements FormatterInterface
             'yaml' => ['inline' => 20]
         ];
 
-        $this->headerFormatter = $headerFormatter ?: new YamlFormatter($this->config['yaml']);
+        parent::__construct($config);
+
+        $this->headerFormatter = $headerFormatter ?: new YamlFormatter($config['yaml']);
+    }
+
+    /**
+     * Returns header field used in both encode() and decode().
+     *
+     * @return string
+     */
+    public function getHeaderField(): string
+    {
+        return $this->getConfig('header');
+    }
+
+    /**
+     * Returns body field used in both encode() and decode().
+     *
+     * @return string
+     */
+    public function getBodyField(): string
+    {
+        return $this->getConfig('body');
+    }
+
+    /**
+     * Returns raw field used in both encode() and decode().
+     *
+     * @return string
+     */
+    public function getRawField(): string
+    {
+        return $this->getConfig('raw');
+    }
+
+    /**
+     * Returns header formatter object used in both encode() and decode().
+     *
+     * @return FileFormatterInterface
+     */
+    public function getHeaderFormatter(): FileFormatterInterface
+    {
+        return $this->headerFormatter;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultFileExtension()
+    public function encode($data): string
     {
-        $extensions = $this->getSupportedFileExtensions();
-
-        return (string) reset($extensions);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSupportedFileExtensions()
-    {
-        return (array) $this->config['file_extension'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function encode($data)
-    {
-        $headerVar = $this->config['header'];
-        $bodyVar = $this->config['body'];
+        $headerVar = $this->getHeaderField();
+        $bodyVar = $this->getBodyField();
 
         $header = isset($data[$headerVar]) ? (array) $data[$headerVar] : [];
         $body = isset($data[$bodyVar]) ? (string) $data[$bodyVar] : '';
@@ -61,7 +87,7 @@ class MarkdownFormatter implements FormatterInterface
         // Create Markdown file with YAML header.
         $encoded = '';
         if ($header) {
-            $encoded = "---\n" . trim($this->headerFormatter->encode($data['header'])) . "\n---\n\n";
+            $encoded = "---\n" . trim($this->getHeaderFormatter()->encode($data['header'])) . "\n---\n\n";
         }
         $encoded .= $body;
 
@@ -74,12 +100,13 @@ class MarkdownFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function decode($data)
+    public function decode($data): array
     {
-        $headerVar = $this->config['header'];
-        $bodyVar = $this->config['body'];
-        $rawVar = $this->config['raw'];
+        $headerVar = $this->getHeaderField();
+        $bodyVar = $this->getBodyField();
+        $rawVar = $this->getRawField();
 
+        // Define empty content
         $content = [
             $headerVar => [],
             $bodyVar => ''
@@ -100,7 +127,7 @@ class MarkdownFormatter implements FormatterInterface
             if ($rawVar) {
                 $content[$rawVar] = $frontmatter;
             }
-            $content[$headerVar] = $this->headerFormatter->decode($frontmatter);
+            $content[$headerVar] = $this->getHeaderFormatter()->decode($frontmatter);
             $content[$bodyVar] = $matches[2];
         }
 

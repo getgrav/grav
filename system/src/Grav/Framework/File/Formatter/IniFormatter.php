@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
@@ -9,44 +11,25 @@
 
 namespace Grav\Framework\File\Formatter;
 
-class IniFormatter implements FormatterInterface
+class IniFormatter extends AbstractFormatter
 {
-    /** @var array */
-    private $config;
-
     /**
      * IniFormatter constructor.
      * @param array $config
      */
     public function __construct(array $config = [])
     {
-        $this->config = $config + [
-                'file_extension' => '.ini'
-            ];
+        $config += [
+            'file_extension' => '.ini'
+        ];
+
+        parent::__construct($config);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultFileExtension()
-    {
-        $extensions = $this->getSupportedFileExtensions();
-
-        return (string) reset($extensions);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSupportedFileExtensions()
-    {
-        return (array) $this->config['file_extension'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function encode($data)
+    public function encode($data): string
     {
         $string = '';
         foreach ($data as $key => $value) {
@@ -63,7 +46,7 @@ class IniFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function decode($data)
+    public function decode($data): array
     {
         $decoded = @parse_ini_string($data);
 

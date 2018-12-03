@@ -16,11 +16,11 @@ class File extends AbstractFile
     /**
      * Load a file from the filesystem.
      *
-     * @return string
+     * @return string|false
      */
     public function load()
     {
-        return (string) parent::load();
+        return parent::load();
     }
 
     /**
@@ -29,8 +29,12 @@ class File extends AbstractFile
      * @param  string $data
      * @throws \RuntimeException
      */
-    public function save($data)
+    public function save($data): void
     {
+        if (!\is_string($data)) {
+            throw new \RuntimeException('Cannot save data, string required');
+        }
+
         parent::save($data);
     }
 }

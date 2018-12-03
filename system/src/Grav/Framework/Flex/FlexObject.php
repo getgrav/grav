@@ -18,6 +18,7 @@ use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
+use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Grav\Framework\Object\Access\NestedArrayAccessTrait;
 use Grav\Framework\Object\Access\NestedPropertyTrait;
@@ -170,7 +171,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function getForm(string $name = '')
     {
         if (!isset($this->_forms[$name])) {
-            $this->_forms[$name] = new FlexForm($name, $this);
+            $this->_forms[$name] = $this->createFormObject($name);
         }
 
         return $this->_forms[$name];
@@ -661,5 +662,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         unset ($elements['storage_key'], $elements['storage_timestamp']);
+    }
+
+    /**
+     * This methods allows you to override form objects in child classes.
+     *
+     * @param string $name Form name
+     * @return FlexFormInterface
+     */
+    protected function createFormObject(string $name): FlexFormInterface
+    {
+        return new FlexForm($name, $this);
     }
 }

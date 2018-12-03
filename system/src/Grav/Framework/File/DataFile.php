@@ -34,7 +34,7 @@ class DataFile extends AbstractFile
     /**
      * (Re)Load a file and return RAW file contents.
      *
-     * @return array
+     * @return array|false
      * @throws RuntimeException
      */
     public function load()
@@ -42,7 +42,7 @@ class DataFile extends AbstractFile
         $raw = parent::load();
 
         try {
-            return $this->formatter->decode($raw);
+            return $raw !== false ? $this->formatter->decode($raw) : false;
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf("Failed to load file '%s': %s", $this->getFilePath(), $e->getMessage()), $e->getCode(), $e);
         }
@@ -54,9 +54,10 @@ class DataFile extends AbstractFile
      * @param  string|array  $data  Data to be saved.
      * @throws RuntimeException
      */
-    public function save($data)
+    public function save($data): void
     {
         if (\is_string($data)) {
+            // Make sure that the string is valid data.
             try {
                 $this->formatter->decode($data);
             } catch (RuntimeException $e) {
