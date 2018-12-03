@@ -8,8 +8,9 @@
     * Added `user-data://` which is a writable stream (`user://data` is not and should be avoided)
     * Added support for `/action:{$action}` (like task but used without nonce when only receiving data)
     * Added `onAction.{$action}` event
-    * Added `FormFlash` class to contain AJAX uploaded files in more reliable way
-    * Added `FormFlashFile` class which implements `UploadedFileInterface` from PSR-7
+    * Added `Grav\Framework\Form\FormFlash` class to contain AJAX uploaded files in more reliable way
+    * Added `Grav\Framework\Form\FormFlashFile` class which implements `UploadedFileInterface` from PSR-7
+    * Added `Grav\Framework\Filesystem\Filesystem` class with methods to manipulate stream URLs
 1. [](#improved)
     * Improved Flex storage classes
     * Improved `Grav\Framework\File\Formatter` classes to have abstract parent class and some useful methods
