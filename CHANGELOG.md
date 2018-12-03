@@ -18,6 +18,7 @@
     * Fixed clearing cache having no effect on Doctrine cache
     * Fixed `Medium::relativePath()` for streams
     * Fixed `FlexObject::update()` call with partial object update
+    * Fixed `Object` serialization breaking if overriding `jsonSerialize()` method
 
 # v1.6.0-beta.6
 ## 11/12/2018
