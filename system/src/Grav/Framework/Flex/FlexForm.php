@@ -376,7 +376,7 @@ class FlexForm implements FlexFormInterface
         $flex = $grav['flex_objects'];
 
         if (method_exists($flex, 'adminRoute')) {
-            return $flex->adminRoute($this->object) . '.json';
+            return $flex->adminRoute($this->getObject()) . '.json';
         }
 
         return '';
@@ -384,7 +384,7 @@ class FlexForm implements FlexFormInterface
 
     public function getMediaRoute(): string
     {
-        return '/' . $this->object->getKey();
+        return '/' . $this->getObject()->getKey();
     }
 
     /**
@@ -443,7 +443,7 @@ class FlexForm implements FlexFormInterface
     {
         $this->validate();
 
-        $object = clone $this->object;
+        $object = clone $this->getObject();
         $object->update($data);
 
         if (method_exists($object, 'triggerEvent')) {
@@ -456,7 +456,7 @@ class FlexForm implements FlexFormInterface
 
         $object->save();
 
-        $this->object = $object;
+        $this->setObject($object);
     }
 
     protected function checkUploads(array $files): void
