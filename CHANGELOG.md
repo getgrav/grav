@@ -11,6 +11,7 @@
     * Added `Grav\Framework\Form\FormFlash` class to contain AJAX uploaded files in more reliable way
     * Added `Grav\Framework\Form\FormFlashFile` class which implements `UploadedFileInterface` from PSR-7
     * Added `Grav\Framework\Filesystem\Filesystem` class with methods to manipulate stream URLs
+    * Added new `$grav['filesystem']` service using an instance of the new `Filesystem` object
     * Grav 1.6: Flex: Added support for custom object index classes (API compatibility break)
 1. [](#improved)
     * Improved `Grav\Framework\File\Formatter` classes to have abstract parent class and some useful methods
