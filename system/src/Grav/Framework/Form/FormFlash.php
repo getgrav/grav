@@ -10,17 +10,17 @@
 namespace Grav\Framework\Form;
 
 use Grav\Common\Filesystem\Folder;
-use Grav\Common\Grav;
-use Grav\Common\Session;
 use Grav\Common\User\User;
 use RocketTheme\Toolbox\File\YamlFile;
 
 class FormFlash implements \JsonSerializable
 {
     /** @var string */
-    protected $form;
+    protected $sessionId;
     /** @var string */
     protected $uniqueId;
+    /** @var string */
+    protected $formName;
     /** @var string */
     protected $url;
     /** @var array */
@@ -33,22 +33,50 @@ class FormFlash implements \JsonSerializable
     protected $exists;
 
     /**
-     * FormFlashObject constructor.
-     * @param string $form
-     * @param string $uniqueId
+     * @param string $sessionId
      */
-    public function __construct(string $form, $uniqueId = null)
+    public static function clearSession(string $sessionId): void
     {
-        $this->form = $form;
+        $folder = static::getSessionTmpDir($sessionId);
+        if (is_dir($folder)) {
+            Folder::delete($folder);
+        }
+    }
+
+    /**
+     * @param string $sessionId
+     * @return string
+     */
+    public static function getSessionTmpDir(string $sessionId): string
+    {
+        return "tmp://forms/{$sessionId}";
+    }
+
+    /**
+     * FormFlashObject constructor.
+     * @param string $sessionId
+     * @param string $uniqueId
+     * @param string|null $formName
+     */
+    public function __construct(string $sessionId, string $uniqueId, string $formName = null)
+    {
+        $this->sessionId = $sessionId;
         $this->uniqueId = $uniqueId;
 
         $file = $this->getTmpIndex();
         $this->exists = $file->exists();
 
-        $data = $this->exists ? (array)$file->content() : [];
-        $this->url = $data['url'] ?? null;
-        $this->user = $data['user'] ?? null;
-        $this->uploads = $data['uploads'] ?? [];
+        if ($this->exists) {
+            $data = (array)$file->content();
+            $this->formName = null !== $formName ? $content['form'] ?? '' : '';
+            $this->url = $data['url'] ?? '';
+            $this->user = $data['user'] ?? null;
+            $this->uploads = $data['uploads'] ?? [];
+        } else {
+            $this->formName = '';
+            $this->url = '';
+            $this->uploads = [];
+        }
     }
 
     /**
@@ -56,7 +84,7 @@ class FormFlash implements \JsonSerializable
      */
     public function getFormName() : string
     {
-        return $this->form;
+        return $this->formName;
     }
 
     /**
@@ -64,7 +92,7 @@ class FormFlash implements \JsonSerializable
      */
     public function getUniqieId() : string
     {
-        return $this->uniqueId ?? $this->getFormName();
+        return $this->uniqueId;
     }
 
     /**
@@ -101,7 +129,7 @@ class FormFlash implements \JsonSerializable
      */
     public function getUrl() : string
     {
-        return $this->url ?? '';
+        return $this->url;
     }
 
     /**
@@ -140,7 +168,7 @@ class FormFlash implements \JsonSerializable
         if ($user && $user->username) {
             $this->user = [
                 'username' => $user->username,
-                'email' => $user->email
+                'email' => $user->email ?? ''
             ];
         } else {
             $this->user = null;
@@ -343,7 +371,7 @@ class FormFlash implements \JsonSerializable
     public function jsonSerialize() : array
     {
         return [
-            'form' => $this->form,
+            'form' => $this->formName,
             'unique_id' => $this->uniqueId,
             'url' => $this->url,
             'user' => $this->user,
@@ -356,18 +384,7 @@ class FormFlash implements \JsonSerializable
      */
     public function getTmpDir() : string
     {
-        $grav = Grav::instance();
-
-        /** @var Session $session */
-        $session = $grav['session'];
-
-        $location = [
-            'forms',
-            $session->getId(),
-            $this->uniqueId ?: $this->form
-        ];
-
-        return $grav['locator']->findResource('tmp://', true, true) . '/' . implode('/', $location);
+        return static::getSessionTmpDir($this->sessionId) . '/' . $this->uniqueId;
     }
 
     /**
