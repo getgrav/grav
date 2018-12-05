@@ -10,7 +10,8 @@
 namespace Grav\Framework\Form;
 
 use Grav\Common\Filesystem\Folder;
-use Grav\Common\User\User;
+use Grav\Common\Utils;
+use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 
 class FormFlash implements \JsonSerializable
@@ -26,22 +27,11 @@ class FormFlash implements \JsonSerializable
     /** @var array */
     protected $user;
     /** @var array */
-    protected $uploads;
+    protected $files;
     /** @var array */
-    protected $uploadObjects;
+    protected $uploadedFiles;
     /** @var bool */
     protected $exists;
-
-    /**
-     * @param string $sessionId
-     */
-    public static function clearSession(string $sessionId): void
-    {
-        $folder = static::getSessionTmpDir($sessionId);
-        if (is_dir($folder)) {
-            Folder::delete($folder);
-        }
-    }
 
     /**
      * @param string $sessionId
@@ -71,18 +61,18 @@ class FormFlash implements \JsonSerializable
             $this->formName = null !== $formName ? $content['form'] ?? '' : '';
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
-            $this->uploads = $data['uploads'] ?? [];
+            $this->files = $data['files'] ?? [];
         } else {
             $this->formName = '';
             $this->url = '';
-            $this->uploads = [];
+            $this->files = [];
         }
     }
 
     /**
      * @return string
      */
-    public function getFormName() : string
+    public function getFormName(): string
     {
         return $this->formName;
     }
@@ -90,7 +80,7 @@ class FormFlash implements \JsonSerializable
     /**
      * @return string
      */
-    public function getUniqieId() : string
+    public function getUniqieId(): string
     {
         return $this->uniqueId;
     }
@@ -98,7 +88,7 @@ class FormFlash implements \JsonSerializable
     /**
      * @return bool
      */
-    public function exists() : bool
+    public function exists(): bool
     {
         return $this->exists;
     }
@@ -106,7 +96,7 @@ class FormFlash implements \JsonSerializable
     /**
      * @return $this
      */
-    public function save() : self
+    public function save(): self
     {
         $file = $this->getTmpIndex();
         $file->save($this->jsonSerialize());
@@ -115,10 +105,10 @@ class FormFlash implements \JsonSerializable
         return $this;
     }
 
-    public function delete() : self
+    public function delete(): self
     {
         $this->removeTmpDir();
-        $this->uploads = [];
+        $this->files = [];
         $this->exists = false;
 
         return $this;
@@ -127,7 +117,7 @@ class FormFlash implements \JsonSerializable
     /**
      * @return string
      */
-    public function getUrl() : string
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -136,7 +126,7 @@ class FormFlash implements \JsonSerializable
      * @param string $url
      * @return $this
      */
-    public function setUrl(string $url) : self
+    public function setUrl(string $url): self
     {
         $this->url = $url;
 
@@ -146,7 +136,7 @@ class FormFlash implements \JsonSerializable
     /**
      * @return string
      */
-    public function getUsername() : string
+    public function getUsername(): string
     {
         return $this->user['username'] ?? '';
     }
@@ -154,25 +144,29 @@ class FormFlash implements \JsonSerializable
     /**
      * @return string
      */
-    public function getUserEmail() : string
+    public function getUserEmail(): string
     {
         return $this->user['email'] ?? '';
     }
 
     /**
-     * @param User|null $user
+     * @param string|null $username
      * @return $this
      */
-    public function setUser(?User $user = null) : self
+    public function setUserName(string $username = null): self
     {
-        if ($user && $user->username) {
-            $this->user = [
-                'username' => $user->username,
-                'email' => $user->email ?? ''
-            ];
-        } else {
-            $this->user = null;
-        }
+        $this->user['username'] = $username;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $email
+     * @return $this
+     */
+    public function setUserEmail(string $email = null): self
+    {
+        $this->user['email'] = $email;
 
         return $this;
     }
@@ -182,26 +176,26 @@ class FormFlash implements \JsonSerializable
      * @param string $field
      * @return array
      */
-    public function getFilesByField(string $field) : array
+    public function getFilesByField(string $field): array
     {
         if (!isset($this->uploadObjects[$field])) {
             $objects = [];
-            foreach ($this->uploads[$field] ?? [] as $filename => $upload) {
-                $objects[$filename] = new FormFlashFile($field, $upload, $this);
+            foreach ($this->files[$field] ?? [] as $name => $upload) {
+                $objects[$name] = $upload ? new FormFlashFile($field, $upload, $this) : null;
             }
-            $this->uploadObjects[$field] = $objects;
+            $this->uploadedFiles[$field] = $objects;
         }
 
-        return $this->uploadObjects[$field];
+        return $this->uploadedFiles[$field];
     }
 
     /**
      * @return array
      */
-    public function getFilesByFields() : array
+    public function getFilesByFields(): array
     {
         $list = [];
-        foreach ($this->uploads as $field => $values) {
+        foreach ($this->files as $field => $values) {
             if (strpos($field, '/')) {
                 continue;
             }
@@ -212,155 +206,94 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * @return array
-     * @deprecated 1.6 For backwards compatibility only, do not use.
+     * Add uploaded file to the form flash.
+     *
+     * @param UploadedFileInterface $upload
+     * @param string|null $field
+     * @param array|null $crop
+     * @return string Return name of the file
      */
-    public function getLegacyFiles() : array
-    {
-        $fields = [];
-        foreach ($this->uploads as $field => $files) {
-            if (strpos($field, '/')) {
-                continue;
-            }
-            foreach ($files as $file) {
-                $file['tmp_name'] = $this->getTmpDir() . '/' . $file['tmp_name'];
-                $fields[$field][$file['path'] ?? $file['name']] = $file;
-            }
-        }
-
-        return $fields;
-    }
-
-    /**
-     * @param string $field
-     * @param string $filename
-     * @param array $upload
-     * @return bool
-     */
-    public function uploadFile(string $field, string $filename, array $upload) : bool
+    public function addUploadedFile(UploadedFileInterface $upload, string $field = null, array $crop = null): string
     {
         $tmp_dir = $this->getTmpDir();
+        $tmp_name = Utils::generateRandomString(12);
+        $name = $upload->getClientFilename();
+
+        // Prepare upload data for later save
+        $data = [
+            'name' => $name,
+            'type' => $upload->getClientMediaType(),
+            'size' => $upload->getSize(),
+            'tmp_name' => $tmp_name
+        ];
 
         Folder::create($tmp_dir);
+        $upload->moveTo("{$tmp_dir}/{$tmp_name}");
 
-        $tmp_file = $upload['file']['tmp_name'];
-        $basename = basename($tmp_file);
+        $this->addFileInternal($field, $name, $data, $crop);
 
-        if (!move_uploaded_file($tmp_file, $tmp_dir . '/' . $basename)) {
-            return false;
-        }
-
-        $upload['file']['tmp_name'] = $basename;
-
-        if (!isset($this->uploads[$field])) {
-            $this->uploads[$field] = [];
-        }
-
-        // Prepare object for later save
-        $upload['file']['name'] = $filename;
-
-        // Replace old file, including original
-        $oldUpload = $this->uploads[$field][$filename] ?? null;
-        if (isset($oldUpload['tmp_name'])) {
-            $this->removeTmpFile($oldUpload['tmp_name']);
-        }
-
-        $originalUpload = $this->uploads[$field . '/original'][$filename] ?? null;
-        if (isset($originalUpload['tmp_name'])) {
-            $this->removeTmpFile($originalUpload['tmp_name']);
-            unset($this->uploads[$field . '/original'][$filename]);
-        }
-
-        // Prepare data to be saved later
-        $this->uploads[$field][$filename] = $upload['file'];
-
-        return true;
+        return $name;
     }
 
+
     /**
-     * @param string $field
+     * Add existing file to the form flash.
+     *
      * @param string $filename
-     * @param array $upload
+     * @param string $field
      * @param array $crop
      * @return bool
      */
-    public function cropFile(string $field, string $filename, array $upload, array $crop) : bool
+    public function addFile(string $filename, string $field, array $crop = null): bool
     {
-        $tmp_dir = $this->getTmpDir();
-
-        Folder::create($tmp_dir);
-
-        $tmp_file = $upload['file']['tmp_name'];
-        $basename = basename($tmp_file);
-
-        if (!move_uploaded_file($tmp_file, $tmp_dir . '/' . $basename)) {
-            return false;
+        if (!file_exists($filename)) {
+            throw new \RuntimeException("File not found: {$filename}");
         }
 
-        $upload['file']['tmp_name'] = $basename;
+        // Prepare upload data for later save
+        $data = [
+            'name' => basename($filename),
+            'type' => Utils::getMimeByLocalFile($filename),
+            'size' => filesize($filename),
+        ];
 
-        if (!isset($this->uploads[$field])) {
-            $this->uploads[$field] = [];
-        }
-
-        // Prepare object for later save
-        $upload['file']['name'] = $filename;
-
-        $oldUpload = $this->uploads[$field][$filename] ?? null;
-        if ($oldUpload) {
-            $originalUpload = $this->uploads[$field . '/original'][$filename] ?? null;
-            if ($originalUpload) {
-                $this->removeTmpFile($oldUpload['tmp_name']);
-            } else {
-                $oldUpload['crop'] = $crop;
-                $this->uploads[$field . '/original'][$filename] = $oldUpload;
-            }
-        }
-
-        // Prepare data to be saved later
-        $this->uploads[$field][$filename] = $upload['file'];
+        $this->addFileInternal($field, $data['name'], $data, $crop);
 
         return true;
     }
 
     /**
+     * Remove any file from form flash.
+     *
+     * @param string $name
      * @param string $field
-     * @param string $filename
      * @return bool
      */
-    public function removeFile(string $field, string $filename) : bool
+    public function removeFile(string $name, string $field = null): bool
     {
-        if (!$field || !$filename) {
+        if (!$name) {
             return false;
         }
 
-        $file = $this->getTmpIndex();
-        if (!$file->exists()) {
-            return false;
-        }
+        $field = $field ?: 'undefined';
 
-        $upload = $this->uploads[$field][$filename] ?? null;
+        $upload = $this->files[$field][$name] ?? null;
         if (null !== $upload) {
             $this->removeTmpFile($upload['tmp_name'] ?? '');
         }
-        $upload = $this->uploads[$field . '/original'][$filename] ?? null;
+        $upload = $this->files[$field . '/original'][$name] ?? null;
         if (null !== $upload) {
             $this->removeTmpFile($upload['tmp_name'] ?? '');
         }
 
-        // Walk backward to cleanup any empty field that's left
+        // Mark file as deleted.
+        $this->files[$field][$name] = null;
+        $this->files[$field . '/original'][$name] = null;
+
         unset(
-            $this->uploadObjects[$field][$filename],
-            $this->uploads[$field][$filename],
-            $this->uploadObjects[$field . '/original'][$filename],
-            $this->uploads[$field . '/original'][$filename]
+            $this->uploadedFiles[$field][$name],
+            $this->uploadedFiles[$field . '/original'][$name]
         );
-        if (empty($this->uploads[$field])) {
-            unset($this->uploads[$field]);
-        }
-        if (empty($this->uploads[$field . '/original'])) {
-            unset($this->uploads[$field . '/original']);
-        }
 
         return true;
     }
@@ -368,21 +301,21 @@ class FormFlash implements \JsonSerializable
     /**
      * @return array
      */
-    public function jsonSerialize() : array
+    public function jsonSerialize(): array
     {
         return [
             'form' => $this->formName,
             'unique_id' => $this->uniqueId,
             'url' => $this->url,
             'user' => $this->user,
-            'uploads' => $this->uploads
+            'files' => $this->files
         ];
     }
 
     /**
      * @return string
      */
-    public function getTmpDir() : string
+    public function getTmpDir(): string
     {
         return static::getSessionTmpDir($this->sessionId) . '/' . $this->uniqueId;
     }
@@ -390,7 +323,7 @@ class FormFlash implements \JsonSerializable
     /**
      * @return YamlFile
      */
-    protected function getTmpIndex() : YamlFile
+    protected function getTmpIndex(): YamlFile
     {
         // Do not use CompiledYamlFile as the file can change multiple times per second.
         return YamlFile::instance($this->getTmpDir() . '/index.yaml');
@@ -399,7 +332,7 @@ class FormFlash implements \JsonSerializable
     /**
      * @param string $name
      */
-    protected function removeTmpFile(string $name) : void
+    protected function removeTmpFile(string $name): void
     {
         $filename = $this->getTmpDir() . '/' . $name;
         if ($name && is_file($filename)) {
@@ -407,11 +340,52 @@ class FormFlash implements \JsonSerializable
         }
     }
 
-    protected function removeTmpDir() : void
+    protected function removeTmpDir(): void
     {
         $tmpDir = $this->getTmpDir();
         if (file_exists($tmpDir)) {
             Folder::delete($tmpDir);
         }
+    }
+
+    /**
+     * @param string $field
+     * @param string $name
+     * @param array $data
+     * @param array|null $crop
+     */
+    protected function addFileInternal(string $field, string $name, array $data, array $crop = null)
+    {
+        if (!isset($this->files[$field])) {
+            $this->files[$field] = [];
+        }
+
+        $field = $field ?: 'undefined';
+        $oldUpload = $this->files[$field][$name] ?? null;
+
+        if ($crop) {
+            // Deal with crop upload
+            if ($oldUpload) {
+                $originalUpload = $this->files[$field . '/original'][$name] ?? null;
+                if ($originalUpload) {
+                    // If there is original file already present, remove the modified file
+                    $this->removeTmpFile($oldUpload['tmp_name'] ?? '');
+                } else {
+                    // Otherwise make the previous file as original
+                    $oldUpload['crop'] = $crop;
+                    $this->files[$field . '/original'][$name] = $oldUpload;
+                }
+            }
+        } else {
+            // Deal with replacing upload
+            $originalUpload = $this->files[$field . '/original'][$name] ?? null;
+            $this->files[$field . '/original'][$name] = null;
+
+            $this->removeTmpFile($oldUpload['tmp_name'] ?? '');
+            $this->removeTmpFile($originalUpload['tmp_name'] ?? '');
+        }
+
+        // Prepare data to be saved later
+        $this->files[$field][$name] = $data;
     }
 }
