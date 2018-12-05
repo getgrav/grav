@@ -18,6 +18,7 @@ use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\FormFlash;
 use Grav\Framework\Route\Route;
+use Grav\Framework\Session\Session;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -408,7 +409,12 @@ class FlexForm implements FlexFormInterface
     protected function getFlash()
     {
         if (null === $this->flash) {
-            $this->flash = new FormFlash($this->getName(), $this->getUniqueId());
+            $grav = Grav::instance();
+
+            /** @var Session $session */
+            $session = $grav['session'];
+
+            $this->flash = new FormFlash($session->getId(), $this->getUniqueId(), $this->getName());
         }
 
         return $this->flash;
