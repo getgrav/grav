@@ -354,7 +354,7 @@ class FormFlash implements \JsonSerializable
      * @param array $data
      * @param array|null $crop
      */
-    protected function addFileInternal(string $field, string $name, array $data, array $crop = null)
+    protected function addFileInternal(?string $field, string $name, array $data, array $crop = null)
     {
         if (!isset($this->files[$field])) {
             $this->files[$field] = [];
