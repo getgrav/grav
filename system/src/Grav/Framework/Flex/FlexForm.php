@@ -205,10 +205,14 @@ class FlexForm implements FlexFormInterface
                 throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
             }
 
+            $flash = $this->getFlash();
+
             $data = $request->getParsedBody();
-            $files = $request->getUploadedFiles();
+            $files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
 
             $this->submit($data, $files);
+
+            $flash->delete();
         } catch (\Exception $e) {
             $this->errors[] = $e->getMessage();
         }
@@ -449,15 +453,16 @@ class FlexForm implements FlexFormInterface
     {
         $this->validate();
 
+        /** @var FlexObject $object */
         $object = clone $this->getObject();
         $object->update($data);
 
-        if (method_exists($object, 'triggerEvent')) {
-            $object->triggerEvent('onSave');
+        if ($files && method_exists($object, 'upload')) {
+            $object->upload($files);
         }
 
-        if (method_exists($object, 'upload')) {
-            $object->upload($files);
+        if (method_exists($object, 'triggerEvent')) {
+            $object->triggerEvent('onSave');
         }
 
         $object->save();
@@ -468,6 +473,9 @@ class FlexForm implements FlexFormInterface
     protected function checkUploads(array $files): void
     {
         foreach ($files as $file) {
+            if (null === $file) {
+                continue;
+            }
             if ($file instanceof UploadedFileInterface) {
                 $this->checkUpload($file);
             } else {

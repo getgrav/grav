@@ -55,7 +55,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
             throw new \InvalidArgumentException('Invalid path provided for move operation; must be a non-empty string');
         }
 
-        $this->moved = \rename($this->getTmpFile(), $targetPath);
+        $this->moved = \copy($this->getTmpFile(), $targetPath);
 
         if (false === $this->moved) {
             throw new \RuntimeException(\sprintf('Uploaded file could not be moved to %s', $targetPath));

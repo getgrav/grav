@@ -109,11 +109,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param array $data
-     * @param bool $isFullUpdate
      * @return $this
      * @throws ValidationException
      */
-    public function update(array $data, $isFullUpdate = false)
+    public function update(array $data)
     {
         // Validate and filter the incoming data.
         $blueprint = $this->getFlexDirectory()->getBlueprint();
@@ -121,11 +120,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         // Filter updated data.
         $this->filterElements($data);
 
-        if (!$isFullUpdate) {
-            // Partial update: merge data to the existing object.
-            $elements = $this->getElements();
-            $data = $blueprint->mergeData($elements, $data);
-        }
+        // Merge data to the existing object.
+        $elements = $this->getElements();
+        $data = $blueprint->mergeData($elements, $data);
 
         // Validate and filter elements and throw an error if any issues were found.
         $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);

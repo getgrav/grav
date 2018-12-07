@@ -231,7 +231,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param bool $isFullUpdate
      * @return FlexObject
      */
-    public function update(array $data, string $key = null, bool $isFullUpdate = false) : FlexObject
+    public function update(array $data, string $key = null) : FlexObject
     {
         $object = null !== $key ? $this->getIndex()->get($key) : null;
 
@@ -248,7 +248,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
         } else {
             $oldKey = $object->getStorageKey();
-            $object->update($data, $isFullUpdate);
+            $object->update($data);
             $newKey = $object->getStorageKey();
 
             if ($oldKey !== $newKey) {

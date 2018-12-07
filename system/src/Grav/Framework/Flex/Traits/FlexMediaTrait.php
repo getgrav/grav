@@ -115,6 +115,7 @@ trait FlexMediaTrait
             $uploadedFile->moveTo($filepath);
         } catch (\Exception $e) {
             $language = $grav['language'];
+
             throw new RuntimeException($language->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
         }
 
