@@ -89,7 +89,7 @@ class YamlFormatter extends AbstractFormatter
         if (\function_exists('yaml_parse') && $this->useNativeDecoder()) {
             // Safely decode YAML.
             $saved = @ini_get('yaml.decode_php');
-            @ini_set('yaml.decode_php', 0);
+            @ini_set('yaml.decode_php', '0');
             $decoded = @yaml_parse($data);
             @ini_set('yaml.decode_php', $saved);
 
