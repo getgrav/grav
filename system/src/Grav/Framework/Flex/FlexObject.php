@@ -320,6 +320,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if (!$block) {
             $block = HtmlBlock::create($key);
             $block->setChecksum($checksum);
+            if ($key === false) {
+                $block->disableCache();
+            }
 
             $grav->fireEvent('onFlexObjectRender', new Event([
                 'object' => $this,
@@ -339,7 +342,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $block->setContent($output);
 
             try {
-                $cache && $cache->set($key, $block->toArray());
+                $cache && $block->isCached() && $cache->set($key, $block->toArray());
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }
