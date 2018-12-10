@@ -24,6 +24,7 @@
     * Fixed `Medium::relativePath()` for streams
     * Fixed `Object` serialization breaking if overriding `jsonSerialize()` method
     * Grav 1.6: Fixed `FlexObject::update()` call with partial object update
+    * Fixed `YamlFormatter::decode()` when calling `init_set()` with integer
 
 # v1.6.0-beta.6
 ## 11/12/2018
