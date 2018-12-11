@@ -29,7 +29,7 @@ class ContentBlock implements ContentBlockInterface
     protected $content = '';
     protected $blocks = [];
     protected $checksum;
-    protected $cached;
+    protected $cached = true;
 
     /**
      * @param string $id
@@ -139,9 +139,6 @@ class ContentBlock implements ContentBlockInterface
         $tokens = [];
         $replacements = [];
         foreach ($this->blocks as $block) {
-            if ($block->isCached() === false) {
-                $this->disableCache();
-            }
             $tokens[] = $block->getToken();
             $replacements[] = $block->toString();
         }
@@ -188,7 +185,17 @@ class ContentBlock implements ContentBlockInterface
      */
     public function isCached()
     {
-        return $this->cached ?? true;
+        if (!$this->cached) {
+            return false;
+        }
+
+        foreach ($this->blocks as $block) {
+            if (!$block->isCached()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
