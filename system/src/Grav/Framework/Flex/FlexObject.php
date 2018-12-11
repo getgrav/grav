@@ -109,27 +109,34 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param array $data
+     * @param array| $files
      * @return $this
      * @throws ValidationException
      */
-    public function update(array $data)
+    public function update(array $data, array $files = [])
     {
         // Validate and filter the incoming data.
         $blueprint = $this->getFlexDirectory()->getBlueprint();
 
-        // Filter updated data.
-        $this->filterElements($data);
+        if ($files && method_exists($this, 'updateMediaFiles')) {
+            $this->updateMediaFiles($files);
+        }
 
-        // Merge data to the existing object.
-        $elements = $this->getElements();
-        $data = $blueprint->mergeData($elements, $data);
+        if ($data) {
+            // Filter updated data.
+            $this->filterElements($data);
 
-        // Validate and filter elements and throw an error if any issues were found.
-        $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
-        $data = $blueprint->filter($data);
+            // Merge data to the existing object.
+            $elements = $this->getElements();
+            $data = $blueprint->mergeData($elements, $data);
 
-        // Finally update the object.
-        $this->setElements($data);
+            // Validate and filter elements and throw an error if any issues were found.
+            $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
+            $data = $blueprint->filter($data);
+
+            // Finally update the object.
+            $this->setElements($data);
+        }
 
         return $this;
     }
@@ -175,6 +182,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * @param string $name
      * @return Blueprint
      */
     public function getBlueprint(string $name = '')
@@ -266,6 +274,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * Twig example: {% render object layout 'edit' with {my_check: true} %}
+     *
      * @param string $layout
      * @param array $context
      * @return HtmlBlock

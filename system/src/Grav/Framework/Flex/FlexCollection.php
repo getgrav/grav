@@ -118,6 +118,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * Twig example: {% render collection layout 'edit' with {my_check: true} %}
+     *
      * @param string $layout
      * @param array $context
      * @return HtmlBlock

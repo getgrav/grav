@@ -220,6 +220,29 @@ class FlexForm implements FlexFormInterface
         return $this;
     }
 
+    public function setRequest(ServerRequestInterface $request): FlexFormInterface
+    {
+        $method = $request->getMethod();
+        if (!\in_array($method, ['PUT', 'POST', 'PATCH'])) {
+            throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
+        }
+
+        $flash = $this->getFlash();
+
+        $files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
+        $body = $request->getParsedBody();
+
+        $this->files = $files ?? [];
+        $this->data = new Data($this->decodeData($body['data'] ?? []), $this->getBlueprint());
+
+        return $this;
+    }
+
+    public function updateObject(): FlexObjectInterface
+    {
+        return $this->getObject()->update($this->data->toArray(), $this->files);
+    }
+
     /**
      * @return bool
      */
@@ -245,6 +268,33 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * @return bool
+     */
+    public function validate(): bool
+    {
+        if ($this->errors) {
+            return false;
+        }
+
+        try {
+            $this->data->validate();
+            $this->data->filter();
+            $this->checkUploads($this->files);
+        } catch (ValidationException $e) {
+            $list = [];
+            foreach ($e->getMessages() as $field => $errors) {
+                $list[] = $errors;
+            }
+            $list = array_merge(...$list);
+            $this->errors = $list;
+        }  catch (\Exception $e) {
+            $this->errors[] = $e->getMessage();
+        }
+
+        return empty($this->errors);
+    }
+
+    /**
      * @param array $data
      * @param UploadedFileInterface[] $files
      * @return $this
@@ -258,21 +308,15 @@ class FlexForm implements FlexFormInterface
 
             $this->files = $files ?? [];
             $this->data = new Data($this->decodeData($data['data'] ?? []), $this->getBlueprint());
-            if ($this->getErrors()) {
+
+            if (!$this->validate()) {
                 return $this;
             }
 
             $this->doSubmit($this->data->toArray(), $this->files);
 
             $this->submitted = true;
-        } catch (ValidationException $e) {
-            $list = [];
-            foreach ($e->getMessages() as $field => $errors) {
-                $list[] = $errors;
-            }
-            $list = array_merge(...$list);
-            $this->errors = $list;
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->errors[] = $e->getMessage();
         }
 
@@ -288,6 +332,11 @@ class FlexForm implements FlexFormInterface
         $this->files = [];
         $this->errors = [];
         $this->submitted = false;
+
+        // Also make sure that the flash object gets deleted.
+        $flash = $this->getFlash();
+        $flash->delete();
+        $this->flash = null;
 
         return $this;
     }
@@ -410,7 +459,7 @@ class FlexForm implements FlexFormInterface
      *
      * @return FormFlash
      */
-    protected function getFlash()
+    protected function getFlash(): FormFlash
     {
         if (null === $this->flash) {
             $grav = Grav::instance();
@@ -422,16 +471,6 @@ class FlexForm implements FlexFormInterface
         }
 
         return $this->flash;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function validate(): void
-    {
-        $this->data->validate();
-        $this->data->filter();
-        $this->checkUploads($this->files);
     }
 
     protected function setErrors(array $errors): void
@@ -451,8 +490,6 @@ class FlexForm implements FlexFormInterface
      */
     protected function doSubmit(array $data, array $files)
     {
-        $this->validate();
-
         /** @var FlexObject $object */
         $object = clone $this->getObject();
         $object->update($data);
