@@ -14,6 +14,7 @@ use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
 use Grav\Common\Security;
+use Grav\Common\Twig\TokenParser\TwigTokenParserRender;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
 use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
@@ -178,6 +179,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function getTokenParsers()
     {
         return [
+            new TwigTokenParserRender(),
             new TwigTokenParserThrow(),
             new TwigTokenParserTryCatch(),
             new TwigTokenParserScript(),
