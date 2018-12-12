@@ -496,12 +496,7 @@ class FlexForm implements FlexFormInterface
     {
         /** @var FlexObject $object */
         $object = clone $this->getObject();
-        $object->update($data);
-
-        if ($files && method_exists($object, 'upload')) {
-            $object->upload($files);
-        }
-
+        $object->update($data, $files);
         $object->save();
 
         $this->setObject($object);

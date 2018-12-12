@@ -118,10 +118,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         // Validate and filter the incoming data.
         $blueprint = $this->getFlexDirectory()->getBlueprint();
 
-        if ($files && method_exists($this, 'updateMediaFiles')) {
-            $this->updateMediaFiles($files);
-        }
-
         if ($data) {
             // Filter updated data.
             $this->filterElements($data);
@@ -136,6 +132,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
             // Finally update the object.
             $this->setElements($data);
+        }
+
+        if ($files && method_exists($this, 'updateMediaFiles')) {
+            $this->updateMediaFiles($files);
         }
 
         return $this;
