@@ -2737,7 +2737,6 @@ class Page implements PageInterface
      * @param string|array $value
      * @param bool $only_published
      * @return mixed
-     * @internal
      */
     public function evaluate($value, $only_published = true)
     {
