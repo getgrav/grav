@@ -134,8 +134,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $this->setElements($data);
         }
 
-        if ($files && method_exists($this, 'updateMediaFiles')) {
-            $this->updateMediaFiles($files);
+        if ($files && method_exists($this, 'setUpdatedMediaFiles')) {
+            $this->setUpdatedMediaFiles($files);
         }
 
         return $this;

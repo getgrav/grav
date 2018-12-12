@@ -190,13 +190,14 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
+     * @param bool $includeOriginal
      * @return array
      */
-    public function getFilesByFields(): array
+    public function getFilesByFields($includeOriginal = false): array
     {
         $list = [];
         foreach ($this->files as $field => $values) {
-            if (strpos($field, '/')) {
+            if (!$includeOriginal && strpos($field, '/')) {
                 continue;
             }
             $list[$field] = $this->getFilesByField($field);

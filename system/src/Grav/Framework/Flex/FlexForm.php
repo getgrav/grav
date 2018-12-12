@@ -207,9 +207,8 @@ class FlexForm implements FlexFormInterface
 
             $flash = $this->getFlash();
 
-            // TODO: Figure out how to deal with newly uploaded files
-            //$files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
-            $files = $flash->getFilesByFields();
+            $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
+            $files = $flash->getFilesByFields($includeOriginal);
             $data = $request->getParsedBody();
 
             $this->submit($data, $files);
@@ -231,9 +230,8 @@ class FlexForm implements FlexFormInterface
 
         $flash = $this->getFlash();
 
-        // TODO: Figure out how to deal with newly uploaded files
-        //$files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
-        $files = $flash->getFilesByFields();
+        $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
+        $files = $flash->getFilesByFields($includeOriginal);
         $body = $request->getParsedBody();
 
         $this->files = $files ?? [];
@@ -567,8 +565,7 @@ class FlexForm implements FlexFormInterface
                 $value = json_decode($value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
                     unset($data[$key]);
-                    // FIXME: add back
-                    //$this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
+                    $this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
                 }
             }
         }
