@@ -26,6 +26,7 @@
     * Fixed `Object` serialization breaking if overriding `jsonSerialize()` method
     * Grav 1.6: Fixed `FlexObject::update()` call with partial object update
     * Fixed `YamlFormatter::decode()` when calling `init_set()` with integer
+    * Fixed session throwing error in CLI if initialized
 
 # v1.6.0-beta.6
 ## 11/12/2018

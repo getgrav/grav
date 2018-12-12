@@ -31,7 +31,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function init()
     {
-        if ($this->autoStart) {
+        if ($this->autoStart && !$this->isStarted()) {
             $this->start();
 
             $this->autoStart = false;
