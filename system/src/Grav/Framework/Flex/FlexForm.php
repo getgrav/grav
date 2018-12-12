@@ -207,8 +207,10 @@ class FlexForm implements FlexFormInterface
 
             $flash = $this->getFlash();
 
+            // TODO: Figure out how to deal with newly uploaded files
+            //$files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
+            $files = $flash->getFilesByFields();
             $data = $request->getParsedBody();
-            $files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
 
             $this->submit($data, $files);
 
@@ -229,7 +231,9 @@ class FlexForm implements FlexFormInterface
 
         $flash = $this->getFlash();
 
-        $files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
+        // TODO: Figure out how to deal with newly uploaded files
+        //$files = array_merge_recursive($flash->getFilesByFields(), $request->getUploadedFiles());
+        $files = $flash->getFilesByFields();
         $body = $request->getParsedBody();
 
         $this->files = $files ?? [];
@@ -496,10 +500,6 @@ class FlexForm implements FlexFormInterface
 
         if ($files && method_exists($object, 'upload')) {
             $object->upload($files);
-        }
-
-        if (method_exists($object, 'triggerEvent')) {
-            $object->triggerEvent('onSave');
         }
 
         $object->save();
