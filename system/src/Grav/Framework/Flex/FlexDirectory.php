@@ -242,9 +242,9 @@ class FlexDirectory implements FlexAuthorizeInterface
             $key = $object->getStorageKey();
 
             if ($key) {
-                $rows = $storage->replaceRows([$key => $object->triggerEvent('onSave')->prepareStorage()]);
+                $rows = $storage->replaceRows([$key => $object->prepareStorage()]);
             } else {
-                $rows = $storage->createRows([$object->triggerEvent('onSave')->prepareStorage()]);
+                $rows = $storage->createRows([$object->prepareStorage()]);
             }
         } else {
             $oldKey = $object->getStorageKey();
@@ -284,17 +284,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             return null;
         }
 
-        $this->getStorage()->deleteRows([$object->getStorageKey() => $object->triggerEvent('onRemove')->prepareStorage()]);
-
-        try {
-            $this->clearCache();
-        } catch (InvalidArgumentException $e) {
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
-            $debugger->addException($e);
-
-            // Caching failed, but we can ignore that for now.
-        }
+        $object->delete();
 
         return $object;
     }

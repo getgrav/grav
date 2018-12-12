@@ -455,6 +455,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function save()
     {
+        $this->triggerEvent('onBeforeSave');
+
         $result = $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
 
         try {
@@ -476,9 +478,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $this->setStorageKey($storageKey);
         }
 
-        Grav::instance()->fireEvent('onFlexObjectSave', new Event([
-            'object' => $this
-        ]));
+        $this->triggerEvent('onAfterSave');
 
         return $this;
     }
@@ -488,6 +488,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function delete()
     {
+        $this->triggerEvent('onBeforeDelete');
+
         $this->getFlexDirectory()->getStorage()->deleteRows([$this->getStorageKey() => $this->prepareStorage()]);
 
         try {
@@ -503,9 +505,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             // Caching failed, but we can ignore that for now.
         }
 
-        Grav::instance()->fireEvent('onFlexObjectDelete', new Event([
-            'object' => $this
-        ]));
+        $this->triggerEvent('onAfterDelete');
 
         return $this;
     }
