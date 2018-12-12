@@ -476,6 +476,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $this->setStorageKey($storageKey);
         }
 
+        Grav::instance()->fireEvent('onFlexObjectSave', new Event([
+            'object' => $this
+        ]));
+
         return $this;
     }
 
@@ -498,6 +502,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
             // Caching failed, but we can ignore that for now.
         }
+
+        Grav::instance()->fireEvent('onFlexObjectDelete', new Event([
+            'object' => $this
+        ]));
 
         return $this;
     }
