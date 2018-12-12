@@ -159,6 +159,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             return $this;
         }
 
+        $type = $keyField === 'flex_key' ? $this->_flexDirectory->getType() . '.obj:' : '';
         $entries = [];
         foreach ($this->getEntries() as $key => $value) {
             if (!isset($value['key'])) {
@@ -167,6 +168,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
             if (isset($value[$keyField])) {
                 $entries[$value[$keyField]] = $value;
+            } elseif ($keyField === 'flex_key') {
+                $entries[$type . $value['storage_key']] = $value;
             }
         }
 
