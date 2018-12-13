@@ -125,6 +125,11 @@ trait FlexMediaTrait
                 }
                 if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
                     $uploadedFile->moveTo($filepath);
+                } elseif (!file_exists($filepath) && $pos = strpos($filename, '/')) {
+                    $origpath = sprintf('%s/%s', $path, substr($filename, $pos));
+                    if (file_exists($origpath)) {
+                        copy($origpath, $filepath);
+                    }
                 }
             } else {
                 $uploadedFile->moveTo($filepath);
@@ -172,7 +177,6 @@ trait FlexMediaTrait
         }
 
         if (file_exists($targetFile)) {
-
             $result = unlink($targetFile);
             if (!$result) {
                 throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
