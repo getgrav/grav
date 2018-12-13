@@ -370,12 +370,19 @@ class FormFlash implements \JsonSerializable
                 $originalUpload = $this->files[$field . '/original'][$name] ?? null;
                 if ($originalUpload) {
                     // If there is original file already present, remove the modified file
+                    $originalUpload['crop'] = $crop;
                     $this->removeTmpFile($oldUpload['tmp_name'] ?? '');
                 } else {
                     // Otherwise make the previous file as original
                     $oldUpload['crop'] = $crop;
                     $this->files[$field . '/original'][$name] = $oldUpload;
                 }
+            } else {
+                $this->files[$field . '/original'][$name] = [
+                    'name' => $name,
+                    'type' => $data['type'],
+                    'crop' => $crop
+                ];
             }
         } else {
             // Deal with replacing upload

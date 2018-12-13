@@ -45,6 +45,9 @@ trait FlexMediaTrait
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
+                if ($uploadedFile instanceof FormFlashFile) {
+                    break;
+                }
                 throw new RuntimeException($language->translate('PLUGIN_ADMIN.NO_FILES_SENT'), 400);
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
@@ -120,8 +123,12 @@ trait FlexMediaTrait
                     $file = YamlFile::instance($filepath . '.meta.yaml');
                     $file->save(['upload' => $metadata]);
                 }
+                if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
+                    $uploadedFile->moveTo($filepath);
+                }
+            } else {
+                $uploadedFile->moveTo($filepath);
             }
-            $uploadedFile->moveTo($filepath);
         } catch (\Exception $e) {
             $language = $grav['language'];
 
