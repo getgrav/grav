@@ -27,6 +27,8 @@ class FormFlash implements \JsonSerializable
     /** @var array */
     protected $user;
     /** @var array */
+    protected $data;
+    /** @var array */
     protected $files;
     /** @var array */
     protected $uploadedFiles;
@@ -63,7 +65,7 @@ class FormFlash implements \JsonSerializable
             $this->user = $data['user'] ?? null;
             $this->files = $data['files'] ?? [];
         } else {
-            $this->formName = '';
+            $this->formName = $formName;
             $this->url = '';
             $this->files = [];
         }
@@ -171,6 +173,15 @@ class FormFlash implements \JsonSerializable
         return $this;
     }
 
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    public function setData(array $data)
+    {
+        $this->data = $data;
+    }
 
     /**
      * @param string $field
@@ -309,6 +320,7 @@ class FormFlash implements \JsonSerializable
             'unique_id' => $this->uniqueId,
             'url' => $this->url,
             'user' => $this->user,
+            'data' => $this->data,
             'files' => $this->files
         ];
     }
