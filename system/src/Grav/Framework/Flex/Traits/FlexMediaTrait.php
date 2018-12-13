@@ -27,7 +27,14 @@ trait FlexMediaTrait
 {
     use MediaTrait;
 
-    private $uploads;
+    protected $uploads;
+
+    public function __debugInfo()
+    {
+        return parent::__debugInfo() + [
+            'uploads:private' => $this->getUpdatedMedia()
+        ];
+    }
 
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
     {
@@ -188,9 +195,9 @@ trait FlexMediaTrait
     }
 
     /**
-     * @param array|null $files
+     * @param array $files
      */
-    protected function setUpdatedMediaFiles(?array $files): void
+    protected function setUpdatedMedia(array $files): void
     {
         $list = [];
         foreach ($files as $group) {
@@ -203,10 +210,25 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return array|null
+     * @return array
      */
-    protected function getUpdatedMediaFiles(): ?array
+    protected function getUpdatedMedia(): array
     {
-        return $this->uploads;
+        return $this->uploads ?? [];
+    }
+
+    protected function saveUpdatedMedia(): void
+    {
+        /**
+         * @var string $filename
+         * @var UploadedFileInterface $file
+         */
+        foreach ($this->getUpdatedMedia() as $filename => $file) {
+            if ($file) {
+                $this->uploadMediaFile($file, $filename);
+            } else {
+                $this->deleteMediaFile($filename);
+            }
+        }
     }
 }

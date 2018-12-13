@@ -109,7 +109,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param array $data
-     * @param array| $files
+     * @param array $files
      * @return $this
      * @throws ValidationException
      */
@@ -134,8 +134,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $this->setElements($data);
         }
 
-        if ($files && method_exists($this, 'setUpdatedMediaFiles')) {
-            $this->setUpdatedMediaFiles($files);
+        if ($files && method_exists($this, 'setUpdatedMedia')) {
+            $this->setUpdatedMedia($files);
         }
 
         return $this;
@@ -458,6 +458,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->triggerEvent('onBeforeSave');
 
         $result = $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
+        if (method_exists($this, 'saveUpdatedMedia')) {
+            $this->saveUpdatedMedia();
+        }
 
         try {
             $this->getFlexDirectory()->clearCache();
