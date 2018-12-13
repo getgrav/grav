@@ -160,6 +160,10 @@ trait FlexMediaTrait
 
         $fileParts  = pathinfo($basename);
 
+        if (!file_exists($targetPath)) {
+            return;
+        }
+
         if (file_exists($targetFile)) {
 
             $result = unlink($targetFile);
