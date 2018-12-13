@@ -234,5 +234,7 @@ trait FlexMediaTrait
                 $this->deleteMediaFile($filename);
             }
         }
+
+        $this->setUpdatedMedia([]);
     }
 }
