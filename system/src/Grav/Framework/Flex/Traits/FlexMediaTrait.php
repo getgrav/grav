@@ -27,7 +27,7 @@ trait FlexMediaTrait
 {
     use MediaTrait;
 
-    protected $uploads;
+    protected $_uploads;
 
     public function __debugInfo()
     {
@@ -210,7 +210,7 @@ trait FlexMediaTrait
             }
         }
 
-        $this->uploads = $list;
+        $this->_uploads = $list;
     }
 
     /**
@@ -218,7 +218,7 @@ trait FlexMediaTrait
      */
     protected function getUpdatedMedia(): array
     {
-        return $this->uploads ?? [];
+        return $this->_uploads ?? [];
     }
 
     protected function saveUpdatedMedia(): void

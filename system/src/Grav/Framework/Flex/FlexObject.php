@@ -458,6 +458,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->triggerEvent('onBeforeSave');
 
         $result = $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
+
+        $value = reset($result);
+        $storageKey = key($result);
+        if ($value && $storageKey) {
+            $this->setStorageKey($storageKey);
+        }
+
         if (method_exists($this, 'saveUpdatedMedia')) {
             $this->saveUpdatedMedia();
         }
@@ -473,12 +480,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $debugger->addException($e);
 
             // Caching failed, but we can ignore that for now.
-        }
-
-        $value = reset($result);
-        $storageKey = key($result);
-        if ($value && $storageKey) {
-            $this->setStorageKey($storageKey);
         }
 
         $this->triggerEvent('onAfterSave');
