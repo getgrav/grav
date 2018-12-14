@@ -2,6 +2,7 @@
 ## mm/dd/2018
 
 1. [](#improved)
+    * Updated InitializeProcessor.php to use lang-safe redirect [#2268](https://github.com/getgrav/grav/pull/2268)
     * Improved user serialization to use less memory in the session
 
 # v1.5.5
