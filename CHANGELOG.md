@@ -1,5 +1,5 @@
 # v1.6.0-beta.7
-## mm/dd/2018
+## 12/14/2018
 
 1. [](#new)
     * Updated Symfony Components to 4.2
