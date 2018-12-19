@@ -325,10 +325,7 @@ class FlexForm implements FlexFormInterface
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function reset(): FlexFormInterface
+    public function reset(): void
     {
         $this->data = null;
         $this->files = [];
@@ -339,8 +336,6 @@ class FlexForm implements FlexFormInterface
         $flash = $this->getFlash();
         $flash->delete();
         $this->flash = null;
-
-        return $this;
     }
 
     /**
