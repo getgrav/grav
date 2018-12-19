@@ -1,3 +1,10 @@
+# v1.6.0-beta.8
+## mm/dd/2018
+
+1. [](#new)
+    * Added `Grav\Framework\Form\Interfaces\FormInterface`
+    * Added `Page::forms()` method to get normalized list of all forms defined in the page
+
 # v1.6.0-beta.7
 ## 12/14/2018
 
