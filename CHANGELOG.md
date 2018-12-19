@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `Grav\Framework\Form\Interfaces\FormInterface`
+    * Added `Grav\Framework\Form\Interfaces\FormFactoryInterface`
     * Added `Page::forms()` method to get normalized list of all form headers defined in the page
 
 # v1.6.0-beta.7
