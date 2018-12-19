@@ -1217,7 +1217,7 @@ class Page implements PageInterface
             $forms[$name] = $form;
         }
         // Append page.header.forms (override singular form if it clashes)
-        if (\is_array($header->forms)) {
+        if (isset($header->forms) && \is_array($header->forms)) {
             foreach ($header->forms as $name => $form) {
                 if (\is_array($form)) {
                     $name = !\is_int($name) ? $name : ($form['name'] ?? $this->slug());
