@@ -85,17 +85,19 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
     /**
      * Returns the blueprint for the object.
      *
+     * @param string $name
      * @return Blueprint
      */
-    public function getBlueprint();
+    public function getBlueprint(string $name = '');
 
     /**
      * Returns a form instance for the object.
      *
      * @param string $name
+     * @param array|null $form
      * @return FlexForm
      */
-    public function getForm(string $name = '');
+    public function getForm(string $name = '', array $form = null);
 
     /**
      * @param string $layout

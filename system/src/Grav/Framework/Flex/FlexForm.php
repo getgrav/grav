@@ -44,17 +44,23 @@ class FlexForm implements FlexFormInterface
     private $files;
     /** @var FlexObjectInterface */
     private $object;
+    /** @var array $form */
+    private $form;
     /** @var FormFlash */
     private $flash;
+    /** @var Blueprint */
+    private $blueprint;
 
     /**
      * FlexForm constructor.
      * @param string $name
      * @param FlexObjectInterface $object
+     * @param array|null $form
      */
-    public function __construct(string $name, FlexObjectInterface $object)
+    public function __construct(string $name, FlexObjectInterface $object, array $form = null)
     {
         $this->name = $name;
+        $this->form = $form;
         $this->setObject($object);
         $this->setId($this->getName());
         $this->reset();
@@ -353,7 +359,30 @@ class FlexForm implements FlexFormInterface
      */
     public function getBlueprint(): Blueprint
     {
-        return $this->getObject()->getBlueprint($this->name);
+        if (null === $this->blueprint) {
+            try {
+                $blueprint = $this->getObject()->getBlueprint($this->name);
+                if ($this->form) {
+                    // We have field overrides available.
+                    $blueprint->extend(['form' => $this->form], true);
+                    $blueprint->init();
+                }
+            } catch (\RuntimeException $e) {
+                if (!isset($this->form['fields'])) {
+                    throw $e;
+                }
+
+                // Blueprint is not defined, but we have custom form fields available.
+                $blueprint = new Blueprint(null, ['form' => $this->form]);
+                $blueprint->load();
+                $blueprint->setScope('object');
+                $blueprint->init();
+            }
+
+            $this->blueprint = $blueprint;
+        }
+
+        return $this->blueprint;
     }
 
     /**

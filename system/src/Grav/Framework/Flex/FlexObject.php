@@ -170,12 +170,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param string $name
+     * @param array|null $form
      * @return FlexForm
      */
-    public function getForm(string $name = '')
+    public function getForm(string $name = '', array $form = null)
     {
         if (!isset($this->_forms[$name])) {
-            $this->_forms[$name] = $this->createFormObject($name);
+            $this->_forms[$name] = $this->createFormObject($name, $form);
         }
 
         return $this->_forms[$name];
@@ -690,10 +691,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * This methods allows you to override form objects in child classes.
      *
      * @param string $name Form name
+     * @param array|null $form Form fields
      * @return FlexFormInterface
      */
-    protected function createFormObject(string $name): FlexFormInterface
+    protected function createFormObject(string $name, array $form = null): FlexFormInterface
     {
-        return new FlexForm($name, $this);
+        return new FlexForm($name, $this, $form);
     }
 }
