@@ -355,6 +355,26 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * Return form buttons
+     *
+     * @return array
+     */
+    public function getButtons(): array
+    {
+        return $this->getBlueprint()['form']['buttons'] ?? [];
+    }
+
+    /**
+     * Return form buttons
+     *
+     * @return array
+     */
+    public function getTasks(): array
+    {
+        return $this->getBlueprint()['form']['tasks'] ?? [];
+    }
+
+    /**
      * @return Blueprint
      */
     public function getBlueprint(): Blueprint
