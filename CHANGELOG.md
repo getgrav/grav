@@ -5,7 +5,8 @@
     * Added `Grav\Framework\Form\Interfaces\FormInterface`
     * Added `Grav\Framework\Form\Interfaces\FormFactoryInterface`
     * Added `Page::forms()` method to get normalized list of all form headers defined in the page
-    * Added `onPageAction`, `onPageTask`, `onPageAction.{$action}` and `onPageTask.{$action}` events
+    * Added `onPageAction`, `onPageTask`, `onPageAction.{$action}` and `onPageTask.{$task}` events
+    * Added `Blueprint::processForm()` method to filter form inputs
 
 # v1.6.0-beta.7
 ## 12/14/2018

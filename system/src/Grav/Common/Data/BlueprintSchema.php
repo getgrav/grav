@@ -64,6 +64,16 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     }
 
     /**
+     * @param array $data
+     * @param array $toggles
+     * @return array
+     */
+    public function processForm(array $data, array $toggles = [])
+    {
+        return $this->processFormRecursive($data, $toggles, $this->nested);
+    }
+
+    /**
      * Filter data by using blueprints.
      *
      * @param  array $data                  Incoming data, for example from a form.
@@ -158,6 +168,52 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         }
 
         return $results;
+    }
+
+
+    /**
+     * @param array $data
+     * @param array $toggles
+     * @param array $nested
+     * @return array
+     */
+    protected function processFormRecursive(array $data, array $toggles, array $nested)
+    {
+        foreach ($nested as $key => $value) {
+            if ($key === '') {
+                continue;
+            }
+            if ($key === '*') {
+                // TODO: Add support to collections.
+                continue;
+            }
+            if (is_array($value)) {
+                // Recursively fetch the items.
+                $array = $this->processFormRecursive($data[$key] ?? [], $toggles[$key] ?? [], $value);
+
+                if (!empty($array)) {
+                    $data[$key] = $array;
+                }
+            } else {
+                $field = $this->get($value);
+                // Do not add the field if:
+                if (
+                    // Not an input field
+                    !$field
+                    // Field validation is set to be ignored
+                    || !empty($field['validate']['ignore'])
+                    // Field is toggleable and the toggle is turned off
+                    || (!empty($field['toggleable']) && empty($toggles[$key]))
+                ) {
+                    continue;
+                }
+                if (!isset($data[$key])) {
+                    $data[$key] = null;
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**

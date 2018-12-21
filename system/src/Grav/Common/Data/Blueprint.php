@@ -75,6 +75,20 @@ class Blueprint extends BlueprintForm
     }
 
     /**
+     * Process data coming from a form.
+     *
+     * @param array $data
+     * @param array $toggles
+     * @return array
+     */
+    public function processForm(array $data, array $toggles = [])
+    {
+        $this->initInternals();
+
+        return $this->blueprintSchema->processForm($data, $toggles);
+    }
+
+    /**
      * Return data fields that do not exist in blueprints.
      *
      * @param  array  $data
@@ -268,7 +282,7 @@ class Blueprint extends BlueprintForm
      */
     protected function dynamicSecurity(array &$field, $property, array &$call)
     {
-        if ($property) {
+        if ($property || !empty($field['validate']['ignore'])) {
             return;
         }
 

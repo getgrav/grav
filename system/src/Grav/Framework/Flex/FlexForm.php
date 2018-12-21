@@ -213,9 +213,12 @@ class FlexForm implements FlexFormInterface
 
             $flash = $this->getFlash();
 
-            $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
+            $blueprint = $this->getBlueprint();
+            $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
             $files = $flash->getFilesByFields($includeOriginal);
-            $data = $request->getParsedBody();
+            $body = $request->getParsedBody();
+
+            $data = $blueprint->processForm($this->decodeData($body['data'] ?? []), $body['toggleable_data'] ?? []);
 
             $this->submit($data, $files);
 
@@ -236,12 +239,15 @@ class FlexForm implements FlexFormInterface
 
         $flash = $this->getFlash();
 
-        $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
+        $blueprint = $this->getBlueprint();
+        $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
         $files = $flash->getFilesByFields($includeOriginal);
         $body = $request->getParsedBody();
 
+        $data = $blueprint->processForm($this->decodeData($body['data'] ?? []), $body['toggleable_data'] ?? []);
+
         $this->files = $files ?? [];
-        $this->data = new Data($this->decodeData($body['data'] ?? []), $this->getBlueprint());
+        $this->data = new Data($data, $this->getBlueprint());
 
         return $this;
     }
@@ -315,7 +321,7 @@ class FlexForm implements FlexFormInterface
             }
 
             $this->files = $files ?? [];
-            $this->data = new Data($this->decodeData($data['data'] ?? []), $this->getBlueprint());
+            $this->data = new Data($data, $this->getBlueprint());
 
             if (!$this->validate()) {
                 return $this;
