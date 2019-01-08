@@ -12,12 +12,12 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
+use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
-use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
-use Grav\Framework\Form\FormFlash;
 use Grav\Framework\Route\Route;
+use Grav\Framework\Session\Session;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -43,20 +43,40 @@ class FlexForm implements FlexFormInterface
     private $files;
     /** @var FlexObjectInterface */
     private $object;
+    /** @var array $form */
+    private $form;
     /** @var FormFlash */
     private $flash;
+    /** @var Blueprint */
+    private $blueprint;
 
     /**
      * FlexForm constructor.
      * @param string $name
      * @param FlexObjectInterface $object
+     * @param array|null $form
      */
-    public function __construct(string $name, FlexObjectInterface $object)
+    public function __construct(string $name, FlexObjectInterface $object, array $form = null)
     {
         $this->name = $name;
+        $this->form = $form;
         $this->setObject($object);
         $this->setId($this->getName());
-        $this->reset();
+        $this->setUniqueId(md5($this->getObject()->getStorageKey()));
+        $this->errors = [];
+        $this->submitted = false;
+
+        $flash = $this->getFlash();
+        if ($flash->exists()) {
+            $data = $flash->getData();
+            $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
+
+            $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
+            $this->files = $flash->getFilesByFields($includeOriginal);
+        } else {
+            $this->data = null;
+            $this->files = [];
+        }
     }
 
     /**
@@ -90,10 +110,6 @@ class FlexForm implements FlexFormInterface
      */
     public function getUniqueId(): string
     {
-        if (null === $this->uniqueid) {
-            $this->uniqueid = Utils::generateRandomString(20);
-        }
-
         return $this->uniqueid;
     }
 
@@ -177,11 +193,11 @@ class FlexForm implements FlexFormInterface
      */
     public function getValue(string $name)
     {
-        if (null === $this->data) {
-            return $this->getObject()->getNestedProperty($name);
-        }
+        // Attempt to get value from the form data.
+        $value = $this->data ? $this->data->get($name) : null;
 
-        return $this->data->get($name);
+        // Return the form data or fall back to the object property.
+        return $value ?? $this->getObject()->getNestedProperty($name);
     }
 
     /**
@@ -201,11 +217,22 @@ class FlexForm implements FlexFormInterface
         try {
             $method = $request->getMethod();
             if (!\in_array($method, ['PUT', 'POST', 'PATCH'])) {
-                throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
+                $this->errors[] = sprintf('FlexForm: Bad HTTP method %s', $method);
+                return $this;
             }
 
-            $data = $request->getParsedBody();
-            $files = $request->getUploadedFiles();
+            $body = $request->getParsedBody();
+
+            $flash = $this->getFlash();
+            if (isset($body['data'])) {
+                $flash->setData($body['data'] ?? []);
+                $flash->save();
+            }
+
+            $blueprint = $this->getBlueprint();
+            $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
+            $files = $flash->getFilesByFields($includeOriginal);
+            $data = $blueprint->processForm($this->decodeData($body['data'] ?? []), $body['toggleable_data'] ?? []);
 
             $this->submit($data, $files);
         } catch (\Exception $e) {
@@ -213,6 +240,38 @@ class FlexForm implements FlexFormInterface
         }
 
         return $this;
+    }
+
+    public function setRequest(ServerRequestInterface $request): FlexFormInterface
+    {
+        $method = $request->getMethod();
+        if (!\in_array($method, ['PUT', 'POST', 'PATCH'])) {
+            throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
+        }
+
+        $body = $request->getParsedBody();
+
+        $flash = $this->getFlash();
+        if (isset($body['data'])) {
+            $flash->setData($body['data']);
+            $flash->save();
+        }
+
+        $blueprint = $this->getBlueprint();
+        $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
+        $files = $flash->getFilesByFields($includeOriginal);
+
+        $data = $blueprint->processForm($this->decodeData($body['data'] ?? []), $body['toggleable_data'] ?? []);
+
+        $this->files = $files ?? [];
+        $this->data = new Data($data, $this->getBlueprint());
+
+        return $this;
+    }
+
+    public function updateObject(): FlexObjectInterface
+    {
+        return $this->getObject()->update($this->data->toArray(), $this->files);
     }
 
     /**
@@ -240,6 +299,33 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * @return bool
+     */
+    public function validate(): bool
+    {
+        if ($this->errors) {
+            return false;
+        }
+
+        try {
+            $this->data->validate();
+            $this->data->filter();
+            $this->checkUploads($this->files);
+        } catch (ValidationException $e) {
+            $list = [];
+            foreach ($e->getMessages() as $field => $errors) {
+                $list[] = $errors;
+            }
+            $list = array_merge(...$list);
+            $this->errors = $list;
+        }  catch (\Exception $e) {
+            $this->errors[] = $e->getMessage();
+        }
+
+        return empty($this->errors);
+    }
+
+    /**
      * @param array $data
      * @param UploadedFileInterface[] $files
      * @return $this
@@ -252,39 +338,33 @@ class FlexForm implements FlexFormInterface
             }
 
             $this->files = $files ?? [];
-            $this->data = new Data($this->decodeData($data['data'] ?? []), $this->getBlueprint());
-            if ($this->getErrors()) {
+            $this->data = new Data($data, $this->getBlueprint());
+
+            if (!$this->validate()) {
                 return $this;
             }
 
             $this->doSubmit($this->data->toArray(), $this->files);
 
             $this->submitted = true;
-        } catch (ValidationException $e) {
-            $list = [];
-            foreach ($e->getMessages() as $field => $errors) {
-                $list[] = $errors;
-            }
-            $list = array_merge(...$list);
-            $this->errors = $list;
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->errors[] = $e->getMessage();
         }
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function reset(): FlexFormInterface
+    public function reset(): void
     {
         $this->data = null;
         $this->files = [];
         $this->errors = [];
         $this->submitted = false;
 
-        return $this;
+        // Also make sure that the flash object gets deleted.
+        $flash = $this->getFlash();
+        $flash->delete();
+        $this->flash = null;
     }
 
     /**
@@ -298,11 +378,54 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * Return form buttons
+     *
+     * @return array
+     */
+    public function getButtons(): array
+    {
+        return $this->getBlueprint()['form']['buttons'] ?? [];
+    }
+
+    /**
+     * Return form buttons
+     *
+     * @return array
+     */
+    public function getTasks(): array
+    {
+        return $this->getBlueprint()['form']['tasks'] ?? [];
+    }
+
+    /**
      * @return Blueprint
      */
     public function getBlueprint(): Blueprint
     {
-        return $this->getObject()->getBlueprint($this->name);
+        if (null === $this->blueprint) {
+            try {
+                $blueprint = $this->getObject()->getBlueprint($this->name);
+                if ($this->form) {
+                    // We have field overrides available.
+                    $blueprint->extend(['form' => $this->form], true);
+                    $blueprint->init();
+                }
+            } catch (\RuntimeException $e) {
+                if (!isset($this->form['fields'])) {
+                    throw $e;
+                }
+
+                // Blueprint is not defined, but we have custom form fields available.
+                $blueprint = new Blueprint(null, ['form' => $this->form]);
+                $blueprint->load();
+                $blueprint->setScope('object');
+                $blueprint->init();
+            }
+
+            $this->blueprint = $blueprint;
+        }
+
+        return $this->blueprint;
     }
 
     /**
@@ -376,7 +499,7 @@ class FlexForm implements FlexFormInterface
         $flex = $grav['flex_objects'];
 
         if (method_exists($flex, 'adminRoute')) {
-            return $flex->adminRoute($this->object) . '.json';
+            return $flex->adminRoute($this->getObject()) . '.json';
         }
 
         return '';
@@ -384,7 +507,7 @@ class FlexForm implements FlexFormInterface
 
     public function getMediaRoute(): string
     {
-        return '/' . $this->object->getKey();
+        return '/' . $this->getObject()->getKey();
     }
 
     /**
@@ -405,23 +528,19 @@ class FlexForm implements FlexFormInterface
      *
      * @return FormFlash
      */
-    protected function getFlash()
+    protected function getFlash(): FormFlash
     {
         if (null === $this->flash) {
-            $this->flash = new FormFlash($this->getName(), $this->getUniqueId());
+            $grav = Grav::instance();
+
+            /** @var Session $session */
+            $session = $grav['session'];
+
+            $this->flash = new FormFlash($session->getId(), $this->getUniqueId(), $this->getName());
+            $this->flash->setUrl($grav['uri']->url)->setUser($grav['user']);
         }
 
         return $this->flash;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function validate(): void
-    {
-        $this->data->validate();
-        $this->data->filter();
-        $this->checkUploads($this->files);
     }
 
     protected function setErrors(array $errors): void
@@ -441,27 +560,21 @@ class FlexForm implements FlexFormInterface
      */
     protected function doSubmit(array $data, array $files)
     {
-        $this->validate();
-
-        $object = clone $this->object;
-        $object->update($data);
-
-        if (method_exists($object, 'triggerEvent')) {
-            $object->triggerEvent('onSave');
-        }
-
-        if (method_exists($object, 'upload')) {
-            $object->upload($files);
-        }
-
+        /** @var FlexObject $object */
+        $object = clone $this->getObject();
+        $object->update($data, $files);
         $object->save();
 
-        $this->object = $object;
+        $this->setObject($object);
+        $this->reset();
     }
 
     protected function checkUploads(array $files): void
     {
         foreach ($files as $file) {
+            if (null === $file) {
+                continue;
+            }
             if ($file instanceof UploadedFileInterface) {
                 $this->checkUpload($file);
             } else {
@@ -521,7 +634,7 @@ class FlexForm implements FlexFormInterface
                 $value = json_decode($value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
                     unset($data[$key]);
-                    // FIXME: add back
+                    // FIXME: check broken JSON inputs
                     //$this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
                 }
             }

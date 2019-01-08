@@ -1194,6 +1194,45 @@ class Page implements PageInterface
     }
 
     /**
+     * Returns normalized list of name => form pairs.
+     *
+     * @return array
+     */
+    public function forms()
+    {
+        $header = $this->header();
+
+        // Call event to allow filling the page header form dynamically (e.g. use case: Comments plugin)
+        $grav = Grav::instance();
+        $grav->fireEvent('onFormPageHeaderProcessed', new Event(['page' => $this, 'header' => $header]));
+
+        $forms = [];
+        // First grab page.header.form
+        $form = $header->form ?? null;
+        if (\is_array($form)) {
+            $name = $form['name'] ?? $this->slug();
+            if ($form['name'] ?? null !== $name) {
+                $form['name'] = $name;
+            }
+            $forms[$name] = $form;
+        }
+        // Append page.header.forms (override singular form if it clashes)
+        if (isset($header->forms) && \is_array($header->forms)) {
+            foreach ($header->forms as $name => $form) {
+                if (\is_array($form)) {
+                    $name = !\is_int($name) ? $name : ($form['name'] ?? $this->slug());
+                    if ($form['name'] ?? null !== $name) {
+                        $form['name'] = $name;
+                    }
+                    $forms[$name] = $form;
+                }
+            }
+        }
+
+        return $forms;
+    }
+
+    /**
      * Gets and sets the associated media as found in the page folder.
      *
      * @param  Media $var Representation of associated media.
@@ -2737,7 +2776,6 @@ class Page implements PageInterface
      * @param string|array $value
      * @param bool $only_published
      * @return mixed
-     * @internal
      */
     public function evaluate($value, $only_published = true)
     {

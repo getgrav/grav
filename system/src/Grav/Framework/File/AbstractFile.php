@@ -46,7 +46,7 @@ class AbstractFile implements FileInterface
      */
     public function __construct(string $filepath, Filesystem $filesystem = null)
     {
-        $this->filesystem = $filesystem ?? new Filesystem();
+        $this->filesystem = $filesystem ?? Filesystem::getInstance();
         $this->setFilepath($filepath);
     }
 

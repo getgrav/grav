@@ -21,23 +21,28 @@ trait FlexAuthorizeTrait
 {
     private $_authorize = '%s.flex-object.%s';
 
-    public function authorize(string $action, ?string $scope = null) : bool
+    public function authorize(string $action, string $scope = null) : bool
     {
-        $grav = Grav::instance();
-        if (!isset($grav['user'])) {
-            throw new \RuntimeException(__TRAIT__ . '::' . __METHOD__ . ' requires user service');
-        }
-
         /** @var User $user */
-        $user = $grav['user'];
+        $user = Grav::instance()['user'];
 
-        $scope = $scope ?? isset($grav['admin']) ? 'admin' : 'site';
+        return $this->authorizeAction($user, $action, $scope) || $this->authorizeSuperAdmin($user);
+    }
+
+    protected function authorizeSuperAdmin(User $user): bool
+    {
+        return $user->authorize('admin.super');
+    }
+
+    protected function authorizeAction(User $user, string $action, string $scope = null) : bool
+    {
+        $scope = $scope ?? isset(Grav::instance()['admin']) ? 'admin' : 'site';
 
         if ($action === 'save') {
             $action = $this->exists() ? 'update' : 'create';
         }
 
-        return $user->authorize(sprintf($this->_authorize, $scope, $action)) || $user->authorize('admin.super');
+        return $user->authorize(sprintf($this->_authorize, $scope, $action));
     }
 
     protected function setAuthorizeRule(string $authorize) : void

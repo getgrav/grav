@@ -29,6 +29,7 @@ class ContentBlock implements ContentBlockInterface
     protected $content = '';
     protected $blocks = [];
     protected $checksum;
+    protected $cached = true;
 
     /**
      * @param string $id
@@ -107,7 +108,8 @@ class ContentBlock implements ContentBlockInterface
         $array = [
             '_type' => \get_class($this),
             '_version' => $this->version,
-            'id' => $this->id
+            'id' => $this->id,
+            'cached' => $this->cached
         ];
 
         if ($this->checksum) {
@@ -166,6 +168,7 @@ class ContentBlock implements ContentBlockInterface
 
         $this->id = $serialized['id'] ?? $this->generateId();
         $this->checksum = $serialized['checksum'] ?? null;
+        $this->cached = $serialized['cached'] ?? null;
 
         if (isset($serialized['content'])) {
             $this->setContent($serialized['content']);
@@ -175,6 +178,34 @@ class ContentBlock implements ContentBlockInterface
         foreach ($blocks as $block) {
             $this->addBlock(self::fromArray($block));
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCached()
+    {
+        if (!$this->cached) {
+            return false;
+        }
+
+        foreach ($this->blocks as $block) {
+            if (!$block->isCached()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disableCache()
+    {
+        $this->cached = false;
+
+        return $this;
     }
 
     /**

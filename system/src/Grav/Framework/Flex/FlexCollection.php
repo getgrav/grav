@@ -118,6 +118,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * Twig example: {% render collection layout 'edit' with {my_check: true} %}
+     *
      * @param string $layout
      * @param array $context
      * @return HtmlBlock
@@ -170,6 +172,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         if (!$block) {
             $block = HtmlBlock::create($key);
             $block->setChecksum($checksum);
+            if ($key === false) {
+                $block->disableCache();
+            }
 
             $grav->fireEvent('onFlexCollectionRender', new Event([
                 'collection' => $this,
@@ -189,7 +194,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $block->setContent($output);
 
             try {
-                $cache && $cache->set($key, $block->toArray());
+                $cache && $block->isCached() && $cache->set($key, $block->toArray());
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }

@@ -44,9 +44,23 @@ class PagesProcessor extends ProcessorBase
             } else {
                 throw new \RuntimeException('Page Not Found', 404);
             }
-        }
 
-        $this->addMessage("Routed to page {$page->rawRoute()} (type: {$page->template()})");
+            $this->addMessage("Routed to page {$page->rawRoute()} (type: {$page->template()}) [Not Found fallback]");
+        } else {
+            $this->addMessage("Routed to page {$page->rawRoute()} (type: {$page->template()})");
+
+            $task = $this->container['task'];
+            $action = $this->container['action'];
+            if ($task) {
+                $event = new Event(['task' => $task, 'page' => $page]);
+                $this->container->fireEvent('onPageTask', $event);
+                $this->container->fireEvent('onPageTask.' . $task, $event);
+            } elseif ($action) {
+                $event = new Event(['action' => $action, 'page' => $page]);
+                $this->container->fireEvent('onPageAction', $event);
+                $this->container->fireEvent('onPageAction.' . $action, $event);
+            }
+        }
 
         $this->stopTimer();
 

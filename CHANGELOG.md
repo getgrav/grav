@@ -1,7 +1,18 @@
-# v1.6.0-beta.7
+# v1.6.0-beta.8
 ## mm/dd/2018
 
 1. [](#new)
+    * Added `Grav\Framework\Form\Interfaces\FormInterface`
+    * Added `Grav\Framework\Form\Interfaces\FormFactoryInterface`
+    * Added `Page::forms()` method to get normalized list of all form headers defined in the page
+    * Added `onPageAction`, `onPageTask`, `onPageAction.{$action}` and `onPageTask.{$task}` events
+    * Added `Blueprint::processForm()` method to filter form inputs
+
+# v1.6.0-beta.7
+## 12/14/2018
+
+1. [](#new)
+    * Updated Symfony Components to 4.2
     * Added `select()` and `unselect()` methods to `CollectionInterface` and its base classes
     * Added `orderBy()` and `limit()` methods to `ObjectCollectionInterface` and its base classes
     * Added `user-data://` which is a writable stream (`user://data` is not and should be avoided)
@@ -10,6 +21,8 @@
     * Added `Grav\Framework\Form\FormFlash` class to contain AJAX uploaded files in more reliable way
     * Added `Grav\Framework\Form\FormFlashFile` class which implements `UploadedFileInterface` from PSR-7
     * Added `Grav\Framework\Filesystem\Filesystem` class with methods to manipulate stream URLs
+    * Added new `$grav['filesystem']` service using an instance of the new `Filesystem` object
+    * Added `{% render object layout: 'default' with { variable: true } %}` for Flex objects and collections
     * Grav 1.6: Flex: Added support for custom object index classes (API compatibility break)
 1. [](#improved)
     * Improved `Grav\Framework\File\Formatter` classes to have abstract parent class and some useful methods
@@ -22,6 +35,8 @@
     * Fixed `Medium::relativePath()` for streams
     * Fixed `Object` serialization breaking if overriding `jsonSerialize()` method
     * Grav 1.6: Fixed `FlexObject::update()` call with partial object update
+    * Fixed `YamlFormatter::decode()` when calling `init_set()` with integer
+    * Fixed session throwing error in CLI if initialized
 
 # v1.6.0-beta.6
 ## 11/12/2018
@@ -119,9 +134,10 @@
     * Register all page types into `blueprint://pages` stream
 
 # v1.5.6
-## mm/dd/2018
+## 12/14/2018
 
 1. [](#improved)
+    * Updated InitializeProcessor.php to use lang-safe redirect [#2268](https://github.com/getgrav/grav/pull/2268)
     * Improved user serialization to use less memory in the session
 
 # v1.5.5

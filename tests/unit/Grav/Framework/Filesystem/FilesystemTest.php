@@ -270,7 +270,7 @@ class FilesystemTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $this->class = new Filesystem();
+        $this->class = Filesystem::getInstance();
     }
 
     protected function _after()

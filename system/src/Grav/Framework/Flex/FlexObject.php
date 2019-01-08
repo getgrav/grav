@@ -109,30 +109,34 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param array $data
-     * @param bool $isFullUpdate
+     * @param array $files
      * @return $this
      * @throws ValidationException
      */
-    public function update(array $data, $isFullUpdate = false)
+    public function update(array $data, array $files = [])
     {
         // Validate and filter the incoming data.
         $blueprint = $this->getFlexDirectory()->getBlueprint();
 
-        // Filter updated data.
-        $this->filterElements($data);
+        if ($data) {
+            // Filter updated data.
+            $this->filterElements($data);
 
-        if (!$isFullUpdate) {
-            // Partial update: merge data to the existing object.
+            // Merge data to the existing object.
             $elements = $this->getElements();
             $data = $blueprint->mergeData($elements, $data);
+
+            // Validate and filter elements and throw an error if any issues were found.
+            $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
+            $data = $blueprint->filter($data);
+
+            // Finally update the object.
+            $this->setElements($data);
         }
 
-        // Validate and filter elements and throw an error if any issues were found.
-        $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
-        $data = $blueprint->filter($data);
-
-        // Finally update the object.
-        $this->setElements($data);
+        if ($files && method_exists($this, 'setUpdatedMedia')) {
+            $this->setUpdatedMedia($files);
+        }
 
         return $this;
     }
@@ -166,18 +170,20 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param string $name
+     * @param array|null $form
      * @return FlexForm
      */
-    public function getForm(string $name = '')
+    public function getForm(string $name = '', array $form = null)
     {
         if (!isset($this->_forms[$name])) {
-            $this->_forms[$name] = $this->createFormObject($name);
+            $this->_forms[$name] = $this->createFormObject($name, $form);
         }
 
         return $this->_forms[$name];
     }
 
     /**
+     * @param string $name
      * @return Blueprint
      */
     public function getBlueprint(string $name = '')
@@ -269,6 +275,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * Twig example: {% render object layout 'edit' with {my_check: true} %}
+     *
      * @param string $layout
      * @param array $context
      * @return HtmlBlock
@@ -323,6 +331,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if (!$block) {
             $block = HtmlBlock::create($key);
             $block->setChecksum($checksum);
+            if ($key === false) {
+                $block->disableCache();
+            }
 
             $grav->fireEvent('onFlexObjectRender', new Event([
                 'object' => $this,
@@ -342,7 +353,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $block->setContent($output);
 
             try {
-                $cache && $cache->set($key, $block->toArray());
+                $cache && $block->isCached() && $cache->set($key, $block->toArray());
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }
@@ -445,7 +456,19 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function save()
     {
+        $this->triggerEvent('onBeforeSave');
+
         $result = $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
+
+        $value = reset($result);
+        $storageKey = key($result);
+        if ($value && $storageKey) {
+            $this->setStorageKey($storageKey);
+        }
+
+        if (method_exists($this, 'saveUpdatedMedia')) {
+            $this->saveUpdatedMedia();
+        }
 
         try {
             $this->getFlexDirectory()->clearCache();
@@ -460,11 +483,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             // Caching failed, but we can ignore that for now.
         }
 
-        $value = reset($result);
-        $storageKey = key($result);
-        if ($value && $storageKey) {
-            $this->setStorageKey($storageKey);
-        }
+        $this->triggerEvent('onAfterSave');
 
         return $this;
     }
@@ -474,6 +493,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function delete()
     {
+        $this->triggerEvent('onBeforeDelete');
+
         $this->getFlexDirectory()->getStorage()->deleteRows([$this->getStorageKey() => $this->prepareStorage()]);
 
         try {
@@ -488,6 +509,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
             // Caching failed, but we can ignore that for now.
         }
+
+        $this->triggerEvent('onAfterDelete');
 
         return $this;
     }
@@ -668,10 +691,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * This methods allows you to override form objects in child classes.
      *
      * @param string $name Form name
+     * @param array|null $form Form fields
      * @return FlexFormInterface
      */
-    protected function createFormObject(string $name): FlexFormInterface
+    protected function createFormObject(string $name, array $form = null): FlexFormInterface
     {
-        return new FlexForm($name, $this);
+        return new FlexForm($name, $this, $form);
     }
 }

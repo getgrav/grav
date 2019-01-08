@@ -175,6 +175,10 @@ class Session implements SessionInterface
      */
     public function start($readonly = false)
     {
+        if (\PHP_SAPI === 'cli') {
+            return $this;
+        }
+
         // Protection against invalid session cookie names throwing exception: http://php.net/manual/en/function.session-id.php#116836
         if (isset($_COOKIE[session_name()]) && !preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[session_name()])) {
             unset($_COOKIE[session_name()]);
@@ -189,6 +193,7 @@ class Session implements SessionInterface
         if (!$success) {
             $last = error_get_last();
             $error = $last ? $last['message'] : 'Unknown error';
+            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);die();
             throw new \RuntimeException('Failed to start session: ' . $error, 500);
         }
 

@@ -27,6 +27,15 @@ trait FlexMediaTrait
 {
     use MediaTrait;
 
+    protected $_uploads;
+
+    public function __debugInfo()
+    {
+        return parent::__debugInfo() + [
+            'uploads:private' => $this->getUpdatedMedia()
+        ];
+    }
+
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
     {
         $grav = Grav::instance();
@@ -36,6 +45,9 @@ trait FlexMediaTrait
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
+                if ($uploadedFile instanceof FormFlashFile) {
+                    break;
+                }
                 throw new RuntimeException($language->translate('PLUGIN_ADMIN.NO_FILES_SENT'), 400);
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
@@ -80,12 +92,12 @@ trait FlexMediaTrait
         }
     }
 
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null) : void
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null) : void
     {
         $this->checkUploadedMediaFile($uploadedFile);
 
         if ($filename) {
-            $this->checkMediaFilename($filename);
+            $this->checkMediaFilename(basename($filename));
         } else {
             $filename = $uploadedFile->getClientFilename();
         }
@@ -111,22 +123,36 @@ trait FlexMediaTrait
                     $file = YamlFile::instance($filepath . '.meta.yaml');
                     $file->save(['upload' => $metadata]);
                 }
+                if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
+                    $uploadedFile->moveTo($filepath);
+                } elseif (!file_exists($filepath) && $pos = strpos($filename, '/')) {
+                    $origpath = sprintf('%s/%s', $path, substr($filename, $pos));
+                    if (file_exists($origpath)) {
+                        copy($origpath, $filepath);
+                    }
+                }
+            } else {
+                $uploadedFile->moveTo($filepath);
             }
-            $uploadedFile->moveTo($filepath);
         } catch (\Exception $e) {
             $language = $grav['language'];
+
             throw new RuntimeException($language->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
         }
 
         $this->clearMediaCache();
     }
 
-    public function deleteMediaFile(string $filename, string $field = null) : void
+    public function deleteMediaFile(string $filename) : void
     {
         $grav = Grav::instance();
         $language = $grav['language'];
 
-        if (!Utils::checkFilename($filename)) {
+        $basename = basename($filename);
+        $dirname = dirname($filename);
+        $dirname = $dirname === '.' ? '' : '/' . $dirname;
+
+        if (!Utils::checkFilename($basename)) {
             throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': Bad filename: ' . $filename, 400);
         }
 
@@ -135,47 +161,91 @@ trait FlexMediaTrait
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
-        $targetPath = $media->path() . '/' . $filename;
-        if ($locator->isStream($targetPath)) {
+        $targetPath = $media->path() . '/' . $dirname;
+        $targetFile = $media->path() . '/' . $filename;
+        if ($locator->isStream($targetFile)) {
             $targetPath = $locator->findResource($targetPath, true, true);
+            $targetFile = $locator->findResource($targetFile, true, true);
             $locator->clearCache($targetPath);
+            $locator->clearCache($targetFile);
         }
 
-        $fileParts  = pathinfo($filename);
-        $found = false;
+        $fileParts  = pathinfo($basename);
 
-        if (file_exists($targetPath)) {
-            $found  = true;
+        if (!file_exists($targetPath)) {
+            return;
+        }
 
-            $result = unlink($targetPath);
+        if (file_exists($targetFile)) {
+            $result = unlink($targetFile);
             if (!$result) {
                 throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
             }
         }
 
         // Remove Extra Files
-        foreach (scandir($media->path(), SCANDIR_SORT_NONE) as $file) {
-            if (preg_match("/{$fileParts['filename']}@\d+x\.{$fileParts['extension']}(?:\.meta\.yaml)?$|{$filename}\.meta\.yaml$/", $file)) {
 
-                $targetPath = $media->path() . '/' . $file;
-                if ($locator->isStream($targetPath)) {
-                    $targetPath = $locator->findResource($targetPath, true, true);
-                    $locator->clearCache($targetPath);
+        foreach (scandir($targetPath, SCANDIR_SORT_NONE) as $file) {
+            $preg_name = preg_quote($fileParts['filename'], '`');
+            $preg_ext =preg_quote($fileParts['extension'], '`');
+            $preg_filename = preg_quote($basename, '`');
+            echo $file .' - ';
+            if (preg_match("`({$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?$|{$preg_filename}\.meta\.yaml)$`", $file)) {
+                $testPath = $targetPath . '/' . $file;
+                if ($locator->isStream($testPath)) {
+                    $testPath = $locator->findResource($testPath, true, true);
+                    $locator->clearCache($testPath);
                 }
 
-                $result = unlink($targetPath);
-                if (!$result) {
-                    throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+                if (is_file($testPath)) {
+                    $result = unlink($testPath);
+                    if (!$result) {
+                        throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+                    }
                 }
-
-                $found = true;
             }
         }
 
         $this->clearMediaCache();
+    }
 
-        if (!$found) {
-            throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_NOT_FOUND') . ': ' . $filename, 500);
+    /**
+     * @param array $files
+     */
+    protected function setUpdatedMedia(array $files): void
+    {
+        $list = [];
+        foreach ($files as $group) {
+            foreach ($group as $filename => $file) {
+                $list[$filename] = $file;
+            }
         }
+
+        $this->_uploads = $list;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getUpdatedMedia(): array
+    {
+        return $this->_uploads ?? [];
+    }
+
+    protected function saveUpdatedMedia(): void
+    {
+        /**
+         * @var string $filename
+         * @var UploadedFileInterface $file
+         */
+        foreach ($this->getUpdatedMedia() as $filename => $file) {
+            if ($file) {
+                $this->uploadMediaFile($file, $filename);
+            } else {
+                $this->deleteMediaFile($filename);
+            }
+        }
+
+        $this->setUpdatedMedia([]);
     }
 }
