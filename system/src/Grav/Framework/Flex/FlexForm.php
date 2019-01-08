@@ -184,11 +184,11 @@ class FlexForm implements FlexFormInterface
      */
     public function getValue(string $name)
     {
-        if (null === $this->data) {
-            return $this->getObject()->getNestedProperty($name);
-        }
+        // Attempt to get value from the form data.
+        $value = $this->data ? $this->data->get($name) : null;
 
-        return $this->data->get($name);
+        // Return the form data or fall back to the object property.
+        return $value ?? $this->getObject()->getNestedProperty($name);
     }
 
     /**
@@ -221,8 +221,6 @@ class FlexForm implements FlexFormInterface
             $data = $blueprint->processForm($this->decodeData($body['data'] ?? []), $body['toggleable_data'] ?? []);
 
             $this->submit($data, $files);
-
-            $flash->delete();
         } catch (\Exception $e) {
             $this->errors[] = $e->getMessage();
         }
@@ -548,6 +546,7 @@ class FlexForm implements FlexFormInterface
         $object->save();
 
         $this->setObject($object);
+        $this->reset();
     }
 
     protected function checkUploads(array $files): void
