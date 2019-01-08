@@ -3,7 +3,7 @@
     "type": "project",
     "description": "Modern, Crazy Fast, Ridiculously Easy and Amazingly Powerful Flat-File CMS",
     "keywords": ["cms","flat-file cms","flat cms","flatfile cms","php"],
-    "homepage": "http://getgrav.org",
+    "homepage": "https://getgrav.org",
     "license": "MIT",
     "require": {
         "php": ">=5.6.4",
