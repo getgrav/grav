@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,11 +12,10 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
+use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
-use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
-use Grav\Framework\Form\FormFlash;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Session;
 use Psr\Http\Message\ServerRequestInterface;
@@ -63,7 +62,21 @@ class FlexForm implements FlexFormInterface
         $this->form = $form;
         $this->setObject($object);
         $this->setId($this->getName());
-        $this->reset();
+        $this->setUniqueId(md5($this->getObject()->getStorageKey()));
+        $this->errors = [];
+        $this->submitted = false;
+
+        $flash = $this->getFlash();
+        if ($flash->exists()) {
+            $data = $flash->getData();
+            $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
+
+            $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
+            $this->files = $flash->getFilesByFields($includeOriginal);
+        } else {
+            $this->data = null;
+            $this->files = [];
+        }
     }
 
     /**
@@ -97,10 +110,6 @@ class FlexForm implements FlexFormInterface
      */
     public function getUniqueId(): string
     {
-        if (null === $this->uniqueid) {
-            $this->uniqueid = Utils::generateRandomString(20);
-        }
-
         return $this->uniqueid;
     }
 
@@ -208,16 +217,21 @@ class FlexForm implements FlexFormInterface
         try {
             $method = $request->getMethod();
             if (!\in_array($method, ['PUT', 'POST', 'PATCH'])) {
-                throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
+                $this->errors[] = sprintf('FlexForm: Bad HTTP method %s', $method);
+                return $this;
             }
 
+            $body = $request->getParsedBody();
+
             $flash = $this->getFlash();
+            if (isset($body['data'])) {
+                $flash->setData($body['data'] ?? []);
+                $flash->save();
+            }
 
             $blueprint = $this->getBlueprint();
             $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
             $files = $flash->getFilesByFields($includeOriginal);
-            $body = $request->getParsedBody();
-
             $data = $blueprint->processForm($this->decodeData($body['data'] ?? []), $body['toggleable_data'] ?? []);
 
             $this->submit($data, $files);
@@ -235,12 +249,17 @@ class FlexForm implements FlexFormInterface
             throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
         }
 
+        $body = $request->getParsedBody();
+
         $flash = $this->getFlash();
+        if (isset($body['data'])) {
+            $flash->setData($body['data']);
+            $flash->save();
+        }
 
         $blueprint = $this->getBlueprint();
         $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
         $files = $flash->getFilesByFields($includeOriginal);
-        $body = $request->getParsedBody();
 
         $data = $blueprint->processForm($this->decodeData($body['data'] ?? []), $body['toggleable_data'] ?? []);
 
@@ -518,6 +537,7 @@ class FlexForm implements FlexFormInterface
             $session = $grav['session'];
 
             $this->flash = new FormFlash($session->getId(), $this->getUniqueId(), $this->getName());
+            $this->flash->setUrl($grav['uri']->url)->setUser($grav['user']);
         }
 
         return $this->flash;
@@ -614,7 +634,8 @@ class FlexForm implements FlexFormInterface
                 $value = json_decode($value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
                     unset($data[$key]);
-                    $this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
+                    // FIXME: check broken JSON inputs
+                    //$this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
                 }
             }
         }

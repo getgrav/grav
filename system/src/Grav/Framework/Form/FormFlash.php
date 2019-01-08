@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -63,6 +63,7 @@ class FormFlash implements \JsonSerializable
             $this->formName = null !== $formName ? $content['form'] ?? '' : '';
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
+            $this->data = $data['data'] ?? null;
             $this->files = $data['files'] ?? [];
         } else {
             $this->formName = $formName;
@@ -173,12 +174,12 @@ class FormFlash implements \JsonSerializable
         return $this;
     }
 
-    public function getData()
+    public function getData(): ?array
     {
         return $this->data;
     }
 
-    public function setData(array $data)
+    public function setData(?array $data): void
     {
         $this->data = $data;
     }
@@ -367,7 +368,7 @@ class FormFlash implements \JsonSerializable
      * @param array $data
      * @param array|null $crop
      */
-    protected function addFileInternal(?string $field, string $name, array $data, array $crop = null)
+    protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {
         if (!isset($this->files[$field])) {
             $this->files[$field] = [];
