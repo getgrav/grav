@@ -634,8 +634,7 @@ class FlexForm implements FlexFormInterface
                 $value = json_decode($value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
                     unset($data[$key]);
-                    // FIXME: check broken JSON inputs
-                    //$this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
+                    $this->errors[] = "Badly encoded JSON data (for {$key}) was sent to the form";
                 }
             }
         }
