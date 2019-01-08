@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Assets.Traits
+ * @package    Grav\Common\Assets\Traits
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -44,6 +45,7 @@ trait TestingAssetsTrait
     public function setCollection($collections)
     {
         $this->collections = $collections;
+
         return $this;
     }
 

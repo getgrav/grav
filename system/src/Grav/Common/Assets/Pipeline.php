@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Assets
+ * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,17 +21,17 @@ class Pipeline extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    const CSS_ASSET = true;
-    const JS_ASSET = false;
+    protected const CSS_ASSET = true;
+    protected const JS_ASSET = false;
 
     /** @const Regex to match CSS urls */
-    const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
+    protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 
     /** @const Regex to match CSS sourcemap comments */
-    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
+    protected const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
 
     /** @const Regex to match CSS import content */
-    const CSS_IMPORT_REGEX = '{@import(.*?);}';
+    protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
     protected $css_minify;
     protected $css_minify_windows;
@@ -140,7 +141,7 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (\strlen(trim($buffer)) > 0) {
+            if (trim($buffer) !== '') {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
@@ -213,16 +214,16 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (\strlen(trim($buffer)) > 0) {
+            if (trim($buffer) !== '') {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
 
         if ($inline_group) {
-            $output = "<script" . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
+            $output = '<script' . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
         } else {
             $this->asset = $relative_path;
-            $output = "<script src=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
+            $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . "></script>\n";
         }
 
         return $output;
@@ -249,7 +250,7 @@ class Pipeline extends PropertyObject
 
             $old_url = $matches[2];
 
-            // Ensure link is not rooted to webserver, a data URL, or to a remote host
+            // Ensure link is not rooted to web server, a data URL, or to a remote host
             if (Utils::startsWith($old_url, '/') || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
                 return $matches[0];
             }

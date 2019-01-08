@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Config
+ * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -198,9 +199,7 @@ abstract class CompiledBase
         $cache = include $filename;
         if (
             !\is_array($cache)
-            || !isset($cache['checksum'])
-            || !isset($cache['data'])
-            || !isset($cache['@class'])
+            || !isset($cache['checksum'], $cache['data'], $cache['@class'])
             || $cache['@class'] !== \get_class($this)
         ) {
             return false;
