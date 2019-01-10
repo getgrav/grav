@@ -18,7 +18,7 @@ use Psr\Http\Message\UploadedFileInterface;
  * Interface FormInterface
  * @package Grav\Framework\Form
  */
-interface FormInterface
+interface FormInterface extends \Serializable
 {
     /**
      * Get HTML id="..." attribute.
