@@ -11,6 +11,7 @@ namespace Grav\Framework\Form\Interfaces;
 
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
@@ -105,6 +106,34 @@ interface FormInterface
      * @return mixed
      */
     public function getValue(string $name);
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return $this
+     */
+    public function handleRequest(ServerRequestInterface $request): FormInterface;
+
+    /**
+     * @param array $data
+     * @param UploadedFileInterface[] $files
+     * @return $this
+     */
+    public function submit(array $data, array $files = null): FormInterface;
+
+    /**
+     * @return bool
+     */
+    public function isValid(): bool;
+
+    /**
+     * @return array
+     */
+    public function getErrors(): array;
+
+    /**
+     * @return bool
+     */
+    public function isSubmitted(): bool;
 
     /**
      * Reset form.
