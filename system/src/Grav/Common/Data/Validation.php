@@ -662,6 +662,23 @@ class Validation
         return $value;
     }
 
+    /**
+     * Input value which can be ignored.
+     *
+     * @param  mixed  $value   Value to be validated.
+     * @param  array  $params  Validation parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return bool   True if validation succeeded.
+     */
+    public static function typeUnset($value, array $params, array $field)
+    {
+        return true;
+    }
+
+    public static function filterUnset($value, array $params, array $field)
+    {
+        return null;
+    }
 
     // HTML5 attributes (min, max and range are handled inside the types)
 
