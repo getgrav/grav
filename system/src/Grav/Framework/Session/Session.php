@@ -193,7 +193,7 @@ class Session implements SessionInterface
         if (!$success) {
             $last = error_get_last();
             $error = $last ? $last['message'] : 'Unknown error';
-            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);die();
+
             throw new \RuntimeException('Failed to start session: ' . $error, 500);
         }
 
