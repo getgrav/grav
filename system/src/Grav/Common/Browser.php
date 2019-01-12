@@ -134,4 +134,19 @@ class Browser
 
         return true;
     }
+    
+    /**
+     * Determine if “Do Not Track” is set by browser
+     * @see https://www.w3.org/TR/tracking-dnt/
+     *
+     * @return bool
+     */
+    public function isTrackable(): bool
+    {
+        if ($_SERVER['HTTP_DNT'] === '1') {
+            return false;
+        }
+
+        return true;
+    }
 }
