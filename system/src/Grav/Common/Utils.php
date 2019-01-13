@@ -11,6 +11,8 @@ namespace Grav\Common;
 use DateTime;
 use Grav\Common\Helpers\Truncator;
 use Grav\Common\Page\Page;
+use Grav\Common\Markdown\Parsedown;
+use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -1308,5 +1310,34 @@ abstract class Utils
         }
 
         return $parts;
+    }
+
+    /**
+     * Process a string as markdown
+     *
+     * @param $string
+     *
+     * @param bool $block  Block or Line processing
+     * @return mixed|string
+     */
+    public static function processMarkdown($string, $block = true)
+    {
+        $page     = Grav::instance()['page'] ?? null;
+        $defaults = Grav::instance()['config']->get('system.pages.markdown');
+
+        // Initialize the preferred variant of Parsedown
+        if ($defaults['extra']) {
+            $parsedown = new ParsedownExtra($page, $defaults);
+        } else {
+            $parsedown = new Parsedown($page, $defaults);
+        }
+
+        if ($block) {
+            $string = $parsedown->text($string);
+        } else {
+            $string = $parsedown->line($string);
+        }
+
+        return $string;
     }
 }

@@ -8,6 +8,7 @@
     * Added `Page::forms()` method to get normalized list of all form headers defined in the page
     * Added `onPageAction`, `onPageTask`, `onPageAction.{$action}` and `onPageTask.{$task}` events
     * Added `Blueprint::processForm()` method to filter form inputs
+    * Move `processMarkdown()` method from `TwigExtension` to more general `Utils` class
 
 # v1.6.0-beta.7
 ## 12/14/2018

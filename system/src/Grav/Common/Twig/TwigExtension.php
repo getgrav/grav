@@ -24,8 +24,6 @@ use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
 use Grav\Common\User\User;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
-use Grav\Common\Markdown\Parsedown;
-use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Helpers\Base32;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -606,24 +604,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function markdownFunction($string, $block = true)
     {
-        $page     = $this->grav['page'];
-        $defaults = $this->config->get('system.pages.markdown');
-
-        // Initialize the preferred variant of Parsedown
-        if ($defaults['extra']) {
-            $parsedown = new ParsedownExtra($page, $defaults);
-        } else {
-            $parsedown = new Parsedown($page, $defaults);
-        }
-
-        if ($block) {
-            $string = $parsedown->text($string);
-        } else {
-            $string = $parsedown->line($string);
-        }
-
-
-        return $string;
+        return Utils::processMarkdown($string, $block);
     }
 
     /**
