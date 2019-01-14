@@ -161,7 +161,7 @@ class Setup extends Data
                 $request = $container['request'];
                 $host = $request->getUri()->getHost();
 
-                static::$environment = $host;
+                static::$environment = Utils::substrToString($host, ':');
             }
         }
 
