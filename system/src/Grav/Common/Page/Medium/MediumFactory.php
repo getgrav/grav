@@ -10,6 +10,7 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
+use Grav\Framework\Form\FormFlashFile;
 
 class MediumFactory
 {
@@ -34,7 +35,57 @@ class MediumFactory
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get("media.types." . strtolower($ext));
+        $media_params = $config->get('media.types.' . strtolower($ext));
+        if (!$media_params) {
+            return null;
+        }
+
+        $params += $media_params;
+
+        // Add default settings for undefined variables.
+        $params += $config->get('media.types.defaults');
+        $params += [
+            'type' => 'file',
+            'thumb' => 'media/thumb.png',
+            'mime' => 'application/octet-stream',
+            'filepath' => $file,
+            'filename' => $filename,
+            'basename' => $basename,
+            'extension' => $ext,
+            'path' => $path,
+            'modified' => filemtime($file),
+            'thumbnails' => []
+        ];
+
+        $locator = Grav::instance()['locator'];
+
+        $file = $locator->findResource("image://{$params['thumb']}");
+        if ($file) {
+            $params['thumbnails']['default'] = $file;
+        }
+
+        return static::fromArray($params);
+    }
+
+    /**
+     * Create Medium from an uploaded file
+     *
+     * @param  FormFlashFile $uploadedFile
+     * @param  array  $params
+     * @return Medium
+     */
+    public static function fromUploadedFile(FormFlashFile $uploadedFile, array $params = [])
+    {
+        $parts = pathinfo($uploadedFile->getClientFilename());
+        $filename = $parts['basename'];
+        $ext = $parts['extension'];
+        $basename = $parts['filename'];
+        $file = $uploadedFile->getTmpFile();
+        $path = dirname($file);
+
+        $config = Grav::instance()['config'];
+
+        $media_params = $config->get('media.types.' . strtolower($ext));
         if (!$media_params) {
             return null;
         }
@@ -75,7 +126,7 @@ class MediumFactory
      */
     public static function fromArray(array $items = [], Blueprint $blueprint = null)
     {
-        $type = isset($items['type']) ? $items['type'] : null;
+        $type = $items['type'] ?? null;
 
         switch ($type) {
             case 'image':

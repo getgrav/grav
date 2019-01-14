@@ -122,7 +122,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
      * @param string $name
      * @param MediaObjectInterface $file
      */
-    protected function add($name, $file)
+    public function add($name, $file)
     {
         $this->instances[$name] = $file;
         switch ($file->type) {

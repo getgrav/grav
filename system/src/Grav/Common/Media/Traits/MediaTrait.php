@@ -55,9 +55,9 @@ trait MediaTrait
      */
     public function getMedia()
     {
-        $cache = $this->getMediaCache();
-
         if ($this->media === null) {
+            $cache = $this->getMediaCache();
+
             // Use cached media if possible.
             $cacheKey = md5('media' . $this->getCacheKey());
             if (!$media = $cache->fetch($cacheKey)) {
