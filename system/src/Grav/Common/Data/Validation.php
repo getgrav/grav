@@ -597,9 +597,13 @@ class Validation
 
         if (isset($field['ignore_empty']) && Utils::isPositive($field['ignore_empty'])) {
             foreach ($values as $key => $val) {
-                foreach ($val as $inner_key => $inner_value) {
-                    if ($inner_value == '') {
-                        unset($val[$inner_key]);
+                if ($val === '') {
+                    unset($values[$key]);
+                } elseif (\is_array($val)) {
+                    foreach ($val as $inner_key => $inner_value) {
+                        if ($inner_value === '') {
+                            unset($val[$inner_key]);
+                        }
                     }
                 }
 
@@ -751,15 +755,12 @@ class Validation
 
     protected static function filterInt($value, $params)
     {
-        return (int) $value;
+        return (int)$value;
     }
 
     public static function validateArray($value, $params)
     {
-        return \is_array($value)
-        || ($value instanceof \ArrayAccess
-            && $value instanceof \Traversable
-            && $value instanceof \Countable);
+        return \is_array($value) || ($value instanceof \ArrayAccess && $value instanceof \Traversable && $value instanceof \Countable);
     }
 
     public static function filterItem_List($value, $params)

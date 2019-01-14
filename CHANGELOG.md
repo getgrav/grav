@@ -9,7 +9,11 @@
     * Added `onPageAction`, `onPageTask`, `onPageAction.{$action}` and `onPageTask.{$task}` events
     * Added `Blueprint::processForm()` method to filter form inputs
     * Move `processMarkdown()` method from `TwigExtension` to more general `Utils` class
-
+1. [](#improved)
+    * Add method argument `Data::filter($missingValuesAsNull)`, defaulting to `false`
+1. [](#bugfix)
+    * Fixed `FlexForm::updateObject()` to update array values when they are empty in the form
+    
 # v1.6.0-beta.7
 ## 12/14/2018
 

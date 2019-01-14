@@ -119,13 +119,14 @@ class Blueprint extends BlueprintForm
      * Filter data by using blueprints.
      *
      * @param  array $data
+     * @param  bool $missingValuesAsNull
      * @return array
      */
-    public function filter(array $data)
+    public function filter(array $data, bool $missingValuesAsNull = false)
     {
         $this->initInternals();
 
-        return $this->blueprintSchema->filter($data);
+        return $this->blueprintSchema->filter($data, $missingValuesAsNull);
     }
 
     /**
