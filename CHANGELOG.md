@@ -1,5 +1,5 @@
 # v1.6.0-beta.8
-## mm/dd/2018
+## mm/dd/2019
 
 1. [](#new)
     * Added `Grav\Framework\Form\Interfaces\FormInterface`
@@ -9,8 +9,10 @@
     * Added `onPageAction`, `onPageTask`, `onPageAction.{$action}` and `onPageTask.{$task}` events
     * Added `Blueprint::processForm()` method to filter form inputs
     * Move `processMarkdown()` method from `TwigExtension` to more general `Utils` class
+    * Added support to include extra files into `Media` (such as uploaded files)
+    * Added form preview support for `FlexObject`, including a way to render newly uploaded files before saving them
 1. [](#improved)
-    * Add method argument `Data::filter($missingValuesAsNull)`, defaulting to `false`
+    * Added method argument `Data::filter($missingValuesAsNull)`, defaulting to `false`
 1. [](#bugfix)
     * Fixed `FlexForm::updateObject()` to update array values when they are empty in the form
     

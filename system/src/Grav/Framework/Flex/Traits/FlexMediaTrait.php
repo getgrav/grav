@@ -13,7 +13,11 @@ use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Media\Traits\MediaTrait;
+use Grav\Common\Page\Medium\AbstractMedia;
+use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Utils;
+use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -25,7 +29,9 @@ use RuntimeException;
  */
 trait FlexMediaTrait
 {
-    use MediaTrait;
+    use MediaTrait {
+        MediaTrait::getMedia as private getTraitMedia;
+    }
 
     protected $_uploads;
 
@@ -34,6 +40,40 @@ trait FlexMediaTrait
         return parent::__debugInfo() + [
             'uploads:private' => $this->getUpdatedMedia()
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getStorageFolder()
+    {
+        return $this->getFlexDirectory()->getStorageFolder($this->getStorageKey());
+    }
+
+    /**
+     * @return string
+     */
+    public function getMediaFolder()
+    {
+        return $this->getFlexDirectory()->getMediaFolder($this->getStorageKey());
+    }
+
+    public function getMedia()
+    {
+        if ($this->media === null) {
+            /** @var AbstractMedia $media */
+            $media = $this->getTraitMedia();
+
+            // Include uploaded media to the object media.
+            /** @var FormFlashFile $upload */
+            foreach ($this->getUpdatedMedia() as $filename => $upload) {
+                if ($upload) {
+                    $media->add($filename, MediumFactory::fromUploadedFile($upload));
+                }
+            }
+        }
+
+        return $this->media;
     }
 
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
@@ -215,7 +255,10 @@ trait FlexMediaTrait
     protected function setUpdatedMedia(array $files): void
     {
         $list = [];
-        foreach ($files as $group) {
+        foreach ($files as $field => $group) {
+            if (\strpos($field, '/', true)) {
+                continue;
+            }
             foreach ($group as $filename => $file) {
                 $list[$filename] = $file;
             }
@@ -248,4 +291,24 @@ trait FlexMediaTrait
 
         $this->setUpdatedMedia([]);
     }
+
+    /**
+     * @param string $uri
+     * @return Medium|null
+     */
+    protected function createMedium($uri)
+    {
+        $grav = Grav::instance();
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+
+        $file = $uri ? $locator->findResource($uri) : null;
+
+        return $file ? MediumFactory::fromFile($file) : null;
+    }
+
+    abstract public function getFlexDirectory(): FlexDirectory;
+
+    abstract public function getStorageKey();
 }

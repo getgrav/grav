@@ -13,8 +13,6 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\ValidationException;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
-use Grav\Common\Page\Medium\Medium;
-use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
@@ -28,7 +26,6 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\Property\LazyPropertyTrait;
 use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * Class FlexObject
@@ -115,15 +112,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function update(array $data, array $files = [])
     {
-        // Validate and filter the incoming data.
-        $blueprint = $this->getFlexDirectory()->getBlueprint();
-
         if ($data) {
             // Filter updated data.
             $this->filterElements($data);
 
             // Merge data to the existing object.
             $elements = $this->getElements();
+
+            // Validate and filter the incoming data.
+            $blueprint = $this->getFlexDirectory()->getBlueprint();
             $data = $blueprint->mergeData($elements, $data);
 
             // Validate and filter elements and throw an error if any issues were found.
@@ -377,6 +374,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if ($name === 'storage_key') {
             return $this->getStorageKey();
         }
+        if ($name === 'storage_timestamp') {
+            return $this->getTimestamp();
+        }
 
         return $this->getNestedProperty($name, $default, $separator);
     }
@@ -405,22 +405,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function prepareStorage()
     {
         return $this->getElements();
-    }
-
-    /**
-     * @return string
-     */
-    public function getStorageFolder()
-    {
-        return $this->getFlexDirectory()->getStorageFolder($this->getStorageKey());
-    }
-
-    /**
-     * @return string
-     */
-    public function getMediaFolder()
-    {
-        return $this->getFlexDirectory()->getMediaFolder($this->getStorageKey());
     }
 
     /**
@@ -596,22 +580,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param string $uri
-     * @return Medium|null
-     */
-    protected function createMedium($uri)
-    {
-        $grav = Grav::instance();
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $grav['locator'];
-
-        $file = $uri ? $locator->findResource($uri) : null;
-
-        return $file ? MediumFactory::fromFile($file) : null;
-    }
-
-    /**
      * @param string $type
      * @param string $property
      * @return FlexCollection
@@ -664,7 +632,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            return $twig->twig()->resolveTemplate(["flex-objects/layouts/404.html.twig"]);
+            return $twig->twig()->resolveTemplate(['flex-objects/layouts/404.html.twig']);
         }
     }
 
