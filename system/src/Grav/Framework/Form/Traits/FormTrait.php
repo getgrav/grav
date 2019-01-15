@@ -161,7 +161,7 @@ trait FormTrait
 
         try {
             $this->validateData($this->data);
-            $this->validateUploads($this->files);
+            $this->validateUploads($this->getFiles());
         } catch (ValidationException $e) {
             $list = [];
             foreach ($e->getMessages() as $field => $errors) {
