@@ -33,7 +33,11 @@ class TasksProcessor extends ProcessorBase
                 /** @var RequestHandlerInterface $controller */
                 $controller = new $controllerClass($attributes['path'] ?? '', $attributes['params'] ?? []);
                 try {
-                    return $controller->handle($request);
+                    $response = $controller->handle($request);
+
+                    $this->stopTimer();
+
+                    return $response;
                 } catch (NotFoundException $e) {
                     // Task not found: Let it pass through.
                 }
