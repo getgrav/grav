@@ -14,6 +14,7 @@ use Grav\Common\Data\ValidationException;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
+use Grav\Common\Utils;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
@@ -48,6 +49,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     private $_forms = [];
     /** @var array */
     private $_storage;
+    /** @var array */
+    private $_changes;
 
     /**
      * @return array
@@ -127,6 +130,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
             $data = $blueprint->filter($data);
 
+            // Store the changes
+            $this->_changes = Utils::arrayDiffMultidimensional($data, $this->getElements());
+
             // Finally update the object.
             $this->setElements($data);
         }
@@ -136,6 +142,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Get any changes based on data sent to update
+     *
+     * @return array
+     */
+    public function getChanges()
+    {
+        return (array) $this->_changes;
     }
 
     /**
