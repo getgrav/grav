@@ -268,6 +268,60 @@ abstract class Utils
     }
 
     /**
+     * Returns an array with the differences between $array1 and $array2
+     *
+     * @param array $aArray1
+     * @param array $aArray2
+     * @return array
+     */
+    public static function arrayDiffMultidimensional($array1, $array2)
+    {
+        $result = array();
+        foreach ($array1 as $key => $value) {
+            if (!is_array($array2) || !array_key_exists($key, $array2)) {
+                $result[$key] = $value;
+                continue;
+            }
+            if (is_array($value)) {
+                $recursiveArrayDiff = static::ArrayDiffMultidimensional($value, $array2[$key]);
+                if (count($recursiveArrayDiff)) {
+                    $result[$key] = $recursiveArrayDiff;
+                }
+                continue;
+            }
+            if ($value != $array2[$key]) {
+                $result[$key] = $value;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Array combine but supports different array lengths
+     *
+     * @param $arr1
+     * @param $arr2
+     * @return array|false
+     */
+    public static function arrayCombine($arr1, $arr2)
+    {
+        $count = min(count($arr1), count($arr2));
+        return array_combine(array_slice($arr1, 0, $count), array_slice($arr2, 0, $count));
+    }
+
+    /**
+     * Array is associative or not
+     *
+     * @param $arr
+     * @return bool
+     */
+    public static function arrayIsAssociative($arr)
+    {
+        if (array() === $arr) return false;
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    /**
      * Return the Grav date formats allowed
      *
      * @return array
