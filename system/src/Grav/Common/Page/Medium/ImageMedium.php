@@ -223,7 +223,7 @@ class ImageMedium extends Medium
         foreach ($this->alternatives as $ratio => $medium) {
             $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
         }
-        $srcset[] = $this->url($reset) . ' ' . $this->get('width') . 'w';
+        $srcset[] = str_replace(' ', '%20', $this->url($reset)) . ' ' . $this->get('width') . 'w';
 
         return implode(', ', $srcset);
     }
