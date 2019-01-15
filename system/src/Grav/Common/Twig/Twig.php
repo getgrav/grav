@@ -212,6 +212,8 @@ class Twig
                     'language_codes'    => new LanguageCodes,
                 ];
         }
+
+        return $this;
     }
 
     /**
