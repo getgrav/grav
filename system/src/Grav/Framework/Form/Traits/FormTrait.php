@@ -269,10 +269,20 @@ trait FormTrait
         if (null === $this->flash) {
             $grav = Grav::instance();
 
-            /** @var Session $session */
-            $session = $grav['session'];
+            $rememberState = $this->getBlueprint()->get('form/remember_state');
 
-            $this->flash = new FormFlash($session->getId(), $this->getUniqueId(), $this->getName());
+            if ($rememberState === 'user') {
+                $user = $grav['user'];
+                $id = $user->username;
+            }
+
+            if (null === $id) {
+                /** @var Session $session */
+                $session = $grav['session'];
+                $id = $session->getId();
+            }
+
+            $this->flash = new FormFlash($id, $this->getUniqueId(), $this->getName());
             $this->flash->setUrl($grav['uri']->url)->setUser($grav['user']);
         }
 
