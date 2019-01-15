@@ -268,14 +268,15 @@ trait FormTrait
     {
         if (null === $this->flash) {
             $grav = Grav::instance();
+            $user = $grav['user'];
+            $id = null;
 
             $rememberState = $this->getBlueprint()->get('form/remember_state');
-
             if ($rememberState === 'user') {
-                $user = $grav['user'];
                 $id = $user->username;
             }
 
+            // By default store flash by the session id.
             if (null === $id) {
                 /** @var Session $session */
                 $session = $grav['session'];
@@ -283,7 +284,7 @@ trait FormTrait
             }
 
             $this->flash = new FormFlash($id, $this->getUniqueId(), $this->getName());
-            $this->flash->setUrl($grav['uri']->url)->setUser($grav['user']);
+            $this->flash->setUrl($grav['uri']->url)->setUser($user);
         }
 
         return $this->flash;
@@ -448,6 +449,8 @@ trait FormTrait
         foreach ($data as $key => &$value) {
             if (\is_array($value)) {
                 $value = $this->jsonDecode($value);
+            } elseif ($value === '') {
+                unset($data[$key]);
             } else {
                 $value = json_decode($value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
