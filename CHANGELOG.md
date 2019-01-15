@@ -11,6 +11,8 @@
     * Move `processMarkdown()` method from `TwigExtension` to more general `Utils` class
     * Added support to include extra files into `Media` (such as uploaded files)
     * Added form preview support for `FlexObject`, including a way to render newly uploaded files before saving them
+    * Added `FlexObject::getChanges()` to determine what fields change during an update
+    * Added `arrayDiffMultidimensional`, `arrayIsAssociative`, `arrayCombine` Util functions
 1. [](#improved)
     * Added method argument `Data::filter($missingValuesAsNull)`, defaulting to `false`
 1. [](#bugfix)
