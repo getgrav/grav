@@ -111,7 +111,7 @@ class Validation
         }
 
         if (!method_exists(__CLASS__, $method)) {
-            $method = 'filterText';
+            $method = isset($field['array']) && $field['array'] === true ? 'filterArray' : 'filterText';
         }
 
         return self::$method($value, $validate, $field);
