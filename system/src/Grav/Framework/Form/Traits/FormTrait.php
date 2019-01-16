@@ -264,7 +264,7 @@ trait FormTrait
      *
      * @return FormFlash
      */
-    protected function getFlash(): FormFlash
+    public function getFlash(): FormFlash
     {
         if (null === $this->flash) {
             $grav = Grav::instance();
