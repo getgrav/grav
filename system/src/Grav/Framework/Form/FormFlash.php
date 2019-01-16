@@ -59,7 +59,11 @@ class FormFlash implements \JsonSerializable
         $this->exists = $file->exists();
 
         if ($this->exists) {
-            $data = (array)$file->content();
+            try {
+                $data = (array)$file->content();
+            } catch (\Exception $e) {
+                $data = [];
+            }
             $this->formName = null !== $formName ? $content['form'] ?? '' : '';
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;

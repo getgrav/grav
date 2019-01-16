@@ -327,10 +327,12 @@ trait FormTrait
         $data = isset($body['data']) ? $this->decodeData($body['data']) : null;
 
         $flash = $this->getFlash();
+        /*
         if (null !== $data) {
             $flash->setData($data);
             $flash->save();
         }
+        */
 
         $blueprint = $this->getBlueprint();
         $includeOriginal = (bool)($blueprint->form()['images']['original'] ?? null);
