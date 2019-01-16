@@ -185,7 +185,7 @@ class ImageMedium extends Medium
             $this->reset();
         }
 
-        return trim(Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/'), '\\');
+        return trim(Grav::instance()['base_url'] . '/' . $this->urlQuerystring($output), '\\');
     }
 
     /**
@@ -358,7 +358,7 @@ class ImageMedium extends Medium
 
         if ($this->image) {
             $this->image();
-            $this->querystring('');
+            $this->medium_querystring = [];
             $this->filter();
             $this->clearAlternatives();
         }

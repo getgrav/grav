@@ -18,6 +18,8 @@
 1. [](#bugfix)
     * Fixed environment getting port added [#2284](https://github.com/getgrav/grav/issues/2284)
     * Fixed `FlexForm::updateObject()` to update array values when they are empty in the form
+    * Fixed some issues related to Medium objects losing query string attributes
+    * Broke out Medium timestamp so it's not cleared on `reset()s`
     
 # v1.6.0-beta.7
 ## 12/14/2018
