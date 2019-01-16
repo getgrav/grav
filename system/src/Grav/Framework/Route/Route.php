@@ -312,7 +312,7 @@ class Route
             $this->root = $gravParts['root'];
             $this->language = $gravParts['language'];
             $this->route = $gravParts['route'];
-            $this->extension = $gravParts['extension'];
+            $this->extension = $gravParts['extension'] ?? '';
             $this->gravParams = $gravParts['params'];
             $this->queryParams = $parts['query_params'];
 
