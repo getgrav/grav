@@ -63,6 +63,22 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     }
 
     /**
+     * Set file modification timestamps (query params) for all the media files.
+     *
+     * @param string|int|null $timestamp
+     * @return $this
+     */
+    public function setTimestamps($timestamp = null)
+    {
+        /** @var Medium $instance */
+        foreach ($this->instances as $instance) {
+            $instance->setTimestamp($timestamp);
+        }
+
+        return $this;
+    }
+
+    /**
      * Get a list of all media.
      *
      * @return array|MediaObjectInterface[]

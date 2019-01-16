@@ -113,6 +113,35 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     }
 
     /**
+     * Get file modification time for the medium.
+     *
+     * @return int|null
+     */
+    public function modified()
+    {
+        $path = $this->get('filepath');
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        return filemtime($path) ?: null;
+    }
+
+    /**
+     * Set querystring to file modification timestamp (or value provided as a parameter).
+     *
+     * @param string|int|null $timestamp
+     * @return $this
+     */
+    public function setTimestamp($timestamp = null)
+    {
+        $this->set('querystring', (string)($timestamp ?? $this->modified()));
+
+        return $this;
+    }
+
+    /**
      * Returns an array containing just the metadata
      *
      * @return array

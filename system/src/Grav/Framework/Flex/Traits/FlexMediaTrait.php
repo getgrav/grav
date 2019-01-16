@@ -73,7 +73,7 @@ trait FlexMediaTrait
             }
         }
 
-        return $this->media;
+        return $this->media->setTimestamps();
     }
 
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
