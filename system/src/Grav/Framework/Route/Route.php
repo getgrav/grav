@@ -27,6 +27,9 @@ class Route
     /** @var string */
     private $route = '';
 
+    /** @var string */
+    private $extension = '';
+
     /** @var array */
     private $gravParams = [];
 
@@ -56,6 +59,7 @@ class Route
                 'root' => $this->root,
                 'language' => $this->language,
                 'route' => $this->route,
+                'extension' => $this->extension,
                 'grav_params' => $this->gravParams,
                 'query_params' => $this->queryParams,
             ],
@@ -90,6 +94,14 @@ class Route
         }
 
         return '/' . $this->route;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtension()
+    {
+        return $this->extension;
     }
 
     /**
@@ -184,6 +196,17 @@ class Route
     }
 
     /**
+     * @param string $extension
+     * @return Route
+     */
+    public function withExtension($extension)
+    {
+        $this->extension = $extension;
+
+        return $this;
+    }
+
+    /**
      * @param string $param
      * @param mixed $value
      * @return Route
@@ -261,7 +284,7 @@ class Route
         }
 
         if ($this->route !== '') {
-            $parts[] = $this->route;
+            $parts[] = $this->extension ? $this->route . '.' . $this->extension : $this->route;
         }
 
         if ($this->gravParams) {
@@ -289,6 +312,7 @@ class Route
             $this->root = $gravParts['root'];
             $this->language = $gravParts['language'];
             $this->route = $gravParts['route'];
+            $this->extension = $gravParts['extension'];
             $this->gravParams = $gravParts['params'];
             $this->queryParams = $parts['query_params'];
 
