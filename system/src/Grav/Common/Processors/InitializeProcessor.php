@@ -53,8 +53,12 @@ class InitializeProcessor extends ProcessorBase
 
         // Redirect pages with trailing slash if configured to do so.
         $path = $uri->path() ?: '/';
-        if ($path !== '/' && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($path, '/')) {
-            $this->container->redirectLangSafe(rtrim($path, '/'));
+        if ($path !== '/'
+            && $config->get('system.pages.redirect_trailing_slash', false)
+            && Utils::endsWith($path, '/')) {
+
+            $redirect = (string) $uri->getCurrentRoute()->withRoot('');
+            $this->container->redirectLangSafe($redirect);
         }
 
         $this->container->setLocale();

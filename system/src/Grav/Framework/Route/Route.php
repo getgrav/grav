@@ -185,6 +185,30 @@ class Route
     }
 
     /**
+     * Allow the ability to set the route to something else
+     *
+     * @param $route
+     * @return $this
+     */
+    public function withRoute($route)
+    {
+        $this->route = $route;
+        return $this;
+    }
+
+    /**
+     * Allow the ability to set the root to something else
+     *
+     * @param $root
+     * @return $this
+     */
+    public function withRoot($root)
+    {
+        $this->root = $root;
+        return $this;
+    }
+
+    /**
      * @param string $path
      * @return Route
      */
