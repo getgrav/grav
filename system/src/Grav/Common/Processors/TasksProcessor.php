@@ -36,8 +36,7 @@ class TasksProcessor extends ProcessorBase
                     $response = $controller->handle($request);
 
                     if ($response->getStatusCode() === 418) {
-                        //print_r($response);die();
-                        //$response = $handler->handle($request);
+                        $response = $handler->handle($request);
                     }
 
                     $this->stopTimer();
