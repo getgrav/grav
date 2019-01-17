@@ -35,9 +35,15 @@ class TasksProcessor extends ProcessorBase
                 try {
                     $response = $controller->handle($request);
 
+                    if ($response->getStatusCode() === 418) {
+                        //print_r($response);die();
+                        //$response = $handler->handle($request);
+                    }
+
                     $this->stopTimer();
 
                     return $response;
+
                 } catch (NotFoundException $e) {
                     // Task not found: Let it pass through.
                 }
