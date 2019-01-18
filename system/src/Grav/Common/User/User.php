@@ -34,16 +34,17 @@ class User extends Data
         $locator = $grav['locator'];
 
         // force lowercase of username
-        $username = strtolower($username);
+        $username = mb_strtolower($username);
 
         $blueprints = new Blueprints;
         $blueprint = $blueprints->get('user/account');
 
-        $file_path = $locator->findResource('account://' . $username . YAML_EXT);
-        $file = CompiledYamlFile::instance($file_path);
+        $filename = 'account://' . $username . YAML_EXT;
+        $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
+        $file = CompiledYamlFile::instance($path);
         $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
 
-        $user = new User($content, $blueprint);
+        $user = new static($content, $blueprint);
         $user->file($file);
 
         return $user;
@@ -63,17 +64,17 @@ class User extends Data
 
         // Try with username first, you never know!
         if (in_array('username', $fields, true)) {
-            $user = User::load($query);
+            $user = static::load($query);
             unset($fields[array_search('username', $fields, true)]);
         } else {
-            $user = User::load('');
+            $user = static::load('');
         }
 
         // If not found, try the fields
         if (!$user->exists()) {
             foreach ($files as $file) {
                 if (Utils::endsWith($file, YAML_EXT)) {
-                    $find_user = User::load(trim(pathinfo($file, PATHINFO_FILENAME)));
+                    $find_user = static::load(trim(pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
                         if ($find_user[$field] === $query) {
                             return $find_user;
@@ -146,8 +147,9 @@ class User extends Data
         $save = false;
 
         // Plain-text is still stored
-        if ($this->password) {
-            if ($password !== $this->password) {
+        $storedPassword = $this->get('password');
+        if ($storedPassword) {
+            if ($password !== $storedPassword) {
                 // Plain-text passwords do not match, we know we should fail but execute
                 // verify to protect us from timing attacks and return false regardless of
                 // the result
@@ -162,17 +164,16 @@ class User extends Data
             // Plain-text does match, we can update the hash and proceed
             $save = true;
 
-            $this->hashed_password = Authentication::create($this->password);
-            unset($this->password);
-
+            $this->set('hashed_password', Authentication::create($storedPassword));
+            $this->undef('password');
         }
 
-        $result = Authentication::verify($password, $this->hashed_password);
+        $result = Authentication::verify($password, $this->get('hashed_password'));
 
         // Password needs to be updated, save the file.
         if ($result === 2) {
             $save = true;
-            $this->hashed_password = Authentication::create($password);
+            $this->set('hashed_password', Authentication::create($password));
         }
 
         if ($save) {
@@ -183,27 +184,47 @@ class User extends Data
     }
 
     /**
+     * Replace all data
+     *
+     * WARNING: There are no checks! All the data will be replaced.
+     *
+     * @param array $data
+     * @return $this
+     */
+    public function update(array $data)
+    {
+        $this->items = $data;
+
+        return $this;
+    }
+
+    /**
      * Save user without the username
      */
     public function save()
     {
+        /** @var CompiledYamlFile $file */
         $file = $this->file();
+        if (!$file || !$file->filename()) {
+            user_error(__CLASS__ . ": calling \$user = new User() is deprecated since Grav 1.6, use User::load(\$username) or User::load('') instead", E_USER_DEPRECATED);
+        }
 
         if ($file) {
             $username = $this->get('username');
 
             if (!$file->filename()) {
                 $locator = Grav::instance()['locator'];
-                $file->filename($locator->findResource('account://') . DS . strtolower($username) . YAML_EXT);
+                $file->filename($locator->findResource('account://' . mb_strtolower($username) . YAML_EXT, true, true));
             }
 
             // if plain text password, hash it and remove plain text
-            if ($this->password) {
-                $this->hashed_password = Authentication::create($this->password);
-                unset($this->password);
+            $password = $this->get('password');
+            if ($password) {
+                $this->set('hashed_password', Authentication::create($password));
+                $this->undef('password');
             }
 
-            unset($this->username);
+            $this->undef('username');
             $file->save($this->items);
             $this->set('username', $username);
         }
@@ -218,15 +239,11 @@ class User extends Data
      */
     public function authorize($action)
     {
-        if (empty($this->items)) {
+        if (!$this->get('authenticated')) {
             return false;
         }
 
-        if (!$this->authenticated) {
-            return false;
-        }
-
-        if (isset($this->state) && $this->state !== 'enabled') {
+        if ($this->get('state', 'enabled') !== 'enabled') {
             return false;
         }
 
@@ -245,11 +262,10 @@ class User extends Data
         }
 
         //Check user access level
-        if ($this->get('access')) {
-            if (Utils::getDotNotation($this->get('access'), $action) !== null) {
-                $permission = $this->get("access.{$action}");
-                $return = Utils::isPositive($permission);
-            }
+        $access = $this->get('access');
+        if ($access && Utils::getDotNotation($access, $action) !== null) {
+            $permission = $this->get("access.{$action}");
+            $return = Utils::isPositive($permission);
         }
 
         return $return;
@@ -278,20 +294,25 @@ class User extends Data
      */
     public function avatarUrl()
     {
-        if ($this->avatar) {
-            $avatar = $this->avatar;
+        $avatar = $this->get('avatar');
+        if ($avatar) {
             $avatar = array_shift($avatar);
-            return Grav::instance()['base_url'] . '/' . $avatar['path'];
-        } elseif ($this->provider) {
-            $provider = $this->provider;
-            if (isset($this->$provider['avatar_url'])) {
-                return $this->$provider['avatar_url'];
-            } elseif (isset($this->$provider['avatar'])) {
-                return $this->$provider['avatar'];
+
+            $path = $avatar['path'] ?? null;
+            if ($path) {
+                return Grav::instance()['base_url'] . '/' . $path;
             }
         }
 
-        return 'https://www.gravatar.com/avatar/' . md5($this->email);
+        $provider = $this->get('provider');
+        if ($provider) {
+            $avatar = $this->{$provider}['avatar_url'] ?? $this->{$provider}['avatar'] ?? null;
+            if ($avatar) {
+                return $avatar;
+            }
+        }
+
+        return 'https://www.gravatar.com/avatar/' . md5($this->get('email'));
     }
 
     /**
