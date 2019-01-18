@@ -89,9 +89,9 @@ trait FormTrait
         return '';
     }
 
-    public function getData(): \ArrayAccess
+    public function getData(string $name = null)
     {
-        return $this->data;
+        return null !== $name ? $this->data[$name] : $this->data;
     }
 
     /**
