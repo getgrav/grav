@@ -86,6 +86,13 @@ class User extends Data
         return $user;
     }
 
+    public function __construct(array $items = [], $blueprints = null)
+    {
+        unset($items['authenticated'], $items['authorized']);
+
+        parent::__construct($items, $blueprints);
+    }
+
     /**
      * Remove user account.
      *
