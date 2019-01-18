@@ -224,9 +224,10 @@ class User extends Data
                 $this->undef('password');
             }
 
-            $this->undef('username');
-            $file->save($this->items);
-            $this->set('username', $username);
+            $data = $this->items;
+            unset($data['username'], $data['authenticated'], $data['authorized']);
+
+            $file->save($data);
         }
     }
 
