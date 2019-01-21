@@ -191,16 +191,14 @@ class User extends Data
     }
 
     /**
-     * Replace all data
-     *
-     * WARNING: There are no checks! All the data will be replaced.
+     * Update object with data
      *
      * @param array $data
      * @return $this
      */
     public function update(array $data)
     {
-        $this->items = $data;
+        $this->merge($data);
 
         return $this;
     }
