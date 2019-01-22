@@ -229,7 +229,7 @@ trait FlexMediaTrait
             $preg_name = preg_quote($fileParts['filename'], '`');
             $preg_ext =preg_quote($fileParts['extension'], '`');
             $preg_filename = preg_quote($basename, '`');
-            echo $file .' - ';
+
             if (preg_match("`({$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?$|{$preg_filename}\.meta\.yaml)$`", $file)) {
                 $testPath = $targetPath . '/' . $file;
                 if ($locator->isStream($testPath)) {

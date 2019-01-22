@@ -316,6 +316,20 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
+     * Clear form flash from all uploaded files.
+     */
+    public function clearFiles()
+    {
+        foreach ($this->files as $field => $files) {
+            foreach ($files as $name => $upload) {
+                $this->removeTmpFile($upload['tmp_name'] ?? '');
+            }
+        }
+
+        $this->files = [];
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize(): array
