@@ -53,7 +53,7 @@ class Route
     public function getParts()
     {
         return [
-            'path' => $this->getUriPath(),
+            'path' => $this->getUriPath(true),
             'query' => $this->getUriQuery(),
             'grav' => [
                 'root' => $this->root,
