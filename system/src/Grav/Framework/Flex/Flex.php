@@ -93,6 +93,7 @@ class Flex implements \Countable
     /**
      * @param string $type
      * @param string $key
+     * @param string|null $keyField
      * @return FlexObjectInterface|null
      */
     public function getObject(string $type, string $key, string $keyField = null): ?FlexObjectInterface
