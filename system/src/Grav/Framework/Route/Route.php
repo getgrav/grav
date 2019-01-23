@@ -259,17 +259,26 @@ class Route
     }
 
     /**
+     * @param bool $includeRoot
      * @return string
      */
-    public function __toString()
+    public function toString(bool $includeRoot = false)
     {
-        $url = $this->getUriPath();
+        $url = $this->getUriPath($includeRoot);
 
         if ($this->queryParams) {
             $url .= '?' . $this->getUriQuery();
         }
 
         return $url;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->toString();
     }
 
     /**
@@ -297,11 +306,12 @@ class Route
     }
 
     /**
+     * @param bool $includeRoot
      * @return string
      */
-    protected function getUriPath()
+    protected function getUriPath($includeRoot = false)
     {
-        $parts = [$this->root];
+        $parts = $includeRoot ? [$this->root] : [''];
 
         if ($this->language !== '') {
             $parts[] = $this->language;

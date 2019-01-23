@@ -24,6 +24,7 @@
     * Fixed issue with `redirect_trailing_slash` losing query string [#2269](https://github.com/getgrav/grav/issues/2269)
     * Fixed failed login if user attempts to log in with upper case non-english letters
     * Removed extra authenticated/authorized fields when saving existing user from a form
+    * Fixed `Grav\Framework\Route::__toString()` returning relative URL, not relative route
     
 # v1.6.0-beta.7
 ## 12/14/2018
