@@ -275,10 +275,13 @@ class Route
 
     /**
      * @return string
+     * @deprecated 1.6
      */
     public function __toString()
     {
-        return $this->toString();
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() will change in the future to return route, not relative url: use ->toString(true) or ->getUri() instead.', E_USER_DEPRECATED);
+
+        return $this->toString(true);
     }
 
     /**

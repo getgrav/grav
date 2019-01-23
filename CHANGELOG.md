@@ -25,7 +25,6 @@
     * Fixed failed login if user attempts to log in with upper case non-english letters
     * Removed extra authenticated/authorized fields when saving existing user from a form
     * Fixed `Grav\Framework\Route::__toString()` returning relative URL, not relative route
-    * Fixed `MediaTrait::getMedia()` to return refreshed `Media` object after calling `MediaTrait::clearMediaCache()`
     
 # v1.6.0-beta.7
 ## 12/14/2018
