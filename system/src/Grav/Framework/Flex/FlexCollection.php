@@ -117,6 +117,13 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $type . $this->_flexDirectory->getType();
     }
 
+    public function sort(array $order) // : FlexCollection
+    {
+        $criteria = Criteria::create()->orderBy($order);
+
+        return $this->matching($criteria);
+    }
+
     /**
      * Twig example: {% render collection layout 'edit' with {my_check: true} %}
      *
