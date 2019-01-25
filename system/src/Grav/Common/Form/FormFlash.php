@@ -101,28 +101,9 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
         }
 
         $upload['file']['tmp_name'] = $basename;
-
-        if (!isset($this->files[$field])) {
-            $this->files[$field] = [];
-        }
-
-        // Prepare object for later save
         $upload['file']['name'] = $filename;
 
-        // Replace old file, including original
-        $oldUpload = $this->files[$field][$filename] ?? null;
-        if (isset($oldUpload['tmp_name'])) {
-            $this->removeTmpFile($oldUpload['tmp_name']);
-        }
-
-        $originalUpload = $this->files[$field . '/original'][$filename] ?? null;
-        if (isset($originalUpload['tmp_name'])) {
-            $this->removeTmpFile($originalUpload['tmp_name']);
-            unset($this->files[$field . '/original'][$filename]);
-        }
-
-        // Prepare data to be saved later
-        $this->files[$field][$filename] = $upload['file'];
+        $this->addFileInternal($field, $filename, $upload['file']);
 
         return true;
     }
@@ -149,27 +130,9 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
         }
 
         $upload['file']['tmp_name'] = $basename;
-
-        if (!isset($this->files[$field])) {
-            $this->files[$field] = [];
-        }
-
-        // Prepare object for later save
         $upload['file']['name'] = $filename;
 
-        $oldUpload = $this->files[$field][$filename] ?? null;
-        if ($oldUpload) {
-            $originalUpload = $this->files[$field . '/original'][$filename] ?? null;
-            if ($originalUpload) {
-                $this->removeTmpFile($oldUpload['tmp_name']);
-            } else {
-                $oldUpload['crop'] = $crop;
-                $this->files[$field . '/original'][$filename] = $oldUpload;
-            }
-        }
-
-        // Prepare data to be saved later
-        $this->files[$field][$filename] = $upload['file'];
+        $this->addFileInternal($field, $filename, $upload['file'], $crop);
 
         return true;
     }
