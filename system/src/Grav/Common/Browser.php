@@ -143,7 +143,7 @@ class Browser
      */
     public function isTrackable(): bool
     {
-        if ($_SERVER['HTTP_DNT'] === '1') {
+        if (isset($_SERVER['HTTP_DNT']) && $_SERVER['HTTP_DNT'] === '1') {
             return false;
         }
 
