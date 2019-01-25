@@ -133,6 +133,10 @@ class Validation
 
         $value = (string)$value;
 
+        if (!empty($params['trim'])) {
+            $value = trim($value);
+        }
+
         if (isset($params['min']) && \strlen($value) < $params['min']) {
             return false;
         }
@@ -155,6 +159,10 @@ class Validation
 
     protected static function filterText($value, array $params, array $field)
     {
+        if (!empty($params['trim'])) {
+            $value = trim($value);
+        }
+
         return (string) $value;
     }
 
