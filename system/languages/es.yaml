@@ -30,7 +30,7 @@ INFLECTOR_ORDINALS:
   third: ro
 NICETIME:
   NO_DATE_PROVIDED: No se proporcionó fecha
-  BAD_DATE: Fecha erronea
+  BAD_DATE: Fecha errónea
   AGO: antes
   FROM_NOW: desde ahora
   SECOND: segundo
