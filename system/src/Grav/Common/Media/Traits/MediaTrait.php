@@ -23,7 +23,10 @@ trait MediaTrait
      *
      * @return array Empty array means default ordering.
      */
-    abstract public function getMediaOrder();
+    public function getMediaOrder()
+    {
+        return [];
+    }
 
     /**
      * Get URI ot the associated media. Method will return null if path isn't URI.
@@ -55,9 +58,9 @@ trait MediaTrait
      */
     public function getMedia()
     {
-        $cache = $this->getMediaCache();
-
         if ($this->media === null) {
+            $cache = $this->getMediaCache();
+
             // Use cached media if possible.
             $cacheKey = md5('media' . $this->getCacheKey());
             if (!$media = $cache->fetch($cacheKey)) {
@@ -95,6 +98,8 @@ trait MediaTrait
         $cache = $this->getMediaCache();
         $cacheKey = md5('media' . $this->getCacheKey());
         $cache->delete($cacheKey);
+
+        $this->media = null;
     }
 
     /**

@@ -27,6 +27,9 @@ class Route
     /** @var string */
     private $route = '';
 
+    /** @var string */
+    private $extension = '';
+
     /** @var array */
     private $gravParams = [];
 
@@ -50,12 +53,13 @@ class Route
     public function getParts()
     {
         return [
-            'path' => $this->getUriPath(),
+            'path' => $this->getUriPath(true),
             'query' => $this->getUriQuery(),
             'grav' => [
                 'root' => $this->root,
                 'language' => $this->language,
                 'route' => $this->route,
+                'extension' => $this->extension,
                 'grav_params' => $this->gravParams,
                 'query_params' => $this->queryParams,
             ],
@@ -90,6 +94,14 @@ class Route
         }
 
         return '/' . $this->route;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtension()
+    {
+        return $this->extension;
     }
 
     /**
@@ -173,12 +185,47 @@ class Route
     }
 
     /**
+     * Allow the ability to set the route to something else
+     *
+     * @param $route
+     * @return $this
+     */
+    public function withRoute($route)
+    {
+        $this->route = $route;
+        return $this;
+    }
+
+    /**
+     * Allow the ability to set the root to something else
+     *
+     * @param $root
+     * @return $this
+     */
+    public function withRoot($root)
+    {
+        $this->root = $root;
+        return $this;
+    }
+
+    /**
      * @param string $path
      * @return Route
      */
     public function withAddedPath($path)
     {
         $this->route .= '/' . ltrim($path, '/');
+
+        return $this;
+    }
+
+    /**
+     * @param string $extension
+     * @return Route
+     */
+    public function withExtension($extension)
+    {
+        $this->extension = $extension;
 
         return $this;
     }
@@ -212,17 +259,29 @@ class Route
     }
 
     /**
+     * @param bool $includeRoot
      * @return string
      */
-    public function __toString()
+    public function toString(bool $includeRoot = false)
     {
-        $url = $this->getUriPath();
+        $url = $this->getUriPath($includeRoot);
 
         if ($this->queryParams) {
             $url .= '?' . $this->getUriQuery();
         }
 
         return $url;
+    }
+
+    /**
+     * @return string
+     * @deprecated 1.6
+     */
+    public function __toString()
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() will change in the future to return route, not relative url: use ->toString(true) or ->getUri() instead.', E_USER_DEPRECATED);
+
+        return $this->toString(true);
     }
 
     /**
@@ -250,18 +309,19 @@ class Route
     }
 
     /**
+     * @param bool $includeRoot
      * @return string
      */
-    protected function getUriPath()
+    protected function getUriPath($includeRoot = false)
     {
-        $parts = [$this->root];
+        $parts = $includeRoot ? [$this->root] : [''];
 
         if ($this->language !== '') {
             $parts[] = $this->language;
         }
 
         if ($this->route !== '') {
-            $parts[] = $this->route;
+            $parts[] = $this->extension ? $this->route . '.' . $this->extension : $this->route;
         }
 
         if ($this->gravParams) {
@@ -289,6 +349,7 @@ class Route
             $this->root = $gravParts['root'];
             $this->language = $gravParts['language'];
             $this->route = $gravParts['route'];
+            $this->extension = $gravParts['extension'] ?? '';
             $this->gravParams = $gravParts['params'];
             $this->queryParams = $parts['query_params'];
 

@@ -108,6 +108,11 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         return $this->upload;
     }
 
+    public function getTmpFile() : string
+    {
+        return $this->flash->getTmpDir() . '/' . $this->upload['tmp_name'];
+    }
+
     public function __debugInfo()
     {
         return [
@@ -137,10 +142,5 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
     private function isOk(): bool
     {
         return \UPLOAD_ERR_OK === $this->getError();
-    }
-
-    private function getTmpFile() : string
-    {
-        return $this->flash->getTmpDir() . '/' . $this->upload['tmp_name'];
     }
 }

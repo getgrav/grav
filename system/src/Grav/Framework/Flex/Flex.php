@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex;
 
+use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
@@ -76,11 +77,30 @@ class Flex implements \Countable
         return $this->types[$type] ?? null;
     }
 
-    public function getObject(string $type, string $key): ?FlexObjectInterface
+    /**
+     * @param string $type
+     * @param array|null $keys
+     * @param string|null $keyField
+     * @return CollectionInterface|null
+     */
+    public function getCollection(string $type, array $keys = null, string $keyField = null) : ?CollectionInterface
     {
         $directory = $type ? $this->getDirectory($type) : null;
 
-        return $directory ? $directory->getObject($key) : null;
+        return $directory ? $directory->getCollection($keys, $keyField) : null;
+    }
+
+    /**
+     * @param string $type
+     * @param string $key
+     * @param string|null $keyField
+     * @return FlexObjectInterface|null
+     */
+    public function getObject(string $type, string $key, string $keyField = null): ?FlexObjectInterface
+    {
+        $directory = $type ? $this->getDirectory($type) : null;
+
+        return $directory ? $directory->getObject($key, $keyField) : null;
     }
 
     /**

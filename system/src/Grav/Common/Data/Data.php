@@ -196,12 +196,13 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     }
 
     /**
+     * @param bool $missingValuesAsNull
      * @return $this
      * Filter all items by using blueprints.
      */
-    public function filter()
+    public function filter(bool $missingValuesAsNull = false)
     {
-        $this->items = $this->blueprints()->filter($this->items);
+        $this->items = $this->blueprints()->filter($this->items, $missingValuesAsNull);
 
         return $this;
     }

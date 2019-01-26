@@ -111,7 +111,7 @@ class Validation
         }
 
         if (!method_exists(__CLASS__, $method)) {
-            $method = 'filterText';
+            $method = isset($field['array']) && $field['array'] === true ? 'filterArray' : 'filterText';
         }
 
         return self::$method($value, $validate, $field);
@@ -132,6 +132,10 @@ class Validation
         }
 
         $value = (string)$value;
+
+        if (!empty($params['trim'])) {
+            $value = trim($value);
+        }
 
         if (isset($params['min']) && \strlen($value) < $params['min']) {
             return false;
@@ -155,6 +159,10 @@ class Validation
 
     protected static function filterText($value, array $params, array $field)
     {
+        if (!empty($params['trim'])) {
+            $value = trim($value);
+        }
+
         return (string) $value;
     }
 
@@ -597,9 +605,13 @@ class Validation
 
         if (isset($field['ignore_empty']) && Utils::isPositive($field['ignore_empty'])) {
             foreach ($values as $key => $val) {
-                foreach ($val as $inner_key => $inner_value) {
-                    if ($inner_value == '') {
-                        unset($val[$inner_key]);
+                if ($val === '') {
+                    unset($values[$key]);
+                } elseif (\is_array($val)) {
+                    foreach ($val as $inner_key => $inner_value) {
+                        if ($inner_value === '') {
+                            unset($val[$inner_key]);
+                        }
                     }
                 }
 
@@ -662,6 +674,23 @@ class Validation
         return $value;
     }
 
+    /**
+     * Input value which can be ignored.
+     *
+     * @param  mixed  $value   Value to be validated.
+     * @param  array  $params  Validation parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return bool   True if validation succeeded.
+     */
+    public static function typeUnset($value, array $params, array $field)
+    {
+        return true;
+    }
+
+    public static function filterUnset($value, array $params, array $field)
+    {
+        return null;
+    }
 
     // HTML5 attributes (min, max and range are handled inside the types)
 
@@ -734,15 +763,12 @@ class Validation
 
     protected static function filterInt($value, $params)
     {
-        return (int) $value;
+        return (int)$value;
     }
 
     public static function validateArray($value, $params)
     {
-        return \is_array($value)
-        || ($value instanceof \ArrayAccess
-            && $value instanceof \Traversable
-            && $value instanceof \Countable);
+        return \is_array($value) || ($value instanceof \ArrayAccess && $value instanceof \Traversable && $value instanceof \Countable);
     }
 
     public static function filterItem_List($value, $params)

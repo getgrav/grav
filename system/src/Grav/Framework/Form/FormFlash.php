@@ -59,7 +59,11 @@ class FormFlash implements \JsonSerializable
         $this->exists = $file->exists();
 
         if ($this->exists) {
-            $data = (array)$file->content();
+            try {
+                $data = (array)$file->content();
+            } catch (\Exception $e) {
+                $data = [];
+            }
             $this->formName = null !== $formName ? $content['form'] ?? '' : '';
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
@@ -312,6 +316,20 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
+     * Clear form flash from all uploaded files.
+     */
+    public function clearFiles()
+    {
+        foreach ($this->files as $field => $files) {
+            foreach ($files as $name => $upload) {
+                $this->removeTmpFile($upload['tmp_name'] ?? '');
+            }
+        }
+
+        $this->files = [];
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize(): array
@@ -383,7 +401,7 @@ class FormFlash implements \JsonSerializable
                 $originalUpload = $this->files[$field . '/original'][$name] ?? null;
                 if ($originalUpload) {
                     // If there is original file already present, remove the modified file
-                    $originalUpload['crop'] = $crop;
+                    $this->files[$field . '/original'][$name]['crop'] = $crop;
                     $this->removeTmpFile($oldUpload['tmp_name'] ?? '');
                 } else {
                     // Otherwise make the previous file as original

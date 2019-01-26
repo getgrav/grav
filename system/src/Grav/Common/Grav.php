@@ -338,7 +338,7 @@ class Grav extends Container
             $response = new Response($page->httpResponseCode(), $page->httpHeaders(), '');
         }
 
-        http_response_code($response->getStatusCode());
+        header("HTTP/{$response->getProtocolVersion()} {$response->getStatusCode()} {$response->getReasonPhrase()}");
         foreach ($response->getHeaders() as $key => $values) {
             foreach ($values as $i => $value) {
                 header($key . ': ' . $value, $i === 0);

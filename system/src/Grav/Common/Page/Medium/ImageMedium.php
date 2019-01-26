@@ -185,7 +185,7 @@ class ImageMedium extends Medium
             $this->reset();
         }
 
-        return trim(Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/'), '\\');
+        return trim(Grav::instance()['base_url'] . '/' . $this->urlQuerystring($output), '\\');
     }
 
     /**
@@ -223,7 +223,7 @@ class ImageMedium extends Medium
         foreach ($this->alternatives as $ratio => $medium) {
             $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
         }
-        $srcset[] = $this->url($reset) . ' ' . $this->get('width') . 'w';
+        $srcset[] = str_replace(' ', '%20', $this->url($reset)) . ' ' . $this->get('width') . 'w';
 
         return implode(', ', $srcset);
     }
@@ -358,7 +358,7 @@ class ImageMedium extends Medium
 
         if ($this->image) {
             $this->image();
-            $this->querystring('');
+            $this->medium_querystring = [];
             $this->filter();
             $this->clearAlternatives();
         }

@@ -1,13 +1,32 @@
 # v1.6.0-beta.8
-## mm/dd/2018
+## 01/25/2019
 
 1. [](#new)
     * Added `Grav\Framework\Form\Interfaces\FormInterface`
     * Added `Grav\Framework\Form\Interfaces\FormFactoryInterface`
+    * Added `Grav\Framework\Form\FormTrait`
     * Added `Page::forms()` method to get normalized list of all form headers defined in the page
     * Added `onPageAction`, `onPageTask`, `onPageAction.{$action}` and `onPageTask.{$task}` events
     * Added `Blueprint::processForm()` method to filter form inputs
-
+    * Move `processMarkdown()` method from `TwigExtension` to more general `Utils` class
+    * Added support to include extra files into `Media` (such as uploaded files)
+    * Added form preview support for `FlexObject`, including a way to render newly uploaded files before saving them
+    * Added `FlexObject::getChanges()` to determine what fields change during an update
+    * Added `arrayDiffMultidimensional`, `arrayIsAssociative`, `arrayCombine` Util functions
+1. [](#improved)
+    * Added method argument `Data::filter($missingValuesAsNull)`, defaulting to `false`
+    * Improved `Grav\Common\User` class; added `$user->update()` method
+    * Added trim support for text input fields `validate: trim: true`
+1. [](#bugfix)
+    * Fixed environment getting port added [#2284](https://github.com/getgrav/grav/issues/2284)
+    * Fixed `FlexForm::updateObject()` to update array values when they are empty in the form
+    * Fixed some issues related to Medium objects losing query string attributes
+    * Broke out Medium timestamp so it's not cleared on `reset()s`
+    * Fixed issue with `redirect_trailing_slash` losing query string [#2269](https://github.com/getgrav/grav/issues/2269)
+    * Fixed failed login if user attempts to log in with upper case non-english letters
+    * Removed extra authenticated/authorized fields when saving existing user from a form
+    * Fixed `Grav\Framework\Route::__toString()` returning relative URL, not relative route
+    
 # v1.6.0-beta.7
 ## 12/14/2018
 
@@ -133,6 +152,18 @@
     * Doctrine filecache is now namespaced with prefix to support purging
     * Register all page types into `blueprint://pages` stream
 
+# v1.5.7
+## 01/25/2019
+
+1. [](#new)
+    * Support for AWS Cloudfront forwarded scheme header [#2297](https://github.com/getgrav/grav/pull/2297)
+1. [](#improved)
+    * Set homepage with `https://` protocol [#2299](https://github.com/getgrav/grav/pull/2299)
+    * Preserve accents in fields containing Twig expr. using unicode [#2279](https://github.com/getgrav/grav/pull/2279)
+    * Updated vendor libraries
+1. [](#bugfix)
+    * Support spaces with filenames in responsive images [#2300](https://github.com/getgrav/grav/pull/2300)
+    
 # v1.5.6
 ## 12/14/2018
 

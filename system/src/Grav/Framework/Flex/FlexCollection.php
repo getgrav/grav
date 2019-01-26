@@ -50,7 +50,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             'orderBy' => true,
 
             'render' => false,
-            'authorize' => true
+            'authorize' => false
         ];
     }
 
@@ -115,6 +115,13 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $type = $prefix ? $this->getTypePrefix() : '';
 
         return $type . $this->_flexDirectory->getType();
+    }
+
+    public function sort(array $order) // : FlexCollection
+    {
+        $criteria = Criteria::create()->orderBy($order);
+
+        return $this->matching($criteria);
     }
 
     /**

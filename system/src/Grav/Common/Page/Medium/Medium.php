@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Utils;
 
 class Medium extends Data implements RenderableInterface, MediaObjectInterface
 {
@@ -56,6 +57,13 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     protected $metadata = [];
 
     /**
+     * @var array
+     */
+    protected $medium_querystring = [];
+
+    protected $timestamp;
+
+    /**
      * Construct.
      *
      * @param array $items
@@ -66,7 +74,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
         parent::__construct($items, $blueprint);
 
         if (Grav::instance()['config']->get('system.media.enable_media_timestamp', true)) {
-            $this->querystring('&' . Grav::instance()['cache']->getKey());
+            $this->timestamp = Grav::instance()['cache']->getKey();
         }
 
         $this->def('mime', 'application/octet-stream');
@@ -110,6 +118,35 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get file modification time for the medium.
+     *
+     * @return int|null
+     */
+    public function modified()
+    {
+        $path = $this->get('filepath');
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        return filemtime($path) ?: null;
+    }
+
+    /**
+     * Set querystring to file modification timestamp (or value provided as a parameter).
+     *
+     * @param string|int|null $timestamp
+     * @return $this
+     */
+    public function setTimestamp($timestamp = null)
+    {
+        $this->timestamp = (string)($timestamp ?? $this->modified());
+
+        return $this;
     }
 
     /**
@@ -217,7 +254,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
             $this->reset();
         }
 
-        return trim(Grav::instance()['base_url'] . '/' . ltrim($output . $this->querystring() . $this->urlHash(), '/'), '\\');
+        return trim(Grav::instance()['base_url'] . '/' . $this->urlQuerystring($output), '\\');
     }
 
     /**
@@ -230,20 +267,40 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     public function querystring($querystring = null, $withQuestionmark = true)
     {
         if (!is_null($querystring)) {
-            $this->set('querystring', ltrim($querystring, '?&'));
-
+            $this->medium_querystring[] = ltrim($querystring, '?&');
             foreach ($this->alternatives as $alt) {
                 $alt->querystring($querystring, $withQuestionmark);
             }
         }
 
-        $querystring = $this->get('querystring', '');
-
-        if ($withQuestionmark && !empty($querystring)) {
-            return '?' . $querystring;
-        } else {
-            return $querystring;
+        if (empty($this->medium_querystring)) {
+            return '';
         }
+
+        // join the strings
+        $querystring = implode("&", $this->medium_querystring);
+        // explode all strings
+        $query_parts = explode("&", $querystring);
+        // Join them again now ensure the elements are unique
+        $querystring = implode("&", array_unique($query_parts));
+
+        return $withQuestionmark ? ('?' . $querystring) : $querystring;
+    }
+
+    /**
+     * Get the URL with full querystring
+     *
+     * @param $url
+     * @return string
+     */
+    public function urlQuerystring($url)
+    {
+        $querystring = $this->querystring();
+        if (isset($this->timestamp) && !Utils::contains($querystring, $this->timestamp)) {
+            $querystring = empty($querystring) ? ('?' . $this->timestamp) : ($querystring . '&' . $this->timestamp);
+        }
+
+        return ltrim($url . $querystring . $this->urlHash(), '/');
     }
 
     /**
@@ -261,11 +318,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
 
         $hash = $this->get('urlHash', '');
 
-        if ($withHash && !empty($hash)) {
-            return '#' . $hash;
-        } else {
-            return $hash;
-        }
+        return $withHash && !empty($hash) ? '#' . $hash : $hash;
     }
 
     /**

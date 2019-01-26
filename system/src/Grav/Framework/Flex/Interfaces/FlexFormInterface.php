@@ -11,8 +11,6 @@ namespace Grav\Framework\Flex\Interfaces;
 
 use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Route\Route;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class FlexForm
@@ -24,34 +22,6 @@ interface FlexFormInterface extends \Serializable, FormInterface
      * @return FlexObjectInterface
      */
     public function getObject(): FlexObjectInterface;
-
-    /**
-     * @param ServerRequestInterface $request
-     * @return $this
-     */
-    public function handleRequest(ServerRequestInterface $request): self;
-
-    /**
-     * @param array $data
-     * @param UploadedFileInterface[] $files
-     * @return $this
-     */
-    public function submit(array $data, array $files = null): self;
-
-    /**
-     * @return bool
-     */
-    public function isValid(): bool;
-
-    /**
-     * @return array
-     */
-    public function getErrors(): array;
-
-    /**
-     * @return bool
-     */
-    public function isSubmitted(): bool;
 
     /**
      * @return string

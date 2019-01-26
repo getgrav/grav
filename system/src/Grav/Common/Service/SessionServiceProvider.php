@@ -10,7 +10,6 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
-use Grav\Common\Inflector;
 use Grav\Common\Session;
 use Grav\Common\Uri;
 use Pimple\Container;

@@ -84,7 +84,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return bool
      */
-    public function isEnabled() : bool
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
@@ -92,7 +92,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return string
      */
-    public function getType() : string
+    public function getType(): string
     {
         return $this->type;
     }
@@ -100,7 +100,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitle(): string
     {
         return $this->getBlueprintInternal()->get('title', ucfirst($this->getType()));
     }
@@ -108,7 +108,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return string
      */
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return $this->getBlueprintInternal()->get('description', '');
     }
@@ -132,7 +132,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string $context
      * @return Blueprint
      */
-    public function getBlueprint(string $type = '', string $context = '') : Blueprint
+    public function getBlueprint(string $type = '', string $context = ''): Blueprint
     {
         $blueprint = $this->getBlueprintInternal($type, $context);
 
@@ -153,7 +153,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string $view
      * @return string
      */
-    public function getBlueprintFile(string $view = '') : string
+    public function getBlueprintFile(string $view = ''): string
     {
         $file = $this->blueprint_file;
         if ($view !== '') {
@@ -172,7 +172,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexIndex|FlexCollection
      */
-    public function getCollection(array $keys = null, string $keyField = null) : CollectionInterface
+    public function getCollection(array $keys = null, string $keyField = null): CollectionInterface
     {
         // Get all selected entries.
         $index = $this->getIndex($keys, $keyField);
@@ -199,7 +199,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @return FlexIndex|FlexCollection
      * @internal
      */
-    public function getIndex(array $keys = null, string $keyField = null) : CollectionInterface
+    public function getIndex(array $keys = null, string $keyField = null): CollectionInterface
     {
         $index = clone $this->loadIndex();
         $index = $index->withKeyField($keyField);
@@ -220,7 +220,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexObject|null
      */
-    public function getObject($key, string $keyField = null) : ?FlexObject
+    public function getObject($key, string $keyField = null): ?FlexObject
     {
         return $this->getIndex(null, $keyField)->get($key);
     }
@@ -231,9 +231,9 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param bool $isFullUpdate
      * @return FlexObject
      */
-    public function update(array $data, string $key = null) : FlexObject
+    public function update(array $data, string $key = null): FlexObject
     {
-        $object = null !== $key ? $this->getIndex()->get($key) : null;
+        $object = null !== $key ? $this->getIndex()->get($key): null;
 
         $storage = $this->getStorage();
 
@@ -277,9 +277,9 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string $key
      * @return FlexObject|null
      */
-    public function remove(string $key) : ?FlexObject
+    public function remove(string $key): ?FlexObject
     {
-        $object = null !== $key ? $this->getIndex()->get($key) : null;
+        $object = null !== $key ? $this->getIndex()->get($key): null;
         if (!$object) {
             return null;
         }
@@ -293,7 +293,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null) : CacheInterface
+    public function getCache(string $namespace = null): CacheInterface
     {
         $namespace = $namespace ?: 'index';
 
@@ -332,7 +332,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return $this
      */
-    public function clearCache() : self
+    public function clearCache(): self
     {
         $grav = Grav::instance();
 
@@ -357,7 +357,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $key
      * @return string
      */
-    public function getStorageFolder(string $key = null) : string
+    public function getStorageFolder(string $key = null): string
     {
         return $this->getStorage()->getStoragePath($key);
     }
@@ -366,7 +366,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $key
      * @return string
      */
-    public function getMediaFolder(string $key = null) : string
+    public function getMediaFolder(string $key = null): string
     {
         return $this->getStorage()->getMediaPath($key);
     }
@@ -374,7 +374,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return FlexStorageInterface
      */
-    public function getStorage() : FlexStorageInterface
+    public function getStorage(): FlexStorageInterface
     {
         if (!$this->storage) {
             $this->storage = $this->createStorage();
@@ -389,7 +389,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param bool $validate
      * @return FlexObject
      */
-    public function createObject(array $data, string $key = '', bool $validate = false) : FlexObject
+    public function createObject(array $data, string $key = '', bool $validate = false): FlexObject
     {
         /** @var string|FlexObject $className */
         $className = $this->objectClassName ?: $this->getObjectClass();
@@ -401,7 +401,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $entries
      * @return FlexCollectionInterface
      */
-    public function createCollection(array $entries) : FlexCollectionInterface
+    public function createCollection(array $entries): FlexCollectionInterface
     {
         /** @var string|FlexCollectionInterface $className */
         $className = $this->collectionClassName ?: $this->getCollectionClass();
@@ -413,7 +413,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $entries
      * @return FlexCollectionInterface
      */
-    public function createIndex(array $entries) : FlexCollectionInterface
+    public function createIndex(array $entries): FlexCollectionInterface
     {
         /** @var string|FlexIndexInterface $className */
         $className = $this->indexClassName ?: $this->getIndexClass();
@@ -424,7 +424,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return string
      */
-    public function getObjectClass() : string
+    public function getObjectClass(): string
     {
         if (!$this->objectClassName) {
             $this->objectClassName = $this->getConfig('data.object', 'Grav\\Framework\\Flex\\FlexObject');
@@ -437,7 +437,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return string
      */
-    public function getCollectionClass() : string
+    public function getCollectionClass(): string
     {
         if (!$this->collectionClassName) {
             $this->collectionClassName = $this->getConfig('data.collection', 'Grav\\Framework\\Flex\\FlexCollection');
@@ -450,7 +450,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return string
      */
-    public function getIndexClass() : string
+    public function getIndexClass(): string
     {
         if (!$this->indexClassName) {
             $this->indexClassName = $this->getConfig('data.index', 'Grav\\Framework\\Flex\\FlexIndex');
@@ -463,7 +463,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $entries
      * @return FlexCollectionInterface
      */
-    public function loadCollection(array $entries) : FlexCollectionInterface
+    public function loadCollection(array $entries): FlexCollectionInterface
     {
         return $this->createCollection($this->loadObjects($entries));
     }
@@ -473,7 +473,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @return FlexObject[]
      * @internal
      */
-    public function loadObjects(array $entries) : array
+    public function loadObjects(array $entries): array
     {
         /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
@@ -542,7 +542,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string $context
      * @return Blueprint
      */
-    protected function getBlueprintInternal(string $type_view = '', string $context = '') : Blueprint
+    protected function getBlueprintInternal(string $type_view = '', string $context = ''): Blueprint
     {
         if (!isset($this->blueprints[$type_view])) {
             if (!file_exists($this->blueprint_file)) {
@@ -573,7 +573,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return FlexStorageInterface
      */
-    protected function createStorage() : FlexStorageInterface
+    protected function createStorage(): FlexStorageInterface
     {
         $this->collection = $this->createCollection([]);
 
@@ -592,7 +592,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return FlexIndex|FlexCollection
      */
-    protected function loadIndex() : CollectionInterface
+    protected function loadIndex(): CollectionInterface
     {
         static $i = 0;
 
