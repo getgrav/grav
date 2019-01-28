@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -10,6 +11,14 @@ namespace Grav\Common\Twig\Node;
 
 class TwigNodeSwitch extends \Twig_Node
 {
+    /**
+     * TwigNodeSwitch constructor.
+     * @param \Twig_Node $value
+     * @param \Twig_Node $cases
+     * @param \Twig_Node|null $default
+     * @param int $lineno
+     * @param string|null $tag
+     */
     public function __construct(
         \Twig_Node $value,
         \Twig_Node $cases,

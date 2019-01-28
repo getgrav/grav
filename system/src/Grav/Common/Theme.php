@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -63,7 +64,8 @@ class Theme extends Plugin
     /**
      * Override the mergeConfig method to work for themes
      */
-    protected function mergeConfig(Page $page, $deep = 'merge', $params = [], $type = 'themes') {
+    protected function mergeConfig(Page $page, $deep = 'merge', $params = [], $type = 'themes')
+    {
         return parent::mergeConfig($page, $deep, $params, $type);
     }
 

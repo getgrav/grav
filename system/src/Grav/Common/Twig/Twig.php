@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -75,12 +76,11 @@ class Twig
      */
     public function init()
     {
-        if (!isset($this->twig)) {
+        if (null === $this->twig) {
             /** @var Config $config */
             $config = $this->grav['config'];
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
-
             /** @var Language $language */
             $language = $this->grav['language'];
 
@@ -256,7 +256,7 @@ class Twig
      */
     public function processPage(Page $item, $content = null)
     {
-        $content = $content !== null ? $content : $item->content();
+        $content = $content ?? $item->content();
 
         // override the twig header vars for local resolution
         $this->grav->fireEvent('onTwigPageVariables', new Event(['page' => $item]));
@@ -266,7 +266,7 @@ class Twig
         $twig_vars['media'] = $item->media();
         $twig_vars['header'] = $item->header();
 
-        $local_twig = clone($this->twig);
+        $local_twig = clone $this->twig;
 
         try {
             // Process Modular Twig
@@ -370,7 +370,7 @@ class Twig
         $twig_vars['header'] = $page->header();
         $twig_vars['media'] = $page->media();
         $twig_vars['content'] = $content;
-        $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
+        $ext = '.' . ($format ?: 'html') . TWIG_EXT;
 
         // determine if params are set, if so disable twig cache
         $params = $this->grav['uri']->params(null, true);
@@ -386,7 +386,7 @@ class Twig
         } catch (\Twig_Error_Loader $e) {
             $error_msg = $e->getMessage();
             // Try html version of this template if initial template was NOT html
-            if ($ext != '.html' . TWIG_EXT) {
+            if ($ext !== '.html' . TWIG_EXT) {
                 try {
                     $page->templateFormat('html');
                     $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $vars + $twig_vars);
@@ -431,11 +431,7 @@ class Twig
      */
     public function template($template)
     {
-        if (isset($this->template)) {
-            return $this->template;
-        } else {
-            return $template;
-        }
+        return $this->template ?? $template;
     }
 
     /**

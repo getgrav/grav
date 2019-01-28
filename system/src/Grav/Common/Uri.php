@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -1043,7 +1044,7 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
-        $fake = $url && $url[0] === '/';
+        $fake = $url && strpos($url, '/') === 0;
 
         if ($fake) {
             $url = 'http://domain.com' . $url;

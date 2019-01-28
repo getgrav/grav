@@ -1,14 +1,14 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
-use DateTime;
 use Grav\Common\Helpers\Truncator;
 use Grav\Common\Page\Page;
 use Grav\Common\Markdown\Parsedown;
@@ -225,9 +225,7 @@ abstract class Utils
         $startString = mb_substr($original, 0, $position, "UTF-8");
         $endString = mb_substr($original, $position + $length, mb_strlen($original), "UTF-8");
 
-        $out = $startString . $replacement . $endString;
-
-        return $out;
+        return $startString . $replacement . $endString;
     }
 
     /**
@@ -293,6 +291,7 @@ abstract class Utils
                 $result[$key] = $value;
             }
         }
+
         return $result;
     }
 
@@ -306,6 +305,7 @@ abstract class Utils
     public static function arrayCombine($arr1, $arr2)
     {
         $count = min(count($arr1), count($arr2));
+
         return array_combine(array_slice($arr1, 0, $count), array_slice($arr2, 0, $count));
     }
 
@@ -317,7 +317,10 @@ abstract class Utils
      */
     public static function arrayIsAssociative($arr)
     {
-        if (array() === $arr) return false;
+        if ([] === $arr) {
+            return false;
+        }
+
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
 
@@ -328,7 +331,7 @@ abstract class Utils
      */
     public static function dateFormats()
     {
-        $now = new DateTime();
+        $now = new \DateTime();
 
         $date_formats = [
             'd-m-Y H:i' => 'd-m-Y H:i (e.g. '.$now->format('d-m-Y H:i').')',
@@ -356,7 +359,7 @@ abstract class Utils
      *
      * @return string
      */
-    public static function truncate($string, $limit = 150, $up_to_break = false, $break = " ", $pad = "&hellip;")
+    public static function truncate($string, $limit = 150, $up_to_break = false, $break = ' ', $pad = '&hellip;')
     {
         // return with no change if string is shorter than $limit
         if (mb_strlen($string) <= $limit) {
@@ -642,10 +645,11 @@ abstract class Utils
         $extensions = [];
         foreach ($mimetypes as $mimetype) {
             $extension = static::getExtensionByMime($mimetype, false);
-            if ($extension && !in_array($extension, $extensions)) {
+            if ($extension && !\in_array($extension, $extensions, true)) {
                 $extensions[] = $extension;
             }
         }
+
         return $extensions;
     }
 
@@ -731,7 +735,7 @@ abstract class Utils
      */
     public static function normalizePath($path)
     {
-        $root = ($path[0] === '/') ? '/' : '';
+        $root = strpos($path, '/') === 0 ? '/' : '';
 
         $segments = explode('/', trim($path, '/'));
         $ret = [];
@@ -758,7 +762,7 @@ abstract class Utils
      */
     public static function isFunctionDisabled($function)
     {
-        return in_array($function, explode(',', ini_get('disable_functions')), true);
+        return \in_array($function, explode(',', ini_get('disable_functions')), true);
     }
 
     /**
@@ -770,7 +774,7 @@ abstract class Utils
     {
         $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
         $offsets = [];
-        $testDate = new \DateTime;
+        $testDate = new \DateTime();
 
         foreach ($timezones as $zone) {
             $tz = new \DateTimeZone($zone);
@@ -826,7 +830,7 @@ abstract class Utils
     public static function arrayFlatten($array)
     {
         $flatten = array();
-        foreach ($array as $key => $inner){
+        foreach ($array as $key => $inner) {
             if (is_array($inner)) {
                 foreach ($inner as $inner_key => $value) {
                     $flatten[$inner_key] = $value;
@@ -835,6 +839,7 @@ abstract class Utils
                 $flatten[$key] = $inner;
             }
         }
+
         return $flatten;
     }
 
@@ -848,17 +853,14 @@ abstract class Utils
     public static function arrayFlattenDotNotation($array, $prepend = '')
     {
         $results = array();
-        foreach ($array as $key => $value)
-        {
-            if (is_array($value))
-            {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
                 $results = array_merge($results, static::arrayFlattenDotNotation($value, $prepend.$key.'.'));
-            }
-            else
-            {
+            } else {
                 $results[$prepend.$key] = $value;
             }
         }
+
         return $results;
     }
 
@@ -869,14 +871,17 @@ abstract class Utils
      * @param string $separator
      * @return array
      */
-    public static function arrayUnflattenDotNotation($array, $separator = '.') {
-        $newArray = array();
-        foreach($array as $key => $value) {
+    public static function arrayUnflattenDotNotation($array, $separator = '.')
+    {
+        $newArray = [];
+        foreach ($array as $key => $value) {
             $dots = explode($separator, $key);
-            if(count($dots) > 1) {
-                $last = &$newArray[ $dots[0] ];
-                foreach($dots as $k => $dot) {
-                    if($k == 0) continue;
+            if (\count($dots) > 1) {
+                $last = &$newArray[$dots[0]];
+                foreach ($dots as $k => $dot) {
+                    if ($k === 0) {
+                        continue;
+                    }
                     $last = &$last[$dot];
                 }
                 $last = $value;
@@ -884,6 +889,7 @@ abstract class Utils
                 $newArray[$key] = $value;
             }
         }
+
         return $newArray;
     }
 
@@ -902,7 +908,7 @@ abstract class Utils
 
         $languages_enabled = Grav::instance()['config']->get('system.languages.supported', []);
 
-        if ($string[0] === '/' && $string[3] === '/' && in_array(substr($string, 1, 2), $languages_enabled)) {
+        if ($string[0] === '/' && $string[3] === '/' && \in_array(substr($string, 1, 2), $languages_enabled, true)) {
             return true;
         }
 
@@ -924,9 +930,9 @@ abstract class Utils
 
         // try to use DateTime and default format
         if ($dateformat) {
-            $datetime = DateTime::createFromFormat($dateformat, $date);
+            $datetime = \DateTime::createFromFormat($dateformat, $date);
         } else {
-            $datetime = new DateTime($date);
+            $datetime = new \DateTime($date);
         }
 
         // fallback to strtotime() if DateTime approach failed
@@ -1050,12 +1056,8 @@ abstract class Utils
 
         //Nonce generated 12-24 hours ago
         $previousTick = true;
-        if ($nonce === self::getNonce($action, $previousTick)) {
-            return true;
-        }
 
-        //Invalid nonce
-        return false;
+        return $nonce === self::getNonce($action, $previousTick);
     }
 
     /**
@@ -1139,7 +1141,6 @@ abstract class Utils
             $array[$key] = array_merge($array[$key], $value);
         }
 
-
         return $array;
     }
 
@@ -1190,7 +1191,7 @@ abstract class Utils
      * @param int $sort_flags
      * @return array
      */
-    public static function sortArrayByKey($array, $array_key, $direction = SORT_DESC, $sort_flags = SORT_REGULAR )
+    public static function sortArrayByKey($array, $array_key, $direction = SORT_DESC, $sort_flags = SORT_REGULAR)
     {
         $output = [];
 
@@ -1289,13 +1290,14 @@ abstract class Utils
      * @return integer Returns only the number of units, not the type letter. Returns 0 if the $to unit type is out of scope.
      *
      */
-    public static function convertSize($bytes, $to, $decimal_places = 1) {
+    public static function convertSize($bytes, $to, $decimal_places = 1)
+    {
         $formulas = array(
             'K' => number_format($bytes / 1024, $decimal_places),
             'M' => number_format($bytes / 1048576, $decimal_places),
             'G' => number_format($bytes / 1073741824, $decimal_places)
         );
-        return isset($formulas[$to]) ? $formulas[$to] : 0;
+        return $formulas[$to] ?? 0;
     }
 
     /**
@@ -1305,7 +1307,8 @@ abstract class Utils
      * @param int $precision
      * @return string
      */
-    public static function prettySize($bytes, $precision = 2) {
+    public static function prettySize($bytes, $precision = 2)
+    {
         $units = array('B', 'KB', 'MB', 'GB', 'TB');
 
         $bytes = max($bytes, 0);

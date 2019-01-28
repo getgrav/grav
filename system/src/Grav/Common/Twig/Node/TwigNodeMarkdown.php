@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -10,6 +11,12 @@ namespace Grav\Common\Twig\Node;
 
 class TwigNodeMarkdown extends \Twig_Node implements \Twig_NodeOutputInterface
 {
+    /**
+     * TwigNodeMarkdown constructor.
+     * @param \Twig_Node $body
+     * @param $lineno
+     * @param string $tag
+     */
     public function __construct(\Twig_Node $body, $lineno, $tag = 'markdown')
     {
         parent::__construct(['body' => $body], [], $lineno, $tag);

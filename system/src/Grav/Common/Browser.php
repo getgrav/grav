@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -113,7 +114,7 @@ class Browser
     {
         $version = explode('.', $this->getLongVersion());
 
-        return intval($version[0]);
+        return (int)$version[0];
     }
 
     /**
@@ -143,10 +144,6 @@ class Browser
      */
     public function isTrackable(): bool
     {
-        if (isset($_SERVER['HTTP_DNT']) && $_SERVER['HTTP_DNT'] === '1') {
-            return false;
-        }
-
-        return true;
+        return !(isset($_SERVER['HTTP_DNT']) && $_SERVER['HTTP_DNT'] === '1');
     }
 }

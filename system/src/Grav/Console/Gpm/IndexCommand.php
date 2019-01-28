@@ -190,7 +190,7 @@ class IndexCommand extends ConsoleCommand
      */
     private function installed($package)
     {
-        $package   = isset($list[$package->slug]) ? $list[$package->slug] : $package;
+        $package   = $list[$package->slug] ?? $package;
         $type      = ucfirst(preg_replace('/s$/', '', $package->package_type));
         $method = 'is' . $type . 'Installed';
         $installed = $this->gpm->{$method}($package->slug);

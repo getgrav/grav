@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -46,7 +47,7 @@ class Composer
         $composer = static::getComposerLocation();
 
         if ($composer !== static::DEFAULT_PATH && is_executable($composer)) {
-            $file = fopen($composer, 'r');
+            $file = fopen($composer, 'rb');
             $firstLine = fgets($file);
             fclose($file);
 
