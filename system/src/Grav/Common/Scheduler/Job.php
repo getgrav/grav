@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Scheduler
+ * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -65,7 +66,7 @@ class Job
         $this->args = $args;
         // Set enabled state
         $status = Grav::instance()['config']->get('scheduler.status');
-        $this->enabled = isset($status[$id]) && $status[$id] === 'disabled' ? false : true;
+        $this->enabled = !(isset($status[$id]) && $status[$id] === 'disabled');
     }
 
     /**
@@ -105,7 +106,7 @@ class Job
      */
     public function getArguments()
     {
-        if (is_string($this->args)) {
+        if (\is_string($this->args)) {
             return $this->args;
         }
 
@@ -143,7 +144,7 @@ class Job
      * the job is due. Defaults to job creation time.
      * It also default the execution time if not previously defined.
      *
-     * @param  DateTime $date
+     * @param  \DateTime $date
      * @return bool
      */
     public function isDue(\DateTime $date = null)
@@ -152,7 +153,9 @@ class Job
         if (!$this->executionTime) {
             $this->at('* * * * *');
         }
-        $date = $date !== null ? $date : $this->creationTime;
+
+        $date = $date ?? $this->creationTime;
+
         return $this->executionTime->isDue($date);
     }
 
@@ -176,6 +179,7 @@ class Job
     public function inForeground()
     {
         $this->runInBackground = false;
+
         return $this;
     }
 
@@ -186,10 +190,7 @@ class Job
      */
     public function runInBackground()
     {
-        if (is_callable($this->command) || $this->runInBackground === false) {
-            return false;
-        }
-        return true;
+        return !(is_callable($this->command) || $this->runInBackground === false);
     }
 
     /**
@@ -218,6 +219,7 @@ class Job
                 return false;
             };
         }
+
         return $this;
     }
 
@@ -233,6 +235,7 @@ class Job
         if (isset($config['tempDir']) && is_dir($config['tempDir'])) {
             $this->tempDir = $config['tempDir'];
         }
+
         return $this;
     }
 
@@ -245,6 +248,7 @@ class Job
     public function when(callable $fn)
     {
         $this->truthTest = $fn();
+
         return $this;
     }
 
@@ -259,10 +263,12 @@ class Job
         if ($this->truthTest !== true) {
             return false;
         }
+
         // If overlapping, don't run
         if ($this->isOverlapping()) {
             return false;
         }
+
         // Write lock file if necessary
         $this->createLockFile();
 
@@ -270,12 +276,13 @@ class Job
         if (is_callable($this->before)) {
             call_user_func($this->before);
         }
+
         // If command is callable...
         if (is_callable($this->command)) {
             $this->output = $this->exec();
         } else {
             /** @var Process process */
-            $args = is_string($this->args) ? $this->args : implode(' ', $this->args);
+            $args = \is_string($this->args) ? $this->args : implode(' ', $this->args);
             $command = $this->command . ' ' . $args;
             $process = new Process($command);
 
@@ -288,6 +295,7 @@ class Job
                 $this->finalize();
             }
         }
+
         return true;
     }
 
@@ -350,7 +358,7 @@ class Job
     private function createLockFile($content = null)
     {
         if ($this->lockFile) {
-            if ($content === null || !is_string($content)) {
+            if ($content === null || !\is_string($content)) {
                 $content = $this->getId();
             }
             file_put_contents($this->lockFile, $content);
@@ -372,7 +380,7 @@ class Job
     /**
      * Execute a callable job.
      *
-     * @throws Exception
+     * @throws \RuntimeException
      * @return string
      */
     private function exec()
@@ -382,7 +390,7 @@ class Job
         try {
             $return_data = call_user_func_array($this->command, $this->args);
             $this->successful = true;
-        } catch (Exception $e) {
+        } catch (\RuntimeException $e) {
             $this->successful = false;
         }
         $this->output = ob_get_clean() . (is_string($return_data) ? $return_data : '');
@@ -401,6 +409,7 @@ class Job
     {
         $this->outputTo = is_array($filename) ? $filename : [$filename];
         $this->outputMode = $append === false ? 'overwrite' : 'append';
+
         return $this;
     }
 
@@ -425,11 +434,13 @@ class Job
     public function email($email)
     {
         if (!is_string($email) && !is_array($email)) {
-            throw new InvalidArgumentException('The email can be only string or array');
+            throw new \InvalidArgumentException('The email can be only string or array');
         }
+
         $this->emailTo = is_array($email) ? $email : [$email];
         // Force the job to run in foreground
         $this->inForeground();
+
         return $this;
     }
 
@@ -451,6 +462,7 @@ class Job
 
             \Grav\Plugin\Email\Utils::sendEmail($subject, $content, $to);
         }
+
         return true;
     }
 
@@ -464,6 +476,7 @@ class Job
     public function before(callable $fn)
     {
         $this->before = $fn;
+
         return $this;
     }
 
@@ -486,6 +499,7 @@ class Job
         if ($runInBackground === false) {
             $this->inForeground();
         }
+
         return $this;
     }
 }

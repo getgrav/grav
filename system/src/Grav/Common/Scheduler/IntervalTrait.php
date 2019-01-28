@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Scheduler
+ * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,8 +23,10 @@ trait IntervalTrait
     {
         $this->at = $expression;
         $this->executionTime = CronExpression::factory($expression);
+
         return $this;
     }
+
     /**
      * Set the execution time to every minute.
      *
@@ -33,6 +36,7 @@ trait IntervalTrait
     {
         return $this->at('* * * * *');
     }
+
     /**
      * Set the execution time to every hour.
      *
@@ -42,8 +46,10 @@ trait IntervalTrait
     public function hourly($minute = 0)
     {
         $c = $this->validateCronSequence($minute);
+
         return $this->at("{$c['minute']} * * * *");
     }
+
     /**
      * Set the execution time to once a day.
      *
@@ -53,14 +59,16 @@ trait IntervalTrait
      */
     public function daily($hour = 0, $minute = 0)
     {
-        if (is_string($hour)) {
+        if (\is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
-            $minute = isset($parts[1]) ? $parts[1] : '0';
+            $minute = $parts[1] ?? '0';
         }
         $c = $this->validateCronSequence($minute, $hour);
+
         return $this->at("{$c['minute']} {$c['hour']} * * *");
     }
+
     /**
      * Set the execution time to once a week.
      *
@@ -71,14 +79,16 @@ trait IntervalTrait
      */
     public function weekly($weekday = 0, $hour = 0, $minute = 0)
     {
-        if (is_string($hour)) {
+        if (\is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
-            $minute = isset($parts[1]) ? $parts[1] : '0';
+            $minute = $parts[1] ?? '0';
         }
         $c = $this->validateCronSequence($minute, $hour, null, null, $weekday);
+
         return $this->at("{$c['minute']} {$c['hour']} * * {$c['weekday']}");
     }
+
     /**
      * Set the execution time to once a month.
      *
@@ -90,14 +100,16 @@ trait IntervalTrait
      */
     public function monthly($month = '*', $day = 1, $hour = 0, $minute = 0)
     {
-        if (is_string($hour)) {
+        if (\is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
-            $minute = isset($parts[1]) ? $parts[1] : '0';
+            $minute = $parts[1] ?? '0';
         }
         $c = $this->validateCronSequence($minute, $hour, $day, $month);
+
         return $this->at("{$c['minute']} {$c['hour']} {$c['day']} {$c['month']} *");
     }
+
     /**
      * Set the execution time to every Sunday.
      *
@@ -109,6 +121,7 @@ trait IntervalTrait
     {
         return $this->weekly(0, $hour, $minute);
     }
+
     /**
      * Set the execution time to every Monday.
      *
@@ -120,6 +133,7 @@ trait IntervalTrait
     {
         return $this->weekly(1, $hour, $minute);
     }
+
     /**
      * Set the execution time to every Tuesday.
      *
@@ -131,6 +145,7 @@ trait IntervalTrait
     {
         return $this->weekly(2, $hour, $minute);
     }
+
     /**
      * Set the execution time to every Wednesday.
      *
@@ -142,6 +157,7 @@ trait IntervalTrait
     {
         return $this->weekly(3, $hour, $minute);
     }
+
     /**
      * Set the execution time to every Thursday.
      *
@@ -153,6 +169,7 @@ trait IntervalTrait
     {
         return $this->weekly(4, $hour, $minute);
     }
+
     /**
      * Set the execution time to every Friday.
      *
@@ -164,6 +181,7 @@ trait IntervalTrait
     {
         return $this->weekly(5, $hour, $minute);
     }
+
     /**
      * Set the execution time to every Saturday.
      *
@@ -175,6 +193,7 @@ trait IntervalTrait
     {
         return $this->weekly(6, $hour, $minute);
     }
+
     /**
      * Set the execution time to every January.
      *
@@ -187,6 +206,7 @@ trait IntervalTrait
     {
         return $this->monthly(1, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every February.
      *
@@ -199,6 +219,7 @@ trait IntervalTrait
     {
         return $this->monthly(2, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every March.
      *
@@ -211,6 +232,7 @@ trait IntervalTrait
     {
         return $this->monthly(3, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every April.
      *
@@ -223,6 +245,7 @@ trait IntervalTrait
     {
         return $this->monthly(4, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every May.
      *
@@ -235,6 +258,7 @@ trait IntervalTrait
     {
         return $this->monthly(5, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every June.
      *
@@ -247,6 +271,7 @@ trait IntervalTrait
     {
         return $this->monthly(6, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every July.
      *
@@ -259,6 +284,7 @@ trait IntervalTrait
     {
         return $this->monthly(7, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every August.
      *
@@ -271,6 +297,7 @@ trait IntervalTrait
     {
         return $this->monthly(8, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every September.
      *
@@ -283,6 +310,7 @@ trait IntervalTrait
     {
         return $this->monthly(9, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every October.
      *
@@ -295,6 +323,7 @@ trait IntervalTrait
     {
         return $this->monthly(10, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every November.
      *
@@ -307,6 +336,7 @@ trait IntervalTrait
     {
         return $this->monthly(11, $day, $hour, $minute);
     }
+
     /**
      * Set the execution time to every December.
      *
@@ -319,6 +349,7 @@ trait IntervalTrait
     {
         return $this->monthly(12, $day, $hour, $minute);
     }
+
     /**
      * Validate sequence of cron expression.
      *
@@ -339,6 +370,7 @@ trait IntervalTrait
             'weekday' => $this->validateCronRange($weekday, 0, 6),
         ];
     }
+
     /**
      * Validate sequence of cron expression.
      *
@@ -352,13 +384,15 @@ trait IntervalTrait
         if ($value === null || $value === '*') {
             return '*';
         }
+
         if (! is_numeric($value) ||
             ! ($value >= $min && $value <= $max)
         ) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 "Invalid value: it should be '*' or between {$min} and {$max}."
             );
         }
+
         return $value;
     }
 }
