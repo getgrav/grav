@@ -256,7 +256,7 @@ trait FlexMediaTrait
     {
         $list = [];
         foreach ($files as $field => $group) {
-            if (\strpos($field, '/', true)) {
+            if ($field === '' || \strpos($field, '/', true)) {
                 continue;
             }
             foreach ($group as $filename => $file) {
