@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,7 +12,9 @@ namespace Grav\Common;
 use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Scheduler\Scheduler;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\Event\EventDispatcher;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
@@ -117,7 +120,7 @@ class Cache extends Getters
         $this->config = $grav['config'];
         $this->now = time();
 
-        if (is_null($this->enabled)) {
+        if (null === $this->enabled) {
             $this->enabled = (bool)$this->config->get('system.cache.enabled');
         }
 
@@ -147,7 +150,7 @@ class Cache extends Getters
 
         foreach (new \DirectoryIterator($cache_dir) as $file) {
             $dir = $file->getBasename();
-            if ($file->isDot() || $file->isFile() || $dir === $current) {
+            if ($dir === $current || $file->isDot() || $file->isFile()) {
                 continue;
             }
 
@@ -165,7 +168,7 @@ class Cache extends Getters
      */
     public function setEnabled($enabled)
     {
-        $this->enabled = (bool) $enabled;
+        $this->enabled = (bool)$enabled;
     }
 
     /**
@@ -202,19 +205,15 @@ class Cache extends Getters
 
         // CLI compatibility requires a non-volatile cache driver
         if ($this->config->get('system.cache.cli_compatibility') && (
-            $setting == 'auto' || $this->isVolatileDriver($setting))) {
+            $setting === 'auto' || $this->isVolatileDriver($setting))) {
             $setting = $driver_name;
         }
 
-        if (!$setting || $setting == 'auto') {
+        if (!$setting || $setting === 'auto') {
             if (extension_loaded('apcu')) {
                 $driver_name = 'apcu';
-            } elseif (extension_loaded('apc')) {
-                $driver_name = 'apc';
             } elseif (extension_loaded('wincache')) {
                 $driver_name = 'wincache';
-            } elseif (extension_loaded('xcache')) {
-                $driver_name = 'xcache';
             }
         } else {
             $driver_name = $setting;
@@ -224,19 +223,12 @@ class Cache extends Getters
 
         switch ($driver_name) {
             case 'apc':
-                $driver = new DoctrineCache\ApcCache();
-                break;
-
             case 'apcu':
                 $driver = new DoctrineCache\ApcuCache();
                 break;
 
             case 'wincache':
                 $driver = new DoctrineCache\WinCacheCache();
-                break;
-
-            case 'xcache':
-                $driver = new DoctrineCache\XcacheCache();
                 break;
 
             case 'memcache':
@@ -295,9 +287,9 @@ class Cache extends Getters
     {
         if ($this->enabled) {
             return $this->driver->fetch($id);
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -328,6 +320,7 @@ class Cache extends Getters
         if ($this->enabled) {
             return $this->driver->delete($id);
         }
+
         return false;
     }
 
@@ -341,6 +334,7 @@ class Cache extends Getters
         if ($this->enabled) {
             return $this->driver->deleteAll();
         }
+
         return false;
     }
 
@@ -355,6 +349,7 @@ class Cache extends Getters
         if ($this->enabled) {
             return $this->driver->contains(($id));
         }
+
         return false;
     }
 
@@ -459,7 +454,7 @@ class Cache extends Getters
 
         $output[] = '';
 
-        if (($remove == 'all' || $remove == 'standard') && file_exists($user_config)) {
+        if (($remove === 'all' || $remove === 'standard') && file_exists($user_config)) {
             touch($user_config);
 
             $output[] = '<red>Touched: </red>' . $user_config;
@@ -540,17 +535,17 @@ class Cache extends Getters
     {
         if (in_array($setting, ['apc', 'apcu', 'xcache', 'wincache'])) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public static function purgeJob()
     {
         $cache = Grav::instance()['cache'];
         $deleted_folders = $cache->purgeOldCache();
-        $msg = 'Purged ' . $deleted_folders . ' old cache folders...';
-        return $msg;
+
+        return 'Purged ' . $deleted_folders . ' old cache folders...';
     }
 
     public function onSchedulerInitialized(Event $event)
