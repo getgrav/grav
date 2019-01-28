@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Data
+ * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,7 +12,6 @@ namespace Grav\Common\Data;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
-use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYaml;
 
 class Validation
 {
@@ -24,20 +24,17 @@ class Validation
      */
     public static function validate($value, array $field)
     {
-        $messages = [];
-
-        $validate = isset($field['validate']) ? (array) $field['validate'] : [];
-        // Validate type with fallback type text.
-        $type = (string) isset($validate['type']) ? $validate['type'] : $field['type'];
-        $method = 'type' . str_replace('-', '_', $type);
-
-        // If value isn't required, we will stop validation if empty value is given.
-        if ((empty($validate['required']) || (isset($validate['required']) && $validate['required'] !== true)) && ($value === null || $value === '' || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))) {
-            return $messages;
-        }
-
         if (!isset($field['type'])) {
             $field['type'] = 'text';
+        }
+        $type = $validate['type'] ?? $field['type'];
+        $validate = (array)($field['validate'] ?? null);
+        $required = $validate['required'] ?? false;
+
+        // If value isn't required, we will stop validation if empty value is given.
+        if ($required !== true && ($value === null || $value === '' || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))
+        ) {
+            return [];
         }
 
         // Get language class.
@@ -49,17 +46,17 @@ class Validation
             : $language->translate('GRAV.FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
 
+        // Validate type with fallback type text.
+        $method = 'type' . str_replace('-', '_', $type);
+
         // If this is a YAML field validate/filter as such
-        if ($type !== 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
+        if (isset($field['yaml']) && $field['yaml'] === true) {
             $method = 'typeYaml';
         }
 
-        if (method_exists(__CLASS__, $method)) {
-            $success = self::$method($value, $validate, $field);
-        } else {
-            $success = true;
-        }
+        $messages = [];
 
+        $success = method_exists(__CLASS__, $method) ? self::$method($value, $validate, $field) : true;
         if (!$success) {
             $messages[$field['name']][] = $message;
         }
@@ -89,7 +86,7 @@ class Validation
      */
     public static function filter($value, array $field)
     {
-        $validate = isset($field['validate']) ? (array) $field['validate'] : [];
+        $validate = (array)($field['validate'] ?? null);
 
         // If value isn't required, we will return null if empty value is given.
         if (($value === null || $value === '') && empty($validate['required'])) {
@@ -99,14 +96,12 @@ class Validation
         if (!isset($field['type'])) {
             $field['type'] = 'text';
         }
+        $type = $field['validate']['type'] ?? $field['type'];
 
-
-        // Validate type with fallback type text.
-        $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'filter' . ucfirst(str_replace('-', '_', $type));
 
         // If this is a YAML field validate/filter as such
-        if ($type !== 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
+        if (isset($field['yaml']) && $field['yaml'] === true) {
             $method = 'filterYaml';
         }
 
@@ -261,8 +256,8 @@ class Validation
      */
     public static function typeCheckbox($value, array $params, array $field)
     {
-        $value = (string) $value;
-        $field_value = (string) ($field['value'] ?? '1');
+        $value = (string)$value;
+        $field_value = (string)($field['value'] ?? '1');
 
         return $value === $field_value;
     }
@@ -303,12 +298,12 @@ class Validation
      */
     public static function typeFile($value, array $params, array $field)
     {
-        return self::typeArray((array) $value, $params, $field);
+        return self::typeArray((array)$value, $params, $field);
     }
 
     protected static function filterFile($value, array $params, array $field)
     {
-        return (array) $value;
+        return (array)$value;
     }
 
     /**
@@ -758,7 +753,7 @@ class Validation
 
     public static function validateInt($value, $params)
     {
-        return is_numeric($value) && (int) $value == $value;
+        return is_numeric($value) && (int)$value == $value;
     }
 
     protected static function filterInt($value, $params)

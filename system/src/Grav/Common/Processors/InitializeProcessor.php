@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @package    Grav.Common.Processors
+ * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,7 +57,7 @@ class InitializeProcessor extends ProcessorBase
             && $config->get('system.pages.redirect_trailing_slash', false)
             && Utils::endsWith($path, '/')) {
 
-            $redirect = (string) $uri->getCurrentRoute()->toString();
+            $redirect = (string) $uri::getCurrentRoute()->toString();
             $this->container->redirectLangSafe($redirect);
         }
 

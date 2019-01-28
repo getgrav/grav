@@ -101,14 +101,15 @@ class Job
     /**
      * Get optional arguments
      *
-     * @return array|string|void
+     * @return string|null
      */
     public function getArguments()
     {
         if (is_string($this->args)) {
             return $this->args;
         }
-        return;
+
+        return null;
     }
 
     public function getCronExpression()

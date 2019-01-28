@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,7 +16,7 @@ trait ParsedownHtmlTrait
     /**
      * @var \Grav\Common\Markdown\Parsedown
      */
-    protected $parsedown = null;
+    protected $parsedown;
 
     /**
      * Return HTML markup from the medium.

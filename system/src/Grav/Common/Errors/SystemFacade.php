@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Errors
+ * @package    Grav\Common\Errors
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 

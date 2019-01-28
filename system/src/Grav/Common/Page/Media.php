@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -88,21 +89,21 @@ class Media extends AbstractMedia
         /** @var \DirectoryIterator $info */
         foreach ($iterator as $path => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() === 'md' || $info->getFilename()[0] === '.') {
+            if (!$info->isFile() || $info->getExtension() === 'md' || strpos($info->getFilename(), '.') === 0) {
                 continue;
             }
 
             // Find out what type we're dealing with
             list($basename, $ext, $type, $extra) = $this->getFileParts($info->getFilename());
 
-            if (!in_array(strtolower($ext), $media_types)) {
+            if (!\in_array(strtolower($ext), $media_types, true)) {
                 continue;
             }
 
             if ($type === 'alternative') {
-                $media["{$basename}.{$ext}"][$type][$extra] = [ 'file' => $path, 'size' => $info->getSize() ];
+                $media["{$basename}.{$ext}"][$type][$extra] = ['file' => $path, 'size' => $info->getSize()];
             } else {
-                $media["{$basename}.{$ext}"][$type] = [ 'file' => $path, 'size' => $info->getSize() ];
+                $media["{$basename}.{$ext}"][$type] = ['file' => $path, 'size' => $info->getSize()];
             }
         }
 
@@ -147,7 +148,7 @@ class Media extends AbstractMedia
 
             if (file_exists($meta_path)) {
                 $types['meta']['file'] = $meta_path;
-            } elseif ($file_path && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif') && $exif_reader) {
+            } elseif ($file_path && $exif_reader && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
 
                 $meta = $exif_reader->read($file_path);
 

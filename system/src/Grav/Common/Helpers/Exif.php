@@ -1,15 +1,15 @@
 <?php
+
 /**
- * @package    Grav.Common.Helpers
+ * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Helpers;
 
 use Grav\Common\Grav;
-use SebastianBergmann\GlobalState\RuntimeException;
 
 class Exif
 {
@@ -17,7 +17,7 @@ class Exif
 
     /**
      * Exif constructor.
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     public function __construct()
     {
