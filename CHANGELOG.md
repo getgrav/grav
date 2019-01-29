@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Improved `$page->forms()` call, added `$page->addForms()`
+1. [](#bugfix)
+    * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
 
 # v1.6.0-beta.8
 ## 01/25/2019

@@ -61,7 +61,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
             throw new \RuntimeException(\sprintf('Uploaded file could not be moved to %s', $targetPath));
         }
 
-        $this->flash->removeFile($this->field, $this->upload['tmp_name']);
+        $this->flash->removeFile($this->getClientFilename(), $this->field);
     }
 
     public function getSize()
@@ -100,7 +100,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 
     public function getDestination()
     {
-        return $this->upload['path'];
+        return $this->upload['path'] ?? '';
     }
 
     public function jsonSerialize()
@@ -108,9 +108,15 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         return $this->upload;
     }
 
-    public function getTmpFile() : string
+    public function getTmpFile() : ?string
     {
-        return $this->flash->getTmpDir() . '/' . $this->upload['tmp_name'];
+        $tmpName = $this->upload['tmp_name'] ?? null;
+
+        if (!$tmpName) {
+            return null;
+        }
+
+        return $this->flash->getTmpDir() . '/' . $tmpName;
     }
 
     public function __debugInfo()
@@ -133,6 +139,10 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 
         if ($this->moved) {
             throw new \RuntimeException('Cannot retrieve stream after it has already been moved');
+        }
+
+        if (!$this->getTmpFile()) {
+            throw new \RuntimeException('Cannot retrieve stream as the file was not uploaded');
         }
     }
 
