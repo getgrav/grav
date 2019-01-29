@@ -1,5 +1,5 @@
 # v1.5.7
-## 01/25/2018
+## 01/25/2019
 
 1. [](#new)
     * Support for AWS Cloudfront forwarded scheme header [#2297](https://github.com/getgrav/grav/pull/2297)
