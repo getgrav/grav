@@ -91,6 +91,8 @@ class Page implements PageInterface
     protected $ssl;
     protected $template_format;
     protected $debugger;
+    /** @var array */
+    protected $forms;
 
     /**
      * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
@@ -1200,36 +1202,75 @@ class Page implements PageInterface
      */
     public function forms()
     {
-        $header = $this->header();
+        if (null === $this->forms) {
+            $header = $this->header();
 
-        // Call event to allow filling the page header form dynamically (e.g. use case: Comments plugin)
-        $grav = Grav::instance();
-        $grav->fireEvent('onFormPageHeaderProcessed', new Event(['page' => $this, 'header' => $header]));
+            // Call event to allow filling the page header form dynamically (e.g. use case: Comments plugin)
+            $grav = Grav::instance();
+            $grav->fireEvent('onFormPageHeaderProcessed', new Event(['page' => $this, 'header' => $header]));
 
-        $forms = [];
-        // First grab page.header.form
-        $form = $header->form ?? null;
-        if (\is_array($form)) {
-            $name = $form['name'] ?? $this->slug();
-            if ($form['name'] ?? null !== $name) {
-                $form['name'] = $name;
+            $rules = $header->rules ?? null;
+            if (!\is_array($rules)) {
+                $rules = [];
             }
-            $forms[$name] = $form;
-        }
-        // Append page.header.forms (override singular form if it clashes)
-        if (isset($header->forms) && \is_array($header->forms)) {
-            foreach ($header->forms as $name => $form) {
-                if (\is_array($form)) {
-                    $name = !\is_int($name) ? $name : ($form['name'] ?? $this->slug());
-                    if ($form['name'] ?? null !== $name) {
-                        $form['name'] = $name;
+
+            $forms = [];
+
+            // First grab page.header.form
+            $form = $this->normalizeForm($header->form ?? null, null, $rules);
+            if ($form) {
+                $forms[$form['name']] = $form;
+            }
+
+            // Append page.header.forms (override singular form if it clashes)
+            $headerForms = $header->forms ?? null;
+            if (\is_array($headerForms)) {
+                foreach ($headerForms as $name => $form) {
+                    $form = $this->normalizeForm($form, $name, $rules);
+                    if ($form) {
+                        $forms[$form['name']] = $form;
                     }
-                    $forms[$name] = $form;
                 }
             }
+
+            $this->forms = $forms;
         }
 
-        return $forms;
+        return $this->forms;
+    }
+
+    public function addForms(array $new)
+    {
+        // Initialize forms.
+        $this->forms();
+
+        foreach ($new as $form) {
+            $form = $this->normalizeForm($form);
+            if ($form) {
+                $this->forms[$form['name']] = $form;
+            }
+        }
+    }
+
+    protected function normalizeForm($form, $name = null, array $rules = [])
+    {
+        if (!\is_array($form)) {
+            return null;
+        }
+
+        // Ignore numeric indexes on name.
+        if (!$name || (string)(int)$name === (string)$name) {
+            $name = null;
+        }
+
+        $name = $name ?? $form['name'] ?? $this->slug();
+
+        $formRules = $form['rules'] ?? null;
+        if (!\is_array($formRules)) {
+            $formRules = [];
+        }
+
+        return ['name' => $name, 'rules' => $rules + $formRules] + $form;
     }
 
     /**
@@ -2752,7 +2793,7 @@ class Page implements PageInterface
         }
 
         /** @var Grav $grav */
-        $grav = Grav::instance()['grav'];
+        $grav = Grav::instance();
 
         // New Custom event to handle things like pagination.
         $grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));

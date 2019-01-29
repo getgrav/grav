@@ -1,3 +1,9 @@
+# v1.6.0-beta.9
+## mm/dd/2019
+
+1. [](#improved)
+    * Improved `$page->forms()` call, added `$page->addForms()`
+
 # v1.6.0-beta.8
 ## 01/25/2019
 
