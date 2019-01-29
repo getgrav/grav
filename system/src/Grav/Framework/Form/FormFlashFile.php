@@ -26,12 +26,13 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         $this->upload = $upload;
         $this->flash = $flash;
 
-        if ($this->isOk() && (empty($this->upload['tmp_name']) || !file_exists($this->getTmpFile()))) {
+        $tmpFile = $this->getTmpFile();
+        if (!$tmpFile && $this->isOk()) {
             $this->upload['error'] = \UPLOAD_ERR_NO_FILE;
         }
 
         if (!isset($this->upload['size'])) {
-            $this->upload['size'] =  $this->isOk() ? filesize($this->getTmpFile()) : 0;
+            $this->upload['size'] = $tmpFile && $this->isOk() ? filesize($tmpFile) : 0;
         }
     }
 
@@ -116,7 +117,9 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
             return null;
         }
 
-        return $this->flash->getTmpDir() . '/' . $tmpName;
+        $tmpFile = $this->flash->getTmpDir() . '/' . $tmpName;
+
+        return file_exists($tmpFile) ? $tmpFile : null;
     }
 
     public function __debugInfo()
@@ -142,7 +145,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         }
 
         if (!$this->getTmpFile()) {
-            throw new \RuntimeException('Cannot retrieve stream as the file was not uploaded');
+            throw new \RuntimeException('Cannot retrieve stream as the file is missing');
         }
     }
 

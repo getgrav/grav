@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Improved `$page->forms()` call, added `$page->addForms()`
+    * Made `FormFlashFile` more robust against deleted files (over time)
 1. [](#bugfix)
     * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
 
