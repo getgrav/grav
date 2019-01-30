@@ -946,7 +946,7 @@ class Pages
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
 
                 // recurse pages and cache result
-                $this->resetPages($pages_dir, $this->pages_cache_id);
+                $this->resetPages($pages_dir);
 
             } else {
                 // If pages was found in cache, set the taxonomy
