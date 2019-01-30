@@ -26,7 +26,13 @@ class RequestServiceProvider implements ServiceProviderInterface
                 $psr17Factory  // StreamFactory
             );
 
-            return $creator->fromGlobals();
+            $request = $creator->fromGlobals();
+
+            // TODO: Remove workaround for bad host header (if using 'php -S localhost:8000 system/router.php').
+            $hosts = $request->getHeader('Host');
+            $host = end($hosts);
+
+            return $request->withHeader('Host', $host);
         };
     }
 }
