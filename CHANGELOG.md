@@ -3,13 +3,16 @@
 
 1. [](#improved)
     * Improved `$page->forms()` call, added `$page->addForms()`
-    * Made `FormFlashFile` more robust against deleted files (over time)
+    * Made `FormFlashFile` more robust against deleted files
+    * Removed apc and xcache support, made apc alias of apcu
 1. [](#bugfix)
     * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
     * Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media
     * Fixed `ImageMedium` constructor warning when file does not exist
     * Fixed bad host header in PSR-7 (if using 'php -S localhost:8000 system/router.php')
-
+    * Fixed Getters::count() method not returning anything
+    * Fixed non-namespaced exceptions in scheduler
+    
 # v1.6.0-beta.8
 ## 01/25/2019
 
