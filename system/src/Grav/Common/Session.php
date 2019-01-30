@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -97,7 +98,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function getFlashObject($name)
     {
-        $object = unserialize($this->{$name});
+        $object = unserialize($this->{$name}, ['allowed_classes' => true]);
 
         $this->{$name} = null;
 

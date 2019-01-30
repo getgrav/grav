@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -266,7 +267,8 @@ class ImageMedium extends Medium
      * @param  int       [$step=200]
      * @return $this
      */
-    public function derivatives($min_width, $max_width = 2500, $step = 200) {
+    public function derivatives($min_width, $max_width = 2500, $step = 200)
+    {
         if (!empty($this->alternatives)) {
             $max = max(array_keys($this->alternatives));
             $base = $this->alternatives[$max];
@@ -346,7 +348,7 @@ class ImageMedium extends Medium
             $attributes['sizes'] = $this->sizes();
         }
 
-        return [ 'name' => 'img', 'attributes' => $attributes ];
+        return ['name' => 'img', 'attributes' => $attributes];
     }
 
     /**
@@ -426,6 +428,7 @@ class ImageMedium extends Medium
             }
 
             $this->quality = $quality;
+
             return $this;
         }
 
@@ -445,6 +448,7 @@ class ImageMedium extends Medium
         }
 
         $this->format = $format;
+
         return $this;
     }
 
@@ -459,6 +463,7 @@ class ImageMedium extends Medium
 
         if ($sizes) {
             $this->sizes = $sizes;
+
             return $this;
         }
 
@@ -479,10 +484,12 @@ class ImageMedium extends Medium
      */
     public function width($value = 'auto')
     {
-        if (!$value || $value === 'auto')
+        if (!$value || $value === 'auto') {
             $this->attributes['width'] = $this->get('width');
-        else
+        } else {
             $this->attributes['width'] = $value;
+        }
+
         return $this;
     }
 
@@ -500,10 +507,12 @@ class ImageMedium extends Medium
      */
     public function height($value = 'auto')
     {
-        if (!$value || $value === 'auto')
+        if (!$value || $value === 'auto') {
             $this->attributes['height'] = $this->get('height');
-        else
+        } else {
             $this->attributes['height'] = $value;
+        }
+
         return $this;
     }
 

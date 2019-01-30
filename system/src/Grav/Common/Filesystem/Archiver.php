@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.FileSystem
+ * @package    Grav\Common\Filesystem
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,11 +20,11 @@ abstract class Archiver
 
     public static function create($compression)
     {
-        if ($compression == 'zip') {
-            return new ZipArchiver();
-        } else {
+        if ($compression === 'zip') {
             return new ZipArchiver();
         }
+
+        return new ZipArchiver();
     }
 
     public function setArchive($archive_file)

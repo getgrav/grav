@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,9 +16,12 @@ class TwigNodeStyle extends \Twig_Node implements \Twig_NodeCaptureInterface
     /**
      * TwigNodeAssets constructor.
      * @param \Twig_Node|null $body
+     * @param \Twig_Node_Expression|null $file
+     * @param \Twig_Node_Expression|null $group
+     * @param \Twig_Node_Expression|null $priority
      * @param \Twig_Node_Expression|null $attributes
      * @param int $lineno
-     * @param null $tag
+     * @param string|null $tag
      */
     public function __construct(
         \Twig_Node $body = null,

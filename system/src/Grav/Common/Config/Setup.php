@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Config
+ * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,8 +12,8 @@ namespace Grav\Common\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Data;
 use Grav\Common\Utils;
-use Grav\Framework\Psr7\ServerRequest;
 use Pimple\Container;
+use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Setup extends Data
@@ -157,7 +158,7 @@ class Setup extends Data
             if (\defined('GRAV_CLI')) {
                 static::$environment = 'cli';
             } else {
-                /** @var ServerRequest $request */
+                /** @var ServerRequestInterface $request */
                 $request = $container['request'];
                 $host = $request->getUri()->getHost();
 

@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Assets.Traits
+ * @package    Grav\Common\Assets\Traits
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,7 +25,7 @@ trait AssetUtilsTrait
     {
         $base = Grav::instance()['uri']->rootUrl(true);
 
-        // sanity check for local URLs with absolute URL's enabled
+        // Sanity check for local URLs with absolute URL's enabled
         if (Utils::startsWith($link, $base)) {
             return false;
         }
@@ -52,12 +53,12 @@ trait AssetUtilsTrait
             $link = $asset->getAsset();
             $relative_path = $link;
 
-            if ($this->isRemoteLink($link)) {
+            if (static::isRemoteLink($link)) {
                 $local = false;
                 if (0 === strpos($link, '//')) {
                     $link = 'http:' . $link;
                 }
-                $relative_dir = dirname($relative_path);
+                $relative_dir = \dirname($relative_path);
             } else {
                 // Fix to remove relative dir if grav is in one
                 if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
@@ -65,7 +66,7 @@ trait AssetUtilsTrait
                     $relative_path = ltrim(preg_replace($base_url, '/', $link, 1), '/');
                 }
 
-                $relative_dir = dirname($relative_path);
+                $relative_dir = \dirname($relative_path);
                 $link = ROOT_DIR . $relative_path;
             }
 
@@ -73,7 +74,7 @@ trait AssetUtilsTrait
 
             // No file found, skip it...
             if ($file === false) {
-                if (!$local) { // Assume we coudln't download this file for some reason assume it's not pipeline compatible
+                if (!$local) { // Assume we couldn't download this file for some reason assume it's not pipeline compatible
                     $no_pipeline[$id] = $asset;
                 }
                 continue;
@@ -125,8 +126,6 @@ trait AssetUtilsTrait
      *
      * Build an HTML attribute string from an array.
      *
-     * @param  array $attributes
-     *
      * @return string
      */
     protected function renderAttributes()
@@ -157,6 +156,7 @@ trait AssetUtilsTrait
     /**
      * Render Querystring
      *
+     * @param string $asset
      * @return string
      */
     protected function renderQueryString($asset = null)

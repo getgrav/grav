@@ -1,17 +1,20 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
+use Grav\Common\Page\Pages;
+
 class Security
 {
 
-    public static function detectXssFromPages($pages, $route = true, callable $status = null)
+    public static function detectXssFromPages(Pages $pages, $route = true, callable $status = null)
     {
         $routes = $pages->routes();
 

@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.File
+ * @package    Grav\Common\File
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,6 +24,6 @@ class CompiledJsonFile extends JsonFile
      */
     protected function decode($var, $assoc = true)
     {
-        return (array) json_decode($var, $assoc);
+        return (array)json_decode($var, $assoc);
     }
 }

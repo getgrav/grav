@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,7 +33,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * @var array
      */
-    protected $thumbnailTypes = [ 'page', 'default' ];
+    protected $thumbnailTypes = ['page', 'default'];
 
     protected $thumbnailType = null;
 
@@ -266,7 +267,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      */
     public function querystring($querystring = null, $withQuestionmark = true)
     {
-        if (!is_null($querystring)) {
+        if (null !== $querystring) {
             $this->medium_querystring[] = ltrim($querystring, '?&');
             foreach ($this->alternatives as $alt) {
                 $alt->querystring($querystring, $withQuestionmark);
@@ -278,11 +279,11 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
         }
 
         // join the strings
-        $querystring = implode("&", $this->medium_querystring);
+        $querystring = implode('&', $this->medium_querystring);
         // explode all strings
-        $query_parts = explode("&", $querystring);
+        $query_parts = explode('&', $querystring);
         // Join them again now ensure the elements are unique
-        $querystring = implode("&", array_unique($query_parts));
+        $querystring = implode('&', array_unique($query_parts));
 
         return $withQuestionmark ? ('?' . $querystring) : $querystring;
     }
@@ -494,7 +495,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      */
     public function thumbnail($type = 'auto')
     {
-        if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes)) {
+        if ($type !== 'auto' && !\in_array($type, $this->thumbnailTypes, true)) {
             return $this;
         }
 
@@ -560,7 +561,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     {
         $classes = func_get_args();
         if (!empty($classes)) {
-            $this->attributes['class'] = implode(',', (array)$classes);
+            $this->attributes['class'] = implode(',', $classes);
         }
 
         return $this;
@@ -605,7 +606,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     public function __call($method, $args)
     {
         $qs = $method;
-        if (count($args) > 1 || (count($args) == 1 && !empty($args[0]))) {
+        if (\count($args) > 1 || (\count($args) === 1 && !empty($args[0]))) {
             $qs .= '=' . implode(',', array_map(function ($a) {
                 if (is_array($a)) {
                     $a = '[' . implode(',', $a) . ']';

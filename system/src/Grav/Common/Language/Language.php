@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Language
+ * @package    Grav\Common\Language
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -105,7 +106,7 @@ class Language
      */
     public function getLanguage()
     {
-        return $this->active ? $this->active : $this->default;
+        return $this->active ?: $this->default;
     }
 
     /**
@@ -314,7 +315,8 @@ class Language
      * $this->grav['pages']->init();
      * ```
      */
-    public function resetFallbackPageExtensions() {
+    public function resetFallbackPageExtensions()
+    {
         $this->page_extensions = null;
     }
 

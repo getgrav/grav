@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @package    Grav.Console
+ * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -190,7 +190,7 @@ class IndexCommand extends ConsoleCommand
      */
     private function installed($package)
     {
-        $package   = isset($list[$package->slug]) ? $list[$package->slug] : $package;
+        $package   = $list[$package->slug] ?? $package;
         $type      = ucfirst(preg_replace('/s$/', '', $package->package_type));
         $method = 'is' . $type . 'Installed';
         $installed = $this->gpm->{$method}($package->slug);

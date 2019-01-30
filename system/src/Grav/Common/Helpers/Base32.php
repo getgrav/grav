@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Helpers
+ * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,7 +33,7 @@ class Base32
      */
     public static function encode($bytes)
     {
-        $i = 0; $index = 0; $digit = 0;
+        $i = 0; $index = 0;
         $base32 = '';
         $bytesLen = \strlen($bytes);
 

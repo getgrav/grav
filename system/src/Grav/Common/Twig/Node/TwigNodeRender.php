@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,10 +14,9 @@ class TwigNodeRender extends \Twig_Node implements \Twig_NodeCaptureInterface
     protected $tagName = 'render';
 
     /**
-     * @param \Twig_Node|null $body
      * @param \Twig_Node_Expression $object
      * @param \Twig_Node_Expression|null $layout
-     * @param \Twig_Node_Expression|null $attributes
+     * @param \Twig_Node_Expression|null $context
      * @param int $lineno
      * @param string|null $tag
      */

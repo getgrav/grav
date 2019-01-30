@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @package    Grav.Console
+ * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -150,20 +150,20 @@ class DirectInstallCommand extends ConsoleCommand
             $blueprint = GPM::getBlueprints($extracted);
             if ($blueprint) {
                 if (isset($blueprint['dependencies'])) {
-                    $depencencies = [];
+                    $dependencies = [];
                     foreach ($blueprint['dependencies'] as $dependency) {
                         if (is_array($dependency)){
                            if (isset($dependency['name'])) {
-                              $depencencies[] = $dependency['name'];
+                              $dependencies[] = $dependency['name'];
                            }
                            if (isset($dependency['github'])) {
-                              $depencencies[] = $dependency['github'];
+                               $dependencies[] = $dependency['github'];
                            }
                         } else {
-                           $depencencies[] = $dependency;
+                            $dependencies[] = $dependency;
                         }
                     }
-                    $this->output->writeln('  |- Dependencies found...    <cyan>[' . implode(',', $depencencies) . ']</cyan>');
+                    $this->output->writeln('  |- Dependencies found...    <cyan>[' . implode(',', $dependencies) . ']</cyan>');
 
                     $question = new ConfirmationQuestion("  |  '- Dependencies will not be satisfied. Continue ? [y|N] ", false);
                     $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
