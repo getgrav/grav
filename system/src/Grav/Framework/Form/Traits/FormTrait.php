@@ -290,6 +290,11 @@ trait FormTrait
         return $this->flash;
     }
 
+    protected function unsetFlash(): void
+    {
+        $this->flash = null;
+    }
+
     /**
      * Set all errors.
      *

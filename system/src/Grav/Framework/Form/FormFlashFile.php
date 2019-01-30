@@ -26,12 +26,13 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         $this->upload = $upload;
         $this->flash = $flash;
 
-        if ($this->isOk() && (empty($this->upload['tmp_name']) || !file_exists($this->getTmpFile()))) {
+        $tmpFile = $this->getTmpFile();
+        if (!$tmpFile && $this->isOk()) {
             $this->upload['error'] = \UPLOAD_ERR_NO_FILE;
         }
 
         if (!isset($this->upload['size'])) {
-            $this->upload['size'] =  $this->isOk() ? filesize($this->getTmpFile()) : 0;
+            $this->upload['size'] = $tmpFile && $this->isOk() ? filesize($tmpFile) : 0;
         }
     }
 
@@ -61,7 +62,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
             throw new \RuntimeException(\sprintf('Uploaded file could not be moved to %s', $targetPath));
         }
 
-        $this->flash->removeFile($this->field, $this->upload['tmp_name']);
+        $this->flash->removeFile($this->getClientFilename(), $this->field);
     }
 
     public function getSize()
@@ -100,7 +101,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 
     public function getDestination()
     {
-        return $this->upload['path'];
+        return $this->upload['path'] ?? '';
     }
 
     public function jsonSerialize()
@@ -108,9 +109,17 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         return $this->upload;
     }
 
-    public function getTmpFile() : string
+    public function getTmpFile() : ?string
     {
-        return $this->flash->getTmpDir() . '/' . $this->upload['tmp_name'];
+        $tmpName = $this->upload['tmp_name'] ?? null;
+
+        if (!$tmpName) {
+            return null;
+        }
+
+        $tmpFile = $this->flash->getTmpDir() . '/' . $tmpName;
+
+        return file_exists($tmpFile) ? $tmpFile : null;
     }
 
     public function __debugInfo()
@@ -133,6 +142,10 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 
         if ($this->moved) {
             throw new \RuntimeException('Cannot retrieve stream after it has already been moved');
+        }
+
+        if (!$this->getTmpFile()) {
+            throw new \RuntimeException('Cannot retrieve stream as the file is missing');
         }
     }
 
