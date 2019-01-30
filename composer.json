@@ -20,7 +20,7 @@
         "psr/http-message": "^1.0",
         "psr/http-server-middleware": "^1.0",
 
-        "nyholm/psr7-server": "^0.3",
+        "kodus/psr7-server": "*",
         "nyholm/psr7": "^1.0",
 
         "twig/twig": "~1.35",
