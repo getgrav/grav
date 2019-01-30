@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
     * Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media
+    * Fixed `ImageMedium` constructor warning when file does not exist
 
 # v1.6.0-beta.8
 ## 01/25/2019
