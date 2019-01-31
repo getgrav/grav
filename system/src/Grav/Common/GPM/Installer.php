@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\GPM
+ * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,23 +14,23 @@ use Grav\Common\Grav;
 class Installer
 {
     /** @const No error */
-    public const OK = 0;
+    const OK = 0;
     /** @const Target already exists */
-    public const EXISTS = 1;
+    const EXISTS = 1;
     /** @const Target is a symbolic link */
-    public const IS_LINK = 2;
+    const IS_LINK = 2;
     /** @const Target doesn't exist */
-    public const NOT_FOUND = 4;
+    const NOT_FOUND = 4;
     /** @const Target is not a directory */
-    public const NOT_DIRECTORY = 8;
+    const NOT_DIRECTORY = 8;
     /** @const Target is not a Grav instance */
-    public const NOT_GRAV_ROOT = 16;
+    const NOT_GRAV_ROOT = 16;
     /** @const Error while trying to open the ZIP package */
-    public const ZIP_OPEN_ERROR = 32;
+    const ZIP_OPEN_ERROR = 32;
     /** @const Error while trying to extract the ZIP package */
-    public const ZIP_EXTRACT_ERROR = 64;
+    const ZIP_EXTRACT_ERROR = 64;
     /** @const Invalid source file */
-    public const INVALID_SOURCE = 128;
+    const INVALID_SOURCE = 128;
 
     /**
      * Destination folder on which validation checks are applied
@@ -89,8 +88,8 @@ class Installer
             return false;
         }
 
-        if ((self::lastErrorCode() === self::IS_LINK && $options['ignore_symlinks']) ||
-            (self::lastErrorCode() === self::EXISTS && !$options['overwrite'])
+        if (self::lastErrorCode() == self::IS_LINK && $options['ignore_symlinks'] ||
+            self::lastErrorCode() == self::EXISTS && !$options['overwrite']
         ) {
             return false;
         }
@@ -190,8 +189,9 @@ class Installer
 
             $package_folder_name = preg_replace('#\./$#', '', $zip->getNameIndex(0));
             $zip->close();
+            $extracted_folder = $destination . '/' . $package_folder_name;
 
-            return $destination . '/' . $package_folder_name;
+            return $extracted_folder;
         }
 
         self::$error = self::ZIP_EXTRACT_ERROR;
@@ -216,7 +216,7 @@ class Installer
         $install_file = $installer_file_folder . DS . 'install.php';
 
         if (file_exists($install_file)) {
-            require_once $install_file;
+            require_once($install_file);
         } else {
             return null;
         }
@@ -279,9 +279,9 @@ class Installer
     {
         if (empty($source_path)) {
             throw new \RuntimeException("Directory $source_path is missing");
+        } else {
+            Folder::rcopy($source_path, $install_path);
         }
-
-        Folder::rcopy($source_path, $install_path);
 
         return true;
     }
@@ -296,7 +296,7 @@ class Installer
     {
         foreach (new \DirectoryIterator($source_path) as $file) {
 
-            if ($file->isLink() || $file->isDot() || \in_array($file->getFilename(), $ignores, true)) {
+            if ($file->isLink() || $file->isDot() || in_array($file->getFilename(), $ignores)) {
                 continue;
             }
 
@@ -385,11 +385,11 @@ class Installer
             self::$error = self::NOT_DIRECTORY;
         }
 
-        if (\count($exclude) && \in_array(self::$error, $exclude, true)) {
+        if (count($exclude) && in_array(self::$error, $exclude)) {
             return true;
         }
 
-        return !self::$error;
+        return !(self::$error);
     }
 
     /**
@@ -469,23 +469,23 @@ class Installer
                 if (self::$error_zip) {
                     switch(self::$error_zip) {
                         case \ZipArchive::ER_EXISTS:
-                            $msg .= 'File already exists.';
+                            $msg .= "File already exists.";
                             break;
 
                         case \ZipArchive::ER_INCONS:
-                            $msg .= 'Zip archive inconsistent.';
+                            $msg .= "Zip archive inconsistent.";
                             break;
 
                         case \ZipArchive::ER_MEMORY:
-                            $msg .= 'Memory allocation failure.';
+                            $msg .= "Malloc failure.";
                             break;
 
                         case \ZipArchive::ER_NOENT:
-                            $msg .= 'No such file.';
+                            $msg .= "No such file.";
                             break;
 
                         case \ZipArchive::ER_NOZIP:
-                            $msg .= 'Not a zip archive.';
+                            $msg .= "Not a zip archive.";
                             break;
 
                         case \ZipArchive::ER_OPEN:
@@ -493,11 +493,11 @@ class Installer
                             break;
 
                         case \ZipArchive::ER_READ:
-                            $msg .= 'Read error.';
+                            $msg .= "Read error.";
                             break;
 
                         case \ZipArchive::ER_SEEK:
-                            $msg .= 'Seek error.';
+                            $msg .= "Seek error.";
                             break;
                     }
                 }

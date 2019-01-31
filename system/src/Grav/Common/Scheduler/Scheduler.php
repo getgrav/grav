@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Scheduler
+ * @package    Grav.Common.Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,6 +33,8 @@ class Scheduler
 
     /**
      * Create new instance.
+     *
+     * @param  array  $config
      */
     public function __construct()
     {
@@ -56,7 +57,7 @@ class Scheduler
         $saved_jobs = (array) Grav::instance()['config']->get('scheduler.custom_jobs', []);
 
         foreach ($saved_jobs as $id => $j) {
-            $args = $j['args'] ?? [];
+            $args = isset($j['args']) ? $j['args'] : [];
             $id = Grav::instance()['inflector']->hyphenize($id);
             $job = $this->addCommand($j['command'], $args, $id);
 
@@ -112,7 +113,6 @@ class Scheduler
     public function getAllJobs()
     {
         list($background, $foreground) = $this->loadSavedJobs()->getQueuedJobs(true);
-
         return array_merge($background, $foreground);
     }
 
@@ -128,7 +128,6 @@ class Scheduler
     {
         $job = new Job($fn, $args, $id);
         $this->queueJob($job->configure($this->config));
-
         return $job;
     }
 
@@ -144,7 +143,6 @@ class Scheduler
     {
         $job = new Job($command, $args, $id);
         $this->queueJob($job->configure($this->config));
-
         return $job;
     }
 
@@ -161,7 +159,7 @@ class Scheduler
         list($background, $foreground) = $this->getQueuedJobs(false);
         $alljobs = array_merge($background, $foreground);
 
-        if (null === $runTime) {
+        if (is_null($runTime)) {
             $runTime = new \DateTime('now');
         }
 
@@ -193,7 +191,6 @@ class Scheduler
         $this->executed_jobs = [];
         $this->failed_jobs = [];
         $this->output_schedule = [];
-
         return $this;
     }
 
@@ -223,7 +220,6 @@ class Scheduler
     public function clearJobs()
     {
         $this->jobs = [];
-
         return $this;
     }
 
@@ -254,12 +250,19 @@ class Scheduler
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
 
-            return preg_match('$bin\/grav schedule$', $output) ? 1 : 0;
+            if (preg_match('$bin\/grav schedule$', $output)) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            $error = $process->getErrorOutput();
+            if (Utils::startsWith($error, 'crontab: no crontab')) {
+                return 0;
+            } else {
+                return 2;
+            }
         }
-
-        $error = $process->getErrorOutput();
-
-        return Utils::startsWith($error, 'crontab: no crontab') ? 0 : 2;
     }
 
     /**
@@ -269,7 +272,8 @@ class Scheduler
      */
     public function getJobStates()
     {
-        return YamlFile::instance($this->status_path . '/status.yaml');
+        $file = YamlFile::instance($this->status_path . '/status.yaml');
+        return $file;
     }
 
     /**
@@ -289,7 +293,6 @@ class Scheduler
                 $this->pushFailedJob($job);
             }
         }
-
         $saved_states = $this->getJobStates();
         $saved_states->save(array_merge($saved_states->content(), $new_states));
     }
@@ -334,10 +337,9 @@ class Scheduler
         $args = $job->getArguments();
         // If callable, log the string Closure
         if (is_callable($command)) {
-            $command = \is_string($command) ? $command : 'Closure';
+            $command = is_string($command) ? $command : 'Closure';
         }
         $this->addSchedulerVerboseOutput("<green>Success</green>: <white>{$command} {$args}</white>");
-
         return $job;
     }
 
@@ -353,11 +355,10 @@ class Scheduler
         $command = $job->getCommand();
         // If callable, log the string Closure
         if (is_callable($command)) {
-            $command = \is_string($command) ? $command : 'Closure';
+            $command = is_string($command) ? $command : 'Closure';
         }
         $output = trim($job->getOutput());
         $this->addSchedulerVerboseOutput("<red>Error</red>:   <white>{$command}</white> → <normal>{$output}</normal>");
-
         return $job;
     }
 }

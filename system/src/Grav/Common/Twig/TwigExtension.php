@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Twig
+ * @package    Grav.Common.Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -40,7 +39,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function __construct()
     {
         $this->grav     = Grav::instance();
-        $this->debugger = $this->grav['debugger'] ?? null;
+        $this->debugger = isset($this->grav['debugger']) ? $this->grav['debugger'] : null;
         $this->config   = $this->grav['config'];
     }
 
@@ -212,13 +211,16 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function safeEmailFilter($str)
     {
         $email   = '';
-        for ($i = 0, $len = strlen($str); $i < $len; $i++) {
-            $j = random_int(0, 1);
-
-            $email .= $j === 0 ? '&#' . ord($str[$i]) . ';' : $str[$i];
+        for ( $i = 0, $len = strlen( $str ); $i < $len; $i++ ) {
+            $j = mt_rand( 0, 1);
+            if ( $j === 0 ) {
+                $email .= '&#' . ord( $str[$i] ) . ';';
+            } elseif ( $j === 1 ) {
+                $email .= $str[$i];
+            }
         }
 
-        return str_replace('@', '&#64;', $email);
+        return str_replace( '@', '&#64;', $email );
     }
 
     /**
@@ -231,7 +233,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function randomizeFilter($original, $offset = 0)
     {
-        if (!\is_array($original)) {
+        if (!is_array($original)) {
             return $original;
         }
 
@@ -243,7 +245,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         $random = array_slice($original, $offset);
         shuffle($random);
 
-        $sizeOf = \count($original);
+        $sizeOf = count($original);
         for ($x = 0; $x < $sizeOf; $x++) {
             if ($x < $offset) {
                 $sorted[] = $original[$x];
@@ -266,15 +268,19 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function modulusFilter($number, $divider, $items = null)
     {
-        if (\is_string($number)) {
+        if (is_string($number)) {
             $number = strlen($number);
         }
 
         $remainder = $number % $divider;
 
-        if (\is_array($items)) {
-            return $items[$remainder] ?? $items[0];
-        }
+        if (is_array($items)) {
+            if (isset($items[$remainder])) {
+                return $items[$remainder];
+            }
+
+                return $items[0];
+            }
 
         return $remainder;
     }
@@ -300,7 +306,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function inflectorFilter($action, $data, $count = null)
     {
-        $action .= 'ize';
+        $action = $action . 'ize';
 
         $inflector = $this->grav['inflector'];
 
@@ -309,14 +315,18 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             ['titleize', 'camelize', 'underscorize', 'hyphenize', 'humanize', 'ordinalize', 'monthize'],
             true
         )) {
-            return $inflector->{$action}($data);
+            return $inflector->$action($data);
         }
 
         if (\in_array($action, ['pluralize', 'singularize'], true)) {
-            return $count ? $inflector->{$action}($data, $count) : $inflector->{$action}($data);
-        }
+            if ($count) {
+                return $inflector->$action($data, $count);
+            }
 
-        return $data;
+                return $inflector->$action($data);
+            }
+
+            return $data;
     }
 
     /**
@@ -448,7 +458,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function cronFunc($at)
     {
-        return CronExpression::factory($at);
+        $cron = CronExpression::factory($at);
+        return $cron;
     }
 
     /**
@@ -468,34 +479,34 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         if ($long_strings) {
             $periods = [
-                'NICETIME.SECOND',
-                'NICETIME.MINUTE',
-                'NICETIME.HOUR',
-                'NICETIME.DAY',
-                'NICETIME.WEEK',
-                'NICETIME.MONTH',
-                'NICETIME.YEAR',
-                'NICETIME.DECADE'
+                "NICETIME.SECOND",
+                "NICETIME.MINUTE",
+                "NICETIME.HOUR",
+                "NICETIME.DAY",
+                "NICETIME.WEEK",
+                "NICETIME.MONTH",
+                "NICETIME.YEAR",
+                "NICETIME.DECADE"
             ];
         } else {
             $periods = [
-                'NICETIME.SEC',
-                'NICETIME.MIN',
-                'NICETIME.HR',
-                'NICETIME.DAY',
-                'NICETIME.WK',
-                'NICETIME.MO',
-                'NICETIME.YR',
-                'NICETIME.DEC'
+                "NICETIME.SEC",
+                "NICETIME.MIN",
+                "NICETIME.HR",
+                "NICETIME.DAY",
+                "NICETIME.WK",
+                "NICETIME.MO",
+                "NICETIME.YR",
+                "NICETIME.DEC"
             ];
         }
 
-        $lengths = ['60', '60', '24', '7', '4.35', '12', '10'];
+        $lengths = ["60", "60", "24", "7", "4.35", "12", "10"];
 
         $now = time();
 
         // check if unix timestamp
-        if ((string)(int)$date === (string)$date) {
+        if ((string)(int)$date == $date) {
             $unix_date = $date;
         } else {
             $unix_date = strtotime($date);
@@ -511,7 +522,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             $difference = $now - $unix_date;
             $tense      = $this->grav['language']->translate('GRAV.NICETIME.AGO', null, true);
 
-        } elseif ($now == $unix_date) {
+        } else if ($now == $unix_date) {
             $difference = $now - $unix_date;
             $tense      = $this->grav['language']->translate('GRAV.NICETIME.JUST_NOW', null, false);
 
@@ -541,13 +552,13 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         $periods[$j] = $this->grav['language']->translate('GRAV.'.$periods[$j], null, true);
 
         if ($now == $unix_date) {
-            return $tense;
+            return "{$tense}";
         }
 
-        $time = "{$difference} {$periods[$j]}";
-        $time .= $show_tense ? " {$tense}" : '';
+        $time = "$difference $periods[$j]";
+        $time = $time . ($show_tense ? " {$tense}" : "");
 
-        return $time;
+        return  $time;
     }
 
     /**
@@ -558,7 +569,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function xssFunc($data)
     {
-        if (\is_array($data)) {
+        if (is_array($data)) {
             $results = Security::detectXssFromArray($data);
         } else {
             return Security::detectXss($data);
@@ -568,7 +579,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return $key.': \''.$value . '\'';
         }, array_values($results), array_keys($results));
 
-        return implode(', ', $results_parts);
+         return implode(', ', $results_parts);
     }
 
     /**
@@ -782,7 +793,6 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         $env = new \Twig_Environment($loader);
 
         $template = $env->createTemplate($twig);
-
         return $template->render($context);
     }
 
@@ -873,7 +883,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      *
      * @return string
      */
-    public static function padFilter($input, $pad_length, $pad_string = ' ', $pad_type = STR_PAD_RIGHT)
+    public static function padFilter($input, $pad_length, $pad_string = " ", $pad_type = STR_PAD_RIGHT)
     {
         return str_pad($input, (int)$pad_length, $pad_string, $pad_type);
     }
@@ -894,10 +904,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return array($key => $val);
         }
 
-        $current_array[$key] = $val;
-
-        return $current_array;
-    }
+            $current_array[$key] = $val;
+            return $current_array;
+        }
 
     /**
      * Wrapper for array_intersect() method
@@ -928,8 +937,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return json_encode($value);
         }
 
-        return $value;
-    }
+            return $value;
+        }
 
     /**
      * Translate a string
@@ -1041,8 +1050,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param int $flags
      * @return array
      */
-    public function regexFilter($array, $regex, $flags = 0)
-    {
+    public function regexFilter($array, $regex, $flags = 0) {
         return preg_grep($regex, $array, $flags);
     }
 
@@ -1095,6 +1103,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function exifFunc($image, $raw = false)
     {
         if (isset($this->grav['exif'])) {
+
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
 
@@ -1113,10 +1122,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                         return $exif_data->getRawData();
                     }
 
-                    return $exif_data->getData();
+                        return $exif_data->getData();
+                    }
                 }
             }
-        }
 
         return null;
     }
@@ -1229,8 +1238,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function themeVarFunc($var, $default = null)
     {
         $header = $this->grav['page']->header();
-        $header_classes = $header->{$var} ?? null;
-
+        $header_classes = isset($header->$var) ? $header->$var : null;
         return $header_classes ?: $this->config->get('theme.' . $var, $default);
     }
 
@@ -1245,7 +1253,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
 
         $header = $this->grav['page']->header();
-        $body_classes = $header->body_classes ?? '';
+        $body_classes = isset($header->body_classes) ? $header->body_classes : '';
 
         foreach ((array)$classes as $class) {
             if (!empty($body_classes) && Utils::contains($body_classes, $class)) {
@@ -1273,20 +1281,20 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         }
 
         // Make sure pages are an array
-        if (!\is_array($pages)) {
-            $pages = [$pages];
+        if (!is_array($pages)) {
+            $pages = array($pages);
         }
 
         // Loop over pages and look for header vars
         foreach ($pages as $page) {
-            if (\is_string($page)) {
+            if (is_string($page)) {
                 $page = $this->grav['pages']->find($page);
             }
 
             if ($page) {
                 $header = $page->header();
-                if (isset($header->{$var})) {
-                    return $header->{$var};
+                if (isset($header->$var)) {
+                    return $header->$var;
                 }
             }
         }

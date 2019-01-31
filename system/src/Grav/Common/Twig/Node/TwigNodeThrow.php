@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Twig
+ * @package    Grav.Common.Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,13 +10,6 @@ namespace Grav\Common\Twig\Node;
 
 class TwigNodeThrow extends \Twig_Node
 {
-    /**
-     * TwigNodeThrow constructor.
-     * @param $code
-     * @param \Twig_Node $message
-     * @param int $lineno
-     * @param string|null $tag
-     */
     public function __construct(
         $code,
         \Twig_Node $message,

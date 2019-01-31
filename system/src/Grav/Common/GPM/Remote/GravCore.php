@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\GPM
+ * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -123,7 +122,7 @@ class GravCore extends AbstractPackageCollection
     public function getMinPHPVersion()
     {
         // If non min set, assume current PHP version
-        if (null === $this->min_php) {
+        if (is_null($this->min_php)) {
             $this->min_php = phpversion();
         }
         return $this->min_php;

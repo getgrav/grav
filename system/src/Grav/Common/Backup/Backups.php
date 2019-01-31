@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Backup
+ * @package    Grav.Common.Backup
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,9 +21,9 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Backups
 {
-    protected const BACKUP_FILENAME_REGEXZ = "#(.*)--(\d*).zip#";
+    const BACKUP_FILENAME_REGEXZ = "#(.*)--(\d*).zip#";
 
-    protected const BACKUP_DATE_FORMAT = 'YmdHis';
+    const BACKUP_DATE_FORMAT = 'YmdHis';
 
     protected static $backup_dir;
 
@@ -40,7 +39,7 @@ class Backups
 
     public function setup()
     {
-        if (null === static::$backup_dir) {
+        if (is_null(static::$backup_dir)) {
             static::$backup_dir = Grav::instance()['locator']->findResource('backup://', true, true);
             Folder::create(static::$backup_dir);
         }
@@ -54,9 +53,9 @@ class Backups
         /** @var Inflector $inflector */
         $inflector = Grav::instance()['inflector'];
 
-        foreach (static::getBackupProfiles() as $id => $profile) {
+        foreach ($this->getBackupProfiles() as $id => $profile) {
             $at = $profile['schedule_at'];
-            $name = $inflector::hyphenize($profile['name']);
+            $name = $inflector->hyphenize($profile['name']);
             $logs = 'logs/backup-' . $name . '.out';
             /** @var Job $job */
             $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id], $name );
@@ -87,7 +86,7 @@ class Backups
 
     public function getBackupNames()
     {
-        return array_column(static::getBackupProfiles(), 'name');
+        return array_column($this->getBackupProfiles(), 'name');
     }
 
     public static function getTotalBackupsSize()
@@ -100,7 +99,7 @@ class Backups
 
     public static function getAvailableBackups($force = false)
     {
-        if ($force || null === static::$backups) {
+        if ($force || is_null(static::$backups)) {
             static::$backups = [];
             $backups_itr = new \GlobIterator(static::$backup_dir . '/*.zip', \FilesystemIterator::KEY_AS_FILENAME);
             $inflector = Grav::instance()['inflector'];
@@ -166,7 +165,7 @@ class Backups
         }
 
         if (!file_exists($backup_root)) {
-            throw new \RuntimeException("Backup location: {$backup_root} does not exist...");
+            throw new \RuntimeException("Backup location: " . $backup_root . ' does not exist...');
         }
 
         $options = [
@@ -246,6 +245,6 @@ class Backups
     protected static function convertExclude($exclude)
     {
         $lines = preg_split("/[\s,]+/", $exclude);
-        return array_map('trim', $lines, array_fill(0, \count($lines), '/'));
+        return array_map('trim', $lines, array_fill(0,count($lines),'/'));
     }
 }

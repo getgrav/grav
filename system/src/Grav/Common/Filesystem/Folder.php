@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Filesystem
+ * @package    Grav.Common.FileSystem
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -142,7 +141,6 @@ abstract class Folder
      */
     public static function getRelativePathDotDot($path, $base)
     {
-        // Normalize paths.
         $base = preg_replace('![\\\/]+!', '/', $base);
         $path = preg_replace('![\\\/]+!', '/', $path);
 
@@ -150,8 +148,8 @@ abstract class Folder
             return '';
         }
 
-        $baseParts = explode('/', ltrim($base, '/'));
-        $pathParts = explode('/', ltrim($path, '/'));
+        $baseParts = explode('/', isset($base[0]) && '/' === $base[0] ? substr($base, 1) : $base);
+        $pathParts = explode('/', isset($path[0]) && '/' === $path[0] ? substr($path, 1) : $path);
 
         array_pop($baseParts);
         $lastPart = array_pop($pathParts);
@@ -166,7 +164,7 @@ abstract class Folder
         $path = str_repeat('../', count($baseParts)) . implode('/', $pathParts);
 
         return '' === $path
-        || strpos($path, '/') === 0
+        || '/' === $path[0]
         || false !== ($colonPos = strpos($path, ':')) && ($colonPos < ($slashPos = strpos($path, '/')) || false === $slashPos)
             ? "./$path" : $path;
     }
@@ -201,14 +199,14 @@ abstract class Folder
         }
 
         $compare = isset($params['compare']) ? 'get' . $params['compare'] : null;
-        $pattern = $params['pattern'] ?? null;
-        $filters = $params['filters'] ?? null;
-        $recursive = $params['recursive'] ?? true;
-        $levels = $params['levels'] ?? -1;
+        $pattern = isset($params['pattern']) ? $params['pattern'] : null;
+        $filters = isset($params['filters']) ? $params['filters'] : null;
+        $recursive = isset($params['recursive']) ? $params['recursive'] : true;
+        $levels = isset($params['levels']) ? $params['levels'] : -1;
         $key = isset($params['key']) ? 'get' . $params['key'] : null;
-        $value = 'get' . ($params['value'] ?? ($recursive ? 'SubPathname' : 'Filename'));
-        $folders = $params['folders'] ?? true;
-        $files = $params['files'] ?? true;
+        $value = isset($params['value']) ? 'get' . $params['value'] : ($recursive ? 'getSubPathname' : 'getFilename');
+        $folders = isset($params['folders']) ? $params['folders'] : true;
+        $files = isset($params['files']) ? $params['files'] : true;
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
@@ -235,7 +233,7 @@ abstract class Folder
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {
             // Ignore hidden files.
-            if (strpos($file->getFilename(), '.') === 0) {
+            if ($file->getFilename()[0] === '.') {
                 continue;
             }
             if (!$folders && $file->isDir()) {
@@ -257,7 +255,7 @@ abstract class Folder
                 if (isset($filters['value'])) {
                     $filter = $filters['value'];
                     if (is_callable($filter)) {
-                        $filePath = $filter($file);
+                        $filePath = call_user_func($filter, $file);
                     } else {
                         $filePath = preg_replace($filter, '', $filePath);
                     }

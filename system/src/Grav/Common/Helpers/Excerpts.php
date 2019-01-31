@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Helpers
+ * @package    Grav.Common.Helpers
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -204,7 +203,7 @@ class Excerpts
         $filename = null;
 
         if (!empty($url_parts['stream'])) {
-            $filename = $url_parts['scheme'] . '://' . ($url_parts['path'] ?? '');
+            $filename = $url_parts['scheme'] . '://' . (isset($url_parts['path']) ? $url_parts['path'] : '');
 
             $media = $page->media();
 
@@ -248,10 +247,10 @@ class Excerpts
             $medium = static::processMediaActions($medium, $url_parts);
             $element_excerpt = $excerpt['element']['attributes'];
 
-            $alt = $element_excerpt['alt'] ?? '';
-            $title = $element_excerpt['title'] ?? '';
-            $class = $element_excerpt['class'] ?? '';
-            $id = $element_excerpt['id'] ?? '';
+            $alt = isset($element_excerpt['alt']) ? $element_excerpt['alt'] : '';
+            $title = isset($element_excerpt['title']) ? $element_excerpt['title'] : '';
+            $class = isset($element_excerpt['class']) ? $element_excerpt['class'] : '';
+            $id = isset($element_excerpt['id']) ? $element_excerpt['id'] : '';
 
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
 
@@ -284,7 +283,7 @@ class Excerpts
         if (isset($url_parts['query'])) {
             $actions = array_reduce(explode('&', $url_parts['query']), function ($carry, $item) {
                 $parts = explode('=', $item, 2);
-                $value = $parts[1] ?? null;
+                $value = isset($parts[1]) ? $parts[1] : null;
                 $carry[] = ['method' => $parts[0], 'params' => $value];
 
                 return $carry;
@@ -358,10 +357,6 @@ class Excerpts
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
-        if ($locator->isStream($url)) {
-            return $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
-        }
-
-        return $url;
+        return $locator->isStream($url) ? ($locator->findResource($url, false) ?: $locator->findResource($url, false, true)) : $url;
     }
 }

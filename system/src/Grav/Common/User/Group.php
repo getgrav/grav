@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\User
+ * @package    Grav.Common.User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -38,7 +37,7 @@ class Group extends Data
         $groups = [];
 
         foreach(static::groups() as $groupname => $group) {
-            $groups[$groupname] = $group['readableName'] ?? $groupname;
+            $groups[$groupname] = isset($group['readableName']) ? $group['readableName'] : $groupname;
         }
 
         return $groups;
@@ -67,7 +66,7 @@ class Group extends Data
     {
         $groups = self::groups();
 
-        $content = $groups[$groupname] ?? [];
+        $content = isset($groups[$groupname]) ? $groups[$groupname] : [];
         $content += ['groupname' => $groupname];
 
         $blueprints = new Blueprints;

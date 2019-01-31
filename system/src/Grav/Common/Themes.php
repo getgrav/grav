@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common
+ * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -100,7 +99,7 @@ class Themes extends Iterator
             }
 
             $theme = $directory->getFilename();
-            $result = $this->get($theme);
+            $result = self::get($theme);
 
             if ($result) {
                 $list[$theme] = $result;
@@ -144,7 +143,7 @@ class Themes extends Iterator
             $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
-        $obj = new Data((array)$file->content(), $blueprint);
+        $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
         $obj->merge($this->config->get('themes.' . $name) ?: []);
@@ -250,7 +249,7 @@ class Themes extends Iterator
                 }
             }
 
-            if (\in_array($scheme, $registered, true)) {
+            if (in_array($scheme, $registered)) {
                 stream_wrapper_unregister($scheme);
             }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
@@ -290,12 +289,12 @@ class Themes extends Iterator
         $locator = $this->grav['locator'];
 
         if ($config->get('system.languages.translations', true)) {
-            $language_file = $locator->findResource('theme://languages' . YAML_EXT);
+            $language_file = $locator->findResource("theme://languages" . YAML_EXT);
             if ($language_file) {
                 $language = CompiledYamlFile::instance($language_file)->content();
                 $this->grav['languages']->mergeRecursive($language);
             }
-            $languages_folder = $locator->findResource('theme://languages');
+            $languages_folder = $locator->findResource("theme://languages/");
             if (file_exists($languages_folder)) {
                 $languages = [];
                 $iterator = new \DirectoryIterator($languages_folder);

@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\GPM
+ * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -249,6 +248,7 @@ class GPM extends Iterator
             if (version_compare($local_version, $remote_version) < 0) {
                 $repository[$slug]->available = $remote_version;
                 $repository[$slug]->version = $local_version;
+                $repository[$slug]->name = $repository[$slug]->name;
                 $repository[$slug]->type = $repository[$slug]->release_type;
                 $items[$slug] = $repository[$slug];
             }
@@ -322,7 +322,7 @@ class GPM extends Iterator
                 continue;
             }
 
-            $local_version = $plugin->version ?: 'Unknown';
+            $local_version = $plugin->version ? $plugin->version : 'Unknown';
             $remote_version = $repository[$slug]->version;
 
             if (version_compare($local_version, $remote_version) < 0) {
@@ -564,33 +564,31 @@ class GPM extends Iterator
             file_exists($source . 'system/config/system.yaml')
         ) {
             return 'grav';
-        }
-
-        // must have a blueprint
-        if (!file_exists($source . 'blueprints.yaml')) {
-            return false;
-        }
-
-        // either theme or plugin
-        $name = basename($source);
-        if (Utils::contains($name, 'theme')) {
-            return 'theme';
-        }
-        if (Utils::contains($name, 'plugin')) {
-            return 'plugin';
-        }
-        foreach (glob($source . '*.php') as $filename) {
-            $contents = file_get_contents($filename);
-            if (preg_match($theme_regex, $contents)) {
-                return 'theme';
+        } else {
+            // must have a blueprint
+            if (!file_exists($source . 'blueprints.yaml')) {
+                return false;
             }
-            if (preg_match($plugin_regex, $contents)) {
+
+            // either theme or plugin
+            $name = basename($source);
+            if (Utils::contains($name, 'theme')) {
+                return 'theme';
+            } elseif (Utils::contains($name, 'plugin')) {
                 return 'plugin';
             }
-        }
+            foreach (glob($source . "*.php") as $filename) {
+                $contents = file_get_contents($filename);
+                if (preg_match($theme_regex, $contents)) {
+                    return 'theme';
+                } elseif (preg_match($plugin_regex, $contents)) {
+                    return 'plugin';
+                }
+            }
 
-        // Assume it's a theme
-        return 'theme';
+            // Assume it's a theme
+            return 'theme';
+        }
     }
 
     /**
@@ -603,7 +601,7 @@ class GPM extends Iterator
     {
         $ignore_yaml_files = ['blueprints', 'languages'];
 
-        foreach (glob($source . '*.yaml') as $filename) {
+        foreach (glob($source . "*.yaml") as $filename) {
             $name = strtolower(basename($filename, '.yaml'));
             if (in_array($name, $ignore_yaml_files)) {
                 continue;
@@ -644,7 +642,7 @@ class GPM extends Iterator
     {
         $locator = Grav::instance()['locator'];
 
-        if ($type === 'theme') {
+        if ($type == 'theme') {
             $install_path = $locator->findResource('themes://', false) . DS . $name;
         } else {
             $install_path = $locator->findResource('plugins://', false) . DS . $name;
@@ -694,7 +692,7 @@ class GPM extends Iterator
                 }
 
                 $not_found = new \stdClass();
-                $not_found->name = $inflector::camelize($search);
+                $not_found->name = $inflector->camelize($search);
                 $not_found->slug = $search;
                 $not_found->package_type = $type;
                 $not_found->install_path = str_replace('%name%', $search, $this->install_paths[$type]);
@@ -728,7 +726,7 @@ class GPM extends Iterator
                         $dependency = $dependency['name'];
                     }
 
-                    if ($dependency === $slug) {
+                    if ($dependency == $slug) {
                         $dependent_packages[] = $package_name;
                     }
                 }
@@ -835,19 +833,19 @@ class GPM extends Iterator
     {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
         foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
-            if (\in_array($dependency_slug, $packages, true)) {
+            if (in_array($dependency_slug, $packages)) {
                 unset($dependencies[$dependency_slug]);
                 continue;
             }
 
             // Check PHP version
-            if ($dependency_slug === 'php') {
+            if ($dependency_slug == 'php') {
                 $current_php_version = phpversion();
                 if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
                         $current_php_version) === 1
                 ) {
                     //Needs a Grav update first
-                    throw new \RuntimeException("<red>One of the packages require PHP {$dependencies['php']}. Please update PHP to resolve this");
+                    throw new \Exception("<red>One of the packages require PHP " . $dependencies['php'] . ". Please update PHP to resolve this");
                 } else {
                     unset($dependencies[$dependency_slug]);
                     continue;
@@ -855,12 +853,12 @@ class GPM extends Iterator
             }
 
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
-            if ($dependency_slug === 'grav') {
+            if ($dependency_slug == 'grav') {
                 if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
                         GRAV_VERSION) === 1
                 ) {
                     //Needs a Grav update first
-                    throw new \RuntimeException("<red>One of the packages require Grav {$dependencies['grav']}. Please update Grav to the latest release.");
+                    throw new \Exception("<red>One of the packages require Grav " . $dependencies['grav'] . ". Please update Grav to the latest release.");
                 } else {
                     unset($dependencies[$dependency_slug]);
                     continue;
@@ -890,7 +888,7 @@ class GPM extends Iterator
                             $currentlyInstalledVersion);
 
                         if (!$compatible) {
-                            throw new \RuntimeException('Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the one installed. This package must be updated. Please get in touch with its developer.',
+                            throw new \Exception('Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the one installed. This package must be updated. Please get in touch with its developer.',
                                 2);
                         }
                     }
@@ -901,7 +899,7 @@ class GPM extends Iterator
 
                 if ($this->firstVersionIsLower($latestRelease, $dependencyVersion)) {
                     //throw an exception if a required version cannot be found in the GPM yet
-                    throw new \RuntimeException('Dependency <cyan>' . $package_yaml['name'] . '</cyan> is required in version <cyan>' . $dependencyVersion . '</cyan> which is higher than the latest release, <cyan>' . $latestRelease . '</cyan>. Try running `bin/gpm -f index` to force a refresh of the GPM cache',
+                    throw new \Exception('Dependency <cyan>' . $package_yaml['name'] . '</cyan> is required in version <cyan>' . $dependencyVersion . '</cyan> which is higher than the latest release, <cyan>' . $latestRelease . '</cyan>. Try running `bin/gpm -f index` to force a refresh of the GPM cache',
                         1);
                 }
 
@@ -952,7 +950,7 @@ class GPM extends Iterator
 
     private function firstVersionIsLower($firstVersion, $secondVersion)
     {
-        return version_compare($firstVersion, $secondVersion) === -1;
+        return version_compare($firstVersion, $secondVersion) == -1;
     }
 
     /**
@@ -1007,7 +1005,7 @@ class GPM extends Iterator
 
                         $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
                         if (!$current_package_version_number) {
-                            throw new \RuntimeException('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName,
+                            throw new \Exception('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName,
                                 1);
                         }
 
@@ -1023,7 +1021,7 @@ class GPM extends Iterator
                             if (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
                                 //Comparing versions equals or higher, a simple version_compare is enough
                                 if (version_compare($currently_stored_version_number,
-                                        $current_package_version_number) === -1
+                                        $current_package_version_number) == -1
                                 ) { //Current package version is higher
                                     $dependencies[$current_package_name] = $current_package_version_information;
                                 }
@@ -1031,7 +1029,7 @@ class GPM extends Iterator
                                 $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number,
                                     $current_package_version_number);
                                 if (!$compatible) {
-                                    throw new \RuntimeException('Dependency ' . $current_package_name . ' is required in two incompatible versions',
+                                    throw new \Exception('Dependency ' . $current_package_name . ' is required in two incompatible versions',
                                         2);
                                 }
                             }
@@ -1078,19 +1076,17 @@ class GPM extends Iterator
      */
     public function calculateVersionNumberFromDependencyVersion($version)
     {
-        if ($version === '*') {
+        if ($version == '*') {
             return null;
-        }
-        if ($version === '') {
+        } elseif ($version == '') {
             return null;
-        }
-        if ($this->versionFormatIsNextSignificantRelease($version)) {
+        } elseif ($this->versionFormatIsNextSignificantRelease($version)) {
             return trim(substr($version, 1));
-        }
-        if ($this->versionFormatIsEqualOrHigher($version)) {
+        } elseif ($this->versionFormatIsEqualOrHigher($version)) {
             return trim(substr($version, 2));
+        } else {
+            return $version;
         }
-        return $version;
     }
 
     /**
@@ -1104,7 +1100,7 @@ class GPM extends Iterator
      */
     public function versionFormatIsNextSignificantRelease($version)
     {
-        return strpos($version, '~') === 0;
+        return substr($version, 0, 1) == '~';
     }
 
     /**
@@ -1118,7 +1114,7 @@ class GPM extends Iterator
      */
     public function versionFormatIsEqualOrHigher($version)
     {
-        return strpos($version, '>=') === 0;
+        return substr($version, 0, 2) == '>=';
     }
 
     /**
@@ -1139,12 +1135,12 @@ class GPM extends Iterator
         $version1array = explode('.', $version1);
         $version2array = explode('.', $version2);
 
-        if (\count($version1array) > \count($version2array)) {
+        if (count($version1array) > count($version2array)) {
             list($version1array, $version2array) = [$version2array, $version1array];
         }
 
         $i = 0;
-        while ($i < \count($version1array) - 1) {
+        while ($i < count($version1array) - 1) {
             if ($version1array[$i] != $version2array[$i]) {
                 return false;
             }

@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Page
+ * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -100,7 +99,6 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             $list[$name] = ucfirst(str_replace('_', ' ', $name));
         }
         ksort($list);
-
         return $list;
     }
 
@@ -114,7 +112,6 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             $list[$name] = ucfirst(trim(str_replace('_', ' ', basename($name))));
         }
         ksort($list);
-
         return $list;
     }
 
@@ -136,6 +133,8 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             $options['value'] = 'Url';
         }
 
-        return Folder::all($uri, $options);
+        $list = Folder::all($uri, $options);
+
+        return $list;
     }
 }

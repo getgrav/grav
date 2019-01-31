@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\GPM
+ * @package    Grav.Common.GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -113,7 +112,7 @@ class Upgrader
      */
     public function minPHPVersion()
     {
-        if (null === $this->min_php) {
+        if (is_null($this->min_php)) {
             $this->min_php = $this->remote->getMinPHPVersion();
         }
         return $this->min_php;
@@ -126,7 +125,7 @@ class Upgrader
      */
     public function isUpgradable()
     {
-        return version_compare($this->getLocalVersion(), $this->getRemoteVersion(), '<');
+        return version_compare($this->getLocalVersion(), $this->getRemoteVersion(), "<");
     }
 
     /**

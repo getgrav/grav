@@ -1,14 +1,14 @@
 <?php
-
 /**
- * @package    Grav\Common\Page
+ * @package    Grav.Common.Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Page;
 
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
@@ -26,7 +26,6 @@ use Grav\Common\Yaml;
 use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
-use Symfony\Component\Yaml\Exception\ParseException;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
@@ -143,7 +142,7 @@ class Page implements PageInterface
 
         $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
         $this->home_route = $this->adjustRouteCase($config->get('system.home.alias'));
-        $this->filePath($file->getPathname());
+        $this->filePath($file->getPathName());
         $this->modified($file->getMTime());
         $this->id($this->modified() . md5($this->filePath()));
         $this->routable(true);
@@ -198,7 +197,7 @@ class Page implements PageInterface
                 $aPage = new Page();
                 $aPage->init(new \SplFileInfo($path), $language . '.md');
 
-                $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
+                $route = isset($aPage->header()->routes['default']) ? $aPage->header()->routes['default'] : $aPage->rawRoute();
                 if (!$route) {
                     $route = $aPage->route();
                 }
@@ -223,7 +222,7 @@ class Page implements PageInterface
      */
     public function untranslatedLanguages($includeUnpublished = false)
     {
-        $filename = substr($this->name, 0, -strlen($this->extension()));
+        $filename = substr($this->name, 0, -(strlen($this->extension())));
         $config = Grav::instance()['config'];
         $languages = $config->get('system.languages.supported', []);
         $untranslatedLanguages = [];
@@ -365,10 +364,10 @@ class Page implements PageInterface
 
         if ($var) {
             if (isset($this->header->slug)) {
-                $this->slug($this->header->slug);
+                $this->slug(($this->header->slug));
             }
             if (isset($this->header->routes)) {
-                $this->routes = (array)$this->header->routes;
+                $this->routes = (array)($this->header->routes);
             }
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
@@ -418,7 +417,7 @@ class Page implements PageInterface
                 }
             }
             if (isset($this->header->max_count)) {
-                $this->max_count = (int)$this->header->max_count;
+                $this->max_count = intval($this->header->max_count);
             }
             if (isset($this->header->process)) {
                 foreach ((array)$this->header->process as $process => $status) {
@@ -435,7 +434,7 @@ class Page implements PageInterface
                 $this->unpublishDate($this->header->unpublish_date);
             }
             if (isset($this->header->expires)) {
-                $this->expires = (int)$this->header->expires;
+                $this->expires = intval($this->header->expires);
             }
             if (isset($this->header->cache_control)) {
                 $this->cache_control = $this->header->cache_control;
@@ -612,7 +611,7 @@ class Page implements PageInterface
             return mb_strimwidth($content, 0, $size, '...', 'utf-8');
         }
 
-        $summary = Utils::truncateHtml($content, $size);
+        $summary = Utils::truncateHTML($content, $size);
 
         return html_entity_decode($summary);
     }
@@ -674,13 +673,13 @@ class Page implements PageInterface
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig') || $this->modularTwig();
 
-            $cache_enable = $this->header->cache_enable ?? $config->get('system.cache.enabled',
+            $cache_enable = isset($this->header->cache_enable) ? $this->header->cache_enable : $config->get('system.cache.enabled',
                 true);
-            $twig_first = $this->header->twig_first ?? $config->get('system.pages.twig_first',
+            $twig_first = isset($this->header->twig_first) ? $this->header->twig_first : $config->get('system.pages.twig_first',
                 true);
 
             // never cache twig means it's always run after content
-            $never_cache_twig = $this->header->never_cache_twig ?? $config->get('system.pages.never_cache_twig',
+            $never_cache_twig = isset($this->header->never_cache_twig) ? $this->header->never_cache_twig : $config->get('system.pages.never_cache_twig',
                 false);
 
             // if no cached-content run everything
@@ -877,7 +876,9 @@ class Page implements PageInterface
      */
     public function setRawContent($content)
     {
-        $this->content = $content ?? '';
+        $content = $content === null ? '': $content;
+
+        $this->content = $content;
     }
 
     /**
@@ -894,9 +895,7 @@ class Page implements PageInterface
             return $this->raw_content;
         }
         if ($name === 'route') {
-            $parent = $this->parent();
-
-            return $parent ? $parent->rawRoute() : '';
+            return $this->parent()->rawRoute();
         }
         if ($name === 'order') {
             $order = $this->order();
@@ -1037,10 +1036,10 @@ class Page implements PageInterface
         $this->_action = 'move';
 
         if ($this->route() === $parent->route()) {
-            throw new \RuntimeException('Failed: Cannot set page parent to self');
+            throw new Exception('Failed: Cannot set page parent to self');
         }
         if (Utils::startsWith($parent->rawRoute(), $this->rawRoute())) {
-            throw new \RuntimeException('Failed: Cannot set page parent to a child of current page');
+            throw new Exception('Failed: Cannot set page parent to a child of current page');
         }
 
         $this->parent($parent);
@@ -1123,7 +1122,7 @@ class Page implements PageInterface
     /**
      * Validate page header.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function validate()
     {
@@ -1325,7 +1324,7 @@ class Page implements PageInterface
             $this->name = $var;
         }
 
-        return $this->name ?: 'default.md';
+        return empty($this->name) ? 'default.md' : $this->name;
     }
 
     /**
@@ -1381,7 +1380,6 @@ class Page implements PageInterface
         $page_extension = trim($this->header->append_url_extension ?? '' , '.');
         if (!empty($page_extension)) {
             $this->template_format = $page_extension;
-
             return $this->template_format;
         }
 
@@ -1389,7 +1387,6 @@ class Page implements PageInterface
         $uri_extension = Grav::instance()['uri']->extension();
         if (is_string($uri_extension)) {
             $this->template_format = $uri_extension;
-
             return $this->template_format;
         }
 
@@ -1402,9 +1399,8 @@ class Page implements PageInterface
             $priorities = Utils::getMimeTypes($supported_types);
 
             $media_type = $negotiator->getBest($http_accept, $priorities);
-            $mimetype = $media_type ? $media_type->getValue() : '';
+            $mimetype = $media_type->getValue();
             $this->template_format = Utils::getExtensionByMime($mimetype);
-
             return $this->template_format;
         }
 
@@ -1465,7 +1461,7 @@ class Page implements PageInterface
             $this->expires = $var;
         }
 
-        return $this->expires ?? Grav::instance()['config']->get('system.pages.expires');
+        return !isset($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
     }
 
     /**
@@ -1481,7 +1477,7 @@ class Page implements PageInterface
             $this->cache_control = $var;
         }
 
-        return $this->cache_control ?? Grav::instance()['config']->get('system.pages.cache_control');
+        return !isset($this->cache_control) ? Grav::instance()['config']->get('system.pages.cache_control') : $this->cache_control;
     }
 
     /**
@@ -1653,7 +1649,11 @@ class Page implements PageInterface
      */
     public function debugger()
     {
-        return !(isset($this->debugger) && $this->debugger === false);
+        if (isset($this->debugger) && $this->debugger === false) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1706,7 +1706,7 @@ class Page implements PageInterface
                 } else {
                     // If it this is a standard meta data type
                     if ($value) {
-                        if (\in_array($key, $header_tag_http_equivs, true)) {
+                        if (in_array($key, $header_tag_http_equivs)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
                                 'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
@@ -1755,6 +1755,7 @@ class Page implements PageInterface
             $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder)) ?: null;
         }
 
+
         return $this->slug;
     }
 
@@ -1768,7 +1769,7 @@ class Page implements PageInterface
     public function order($var = null)
     {
         if ($var !== null) {
-            $order = $var ? sprintf('%02d.', (int)$var) : '';
+            $order = !empty($var) ? sprintf('%02d.', (int)$var) : '';
             $this->folder($order . preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
 
             return $order;
@@ -1776,7 +1777,7 @@ class Page implements PageInterface
 
         preg_match(PAGE_ORDER_PREFIX_REGEX, $this->folder, $order);
 
-        return $order[0] ?? false;
+        return isset($order[0]) ? $order[0] : false;
     }
 
     /**
@@ -1837,7 +1838,7 @@ class Page implements PageInterface
         /** @var Config $config */
         $config = $grav['config'];
 
-        // get base route (multi-site base and language)
+        // get base route (multisite base and language)
         $route = $include_base ? $pages->baseRoute() : '';
 
         // add full route if configured to do so
@@ -1910,7 +1911,8 @@ class Page implements PageInterface
      */
     public function unsetRouteSlug()
     {
-        unset($this->route, $this->slug);
+        unset($this->route);
+        unset($this->slug);
     }
 
     /**
@@ -1927,8 +1929,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->raw_route)) {
-            $parent = $this->parent();
-            $baseRoute = $parent ? (string)$parent->rawRoute() : null;
+            $baseRoute = $this->parent ? (string)$this->parent()->rawRoute() : null;
 
             $slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
 
@@ -2083,7 +2084,7 @@ class Page implements PageInterface
             // Folder of the page.
             $this->folder = basename(dirname($var));
             // Path to the page.
-            $this->path = dirname($var, 2);
+            $this->path = dirname(dirname($var));
         }
 
         return $this->path . '/' . $this->folder . '/' . ($this->name ?: '');
@@ -2096,7 +2097,9 @@ class Page implements PageInterface
      */
     public function filePathClean()
     {
-        return str_replace(ROOT_DIR, '', $this->filePath());
+        $path = str_replace(ROOT_DIR, '', $this->filePath());
+
+        return $path;
     }
 
     /**
@@ -2104,7 +2107,9 @@ class Page implements PageInterface
      */
     public function relativePagePath()
     {
-        return str_replace('/' . $this->name(), '', $this->filePathClean());
+        $path = str_replace('/' . $this->name(), '', $this->filePathClean());
+
+        return $path;
     }
 
     /**
@@ -2192,7 +2197,6 @@ class Page implements PageInterface
         if ($var !== null) {
             $this->order_dir = $var;
         }
-
         if (empty($this->order_dir)) {
             $this->order_dir = 'asc';
         }
@@ -2320,7 +2324,7 @@ class Page implements PageInterface
      */
     public function shouldProcess($process)
     {
-        return (bool)($this->process[$process] ?? false);
+        return isset($this->process[$process]) ? (bool)$this->process[$process] : false;
     }
 
     /**
@@ -2390,8 +2394,7 @@ class Page implements PageInterface
      */
     public function isFirst()
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->isFirst($this->path());
         }
@@ -2406,8 +2409,7 @@ class Page implements PageInterface
      */
     public function isLast()
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->isLast($this->path());
         }
@@ -2444,8 +2446,7 @@ class Page implements PageInterface
      */
     public function adjacentSibling($direction = 1)
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->adjacentSibling($this->path(), $direction);
         }
@@ -2462,8 +2463,7 @@ class Page implements PageInterface
      */
     public function currentPosition()
     {
-        $parent = $this->parent();
-        $collection = $parent ? $parent->collection('content', false) : null;
+        $collection = $this->parent()->collection('content', false);
         if ($collection instanceof Collection) {
             return $collection->currentPosition($this->path());
         }
@@ -2481,7 +2481,14 @@ class Page implements PageInterface
         $uri_path = rtrim(urldecode(Grav::instance()['uri']->path()), '/') ?: '/';
         $routes = Grav::instance()['pages']->routes();
 
-        return isset($routes[$uri_path]) && $routes[$uri_path] === $this->path();
+        if (isset($routes[$uri_path])) {
+            if ($routes[$uri_path] === $this->path()) {
+                return true;
+            }
+
+        }
+
+        return false;
     }
 
     /**
@@ -2521,8 +2528,9 @@ class Page implements PageInterface
     public function home()
     {
         $home = Grav::instance()['config']->get('system.home.alias');
+        $is_home = ($this->route() === $home || $this->rawRoute() === $home);
 
-        return ($this->route() === $home || $this->rawRoute() === $home);
+        return $is_home;
     }
 
     /**
@@ -2532,7 +2540,11 @@ class Page implements PageInterface
      */
     public function root()
     {
-        return !$this->parent && !$this->name && !$this->visible;
+        if (!$this->parent && !$this->name && !$this->visible) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -2596,7 +2608,7 @@ class Page implements PageInterface
 
         /** @var Pages $pages */
         $inherited = $pages->inherited($this->route, $field);
-        $inheritedParams = $inherited ? (array)$inherited->value('header.' . $field) : [];
+        $inheritedParams = (array)$inherited->value('header.' . $field);
         $currentParams = (array)$this->value('header.' . $field);
         if ($inheritedParams && is_array($inheritedParams)) {
             $currentParams = array_replace_recursive($inheritedParams, $currentParams);
@@ -2661,7 +2673,7 @@ class Page implements PageInterface
         /** @var Config $config */
         $config = Grav::instance()['config'];
 
-        $process_taxonomy = $params['url_taxonomy_filters'] ?? $config->get('system.pages.url_taxonomy_filters');
+        $process_taxonomy = isset($params['url_taxonomy_filters']) ? $params['url_taxonomy_filters'] : $config->get('system.pages.url_taxonomy_filters');
 
         if ($process_taxonomy) {
             foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
@@ -2676,7 +2688,8 @@ class Page implements PageInterface
                         }
                         foreach ($items as $item) {
                             $item = rawurldecode($item);
-                            if (empty($page->taxonomy[$taxonomy]) || !\in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy], true)
+                            if (empty($page->taxonomy[$taxonomy]) || !in_array(htmlspecialchars_decode($item,
+                                    ENT_QUOTES), $page->taxonomy[$taxonomy])
                             ) {
                                 $collection->remove($page->path());
                             }
@@ -2692,9 +2705,12 @@ class Page implements PageInterface
             // remove any inclusive sets from filer:
             $sets = ['published', 'visible', 'modular', 'routable'];
             foreach ($sets as $type) {
-                $var = "non-{$type}";
-                if (isset($params['filter'][$type], $params['filter'][$var]) && $params['filter'][$type] && $params['filter'][$var]) {
-                    unset ($params['filter'][$type], $params['filter'][$var]);
+                if (isset($params['filter'][$type]) && isset($params['filter']['non-'.$type])) {
+                    if ($params['filter'][$type] && $params['filter']['non-'.$type]) {
+                        unset ($params['filter'][$type]);
+                        unset ($params['filter']['non-'.$type]);
+                    }
+
                 }
             }
 
@@ -2754,17 +2770,17 @@ class Page implements PageInterface
         }
 
         if (isset($params['dateRange'])) {
-            $start = $params['dateRange']['start'] ?? 0;
-            $end = $params['dateRange']['end'] ?? false;
-            $field = $params['dateRange']['field'] ?? false;
+            $start = isset($params['dateRange']['start']) ? $params['dateRange']['start'] : 0;
+            $end = isset($params['dateRange']['end']) ? $params['dateRange']['end'] : false;
+            $field = isset($params['dateRange']['field']) ? $params['dateRange']['field'] : false;
             $collection->dateRange($start, $end, $field);
         }
 
         if (isset($params['order'])) {
-            $by = $params['order']['by'] ?? 'default';
-            $dir = $params['order']['dir'] ?? 'asc';
-            $custom = $params['order']['custom'] ?? null;
-            $sort_flags = $params['order']['sort_flags'] ?? null;
+            $by = isset($params['order']['by']) ? $params['order']['by'] : 'default';
+            $dir = isset($params['order']['dir']) ? $params['order']['dir'] : 'asc';
+            $custom = isset($params['order']['custom']) ? $params['order']['custom'] : null;
+            $sort_flags = isset($params['order']['sort_flags']) ? $params['order']['sort_flags'] : null;
 
             if (is_array($sort_flags)) {
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
@@ -2786,7 +2802,7 @@ class Page implements PageInterface
         if ($pagination) {
             $params = $collection->params();
 
-            $limit = $params['limit'] ?? 0;
+            $limit = isset($params['limit']) ? $params['limit'] : 0;
             $start = !empty($params['pagination']) ? ($uri->currentPage() - 1) * $limit : 0;
 
             if ($limit && $collection->count() > $limit) {
@@ -3029,32 +3045,28 @@ class Page implements PageInterface
 
         $this->_original->path($this->path());
 
-        $parent = $this->parent();
-        $siblings = $parent ? $parent->children() : null;
+        $siblings = $this->parent()->children();
+        $siblings->order('slug', 'asc', $new_order);
 
-        if ($siblings) {
-            $siblings->order('slug', 'asc', $new_order);
+        $counter = 0;
 
-            $counter = 0;
+        // Reorder all moved pages.
+        foreach ($siblings as $slug => $page) {
+            $order = (int)trim($page->order(), '.');
+            $counter++;
 
-            // Reorder all moved pages.
-            foreach ($siblings as $slug => $page) {
-                $order = (int)trim($page->order(), '.');
-                $counter++;
-
-                if ($order) {
-                    if ($page->path() === $this->path() && $this->folderExists()) {
-                        // Handle current page; we do want to change ordering number, but nothing else.
-                        $this->order($counter);
-                        $this->save(false);
-                    } else {
-                        // Handle all the other pages.
-                        $page = $pages->get($page->path());
-                        if ($page && $page->folderExists() && !$page->_action) {
-                            $page = $page->move($this->parent());
-                            $page->order($counter);
-                            $page->save(false);
-                        }
+            if ($order) {
+                if ($page->path() === $this->path() && $this->folderExists()) {
+                    // Handle current page; we do want to change ordering number, but nothing else.
+                    $this->order($counter);
+                    $this->save(false);
+                } else {
+                    // Handle all the other pages.
+                    $page = $pages->get($page->path());
+                    if ($page && $page->folderExists() && !$page->_action) {
+                        $page = $page->move($this->parent());
+                        $page->order($counter);
+                        $page->save(false);
                     }
                 }
             }
@@ -3066,7 +3078,7 @@ class Page implements PageInterface
      *
      * @internal
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function doRelocation()
     {
@@ -3116,7 +3128,11 @@ class Page implements PageInterface
     {
         $case_insensitive = Grav::instance()['config']->get('system.force_lowercase_urls');
 
-        return $case_insensitive ? mb_strtolower($route) : $route;
+        if ($case_insensitive) {
+            return mb_strtolower($route);
+        } else {
+            return $route;
+        }
     }
 
     /**

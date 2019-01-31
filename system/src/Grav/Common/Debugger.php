@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common
+ * @package    Grav.Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -270,7 +269,7 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
-        if (strpos($name, '_') === 0 || $this->enabled()) {
+        if ($name[0] === '_' || $this->enabled()) {
             $this->debugbar['time']->startMeasure($name, $description);
             $this->timers[] = $name;
         }
@@ -287,7 +286,7 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (\in_array($name, $this->timers, true) && (strpos($name, '_') === 0 || $this->enabled())) {
+        if (\in_array($name, $this->timers, true) && ($name[0] === '_' || $this->enabled())) {
             $this->debugbar['time']->stopMeasure($name);
         }
 
@@ -320,7 +319,7 @@ class Debugger
      */
     public function addException(\Exception $e)
     {
-        if ($this->initialized && $this->enabled()) {
+        if ($this->enabled() && $this->initialized) {
             $this->debugbar['exceptions']->addException($e);
         }
 

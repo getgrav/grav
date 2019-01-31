@@ -1,9 +1,8 @@
 <?php
-
 /**
- * @package    Grav\Common\Filesystem
+ * @package    Grav.Common.FileSystem
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -42,6 +41,9 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
         /** @var $current \SplFileInfo */
         $current = $this->current();
 
-        return $current->isDir() && !in_array($current->getFilename(), $this::$ignore_folders, true);
+        if ($current->isDir() && !in_array($current->getFilename(), $this::$ignore_folders, true)) {
+            return true;
+        }
+        return false;
     }
 }
