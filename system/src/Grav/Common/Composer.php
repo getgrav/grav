@@ -47,7 +47,7 @@ class Composer
         $composer = static::getComposerLocation();
 
         if ($composer !== static::DEFAULT_PATH && is_executable($composer)) {
-            $file = fopen($composer, 'r');
+            $file = fopen($composer, 'rb');
             $firstLine = fgets($file);
             fclose($file);
 

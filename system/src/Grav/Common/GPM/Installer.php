@@ -90,8 +90,8 @@ class Installer
             return false;
         }
 
-        if (self::lastErrorCode() == self::IS_LINK && $options['ignore_symlinks'] ||
-            self::lastErrorCode() == self::EXISTS && !$options['overwrite']
+        if ((self::lastErrorCode() === self::IS_LINK && $options['ignore_symlinks']) ||
+            (self::lastErrorCode() === self::EXISTS && !$options['overwrite'])
         ) {
             return false;
         }
@@ -391,7 +391,7 @@ class Installer
             self::$error = self::NOT_DIRECTORY;
         }
 
-        if (count($exclude) && in_array(self::$error, $exclude)) {
+        if (\count($exclude) && \in_array(self::$error, $exclude, true)) {
             return true;
         }
 

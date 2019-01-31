@@ -22,9 +22,9 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Backups
 {
-    const BACKUP_FILENAME_REGEXZ = "#(.*)--(\d*).zip#";
+    protected const BACKUP_FILENAME_REGEXZ = "#(.*)--(\d*).zip#";
 
-    const BACKUP_DATE_FORMAT = 'YmdHis';
+    protected const BACKUP_DATE_FORMAT = 'YmdHis';
 
     protected static $backup_dir;
 

@@ -249,7 +249,6 @@ class GPM extends Iterator
             if (version_compare($local_version, $remote_version) < 0) {
                 $repository[$slug]->available = $remote_version;
                 $repository[$slug]->version = $local_version;
-                $repository[$slug]->name = $repository[$slug]->name;
                 $repository[$slug]->type = $repository[$slug]->release_type;
                 $items[$slug] = $repository[$slug];
             }
@@ -645,7 +644,7 @@ class GPM extends Iterator
     {
         $locator = Grav::instance()['locator'];
 
-        if ($type == 'theme') {
+        if ($type === 'theme') {
             $install_path = $locator->findResource('themes://', false) . DS . $name;
         } else {
             $install_path = $locator->findResource('plugins://', false) . DS . $name;
@@ -729,7 +728,7 @@ class GPM extends Iterator
                         $dependency = $dependency['name'];
                     }
 
-                    if ($dependency == $slug) {
+                    if ($dependency === $slug) {
                         $dependent_packages[] = $package_name;
                     }
                 }
@@ -836,13 +835,13 @@ class GPM extends Iterator
     {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
         foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
-            if (in_array($dependency_slug, $packages)) {
+            if (\in_array($dependency_slug, $packages, true)) {
                 unset($dependencies[$dependency_slug]);
                 continue;
             }
 
             // Check PHP version
-            if ($dependency_slug == 'php') {
+            if ($dependency_slug === 'php') {
                 $current_php_version = phpversion();
                 if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
                         $current_php_version) === 1
@@ -856,7 +855,7 @@ class GPM extends Iterator
             }
 
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
-            if ($dependency_slug == 'grav') {
+            if ($dependency_slug === 'grav') {
                 if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
                         GRAV_VERSION) === 1
                 ) {
@@ -953,7 +952,7 @@ class GPM extends Iterator
 
     private function firstVersionIsLower($firstVersion, $secondVersion)
     {
-        return version_compare($firstVersion, $secondVersion) == -1;
+        return version_compare($firstVersion, $secondVersion) === -1;
     }
 
     /**
@@ -1024,7 +1023,7 @@ class GPM extends Iterator
                             if (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
                                 //Comparing versions equals or higher, a simple version_compare is enough
                                 if (version_compare($currently_stored_version_number,
-                                        $current_package_version_number) == -1
+                                        $current_package_version_number) === -1
                                 ) { //Current package version is higher
                                     $dependencies[$current_package_name] = $current_package_version_information;
                                 }
