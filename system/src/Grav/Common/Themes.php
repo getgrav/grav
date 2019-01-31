@@ -100,7 +100,7 @@ class Themes extends Iterator
             }
 
             $theme = $directory->getFilename();
-            $result = self::get($theme);
+            $result = $this->get($theme);
 
             if ($result) {
                 $list[$theme] = $result;

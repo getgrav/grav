@@ -243,7 +243,7 @@ class GPM extends Iterator
                 continue;
             }
 
-            $local_version = $plugin->version ? $plugin->version : 'Unknown';
+            $local_version = $plugin->version ?: 'Unknown';
             $remote_version = $repository[$slug]->version;
 
             if (version_compare($local_version, $remote_version) < 0) {
@@ -695,7 +695,7 @@ class GPM extends Iterator
                 }
 
                 $not_found = new \stdClass();
-                $not_found->name = $inflector->camelize($search);
+                $not_found->name = $inflector::camelize($search);
                 $not_found->slug = $search;
                 $not_found->package_type = $type;
                 $not_found->install_path = str_replace('%name%', $search, $this->install_paths[$type]);

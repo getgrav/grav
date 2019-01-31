@@ -104,7 +104,7 @@ class Response
 
         // check if this function is available, if so use it to stop any timeouts
         try {
-            if (!Utils::isFunctionDisabled('set_time_limit') && !ini_get('safe_mode') && function_exists('set_time_limit')) {
+            if (function_exists('set_time_limit') && !Utils::isFunctionDisabled('set_time_limit')) {
                 set_time_limit(0);
             }
         } catch (\Exception $e) {
@@ -278,8 +278,8 @@ class Response
         }
 
         $uri      = $args[0];
-        $options  = $args[1];
-        $callback = $args[2];
+        $options  = $args[1] ?? [];
+        $callback = $args[2] ?? null;
 
         if ($callback) {
             $options['fopen']['notification'] = ['self', 'progress'];
@@ -330,8 +330,8 @@ class Response
         $args = count($args) > 1 ? $args : array_shift($args);
 
         $uri      = $args[0];
-        $options  = $args[1];
-        $callback = $args[2];
+        $options  = $args[1] ?? [];
+        $callback = $args[2] ?? null;
 
         $ch = curl_init($uri);
 
@@ -344,9 +344,9 @@ class Response
 
             switch ($code) {
                 case '404':
-                    throw new \RuntimeException("Page not found");
+                    throw new \RuntimeException('Page not found');
                 case '401':
-                    throw new \RuntimeException("Invalid LICENSE");
+                    throw new \RuntimeException('Invalid LICENSE');
                 default:
                     throw new \RuntimeException("Error while trying to download (code: $code): $uri \nMessage: $error_message");
             }

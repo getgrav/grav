@@ -53,7 +53,7 @@ trait AssetUtilsTrait
             $link = $asset->getAsset();
             $relative_path = $link;
 
-            if ($this->isRemoteLink($link)) {
+            if (static::isRemoteLink($link)) {
                 $local = false;
                 if (0 === strpos($link, '//')) {
                     $link = 'http:' . $link;

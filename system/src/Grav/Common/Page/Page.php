@@ -1323,7 +1323,7 @@ class Page implements PageInterface
             $this->name = $var;
         }
 
-        return empty($this->name) ? 'default.md' : $this->name;
+        return $this->name ?: 'default.md';
     }
 
     /**

@@ -170,7 +170,7 @@ class Collection extends Iterator
      */
     public function offsetGet($offset)
     {
-        return !empty($this->items[$offset]) ? $this->pages->get($offset) : null;
+        return $this->pages->get($offset) ?: null;
     }
 
     /**

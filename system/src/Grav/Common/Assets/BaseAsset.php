@@ -81,7 +81,7 @@ abstract class BaseAsset extends PropertyObject
         // Do some special stuff for CSS/JS (not inline)
         if (!Utils::startsWith($this->getType(), 'inline')) {
             $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
-            $this->remote = $this->isRemoteLink($asset);
+            $this->remote = static::isRemoteLink($asset);
 
             // Move this to render?
             if (!$this->remote) {

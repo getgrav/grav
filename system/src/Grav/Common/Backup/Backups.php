@@ -54,9 +54,9 @@ class Backups
         /** @var Inflector $inflector */
         $inflector = Grav::instance()['inflector'];
 
-        foreach ($this->getBackupProfiles() as $id => $profile) {
+        foreach (static::getBackupProfiles() as $id => $profile) {
             $at = $profile['schedule_at'];
-            $name = $inflector->hyphenize($profile['name']);
+            $name = $inflector::hyphenize($profile['name']);
             $logs = 'logs/backup-' . $name . '.out';
             /** @var Job $job */
             $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id], $name );
@@ -87,7 +87,7 @@ class Backups
 
     public function getBackupNames()
     {
-        return array_column($this->getBackupProfiles(), 'name');
+        return array_column(static::getBackupProfiles(), 'name');
     }
 
     public static function getTotalBackupsSize()
