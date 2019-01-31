@@ -5,6 +5,7 @@
     * Improved `$page->forms()` call, added `$page->addForms()`
     * Made `FormFlashFile` more robust against deleted files
     * Removed apc and xcache support, made apc alias of apcu
+    * Updated languages from crowdin
 1. [](#bugfix)
     * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
     * Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media
