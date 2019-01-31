@@ -1,6 +1,8 @@
 # v1.6.0-rc.2
 ## mm/dd/2019
 
+1. [](#new)
+    * Added index file support for Flex Objects
 1. [](#improved)
     * Improved error detection for broken Flex Objects
 

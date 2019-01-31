@@ -10,6 +10,7 @@
 namespace Grav\Framework\Flex;
 
 use Grav\Common\Debugger;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -19,6 +20,7 @@ use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
 use Grav\Framework\Object\ObjectIndex;
+use Monolog\Logger;
 use PSR\SimpleCache\InvalidArgumentException;
 
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
@@ -444,6 +446,147 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     protected function getElementMeta($object)
     {
         return $object->getTimestamp();
+    }
+
+    /**
+     * @param FlexStorageInterface $storage
+     * @param array $index      Saved index
+     * @param array $entries    Updated index
+     * @return array            Compiled list of entries
+     */
+    protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries) : array
+    {
+        // Calculate removed objects.
+        $removed = array_diff_key($index, $entries);
+
+        // First get rid of all removed objects.
+        if ($removed) {
+            $index = array_diff_key($index, $removed);
+        }
+
+        if ($entries) {
+            // Calculate difference between saved index and current data.
+            foreach ($index as $key => $entry) {
+                $storage_key = $entry['storage_key'] ?? null;
+                if (isset($entries[$storage_key]) && $entries[$storage_key]['storage_timestamp'] === $entry['storage_timestamp']) {
+                    // Entry is up to date, no update needed.
+                    unset($entries[$storage_key]);
+                }
+            }
+
+            if (!$entries && !$removed) {
+                // No objects were added, updated or removed.
+                return $index;
+            }
+        } elseif (!$removed) {
+            // There are no objects and nothing was removed.
+            return [];
+        }
+
+        // Index should be updated, lock the index file for saving.
+        $indexFile = static::getIndexFile($storage);
+        $indexFile->lock();
+
+        // Read all the data rows into an array.
+        $keys = array_fill_keys(array_keys($entries), null);
+        $rows = $storage->readRows($keys);
+
+        // Go through all the updated objects and refresh their index data.
+        $updated = $added = [];
+        foreach ($rows as $key => $row) {
+            if (null !== $row) {
+                $entry = $entries[$key] + static::getIndexData($key, $row);
+                if (isset($row['__error'])) {
+                    $entry['__error'] = true;
+                    static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__error'])));
+                }
+                if (isset($index[$key])) {
+                    // Update object in the index.
+                    $updated[$key] = $entry;
+                } else {
+                    // Add object into the index.
+                    $added[$key] = $entry;
+                }
+
+                // Either way, update the entry.
+                $index[$key] = $entry;
+            } else {
+                // Remove object from the index.
+                $removed[$key] = $index[$key];
+                unset($index[$key]);
+            }
+        }
+
+        // Sort the index before saving it.
+        ksort($index, SORT_NATURAL);
+
+        static::onChanges($index, $added, $updated, $removed);
+
+        $indexFile->save(['count' => \count($index), 'index' => $index]);
+
+        return $index;
+    }
+
+    protected static function getIndexData($key, ?array $row)
+    {
+        return [
+            'key' => $key,
+        ];
+    }
+
+    protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
+    {
+        $indexFile = static::getIndexFile($storage);
+
+        $data = [];
+        try {
+            $data = (array)$indexFile->content();
+        } catch (\Exception $e) {
+            $e = new \RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
+
+            static::onException($e);
+        }
+
+        return $data['index'] ?? [];
+    }
+
+    protected static function getIndexFile(FlexStorageInterface $storage)
+    {
+        // Load saved index file.
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+        $filename = $locator->findResource($storage->getStoragePath() . '/index.yaml', true, true);
+
+        return CompiledYamlFile::instance($filename);
+    }
+
+    protected static function onException(\Exception $e)
+    {
+        $grav = Grav::instance();
+
+        /** @var Logger $logger */
+        $logger = $grav['log'];
+        $logger->addAlert($e->getMessage());
+
+        /** @var Debugger $debugger */
+        $debugger = $grav['debugger'];
+        $debugger->addException($e);
+        $debugger->addMessage($e, 'error');
+    }
+
+    protected static function onChanges(array $entries, array $added, array $updated, array $removed)
+    {
+        $message = sprintf('Index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), \count($added), \count($updated), \count($removed));
+
+        $grav = Grav::instance();
+
+        /** @var Logger $logger */
+        $logger = $grav['log'];
+        $logger->addDebug($message);
+
+        /** @var Debugger $debugger */
+        $debugger = $grav['debugger'];
+        $debugger->addMessage($message, 'debug');
     }
 
     public function __debugInfo()
