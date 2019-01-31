@@ -233,7 +233,20 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function loadFile(File $file) : ?array
     {
-        return $file->exists() ? (array)$file->content() : null;
+        if (!$file->exists()) {
+            return null;
+        }
+
+        try {
+            $content = (array)$file->content();
+            if (isset($content[0])) {
+                throw new \RuntimeException('Broken object file.');
+            }
+        } catch (\RuntimeException $e) {
+            $content = ['__error' => $e->getMessage()];
+        }
+
+        return $content;
     }
 
     /**

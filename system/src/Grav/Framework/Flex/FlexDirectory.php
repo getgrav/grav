@@ -521,6 +521,14 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $debugger->addMessage(sprintf('Flex: Object %s was not found from %s storage', $storageKey, $this->type), 'debug');
                 continue;
             }
+
+            if (isset($row['__error'])) {
+                $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__error']);
+                $debugger->addException(new \RuntimeException($message));
+                $debugger->addMessage($message, 'error');
+                continue;
+            }
+
             $usedKey = $keys[$storageKey];
             $row += [
                 'storage_key' => $storageKey,
