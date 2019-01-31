@@ -45,5 +45,6 @@ $app->addCommands(array(
     new \Grav\Console\Cli\NewProjectCommand(),
     new \Grav\Console\Cli\SchedulerCommand(),
     new \Grav\Console\Cli\SecurityCommand(),
+    new \Grav\Console\Cli\LogViewerCommand(),
 ));
 $app->run();

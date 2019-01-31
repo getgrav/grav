@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added index file support for Flex Objects
+    * Added `LogViewer` helper class and CLI command: `bin/grav logviewer`
 1. [](#improved)
     * Improved error detection for broken Flex Objects
     * Removed apc and xcache support, made apc alias of apcu
