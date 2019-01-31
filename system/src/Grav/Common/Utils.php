@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -293,6 +294,7 @@ abstract class Utils
                 $result[$key] = $value;
             }
         }
+
         return $result;
     }
 
@@ -306,6 +308,7 @@ abstract class Utils
     public static function arrayCombine($arr1, $arr2)
     {
         $count = min(count($arr1), count($arr2));
+
         return array_combine(array_slice($arr1, 0, $count), array_slice($arr2, 0, $count));
     }
 
@@ -646,6 +649,7 @@ abstract class Utils
                 $extensions[] = $extension;
             }
         }
+
         return $extensions;
     }
 
@@ -835,6 +839,7 @@ abstract class Utils
                 $flatten[$key] = $inner;
             }
         }
+
         return $flatten;
     }
 
@@ -859,6 +864,7 @@ abstract class Utils
                 $results[$prepend.$key] = $value;
             }
         }
+
         return $results;
     }
 
@@ -884,6 +890,7 @@ abstract class Utils
                 $newArray[$key] = $value;
             }
         }
+
         return $newArray;
     }
 
@@ -1138,7 +1145,6 @@ abstract class Utils
         } else {
             $array[$key] = array_merge($array[$key], $value);
         }
-
 
         return $array;
     }

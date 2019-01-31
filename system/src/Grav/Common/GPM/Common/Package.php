@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.GPM
+ * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -45,5 +46,4 @@ class Package {
     public function toArray() {
         return $this->data->toArray();
     }
-
 }

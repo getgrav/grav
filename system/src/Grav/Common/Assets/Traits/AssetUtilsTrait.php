@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Assets.Traits
+ * @package    Grav\Common\Assets\Traits
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,7 +25,7 @@ trait AssetUtilsTrait
     {
         $base = Grav::instance()['uri']->rootUrl(true);
 
-        // sanity check for local URLs with absolute URL's enabled
+        // Sanity check for local URLs with absolute URL's enabled
         if (Utils::startsWith($link, $base)) {
             return false;
         }
@@ -73,7 +74,7 @@ trait AssetUtilsTrait
 
             // No file found, skip it...
             if ($file === false) {
-                if (!$local) { // Assume we coudln't download this file for some reason assume it's not pipeline compatible
+                if (!$local) { // Assume we couldn't download this file for some reason assume it's not pipeline compatible
                     $no_pipeline[$id] = $asset;
                 }
                 continue;
@@ -125,8 +126,6 @@ trait AssetUtilsTrait
      *
      * Build an HTML attribute string from an array.
      *
-     * @param  array $attributes
-     *
      * @return string
      */
     protected function renderAttributes()
@@ -157,6 +156,7 @@ trait AssetUtilsTrait
     /**
      * Render Querystring
      *
+     * @param string $asset
      * @return string
      */
     protected function renderQueryString($asset = null)

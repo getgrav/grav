@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -426,6 +427,7 @@ class ImageMedium extends Medium
             }
 
             $this->quality = $quality;
+
             return $this;
         }
 
@@ -445,6 +447,7 @@ class ImageMedium extends Medium
         }
 
         $this->format = $format;
+
         return $this;
     }
 
@@ -459,6 +462,7 @@ class ImageMedium extends Medium
 
         if ($sizes) {
             $this->sizes = $sizes;
+
             return $this;
         }
 

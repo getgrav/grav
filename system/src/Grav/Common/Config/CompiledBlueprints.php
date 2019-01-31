@@ -1,10 +1,12 @@
 <?php
+
 /**
- * @package    Grav.Common.Config
+ * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
+
 namespace Grav\Common\Config;
 
 use Grav\Common\Data\Blueprint;

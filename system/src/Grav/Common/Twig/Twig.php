@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -80,7 +81,6 @@ class Twig
             $config = $this->grav['config'];
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
-
             /** @var Language $language */
             $language = $this->grav['language'];
 

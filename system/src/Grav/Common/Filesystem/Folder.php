@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.FileSystem
+ * @package    Grav\Common\Filesystem
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -141,6 +142,7 @@ abstract class Folder
      */
     public static function getRelativePathDotDot($path, $base)
     {
+        // Normalize paths.
         $base = preg_replace('![\\\/]+!', '/', $base);
         $path = preg_replace('![\\\/]+!', '/', $path);
 

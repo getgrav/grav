@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -328,6 +329,7 @@ class Cache extends Getters
         if ($this->enabled) {
             return $this->driver->delete($id);
         }
+
         return false;
     }
 
@@ -341,6 +343,7 @@ class Cache extends Getters
         if ($this->enabled) {
             return $this->driver->deleteAll();
         }
+
         return false;
     }
 
@@ -355,6 +358,7 @@ class Cache extends Getters
         if ($this->enabled) {
             return $this->driver->contains(($id));
         }
+
         return false;
     }
 

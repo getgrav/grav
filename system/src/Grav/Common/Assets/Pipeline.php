@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Assets
+ * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -249,7 +250,7 @@ class Pipeline extends PropertyObject
 
             $old_url = $matches[2];
 
-            // Ensure link is not rooted to webserver, a data URL, or to a remote host
+            // Ensure link is not rooted to web server, a data URL, or to a remote host
             if (Utils::startsWith($old_url, '/') || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
                 return $matches[0];
             }

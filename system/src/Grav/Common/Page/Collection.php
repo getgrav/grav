@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -100,6 +101,7 @@ class Collection extends Iterator
         foreach($collection as $page) {
             $this->addPage($page);
         }
+
         return $this;
     }
 
@@ -117,6 +119,7 @@ class Collection extends Iterator
         $this->items = array_uintersect($array1, $array2, function($val1, $val2) {
             return strcmp($val1['slug'], $val2['slug']);
         });
+
         return $this;
     }
 
@@ -130,6 +133,7 @@ class Collection extends Iterator
     public function setParams(array $params)
     {
         $this->params = array_merge($this->params, $params);
+
         return $this;
     }
 
@@ -342,6 +346,7 @@ class Collection extends Iterator
         }
 
         $this->items = $date_range;
+
         return $this;
     }
 

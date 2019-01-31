@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Scheduler
+ * @package    Grav\Common\Scheduler
  * @author     Originally based on jqCron by Arnaud Buathier <arnaud@arnapou.net> modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -144,6 +145,7 @@ class Cron {
             $this->getCronDaysOfWeek(),
         ));
     }
+
     /**
      *
      * @param string $lang 'fr' or 'en'
@@ -160,13 +162,16 @@ class Cron {
         if ($type == self::TYPE_UNDEFINED) {
             return $this->getCron();
         }
+
         // init
         $elements = array();
         $elements[] = sprintf($texts['text_period'], $texts['name_' . $type]);
+
         // hour
         if (in_array($type, array(self::TYPE_HOUR))) {
             $elements[] = sprintf($texts['text_mins'], $this->getCronMinutes());
         }
+
         // week
         if (in_array($type, array(self::TYPE_WEEK))) {
             $dow = $this->getCronDaysOfWeek();
@@ -175,10 +180,12 @@ class Cron {
             }
             $elements[] = sprintf($texts['text_dow'], $dow);
         }
+
         // month + year
         if (in_array($type, array(self::TYPE_MONTH, self::TYPE_YEAR))) {
             $elements[] = sprintf($texts['text_dom'], $this->getCronDaysOfMonth());
         }
+
         // year
         if (in_array($type, array(self::TYPE_YEAR))) {
             $months = $this->getCronMonths();
@@ -187,12 +194,15 @@ class Cron {
             }
             $elements[] = sprintf($texts['text_month'], $months);
         }
+
         // day + week + month + year
         if (in_array($type, array(self::TYPE_DAY, self::TYPE_WEEK, self::TYPE_MONTH, self::TYPE_YEAR))) {
             $elements[] = sprintf($texts['text_time'], $this->getCronHours(), $this->getCronMinutes());
         }
+
         return str_replace('*', $texts['empty'], implode(' ', $elements));
     }
+
     /**
      *
      * @return string
@@ -219,8 +229,10 @@ class Cron {
         elseif (substr($mask, -2) == '-*') {
             return self::TYPE_YEAR;
         }
+
         return self::TYPE_UNDEFINED;
     }
+
     /**
      *
      * @param string $cron
@@ -235,14 +247,17 @@ class Cron {
         if (count($elements) != 5) {
             throw new Exception('Bad number of elements');
         }
+
         $this->cron = $cron;
         $this->setMinutes($elements[0]);
         $this->setHours($elements[1]);
         $this->setDaysOfMonth($elements[2]);
         $this->setMonths($elements[3]);
         $this->setDaysOfWeek($elements[4]);
+
         return $this;
     }
+
     /**
      *
      * @return string
@@ -250,6 +265,7 @@ class Cron {
     public function getCronMinutes() {
         return $this->arrayToCron($this->minutes);
     }
+
     /**
      *
      * @return string
@@ -257,6 +273,7 @@ class Cron {
     public function getCronHours() {
         return $this->arrayToCron($this->hours);
     }
+
     /**
      *
      * @return string
@@ -264,6 +281,7 @@ class Cron {
     public function getCronDaysOfMonth() {
         return $this->arrayToCron($this->dom);
     }
+
     /**
      *
      * @return string
@@ -271,6 +289,7 @@ class Cron {
     public function getCronMonths() {
         return $this->arrayToCron($this->months);
     }
+
     /**
      *
      * @return string
@@ -278,6 +297,7 @@ class Cron {
     public function getCronDaysOfWeek() {
         return $this->arrayToCron($this->dow);
     }
+
     /**
      *
      * @return array
@@ -285,6 +305,7 @@ class Cron {
     public function getMinutes() {
         return $this->minutes;
     }
+
     /**
      *
      * @return array
@@ -292,6 +313,7 @@ class Cron {
     public function getHours() {
         return $this->hours;
     }
+
     /**
      *
      * @return array
@@ -299,6 +321,7 @@ class Cron {
     public function getDaysOfMonth() {
         return $this->dom;
     }
+
     /**
      *
      * @return array
@@ -306,6 +329,7 @@ class Cron {
     public function getMonths() {
         return $this->months;
     }
+
     /**
      *
      * @return array
@@ -313,6 +337,7 @@ class Cron {
     public function getDaysOfWeek() {
         return $this->dow;
     }
+
     /**
      *
      * @param string|array $minutes
@@ -320,8 +345,10 @@ class Cron {
      */
     public function setMinutes($minutes) {
         $this->minutes = $this->cronToArray($minutes, 0, 59);
+
         return $this;
     }
+
     /**
      *
      * @param string|array $hours
@@ -329,8 +356,10 @@ class Cron {
      */
     public function setHours($hours) {
         $this->hours = $this->cronToArray($hours, 0, 23);
+
         return $this;
     }
+
     /**
      *
      * @param string|array $months
@@ -338,8 +367,10 @@ class Cron {
      */
     public function setMonths($months) {
         $this->months = $this->cronToArray($months, 1, 12);
+
         return $this;
     }
+
     /**
      *
      * @param string|array $dow
@@ -347,8 +378,10 @@ class Cron {
      */
     public function setDaysOfWeek($dow) {
         $this->dow = $this->cronToArray($dow, 0, 7);
+
         return $this;
     }
+
     /**
      *
      * @param string|array $dom
@@ -356,8 +389,10 @@ class Cron {
      */
     public function setDaysOfMonth($dom) {
         $this->dom = $this->cronToArray($dom, 1, 31);
+
         return $this;
     }
+
     /**
      *
      * @param mixed $date
@@ -366,7 +401,7 @@ class Cron {
      * @param int $day
      * @param int $month
      * @param int $weekday
-     * @return DateTime
+     * @return \DateTime
      */
     protected function parseDate($date, &$min, &$hour, &$day, &$month, &$weekday) {
         if (is_numeric($date) && intval($date) == $date) {
@@ -385,14 +420,17 @@ class Cron {
         else {
             throw new Exception('Date format not supported');
         }
+
         return new \DateTime($date->format('Y-m-d H:i:sP'));
     }
+
     /**
      *
      * @param int|string|\Datetime $date
      */
     public function matchExact($date) {
         $date = $this->parseDate($date, $min, $hour, $day, $month, $weekday);
+
         return
             (empty($this->minutes) || in_array($min, $this->minutes)) &&
             (empty($this->hours) || in_array($hour, $this->hours)) &&
@@ -401,6 +439,7 @@ class Cron {
             (empty($this->dow) || in_array($weekday, $this->dow) || ($weekday == 0 && in_array(7, $this->dow)) || ($weekday == 7 && in_array(0, $this->dow))
             );
     }
+
     /**
      *
      * @param int|string|\Datetime $date
@@ -414,6 +453,7 @@ class Cron {
         if ($minuteAfter < 0) {
             throw new Exception('MinuteAfter parameter cannot be negative !');
         }
+
         $date = $this->parseDate($date, $min, $hour, $day, $month, $weekday);
         $interval = new \DateInterval('PT1M'); // 1 min
         if ($minuteBefore != 0) {
@@ -426,8 +466,10 @@ class Cron {
             }
             $date->add($interval);
         }
+
         return false;
     }
+
     /**
      *
      * @param array $array
@@ -450,11 +492,13 @@ class Cron {
                 $cron[] = $c;
             }
         }
+
         return implode(',', $cron);
     }
+
     /**
      *
-     * @param string $string
+     * @param array|string $string
      * @param int $min
      * @param int $max
      * @return array
@@ -502,11 +546,13 @@ class Cron {
                     $string = substr($string, strlen($m[0]));
                     continue;
                 }
+
                 // something goes wrong in the expression
                 return array();
             }
         }
         sort($array);
+
         return $array;
     }
 }

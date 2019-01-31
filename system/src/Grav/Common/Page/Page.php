@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -1380,6 +1381,7 @@ class Page implements PageInterface
         $page_extension = trim($this->header->append_url_extension ?? '' , '.');
         if (!empty($page_extension)) {
             $this->template_format = $page_extension;
+
             return $this->template_format;
         }
 
@@ -1387,6 +1389,7 @@ class Page implements PageInterface
         $uri_extension = Grav::instance()['uri']->extension();
         if (is_string($uri_extension)) {
             $this->template_format = $uri_extension;
+
             return $this->template_format;
         }
 
@@ -1401,6 +1404,7 @@ class Page implements PageInterface
             $media_type = $negotiator->getBest($http_accept, $priorities);
             $mimetype = $media_type->getValue();
             $this->template_format = Utils::getExtensionByMime($mimetype);
+
             return $this->template_format;
         }
 
@@ -1755,7 +1759,6 @@ class Page implements PageInterface
             $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder)) ?: null;
         }
 
-
         return $this->slug;
     }
 
@@ -1838,7 +1841,7 @@ class Page implements PageInterface
         /** @var Config $config */
         $config = $grav['config'];
 
-        // get base route (multisite base and language)
+        // get base route (multi-site base and language)
         $route = $include_base ? $pages->baseRoute() : '';
 
         // add full route if configured to do so
@@ -2197,6 +2200,7 @@ class Page implements PageInterface
         if ($var !== null) {
             $this->order_dir = $var;
         }
+
         if (empty($this->order_dir)) {
             $this->order_dir = 'asc';
         }
@@ -3078,7 +3082,7 @@ class Page implements PageInterface
      *
      * @internal
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function doRelocation()
     {

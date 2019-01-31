@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -334,6 +335,7 @@ class Pages
      * @param            $orderBy
      * @param string     $orderDir
      * @param null       $orderManual
+     * @param null       $sort_flags
      *
      * @return array
      * @internal
@@ -544,6 +546,7 @@ class Pages
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+
         return $this->instances[rtrim($locator->findResource('page://'), DS)];
     }
 

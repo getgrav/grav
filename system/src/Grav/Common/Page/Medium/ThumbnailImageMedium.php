@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -83,6 +84,7 @@ class ThumbnailImageMedium extends ImageMedium
     public function thumbnail($type = 'auto')
     {
         $this->bubble('thumbnail', [$type], false);
+
         return $this->bubble('getThumbnail', [], false);
     }
 

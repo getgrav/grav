@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -793,6 +794,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         $env = new \Twig_Environment($loader);
 
         $template = $env->createTemplate($twig);
+
         return $template->render($context);
     }
 
@@ -904,9 +906,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return array($key => $val);
         }
 
-            $current_array[$key] = $val;
-            return $current_array;
-        }
+        $current_array[$key] = $val;
+
+        return $current_array;
+    }
 
     /**
      * Wrapper for array_intersect() method
@@ -937,8 +940,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             return json_encode($value);
         }
 
-            return $value;
-        }
+        return $value;
+    }
 
     /**
      * Translate a string
@@ -1103,7 +1106,6 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function exifFunc($image, $raw = false)
     {
         if (isset($this->grav['exif'])) {
-
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
 
@@ -1122,10 +1124,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                         return $exif_data->getRawData();
                     }
 
-                        return $exif_data->getData();
-                    }
+                    return $exif_data->getData();
                 }
             }
+        }
 
         return null;
     }
