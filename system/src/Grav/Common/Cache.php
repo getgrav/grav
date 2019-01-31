@@ -212,12 +212,8 @@ class Cache extends Getters
         if (!$setting || $setting === 'auto') {
             if (extension_loaded('apcu')) {
                 $driver_name = 'apcu';
-            } elseif (extension_loaded('apc')) {
-                $driver_name = 'apc';
             } elseif (extension_loaded('wincache')) {
                 $driver_name = 'wincache';
-            } elseif (extension_loaded('xcache')) {
-                $driver_name = 'xcache';
             }
         } else {
             $driver_name = $setting;
@@ -227,19 +223,12 @@ class Cache extends Getters
 
         switch ($driver_name) {
             case 'apc':
-                $driver = new DoctrineCache\ApcCache();
-                break;
-
             case 'apcu':
                 $driver = new DoctrineCache\ApcuCache();
                 break;
 
             case 'wincache':
                 $driver = new DoctrineCache\WinCacheCache();
-                break;
-
-            case 'xcache':
-                $driver = new DoctrineCache\XcacheCache();
                 break;
 
             case 'memcache':
