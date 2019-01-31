@@ -15,12 +15,10 @@ GRAV:
     YEAR: år
     DECADE: årtionde
     SEC: sek
-    MIN: min
     HR: t
     WK: v
     MO: m
     YR: år
-    DEC: dec
     SECOND_PLURAL: sekunder
     MINUTE_PLURAL: minuter
     HOUR_PLURAL: timmar

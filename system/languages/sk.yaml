@@ -14,12 +14,10 @@ GRAV:
     YEAR: rok
     DECADE: desaťročie
     SEC: sek
-    MIN: min
     HR: hod
     WK: t
     MO: m
     YR: r
-    DEC: dec
     SECOND_PLURAL: sekúnd
     MINUTE_PLURAL: minút
     HOUR_PLURAL: hodín

@@ -1,19 +1,6 @@
 ---
 GRAV:
-  FRONTMATTER_ERROR_PAGE: |
-    ---
-    ชื่อเรื่อง: %1$s
-    ---
-
-    # ข้อผิดพลาด: Invalid Frontmatter
-
-    Path: `%2$s`
-
-    **%3$s**
-
-    ```
-    %4$s
-    ```
+  FRONTMATTER_ERROR_PAGE: "---\nชื่อเรื่อง: %1$s\n---\n\n# ข้อผิดพลาด: Invalid Frontmatter\n\nPath: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
   NICETIME:
     NO_DATE_PROVIDED: ไม่มีวันที่ให้
     BAD_DATE: รูปแบบวันที่ผิด
@@ -30,10 +17,6 @@ GRAV:
     SEC: วิ
     MIN: นาที
     HR: ชม.
-    WK: wk
-    MO: mo
-    YR: yr
-    DEC: dec
     SECOND_PLURAL: วินาที
     MINUTE_PLURAL: นาที
     HOUR_PLURAL: ชั่วโมง
@@ -45,32 +28,29 @@ GRAV:
     SEC_PLURAL: วินาที
     MIN_PLURAL: นาที
     HR_PLURAL: ชั่วโมง
-    WK_PLURAL: wks
-    MO_PLURAL: mos
     YR_PLURAL: ปี
-    DEC_PLURAL: decs
   FORM:
     VALIDATION_FAIL: '<b>ตรวจสอบล้มเหลว: </b>'
     INVALID_INPUT: ป้อนข้อมูลไม่ถูกต้องใน
     MISSING_REQUIRED_FIELD: 'ขาดข้อมูลที่จำเป็น:'
   MONTHS_OF_THE_YEAR:
-    - มกราคม
-    - กุมภาพันธ์
-    - มีนาคม
-    - เมษายน
-    - พฤษภาคม
-    - มิถุนายน
-    - กรกฏาคม
-    - สิงหาคม
-    - กันยายน
-    - ตุลาคม
-    - พฤศจิกายน
-    - ธันวาคม
+    - 'มกราคม'
+    - 'กุมภาพันธ์'
+    - 'มีนาคม'
+    - 'เมษายน'
+    - 'พฤษภาคม'
+    - 'มิถุนายน'
+    - 'กรกฏาคม'
+    - 'สิงหาคม'
+    - 'กันยายน'
+    - 'ตุลาคม'
+    - 'พฤศจิกายน'
+    - 'ธันวาคม'
   DAYS_OF_THE_WEEK:
-    - จันทร์
-    - อังคาร
-    - พุธ
-    - พฤหัสบดี
-    - ศุกร์
-    - เสาร์
-    - อาทิตย์
+    - 'จันทร์'
+    - 'อังคาร'
+    - 'พุธ'
+    - 'พฤหัสบดี'
+    - 'ศุกร์'
+    - 'เสาร์'
+    - 'อาทิตย์'

@@ -1,20 +1,20 @@
 ---
 GRAV:
   INFLECTOR_UNCOUNTABLE:
-    - oprema
-    - informacije
-    - riža
-    - novac
-    - vrsta
-    - serija
-    - riba
-    - ovca
+    - 'oprema'
+    - 'informacije'
+    - 'riža'
+    - 'novac'
+    - 'vrsta'
+    - 'serija'
+    - 'riba'
+    - 'ovca'
   INFLECTOR_IRREGULAR:
-    person: osobe
-    man: ljudi
-    child: djeca
-    sex: spolovi
-    move: Pomakni
+    'person': 'osobe'
+    'man': 'ljudi'
+    'child': 'djeca'
+    'sex': 'spolovi'
+    'move': 'Pomakni'
   NICETIME:
     NO_DATE_PROVIDED: Datum nije upisan
     BAD_DATE: Pogrešan datum
@@ -50,27 +50,27 @@ GRAV:
     YR_PLURAL: g
     DEC_PLURAL: des
   FORM:
-    VALIDATION_FAIL: '<b>Validacija nije uspjela:</b>'
+    VALIDATION_FAIL: <b>Validacija nije uspjela:</b>
     INVALID_INPUT: Pogrešan unos u
     MISSING_REQUIRED_FIELD: 'Nedostaje obavezno polje:'
   MONTHS_OF_THE_YEAR:
-    - Siječanj
-    - Veljača
-    - Ožujak
-    - Travanj
-    - Svibanj
-    - Lipanj
-    - Srpanj
-    - Kolovoz
-    - Rujan
-    - Listopad
-    - Studeni
-    - Prosinac
+    - 'Siječanj'
+    - 'Veljača'
+    - 'Ožujak'
+    - 'Travanj'
+    - 'Svibanj'
+    - 'Lipanj'
+    - 'Srpanj'
+    - 'Kolovoz'
+    - 'Rujan'
+    - 'Listopad'
+    - 'Studeni'
+    - 'Prosinac'
   DAYS_OF_THE_WEEK:
-    - Ponedjeljak
-    - Utorak
-    - Srijeda
-    - Četvrtak
-    - Petak
-    - Subota
-    - Nedjelja
+    - 'Ponedjeljak'
+    - 'Utorak'
+    - 'Srijeda'
+    - 'Četvrtak'
+    - 'Petak'
+    - 'Subota'
+    - 'Nedjelja'

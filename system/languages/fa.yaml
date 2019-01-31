@@ -33,7 +33,6 @@ GRAV:
     MIN_PLURAL: دقیقه
     HR_PLURAL: ساعت
     WK_PLURAL: هفته
-    MO_PLURAL: mos
     YR_PLURAL: سال
     DEC_PLURAL: دهه
   FORM:

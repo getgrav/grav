@@ -1,5 +1,5 @@
-# v1.6.0-beta.9
-## mm/dd/2019
+# v1.6.0-rc.1
+## 01/30/2019
 
 1. [](#improved)
     * Improved `$page->forms()` call, added `$page->addForms()`

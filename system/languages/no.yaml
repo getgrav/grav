@@ -1,9 +1,6 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\nTittel: %1$s\n---\n\n# Feilmelding: Ugyldig Frontmatter\n\nSti: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
-  INFLECTOR_PLURALS:
-    '/(quiz)$/i': '\1zes'
-    '/^(ox)$/i': '\1en'
   INFLECTOR_UNCOUNTABLE:
     - 'utstyr'
     - 'informasjon'
@@ -33,7 +30,6 @@ GRAV:
     YEAR: år
     DECADE: tiår
     SEC: sek
-    MIN: min
     HR: t
     WK: uke
     MO: må

@@ -23,6 +23,7 @@ GRAV:
     BAD_DATE: Fecha errónea
     AGO: antes
     FROM_NOW: desde ahora
+    JUST_NOW: justo ahora
     SECOND: segundo
     MINUTE: minuto
     HOUR: hora
@@ -32,12 +33,10 @@ GRAV:
     YEAR: año
     DECADE: década
     SEC: seg
-    MIN: min
     HR: h
     WK: sem
     MO: mes
     YR: año
-    DEC: dec
     SECOND_PLURAL: segundos
     MINUTE_PLURAL: minutos
     HOUR_PLURAL: horas
@@ -47,7 +46,6 @@ GRAV:
     YEAR_PLURAL: años
     DECADE_PLURAL: décadas
     SEC_PLURAL: segs
-    MIN_PLURAL: mins
     HR_PLURAL: hs
     WK_PLURAL: sem
     MO_PLURAL: mes
@@ -78,3 +76,20 @@ GRAV:
     - 'Viernes'
     - 'Sábado'
     - 'Domingo'
+  CRON:
+    EVERY: cada
+    EVERY_HOUR: cada hora
+    EVERY_MINUTE: cada minuto
+    EVERY_DAY_OF_WEEK: cada día de la semana
+    EVERY_DAY_OF_MONTH: cada día del mes
+    EVERY_MONTH: cada mes
+    TEXT_PERIOD: Cada <b />
+    TEXT_MINS: ' a <b /> minuto(s) despues de la hora'
+    TEXT_TIME: ' a <b />:<b />'
+    TEXT_DOW: ' en <b />'
+    TEXT_MONTH: ' de<b />'
+    TEXT_DOM: ' en<b />'
+    ERROR1: La etiqueta %s no está soportada!
+    ERROR2: El número de elementos es erroneo
+    ERROR3: El jquery_element debería establecerse en la configuración del jqCron
+    ERROR4: Expresión no reconocida

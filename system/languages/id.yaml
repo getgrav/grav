@@ -1,11 +1,26 @@
 ---
 GRAV:
-  FRONTMATTER_ERROR_PAGE: "---\njudul: %1$s\n---\n\n# Error: Frontmatter Tidak Valid\n\nLokasi Path: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Frontmatter tidak valid\n\nLokasi: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'peralatan'
+    - 'informasi'
+    - 'nasi'
+    - 'uang'
+    - 'spesies'
+    - 'rangkaian'
+    - 'ikan'
+    - 'domba'
+  INFLECTOR_IRREGULAR:
+    'person': 'orang-orang'
+    'man': 'laki-laki'
+    'child': 'anak-anak'
+    'sex': 'jenis kelamin'
   NICETIME:
-    NO_DATE_PROVIDED: Tanggal tidak ada
+    NO_DATE_PROVIDED: Tanggal tidak tersedia
     BAD_DATE: Format tanggal salah
     AGO: yang lalu
-    FROM_NOW: sejak sekarang
+    FROM_NOW: dari saat ini
+    JUST_NOW: baru saja
     SECOND: detik
     MINUTE: menit
     HOUR: jam
@@ -17,7 +32,7 @@ GRAV:
     SEC: dtk
     MIN: mnt
     HR: j
-    WK: mgg
+    WK: mng
     MO: bln
     YR: thn
     DEC: desimal
@@ -61,3 +76,15 @@ GRAV:
     - 'Jumat'
     - 'Sabtu'
     - 'Minggu'
+  CRON:
+    EVERY_DAY_OF_MONTH: pada tanggal setiap bulannya
+    EVERY_MONTH: setiap bulan
+    TEXT_PERIOD: Setiap <b />
+    TEXT_TIME: ' pada <b />:<b />'
+    TEXT_DOW: ' pada <b />'
+    TEXT_MONTH: ' pada <b />'
+    TEXT_DOM: ' pada <b />'
+    ERROR1: Tag %s tidak didukung!
+    ERROR2: Jumlah elemen tidak valid
+    ERROR3: jquery_element harus ditetapkan ke pengaturan jqCron
+    ERROR4: Ekspresi tidak dikenali

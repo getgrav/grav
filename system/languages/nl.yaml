@@ -16,17 +16,13 @@ GRAV:
     MINUTE: minuut
     HOUR: uur
     DAY: dag
-    WEEK: week
     MONTH: maand
     YEAR: jaar
     DECADE: decennium
     SEC: s
-    MIN: min
     HR: u
-    WK: wk
     MO: ma
     YR: j
-    DEC: dec
     SECOND_PLURAL: seconden
     MINUTE_PLURAL: minuten
     HOUR_PLURAL: uren

@@ -1,6 +1,5 @@
 ---
 GRAV:
-  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Invalid Frontmatter\n\nPath: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
   NICETIME:
     NO_DATE_PROVIDED: Не е въведена дата
     BAD_DATE: Невалидна дата

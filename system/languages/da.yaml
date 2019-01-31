@@ -15,7 +15,6 @@ GRAV:
     YEAR: år
     DECADE: årti
     SEC: sek
-    MIN: min
     HR: t
     WK: u
     MO: md
@@ -41,23 +40,23 @@ GRAV:
     INVALID_INPUT: Ugyldigt input i
     MISSING_REQUIRED_FIELD: 'Mangler obligatorisk felt:'
   MONTHS_OF_THE_YEAR:
-    - 'Januar'
-    - 'Februar'
-    - 'Marts'
-    - 'April'
-    - 'Maj'
-    - 'Juni'
-    - 'Juli'
-    - 'August'
-    - 'September'
-    - 'Oktober'
-    - 'November'
-    - 'December'
+    - 'januar'
+    - 'februar'
+    - 'mars'
+    - 'april'
+    - 'mai'
+    - 'juni'
+    - 'juli'
+    - 'august'
+    - 'september'
+    - 'oktober'
+    - 'november'
+    - 'desember'
   DAYS_OF_THE_WEEK:
     - 'mandag'
-    - 'Tirsdag'
-    - 'Onsdag'
-    - 'Torsdag'
-    - 'Fredag'
-    - 'Lørdag'
-    - 'Søndag'
+    - 'tirsdag'
+    - 'onsdag'
+    - 'torsdag'
+    - 'fredag'
+    - 'lørdag'
+    - 'søndag'

@@ -1,24 +1,11 @@
 ---
 GRAV:
-  FRONTMATTER_ERROR_PAGE: |
-    ---
-    title: %1$s
-    ---
-
-    # S'ha produït un error: Frontmatter invàlid
-
-    Ruta: `%2$s`
-
-    **%3$s**
-
-    ```
-    %4$s
-    ```
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# S'ha produït un error: Frontmatter invàlid\n\nRuta: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
   NICETIME:
-    NO_DATE_PROVIDED: "No s'ha proporcionat data"
+    NO_DATE_PROVIDED: No s'ha proporcionat data
     BAD_DATE: Data invàlida
     AGO: abans
-    FROM_NOW: "des d'ara"
+    FROM_NOW: des d'ara
     SECOND: segon
     MINUTE: minut
     HOUR: hora
@@ -28,7 +15,6 @@ GRAV:
     YEAR: any
     DECADE: dècada
     SEC: s
-    MIN: min
     HR: h
     WK: setm.
     MO: m.
@@ -50,27 +36,27 @@ GRAV:
     YR_PLURAL: anys
     DEC_PLURAL: dèc.
   FORM:
-    VALIDATION_FAIL: '<b>Ha fallat la validació:</b>'
+    VALIDATION_FAIL: <b>Ha fallat la validació:</b>
     INVALID_INPUT: Entrada no vàlida a
     MISSING_REQUIRED_FIELD: 'Falta camp obligatori:'
   MONTHS_OF_THE_YEAR:
-    - Gener
-    - Febrer
-    - Març
-    - Abril
-    - Maig
-    - Juny
-    - Juliol
-    - Agost
-    - Setembre
-    - Octubre
-    - Novembre
-    - Desembre
+    - 'Gener'
+    - 'Febrer'
+    - 'Març'
+    - 'Abril'
+    - 'Maig'
+    - 'Juny'
+    - 'Juliol'
+    - 'Agost'
+    - 'Setembre'
+    - 'Octubre'
+    - 'Novembre'
+    - 'Desembre'
   DAYS_OF_THE_WEEK:
-    - Dilluns
-    - Dimarts
-    - Dimecres
-    - Dijous
-    - Divendres
-    - Dissabte
-    - Diumenge
+    - 'Dilluns'
+    - 'Dimarts'
+    - 'Dimecres'
+    - 'Dijous'
+    - 'Divendres'
+    - 'Dissabte'
+    - 'Diumenge'
