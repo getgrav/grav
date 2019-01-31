@@ -434,7 +434,7 @@ class Job
     public function email($email)
     {
         if (!is_string($email) && !is_array($email)) {
-            throw new InvalidArgumentException('The email can be only string or array');
+            throw new \InvalidArgumentException('The email can be only string or array');
         }
 
         $this->emailTo = is_array($email) ? $email : [$email];

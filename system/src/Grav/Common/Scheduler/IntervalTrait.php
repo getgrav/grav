@@ -388,7 +388,7 @@ trait IntervalTrait
         if (! is_numeric($value) ||
             ! ($value >= $min && $value <= $max)
         ) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 "Invalid value: it should be '*' or between {$min} and {$max}."
             );
         }
