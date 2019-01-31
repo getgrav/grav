@@ -50,17 +50,8 @@ class Errors
                 break;
         }
 
-        if (method_exists('Whoops\Util\Misc', 'isAjaxRequest')) { //Whoops 2.0
-            if (Whoops\Util\Misc::isAjaxRequest() || $jsonRequest) {
-                $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
-            }
-        } elseif (function_exists('Whoops\isAjaxRequest')) { //Whoops 2.0.0-alpha
-            if (Whoops\isAjaxRequest() || $jsonRequest) {
-                $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
-            }
-        } else { //Whoops 1.x
-            $json_page = new Whoops\Handler\JsonResponseHandler;
-            $json_page->onlyForAjaxRequests(true);
+        if (Whoops\Util\Misc::isAjaxRequest() || $jsonRequest) {
+            $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
         }
 
         if (isset($config['log']) && $config['log']) {

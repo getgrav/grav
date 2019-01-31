@@ -212,13 +212,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function safeEmailFilter($str)
     {
         $email   = '';
-        for ( $i = 0, $len = strlen( $str ); $i < $len; $i++ ) {
-            $j = mt_rand( 0, 1);
-            if ( $j === 0 ) {
-                $email .= '&#' . ord( $str[$i] ) . ';';
-            } elseif ( $j === 1 ) {
-                $email .= $str[$i];
-            }
+        for ($i = 0, $len = strlen($str); $i < $len; $i++) {
+            $j = random_int(0, 1);
+
+            $email .= $j === 0 ? '&#' . ord($str[$i]) . ';' : $str[$i];
         }
 
         return str_replace('@', '&#64;', $email);
@@ -498,7 +495,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         $now = time();
 
         // check if unix timestamp
-        if ((string)(int)$date == $date) {
+        if ((string)(int)$date === (string)$date) {
             $unix_date = $date;
         } else {
             $unix_date = strtotime($date);

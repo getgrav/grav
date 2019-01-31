@@ -15,13 +15,7 @@ abstract class AbstractCollection extends Iterator
 {
     public function toJson()
     {
-        $items = [];
-
-        foreach ($this->items as $name => $package) {
-            $items[$name] = $package->toArray();
-        }
-
-        return json_encode($items);
+        return json_encode($this->toArray());
     }
 
     public function toArray()

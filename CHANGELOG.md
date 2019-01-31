@@ -6,6 +6,7 @@
 1. [](#improved)
     * Improved error detection for broken Flex Objects
     * Removed apc and xcache support, made apc alias of apcu
+1. [](#bugfix)
     * Fixed non-namespaced exceptions in scheduler
 
 # v1.6.0-rc.1
@@ -15,11 +16,10 @@
     * Improved `$page->forms()` call, added `$page->addForms()`
     * Made `FormFlashFile` more robust against deleted files
     * Updated languages from crowdin
-1. [](#bugfix)
     * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
     * Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media
     * Fixed `ImageMedium` constructor warning when file does not exist
-    * Fixed bad host header in PSR-7 (if using 'php -S localhost:8000 system/router.php')
+    * Fixed bad host header in PSR-7 (if using `php -S localhost:8000 system/router.php`)
     
 # v1.6.0-beta.8
 ## 01/25/2019
