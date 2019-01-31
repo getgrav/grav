@@ -24,20 +24,17 @@ class Validation
      */
     public static function validate($value, array $field)
     {
-        $messages = [];
-
-        $validate = isset($field['validate']) ? (array) $field['validate'] : [];
-        // Validate type with fallback type text.
-        $type = (string) isset($validate['type']) ? $validate['type'] : $field['type'];
-        $method = 'type' . str_replace('-', '_', $type);
-
-        // If value isn't required, we will stop validation if empty value is given.
-        if ((empty($validate['required']) || (isset($validate['required']) && $validate['required'] !== true)) && ($value === null || $value === '' || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))) {
-            return $messages;
-        }
-
         if (!isset($field['type'])) {
             $field['type'] = 'text';
+        }
+        $type = $validate['type'] ?? $field['type'];
+        $validate = (array)($field['validate'] ?? null);
+        $required = $validate['required'] ?? false;
+
+        // If value isn't required, we will stop validation if empty value is given.
+        if ($required !== true && ($value === null || $value === '' || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))
+        ) {
+            return [];
         }
 
         // Get language class.
@@ -49,17 +46,17 @@ class Validation
             : $language->translate('GRAV.FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
 
 
+        // Validate type with fallback type text.
+        $method = 'type' . str_replace('-', '_', $type);
+
         // If this is a YAML field validate/filter as such
-        if ($type !== 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
+        if (isset($field['yaml']) && $field['yaml'] === true) {
             $method = 'typeYaml';
         }
 
-        if (method_exists(__CLASS__, $method)) {
-            $success = self::$method($value, $validate, $field);
-        } else {
-            $success = true;
-        }
+        $messages = [];
 
+        $success = method_exists(__CLASS__, $method) ? self::$method($value, $validate, $field) : true;
         if (!$success) {
             $messages[$field['name']][] = $message;
         }
@@ -99,14 +96,12 @@ class Validation
         if (!isset($field['type'])) {
             $field['type'] = 'text';
         }
+        $type = $field['validate']['type'] ?? $field['type'];
 
-
-        // Validate type with fallback type text.
-        $type = (string) isset($field['validate']['type']) ? $field['validate']['type'] : $field['type'];
         $method = 'filter' . ucfirst(str_replace('-', '_', $type));
 
         // If this is a YAML field validate/filter as such
-        if ($type !== 'yaml' && isset($field['yaml']) && $field['yaml'] === true) {
+        if (isset($field['yaml']) && $field['yaml'] === true) {
             $method = 'filterYaml';
         }
 

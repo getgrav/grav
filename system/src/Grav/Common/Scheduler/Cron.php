@@ -168,7 +168,7 @@ class Cron
         // check type
 
         $type = $this->getType();
-        if ($type == self::TYPE_UNDEFINED) {
+        if ($type === self::TYPE_UNDEFINED) {
             return $this->getCron();
         }
 
@@ -177,12 +177,12 @@ class Cron
         $elements[] = sprintf($texts['text_period'], $texts['name_' . $type]);
 
         // hour
-        if (in_array($type, array(self::TYPE_HOUR))) {
+        if ($type === self::TYPE_HOUR) {
             $elements[] = sprintf($texts['text_mins'], $this->getCronMinutes());
         }
 
         // week
-        if (in_array($type, array(self::TYPE_WEEK))) {
+        if ($type === self::TYPE_WEEK) {
             $dow = $this->getCronDaysOfWeek();
             foreach ($texts['weekdays'] as $i => $wd) {
                 $dow = str_replace((string) ($i + 1), $wd, $dow);
@@ -191,12 +191,12 @@ class Cron
         }
 
         // month + year
-        if (in_array($type, array(self::TYPE_MONTH, self::TYPE_YEAR))) {
+        if (\in_array($type, [self::TYPE_MONTH, self::TYPE_YEAR], true)) {
             $elements[] = sprintf($texts['text_dom'], $this->getCronDaysOfMonth());
         }
 
         // year
-        if (in_array($type, array(self::TYPE_YEAR))) {
+        if ($type === self::TYPE_YEAR) {
             $months = $this->getCronMonths();
             for ($i = count($texts['months']) - 1; $i >= 0; $i--) {
                 $months = str_replace((string) ($i + 1), $texts['months'][$i], $months);
@@ -205,7 +205,7 @@ class Cron
         }
 
         // day + week + month + year
-        if (in_array($type, array(self::TYPE_DAY, self::TYPE_WEEK, self::TYPE_MONTH, self::TYPE_YEAR))) {
+        if (\in_array($type, [self::TYPE_DAY, self::TYPE_WEEK, self::TYPE_MONTH, self::TYPE_YEAR], true)) {
             $elements[] = sprintf($texts['text_time'], $this->getCronHours(), $this->getCronMinutes());
         }
 
@@ -466,11 +466,11 @@ class Cron
         $date = $this->parseDate($date, $min, $hour, $day, $month, $weekday);
 
         return
-            (empty($this->minutes) || in_array($min, $this->minutes)) &&
-            (empty($this->hours) || in_array($hour, $this->hours)) &&
-            (empty($this->dom) || in_array($day, $this->dom)) &&
-            (empty($this->months) || in_array($month, $this->months)) &&
-            (empty($this->dow) || in_array($weekday, $this->dow) || ($weekday == 0 && in_array(7, $this->dow)) || ($weekday == 7 && in_array(0, $this->dow))
+            (empty($this->minutes) || \in_array($min, $this->minutes, true)) &&
+            (empty($this->hours) || \in_array($hour, $this->hours, true)) &&
+            (empty($this->dom) || \in_array($day, $this->dom, true)) &&
+            (empty($this->months) || \in_array($month, $this->months, true)) &&
+            (empty($this->dow) || \in_array($weekday, $this->dow, true) || ($weekday == 0 && \in_array(7, $this->dow, true)) || ($weekday == 7 && \in_array(0, $this->dow, true))
             );
     }
 
@@ -491,7 +491,7 @@ class Cron
 
         $date = $this->parseDate($date, $min, $hour, $day, $month, $weekday);
         $interval = new \DateInterval('PT1M'); // 1 min
-        if ($minuteBefore != 0) {
+        if ($minuteBefore !== 0) {
             $date->sub(new \DateInterval('PT' . abs($minuteBefore) . 'M'));
         }
         $n = $minuteAfter - $minuteBefore + 1;

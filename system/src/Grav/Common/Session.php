@@ -98,7 +98,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function getFlashObject($name)
     {
-        $object = unserialize($this->{$name});
+        $object = unserialize($this->{$name}, ['allowed_classes' => true]);
 
         $this->{$name} = null;
 

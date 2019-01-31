@@ -495,7 +495,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      */
     public function thumbnail($type = 'auto')
     {
-        if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes)) {
+        if ($type !== 'auto' && !\in_array($type, $this->thumbnailTypes, true)) {
             return $this;
         }
 
