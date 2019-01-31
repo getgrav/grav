@@ -20,11 +20,11 @@ abstract class Archiver
 
     public static function create($compression)
     {
-        if ($compression == 'zip') {
-            return new ZipArchiver();
-        } else {
+        if ($compression === 'zip') {
             return new ZipArchiver();
         }
+
+        return new ZipArchiver();
     }
 
     public function setArchive($archive_file)

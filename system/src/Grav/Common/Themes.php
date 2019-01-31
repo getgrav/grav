@@ -144,7 +144,7 @@ class Themes extends Iterator
             $blueprint->set('thumbnail', $this->grav['base_url'] . '/' . $path);
         }
 
-        $obj = new Data($file->content(), $blueprint);
+        $obj = new Data((array)$file->content(), $blueprint);
 
         // Override with user configuration.
         $obj->merge($this->config->get('themes.' . $name) ?: []);
@@ -250,7 +250,7 @@ class Themes extends Iterator
                 }
             }
 
-            if (in_array($scheme, $registered)) {
+            if (\in_array($scheme, $registered, true)) {
                 stream_wrapper_unregister($scheme);
             }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
@@ -290,12 +290,12 @@ class Themes extends Iterator
         $locator = $this->grav['locator'];
 
         if ($config->get('system.languages.translations', true)) {
-            $language_file = $locator->findResource("theme://languages" . YAML_EXT);
+            $language_file = $locator->findResource('theme://languages' . YAML_EXT);
             if ($language_file) {
                 $language = CompiledYamlFile::instance($language_file)->content();
                 $this->grav['languages']->mergeRecursive($language);
             }
-            $languages_folder = $locator->findResource("theme://languages/");
+            $languages_folder = $locator->findResource('theme://languages');
             if (file_exists($languages_folder)) {
                 $languages = [];
                 $iterator = new \DirectoryIterator($languages_folder);

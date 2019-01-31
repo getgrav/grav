@@ -13,15 +13,12 @@ use Grav\Common\File\CompiledYamlFile;
 
 class CompiledLanguages extends CompiledBase
 {
-    /**
-     * @var int Version number for the compiled file.
-     */
-    public $version = 1;
+    public function __construct($cacheFolder, array $files, $path)
+    {
+        parent::__construct($cacheFolder, $files, $path);
 
-    /**
-     * @var Languages  Configuration object.
-     */
-    protected $object;
+        $this->version = 1;
+    }
 
     /**
      * Create configuration object.

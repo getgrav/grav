@@ -181,7 +181,13 @@ class Pages
      */
     public function baseUrl($lang = null, $absolute = null)
     {
-        $type = $absolute === null ? 'base_url' : ($absolute ? 'base_url_absolute' : 'base_url_relative');
+        if ($absolute === null) {
+            $type = 'base_url';
+        } elseif ($absolute) {
+            $type = 'base_url_absolute';
+        } else {
+            $type = 'base_url_relative';
+        }
 
         return $this->grav[$type] . $this->baseRoute($lang);
     }
@@ -311,7 +317,7 @@ class Pages
         }
 
         $path = $page->path();
-        $children = isset($this->children[$path]) ? $this->children[$path] : [];
+        $children = $this->children[$path] ?? [];
 
         if (!$children) {
             return $children;
@@ -372,7 +378,7 @@ class Pages
      */
     public function get($path)
     {
-        return isset($this->instances[(string)$path]) ? $this->instances[(string)$path] : null;
+        return $this->instances[(string)$path] ?? null;
     }
 
     /**
@@ -384,7 +390,7 @@ class Pages
      */
     public function children($path)
     {
-        $children = isset($this->children[(string)$path]) ? $this->children[(string)$path] : [];
+        $children = $this->children[(string)$path] ?? [];
 
         return new Collection($children, [], $this);
     }
@@ -500,7 +506,7 @@ class Pages
                     $source_url = $uri->uri(false);
 
                     // Try Regex style redirects
-                    $site_redirects = $config->get("site.redirects");
+                    $site_redirects = $config->get('site.redirects');
                     if (is_array($site_redirects)) {
                         foreach ((array)$site_redirects as $pattern => $replace) {
                             $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
@@ -516,7 +522,7 @@ class Pages
                     }
 
                     // Try Regex style routes
-                    $site_routes = $config->get("site.routes");
+                    $site_routes = $config->get('site.routes');
                     if (is_array($site_routes)) {
                         foreach ((array)$site_routes as $pattern => $replace) {
                             $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
@@ -825,19 +831,18 @@ class Pages
         $accessLevels = [];
         foreach ($this->all() as $page) {
             if (isset($page->header()->access)) {
-                if (is_array($page->header()->access)) {
+                if (\is_array($page->header()->access)) {
                     foreach ($page->header()->access as $index => $accessLevel) {
-                        if (is_array($accessLevel)) {
+                        if (\is_array($accessLevel)) {
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                array_push($accessLevels, $innerIndex);
+                                $accessLevels[] = $innerIndex;
                             }
                         } else {
-                            array_push($accessLevels, $index);
+                            $accessLevels[] = $index;
                         }
                     }
                 } else {
-
-                    array_push($accessLevels, $page->header()->access);
+                    $accessLevels[] = $page->header()->access;
                 }
             }
         }
@@ -1016,13 +1021,10 @@ class Pages
         /** @var Language $language */
         $language = $this->grav['language'];
 
-        // stuff to do at root page
-        if ($parent === null) {
-
-            // Fire event for memory and time consuming plugins...
-            if ($config->get('system.pages.events.page')) {
-                $this->grav->fireEvent('onBuildPagesInitialized');
-            }
+        // Stuff to do at root page
+        // Fire event for memory and time consuming plugins...
+        if ($parent === null && $config->get('system.pages.events.page')) {
+            $this->grav->fireEvent('onBuildPagesInitialized');
         }
 
         $page->path($directory);
@@ -1063,7 +1065,7 @@ class Pages
             $filename = $file->getFilename();
 
             // Ignore all hidden files if set.
-            if ($this->ignore_hidden && $filename && $filename[0] === '.') {
+            if ($this->ignore_hidden && $filename && strpos($filename, '.') === 0) {
                 continue;
             }
 
@@ -1216,9 +1218,10 @@ class Pages
         }
 
         // Alias and set default route to home page.
-        if ($home && isset($this->routes['/' . $home])) {
-            $this->routes['/'] = $this->routes['/' . $home];
-            $this->get($this->routes['/' . $home])->route('/');
+        $homeRoute = '/' . $home;
+        if ($home && isset($this->routes[$homeRoute])) {
+            $this->routes['/'] = $this->routes[$homeRoute];
+            $this->get($this->routes[$homeRoute])->route('/');
         }
     }
 
@@ -1247,7 +1250,7 @@ class Pages
         }
 
         foreach ($pages as $key => $info) {
-            $child = isset($this->instances[$key]) ? $this->instances[$key] : null;
+            $child = $this->instances[$key] ?? null;
             if (!$child) {
                 throw new \RuntimeException("Page does not exist: {$key}");
             }

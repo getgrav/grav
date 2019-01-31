@@ -14,16 +14,6 @@ use Grav\Common\File\CompiledYamlFile;
 class CompiledConfig extends CompiledBase
 {
     /**
-     * @var int Version number for the compiled file.
-     */
-    public $version = 1;
-
-    /**
-     * @var Config  Configuration object.
-     */
-    protected $object;
-
-    /**
      * @var callable  Blueprints loader.
      */
     protected $callable;
@@ -32,6 +22,13 @@ class CompiledConfig extends CompiledBase
      * @var bool
      */
     protected $withDefaults;
+
+    public function __construct($cacheFolder, array $files, $path)
+    {
+        parent::__construct($cacheFolder, $files, $path);
+
+        $this->version = 1;
+    }
 
     /**
      * Set blueprints for the configuration.

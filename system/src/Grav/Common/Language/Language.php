@@ -106,7 +106,7 @@ class Language
      */
     public function getLanguage()
     {
-        return $this->active ? $this->active : $this->default;
+        return $this->active ?: $this->default;
     }
 
     /**
@@ -315,7 +315,8 @@ class Language
      * $this->grav['pages']->init();
      * ```
      */
-    public function resetFallbackPageExtensions() {
+    public function resetFallbackPageExtensions()
+    {
         $this->page_extensions = null;
     }
 

@@ -18,11 +18,11 @@ class CachedCollection extends Iterator {
     public function __construct($items)
     {
         // local cache to speed things up
-        if (!isset(self::$cache[get_called_class().__METHOD__])) {
-            self::$cache[get_called_class().__METHOD__] = $items;
+        if (!isset(self::$cache[get_called_class() . __METHOD__])) {
+            self::$cache[get_called_class() . __METHOD__] = $items;
         }
 
-        foreach (self::$cache[get_called_class().__METHOD__] as $name => $item) {
+        foreach (self::$cache[get_called_class() . __METHOD__] as $name => $item) {
             $this->append([$name => $item]);
         }
     }

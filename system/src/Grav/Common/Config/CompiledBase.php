@@ -199,9 +199,7 @@ abstract class CompiledBase
         $cache = include $filename;
         if (
             !\is_array($cache)
-            || !isset($cache['checksum'])
-            || !isset($cache['data'])
-            || !isset($cache['@class'])
+            || !isset($cache['checksum'], $cache['data'], $cache['@class'])
             || $cache['@class'] !== \get_class($this)
         ) {
             return false;

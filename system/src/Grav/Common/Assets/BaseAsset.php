@@ -14,7 +14,6 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class BaseAsset extends PropertyObject
 {

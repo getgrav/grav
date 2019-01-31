@@ -44,7 +44,7 @@ class Truncator {
         $dom = self::htmlToDomDocument($html);
 
         // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
+        $body = $dom->getElementsByTagName('body')->item(0);
 
         // Iterate over words.
         $words = new DOMWordsIterator($body);
@@ -82,9 +82,9 @@ class Truncator {
         // Return original HTML if not truncated.
         if ($truncated) {
             return self::innerHTML($body);
-        } else {
-            return $html;
         }
+
+        return $html;
     }
 
     /**
@@ -94,7 +94,7 @@ class Truncator {
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
-    public static function truncateLetters($html, $limit = 0, $ellipsis = "")
+    public static function truncateLetters($html, $limit = 0, $ellipsis = '')
     {
         if ($limit <= 0) {
             return $html;
@@ -130,9 +130,9 @@ class Truncator {
         // Return original HTML if not truncated.
         if ($truncated) {
             return self::innerHTML($body);
-        } else {
-            return $html;
         }
+
+        return $html;
     }
 
     /**

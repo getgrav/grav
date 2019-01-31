@@ -64,7 +64,8 @@ class Theme extends Plugin
     /**
      * Override the mergeConfig method to work for themes
      */
-    protected function mergeConfig(Page $page, $deep = 'merge', $params = [], $type = 'themes') {
+    protected function mergeConfig(Page $page, $deep = 'merge', $params = [], $type = 'themes')
+    {
         return parent::mergeConfig($page, $deep, $params, $type);
     }
 

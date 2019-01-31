@@ -40,7 +40,7 @@ class Backups
 
     public function setup()
     {
-        if (is_null(static::$backup_dir)) {
+        if (null === static::$backup_dir) {
             static::$backup_dir = Grav::instance()['locator']->findResource('backup://', true, true);
             Folder::create(static::$backup_dir);
         }
@@ -100,7 +100,7 @@ class Backups
 
     public static function getAvailableBackups($force = false)
     {
-        if ($force || is_null(static::$backups)) {
+        if ($force || null === static::$backups) {
             static::$backups = [];
             $backups_itr = new \GlobIterator(static::$backup_dir . '/*.zip', \FilesystemIterator::KEY_AS_FILENAME);
             $inflector = Grav::instance()['inflector'];
@@ -166,7 +166,7 @@ class Backups
         }
 
         if (!file_exists($backup_root)) {
-            throw new \RuntimeException("Backup location: " . $backup_root . ' does not exist...');
+            throw new \RuntimeException("Backup location: {$backup_root} does not exist...");
         }
 
         $options = [
@@ -246,6 +246,6 @@ class Backups
     protected static function convertExclude($exclude)
     {
         $lines = preg_split("/[\s,]+/", $exclude);
-        return array_map('trim', $lines, array_fill(0,count($lines),'/'));
+        return array_map('trim', $lines, array_fill(0, \count($lines), '/'));
     }
 }

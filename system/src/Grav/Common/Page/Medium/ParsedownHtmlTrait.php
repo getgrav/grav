@@ -16,7 +16,7 @@ trait ParsedownHtmlTrait
     /**
      * @var \Grav\Common\Markdown\Parsedown
      */
-    protected $parsedown = null;
+    protected $parsedown;
 
     /**
      * Return HTML markup from the medium.

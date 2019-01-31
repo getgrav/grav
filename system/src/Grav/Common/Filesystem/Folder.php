@@ -166,7 +166,7 @@ abstract class Folder
         $path = str_repeat('../', count($baseParts)) . implode('/', $pathParts);
 
         return '' === $path
-        || '/' === $path[0]
+        || strpos($path, '/') === 0
         || false !== ($colonPos = strpos($path, ':')) && ($colonPos < ($slashPos = strpos($path, '/')) || false === $slashPos)
             ? "./$path" : $path;
     }
@@ -201,14 +201,14 @@ abstract class Folder
         }
 
         $compare = isset($params['compare']) ? 'get' . $params['compare'] : null;
-        $pattern = isset($params['pattern']) ? $params['pattern'] : null;
-        $filters = isset($params['filters']) ? $params['filters'] : null;
-        $recursive = isset($params['recursive']) ? $params['recursive'] : true;
-        $levels = isset($params['levels']) ? $params['levels'] : -1;
+        $pattern = $params['pattern'] ?? null;
+        $filters = $params['filters'] ?? null;
+        $recursive = $params['recursive'] ?? true;
+        $levels = $params['levels'] ?? -1;
         $key = isset($params['key']) ? 'get' . $params['key'] : null;
-        $value = isset($params['value']) ? 'get' . $params['value'] : ($recursive ? 'getSubPathname' : 'getFilename');
-        $folders = isset($params['folders']) ? $params['folders'] : true;
-        $files = isset($params['files']) ? $params['files'] : true;
+        $value = 'get' . ($params['value'] ?? ($recursive ? 'SubPathname' : 'Filename'));
+        $folders = $params['folders'] ?? true;
+        $files = $params['files'] ?? true;
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
@@ -235,7 +235,7 @@ abstract class Folder
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {
             // Ignore hidden files.
-            if ($file->getFilename()[0] === '.') {
+            if (strpos($file->getFilename(), '.') === 0) {
                 continue;
             }
             if (!$folders && $file->isDir()) {
@@ -257,7 +257,7 @@ abstract class Folder
                 if (isset($filters['value'])) {
                     $filter = $filters['value'];
                     if (is_callable($filter)) {
-                        $filePath = call_user_func($filter, $file);
+                        $filePath = $filter($file);
                     } else {
                         $filePath = preg_replace($filter, '', $filePath);
                     }

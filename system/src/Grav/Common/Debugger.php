@@ -270,7 +270,7 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
-        if ($name[0] === '_' || $this->enabled()) {
+        if (strpos($name, '_') === 0 || $this->enabled()) {
             $this->debugbar['time']->startMeasure($name, $description);
             $this->timers[] = $name;
         }
@@ -287,7 +287,7 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (\in_array($name, $this->timers, true) && ($name[0] === '_' || $this->enabled())) {
+        if (\in_array($name, $this->timers, true) && (strpos($name, '_') === 0 || $this->enabled())) {
             $this->debugbar['time']->stopMeasure($name);
         }
 
@@ -320,7 +320,7 @@ class Debugger
      */
     public function addException(\Exception $e)
     {
-        if ($this->enabled() && $this->initialized) {
+        if ($this->initialized && $this->enabled()) {
             $this->debugbar['exceptions']->addException($e);
         }
 

@@ -15,7 +15,8 @@ class Package {
 
     protected $data;
 
-    public function __construct(Data $package, $type = null) {
+    public function __construct(Data $package, $type = null)
+    {
         $this->data = $package;
 
         if ($type) {
@@ -23,27 +24,38 @@ class Package {
         }
     }
 
-    public function getData() {
+    public function getData()
+    {
         return $this->data;
     }
 
-    public function __get($key) {
+    public function __get($key)
+    {
         return $this->data->get($key);
     }
 
-    public function __isset($key) {
-        return isset($this->data->$key);
+    public function __set($key, $value)
+    {
+        throw new $this->data->set($key, $value);
     }
 
-    public function __toString() {
+    public function __isset($key)
+    {
+        return isset($this->data->{$key});
+    }
+
+    public function __toString()
+    {
         return $this->toJson();
     }
 
-    public function toJson() {
+    public function toJson()
+    {
         return $this->data->toJson();
     }
 
-    public function toArray() {
+    public function toArray()
+    {
         return $this->data->toArray();
     }
 }

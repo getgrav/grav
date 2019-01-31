@@ -10,7 +10,6 @@
 namespace Grav\Common\Helpers;
 
 use Grav\Common\Grav;
-use SebastianBergmann\GlobalState\RuntimeException;
 
 class Exif
 {

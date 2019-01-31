@@ -12,7 +12,6 @@ namespace Grav\Common\Data;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
-use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYaml;
 
 class Validation
 {
@@ -90,7 +89,7 @@ class Validation
      */
     public static function filter($value, array $field)
     {
-        $validate = isset($field['validate']) ? (array) $field['validate'] : [];
+        $validate = (array)($field['validate'] ?? null);
 
         // If value isn't required, we will return null if empty value is given.
         if (($value === null || $value === '') && empty($validate['required'])) {
@@ -262,8 +261,8 @@ class Validation
      */
     public static function typeCheckbox($value, array $params, array $field)
     {
-        $value = (string) $value;
-        $field_value = (string) ($field['value'] ?? '1');
+        $value = (string)$value;
+        $field_value = (string)($field['value'] ?? '1');
 
         return $value === $field_value;
     }
@@ -304,12 +303,12 @@ class Validation
      */
     public static function typeFile($value, array $params, array $field)
     {
-        return self::typeArray((array) $value, $params, $field);
+        return self::typeArray((array)$value, $params, $field);
     }
 
     protected static function filterFile($value, array $params, array $field)
     {
-        return (array) $value;
+        return (array)$value;
     }
 
     /**
@@ -759,7 +758,7 @@ class Validation
 
     public static function validateInt($value, $params)
     {
-        return is_numeric($value) && (int) $value == $value;
+        return is_numeric($value) && (int)$value == $value;
     }
 
     protected static function filterInt($value, $params)

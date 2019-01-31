@@ -136,8 +136,6 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             $options['value'] = 'Url';
         }
 
-        $list = Folder::all($uri, $options);
-
-        return $list;
+        return Folder::all($uri, $options);
     }
 }

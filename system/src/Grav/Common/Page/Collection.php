@@ -204,7 +204,7 @@ class Collection extends Iterator
         if ($key instanceof Page) {
             $key = $key->path();
         } elseif (null === $key) {
-            $key = key($this->items);
+            $key = (string)key($this->items);
         }
         if (!\is_string($key)) {
             throw new \InvalidArgumentException('Invalid argument $key.');

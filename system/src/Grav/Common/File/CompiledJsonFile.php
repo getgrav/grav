@@ -24,6 +24,6 @@ class CompiledJsonFile extends JsonFile
      */
     protected function decode($var, $assoc = true)
     {
-        return (array) json_decode($var, $assoc);
+        return (array)json_decode($var, $assoc);
     }
 }

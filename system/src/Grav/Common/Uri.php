@@ -1044,7 +1044,7 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
-        $fake = $url && $url[0] === '/';
+        $fake = $url && strpos($url, '/') === 0;
 
         if ($fake) {
             $url = 'http://domain.com' . $url;

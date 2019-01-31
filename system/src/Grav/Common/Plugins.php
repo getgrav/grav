@@ -168,7 +168,7 @@ class Plugins extends Iterator
             return null;
         }
 
-        $obj = new Data($file->content(), $blueprint);
+        $obj = new Data((array)$file->content(), $blueprint);
 
         // Override with user configuration.
         $obj->merge(Grav::instance()['config']->get('plugins.' . $name) ?: []);

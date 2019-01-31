@@ -59,7 +59,7 @@ class Taxonomy
             $page_taxonomy = $page->taxonomy();
         }
 
-        if (!$page->published() || empty($page_taxonomy)) {
+        if (empty($page_taxonomy) || !$page->published()) {
             return;
         }
 
@@ -100,7 +100,7 @@ class Taxonomy
             }
         }
 
-        if (strtolower($operator) == 'or') {
+        if (strtolower($operator) === 'or') {
             foreach ($matches as $match) {
                 $results = array_merge($results, $match);
             }
@@ -137,14 +137,8 @@ class Taxonomy
      *
      * @return array                  keys of this taxonomy
      */
-    public function getTaxonomyItemKeys($taxonomy) {
-        if (isset($this->taxonomy_map[$taxonomy])) {
-
-            $results = array_keys($this->taxonomy_map[$taxonomy]);
-
-            return $results;
-        }
-
-        return [];
+    public function getTaxonomyItemKeys($taxonomy)
+    {
+        return isset($this->taxonomy_map[$taxonomy]) ? array_keys($this->taxonomy_map[$taxonomy]) : [];
     }
 }

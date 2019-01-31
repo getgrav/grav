@@ -141,7 +141,7 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (\strlen(trim($buffer)) > 0) {
+            if (trim($buffer) !== '') {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
@@ -214,16 +214,16 @@ class Pipeline extends PropertyObject
             }
 
             // Write file
-            if (\strlen(trim($buffer)) > 0) {
+            if (trim($buffer) !== '') {
                 file_put_contents($this->assets_dir . $file, $buffer);
             }
         }
 
         if ($inline_group) {
-            $output = "<script" . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
+            $output = '<script' . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
         } else {
             $this->asset = $relative_path;
-            $output = "<script src=\"" . $relative_path . $this->renderQueryString() . "\"" . $this->renderAttributes() . "></script>\n";
+            $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . "></script>\n";
         }
 
         return $output;

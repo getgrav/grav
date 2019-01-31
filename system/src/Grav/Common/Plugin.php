@@ -15,7 +15,6 @@ use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
-use Symfony\Component\Console\Exception\LogicException;
 
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
@@ -218,22 +217,22 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param mixed $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
-     * @throws LogicException
+     * @throws \LogicException
      */
     public function offsetSet($offset, $value)
     {
-        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
      * Unsets an offset.
      *
      * @param mixed $offset  The offset to unset.
-     * @throws LogicException
+     * @throws \LogicException
      */
     public function offsetUnset($offset)
     {
-        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**

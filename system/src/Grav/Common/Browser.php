@@ -114,7 +114,7 @@ class Browser
     {
         $version = explode('.', $this->getLongVersion());
 
-        return intval($version[0]);
+        return (int)$version[0];
     }
 
     /**
@@ -144,10 +144,6 @@ class Browser
      */
     public function isTrackable(): bool
     {
-        if (isset($_SERVER['HTTP_DNT']) && $_SERVER['HTTP_DNT'] === '1') {
-            return false;
-        }
-
-        return true;
+        return !(isset($_SERVER['HTTP_DNT']) && $_SERVER['HTTP_DNT'] === '1');
     }
 }

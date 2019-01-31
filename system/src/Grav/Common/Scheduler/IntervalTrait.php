@@ -59,10 +59,10 @@ trait IntervalTrait
      */
     public function daily($hour = 0, $minute = 0)
     {
-        if (is_string($hour)) {
+        if (\is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
-            $minute = isset($parts[1]) ? $parts[1] : '0';
+            $minute = $parts[1] ?? '0';
         }
         $c = $this->validateCronSequence($minute, $hour);
 
@@ -79,10 +79,10 @@ trait IntervalTrait
      */
     public function weekly($weekday = 0, $hour = 0, $minute = 0)
     {
-        if (is_string($hour)) {
+        if (\is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
-            $minute = isset($parts[1]) ? $parts[1] : '0';
+            $minute = $parts[1] ?? '0';
         }
         $c = $this->validateCronSequence($minute, $hour, null, null, $weekday);
 
@@ -100,10 +100,10 @@ trait IntervalTrait
      */
     public function monthly($month = '*', $day = 1, $hour = 0, $minute = 0)
     {
-        if (is_string($hour)) {
+        if (\is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
-            $minute = isset($parts[1]) ? $parts[1] : '0';
+            $minute = $parts[1] ?? '0';
         }
         $c = $this->validateCronSequence($minute, $hour, $day, $month);
 

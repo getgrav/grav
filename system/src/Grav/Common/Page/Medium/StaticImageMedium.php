@@ -24,6 +24,6 @@ class StaticImageMedium extends Medium
     {
         empty($attributes['src']) && $attributes['src'] = $this->url($reset);
 
-        return [ 'name' => 'img', 'attributes' => $attributes ];
+        return ['name' => 'img', 'attributes' => $attributes];
     }
 }

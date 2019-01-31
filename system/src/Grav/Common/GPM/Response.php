@@ -78,7 +78,7 @@ class Response
      */
     public static function setMethod($method = 'auto')
     {
-        if (!in_array($method, ['auto', 'curl', 'fopen'])) {
+        if (!\in_array($method, ['auto', 'curl', 'fopen'], true)) {
             $method = 'auto';
         }
 
@@ -166,7 +166,7 @@ class Response
                 $overrides['curl'][CURLOPT_PROXYPORT] = $proxy['port'];
             }
 
-            if (isset($proxy['user']) && isset($proxy['pass'])) {
+            if (isset($proxy['user'], $proxy['pass'])) {
                 $fopen_auth = $auth = base64_encode($proxy['user'] . ':' . $proxy['pass']);
                 $overrides['curl'][CURLOPT_PROXYUSERPWD] = $proxy['user'] . ':' . $proxy['pass'];
                 $overrides['fopen']['header'] = "Proxy-Authorization: Basic $fopen_auth";
@@ -220,7 +220,7 @@ class Response
         static $filesize = null;
 
         $args           = func_get_args();
-        $isCurlResource = is_resource($args[0]) && get_resource_type($args[0]) == 'curl';
+        $isCurlResource = is_resource($args[0]) && get_resource_type($args[0]) === 'curl';
 
         $notification_code = !$isCurlResource ? $args[0] : false;
         $bytes_transferred = $isCurlResource ? $args[2] : $args[4];
@@ -242,7 +242,7 @@ class Response
                 ];
 
                 if (self::$callback !== null) {
-                    call_user_func_array(self::$callback, [$progress]);
+                    call_user_func(self::$callback, $progress);
                 }
             }
         }
@@ -273,7 +273,7 @@ class Response
      */
     private static function getFopen()
     {
-        if (count($args = func_get_args()) == 1) {
+        if (\count($args = func_get_args()) === 1) {
             $args = $args[0];
         }
 
@@ -308,11 +308,11 @@ class Response
 
             switch ($code) {
                 case '404':
-                    throw new \RuntimeException("Page not found");
+                    throw new \RuntimeException('Page not found');
                 case '401':
-                    throw new \RuntimeException("Invalid LICENSE");
+                    throw new \RuntimeException('Invalid LICENSE');
                 default:
-                    throw new \RuntimeException("Error while trying to download (code: $code): $uri \n");
+                    throw new \RuntimeException("Error while trying to download (code: {$code}): {$uri}\n");
             }
         }
 
@@ -382,7 +382,7 @@ class Response
             return curl_exec($ch);
         }
 
-        $max_redirects = isset($options['curl'][CURLOPT_MAXREDIRS]) ? $options['curl'][CURLOPT_MAXREDIRS] : 5;
+        $max_redirects = $options['curl'][CURLOPT_MAXREDIRS] ?? 5;
         $options['curl'][CURLOPT_FOLLOWLOCATION] = false;
 
         // open_basedir set but no redirects to follow, we can disable followlocation and proceed normally
@@ -406,8 +406,8 @@ class Response
             if (curl_errno($rch)) {
                 $code = 0;
             } else {
-                $code = curl_getinfo($rch, CURLINFO_HTTP_CODE);
-                if ($code == 301 || $code == 302 || $code == 303) {
+                $code = (int)curl_getinfo($rch, CURLINFO_HTTP_CODE);
+                if ($code === 301 || $code === 302 || $code === 303) {
                     preg_match('/Location:(.*?)\n/', $header, $matches);
                     $uri = trim(array_pop($matches));
                 } else {

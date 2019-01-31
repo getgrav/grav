@@ -132,23 +132,17 @@ class MediumFactory
         switch ($type) {
             case 'image':
                 return new ImageMedium($items, $blueprint);
-                break;
             case 'thumbnail':
                 return new ThumbnailImageMedium($items, $blueprint);
-                break;
             case 'animated':
             case 'vector':
                 return new StaticImageMedium($items, $blueprint);
-                break;
             case 'video':
                 return new VideoMedium($items, $blueprint);
-                break;
             case 'audio':
                 return new AudioMedium($items, $blueprint);
-                break;
             default:
                 return new Medium($items, $blueprint);
-                break;
         }
     }
 

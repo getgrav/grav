@@ -56,7 +56,7 @@ class Scheduler
         $saved_jobs = (array) Grav::instance()['config']->get('scheduler.custom_jobs', []);
 
         foreach ($saved_jobs as $id => $j) {
-            $args = isset($j['args']) ? $j['args'] : [];
+            $args = $j['args'] ?? [];
             $id = Grav::instance()['inflector']->hyphenize($id);
             $job = $this->addCommand($j['command'], $args, $id);
 
@@ -161,7 +161,7 @@ class Scheduler
         list($background, $foreground) = $this->getQueuedJobs(false);
         $alljobs = array_merge($background, $foreground);
 
-        if (is_null($runTime)) {
+        if (null === $runTime) {
             $runTime = new \DateTime('now');
         }
 
@@ -254,19 +254,12 @@ class Scheduler
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
 
-            if (preg_match('$bin\/grav schedule$', $output)) {
-                return 1;
-            } else {
-                return 0;
-            }
-        } else {
-            $error = $process->getErrorOutput();
-            if (Utils::startsWith($error, 'crontab: no crontab')) {
-                return 0;
-            } else {
-                return 2;
-            }
+            return preg_match('$bin\/grav schedule$', $output) ? 1 : 0;
         }
+
+        $error = $process->getErrorOutput();
+
+        return Utils::startsWith($error, 'crontab: no crontab') ? 0 : 2;
     }
 
     /**
@@ -276,8 +269,7 @@ class Scheduler
      */
     public function getJobStates()
     {
-        $file = YamlFile::instance($this->status_path . '/status.yaml');
-        return $file;
+        return YamlFile::instance($this->status_path . '/status.yaml');
     }
 
     /**
@@ -342,7 +334,7 @@ class Scheduler
         $args = $job->getArguments();
         // If callable, log the string Closure
         if (is_callable($command)) {
-            $command = is_string($command) ? $command : 'Closure';
+            $command = \is_string($command) ? $command : 'Closure';
         }
         $this->addSchedulerVerboseOutput("<green>Success</green>: <white>{$command} {$args}</white>");
 
@@ -361,7 +353,7 @@ class Scheduler
         $command = $job->getCommand();
         // If callable, log the string Closure
         if (is_callable($command)) {
-            $command = is_string($command) ? $command : 'Closure';
+            $command = \is_string($command) ? $command : 'Closure';
         }
         $output = trim($job->getOutput());
         $this->addSchedulerVerboseOutput("<red>Error</red>:   <white>{$command}</white> → <normal>{$output}</normal>");

@@ -103,7 +103,7 @@ class BackupCommand extends ConsoleCommand
         switch ($args['type']) {
             case 'count':
                 $steps = $args['steps'];
-                $freq = intval($steps > 100 ? round($steps / 100) : $steps);
+                $freq = (int)($steps > 100 ? round($steps / 100) : $steps);
                 $this->progress->setMaxSteps($steps);
                 $this->progress->setRedrawFrequency($freq);
                 $this->progress->setMessage('Adding files...');

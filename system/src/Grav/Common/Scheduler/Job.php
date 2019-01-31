@@ -66,7 +66,7 @@ class Job
         $this->args = $args;
         // Set enabled state
         $status = Grav::instance()['config']->get('scheduler.status');
-        $this->enabled = isset($status[$id]) && $status[$id] === 'disabled' ? false : true;
+        $this->enabled = !(isset($status[$id]) && $status[$id] === 'disabled');
     }
 
     /**
@@ -106,10 +106,11 @@ class Job
      */
     public function getArguments()
     {
-        if (is_string($this->args)) {
+        if (\is_string($this->args)) {
             return $this->args;
         }
-        return;
+
+        return null;
     }
 
     public function getCronExpression()
@@ -152,7 +153,9 @@ class Job
         if (!$this->executionTime) {
             $this->at('* * * * *');
         }
-        $date = $date !== null ? $date : $this->creationTime;
+
+        $date = $date ?? $this->creationTime;
+
         return $this->executionTime->isDue($date);
     }
 
@@ -187,10 +190,7 @@ class Job
      */
     public function runInBackground()
     {
-        if (is_callable($this->command) || $this->runInBackground === false) {
-            return false;
-        }
-        return true;
+        return !(is_callable($this->command) || $this->runInBackground === false);
     }
 
     /**
@@ -282,7 +282,7 @@ class Job
             $this->output = $this->exec();
         } else {
             /** @var Process process */
-            $args = is_string($this->args) ? $this->args : implode(' ', $this->args);
+            $args = \is_string($this->args) ? $this->args : implode(' ', $this->args);
             $command = $this->command . ' ' . $args;
             $process = new Process($command);
 
@@ -358,7 +358,7 @@ class Job
     private function createLockFile($content = null)
     {
         if ($this->lockFile) {
-            if ($content === null || !is_string($content)) {
+            if ($content === null || !\is_string($content)) {
                 $content = $this->getId();
             }
             file_put_contents($this->lockFile, $content);
@@ -380,7 +380,7 @@ class Job
     /**
      * Execute a callable job.
      *
-     * @throws Exception
+     * @throws \RuntimeException
      * @return string
      */
     private function exec()
@@ -390,7 +390,7 @@ class Job
         try {
             $return_data = call_user_func_array($this->command, $this->args);
             $this->successful = true;
-        } catch (Exception $e) {
+        } catch (\RuntimeException $e) {
             $this->successful = false;
         }
         $this->output = ob_get_clean() . (is_string($return_data) ? $return_data : '');

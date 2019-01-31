@@ -18,11 +18,11 @@ class Errors
     {
         $grav = Grav::instance();
         $config = $grav['config']->get('system.errors');
-        $jsonRequest = $_SERVER && isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
+        $jsonRequest = $_SERVER && isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] === 'application/json';
 
         // Setup Whoops-based error handler
         $system = new SystemFacade;
-        $whoops = new \Whoops\Run($system);
+        $whoops = new Whoops\Run($system);
 
         $verbosity = 1;
 
