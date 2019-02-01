@@ -177,6 +177,12 @@
     * Doctrine filecache is now namespaced with prefix to support purging
     * Register all page types into `blueprint://pages` stream
 
+# v1.5.8
+## mm/dd/2019
+
+1. [](#improved)
+    * Improved `User` unserialize to not to break the object if serialized data is not what expected
+
 # v1.5.7
 ## 01/25/2019
 
