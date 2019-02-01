@@ -9,6 +9,7 @@
     * Removed apc and xcache support, made apc alias of apcu
 1. [](#bugfix)
     * Fixed non-namespaced exceptions in scheduler
+    * Fixed trailing slash redirect in multlang environment
 
 # v1.6.0-rc.1
 ## 01/30/2019
