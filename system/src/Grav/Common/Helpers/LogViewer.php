@@ -79,6 +79,12 @@ class LogViewer
         return trim($output);
     }
 
+    /**
+     * Helper class to get level color
+     *
+     * @param $level
+     * @return mixed|string
+     */
     public static function levelColor($level)
     {
         $colors = [
@@ -121,10 +127,21 @@ class LogViewer
             'logger' => $data['logger'],
             'level' => $data['level'],
             'message' => $data['message'],
-            'trace' => $data['trace'] ?? null,
+            'trace' => isset($data['trace']) ? $this->parseTrace($data['trace']) : null,
             'context' => json_decode($data['context'], true),
             'extra' => json_decode($data['extra'], true)
         );
+    }
+
+    /**
+     * Parse text of trace into an array of lines
+     *
+     * @param $trace
+     * @return array
+     */
+    public static function parseTrace($trace)
+    {
+        return array_filter(preg_split('/#\d*/m', $trace));
     }
 
 }

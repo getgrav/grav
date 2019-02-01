@@ -71,14 +71,14 @@ class LogViewerCommand extends ConsoleCommand
                 if ($date instanceof \DateTime) {
                     $output = "<yellow>{$log['date']->format('Y-m-d h:i:s')}</yellow> [<{$level_color}>{$log['level']}</{$level_color}>]";
                     if ($log['trace'] && $verbose) {
-                        $output .= " <white>{$log['message']}</white> - {$log['trace']}";
+                        $output .= " <white>{$log['message']}</white>\n";
+                        foreach ((array) $log['trace'] as $index => $tracerow) {
+                            $output .= "<white>{$index}</white>${tracerow}\n";
+                        }
                     } else {
                         $output .= " {$log['message']}";
                     }
                     $io->writeln($output);
-                    if ($verbose) {
-                        $io->newLine();
-                    }
                 }
             }
         } else {
