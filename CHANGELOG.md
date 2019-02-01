@@ -9,7 +9,7 @@
     * Removed apc and xcache support, made apc alias of apcu
 1. [](#bugfix)
     * Fixed non-namespaced exceptions in scheduler
-    * Fixed trailing slash redirect in multlang environment
+    * Fixed trailing slash redirect in multlang environment [#2350](https://github.com/getgrav/grav/issues/2350)
 
 # v1.6.0-rc.1
 ## 01/30/2019
