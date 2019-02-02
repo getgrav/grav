@@ -103,7 +103,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('yaml_decode', [$this, 'yamlDecodeFilter']),
 
             // Translations
-            new \Twig_SimpleFilter('t', [$this, 'translate']),
+            new \Twig_SimpleFilter('t', [$this, 'translate'], ['needs_environment' => true]),
             new \Twig_SimpleFilter('tl', [$this, 'translateLanguage']),
             new \Twig_SimpleFilter('ta', [$this, 'translateArray']),
 
@@ -166,7 +166,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
 
             // Translations
-            new \Twig_simpleFunction('t', [$this, 'translate']),
+            new \Twig_simpleFunction('t', [$this, 'translate'], ['needs_environment' => true]),
             new \Twig_simpleFunction('tl', [$this, 'translateLanguage']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
         ];
@@ -710,9 +710,34 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * @return mixed
      */
-    public function translate()
+    public function translate(\Twig_Environment $twig)
     {
-        return $this->grav['language']->translate(func_get_args());
+        static $admin_call;
+
+        // One time check and assignment of admin provided tu filter
+        if ($admin_call == null) {
+            $filters = $twig->getFilters();
+            $admin_translate = $filters['tu'] ?? false;
+
+            if ($admin_translate) {
+                list($class, $method) = $admin_translate->getCallable();
+                $admin_call = [$class->getName(),$method];
+            } else {
+                $admin_call = false;
+            }
+        }
+
+        // shift of the environment
+        $args = func_get_args();
+        array_shift($args);
+
+        // If admin and tu filter provided, use it
+        if (is_array($admin_call)) {
+            return call_user_func_array($admin_call, $args);
+        }
+
+        // else use the default grav translate functionality
+        return $this->grav['language']->translate($args);
     }
 
     /**
