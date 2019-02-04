@@ -114,6 +114,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('float', [$this, 'floatFilter'], ['is_safe' => ['all']]),
             new \Twig_SimpleFilter('array', [$this, 'arrayFilter']),
             new \Twig_SimpleFilter('nicecron', [$this, 'niceCronFilter']),
+
+            // Object Types
+            new \Twig_SimpleFilter('get_type', [$this, 'getTypeFunc']),
+            new \Twig_SimpleFilter('of_type', [$this, 'ofTypeFunc'])
         ];
     }
 
@@ -169,6 +173,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_simpleFunction('t', [$this, 'translate'], ['needs_environment' => true]),
             new \Twig_simpleFunction('tl', [$this, 'translateLanguage']),
             new \Twig_simpleFunction('ta', [$this, 'translateArray']),
+
+            // Object Types
+            new \Twig_simpleFunction('get_type', [$this, 'getTypeFunc']),
+            new \Twig_simpleFunction('of_type', [$this, 'ofTypeFunc'])
         ];
     }
 
@@ -1340,5 +1348,71 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     public function yamlDecodeFilter($data)
     {
         return Yaml::parse($data);
+    }
+
+    /**
+     * Function/Filter to return the type of variable
+     *
+     * @param $var
+     * @return string
+     */
+    public function getTypeFunc($var)
+    {
+        return gettype($var);
+    }
+
+    /**
+     * Function/Filter to test type of variable
+     *
+     * @param $var
+     * @param null $typeTest
+     * @param null $className
+     * @return bool
+     */
+    public function ofTypeFunc($var, $typeTest=null, $className=null)
+    {
+
+        switch ($typeTest)
+        {
+            default:
+                return false;
+                break;
+
+            case 'array':
+                return is_array($var);
+                break;
+
+            case 'bool':
+                return is_bool($var);
+                break;
+
+            case 'class':
+                return is_object($var) === true && get_class($var) === $className;
+                break;
+
+            case 'float':
+                return is_float($var);
+                break;
+
+            case 'int':
+                return is_int($var);
+                break;
+
+            case 'numeric':
+                return is_numeric($var);
+                break;
+
+            case 'object':
+                return is_object($var);
+                break;
+
+            case 'scalar':
+                return is_scalar($var);
+                break;
+
+            case 'string':
+                return is_string($var);
+                break;
+        }
     }
 }
