@@ -510,7 +510,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
                 // Either way, update the entry.
                 $index[$key] = $entry;
-            } else {
+            } elseif (isset($index[$key])) {
                 // Remove object from the index.
                 $removed[$key] = $index[$key];
                 unset($index[$key]);
