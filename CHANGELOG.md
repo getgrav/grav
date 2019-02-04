@@ -11,6 +11,7 @@
 1. [](#bugfix)
     * Fixed non-namespaced exceptions in scheduler
     * Fixed trailing slash redirect in multlang environment [#2350](https://github.com/getgrav/grav/issues/2350)
+    * Fixed Flex from indexing hidden folders/files as objects
 
 # v1.6.0-rc.1
 ## 01/30/2019
