@@ -75,9 +75,10 @@ class Installer
      * @param  string $destination The local path to the Grav Instance
      * @param  array $options Options to use for installing. ie, ['install_path' => 'user/themes/antimatter']
      * @param  string $extracted The local path to the extacted ZIP package
+     * @param bool $keepExtracted True if you want to keep the original files
      * @return bool True if everything went fine, False otherwise.
      */
-    public static function install($zip, $destination, $options = [], $extracted = null)
+    public static function install($zip, $destination, $options = [], $extracted = null, $keepExtracted = false)
     {
         $destination = rtrim($destination, DS);
         $options = array_merge(self::$options, $options);
@@ -97,7 +98,7 @@ class Installer
 
         // Create a tmp location
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
-        $tmp = $tmp_dir . '/Grav-' . uniqid();
+        $tmp = $tmp_dir . '/Grav-' . uniqid('', false);
 
         if (!$extracted) {
             $extracted = self::unZip($zip, $tmp);
@@ -111,7 +112,6 @@ class Installer
             self::$error = self::INVALID_SOURCE;
             return false;
         }
-
 
         $is_install = true;
         $installer = self::loadInstaller($extracted, $is_install);
@@ -141,7 +141,7 @@ class Installer
                 self::moveInstall($extracted, $install_path);
             }
         } else {
-            self::sophisticatedInstall($extracted, $install_path, $options['ignores']);
+            self::sophisticatedInstall($extracted, $install_path, $options['ignores'], $keepExtracted);
         }
 
         Folder::delete($tmp);
@@ -289,10 +289,12 @@ class Installer
     /**
      * @param             $source_path
      * @param             $install_path
+     * @param             $ignores
+     * @param             $keep_source
      *
      * @return bool
      */
-    public static function sophisticatedInstall($source_path, $install_path, $ignores = [])
+    public static function sophisticatedInstall($source_path, $install_path, $ignores = [], $keep_source = false)
     {
         foreach (new \DirectoryIterator($source_path) as $file) {
 
@@ -304,7 +306,11 @@ class Installer
 
             if ($file->isDir()) {
                 Folder::delete($path);
-                Folder::move($file->getPathname(), $path);
+                if ($keep_source) {
+                    Folder::copy($file->getPathname(), $path);
+                } else {
+                    Folder::move($file->getPathname(), $path);
+                }
 
                 if ($file->getFilename() === 'bin') {
                     foreach (glob($path . DS . '*') as $bin_file) {
@@ -501,6 +507,10 @@ class Installer
                             break;
                     }
                 }
+                break;
+
+            case self::INVALID_SOURCE:
+                $msg = 'Invalid source file';
                 break;
 
             default:

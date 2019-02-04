@@ -197,7 +197,7 @@ class SelfupgradeCommand extends ConsoleCommand
     private function download($package)
     {
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
-        $this->tmp = $tmp_dir . '/Grav-' . uniqid();
+        $this->tmp = $tmp_dir . '/Grav-' . uniqid('', false);
         $output = Response::get($package['download'], [], [$this, 'progress']);
 
         Folder::mkdir($this->tmp);
@@ -216,10 +216,19 @@ class SelfupgradeCommand extends ConsoleCommand
      */
     private function upgrade()
     {
-        Installer::install($this->file, GRAV_ROOT,
-            ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true]);
+        if ($this->file) {
+            $folder = Installer::unZip($this->file, $this->tmp . '/zip');
+        } else {
+            $folder = false;
+        }
+
+        static::upgradeGrav($this->file, $folder);
+
         $errorCode = Installer::lastErrorCode();
-        Folder::delete($this->tmp);
+
+        if ($this->tmp) {
+            Folder::delete($this->tmp);
+        }
 
         if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
             $this->output->write("\x0D");
@@ -243,7 +252,7 @@ class SelfupgradeCommand extends ConsoleCommand
     public function progress($progress)
     {
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading upgrade [{$this->formatBytes($progress["filesize"]) }]... " . str_pad($progress['percent'],
+        $this->output->write("  |- Downloading upgrade [{$this->formatBytes($progress['filesize']) }]... " . str_pad($progress['percent'],
                 5, ' ', STR_PAD_LEFT) . '%');
     }
 
@@ -259,5 +268,40 @@ class SelfupgradeCommand extends ConsoleCommand
         $suffixes = array('', 'k', 'M', 'G', 'T');
 
         return round(1024 ** ($base - floor($base)), $precision) . $suffixes[(int)floor($base)];
+    }
+
+    private function upgradeGrav($zip, $folder, $keepFolder = false)
+    {
+        static $ignores = [
+            'assets',
+            'backup',
+            'cache',
+            'images',
+            'logs',
+            'tmp',
+            'user'
+        ];
+
+        if (!is_dir($folder)) {
+            Installer::setError('Invalid source folder');
+        }
+
+        try {
+            $script = $folder . '/system/install.php';
+            /** Install $installer */
+            if ((file_exists($script) && $install = include $script) && is_callable($install)) {
+                $install($zip);
+            } else {
+                Installer::install(
+                    $zip,
+                    GRAV_ROOT,
+                    ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $ignores],
+                    $folder,
+                    $keepFolder
+                );
+            }
+        } catch (\Exception $e) {
+            Installer::setError($e->getMessage());
+        }
     }
 }
