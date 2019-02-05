@@ -8,6 +8,7 @@
     * Improved error detection for broken Flex Objects
     * Removed `apc` and `xcache` support, made `apc` alias of `apcu`
     * Support admin and regular translations via the `|t` twig filter and `t()` twig function
+    * Improved Grav Core installer/updater to run installer script
 1. [](#bugfix)
     * Fixed non-namespaced exceptions in scheduler
     * Fixed trailing slash redirect in multlang environment [#2350](https://github.com/getgrav/grav/issues/2350)
