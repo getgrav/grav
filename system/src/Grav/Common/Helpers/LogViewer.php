@@ -137,11 +137,13 @@ class LogViewer
      * Parse text of trace into an array of lines
      *
      * @param $trace
+     * @param $rows
      * @return array
      */
-    public static function parseTrace($trace)
+    public static function parseTrace($trace, $rows = 10)
     {
-        return array_filter(preg_split('/#\d*/m', $trace));
+        $lines = array_filter(preg_split('/#\d*/m', $trace));
+        return array_slice($lines, 0, $rows);
     }
 
 }
