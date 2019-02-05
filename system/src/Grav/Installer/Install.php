@@ -10,6 +10,7 @@
 namespace Grav\Installer;
 
 use Composer\Autoload\ClassLoader;
+use Grav\Common\Cache;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
@@ -215,6 +216,8 @@ class Install
      */
     public function finalize(): void
     {
+        Cache::clearCache();
+
         clearstatcache();
         if (function_exists('opcache_reset')) {
             @opcache_reset();

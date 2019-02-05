@@ -9,6 +9,7 @@
 
 namespace Grav\Console\Gpm;
 
+use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
@@ -271,13 +272,14 @@ class DirectInstallCommand extends ConsoleCommand
     private function upgradeGrav($zip, $folder, $keepFolder = false)
     {
         static $ignores = [
-            'assets',
             'backup',
             'cache',
             'images',
             'logs',
             'tmp',
-            'user'
+            'user',
+            '.htaccess',
+            'robots.txt'
         ];
 
         if (!is_dir($folder)) {
@@ -297,6 +299,8 @@ class DirectInstallCommand extends ConsoleCommand
                     $folder,
                     $keepFolder
                 );
+
+                Cache::clearCache();
             }
         } catch (\Exception $e) {
             Installer::setError($e->getMessage());

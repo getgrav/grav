@@ -9,6 +9,7 @@
 
 namespace Grav\Console\Gpm;
 
+use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
@@ -273,13 +274,14 @@ class SelfupgradeCommand extends ConsoleCommand
     private function upgradeGrav($zip, $folder, $keepFolder = false)
     {
         static $ignores = [
-            'assets',
             'backup',
             'cache',
             'images',
             'logs',
             'tmp',
-            'user'
+            'user',
+            '.htaccess',
+            'robots.txt'
         ];
 
         if (!is_dir($folder)) {
@@ -299,6 +301,8 @@ class SelfupgradeCommand extends ConsoleCommand
                     $folder,
                     $keepFolder
                 );
+
+                Cache::clearCache();
             }
         } catch (\Exception $e) {
             Installer::setError($e->getMessage());
