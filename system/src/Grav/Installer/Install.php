@@ -76,13 +76,14 @@ class Install
     ];
 
     private $ignores = [
-        'assets',
         'backup',
         'cache',
         'images',
         'logs',
         'tmp',
-        'user'
+        'user',
+        '.htaccess',
+        'robots.txt'
     ];
 
     private $classMap = [
