@@ -9,6 +9,7 @@
 
 namespace Grav\Console\Gpm;
 
+use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
@@ -196,7 +197,8 @@ class DirectInstallCommand extends ConsoleCommand
                 $this->output->writeln('  |- Checking destination...  <green>ok</green>');
 
                 $this->output->write('  |- Installing package...  ');
-                Installer::install($zip, GRAV_ROOT, ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true], $extracted);
+
+                static::upgradeGrav($zip, $extracted);
             } else {
                 $name = GPM::getPackageName($extracted);
 
@@ -265,6 +267,43 @@ class DirectInstallCommand extends ConsoleCommand
         $this->clearCache();
 
         return true;
+    }
 
+    private function upgradeGrav($zip, $folder, $keepFolder = false)
+    {
+        static $ignores = [
+            'backup',
+            'cache',
+            'images',
+            'logs',
+            'tmp',
+            'user',
+            '.htaccess',
+            'robots.txt'
+        ];
+
+        if (!is_dir($folder)) {
+            Installer::setError('Invalid source folder');
+        }
+
+        try {
+            $script = $folder . '/system/install.php';
+            /** Install $installer */
+            if ((file_exists($script) && $install = include $script) && is_callable($install)) {
+                $install($zip);
+            } else {
+                Installer::install(
+                    $zip,
+                    GRAV_ROOT,
+                    ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $ignores],
+                    $folder,
+                    $keepFolder
+                );
+
+                Cache::clearCache();
+            }
+        } catch (\Exception $e) {
+            Installer::setError($e->getMessage());
+        }
     }
 }

@@ -99,6 +99,8 @@ GRAV:
         MISSING_REQUIRED_FIELD: Missing required field:
     MONTHS_OF_THE_YEAR: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     DAYS_OF_THE_WEEK: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    YES: "Yes"
+    NO: "No"
     CRON:
         EVERY: every
         EVERY_HOUR: every hour

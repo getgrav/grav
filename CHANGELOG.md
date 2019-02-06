@@ -3,11 +3,17 @@
 
 1. [](#new)
     * Added index file support for Flex Objects
+    * Added `LogViewer` helper class and CLI command: `bin/grav logviewer`
 1. [](#improved)
     * Improved error detection for broken Flex Objects
-    * Removed apc and xcache support, made apc alias of apcu
+    * Removed `apc` and `xcache` support, made `apc` alias of `apcu`
+    * Support admin and regular translations via the `|t` twig filter and `t()` twig function
+    * Improved Grav Core installer/updater to run installer script
+    * Updated vendor libraries including Symfony `4.2.3`
 1. [](#bugfix)
     * Fixed non-namespaced exceptions in scheduler
+    * Fixed trailing slash redirect in multlang environment [#2350](https://github.com/getgrav/grav/issues/2350)
+    * Fixed Flex from indexing hidden folders/files as objects
 
 # v1.6.0-rc.1
 ## 01/30/2019
@@ -174,6 +180,12 @@
 1. [](#improved)
     * Doctrine filecache is now namespaced with prefix to support purging
     * Register all page types into `blueprint://pages` stream
+
+# v1.5.8
+## mm/dd/2019
+
+1. [](#improved)
+    * Improved `User` unserialize to not to break the object if serialized data is not what expected
 
 # v1.5.7
 ## 01/25/2019

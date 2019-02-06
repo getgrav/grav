@@ -407,7 +407,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         /** @var \SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isDir()) {
+            if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
                 continue;
             }
 

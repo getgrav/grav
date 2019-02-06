@@ -58,7 +58,7 @@ class InitializeProcessor extends ProcessorBase
             && Utils::endsWith($path, '/')) {
 
             $redirect = (string) $uri::getCurrentRoute()->toString();
-            $this->container->redirectLangSafe($redirect);
+            $this->container->redirect($redirect);
         }
 
         $this->container->setLocale();
