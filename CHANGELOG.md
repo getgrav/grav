@@ -1,3 +1,17 @@
+# BRANCH
+## mm/dd/2019
+
+1. [](#new)
+    * New experimental **FlexObjects** powered `Users` for increased performance and capability (**disabled** by default)
+    * New `$grav['users']` service to allow custom user classes implementing `UserInterface`
+1. [](#improved)
+    * Renamed old `User` class to `Grav\Common\User\DataUser\User` with multiple improvements and small fixes
+    * `User` class now acts as a compatibility layer to older versions of Grav
+    * Deprecated `new User()`, `User::load()`, `User::find()` and `User::delete()` in favor of `$grav['users']` service
+    * `Media` constructor has now support to not to initialize the media objects
+    * Cleanly handle session corruption due to changing Flex object types
+    * Renamed `FlexAuthorizeInterface::authorize()` to `isAuthorized()`
+
 # v1.6.0-rc.2
 ## mm/dd/2019
 

@@ -37,7 +37,7 @@ class Flex implements \Countable
         $this->types = [];
 
         foreach ($types as $type => $blueprint) {
-            $this->addDirectory($type, $blueprint);
+            $this->addDirectoryType($type, $blueprint);
         }
     }
 
@@ -47,11 +47,22 @@ class Flex implements \Countable
      * @param array  $config
      * @return $this
      */
-    public function addDirectory(string $type, string $blueprint, array $config = []) : self
+    public function addDirectoryType(string $type, string $blueprint, array $config = []) : self
     {
         $config = array_merge_recursive(['enabled' => true], $this->config['object'] ?? [], $config);
 
         $this->types[$type] = new FlexDirectory($type, $blueprint, $config);
+
+        return $this;
+    }
+
+    /**
+     * @param FlexDirectory $directory
+     * @return $this
+     */
+    public function addDirectory(FlexDirectory $directory)
+    {
+        $this->types[$directory->getType()] = $directory;
 
         return $this;
     }

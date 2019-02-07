@@ -1,0 +1,19 @@
+title: Accounts
+description: User Accounts
+type: flex-objects
+
+extends@: 'user/account'
+
+config:
+  admin:
+    list:
+      fields:
+        username:
+          link: edit
+        email:
+        title:
+      options:
+        per_page: 20
+        order:
+          by: username
+          dir: asc

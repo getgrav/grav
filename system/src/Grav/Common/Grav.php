@@ -68,6 +68,7 @@ class Grav extends Container
         'Grav\Common\Service\SetupServiceProvider',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\TaskServiceProvider',
+        'Grav\Common\Service\UserServiceProvider',
         'browser'    => 'Grav\Common\Browser',
         'cache'      => 'Grav\Common\Cache',
         'events'     => 'RocketTheme\Toolbox\Event\EventDispatcher',
