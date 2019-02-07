@@ -14,6 +14,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
 use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Session\Session;
 use Psr\Http\Message\ServerRequestInterface;
@@ -414,9 +415,8 @@ trait FormTrait
     {
         // Handle bad filenames.
         $filename = $file->getClientFilename();
-        if (strtr($filename, "\t\n\r\0\x0b", '_____') !== $filename
-            || rtrim($filename, '. ') !== $filename
-            || preg_match('|\.php|', $filename)) {
+
+        if (!Utils::checkFilename($filename)) {
             $grav = Grav::instance();
             throw new \RuntimeException(
                 sprintf($grav['language']->translate('PLUGIN_FORM.FILEUPLOAD_UNABLE_TO_UPLOAD', null, true), $filename, 'Bad filename')
