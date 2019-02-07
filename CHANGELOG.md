@@ -1,5 +1,5 @@
 # v1.6.0-rc.2
-## mm/dd/2019
+## 02/07/2019
 
 1. [](#new)
     * New experimental **FlexObjects** powered `Users` for increased performance and capability (**disabled** by default)
