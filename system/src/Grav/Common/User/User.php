@@ -306,6 +306,10 @@ class User extends Data
         $this->gettersVariable = 'items';
         $this->nestedSeparator = '.';
 
+        if (null === $this->items) {
+            $this->items = [];
+        }
+
         if (null === $this->blueprints) {
             $blueprints = new Blueprints;
             $this->blueprints = $blueprints->get('user/account');
