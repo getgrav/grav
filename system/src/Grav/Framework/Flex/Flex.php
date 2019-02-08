@@ -68,7 +68,7 @@ class Flex implements \Countable
     }
 
     /**
-     * @return array
+     * @return array|FlexDirectory[]
      */
     public function getDirectories() : array
     {

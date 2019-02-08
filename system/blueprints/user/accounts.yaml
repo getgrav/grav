@@ -1,4 +1,4 @@
-title: Accounts
+title: User Accounts
 description: User Accounts
 type: flex-objects
 
@@ -17,3 +17,10 @@ config:
         order:
           by: username
           dir: asc
+
+    menu:
+      list:
+        route: /users
+        title: Users
+        icon: fa-users
+        authorize: ['admin.users', 'admin.super']
