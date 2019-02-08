@@ -21,31 +21,14 @@ class Request implements RequestInterface
     use RequestDecoratorTrait;
 
     /**
-     * @param RequestInterface $request
-     * @return static
-     */
-    protected static function createFrom(RequestInterface $request)
-    {
-        if ($request instanceof self) {
-            return $request;
-        }
-
-        return new static($request, null);
-    }
-
-    /**
-     * @param string|RequestInterface              $method  HTTP method
+     * @param string                               $method  HTTP method
      * @param string|UriInterface                  $uri     URI
      * @param array                                $headers Request headers
      * @param string|null|resource|StreamInterface $body    Request body
      * @param string                               $version Protocol version
      */
-    public function __construct($method, $uri, array $headers = [], $body = null, string $version = '1.1')
+    public function __construct(string $method, $uri, array $headers = [], $body = null, string $version = '1.1')
     {
-        if ($method instanceof RequestInterface) {
-            $this->message = $method;
-        } else {
-            $this->message = new \Nyholm\Psr7\Request($method, $uri, $headers, $body, $version);
-        }
+        $this->message = new \Nyholm\Psr7\Request($method, $uri, $headers, $body, $version);
     }
 }

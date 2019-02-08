@@ -25,19 +25,6 @@ class ServerRequest implements ServerRequestInterface
     use ServerRequestDecoratorTrait;
 
     /**
-     * @param ServerRequestInterface $request
-     * @return static
-     */
-    public static function createFrom(ServerRequestInterface $request)
-    {
-        if ($request instanceof self) {
-            return $request;
-        }
-
-        return new static($request, null);
-    }
-
-    /**
      * @param string                               $method       HTTP method
      * @param string|UriInterface                  $uri          URI
      * @param array                                $headers      Request headers
@@ -45,14 +32,9 @@ class ServerRequest implements ServerRequestInterface
      * @param string                               $version      Protocol version
      * @param array                                $serverParams Typically the $_SERVER superglobal
      */
-    public function __construct($method, $uri, array $headers = [], $body = null, string $version = '1.1', array $serverParams = [])
-
+    public function __construct(string $method, $uri, array $headers = [], $body = null, string $version = '1.1', array $serverParams = [])
     {
-        if ($method instanceof ServerRequestInterface) {
-            $this->message = $method;
-        } else {
-            $this->message = new \Nyholm\Psr7\ServerRequest($method, $uri, $headers, $body, $version, $serverParams);
-        }
+        $this->message = new \Nyholm\Psr7\ServerRequest($method, $uri, $headers, $body, $version, $serverParams);
     }
 
     /**

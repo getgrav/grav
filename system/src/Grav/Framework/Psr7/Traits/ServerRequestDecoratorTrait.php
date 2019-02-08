@@ -77,9 +77,10 @@ trait ServerRequestDecoratorTrait
      */
     public function withAttribute($name, $value)
     {
-        $serverRequest = $this->message->withAttribute($name, $value);
+        $new = clone $this;
+        $new->message = $this->message->withAttribute($name, $value);
 
-        return static::createFrom($serverRequest);
+        return $new;
     }
 
     /**
@@ -87,13 +88,12 @@ trait ServerRequestDecoratorTrait
      */
     public function withAttributes(array $attributes)
     {
-        $serverRequest = $this->message;
-
+        $new = clone $this;
         foreach ($attributes as $attribute => $value) {
-            $serverRequest = $serverRequest->withAttribute($attribute, $value);
+            $new->message = $new->withAttribute($attribute, $value);
         }
 
-        return static::createFrom($serverRequest);
+        return $new;
     }
 
     /**
@@ -101,9 +101,10 @@ trait ServerRequestDecoratorTrait
      */
     public function withoutAttribute($name)
     {
-        $serverRequest = $this->message->withoutAttribute($name);
+        $new = clone $this;
+        $new->message = $this->message->withoutAttribute($name);
 
-        return static::createFrom($serverRequest);
+        return $new;
     }
 
     /**
@@ -111,9 +112,10 @@ trait ServerRequestDecoratorTrait
      */
     public function withCookieParams(array $cookies)
     {
-        $serverRequest = $this->message->withCookieParams($cookies);
+        $new = clone $this;
+        $new->message = $this->message->withCookieParams($cookies);
 
-        return static::createFrom($serverRequest);
+        return $new;
     }
 
     /**
@@ -121,9 +123,10 @@ trait ServerRequestDecoratorTrait
      */
     public function withParsedBody($data)
     {
-        $serverRequest = $this->message->withParsedBody($data);
+        $new = clone $this;
+        $new->message = $this->message->withParsedBody($data);
 
-        return static::createFrom($serverRequest);
+        return $new;
     }
 
     /**
@@ -131,9 +134,10 @@ trait ServerRequestDecoratorTrait
      */
     public function withQueryParams(array $query)
     {
-        $serverRequest = $this->message->withQueryParams($query);
+        $new = clone $this;
+        $new->message = $this->message->withQueryParams($query);
 
-        return static::createFrom($serverRequest);
+        return $new;
     }
 
     /**
@@ -141,8 +145,9 @@ trait ServerRequestDecoratorTrait
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        $serverRequest = $this->message->withUploadedFiles($uploadedFiles);
+        $new = clone $this;
+        $new->message = $this->message->withUploadedFiles($uploadedFiles);
 
-        return static::createFrom($serverRequest);
+        return $new;
     }
 }

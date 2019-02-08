@@ -30,37 +30,15 @@ class Response implements ResponseInterface
     private const EOL = "\r\n";
 
     /**
-     * @var ResponseInterface;
-     */
-    private $response;
-
-    /**
-     * @param ResponseInterface $response
-     * @return static
-     */
-    protected static function createFrom(ResponseInterface $response)
-    {
-        if ($response instanceof self) {
-            return $response;
-        }
-
-        return new static($response);
-    }
-
-    /**
-     * @param int|ResponseInterface                $status  Status code
+     * @param int                                  $status  Status code
      * @param array                                $headers Response headers
      * @param string|null|resource|StreamInterface $body    Response body
      * @param string                               $version Protocol version
      * @param string|null                          $reason  Reason phrase (optional)
      */
-    public function __construct($status = 200, array $headers = [], $body = null, string $version = '1.1', string $reason = null)
+    public function __construct(int $status = 200, array $headers = [], $body = null, string $version = '1.1', string $reason = null)
     {
-        if ($status instanceof ResponseInterface) {
-            $this->message = $status;
-        } else {
-            $this->message = new \Nyholm\Psr7\Response($status, $headers, $body, $version, $reason);
-        }
+        $this->message = new \Nyholm\Psr7\Response($status, $headers, $body, $version, $reason);
     }
 
     /**
@@ -93,7 +71,10 @@ class Response implements ResponseInterface
             $response = $response->withStatus($status);
         }
 
-        return static::createFrom($response);
+        $new = clone $this;
+        $new->message = $response;
+
+        return $new;
     }
 
     /**
@@ -115,9 +96,11 @@ class Response implements ResponseInterface
         if ($status === null) {
             $status = 302;
         }
-        $response = $response->withStatus($status);
 
-        return static::createFrom($response);
+        $new = clone $this;
+        $new->message = $response->withStatus($status);
+
+        return $new;
     }
 
     /**

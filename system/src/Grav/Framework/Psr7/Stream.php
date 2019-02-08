@@ -18,25 +18,8 @@ class Stream implements StreamInterface
 {
     use StreamDecoratorTrait;
 
-    /**
-     * @param StreamInterface $stream
-     * @return static
-     */
-    public static function createFrom(StreamInterface $stream)
-    {
-        if ($stream instanceof self) {
-            return $stream;
-        }
-
-        return new static($stream);
-    }
-
     public function __construct($body = '')
     {
-        if ($body instanceof StreamInterface) {
-            $this->stream = $body;
-        } else {
-            $this->stream = new static(\Nyholm\Psr7\Stream::create($body));
-        }
+        $this->stream = new static(\Nyholm\Psr7\Stream::create($body));
     }
 }

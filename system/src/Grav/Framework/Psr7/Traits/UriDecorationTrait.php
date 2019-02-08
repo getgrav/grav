@@ -65,36 +65,57 @@ trait UriDecorationTrait
 
     public function withScheme($scheme): UriInterface
     {
-        return $this->uri->withScheme($scheme);
+        $new = clone $this;
+        $new->uri = $this->uri->withScheme($scheme);
+
+        return $new;
     }
 
     public function withUserInfo($user, $password = null): UriInterface
     {
-        return $this->uri->withUserInfo($user, $password);
+        $new = clone $this;
+        $new->uri = $this->uri->withUserInfo($user, $password);
+
+        return $new;
     }
 
     public function withHost($host): UriInterface
     {
-        return $this->uri->withHost($host);
+        $new = clone $this;
+        $new->uri = $this->uri->withHost($host);
+
+        return $new;
     }
 
     public function withPort($port): UriInterface
     {
-        return $this->uri->withPort($port);
+        $new = clone $this;
+        $new->uri = $this->uri->withPort($port);
+
+        return $new;
     }
 
     public function withPath($path): UriInterface
     {
-        return $this->uri->withPath($path);
+        $new = clone $this;
+        $new->uri = $this->uri->withPath($path);
+
+        return $new;
     }
 
     public function withQuery($query): UriInterface
     {
-        return $this->uri->withQuery($query);
+        $new = clone $this;
+        $new->uri = $this->uri->withQuery($query);
+
+        return $new;
     }
 
     public function withFragment($fragment): UriInterface
     {
-        return $this->uri->withFragment($fragment);
+        $new = clone $this;
+        $new->uri = $this->uri->withFragment($fragment);
+
+        return $new;
     }
 }
