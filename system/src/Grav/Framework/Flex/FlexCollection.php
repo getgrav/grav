@@ -51,7 +51,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             'orderBy' => true,
 
             'render' => false,
-            'authorize' => false
+            'isAuthorized' => 'session',
+            'sort' => true,
         ];
     }
 

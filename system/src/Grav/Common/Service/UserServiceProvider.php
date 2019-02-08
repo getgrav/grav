@@ -57,7 +57,7 @@ class UserServiceProvider implements ServiceProviderInterface
                 'index' => FlexUser\UserIndex::class,
                 'storage' => $this->getFlexStorage($config->get('system.accounts.storage', 'file'))
             ]
-        ];
+        ] + ($config->get('plugins.flex-objects.object') ?: []);
 
         $directory = new FlexDirectory('users', 'blueprints://user/accounts.yaml', $options);
 

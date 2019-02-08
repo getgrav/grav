@@ -70,7 +70,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             'getProperty' => true,
 
             // FlexAclTrait
-            'authorize' => true,
+            'isAuthorized' => 'session',
         ];
     }
 

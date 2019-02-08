@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\Session;
 use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
@@ -265,7 +266,15 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $cachedMethods = $className::getCachedMethods();
 
         if (!empty($cachedMethods[$name])) {
-            $key = $this->getType(true) . '.' . sha1($name . '.' . json_encode($arguments) . $this->getCacheKey());
+            $type = $cachedMethods[$name];
+            if ($type === 'session') {
+                /** @var Session $session */
+                $session = Grav::instance()['session'];
+                $cacheKey = $session->getId();
+            } else {
+                $cacheKey = '';
+            }
+            $key = $this->getType(true) . '.' . sha1($name . '.' . $cacheKey . json_encode($arguments) . $this->getCacheKey());
 
             $cache = $this->_flexDirectory->getCache('object');
 

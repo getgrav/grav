@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * More code cleanup
+    * Fixed `FlexUser` caching
 
 # v1.6.0-rc.2
 ## 02/07/2019
