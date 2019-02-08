@@ -150,8 +150,8 @@ abstract class Folder
             return '';
         }
 
-        $baseParts = explode('/', isset($base[0]) && '/' === $base[0] ? substr($base, 1) : $base);
-        $pathParts = explode('/', isset($path[0]) && '/' === $path[0] ? substr($path, 1) : $path);
+        $baseParts = explode('/', ltrim($base, '/'));
+        $pathParts = explode('/', ltrim($path, '/'));
 
         array_pop($baseParts);
         $lastPart = array_pop($pathParts);

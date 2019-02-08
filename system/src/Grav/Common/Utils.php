@@ -645,7 +645,7 @@ abstract class Utils
         $extensions = [];
         foreach ($mimetypes as $mimetype) {
             $extension = static::getExtensionByMime($mimetype, false);
-            if ($extension && !in_array($extension, $extensions)) {
+            if ($extension && !\in_array($extension, $extensions, true)) {
                 $extensions[] = $extension;
             }
         }

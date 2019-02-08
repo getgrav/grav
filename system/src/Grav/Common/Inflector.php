@@ -52,7 +52,7 @@ class Inflector
         $lowercased_word = strtolower($word);
 
         foreach (static::$uncountable as $_uncountable) {
-            if (substr($lowercased_word, (-1 * strlen($_uncountable))) == $_uncountable) {
+            if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
                 return $word;
             }
         }
@@ -91,7 +91,7 @@ class Inflector
 
         $lowercased_word = strtolower($word);
         foreach (static::$uncountable as $_uncountable) {
-            if (substr($lowercased_word, (-1 * strlen($_uncountable))) == $_uncountable) {
+            if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
                 return $word;
             }
         }
@@ -286,7 +286,7 @@ class Inflector
     {
         static::init();
 
-        if (in_array(($number % 100), range(11, 13))) {
+        if (\in_array($number % 100, range(11, 13), true)) {
             return $number . static::$ordinals['default'];
         }
 

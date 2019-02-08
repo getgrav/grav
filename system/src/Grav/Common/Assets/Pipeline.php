@@ -21,17 +21,17 @@ class Pipeline extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    const CSS_ASSET = true;
-    const JS_ASSET = false;
+    protected const CSS_ASSET = true;
+    protected const JS_ASSET = false;
 
     /** @const Regex to match CSS urls */
-    const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
+    protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 
     /** @const Regex to match CSS sourcemap comments */
-    const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
+    protected const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
 
     /** @const Regex to match CSS import content */
-    const CSS_IMPORT_REGEX = '{@import(.*?);}';
+    protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
     protected $css_minify;
     protected $css_minify_windows;
