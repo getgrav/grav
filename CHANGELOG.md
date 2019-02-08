@@ -1,3 +1,9 @@
+# v1.6.0-rc.3
+## mm/dd/2019
+
+1. [](#improved)
+    * More code cleanup
+
 # v1.6.0-rc.2
 ## 02/07/2019
 
