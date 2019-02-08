@@ -60,13 +60,12 @@ form:
                             use: keys
 
                         pages.types:
-                            type: selectize
+                            type: array
                             label: PLUGIN_ADMIN.PAGE_TYPES
-                            size: large
-                            default: ['html', 'htm', 'xml', 'txt', 'json', 'rss', 'atom']
-                            classes: fancy
-                            validate:
-                                type: commalist
+                            help: PLUGIN_ADMIN.PAGE_TYPES_HELP
+                            size: small
+                            default: ['html','htm','json','xml','txt','rss','atom']
+                            value_only: true
 
                         timezone:
                             type: select
