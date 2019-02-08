@@ -12,6 +12,7 @@ namespace Grav\Common\Processors;
 use Grav\Common\Config\Config;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Framework\Session\Exceptions\SessionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -44,7 +45,17 @@ class InitializeProcessor extends ProcessorBase
 
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
         if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
-            $this->container['session']->init();
+            // TODO: remove in 2.0.
+            $this->container['users'];
+
+            try {
+                $this->container['session']->init();
+            } catch (SessionException $e) {
+                $this->container['session']->init();
+                $message = 'Session corruption detected, restarting session...';
+                $this->addMessage($message);
+                $this->container['messages']->add($message, 'error');
+            }
         }
 
         /** @var Uri $uri */

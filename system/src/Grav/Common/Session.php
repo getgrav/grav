@@ -9,6 +9,8 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Form\FormFlash;
+
 class Session extends \Grav\Framework\Session\Session
 {
     /** @var bool */
@@ -85,7 +87,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function setFlashObject($name, $object)
     {
-        $this->{$name} = serialize($object);
+        $this->__set($name, serialize($object));
 
         return $this;
     }
@@ -98,9 +100,34 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function getFlashObject($name)
     {
-        $object = unserialize($this->{$name}, ['allowed_classes' => true]);
+        $serialized = $this->__get($name);
 
-        $this->{$name} = null;
+        $object = \is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
+
+        $this->__unset($name);
+
+        if ($name === 'files-upload') {
+            $grav = Grav::instance();
+
+            // Make sure that Forms 3.0+ has been installed.
+            if (null === $object && isset($grav['forms'])) {
+                user_error(
+                    __CLASS__ . '::' . __FUNCTION__ . '(\'files-upload\') is deprecated since Grav 1.6, use $form->getFlash()->getLegacyFiles() instead',
+                    E_USER_DEPRECATED
+                );
+
+                /** @var Uri $uri */
+                $uri = $grav['uri'];
+                /** @var Grav\Plugin\Form\Forms $form */
+                $form = $grav['forms']->getActiveForm();
+
+                $sessionField = base64_encode($uri->url);
+
+                /** @var FormFlash $flash */
+                $flash = $form ? $form->getFlash() : null;
+                $object = $flash ? [$sessionField => $flash->getLegacyFiles()] : null;
+            }
+        }
 
         return $object;
     }

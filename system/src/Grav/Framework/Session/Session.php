@@ -9,6 +9,8 @@
 
 namespace Grav\Framework\Session;
 
+use Grav\Framework\Session\Exceptions\SessionException;
+
 /**
  * Class Session
  * @package Grav\Framework\Session
@@ -190,11 +192,15 @@ class Session implements SessionInterface
         }
 
         $success = @session_start($options);
+        $user = $success ? $this->__get('user') : null;
         if (!$success) {
             $last = error_get_last();
             $error = $last ? $last['message'] : 'Unknown error';
 
-            throw new \RuntimeException('Failed to start session: ' . $error, 500);
+            throw new SessionException('Failed to start session: ' . $error, 500);
+        } elseif ($user && !$user->isValid()) {
+            $this->clear();
+            throw new SessionException('User Invalid', 500);
         }
 
         $params = session_get_cookie_params();

@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\Flex\Traits;
 
 use Grav\Common\Grav;
-use Grav\Common\User\User;
+use Grav\Common\User\Interfaces\UserInterface;
 
 /**
  * Implements basic ACL
@@ -21,20 +21,21 @@ trait FlexAuthorizeTrait
 {
     private $_authorize = '%s.flex-object.%s';
 
-    public function authorize(string $action, string $scope = null) : bool
+    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null) : bool
     {
-        /** @var User $user */
-        $user = Grav::instance()['user'];
+        if (null === $user) {
+            $user = Grav::instance()['user'];
+        }
 
-        return $this->authorizeAction($user, $action, $scope) || $this->authorizeSuperAdmin($user);
+        return $this->isAuthorizedAction($user, $action, $scope) || $this->isAuthorizedSuperAdmin($user);
     }
 
-    protected function authorizeSuperAdmin(User $user): bool
+    protected function isAuthorizedSuperAdmin(UserInterface $user): bool
     {
         return $user->authorize('admin.super');
     }
 
-    protected function authorizeAction(User $user, string $action, string $scope = null) : bool
+    protected function isAuthorizedAction(UserInterface $user, string $action, string $scope = null) : bool
     {
         $scope = $scope ?? isset(Grav::instance()['admin']) ? 'admin' : 'site';
 

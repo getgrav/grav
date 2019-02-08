@@ -27,14 +27,17 @@ class Media extends AbstractMedia
     /**
      * @param string $path
      * @param array  $media_order
+     * @param bool   $load
      */
-    public function __construct($path, array $media_order = null)
+    public function __construct($path, array $media_order = null, $load = true)
     {
         $this->path = $path;
         $this->media_order = $media_order;
 
         $this->__wakeup();
-        $this->init();
+        if ($load) {
+            $this->init();
+        }
     }
 
     /**

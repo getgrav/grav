@@ -1341,6 +1341,12 @@ form:
                             label: PLUGIN_ADMIN.CUSTOM_BASE_URL
                             help: PLUGIN_ADMIN.CUSTOM_BASE_URL_HELP
 
+                        accounts.type:
+                            type: hidden
+
+                        accounts.storage:
+                            type: hidden
+
                         strict_mode.yaml_compat:
                             type: toggle
                             label: PLUGIN_ADMIN.STRICT_YAML_COMPAT

@@ -9,345 +9,138 @@
 
 namespace Grav\Common\User;
 
-use Grav\Common\Data\Blueprints;
-use Grav\Common\Data\Data;
-use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Common\Utils;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Grav\Common\User\DataUser;
+use Grav\Common\User\FlexUser;
+use Grav\Common\User\Interfaces\UserCollectionInterface;
+use Grav\Common\User\Interfaces\UserInterface;
 
-class User extends Data
-{
+if (!defined('GRAV_USER_INSTANCE')) {
+    throw new \LogicException('User class was called too early!');
+}
+
+if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
     /**
-     * Load user account.
-     *
-     * Always creates user object. To check if user exists, use $this->exists().
-     *
-     * @param string $username
-     * @param bool $setConfig
-     *
-     * @return User
+     * @deprecated 1.7 Use $grav['users'] instead of static calls. In type hints, use UserInterface.
      */
-    public static function load($username)
+    class User extends FlexUser\User
     {
-        $grav = Grav::instance();
-        /** @var UniformResourceLocator $locator */
-        $locator = $grav['locator'];
+        /**
+         * Load user account.
+         *
+         * Always creates user object. To check if user exists, use $this->exists().
+         *
+         * @param string $username
+         *
+         * @return UserInterface
+         * @deprecated 1.6 Use $grav['users']->load(...) instead.
+         */
+        public static function load($username)
+        {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'users\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
 
-        // force lowercase of username
-        $username = mb_strtolower($username);
-
-        $blueprints = new Blueprints;
-        $blueprint = $blueprints->get('user/account');
-
-        $filename = 'account://' . $username . YAML_EXT;
-        $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
-        $file = CompiledYamlFile::instance($path);
-        $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
-
-        $user = new static($content, $blueprint);
-        $user->file($file);
-
-        return $user;
-    }
-
-    /**
-     * Find a user by username, email, etc
-     *
-     * @param string $query the query to search for
-     * @param array $fields the fields to search
-     * @return User
-     */
-    public static function find($query, $fields = ['username', 'email'])
-    {
-        $account_dir = Grav::instance()['locator']->findResource('account://');
-        $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
-
-        // Try with username first, you never know!
-        if (in_array('username', $fields, true)) {
-            $user = static::load($query);
-            unset($fields[array_search('username', $fields, true)]);
-        } else {
-            $user = static::load('');
+            return static::getCollection()->load($username);
         }
 
-        // If not found, try the fields
-        if (!$user->exists()) {
-            foreach ($files as $file) {
-                if (Utils::endsWith($file, YAML_EXT)) {
-                    $find_user = static::load(trim(pathinfo($file, PATHINFO_FILENAME)));
-                    foreach ($fields as $field) {
-                        if ($find_user[$field] === $query) {
-                            return $find_user;
-                        }
-                    }
-                }
-            }
-        }
-        return $user;
-    }
+        /**
+         * Find a user by username, email, etc
+         *
+         * Always creates user object. To check if user exists, use $this->exists().
+         *
+         * @param string $query the query to search for
+         * @param array $fields the fields to search
+         * @return UserInterface
+         * @deprecated 1.6 Use $grav['users']->find(...) instead.
+         */
+        public static function find($query, $fields = ['username', 'email'])
+        {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'users\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
 
-    public function __construct(array $items = [], $blueprints = null)
-    {
-        unset($items['authenticated'], $items['authorized']);
-
-        parent::__construct($items, $blueprints);
-    }
-
-    /**
-     * Remove user account.
-     *
-     * @param string $username
-     *
-     * @return bool True if the action was performed
-     */
-    public static function remove($username)
-    {
-        $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
-
-        return $file_path && unlink($file_path);
-    }
-
-    /**
-     * @param string $offset
-     * @return bool
-     */
-    public function offsetExists($offset)
-    {
-        $value = parent::offsetExists($offset);
-
-        // Handle special case where user was logged in before 'authorized' was added to the user object.
-        if (false === $value && $offset === 'authorized') {
-            $value = $this->offsetExists('authenticated');
+            return static::getCollection()->find($query, $fields);
         }
 
-        return $value;
-    }
+        /**
+         * Remove user account.
+         *
+         * @param string $username
+         * @return bool True if the action was performed
+         * @deprecated 1.6 Use $grav['users']->delete(...) instead.
+         */
+        public static function remove($username)
+        {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'users\']->delete() instead', E_USER_DEPRECATED);
 
-    /**
-     * @param string $offset
-     * @return mixed
-     */
-    public function offsetGet($offset)
-    {
-        $value = parent::offsetGet($offset);
-
-        // Handle special case where user was logged in before 'authorized' was added to the user object.
-        if (null === $value && $offset === 'authorized') {
-            $value = $this->offsetGet('authenticated');
-            $this->offsetSet($offset, $value);
+            return static::getCollection()->delete($username);
         }
 
-        return $value;
-    }
-
-    /**
-     * Authenticate user.
-     *
-     * If user password needs to be updated, new information will be saved.
-     *
-     * @param string $password Plaintext password.
-     *
-     * @return bool
-     */
-    public function authenticate($password)
-    {
-        $save = false;
-
-        // Plain-text is still stored
-        $storedPassword = $this->get('password');
-        if ($storedPassword) {
-            if ($password !== $storedPassword) {
-                // Plain-text passwords do not match, we know we should fail but execute
-                // verify to protect us from timing attacks and return false regardless of
-                // the result
-                Authentication::verify(
-                    $password,
-                    Grav::instance()['config']->get('system.security.default_hash')
-                );
-
-                return false;
-            }
-
-            // Plain-text does match, we can update the hash and proceed
-            $save = true;
-
-            $this->set('hashed_password', Authentication::create($storedPassword));
-            $this->undef('password');
-        }
-
-        $result = Authentication::verify($password, $this->get('hashed_password'));
-
-        // Password needs to be updated, save the file.
-        if ($result === 2) {
-            $save = true;
-            $this->set('hashed_password', Authentication::create($password));
-        }
-
-        if ($save) {
-            $this->save();
-        }
-
-        return (bool)$result;
-    }
-
-    /**
-     * Update object with data
-     *
-     * @param array $data
-     * @return $this
-     */
-    public function update(array $data)
-    {
-        $this->merge($data);
-
-        return $this;
-    }
-
-    /**
-     * Save user without the username
-     */
-    public function save()
-    {
-        /** @var CompiledYamlFile $file */
-        $file = $this->file();
-        if (!$file || !$file->filename()) {
-            user_error(__CLASS__ . ": calling \$user = new User() is deprecated since Grav 1.6, use User::load(\$username) or User::load('') instead", E_USER_DEPRECATED);
-        }
-
-        if ($file) {
-            $username = $this->get('username');
-
-            if (!$file->filename()) {
-                $locator = Grav::instance()['locator'];
-                $file->filename($locator->findResource('account://' . mb_strtolower($username) . YAML_EXT, true, true));
-            }
-
-            // if plain text password, hash it and remove plain text
-            $password = $this->get('password');
-            if ($password) {
-                $this->set('hashed_password', Authentication::create($password));
-                $this->undef('password');
-            }
-
-            $data = $this->items;
-            unset($data['username'], $data['authenticated'], $data['authorized']);
-
-            $file->save($data);
+        /**
+         * @return UserCollectionInterface
+         */
+        protected static function getCollection()
+        {
+            return Grav::instance()['users'];
         }
     }
-
+} else {
     /**
-     * Checks user authorization to the action.
-     *
-     * @param  string $action
-     *
-     * @return bool
+     * @deprecated 1.7 Use $grav['users'] instead of static calls. In type hints, use UserInterface.
      */
-    public function authorize($action)
+    class User extends DataUser\User
     {
-        if (!$this->get('authenticated')) {
-            return false;
+        /**
+         * Load user account.
+         *
+         * Always creates user object. To check if user exists, use $this->exists().
+         *
+         * @param string $username
+         *
+         * @return UserInterface
+         * @deprecated 1.6 Use $grav['users']->load(...) instead.
+         */
+        public static function load($username)
+        {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'users\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
+
+            return static::getCollection()->load($username);
         }
 
-        if ($this->get('state', 'enabled') !== 'enabled') {
-            return false;
+        /**
+         * Find a user by username, email, etc
+         *
+         * Always creates user object. To check if user exists, use $this->exists().
+         *
+         * @param string $query the query to search for
+         * @param array $fields the fields to search
+         * @return UserInterface
+         * @deprecated 1.6 Use $grav['users']->find(...) instead.
+         */
+        public static function find($query, $fields = ['username', 'email'])
+        {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'users\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
+
+            return static::getCollection()->find($query, $fields);
         }
 
-        $return = false;
+        /**
+         * Remove user account.
+         *
+         * @param string $username
+         * @return bool True if the action was performed
+         * @deprecated 1.6 Use $grav['users']->delete(...) instead.
+         */
+        public static function remove($username)
+        {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'users\']->delete() instead', E_USER_DEPRECATED);
 
-        //Check group access level
-        $groups = $this->get('groups');
-        if ($groups) {
-            foreach ((array)$groups as $group) {
-                $permission = Grav::instance()['config']->get("groups.{$group}.access.{$action}");
-                $return = Utils::isPositive($permission);
-                if ($return === true) {
-                    break;
-                }
-            }
+            return static::getCollection()->delete($username);
         }
 
-        //Check user access level
-        $access = $this->get('access');
-        if ($access && Utils::getDotNotation($access, $action) !== null) {
-            $permission = $this->get("access.{$action}");
-            $return = Utils::isPositive($permission);
-        }
-
-        return $return;
-    }
-
-    /**
-     * Checks user authorization to the action.
-     * Ensures backwards compatibility
-     *
-     * @param  string $action
-     *
-     * @deprecated use authorize()
-     * @return bool
-     */
-    public function authorise($action)
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use authorize() method instead', E_USER_DEPRECATED);
-
-        return $this->authorize($action);
-    }
-
-    /**
-     * Return the User's avatar URL
-     *
-     * @return string
-     */
-    public function avatarUrl()
-    {
-        $avatar = $this->get('avatar');
-        if ($avatar) {
-            $avatar = array_shift($avatar);
-
-            $path = $avatar['path'] ?? null;
-            if ($path) {
-                return Grav::instance()['base_url'] . '/' . $path;
-            }
-        }
-
-        $provider = $this->get('provider');
-        if ($provider) {
-            $avatar = $this->{$provider}['avatar_url'] ?? $this->{$provider}['avatar'] ?? null;
-            if ($avatar) {
-                return $avatar;
-            }
-        }
-
-        return 'https://www.gravatar.com/avatar/' . md5($this->get('email'));
-    }
-
-    /**
-     * Serialize user.
-     */
-    public function __sleep()
-    {
-        return [
-            'items',
-            'storage'
-        ];
-    }
-
-    /**
-     * Unserialize user.
-     */
-    public function __wakeup()
-    {
-        $this->gettersVariable = 'items';
-        $this->nestedSeparator = '.';
-
-        if (null === $this->items) {
-            $this->items = [];
-        }
-
-        if (null === $this->blueprints) {
-            $blueprints = new Blueprints;
-            $this->blueprints = $blueprints->get('user/account');
+        /**
+         * @return UserCollectionInterface
+         */
+        protected static function getCollection()
+        {
+            return Grav::instance()['users'];
         }
     }
 }

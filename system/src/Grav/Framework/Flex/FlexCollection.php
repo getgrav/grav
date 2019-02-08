@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\Criteria;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -319,11 +320,12 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param string $action
      * @param string|null $scope
+     * @param UserInterface|null $user
      * @return static
      */
-    public function authorize(string $action, string $scope = null)
+    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null)
     {
-        $list = $this->call('authorize', [$action, $scope]);
+        $list = $this->call('isAuthorized', [$action, $scope, $user]);
         $list = \array_filter($list);
 
         return $this->select(array_keys($list));
