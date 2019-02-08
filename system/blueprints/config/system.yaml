@@ -41,7 +41,6 @@ form:
                             validate:
                                 type: bool
 
-
                         pages.theme:
                             type: themeselect
                             classes: fancy
@@ -59,6 +58,15 @@ form:
                                 markdown: Markdown
                                 twig: Twig
                             use: keys
+
+                        pages.types:
+                            type: selectize
+                            label: PLUGIN_ADMIN.PAGE_TYPES
+                            size: large
+                            default: ['html', 'htm', 'xml', 'txt', 'json', 'rss', 'atom']
+                            classes: fancy
+                            validate:
+                                type: commalist
 
                         timezone:
                             type: select
@@ -1061,7 +1069,6 @@ form:
                                   0: PLUGIN_ADMIN.NO
                               validate:
                                   type: bool
-
 
 
                         media.allowed_fallback_types:
