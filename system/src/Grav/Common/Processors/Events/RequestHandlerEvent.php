@@ -10,18 +10,27 @@
 namespace Grav\Common\Processors\Events;
 
 use Grav\Framework\RequestHandler\RequestHandler;
-use Psr\Http\Message\RequestInterface;
+use Grav\Framework\Route\Route;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use RocketTheme\Toolbox\Event\Event;
 
 class RequestHandlerEvent extends Event
 {
     /**
-     * @return RequestInterface
+     * @return ServerRequestInterface
      */
-    public function getRequest(): RequestInterface
+    public function getRequest(): ServerRequestInterface
     {
         return $this->offsetGet('request');
+    }
+
+    /**
+     * @return Route
+     */
+    public function getRoute(): Route
+    {
+        return $this->getRequest()->getAttribute('route');
     }
 
     /**
@@ -35,11 +44,14 @@ class RequestHandlerEvent extends Event
     /**
      * @param string $name
      * @param MiddlewareInterface $middleware
+     * @return RequestHandlerEvent
      */
-    public function addMiddleware(string $name, MiddlewareInterface $middleware): void
+    public function addMiddleware(string $name, MiddlewareInterface $middleware): self
     {
         /** @var RequestHandler $handler */
         $handler = $this['handler'];
         $handler->addMiddleware($name, $middleware);
+
+        return $this;
     }
 }

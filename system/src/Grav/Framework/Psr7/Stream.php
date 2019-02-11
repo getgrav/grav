@@ -20,6 +20,6 @@ class Stream implements StreamInterface
 
     public function __construct($body = '')
     {
-        $this->stream = new static(\Nyholm\Psr7\Stream::create($body));
+        $this->stream = \Nyholm\Psr7\Stream::create($body);
     }
 }
