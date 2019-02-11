@@ -29,8 +29,14 @@ class RequestProcessor extends ProcessorBase
             ->withAttribute('referrer', $this->container['uri']->referrer());
 
         $event = new RequestHandlerEvent(['request' => $request, 'handler' => $handler]);
-        $this->container->fireEvent('onRequestHandlerInit', $event);
+        /** @var RequestHandlerEvent $event */
+        $event = $this->container->fireEvent('onRequestHandlerInit', $event);
+        $response = $event->getResponse();
         $this->stopTimer();
+
+        if ($response) {
+            return $response;
+        }
 
         return $handler->handle($request);
     }
