@@ -28,7 +28,7 @@ class RequestProcessor extends ProcessorBase
             ->withAttribute('route', Uri::getCurrentRoute())
             ->withAttribute('referrer', $this->container['uri']->referrer());
 
-        $event = new RequestHandlerEvent(['handler' => $handler]);
+        $event = new RequestHandlerEvent(['request' => $request, 'handler' => $handler]);
         $this->container->fireEvent('onRequestHandlerInit', $event);
         $this->stopTimer();
 
