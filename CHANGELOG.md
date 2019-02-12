@@ -7,6 +7,8 @@
     * More code cleanup
     * Fixed `FlexUser` caching
     * Added back missing `page.types` field in system content configuration [admin#1612](https://github.com/getgrav/grav-plugin-admin/issues/1612)
+1. [](#bugfix)
+    * Fixed validation for select field type with selectize
 
 # v1.6.0-rc.2
 ## 02/07/2019

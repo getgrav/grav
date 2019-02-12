@@ -563,10 +563,17 @@ class Validation
             }
         }
 
-        $options = isset($field['options']) ? array_keys($field['options']) : [];
-        $values = isset($field['use']) && $field['use'] === 'keys' ? array_keys($value) : $value;
+        $options = $field['options'] ?? [];
+        $use = $field['use'] ?? 'values';
 
-        return !($options && array_diff($values, $options));
+        if (empty($field['selectize'])) {
+            $options = array_keys($options);
+        }
+        if ($use === 'keys') {
+            $value = array_keys($value);
+        }
+
+        return !($options && array_diff($value, $options));
     }
 
     protected static function filterArray($value, $params, $field)
