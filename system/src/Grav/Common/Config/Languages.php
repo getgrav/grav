@@ -13,6 +13,8 @@ use Grav\Common\Utils;
 
 class Languages extends Data
 {
+    const INVERSE = true;
+
     public function checksum($checksum = null)
     {
         if ($checksum !== null) {
@@ -48,8 +50,8 @@ class Languages extends Data
         }
     }
 
-    public function mergeRecursive(array $data)
+    public function mergeRecursive(array $data, $inverse = false)
     {
-        $this->items = Utils::arrayMergeRecursiveUnique($this->items, $data);
+        $this->items = $inverse ? Utils::arrayMergeRecursiveUnique($data, $this->items) : Utils::arrayMergeRecursiveUnique($this->items, $data);
     }
 }

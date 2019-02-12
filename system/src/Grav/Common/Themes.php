@@ -9,6 +9,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Config\Languages;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
@@ -292,7 +293,7 @@ class Themes extends Iterator
             $language_file = $locator->findResource("theme://languages" . YAML_EXT);
             if ($language_file) {
                 $language = CompiledYamlFile::instance($language_file)->content();
-                $this->grav['languages']->mergeRecursive($language);
+                $this->grav['languages']->mergeRecursive($language, Languages::INVERSE);
             }
             $languages_folder = $locator->findResource("theme://languages/");
             if (file_exists($languages_folder)) {
@@ -306,7 +307,7 @@ class Themes extends Iterator
                     }
                     $languages[$file->getBasename('.yaml')] = CompiledYamlFile::instance($file->getPathname())->content();
                 }
-                $this->grav['languages']->mergeRecursive($languages);
+                $this->grav['languages']->mergeRecursive($languages, Languages::INVERSE);
             }
         }
     }
