@@ -308,6 +308,11 @@ class Themes extends Iterator
                 }
                 $this->grav['languages']->mergeRecursive($languages);
             }
+            $language_override_file = $locator->findResource("user://languages/theme" . YAML_EXT);
+            if ($language_override_file) {
+                $language = CompiledYamlFile::instance($language_override_file)->content();
+                $this->grav['languages']->mergeRecursive($language);
+            }
         }
     }
 
