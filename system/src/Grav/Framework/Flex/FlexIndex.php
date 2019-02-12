@@ -89,7 +89,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param bool $prefix
      * @return string
      */
-    public function getType($prefix = true)
+    public function getType($prefix = false)
     {
         $type = $prefix ? $this->getTypePrefix() : '';
 
@@ -282,7 +282,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 $result = $cache->get($key);
 
                 // Make sure the keys aren't changed if the returned type is the same index type.
-                if ($result instanceof self && $this->getType() === $result->getType()) {
+                if ($result instanceof self && $this->getType(true) === $result->getType(true)) {
                     $result = $result->withKeyField($this->getKeyField());
                 }
             } catch (InvalidArgumentException $e) {
@@ -601,7 +601,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     public function __debugInfo()
     {
         return [
-            'type:private' => $this->getType(),
+            'type:private' => $this->getType(false),
             'key:private' => $this->getKey(),
             'entries_key:private' => $this->getKeyField(),
             'entries:private' => $this->getEntries()

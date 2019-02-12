@@ -112,7 +112,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param bool $prefix
      * @return string
      */
-    public function getType($prefix = true)
+    public function getType($prefix = false)
     {
         $type = $prefix ? $this->getTypePrefix() : '';
 
@@ -369,7 +369,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function __debugInfo()
     {
         return [
-            'type:private' => $this->getType(),
+            'type:private' => $this->getType(false),
             'key:private' => $this->getKey(),
             'objects_key:private' => $this->getKeyField(),
             'objects:private' => $this->getElements()

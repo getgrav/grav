@@ -151,7 +151,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getChanges()
     {
-        return (array) $this->_changes;
+        return $this->_changes ?? [];
     }
 
     /**
@@ -166,7 +166,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param bool $prefix
      * @return string
      */
-    public function getType($prefix = true)
+    public function getType($prefix = false)
     {
         $type = $prefix ? $this->getTypePrefix() : '';
 
@@ -254,7 +254,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getStorageKey()
     {
-        return $this->_storage['storage_key'] ?? $this->getType() . '@@' . spl_object_hash($this);
+        return $this->_storage['storage_key'] ?? $this->getType(true) . '@@' . spl_object_hash($this);
     }
 
     /**
@@ -528,7 +528,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function __debugInfo()
     {
         return [
-            'type:private' => $this->getType(),
+            'type:private' => $this->getType(false),
             'key:private' => $this->getKey(),
             'elements:private' => $this->getElements(),
             'storage:private' => $this->getStorage()

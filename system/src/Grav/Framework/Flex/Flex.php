@@ -47,7 +47,7 @@ class Flex implements \Countable
      * @param array  $config
      * @return $this
      */
-    public function addDirectoryType(string $type, string $blueprint, array $config = []) : self
+    public function addDirectoryType(string $type, string $blueprint, array $config = []): self
     {
         $config = array_merge_recursive(['enabled' => true], $this->config['object'] ?? [], $config);
 
@@ -70,7 +70,7 @@ class Flex implements \Countable
     /**
      * @return array|FlexDirectory[]
      */
-    public function getDirectories() : array
+    public function getDirectories(): array
     {
         return $this->types;
     }
@@ -79,7 +79,7 @@ class Flex implements \Countable
      * @param string|null $type
      * @return FlexDirectory|null
      */
-    public function getDirectory(string $type = null) : ?FlexDirectory
+    public function getDirectory(string $type = null): ?FlexDirectory
     {
         if (!$type) {
             return reset($this->types) ?: null;
@@ -94,7 +94,7 @@ class Flex implements \Countable
      * @param string|null $keyField
      * @return CollectionInterface|null
      */
-    public function getCollection(string $type, array $keys = null, string $keyField = null) : ?CollectionInterface
+    public function getCollection(string $type, array $keys = null, string $keyField = null): ?CollectionInterface
     {
         $directory = $type ? $this->getDirectory($type) : null;
 
