@@ -55,6 +55,7 @@ $grav->setup($environment);
 
 $grav['config']->init();
 $grav['uri']->init();
+$grav['users'];
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);
 $app->addCommands(array(
