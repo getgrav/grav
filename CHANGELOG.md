@@ -10,6 +10,7 @@
 1. [](#bugfix)
     * Fixed validation for select field type with selectize
     * Fixed `Flex[class]::getType()` to return the same value in every class
+    * Fixed `FlexIndex` keys being lost when `FlexCollection` gets loaded
 
 # v1.6.0-rc.2
 ## 02/07/2019

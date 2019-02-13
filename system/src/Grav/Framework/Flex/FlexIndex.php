@@ -47,11 +47,15 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /**
      * @param array[] $entries
      * @param FlexDirectory $directory
+     * @param string $keyField
      * @return static
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory) : FlexCollectionInterface
+    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null) : FlexCollectionInterface
     {
-        return new static($entries, $directory);
+        $instance = new static($entries, $directory);
+        $instance->setKeyField($keyField);
+
+        return $instance;
     }
 
     /**
@@ -427,7 +431,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadElements(array $entries = null) : array
     {
-        return $this->_flexDirectory->loadObjects($entries ?? $this->withKeyField()->getEntries());
+        return $this->_flexDirectory->loadObjects($entries ?? $this->getEntries());
     }
 
     /**
@@ -436,7 +440,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadCollection(array $entries = null) : CollectionInterface
     {
-        return $this->_flexDirectory->loadCollection($entries ?? $this->withKeyField()->getEntries());
+        return $this->_flexDirectory->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
     }
 
     /**

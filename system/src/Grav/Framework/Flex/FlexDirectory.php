@@ -399,26 +399,28 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
+     * @param string $keyField
      * @return FlexCollectionInterface
      */
-    public function createCollection(array $entries): FlexCollectionInterface
+    public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface
     {
         /** @var string|FlexCollectionInterface $className */
         $className = $this->collectionClassName ?: $this->getCollectionClass();
 
-        return $className::createFromArray($entries, $this);
+        return $className::createFromArray($entries, $this, $keyField);
     }
 
     /**
      * @param array $entries
+     * @param string $keyField
      * @return FlexCollectionInterface
      */
-    public function createIndex(array $entries): FlexCollectionInterface
+    public function createIndex(array $entries, string $keyField = null): FlexCollectionInterface
     {
         /** @var string|FlexIndexInterface $className */
         $className = $this->indexClassName ?: $this->getIndexClass();
 
-        return $className::createFromArray($entries, $this);
+        return $className::createFromArray($entries, $this, $keyField);
     }
 
     /**
@@ -461,11 +463,12 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
+     * @param string $keyField
      * @return FlexCollectionInterface
      */
-    public function loadCollection(array $entries): FlexCollectionInterface
+    public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface
     {
-        return $this->createCollection($this->loadObjects($entries));
+        return $this->createCollection($this->loadObjects($entries), $keyField);
     }
 
     /**

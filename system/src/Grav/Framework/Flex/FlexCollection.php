@@ -59,11 +59,15 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param array $entries
      * @param FlexDirectory $directory
+     * @param string $keyField
      * @return static
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory) : FlexCollectionInterface
+    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null) : FlexCollectionInterface
     {
-        return new static($entries, $directory);
+        $instance = new static($entries, $directory);
+        $instance->setKeyField($keyField);
+
+        return $instance;
     }
 
     /**
