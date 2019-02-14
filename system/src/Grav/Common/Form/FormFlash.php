@@ -11,7 +11,7 @@ namespace Grav\Common\Form;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
-use Grav\Common\User\User;
+use Grav\Common\User\Interfaces\UserInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -41,10 +41,10 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
     }
 
     /**
-     * @param User|null $user
+     * @param UserInterface|null $user
      * @return $this
      */
-    public function setUser(?User $user = null)
+    public function setUser(UserInterface $user = null)
     {
         if ($user && $user->username) {
             $this->user = [

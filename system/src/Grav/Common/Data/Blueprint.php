@@ -11,7 +11,7 @@ namespace Grav\Common\Data;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Common\User\User;
+use Grav\Common\User\Interfaces\UserInterface;
 use RocketTheme\Toolbox\Blueprints\BlueprintForm;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -291,7 +291,7 @@ class Blueprint extends BlueprintForm
         $grav = Grav::instance();
         $actions = (array)$call['params'];
 
-        /** @var User $user */
+        /** @var UserInterface $user */
         if (isset($grav['user'])) {
             $user = Grav::instance()['user'];
             foreach ($actions as $action) {

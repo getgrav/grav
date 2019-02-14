@@ -22,7 +22,7 @@ use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserThrow;
 use Grav\Common\Twig\TokenParser\TwigTokenParserTryCatch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
-use Grav\Common\User\User;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
 use Grav\Common\Helpers\Base32;
@@ -987,7 +987,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function authorize($action)
     {
-        /** @var User $user */
+        /** @var UserInterface $user */
         $user = $this->grav['user'];
 
         if (!$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
