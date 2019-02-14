@@ -9,6 +9,7 @@
 
 namespace Grav\Console;
 
+use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Composer;
 use Grav\Common\GravTrait;
@@ -109,6 +110,11 @@ trait ConsoleTrait
         $command = new CacheCommand();
         $input = new ArrayInput($all);
         return $command->run($input, $this->output);
+    }
+
+    public function invalidateCache()
+    {
+        Cache::invalidateCache();
     }
 
     /**

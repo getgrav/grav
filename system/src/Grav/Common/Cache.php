@@ -472,6 +472,24 @@ class Cache extends Getters
         return $output;
     }
 
+    public static function invalidateCache()
+    {
+        $user_config = USER_DIR . 'config/system.yaml';
+
+        if (file_exists($user_config)) {
+            touch($user_config);
+        }
+
+        // Clear stat cache
+        @clearstatcache();
+
+        // Clear opcache
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
+        }
+
+    }
+
 
     /**
      * Set the cache lifetime programmatically
