@@ -77,6 +77,13 @@ interface FormInterface extends \Serializable
     public function getNonceAction(): string;
 
     /**
+     * Get the nonce value for a form
+     *
+     * @return string
+     */
+    public function getNonce(): string;
+
+    /**
      * Get form action (URL). If action is empty, it points to the current page.
      *
      * @return string

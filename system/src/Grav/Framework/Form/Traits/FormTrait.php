@@ -85,6 +85,11 @@ trait FormTrait
         return 'form';
     }
 
+    public function getNonce(): string
+    {
+        return Utils::getNonce($this->getNonceAction());
+    }
+
     public function getAction(): string
     {
         return '';
