@@ -549,7 +549,6 @@ class Validation
     public static function typeArray($value, array $params, array $field)
     {
         if (!\is_array($value)) {
-            var_dump($value);
             return false;
         }
 
