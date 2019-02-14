@@ -54,9 +54,9 @@ $grav->setup($environment);
 
 $grav['config']->init();
 $grav['uri']->init();
+$grav['users'];
 $grav['plugins']->init();
 $grav['themes']->init();
-$grav['users'];
 
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
