@@ -83,6 +83,14 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
     public function exists();
 
     /**
+     * @param array $data
+     * @param array $files
+     * @return $this
+     * @throws \RuntimeException
+     */
+    public function update(array $data, array $files = []);
+
+    /**
      * Returns the blueprint for the object.
      *
      * @param string $name

@@ -87,9 +87,10 @@ class User extends Data implements UserInterface
      * Update object with data
      *
      * @param array $data
+     * @param array $files
      * @return $this
      */
-    public function update(array $data)
+    public function update(array $data, array $files = [])
     {
         $this->merge($data);
 

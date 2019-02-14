@@ -15,6 +15,13 @@ use Grav\Common\Media\Interfaces\MediaInterface;
 use Grav\Common\Page\Medium\ImageMedium;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 
+/**
+ * Interface UserInterface
+ * @package Grav\Common\User\Interfaces
+ *
+ * @property string $username
+ * @property string $email
+ */
 interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \JsonSerializable, ExportInterface
 {
     /**
@@ -123,9 +130,10 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      * Update object with data
      *
      * @param array $data
+     * @param array $files
      * @return $this
      */
-    public function update(array $data);
+    public function update(array $data, array $files = []);
 
     /**
      * Returns whether the data already exists in the storage.
