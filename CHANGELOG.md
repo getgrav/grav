@@ -9,6 +9,7 @@
     * Added back missing `page.types` field in system content configuration [admin#1612](https://github.com/getgrav/grav-plugin-admin/issues/1612)
 1. [](#bugfix)
     * Fixed validation for select field type with selectize
+    * Fixed validation for boolean toggles
     * Fixed `Flex[class]::getType()` to return the same value in every class
     * Fixed `FlexIndex` keys being lost when `FlexCollection` gets loaded
     * Fixed missing `form_nonce` for JS when using `FlexForm`

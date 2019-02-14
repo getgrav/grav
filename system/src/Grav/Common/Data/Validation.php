@@ -86,7 +86,7 @@ class Validation
      */
     public static function filter($value, array $field)
     {
-        $validate = (array)($field['validate'] ?? null);
+        $validate = (array)($field['filter'] ?? $field['validate'] ?? null);
 
         // If value isn't required, we will return null if empty value is given.
         if (($value === null || $value === '') && empty($validate['required'])) {
@@ -96,7 +96,7 @@ class Validation
         if (!isset($field['type'])) {
             $field['type'] = 'text';
         }
-        $type = $field['validate']['type'] ?? $field['type'];
+        $type = $field['filter']['type'] ?? $field['validate']['type'] ?? $field['type'];
 
         $method = 'filter' . ucfirst(str_replace('-', '_', $type));
 
@@ -285,6 +285,10 @@ class Validation
      */
     public static function typeToggle($value, array $params, array $field)
     {
+        if (\is_bool($value)) {
+            $value = (int)$value;
+        }
+
         return self::typeArray((array) $value, $params, $field);
     }
 
@@ -545,6 +549,7 @@ class Validation
     public static function typeArray($value, array $params, array $field)
     {
         if (!\is_array($value)) {
+            var_dump($value);
             return false;
         }
 
@@ -566,7 +571,7 @@ class Validation
         $options = $field['options'] ?? [];
         $use = $field['use'] ?? 'values';
 
-        if (empty($field['selectize'])) {
+        if (empty($field['selectize']) || empty($field['multiple'])) {
             $options = array_keys($options);
         }
         if ($use === 'keys') {
