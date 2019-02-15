@@ -105,7 +105,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getStorageKeys()
     {
-        return $this->getIndex('storage_key');
+        return $this->getIndexMap('storage_key');
     }
 
     /**
@@ -129,15 +129,27 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getTimestamps()
     {
-        return $this->getIndex('storage_timestamp');
+        return $this->getIndexMap('storage_timestamp');
+    }
+
+    /**
+     * @return $this
+     */
+    public function getIndex()
+    {
+        return $this;
     }
 
     /**
      * @param string $indexKey
      * @return array
      */
-    public function getIndex(string $indexKey)
+    public function getIndexMap(string $indexKey = null)
     {
+        if (null === $indexKey) {
+            return $this->getEntries();
+        }
+
         // Get storage keys for the objects.
         $index = [];
         foreach ($this->getEntries() as $key => $value) {
@@ -231,7 +243,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             } elseif ($field === 'flex_key') {
                 $search = $this->getFlexKeys();
             } else {
-                $search = $this->getIndex($field);
+                $search = $this->getIndexMap($field);
             }
 
             // Update current search to match the previous ordering.
