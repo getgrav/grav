@@ -218,7 +218,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getCacheKey()
     {
-        return $this->getType(true) . '.' . sha1(json_encode($this->getKeys()));
+        return $this->getType(true) . '.' . sha1(json_encode($this->getKeys()) . $this->_keyField);
     }
 
     /**
@@ -324,7 +324,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 try {
                     // If flex collection is returned, convert it back to flex index.
                     if ($result instanceof FlexCollection) {
-                        $cached = $result->getFlexDirectory()->getIndex($result->getKeys());
+                        $cached = $result->getFlexDirectory()->getIndex($result->getKeys(), $this->getKeyField());
                     } else {
                         $cached = $result;
                     }
