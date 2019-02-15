@@ -14,6 +14,7 @@
     * Fixed `Flex[class]::getType()` to return the same value in every class
     * Fixed `FlexIndex` keys being lost when `FlexCollection` gets loaded
     * Fixed missing `form_nonce` for JS when using `FlexForm`
+    * Fixed slow loading of `FlexUser` objects on `$grav['users']->find()` and `load()` calls
 
 # v1.6.0-rc.2
 ## 02/07/2019

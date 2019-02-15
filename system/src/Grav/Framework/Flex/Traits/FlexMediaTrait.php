@@ -304,9 +304,9 @@ trait FlexMediaTrait
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
-        $file = $uri ? $locator->findResource($uri) : null;
+        $file = $uri && $locator->isStream($uri) ? $locator->findResource($uri) : $uri;
 
-        return $file ? MediumFactory::fromFile($file) : null;
+        return $file && file_exists($file) ? MediumFactory::fromFile($file) : null;
     }
 
     abstract public function getFlexDirectory(): FlexDirectory;

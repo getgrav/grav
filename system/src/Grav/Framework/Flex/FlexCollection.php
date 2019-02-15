@@ -400,7 +400,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            return $twig->twig()->resolveTemplate(["flex-objects/layouts/404.html.twig"]);
+            return $twig->twig()->resolveTemplate(['flex-objects/layouts/404.html.twig']);
         }
     }
 

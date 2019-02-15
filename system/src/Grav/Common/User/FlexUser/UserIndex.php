@@ -12,6 +12,7 @@ namespace Grav\Common\User\FlexUser;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\FlexIndex;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Monolog\Logger;
@@ -31,6 +32,70 @@ class UserIndex extends FlexIndex
         $entries = parent::loadEntriesFromStorage($storage);
 
         return static::updateIndexFile($storage, $index, $entries);
+    }
+
+    /**
+     * Load user account.
+     *
+     * Always creates user object. To check if user exists, use $this->exists().
+     *
+     * @param string $username
+     *
+     * @return User
+     */
+    public function load($username): UserInterface
+    {
+        if ($username !== '') {
+            $key = mb_strtolower($username);
+            $user = $this->get($key);
+            if ($user) {
+                return $user;
+            }
+        } else {
+            $key = '';
+        }
+
+        $directory = $this->getFlexDirectory();
+
+        /** @var User $object */
+        $object = $directory->createObject(
+            [
+                'username' => $username,
+                'state' => 'enabled'
+            ],
+            $key
+        );
+
+        return $object;
+    }
+
+    /**
+     * Find a user by username, email, etc
+     *
+     * @param string $query the query to search for
+     * @param array $fields the fields to search
+     * @return User
+     */
+    public function find($query, $fields = ['username', 'email']): UserInterface
+    {
+        foreach ((array)$fields as $field) {
+            if ($field === 'key') {
+                $user = $this->get($query);
+            } elseif ($field === 'storage_key') {
+                $user = $this->withKeyField('storage_key')->get($query);
+            } elseif ($field === 'flex_key') {
+                $user = $this->withKeyField('flex_key')->get($query);
+            } elseif ($field === 'username') {
+                $user = $this->get(mb_strtolower($query));
+            } else {
+                $user = $this->call('find', [$query, $field]);
+            }
+            if ($user) {
+                return $user;
+            }
+        }
+
+        return $this->load('');
     }
 
     protected static function getIndexData($key, ?array $row)
