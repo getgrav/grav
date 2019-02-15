@@ -59,7 +59,7 @@ class UserServiceProvider implements ServiceProviderInterface
             ]
         ] + ($config->get('plugins.flex-objects.object') ?: []);
 
-        $directory = new FlexDirectory('users', 'blueprints://user/accounts.yaml', $options);
+        $directory = new FlexDirectory('users', 'blueprints://user/users.yaml', $options);
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $container['events'];

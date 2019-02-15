@@ -10,8 +10,11 @@ config:
       fields:
         username:
           link: edit
+          search: true
         email:
+          search: true
         fullname:
+          search: true
       options:
         per_page: 20
         order:

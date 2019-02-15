@@ -111,7 +111,7 @@ class UserIndex extends FlexIndex
         // Load saved index file.
         $grav = Grav::instance();
         $locator = $grav['locator'];
-        $filename = $locator->findResource('user-data://accounts/index.yaml', true, true);
+        $filename = $locator->findResource('user-data://flex/indexes/users.yaml', true, true);
 
         return CompiledYamlFile::instance($filename);
     }
