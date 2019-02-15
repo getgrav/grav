@@ -11,7 +11,7 @@ config:
         username:
           link: edit
         email:
-        title:
+        fullname:
       options:
         per_page: 20
         order:
