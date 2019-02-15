@@ -14,6 +14,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -162,7 +163,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         if ($key !== false) {
             $key = md5($this->getCacheKey() . '.' . $layout . json_encode($context));
-            $cache = $this->_flexDirectory->getCache('render');
+            $cache = $this->getCache('render');
         }
 
         try {
@@ -246,6 +247,15 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $object = $this->get($key);
 
         return $object ? $object->getMetaData() : [];
+    }
+
+    /**
+     * @param string|null $namespace
+     * @return CacheInterface
+     */
+    public function getCache(string $namespace = null): CacheInterface
+    {
+        return $this->_flexDirectory->getCache($namespace);
     }
 
     /**

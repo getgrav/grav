@@ -15,6 +15,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
+use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
@@ -226,6 +227,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * @param string|null $namespace
+     * @return CacheInterface
+     */
+    public function getCache(string $namespace = null): CacheInterface
+    {
+        return $this->_flexDirectory->getCache($namespace);
+    }
+
+    /**
      * @return string
      */
     public function getCacheKey()
@@ -319,7 +329,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         if ($key !== false) {
             $key = md5($this->getCacheKey() . '.' . $layout . json_encode($context));
-            $cache = $this->_flexDirectory->getCache('render');
+            $cache = $this->getCache('render');
         }
 
         try {

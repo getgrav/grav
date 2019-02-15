@@ -13,6 +13,7 @@ use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Session;
+use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
@@ -204,6 +205,15 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
+     * @param string|null $namespace
+     * @return CacheInterface
+     */
+    public function getCache(string $namespace = null): CacheInterface
+    {
+        return $this->_flexDirectory->getCache($namespace);
+    }
+
+    /**
      * @return string
      */
     public function getCacheKey()
@@ -292,7 +302,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             }
             $key = $this->getType(true) . '.' . sha1($name . '.' . $cacheKey . json_encode($arguments) . $this->getCacheKey());
 
-            $cache = $this->_flexDirectory->getCache('object');
+            $cache = $this->getCache('object');
 
             try {
                 $result = $cache->get($key);
