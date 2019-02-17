@@ -85,6 +85,8 @@ class UserIndex extends FlexIndex
                 $user = $this->withKeyField('storage_key')->get($query);
             } elseif ($field === 'flex_key') {
                 $user = $this->withKeyField('flex_key')->get($query);
+            } elseif ($field === 'email') {
+                $user = $this->withKeyField('email')->get($query);
             } elseif ($field === 'username') {
                 $user = $this->get(mb_strtolower($query));
             } else {
