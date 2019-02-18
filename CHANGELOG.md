@@ -5,6 +5,7 @@
     * Implemented `Grav\Framework\Psr7` classes as `Nyholm/psr7` decorators
     * Renamed `blueprints/user/accounts.yaml` to `blueprints/user/users.yaml`
     * Moved FlexUser index into `user-data://flex/indexes/users.yaml` [#2378](https://github.com/getgrav/grav/issues/2378)
+    * Added a new `cache-clear` scheduled job to go along with `cache-purge`
 1. [](#improved)
     * More code cleanup
     * Fixed `FlexUser` caching

@@ -142,6 +142,11 @@ class Cache extends Getters
         $dispatcher->addListener('onSchedulerInitialized', [$this, 'onSchedulerInitialized']);
     }
 
+    /**
+     * Deletes the old out of date file-based caches
+     *
+     * @return int
+     */
     public function purgeOldCache()
     {
         $cache_dir = dirname($this->cache_dir);
@@ -558,12 +563,29 @@ class Cache extends Getters
         return false;
     }
 
+    /**
+     * Static function to call as a scheduled Job to purge old Doctrine files
+     */
     public static function purgeJob()
     {
+        /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
         $deleted_folders = $cache->purgeOldCache();
 
-        return 'Purged ' . $deleted_folders . ' old cache folders...';
+        echo 'Purged ' . $deleted_folders . ' old cache folders...';
+    }
+
+    /**
+     * Static function to call as a scheduled Job to clear Grav cache
+     *
+     * @param $type
+     */
+    public static function clearJob($type)
+    {
+        $result = static::clearCache($type);
+        static::invalidateCache();
+
+        echo strip_tags(implode("\n", $result));
     }
 
     public function onSchedulerInitialized(Event $event)
@@ -572,11 +594,22 @@ class Cache extends Getters
         $scheduler = $event['scheduler'];
         $config = Grav::instance()['config'];
 
+        // File Cache Purge
         $at = $config->get('system.cache.purge_at');
         $name = 'cache-purge';
         $logs = 'logs/' . $name . '.out';
 
-        $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', null, $name );
+        $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', [], $name );
+        $job->at($at);
+        $job->output($logs);
+
+        // Cache Clear
+        $at = $config->get('system.cache.clear_at');
+        $clear_type = $config->get('system.cache.clear_job_type');
+        $name = 'cache-clear';
+        $logs = 'logs/' . $name . '.out';
+
+        $job = $scheduler->addFunction('Grav\Common\Cache::clearJob', [$clear_type], $name );
         $job->at($at);
         $job->output($logs);
 

@@ -568,7 +568,22 @@ form:
                             type: cron
                             label: PLUGIN_ADMIN.CACHE_PURGE_JOB
                             help: PLUGIN_ADMIN.CACHE_PURGE_JOB_HELP
+                            default: '* 4 * * *'
+
+                        cache.clear_at:
+                            type: cron
+                            label: PLUGIN_ADMIN.CACHE_CLEAR_JOB
+                            help: PLUGIN_ADMIN.CACHE_CLEAR_JOB_HELP
                             default: '* 3 * * *'
+
+                        cache.clear_job_type:
+                            type: select
+                            size: medium
+                            label: PLUGIN_ADMIN.CACHE_JOB_TYPE
+                            help: PLUGIN_ADMIN.CACHE_JOB_TYPE_HELP
+                            options:
+                                standard: Standard Cache Folders
+                                all: All Cache Folders
 
                         cache.clear_images_by_default:
                             type: toggle
