@@ -1,5 +1,5 @@
 # v1.6.0-rc.3
-## mm/dd/2019
+## 02/18/2019
 
 1. [](#new)
     * Implemented `Grav\Framework\Psr7` classes as `Nyholm/psr7` decorators
