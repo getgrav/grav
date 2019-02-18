@@ -1,6 +1,15 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Ошибка: недопустимое содержимое Frontmatter\n\nПуть: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'экипировка'
+    - 'информация'
+    - 'рис'
+    - 'деньги'
+    - 'виды'
+    - 'серии'
+    - 'рыба'
+    - 'овца'
   INFLECTOR_IRREGULAR:
     'person': 'люди'
     'man': 'человек'
@@ -8,7 +17,10 @@ GRAV:
     'sex': 'пол'
     'move': 'движется'
   INFLECTOR_ORDINALS:
+    'default': 'й'
     'first': 'й'
+    'second': 'й'
+    'third': 'й'
   NICETIME:
     NO_DATE_PROVIDED: Дата не указана
     BAD_DATE: Неверная дата
@@ -77,6 +89,12 @@ GRAV:
     EVERY_DAY_OF_WEEK: каждый день недели
     EVERY_DAY_OF_MONTH: каждый день недели
     EVERY_MONTH: раз в месяц
+    TEXT_PERIOD: Каждый <b />
+    TEXT_MINS: ' в <b /> минуте(ах) за час'
+    TEXT_TIME: ' в <b />:<b />'
+    TEXT_DOW: ' на <b />'
+    TEXT_MONTH: ' из <b />'
+    TEXT_DOM: ' на <b />'
     ERROR1: Тег %s не поддерживается!
     ERROR2: Неверное количество элементов
     ERROR3: jquery_element должен быть установлен в настройки jqCron

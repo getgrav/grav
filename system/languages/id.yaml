@@ -15,6 +15,7 @@ GRAV:
     'man': 'laki-laki'
     'child': 'anak-anak'
     'sex': 'jenis kelamin'
+    'move': 'pindahkan'
   NICETIME:
     NO_DATE_PROVIDED: Tanggal tidak tersedia
     BAD_DATE: Format tanggal salah
@@ -77,6 +78,10 @@ GRAV:
     - 'Sabtu'
     - 'Minggu'
   CRON:
+    EVERY: Setiap
+    EVERY_HOUR: Setiap jam
+    EVERY_MINUTE: Setiap menit
+    EVERY_DAY_OF_WEEK: Setiap hari selama seminggu
     EVERY_DAY_OF_MONTH: pada tanggal setiap bulannya
     EVERY_MONTH: setiap bulan
     TEXT_PERIOD: Setiap <b />
