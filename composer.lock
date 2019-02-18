@@ -712,20 +712,20 @@
         },
         {
             "name": "league/climate",
-            "version": "3.4.1",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/climate.git",
-                "reference": "d657a19837c1f79a891381fb128b755aa3386381"
+                "reference": "0d2fdbf8829f60f6ba6433df68d6f3fe1271b8e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/climate/zipball/d657a19837c1f79a891381fb128b755aa3386381",
-                "reference": "d657a19837c1f79a891381fb128b755aa3386381",
+                "url": "https://api.github.com/repos/thephpleague/climate/zipball/0d2fdbf8829f60f6ba6433df68d6f3fe1271b8e6",
+                "reference": "0d2fdbf8829f60f6ba6433df68d6f3fe1271b8e6",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6|^7.0",
+                "php": "^7.1",
                 "psr/log": "^1.0",
                 "seld/cli-prompt": "^1.0"
             },
@@ -769,7 +769,7 @@
                 "php",
                 "terminal"
             ],
-            "time": "2018-04-29T16:43:54+00:00"
+            "time": "2019-02-10T18:25:19+00:00"
         },
         {
             "name": "matthiasmullie/minify",
@@ -1076,16 +1076,16 @@
         },
         {
             "name": "nyholm/psr7",
-            "version": "1.0.1",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Nyholm/psr7.git",
-                "reference": "02a20d5e9241daefd68935f7a43d9a7a8b4b6277"
+                "reference": "701fe7ea8c12c07b985b156d589134d328160cf7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Nyholm/psr7/zipball/02a20d5e9241daefd68935f7a43d9a7a8b4b6277",
-                "reference": "02a20d5e9241daefd68935f7a43d9a7a8b4b6277",
+                "url": "https://api.github.com/repos/Nyholm/psr7/zipball/701fe7ea8c12c07b985b156d589134d328160cf7",
+                "reference": "701fe7ea8c12c07b985b156d589134d328160cf7",
                 "shasum": ""
             },
             "require": {
@@ -1101,7 +1101,7 @@
             "require-dev": {
                 "http-interop/http-factory-tests": "dev-master",
                 "php-http/psr7-integration-tests": "dev-master",
-                "phpunit/phpunit": "^7.0"
+                "phpunit/phpunit": "^7.5"
             },
             "type": "library",
             "extra": {
@@ -1134,7 +1134,7 @@
                 "psr-17",
                 "psr-7"
             ],
-            "time": "2018-09-02T11:50:33+00:00"
+            "time": "2019-02-16T17:20:43+00:00"
         },
         {
             "name": "phive/twig-extensions-deferred",
@@ -3685,16 +3685,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.3",
+            "version": "7.5.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2cb759721e53bc05f56487f628c6b9fbb6c18746"
+                "reference": "09c85e14994df92e5ff1f5ec0b481bdb7d3d3df9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2cb759721e53bc05f56487f628c6b9fbb6c18746",
-                "reference": "2cb759721e53bc05f56487f628c6b9fbb6c18746",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/09c85e14994df92e5ff1f5ec0b481bdb7d3d3df9",
+                "reference": "09c85e14994df92e5ff1f5ec0b481bdb7d3d3df9",
                 "shasum": ""
             },
             "require": {
@@ -3765,7 +3765,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-02-01T05:24:07+00:00"
+            "time": "2019-02-18T09:24:50+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
