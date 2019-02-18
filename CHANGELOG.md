@@ -212,10 +212,11 @@
     * Register all page types into `blueprint://pages` stream
 
 # v1.5.8
-## mm/dd/2019
+## 02/07/2019
 
 1. [](#improved)
     * Improved `User` unserialize to not to break the object if serialized data is not what expected
+    * Removed unused parameter [#2357](https://github.com/getgrav/grav/pull/2357)
 
 # v1.5.7
 ## 01/25/2019
