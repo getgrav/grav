@@ -602,6 +602,7 @@ class Cache extends Getters
         $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', [], $name );
         $job->at($at);
         $job->output($logs);
+        $job->backlink('/config/system#caching');
 
         // Cache Clear
         $at = $config->get('system.cache.clear_at');
@@ -612,6 +613,7 @@ class Cache extends Getters
         $job = $scheduler->addFunction('Grav\Common\Cache::clearJob', [$clear_type], $name );
         $job->at($at);
         $job->output($logs);
+        $job->backlink('/config/system#caching');
 
     }
 

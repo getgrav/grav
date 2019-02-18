@@ -62,6 +62,7 @@ class Backups
             $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id], $name );
             $job->at($at);
             $job->output($logs);
+            $job->backlink('/tools/backups');
         }
     }
 

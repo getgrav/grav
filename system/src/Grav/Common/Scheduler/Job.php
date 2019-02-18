@@ -39,6 +39,7 @@ class Job
     private $outputMode;
     private $process;
     private $successful = false;
+    private $backlink;
 
     /**
      * Create a new Job instance.
@@ -182,6 +183,22 @@ class Job
 
         return $this;
     }
+
+    /**
+     * Sets/Gets an option backlink
+     *
+     * @param $link string
+     *
+     * @return null|string
+     */
+    public function backlink($link = null)
+    {
+        if ($link) {
+            $this->backlink = $link;
+        }
+        return $this->backlink;
+    }
+
 
     /**
      * Check if the Job can run in background.
