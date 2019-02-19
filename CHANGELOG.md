@@ -1,3 +1,9 @@
+# v1.6.0-rc.4
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed FlexUser loosing ACL information
+
 # v1.6.0-rc.3
 ## 02/18/2019
 

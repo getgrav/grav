@@ -107,6 +107,7 @@ form:
 
             fields:
                 groups:
+                    security@: admin.super
                     type: select
                     multiple: true
                     size: large
@@ -118,6 +119,7 @@ form:
                         type: commalist
 
                 access:
+                    security@: admin.super
                     type: permissions
                     label: PLUGIN_ADMIN.PERMISSIONS
                     ignore_empty: true
