@@ -90,7 +90,7 @@ class UserIndex extends FlexIndex
             } elseif ($field === 'username') {
                 $user = $this->get(mb_strtolower($query));
             } else {
-                $user = $this->call('find', [$query, $field]);
+                $user = $this->__call('find', [$query, $field]);
             }
             if ($user) {
                 return $user;

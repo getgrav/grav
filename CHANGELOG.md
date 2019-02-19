@@ -2,7 +2,8 @@
 ## mm/dd/2019
 
 1. [](#bugfix)
-    * Fixed FlexUser loosing ACL information
+    * Fixed `FlexUser` loosing ACL information
+    * Fixed `FlexUser::find()` breaking when nothing is found
 
 # v1.6.0-rc.3
 ## 02/18/2019
