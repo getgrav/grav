@@ -299,6 +299,14 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @return FlexIndex
+     */
+    public function getIndex(): FlexIndex
+    {
+        return $this->getFlexDirectory()->getIndex($this->getKeys(), $this->getKeyField());
+    }
+
+    /**
      * @param string $keyField
      * @return FlexIndex
      */
