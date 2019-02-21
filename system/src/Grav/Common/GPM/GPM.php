@@ -559,8 +559,7 @@ class GPM extends Iterator
         $plugin_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Plugin/m';
         $theme_regex = '/^class\\s{1,}[a-zA-Z0-9]{1,}\\s{1,}extends.+Theme/m';
 
-        if (
-            file_exists($source . 'system/defines.php') &&
+        if (file_exists($source . 'system/defines.php') &&
             file_exists($source . 'system/config/system.yaml')
         ) {
             return 'grav';
@@ -780,18 +779,24 @@ class GPM extends Iterator
 
         if (count($dependent_packages)) {
             foreach ($dependent_packages as $dependent_package) {
-                $other_dependency_version_with_operator = $this->getVersionOfDependencyRequiredByPackage($dependent_package,
-                    $slug);
+                $other_dependency_version_with_operator = $this->getVersionOfDependencyRequiredByPackage(
+                    $dependent_package,
+                    $slug
+                );
                 $other_dependency_version = $this->calculateVersionNumberFromDependencyVersion($other_dependency_version_with_operator);
 
                 // check version is compatible with the one needed by the current package
                 if ($this->versionFormatIsNextSignificantRelease($other_dependency_version_with_operator)) {
-                    $compatible = $this->checkNextSignificantReleasesAreCompatible($version,
-                        $other_dependency_version);
+                    $compatible = $this->checkNextSignificantReleasesAreCompatible(
+                        $version,
+                        $other_dependency_version
+                    );
                     if (!$compatible) {
                         if (!in_array($dependent_package, $ignore_packages_list)) {
-                            throw new \Exception("Package <cyan>$slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$slug</cyan>.",
-                                2);
+                            throw new \Exception(
+                                "Package <cyan>$slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$slug</cyan>.",
+                                2
+                            );
                         }
                     }
                 }
@@ -811,8 +816,11 @@ class GPM extends Iterator
     public function checkPackagesCanBeInstalled($packages_names_list)
     {
         foreach ($packages_names_list as $package_name) {
-            $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package_name,
-                $this->getLatestVersionOfPackage($package_name), $packages_names_list);
+            $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion(
+                $package_name,
+                $this->getLatestVersionOfPackage($package_name),
+                $packages_names_list
+            );
         }
     }
 
@@ -822,6 +830,7 @@ class GPM extends Iterator
      *
      * `ignore` means the package is already installed and can be safely left as-is.
      * `install` means the package is not installed and must be installed.
+     * `enable` means the package is already installed and must be enabled.
      * `update` means the package is already installed and must be updated as a dependency needs a higher version.
      *
      * @param array $packages
@@ -841,8 +850,10 @@ class GPM extends Iterator
             // Check PHP version
             if ($dependency_slug == 'php') {
                 $current_php_version = phpversion();
-                if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
-                        $current_php_version) === 1
+                if (version_compare(
+                    $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
+                    $current_php_version
+                ) === 1
                 ) {
                     //Needs a Grav update first
                     throw new \Exception("<red>One of the packages require PHP " . $dependencies['php'] . ". Please update PHP to resolve this");
@@ -854,8 +865,10 @@ class GPM extends Iterator
 
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
             if ($dependency_slug == 'grav') {
-                if (version_compare($this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
-                        GRAV_VERSION) === 1
+                if (version_compare(
+                    $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
+                    GRAV_VERSION
+                ) === 1
                 ) {
                     //Needs a Grav update first
                     throw new \Exception("<red>One of the packages require Grav " . $dependencies['grav'] . ". Please update Grav to the latest release.");
@@ -864,8 +877,10 @@ class GPM extends Iterator
                     continue;
                 }
             }
+            $dependency = $this->getInstalledPackage($dependency_slug);
 
-            if ($this->isPluginInstalled($dependency_slug)) {
+            // Check if dependency is installed but disabled.
+            if ($this->isPluginInstalled($dependency_slug) && $dependency->isEnabled()) {
                 if ($this->isPluginInstalledAsSymlink($dependency_slug)) {
                     unset($dependencies[$dependency_slug]);
                     continue;
@@ -884,12 +899,16 @@ class GPM extends Iterator
                 // if requirement is next significant release, check is compatible with currently installed version, might not be
                 if ($this->versionFormatIsNextSignificantRelease($dependencyVersionWithOperator)) {
                     if ($this->firstVersionIsLower($dependencyVersion, $currentlyInstalledVersion)) {
-                        $compatible = $this->checkNextSignificantReleasesAreCompatible($dependencyVersion,
-                            $currentlyInstalledVersion);
+                        $compatible = $this->checkNextSignificantReleasesAreCompatible(
+                            $dependencyVersion,
+                            $currentlyInstalledVersion
+                        );
 
                         if (!$compatible) {
-                            throw new \Exception('Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the one installed. This package must be updated. Please get in touch with its developer.',
-                                2);
+                            throw new \Exception(
+                                'Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the one installed. This package must be updated. Please get in touch with its developer.',
+                                2
+                            );
                         }
                     }
                 }
@@ -899,8 +918,10 @@ class GPM extends Iterator
 
                 if ($this->firstVersionIsLower($latestRelease, $dependencyVersion)) {
                     //throw an exception if a required version cannot be found in the GPM yet
-                    throw new \Exception('Dependency <cyan>' . $package_yaml['name'] . '</cyan> is required in version <cyan>' . $dependencyVersion . '</cyan> which is higher than the latest release, <cyan>' . $latestRelease . '</cyan>. Try running `bin/gpm -f index` to force a refresh of the GPM cache',
-                        1);
+                    throw new \Exception(
+                        'Dependency <cyan>' . $package_yaml['name'] . '</cyan> is required in version <cyan>' . $dependencyVersion . '</cyan> which is higher than the latest release, <cyan>' . $latestRelease . '</cyan>. Try running `bin/gpm -f index` to force a refresh of the GPM cache',
+                        1
+                    );
                 }
 
                 if ($this->firstVersionIsLower($currentlyInstalledVersion, $dependencyVersion)) {
@@ -913,6 +934,10 @@ class GPM extends Iterator
                         $dependencies[$dependency_slug] = 'ignore';
                     }
                 }
+            } elseif ($this->isPluginInstalled($dependency_slug) && !$dependency->isEnabled()) {
+                // Add dependency as required it to be "enabled".
+                $dependencies[$dependency_slug] = 'enable';
+                continue;
             } else {
                 $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
 
@@ -920,12 +945,16 @@ class GPM extends Iterator
                 if ($this->versionFormatIsNextSignificantRelease($dependencyVersionWithOperator)) {
                     $latestVersionOfPackage = $this->getLatestVersionOfPackage($dependency_slug);
                     if ($this->firstVersionIsLower($dependencyVersion, $latestVersionOfPackage)) {
-                        $compatible = $this->checkNextSignificantReleasesAreCompatible($dependencyVersion,
-                            $latestVersionOfPackage);
+                        $compatible = $this->checkNextSignificantReleasesAreCompatible(
+                            $dependencyVersion,
+                            $latestVersionOfPackage
+                        );
 
                         if (!$compatible) {
-                            throw new \Exception('Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the latest release available, and it cannot be installed. This package must be updated. Please get in touch with its developer.',
-                                2);
+                            throw new \Exception(
+                                'Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the latest release available, and it cannot be installed. This package must be updated. Please get in touch with its developer.',
+                                2
+                            );
                         }
                     }
                 }
@@ -943,8 +972,11 @@ class GPM extends Iterator
     public function checkNoOtherPackageNeedsTheseDependenciesInALowerVersion($dependencies_slugs)
     {
         foreach ($dependencies_slugs as $dependency_slug) {
-            $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion($dependency_slug,
-                $this->getLatestVersionOfPackage($dependency_slug), $dependencies_slugs);
+            $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion(
+                $dependency_slug,
+                $this->getLatestVersionOfPackage($dependency_slug),
+                $dependencies_slugs
+            );
         }
     }
 
@@ -990,7 +1022,6 @@ class GPM extends Iterator
                     // Dependency already added by another package
                     //if this package requires a version higher than the currently stored one, store this requirement instead
                     if (isset($current_package_version_information) && $current_package_version_information !== '*') {
-
                         $currently_stored_version_information = $dependencies[$current_package_name];
                         $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
 
@@ -1005,8 +1036,10 @@ class GPM extends Iterator
 
                         $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
                         if (!$current_package_version_number) {
-                            throw new \Exception('Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName,
-                                1);
+                            throw new \Exception(
+                                'Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName,
+                                1
+                            );
                         }
 
                         $current_package_version_is_in_next_significant_release_format = false;
@@ -1020,17 +1053,23 @@ class GPM extends Iterator
                         } else {
                             if (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
                                 //Comparing versions equals or higher, a simple version_compare is enough
-                                if (version_compare($currently_stored_version_number,
-                                        $current_package_version_number) == -1
+                                if (version_compare(
+                                    $currently_stored_version_number,
+                                    $current_package_version_number
+                                ) == -1
                                 ) { //Current package version is higher
                                     $dependencies[$current_package_name] = $current_package_version_information;
                                 }
                             } else {
-                                $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number,
-                                    $current_package_version_number);
+                                $compatible = $this->checkNextSignificantReleasesAreCompatible(
+                                    $currently_stored_version_number,
+                                    $current_package_version_number
+                                );
                                 if (!$compatible) {
-                                    throw new \Exception('Dependency ' . $current_package_name . ' is required in two incompatible versions',
-                                        2);
+                                    throw new \Exception(
+                                        'Dependency ' . $current_package_name . ' is required in two incompatible versions',
+                                        2
+                                    );
                                 }
                             }
                         }

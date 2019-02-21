@@ -17,9 +17,11 @@ use Grav\Common\GPM\Remote\Package as Package;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
+use RocketTheme\Toolbox\File\File;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Yaml\Yaml;
 
 define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
 
@@ -113,8 +115,7 @@ class InstallCommand extends ConsoleCommand
         $this->data = $this->gpm->findPackages($packages);
         $this->loadLocalConfig();
 
-        if (
-            !Installer::isGravInstance($this->destination) ||
+        if (!Installer::isGravInstance($this->destination) ||
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
         ) {
             $this->output->writeln("<red>ERROR</red>: " . Installer::lastErrorMsg());
@@ -130,8 +131,10 @@ class InstallCommand extends ConsoleCommand
         }
 
         if (count($this->data['not_found'])) {
-            $this->output->writeln("These packages were not found on Grav: <red>" . implode('</red>, <red>',
-                    array_keys($this->data['not_found'])) . "</red>");
+            $this->output->writeln("These packages were not found on Grav: <red>" . implode(
+                '</red>, <red>',
+                array_keys($this->data['not_found'])
+            ) . "</red>");
         }
 
         unset($this->data['not_found']);
@@ -149,8 +152,6 @@ class InstallCommand extends ConsoleCommand
             if ($answer) {
                 $this->use_symlinks = true;
             }
-
-
         }
 
         $this->output->writeln('');
@@ -166,9 +167,10 @@ class InstallCommand extends ConsoleCommand
 
         if ($dependencies) {
             try {
+                $this->installDependencies($dependencies, 'enable', "The following dependencies need to be enabled...");
                 $this->installDependencies($dependencies, 'install', "The following dependencies need to be installed...");
-                $this->installDependencies($dependencies, 'update',  "The following dependencies need to be updated...");
-                $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
+                $this->installDependencies($dependencies, 'update', "The following dependencies need to be updated...");
+                $this->installDependencies($dependencies, 'ignore', "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
             } catch (\Exception $e) {
                 $this->output->writeln("<red>Installation aborted</red>");
                 return false;
@@ -190,7 +192,6 @@ class InstallCommand extends ConsoleCommand
                         $this->processPackage($package, false);
                     } else {
                         if (Installer::lastErrorCode() == Installer::EXISTS) {
-
                             try {
                                 $this->askConfirmationIfMajorVersionUpdated($package);
                                 $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available, array_keys($data));
@@ -275,7 +276,11 @@ class InstallCommand extends ConsoleCommand
      */
     public function installDependencies($dependencies, $type, $message, $required = true)
     {
-        $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
+        $gpm = $this->gpm;
+        $grav = $this->grav;
+        $packages = array_filter($dependencies, function ($action) use ($type) {
+            return $action === $type;
+        });
         if (count($packages) > 0) {
             $this->output->writeln($message);
 
@@ -287,11 +292,7 @@ class InstallCommand extends ConsoleCommand
 
             $helper = $this->getHelper('question');
 
-            if ($type == 'install') {
-                $questionAction = 'Install';
-            } else {
-                $questionAction = 'Update';
-            }
+            $questionAction = ucfirst($type);
 
             if (count($packages) == 1) {
                 $questionArticle = 'this';
@@ -310,6 +311,28 @@ class InstallCommand extends ConsoleCommand
 
             if ($answer) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
+                    
+                    $package = $gpm->findPackage($dependencyName);
+                    if ($package) {
+                        $package_array = $package->toArray();
+                    
+                        // Sanity check. Only plugins should be allowed to be enabled.
+                        if ($package_array['package_type'] != 'plugins'){
+                            $message = $dependencyName . " was not enabled.  It is not a plugin.";
+                            $this->output->writeln($message);
+                            continue;
+                        }
+                    }
+                    if ($dependencyVersion == 'enable') {
+                        if (InstallCommand::enablePackage($dependencyName)) {
+                            $this->output->writeln('  |- Enabled <cyan>' . $dependencyName . '</cyan>');
+                        }
+                        else {
+                            $this->output->writeln('  |- Not Enabled <red>' . $dependencyName . '</red>. See the log file for more information');
+                            throw new \Exception();
+                        }
+                        continue;
+                    }
                     $package = $this->gpm->findPackage($dependencyName);
                     $this->processPackage($package, ($type == 'update') ? true : false);
                 }
@@ -320,6 +343,42 @@ class InstallCommand extends ConsoleCommand
                 }
             }
         }
+    }
+
+    /**
+     * Given a $package, Grav will enable the package.
+     *
+     * @param array  $package   The package to enable.
+     *
+     * @return bool Success of enabling a package.
+     * 
+     * @throws \Exception
+     */
+    public static function enablePackage($package_slug)
+    {
+        $grav = new Grav;
+
+        $config_file_path = USER_DIR . "config" . DS . "plugins" . DS;
+        $config_filename = $package_slug . '.yaml';
+        $config_file = File::instance($config_file_path . $config_filename);
+        
+        if (!is_writable($config_file->filename())) {
+            $message = "Could not save config for " . $package_slug . ". Is the config folder/ file writable?";
+            $grav::instance()['log']->error($message);
+            return false;
+        }
+
+        if ($config_file->exists()) {
+            // Load existing config file.
+            $config_data = Yaml::parse($config_file->content());
+        }
+
+        // Set 'enable' plugin option.
+        $config_data['enabled'] = true;
+
+        $config_file->save(Yaml::dump($config_data));
+        $grav::instance()['log']->info($package_slug . " was enabled.");
+        return true;
     }
 
     /**
@@ -458,7 +517,6 @@ class InstallCommand extends ConsoleCommand
                     return $path;
                 }
             }
-
         }
 
         return false;
@@ -626,8 +684,10 @@ class InstallCommand extends ConsoleCommand
                 return false;
             }
 
-            $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
-                false);
+            $question = new ConfirmationQuestion(
+                "  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
+                false
+            );
             $answer = $question_helper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
@@ -690,7 +750,11 @@ class InstallCommand extends ConsoleCommand
     public function progress($progress)
     {
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading package... " . str_pad($progress['percent'], 5, " ",
-                STR_PAD_LEFT) . '%');
+        $this->output->write("  |- Downloading package... " . str_pad(
+            $progress['percent'],
+            5,
+            " ",
+            STR_PAD_LEFT
+        ) . '%');
     }
 }
