@@ -268,7 +268,7 @@ class InstallCommand extends ConsoleCommand
      * to installing them.
      *
      * @param array  $dependencies The dependencies array
-     * @param string $type         The type of dependency to show: install, update, ignore
+     * @param string $type         The type of dependency to show: install, update, enable, ignore
      * @param string $message      A message to be shown prior to listing the dependencies
      * @param bool   $required     A flag that determines if the installation is required or optional
      *
@@ -348,7 +348,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * Given a $package, Grav will enable the package.
      *
-     * @param array  $package   The package to enable.
+     * @param array  $package_slug   The package to enable.
      *
      * @return bool Success of enabling a package.
      * 
