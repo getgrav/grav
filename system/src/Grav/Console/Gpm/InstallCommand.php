@@ -60,6 +60,7 @@ class InstallCommand extends ConsoleCommand
     {
         $this
             ->setName("install")
+            //->alias("enable")
             ->addOption(
                 'force',
                 'f',
@@ -311,13 +312,10 @@ class InstallCommand extends ConsoleCommand
 
             if ($answer) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
-                    
                     $package = $gpm->findPackage($dependencyName);
                     if ($package) {
-                        $package_array = $package->toArray();
-                    
-                        // Sanity check. Only plugins should be allowed to be enabled.
-                        if ($package_array['package_type'] != 'plugins'){
+                       // Sanity check. Only plugins should be allowed to be enabled.
+                        if ($package->package_type != 'plugins') {
                             $message = $dependencyName . " was not enabled.  It is not a plugin.";
                             $this->output->writeln($message);
                             continue;
@@ -326,8 +324,7 @@ class InstallCommand extends ConsoleCommand
                     if ($dependencyVersion == 'enable') {
                         if (InstallCommand::enablePackage($dependencyName)) {
                             $this->output->writeln('  |- Enabled <cyan>' . $dependencyName . '</cyan>');
-                        }
-                        else {
+                        } else {
                             $this->output->writeln('  |- Not Enabled <red>' . $dependencyName . '</red>. See the log file for more information');
                             throw new \Exception();
                         }
@@ -351,20 +348,20 @@ class InstallCommand extends ConsoleCommand
      * @param array  $package_slug   The package to enable.
      *
      * @return bool Success of enabling a package.
-     * 
+     *
      * @throws \Exception
      */
     public static function enablePackage($package_slug)
     {
-        $grav = new Grav;
+        $grav = Grav::instance();
 
         $config_file_path = USER_DIR . "config" . DS . "plugins" . DS;
         $config_filename = $package_slug . '.yaml';
         $config_file = File::instance($config_file_path . $config_filename);
-        
+
         if (!is_writable($config_file->filename())) {
             $message = "Could not save config for " . $package_slug . ". Is the config folder/ file writable?";
-            $grav::instance()['log']->error($message);
+            $grav['log']->error($message);
             return false;
         }
 
@@ -377,7 +374,7 @@ class InstallCommand extends ConsoleCommand
         $config_data['enabled'] = true;
 
         $config_file->save(Yaml::dump($config_data));
-        $grav::instance()['log']->info($package_slug . " was enabled.");
+        $grav['log']->info($package_slug . " was enabled.");
         return true;
     }
 
@@ -509,7 +506,7 @@ class InstallCommand extends ConsoleCommand
             } else {
                 $repo_dir = $matches[2];
             }
-            
+
             $paths = (array) $paths;
             foreach ($paths as $repo) {
                 $path = rtrim($repo, '/') . '/' . $repo_dir;
