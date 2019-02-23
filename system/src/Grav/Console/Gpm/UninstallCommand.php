@@ -12,6 +12,7 @@ use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
+use RocketTheme\Toolbox\File\File;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -97,8 +98,10 @@ class UninstallCommand extends ConsoleCommand
         }
 
         if (count($this->data['not_found'])) {
-            $this->output->writeln("These packages were not found installed: <red>" . implode('</red>, <red>',
-                    $this->data['not_found']) . "</red>");
+            $this->output->writeln("These packages were not found installed: <red>" . implode(
+                '</red>, <red>',
+                $this->data['not_found']
+            ) . "</red>");
         }
 
         unset($this->data['not_found']);
@@ -122,7 +125,6 @@ class UninstallCommand extends ConsoleCommand
                     $this->output->writeln("  '- <green>Success!</green>  ");
                 }
             }
-
         }
 
         // clear cache after successful upgrade
@@ -135,6 +137,8 @@ class UninstallCommand extends ConsoleCommand
      * @param $package
      *
      * @return bool
+     *
+     * @throws \Exception
      */
     private function uninstallPackage($slug, $package, $is_dependency = false)
     {
@@ -160,7 +164,6 @@ class UninstallCommand extends ConsoleCommand
         }
 
         if (isset($package->dependencies)) {
-
             $dependencies = $package->dependencies;
 
             if ($is_dependency) {
@@ -171,7 +174,7 @@ class UninstallCommand extends ConsoleCommand
                 }
             } else {
                 if (count($dependencies) > 0) {
-                    $this->output->writeln('  `- Dependencies found...');
+                    $this->output->writeln("  '- Dependencies found...");
                     $this->output->writeln('');
                 }
             }
@@ -179,7 +182,6 @@ class UninstallCommand extends ConsoleCommand
             $questionHelper = $this->getHelper('question');
 
             foreach ($dependencies as $dependency) {
-
                 $this->dependencies[] = $dependency['name'];
 
                 if (is_array($dependency)) {
@@ -206,7 +208,6 @@ class UninstallCommand extends ConsoleCommand
                             $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
                         } else {
                             $this->output->writeln("  '- <green>Success!</green>  ");
-
                         }
                         $this->output->writeln('');
                     } else {
@@ -214,7 +215,6 @@ class UninstallCommand extends ConsoleCommand
                         $this->output->writeln('');
                     }
                 }
-
             }
         }
 
@@ -236,10 +236,24 @@ class UninstallCommand extends ConsoleCommand
             $this->output->writeln("  |- " . $message);
         }
 
+        // Remove config file from USER_DIR / config / PACKAGETYPE / PACKAGENAME.yaml
+        $config_path = $locator->findResource('config://') . DS . $package->package_type . DS;
+        $config_filename = $slug . '.yaml';
+        $config_file = File::instance($config_path . $config_filename);
+        if ($config_file->exists()) {
+            if (!is_writable($config_file->filename())) {
+                $this->output->writeln("  |- Could not remove <cyan>" . $slug . ".yaml</cyan> config file...  <red>error</red>");
+                throw new \Exception("Could not delete " . $slug . ".yaml config file in the " . $package->package_type . " folder");
+            }
+
+            $config_file->delete();
+        }
+
+        $this->output->writeln("  |- Removing <cyan>" . $slug . ".yaml</cyan> config file...  <green>ok</green>                             ");
         if (!$is_dependency && $this->dependencies) {
             $this->output->writeln("Finishing up uninstalling <cyan>" . $package->name . "</cyan>");
         }
-        $this->output->writeln("  |- Uninstalling " . $package->name . " package...  <green>ok</green>                             ");
+        $this->output->writeln("  |- Uninstalling <cyan>" . $package->name . "</cyan> package...  <green>ok</green>                             ");
 
 
 
@@ -269,8 +283,10 @@ class UninstallCommand extends ConsoleCommand
                 return false;
             }
 
-            $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
-                false);
+            $question = new ConfirmationQuestion(
+                "  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
+                false
+            );
             $answer = $this->all_yes ? true : $questionHelper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
