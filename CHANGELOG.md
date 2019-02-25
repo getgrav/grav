@@ -1,6 +1,8 @@
 # v1.6.0-rc.4
 ## mm/dd/2019
 
+1. [](#improved)
+    * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
 1. [](#bugfix)
     * Fixed `FlexUser` loosing ACL information
     * Fixed `FlexUser::find()` breaking when nothing is found

@@ -76,7 +76,7 @@ cache:
   enabled: true                                  # Set to true to enable caching
   check:
     method: file                                 # Method to check for updates in pages: file|folder|hash|none
-  driver: auto                                   # One of: auto|file|apc|xcache|memcache|wincache
+  driver: auto                                   # One of: auto|file|apcu|memcache|wincache
   prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
   purge_at: '0 4 * * *'                          # How often to purge old file cache (using new scheduler)
   clear_at: '0 3 * * *'                           # How often to clear cache (using new scheduler)

@@ -15,10 +15,10 @@ use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Framework\File\Formatter\FormatterInterface;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -30,10 +30,10 @@ use RuntimeException;
  */
 abstract class AbstractFilesystemStorage implements FlexStorageInterface
 {
-    /** @var FormatterInterface */
+    /** @var FileFormatterInterface */
     protected $dataFormatter;
 
-    protected function initDataFormatter($formatter) : void
+    protected function initDataFormatter($formatter): void
     {
         // Initialize formatter.
         if (!\is_array($formatter)) {
@@ -49,7 +49,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      * @param string $filename
      * @return null|string
      */
-    protected function detectDataFormatter(string $filename) : ?string
+    protected function detectDataFormatter(string $filename): ?string
     {
         if (preg_match('|(\.[a-z0-9]*)$|ui', $filename, $matches)) {
             switch ($matches[1]) {
@@ -69,7 +69,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      * @param string $filename
      * @return File
      */
-    protected function getFile(string $filename) : File
+    protected function getFile(string $filename): File
     {
         $filename = $this->resolvePath($filename);
 
@@ -94,7 +94,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      * @param string $path
      * @return string
      */
-    protected function resolvePath(string $path) : string
+    protected function resolvePath(string $path): string
     {
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
@@ -111,7 +111,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      *
      * @return string
      */
-    protected function generateKey() : string
+    protected function generateKey(): string
     {
         return substr(hash('sha256', random_bytes(32)), 0, 32);
     }
@@ -122,7 +122,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      * @param  string $key
      * @return bool
      */
-    protected function validateKey(string $key) : bool
+    protected function validateKey(string $key): bool
     {
         return (bool) preg_match('/^[^\\/\\?\\*:;{}\\\\\\n]+$/u', $key);
     }
