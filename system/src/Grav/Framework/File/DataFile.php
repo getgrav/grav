@@ -11,20 +11,20 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File;
 
-use Grav\Framework\File\Formatter\FormatterInterface;
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use RuntimeException;
 
 class DataFile extends AbstractFile
 {
-    /** @var FormatterInterface */
+    /** @var FileFormatterInterface */
     protected $formatter;
 
     /**
      * File constructor.
      * @param string $filepath
-     * @param FormatterInterface $formatter
+     * @param FileFormatterInterface $formatter
      */
-    public function __construct($filepath, FormatterInterface $formatter)
+    public function __construct($filepath, FileFormatterInterface $formatter)
     {
         parent::__construct($filepath);
 

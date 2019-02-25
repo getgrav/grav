@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File\Formatter;
 
-abstract class AbstractFormatter implements FormatterInterface
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
+
+abstract class AbstractFormatter implements FileFormatterInterface
 {
     /** @var array */
     private $config;

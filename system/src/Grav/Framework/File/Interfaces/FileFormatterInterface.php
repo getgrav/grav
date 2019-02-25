@@ -9,9 +9,9 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Framework\File\Formatter;
+namespace Grav\Framework\File\Interfaces;
 
-interface FormatterInterface extends \Serializable
+interface FileFormatterInterface extends \Serializable
 {
     /**
      * Get default file extension from current formatter (with dot).

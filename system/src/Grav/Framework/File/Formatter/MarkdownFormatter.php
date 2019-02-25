@@ -15,7 +15,7 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
 class MarkdownFormatter extends AbstractFormatter
 {
-    /** @var FormatterInterface */
+    /** @var FileFormatterInterface */
     private $headerFormatter;
 
     public function __construct(array $config = [], FileFormatterInterface $headerFormatter = null)
