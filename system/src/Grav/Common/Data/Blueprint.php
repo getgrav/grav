@@ -121,14 +121,30 @@ class Blueprint extends BlueprintForm
      *
      * @param  array $data
      * @param  bool $missingValuesAsNull
+     * @param  bool $keepEmptyValues
      * @return array
      */
-    public function filter(array $data, bool $missingValuesAsNull = false)
+    public function filter(array $data, bool $missingValuesAsNull = false, bool $keepEmptyValues = false)
     {
         $this->initInternals();
 
-        return $this->blueprintSchema->filter($data, $missingValuesAsNull);
+        return $this->blueprintSchema->filter($data, $missingValuesAsNull, $keepEmptyValues);
     }
+
+
+    /**
+     * Flatten data by using blueprints.
+     *
+     * @param  array $data
+     * @return array
+     */
+    public function flattenData(array $data)
+    {
+        $this->initInternals();
+
+        return $this->blueprintSchema->flattenData($data);
+    }
+
 
     /**
      * Return blueprint data schema.

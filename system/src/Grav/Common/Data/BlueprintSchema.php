@@ -79,11 +79,51 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      *
      * @param  array $data                  Incoming data, for example from a form.
      * @param  bool  $missingValuesAsNull   Include missing values as nulls.
+     * @param bool   $keepEmptyValues       Include empty values.
      * @return array
      */
-    public function filter(array $data, $missingValuesAsNull = false)
+    public function filter(array $data, $missingValuesAsNull = false, $keepEmptyValues = false)
     {
-        return $this->filterArray($data, $this->nested, $missingValuesAsNull);
+        return $this->filterArray($data, $this->nested, $missingValuesAsNull, $keepEmptyValues);
+    }
+
+    /**
+     * Flatten data by using blueprints.
+     *
+     * @param  array $data                  Data to be flattened.
+     * @return array
+     */
+    public function flattenData(array $data)
+    {
+        return $this->flattenArray($data, $this->nested, '');
+    }
+
+    /**
+     * @param array $data
+     * @param array $rules
+     * @param string $prefix
+     * @return array
+     */
+    protected function flattenArray(array $data, array $rules, string $prefix)
+    {
+        $array = [];
+
+        foreach ($data as $key => $field) {
+            $val = $rules[$key] ?? $rules['*'] ?? null;
+            $rule = is_string($val) ? $this->items[$val] : null;
+
+            if ($rule || isset($val['*'])) {
+                // Item has been defined in blueprints.
+                $array[$prefix.$key] = $field;
+            } elseif (is_array($field) && is_array($val)) {
+                // Array has been defined in blueprints.
+                $array += $this->flattenArray($field, $val, $prefix . $key . '.');
+            } else {
+                // Undefined/extra item.
+                $array[$prefix.$key] = $field;
+            }
+        }
+        return $array;
     }
 
     /**
@@ -124,9 +164,10 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * @param array $data
      * @param array $rules
      * @param bool  $missingValuesAsNull
+     * @param bool $keepEmptyValues
      * @return array
      */
-    protected function filterArray(array $data, array $rules, $missingValuesAsNull)
+    protected function filterArray(array $data, array $rules, $missingValuesAsNull, $keepEmptyValues)
     {
         $results = [];
 
@@ -138,7 +179,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                     $rule = \is_string($val) ? $this->items[$val] : null;
 
                     if (empty($rule['validate']['ignore'])) {
-                        $results[$key] = null;
+                        continue;
                     }
                 }
             }
@@ -152,25 +193,27 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 // Item has been defined in blueprints.
                 if (!empty($rule['validate']['ignore'])) {
                     // Skip any data in the ignored field.
+                    unset($results[$key]);
                     continue;
                 }
 
                 $field = Validation::filter($field, $rule);
             } elseif (\is_array($field) && \is_array($val)) {
                 // Array has been defined in blueprints.
-                $field = $this->filterArray($field, $val, $missingValuesAsNull);
+                $field = $this->filterArray($field, $val, $missingValuesAsNull, $keepEmptyValues);
+
             } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
-                $field = null;
+                // Skip any extra data.
+                continue;
             }
 
-            if (null !== $field && (!\is_array($field) || !empty($field))) {
+            if ($keepEmptyValues || (null !== $field && (!\is_array($field) || !empty($field)))) {
                 $results[$key] = $field;
             }
         }
 
-        return $results;
+        return $results ?: null;
     }
-
 
     /**
      * @param array $data

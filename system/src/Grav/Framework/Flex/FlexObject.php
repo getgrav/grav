@@ -117,27 +117,32 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function update(array $data, array $files = [])
     {
         if ($data) {
-            // Filter updated data.
+            $blueprint = $this->getBlueprint();
+
+            // Process updated data through the object filters.
             $this->filterElements($data);
 
-            // Merge data to the existing object.
+            // Get currently stored data.
             $elements = $this->getElements();
 
-            // Validate and filter the incoming data.
-            $blueprint = $this->getFlexDirectory()->getBlueprint();
-
-            // Merge existing object to the data.
-            $data = $blueprint->mergeData($elements, $data);
+            // Merge existing object to the test data to be validated.
+            $test = $blueprint->mergeData($elements, $data);
 
             // Validate and filter elements and throw an error if any issues were found.
-            $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
-            $data = $blueprint->filter($data);
-
-            // Store the changes
-            $this->_changes = Utils::arrayDiffMultidimensional($data, $this->getElements());
+            $blueprint->validate($test + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
+            $data = $blueprint->filter($data, false, true);
 
             // Finally update the object.
-            $this->setElements($data);
+            foreach ($blueprint->flattenData($data) as $key => $value) {
+                if ($value === null) {
+                    $this->unsetNestedProperty($key);
+                } else {
+                    $this->setNestedProperty($key, $value);
+                }
+            }
+
+            // Store the changes
+            $this->_changes = Utils::arrayDiffMultidimensional($this->getElements(), $elements);
         }
 
         if ($files && method_exists($this, 'setUpdatedMedia')) {

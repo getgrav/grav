@@ -6,6 +6,7 @@
 1. [](#bugfix)
     * Fixed `FlexUser` loosing ACL information
     * Fixed `FlexUser::find()` breaking when nothing is found
+    * Fixed `FlexObject::update()` removing fields which aren't allowed by ACL
 
 # v1.6.0-rc.3
 ## 02/18/2019

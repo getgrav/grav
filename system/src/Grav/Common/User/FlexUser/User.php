@@ -151,48 +151,6 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
-     * @param array $data
-     * @param array $files
-     * @return $this
-     * @throws ValidationException
-     */
-    public function update(array $data, array $files = [])
-    {
-        if ($data) {
-            // Filter updated data.
-            $this->filterElements($data);
-
-            // Merge data to the existing object.
-            $elements = $this->getElements();
-
-            // Validate and filter the incoming data.
-            $blueprint = $this->getFlexDirectory()->getBlueprint();
-
-            // Merge existing object to the data.
-            $data = $blueprint->mergeData($elements, $data);
-
-            // Validate and filter elements and throw an error if any issues were found.
-            $blueprint->validate($data + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
-            $data = $blueprint->filter($data);
-
-            // Make sure that we add missing (filtered by ACL) elements back.
-            $data = $blueprint->mergeData($elements, $data);
-
-            // Store the changes
-            $this->_changes = Utils::arrayDiffMultidimensional($data, $this->getElements());
-
-            // Finally update the object.
-            $this->setElements($data);
-        }
-
-        if ($files && method_exists($this, 'setUpdatedMedia')) {
-            $this->setUpdatedMedia($files);
-        }
-
-        return $this;
-    }
-
-    /**
      * Get value from a page variable (used mostly for creating edit forms).
      *
      * @param string $name Variable name.

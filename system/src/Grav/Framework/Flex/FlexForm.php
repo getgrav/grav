@@ -255,7 +255,7 @@ class FlexForm implements FlexFormInterface
     protected function filterData(\ArrayAccess $data): void
     {
         if ($data instanceof Data) {
-            $data->filter(true);
+            $data->filter(true, true);
         }
     }
 }
