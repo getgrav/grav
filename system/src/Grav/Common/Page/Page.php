@@ -2186,6 +2186,7 @@ class Page implements PageInterface
      * @param  string $var the order, either "asc" or "desc"
      *
      * @return string      the order, either "asc" or "desc"
+     * @deprecated
      */
     public function orderDir($var = null)
     {
@@ -2211,6 +2212,7 @@ class Page implements PageInterface
      * @param  string $var supported options include "default", "title", "date", and "folder"
      *
      * @return string      supported options include "default", "title", "date", and "folder"
+     * @deprecated
      */
     public function orderBy($var = null)
     {
@@ -2227,6 +2229,7 @@ class Page implements PageInterface
      * @param  string $var supported options include "default", "title", "date", and "folder"
      *
      * @return array
+     * @deprecated
      */
     public function orderManual($var = null)
     {
@@ -2244,6 +2247,7 @@ class Page implements PageInterface
      * @param  int $var the maximum number of sub-pages
      *
      * @return int      the maximum number of sub-pages
+     * @deprecated
      */
     public function maxCount($var = null)
     {
