@@ -2190,7 +2190,7 @@ class Page implements PageInterface
      */
     public function orderDir($var = null)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+        //user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         if ($var !== null) {
             $this->order_dir = $var;
@@ -2218,7 +2218,7 @@ class Page implements PageInterface
      */
     public function orderBy($var = null)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+        //user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         if ($var !== null) {
             $this->order_by = $var;
@@ -2237,7 +2237,7 @@ class Page implements PageInterface
      */
     public function orderManual($var = null)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+        //user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         if ($var !== null) {
             $this->order_manual = $var;
@@ -2257,7 +2257,7 @@ class Page implements PageInterface
      */
     public function maxCount($var = null)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+        //user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         if ($var !== null) {
             $this->max_count = (int)$var;
