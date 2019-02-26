@@ -16,7 +16,7 @@ use Psr\Http\Message\UriInterface;
  * Bare minimum PSR7 implementation.
  *
  * @package Grav\Framework\Uri\Psr7
- * @deprecated 1.6
+ * @deprecated 1.6 Using message PSR-7 decorators instead.
  */
 abstract class AbstractUri implements UriInterface
 {

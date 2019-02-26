@@ -2186,10 +2186,12 @@ class Page implements PageInterface
      * @param  string $var the order, either "asc" or "desc"
      *
      * @return string      the order, either "asc" or "desc"
-     * @deprecated
+     * @deprecated 1.6
      */
     public function orderDir($var = null)
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+
         if ($var !== null) {
             $this->order_dir = $var;
         }
@@ -2212,10 +2214,12 @@ class Page implements PageInterface
      * @param  string $var supported options include "default", "title", "date", and "folder"
      *
      * @return string      supported options include "default", "title", "date", and "folder"
-     * @deprecated
+     * @deprecated 1.6
      */
     public function orderBy($var = null)
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+
         if ($var !== null) {
             $this->order_by = $var;
         }
@@ -2229,10 +2233,12 @@ class Page implements PageInterface
      * @param  string $var supported options include "default", "title", "date", and "folder"
      *
      * @return array
-     * @deprecated
+     * @deprecated 1.6
      */
     public function orderManual($var = null)
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+
         if ($var !== null) {
             $this->order_manual = $var;
         }
@@ -2247,10 +2253,12 @@ class Page implements PageInterface
      * @param  int $var the maximum number of sub-pages
      *
      * @return int      the maximum number of sub-pages
-     * @deprecated
+     * @deprecated 1.6
      */
     public function maxCount($var = null)
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+
         if ($var !== null) {
             $this->max_count = (int)$var;
         }

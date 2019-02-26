@@ -216,7 +216,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * Alias of getBlueprint()
      *
      * @return Blueprint
-     * @deprecated Admin compatibility
+     * @deprecated 1.6 Admin compatibility
      */
     public function blueprints()
     {

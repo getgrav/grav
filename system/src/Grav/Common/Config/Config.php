@@ -116,7 +116,7 @@ class Config extends Data
 
     /**
      * @return mixed
-     * @deprecated
+     * @deprecated 1.5 Use Grav::instance()['languages'] instead.
      */
     public function getLanguages()
     {

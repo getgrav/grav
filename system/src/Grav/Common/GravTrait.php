@@ -10,7 +10,7 @@
 namespace Grav\Common;
 
 /**
- * @deprecated 1.4 Use Grav::instance() instead
+ * @deprecated 1.4 Use Grav::instance() instead.
  */
 trait GravTrait
 {
@@ -18,14 +18,15 @@ trait GravTrait
 
     /**
      * @return Grav
+     * @deprecated 1.4 Use Grav::instance() instead.
      */
     public static function getGrav()
     {
+        user_error(__TRAIT__ . ' is deprecated since Grav 1.4, use Grav::instance() instead', E_USER_DEPRECATED);
+
         if (!self::$grav) {
             self::$grav = Grav::instance();
         }
-
-        user_error(__TRAIT__ . ' is deprecated since Grav 1.4, use Grav::instance() instead', E_USER_DEPRECATED);
 
         return self::$grav;
     }

@@ -60,7 +60,7 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
 
     /**
      * @return array
-     * @deprecated 1.6 For backwards compatibility only, do not use.
+     * @deprecated 1.6 For backwards compatibility only, do not use
      */
     public function getLegacyFiles(): array
     {
@@ -85,7 +85,7 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
      * @param string $filename
      * @param array $upload
      * @return bool
-     * @deprecated 1.6 For backwards compatibility only, do not use.
+     * @deprecated 1.6 For backwards compatibility only, do not use
      */
     public function uploadFile(string $field, string $filename, array $upload): bool
     {
@@ -114,7 +114,7 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
      * @param array $upload
      * @param array $crop
      * @return bool
-     * @deprecated 1.6 For backwards compatibility only, do not use.
+     * @deprecated 1.6 For backwards compatibility only, do not use
      */
     public function cropFile(string $field, string $filename, array $upload, array $crop): bool
     {

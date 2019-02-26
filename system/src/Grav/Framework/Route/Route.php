@@ -275,7 +275,7 @@ class Route
 
     /**
      * @return string
-     * @deprecated 1.6
+     * @deprecated 1.6 Use ->toString(true) or ->getUri() instead.
      */
     public function __toString()
     {

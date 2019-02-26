@@ -473,10 +473,9 @@ class Language
     /**
      * Get the browser accepted languages
      *
-     * @deprecated 1.6.0 no longer used - using content negotiation
-     *
      * @param array $accept_langs
      * @return array
+     * @deprecated 1.6 No longer used - using content negotiation.
      */
     public function getBrowserLanguages($accept_langs = [])
     {

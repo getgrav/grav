@@ -438,7 +438,7 @@ class Twig
      * Overrides the autoescape setting
      *
      * @param boolean $state
-     * @deprecated 1.5
+     * @deprecated 1.5 Auto-escape should always be turned on to protect against XSS issues (can be disabled per template file).
      */
     public function setAutoescape($state)
     {
