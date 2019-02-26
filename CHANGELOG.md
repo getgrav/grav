@@ -6,31 +6,31 @@
 1. [](#improved)
     * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
 1. [](#bugfix)
-    * Fixed `FlexUser` loosing ACL information
-    * Fixed `FlexUser::find()` breaking when nothing is found
-    * Fixed `FlexObject::update()` removing fields on save
+    * Grav 1.6: Fixed `FlexUser` loosing ACL information
+    * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found
+    * Grav 1.6: Fixed `FlexObject::update()` removing fields on save
 
 # v1.6.0-rc.3
 ## 02/18/2019
 
 1. [](#new)
     * Implemented `Grav\Framework\Psr7` classes as `Nyholm/psr7` decorators
-    * Renamed `blueprints/user/accounts.yaml` to `blueprints/user/users.yaml`
-    * Moved FlexUser index into `user-data://flex/indexes/users.yaml` [#2378](https://github.com/getgrav/grav/issues/2378)
+    * Grav 1.6: Renamed `blueprints/user/accounts.yaml` to `blueprints/user/users.yaml`
+    * Grav 1.6: Moved FlexUser index into `user-data://flex/indexes/users.yaml` [#2378](https://github.com/getgrav/grav/issues/2378)
     * Added a new `cache-clear` scheduled job to go along with `cache-purge`
 1. [](#improved)
     * More code cleanup
-    * Fixed `FlexUser` caching
+    * Grav 1.6: Fixed `FlexUser` caching
     * Added back missing `page.types` field in system content configuration [admin#1612](https://github.com/getgrav/grav-plugin-admin/issues/1612)
     * Console commands: add method for invalidating cache
     * Updated languages
 1. [](#bugfix)
     * Fixed validation for select field type with selectize
     * Fixed validation for boolean toggles
-    * Fixed `Flex[class]::getType()` to return the same value in every class
-    * Fixed `FlexIndex` keys being lost when `FlexCollection` gets loaded
-    * Fixed missing `form_nonce` for JS when using `FlexForm`
-    * Fixed slow loading of `FlexUser` objects on `$grav['users']->find()` and `load()` calls
+    * Grav 1.6: Fixed `Flex[class]::getType()` to return the same value in every class
+    * Grav 1.6: Fixed `FlexIndex` keys being lost when `FlexCollection` gets loaded
+    * Grav 1.6: Fixed missing `form_nonce` for JS when using `FlexForm`
+    * Grav 1.6: Fixed slow loading of `FlexUser` objects on `$grav['users']->find()` and `load()` calls
 
 # v1.6.0-rc.2
 ## 02/07/2019
@@ -38,10 +38,10 @@
 1. [](#new)
     * New experimental **FlexObjects** powered `Users` for increased performance and capability (**disabled** by default)
     * New `$grav['users']` service to allow custom user classes implementing `UserInterface`
-    * Added index file support for Flex Objects
+    * Grav 1.6: Added index file support for Flex Objects
     * Added `LogViewer` helper class and CLI command: `bin/grav logviewer`
 1. [](#improved)
-    * Improved error detection for broken Flex Objects
+    * Grav 1.6: Improved error detection for broken Flex Objects
     * Removed `apc` and `xcache` support, made `apc` alias of `apcu`
     * Support admin and regular translations via the `|t` twig filter and `t()` twig function
     * Improved Grav Core installer/updater to run installer script
@@ -51,24 +51,24 @@
     * Deprecated `new User()`, `User::load()`, `User::find()` and `User::delete()` in favor of `$grav['users']` service
     * `Media` constructor has now support to not to initialize the media objects
     * Cleanly handle session corruption due to changing Flex object types
-    * Renamed `FlexAuthorizeInterface::authorize()` to `isAuthorized()`
+    * Grav 1.6: Renamed `FlexAuthorizeInterface::authorize()` to `isAuthorized()`
 1. [](#bugfix)
     * Fixed non-namespaced exceptions in scheduler
     * Fixed trailing slash redirect in multlang environment [#2350](https://github.com/getgrav/grav/issues/2350)
-    * Fixed Flex from indexing hidden folders/files as objects
-    * Regression: `$session->getFlashObject('files-upload')` did not work with Form 3.0
+    * Grav 1.6: Fixed Flex from indexing hidden folders/files as objects
+    * Grav 1.6 regression: `$session->getFlashObject('files-upload')` did not work with Form 3.0
 
 # v1.6.0-rc.1
 ## 01/30/2019
 
 1. [](#improved)
     * Improved `$page->forms()` call, added `$page->addForms()`
-    * Made `FormFlashFile` more robust against deleted files
+    * Grav 1.6: Made `FormFlashFile` more robust against deleted files
     * Updated languages from crowdin
-    * Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
-    * Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media
+    * Grav 1.6: Fixed a bug in `FormFlashFile::moveTo()` not deleting the old file
+    * Grav 1.6: Fixed `FlexMediaTrait::getMedia()` trying to include uploaded but already moved media
     * Fixed `ImageMedium` constructor warning when file does not exist
-    * Fixed bad host header in PSR-7 (if using `php -S localhost:8000 system/router.php`)
+    * Grav 1.6: Fixed bad host header in PSR-7 (if using `php -S localhost:8000 system/router.php`)
     
 # v1.6.0-beta.8
 ## 01/25/2019
@@ -86,14 +86,14 @@
     * Added `FlexObject::getChanges()` to determine what fields change during an update
     * Added `arrayDiffMultidimensional`, `arrayIsAssociative`, `arrayCombine` Util functions
 1. [](#improved)
-    * Added method argument `Data::filter($missingValuesAsNull)`, defaulting to `false`
+    * Grav 1.6: Added method argument `Data::filter($missingValuesAsNull)`, defaulting to `false`
     * Improved `Grav\Common\User` class; added `$user->update()` method
     * Added trim support for text input fields `validate: trim: true`
 1. [](#bugfix)
-    * Fixed environment getting port added [#2284](https://github.com/getgrav/grav/issues/2284)
-    * Fixed `FlexForm::updateObject()` to update array values when they are empty in the form
+    * Grav 1.6: Fixed environment getting port added [#2284](https://github.com/getgrav/grav/issues/2284)
+    * Grav 1.6: Fixed `FlexForm::updateObject()` to update array values when they are empty in the form
     * Fixed some issues related to Medium objects losing query string attributes
-    * Broke out Medium timestamp so it's not cleared on `reset()s`
+    * Broke out Medium timestamp so it's not cleared on `reset()`s
     * Fixed issue with `redirect_trailing_slash` losing query string [#2269](https://github.com/getgrav/grav/issues/2269)
     * Fixed failed login if user attempts to log in with upper case non-english letters
     * Removed extra authenticated/authorized fields when saving existing user from a form
@@ -199,7 +199,7 @@
     * Fixed asset manager to not add empty assets when they don't exist in the filesystem
     * Update `script` and `style` Twig tags to use the new `Assets` classes
     * Fixed asset pipeline to rewrite remote URLs as well as local [#2216](https://github.com/getgrav/grav/issues/2216)
-    * Grav 1.6: Regression: Fixed asset manager methods with default legacy attributes
+    * Grav 1.6 regression: Fixed asset manager methods with default legacy attributes
 
 # v1.6.0-beta.1
 ## 10/01/2018
