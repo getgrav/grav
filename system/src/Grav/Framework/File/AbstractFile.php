@@ -334,13 +334,17 @@ class AbstractFile implements FileInterface
     protected function mkdir(string $dir): bool
     {
         // Silence error for open_basedir; should fail in mkdir instead.
-        if (!@is_dir($dir)) {
-            $success = @mkdir($dir, 0777, true);
+        if (@is_dir($dir)) {
+            return true;
+        }
 
-            if (!$success) {
-                $error = error_get_last();
+        $success = @mkdir($dir, 0777, true);
 
-                throw new \RuntimeException("Creating directory '{$dir}' failed on error {$error['message']}");
+        if (!$success) {
+            // Take yet another look, make sure that the folder doesn't exist.
+            clearstatcache(true, $dir);
+            if (!@is_dir($dir)) {
+                return false;
             }
         }
 

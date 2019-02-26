@@ -157,7 +157,7 @@ trait FlexMediaTrait
         try {
             // Upload it
             $filepath = sprintf('%s/%s', $path, $filename);
-            Folder::mkdir(\dirname($filepath));
+            Folder::create(\dirname($filepath));
             if ($uploadedFile instanceof FormFlashFile) {
                 $metadata = $uploadedFile->getMetaData();
                 if ($metadata) {

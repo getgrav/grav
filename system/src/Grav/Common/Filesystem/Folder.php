@@ -418,15 +418,19 @@ abstract class Folder
      */
     public static function create($folder)
     {
-        if (is_dir($folder)) {
+        // Silence error for open_basedir; should fail in mkdir instead.
+        if (@is_dir($folder)) {
             return;
         }
 
         $success = @mkdir($folder, 0777, true);
 
         if (!$success) {
-            $error = error_get_last();
-            throw new \RuntimeException($error['message']);
+            // Take yet another look, make sure that the folder doesn't exist.
+            clearstatcache(true, $folder);
+            if (!@is_dir($folder)) {
+                throw new \RuntimeException(sprintf('Unable to create directory: %s', $folder));
+            }
         }
     }
 
@@ -450,7 +454,7 @@ abstract class Folder
 
         // If the destination directory does not exist create it
         if (!is_dir($dest)) {
-            static::mkdir($dest);
+            static::create($dest);
         }
 
         // Open the source directory to read in files

@@ -18,7 +18,7 @@ class ZipArchiver extends Archiver
         $archive = $zip->open($this->archive_file);
 
         if ($archive === true) {
-            Folder::mkdir($destination);
+            Folder::create($destination);
 
             if (!$zip->extractTo($destination)) {
                 throw new \RuntimeException('ZipArchiver: ZIP failed to extract ' . $this->archive_file . ' to ' . $destination);

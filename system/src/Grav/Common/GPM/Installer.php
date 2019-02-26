@@ -176,7 +176,7 @@ class Installer
         $archive = $zip->open($zip_file);
 
         if ($archive === true) {
-            Folder::mkdir($destination);
+            Folder::create($destination);
 
             $unzip = $zip->extractTo($destination);
 

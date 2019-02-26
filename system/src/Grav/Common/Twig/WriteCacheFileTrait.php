@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Twig;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 
 trait WriteCacheFileTrait
@@ -33,9 +34,10 @@ trait WriteCacheFileTrait
         }
 
         if (self::$umask) {
-            if (!is_dir(dirname($file))) {
+            $dir = dirname($file);
+            if (!is_dir($dir)) {
                 $old = umask(0002);
-                mkdir(dirname($file), 0777, true);
+                Folder::create($dir);
                 umask($old);
             }
             parent::writeCacheFile($file, $content);

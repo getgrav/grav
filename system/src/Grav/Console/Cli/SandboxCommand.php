@@ -133,14 +133,14 @@ class SandboxCommand extends ConsoleCommand
         $dirs_created = false;
 
         if (!file_exists($this->destination)) {
-            mkdir($this->destination, 0777, true);
+            Folder::create($this->destination);
         }
 
         foreach ($this->directories as $dir) {
             if (!file_exists($this->destination . $dir)) {
                 $dirs_created = true;
                 $this->output->writeln('    <cyan>' . $dir . '</cyan>');
-                mkdir($this->destination . $dir, 0777, true);
+                Folder::create($this->destination . $dir);
             }
         }
 

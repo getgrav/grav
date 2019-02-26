@@ -591,7 +591,7 @@ class InstallCommand extends ConsoleCommand
             return false;
         }
 
-        Folder::mkdir($this->tmp);
+        Folder::create($this->tmp);
 
         $this->output->write("\x0D");
         $this->output->write('  |- Downloading package...   100%');

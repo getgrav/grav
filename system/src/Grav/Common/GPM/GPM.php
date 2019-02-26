@@ -519,7 +519,7 @@ class GPM extends Iterator
         $output = Response::get($package_file, []);
 
         if ($output) {
-            Folder::mkdir($tmp);
+            Folder::create($tmp);
             file_put_contents($tmp . DS . $filename, $output);
             return $tmp . DS . $filename;
         }
@@ -540,7 +540,7 @@ class GPM extends Iterator
 
         if (file_exists($package_file)) {
             $filename = basename($package_file);
-            Folder::mkdir($tmp);
+            Folder::create($tmp);
             copy(realpath($package_file), $tmp . DS . $filename);
             return $tmp . DS . $filename;
         }

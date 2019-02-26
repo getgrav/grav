@@ -9,6 +9,7 @@
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found
     * Grav 1.6: Fixed `FlexObject::update()` removing fields on save
+    * Fixed `mkdir(...)` race condition
 
 # v1.6.0-rc.3
 ## 02/18/2019

@@ -201,7 +201,7 @@ class SelfupgradeCommand extends ConsoleCommand
         $this->tmp = $tmp_dir . '/Grav-' . uniqid('', false);
         $output = Response::get($package['download'], [], [$this, 'progress']);
 
-        Folder::mkdir($this->tmp);
+        Folder::create($this->tmp);
 
         $this->output->write("\x0D");
         $this->output->write("  |- Downloading upgrade [{$this->formatBytes($package['size'])}]...   100%");

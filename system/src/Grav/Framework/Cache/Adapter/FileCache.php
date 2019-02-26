@@ -127,8 +127,8 @@ class FileCache extends AbstractCache
         $hash = str_replace('/', '-', base64_encode(hash('sha256', static::class . $key, true)));
         $dir = $this->directory . $hash[0] . DIRECTORY_SEPARATOR . $hash[1] . DIRECTORY_SEPARATOR;
 
-        if ($mkdir && !file_exists($dir)) {
-            @mkdir($dir, 0777, true);
+        if ($mkdir) {
+            $this->mkdir($dir);
         }
 
         return $dir . substr($hash, 2, 20);
@@ -154,9 +154,7 @@ class FileCache extends AbstractCache
             $directory .= DIRECTORY_SEPARATOR . $namespace;
         }
 
-        if (!file_exists($directory)) {
-            @mkdir($directory, 0777, true);
-        }
+        $this->mkdir($directory);
 
         $directory .= DIRECTORY_SEPARATOR;
         // On Windows the whole path is limited to 258 chars
@@ -190,6 +188,28 @@ class FileCache extends AbstractCache
             return rename($this->tmp, $file);
         } finally {
             restore_error_handler();
+        }
+    }
+
+    /**
+     * @param  string  $dir
+     * @throws \RuntimeException
+     */
+    private function mkdir($dir)
+    {
+        // Silence error for open_basedir; should fail in mkdir instead.
+        if (@is_dir($dir)) {
+            return;
+        }
+
+        $success = @mkdir($dir, 0777, true);
+
+        if (!$success) {
+            // Take yet another look, make sure that the folder doesn't exist.
+            clearstatcache(true, $dir);
+            if (!@is_dir($dir)) {
+                throw new \RuntimeException(sprintf('Unable to create directory: %s', $dir));
+            }
         }
     }
 
