@@ -330,21 +330,6 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         return $this->getBlueprint()->mergeData($old, $value, $name, $separator);
     }
 
-
-    /**
-     * Merge two configurations together.
-     *
-     * @param array $data
-     * @return $this
-     * @deprecated Use `$user->update($data)` instead (same but with data validation & filtering, file upload support)
-     */
-    public function merge(array $data)
-    {
-        $this->setElements($this->getBlueprint()->mergeData($this->toArray(), $data));
-
-        return $this;
-    }
-
     /**
      * Set default values to the configuration if variables were not set.
      *
@@ -456,13 +441,30 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
+     * Merge two configurations together.
+     *
+     * @param array $data
+     * @return $this
+     * @deprecated 1.6 Use `->update($data)` instead (same but with data validation & filtering, file upload support).
+     */
+    public function merge(array $data)
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
+
+        $this->setElements($this->getBlueprint()->mergeData($this->toArray(), $data));
+
+        return $this;
+    }
+
+    /**
      * Return media object for the User's avatar.
      *
      * @return ImageMedium|null
+     * @deprecated 1.6 Use ->getAvatarImage() method instead.
      */
     public function getAvatarMedia()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarImage() method instead', E_USER_DEPRECATED);
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarImage() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarImage();
     }
@@ -471,10 +473,11 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      * Return the User's avatar URL
      *
      * @return string
+     * @deprecated 1.6 Use ->getAvatarUrl() method instead.
      */
     public function avatarUrl()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarUrl() method instead', E_USER_DEPRECATED);
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarUrl() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarUrl();
     }
@@ -485,11 +488,11 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      *
      * @param string $action
      * @return bool
-     * @deprecated 1.5 Use authorize() instead.
+     * @deprecated 1.5 Use ->authorize() method instead.
      */
     public function authorise($action)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use authorize() method instead', E_USER_DEPRECATED);
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->authorize() method instead', E_USER_DEPRECATED);
 
         return $this->authorize($action);
     }
@@ -498,7 +501,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      * Implements Countable interface.
      *
      * @return int
-     * @deprecated 1.6 Method makes no sense for users.
+     * @deprecated 1.6 Method makes no sense for user account.
      */
     public function count()
     {
@@ -623,7 +626,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected function doSerialize()
     {
         return [
-            'type' => 'users',
+            'type' => 'accounts',
             'key' => $this->getKey(),
             'elements' => $this->jsonSerialize(),
             'storage' => $this->getStorage()
@@ -637,10 +640,10 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     {
         $grav = Grav::instance();
 
-        /** @var UserCollection $users */
-        $users = $grav['users'];
+        /** @var UserCollection $accounts */
+        $accounts = $grav['accounts'];
 
-        $directory = $users->getFlexDirectory();
+        $directory = $accounts->getFlexDirectory();
         if (!$directory) {
             throw new \InvalidArgumentException('Internal error');
         }

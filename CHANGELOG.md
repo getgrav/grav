@@ -1,6 +1,8 @@
 # v1.6.0-rc.4
 ## mm/dd/2019
 
+1. [](#new)
+    * Grav 1.6: Renamed `$grav['users']` service to `$grav['accounts']`
 1. [](#improved)
     * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
 1. [](#bugfix)

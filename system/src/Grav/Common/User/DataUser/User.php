@@ -92,7 +92,8 @@ class User extends Data implements UserInterface
      */
     public function update(array $data, array $files = [])
     {
-        $this->merge($data);
+        // Note: $this->merge() would cause infinite loop as it calls this method.
+        parent::merge($data);
 
         return $this;
     }
@@ -105,7 +106,7 @@ class User extends Data implements UserInterface
         /** @var CompiledYamlFile $file */
         $file = $this->file();
         if (!$file || !$file->filename()) {
-            user_error(__CLASS__ . ': calling \$user = new ' . __CLASS__ . "() is deprecated since Grav 1.6, use \$grav['users']->load(\$username) or \$grav['users']->load('') instead", E_USER_DEPRECATED);
+            user_error(__CLASS__ . ': calling \$user = new ' . __CLASS__ . "() is deprecated since Grav 1.6, use \$grav['accounts']->load(\$username) or \$grav['accounts']->load('') instead", E_USER_DEPRECATED);
         }
 
         if ($file) {
@@ -190,9 +191,24 @@ class User extends Data implements UserInterface
     }
 
     /**
+     * Merge two configurations together.
+     *
+     * @param array $data
+     * @return $this
+     * @deprecated 1.6 Use `->update($data)` instead (same but with data validation & filtering, file upload support).
+     */
+    public function merge(array $data)
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
+
+        return $this->update($data);
+    }
+
+    /**
      * Return media object for the User's avatar.
      *
      * @return ImageMedium|null
+     * @deprecated 1.6 Use ->getAvatarImage() method instead.
      */
     public function getAvatarMedia()
     {
@@ -205,6 +221,7 @@ class User extends Data implements UserInterface
      * Return the User's avatar URL
      *
      * @return string
+     * @deprecated 1.6 Use ->getAvatarUrl() method instead.
      */
     public function avatarUrl()
     {
@@ -219,9 +236,8 @@ class User extends Data implements UserInterface
      *
      * @param  string $action
      *
-     * @deprecated use authorize()
      * @return bool
-     * @deprecated 1.5 Use $user->authorize() instead.
+     * @deprecated 1.5 Use ->authorize() method instead.
      */
     public function authorise($action)
     {
@@ -234,7 +250,7 @@ class User extends Data implements UserInterface
      * Implements Countable interface.
      *
      * @return int
-     * @deprecated 1.6 Method makes no sense for users.
+     * @deprecated 1.6 Method makes no sense for user account.
      */
     public function count()
     {

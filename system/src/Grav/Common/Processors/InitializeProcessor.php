@@ -46,7 +46,7 @@ class InitializeProcessor extends ProcessorBase
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
         if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
             // TODO: remove in 2.0.
-            $this->container['users'];
+            $this->container['accounts'];
 
             try {
                 $this->container['session']->init();

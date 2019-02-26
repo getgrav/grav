@@ -22,7 +22,7 @@ class PluginsProcessor extends ProcessorBase
     {
         $this->startTimer();
         // TODO: remove in 2.0.
-        $this->container['users'];
+        $this->container['accounts'];
         $this->container['plugins']->init();
         $this->container->fireEvent('onPluginsInitialized');
         $this->stopTimer();

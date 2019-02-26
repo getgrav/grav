@@ -21,20 +21,26 @@ use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 
-class UserServiceProvider implements ServiceProviderInterface
+class AccountsServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container['users'] = function (Container $container) {
+        $container['accounts'] = function (Container $container) {
             if ($container['config']->get('system.accounts.type') === 'flex') {
-                return $this->flexUsers($container);
+                return $this->flexAccounts($container);
             }
 
-            return $this->dataUsers($container);
+            return $this->dataAccounts($container);
         };
+
+        $container['users'] = $container->factory(function (Container $container) {
+            user_error('Grav::instance()[\'users\'] is deprecated since Grav 1.6, use Grav::instance()[\'accounts\'] instead', E_USER_DEPRECATED);
+
+            return $container['accounts'];
+        });
     }
 
-    protected function dataUsers(Container $container)
+    protected function dataAccounts(Container $container)
     {
         define('GRAV_USER_INSTANCE', 'DATA');
 
@@ -42,7 +48,7 @@ class UserServiceProvider implements ServiceProviderInterface
         return new DataUser\UserCollection(User::class);
     }
 
-    protected function flexUsers(Container $container)
+    protected function flexAccounts(Container $container)
     {
         define('GRAV_USER_INSTANCE', 'FLEX');
 
@@ -59,7 +65,7 @@ class UserServiceProvider implements ServiceProviderInterface
             ]
         ] + ($config->get('plugins.flex-objects.object') ?: []);
 
-        $directory = new FlexDirectory('users', 'blueprints://user/users.yaml', $options);
+        $directory = new FlexDirectory('accounts', 'blueprints://user/accounts.yaml', $options);
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $container['events'];

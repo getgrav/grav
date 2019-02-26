@@ -23,7 +23,7 @@ config:
 
     menu:
       list:
-        route: /users
-        title: Users
+        route: '/accounts'
+        title: Accounts
         icon: fa-users
-        authorize: ['admin.users', 'admin.super']
+        authorize: ['admin.users', 'admin.accounts', 'admin.super']
