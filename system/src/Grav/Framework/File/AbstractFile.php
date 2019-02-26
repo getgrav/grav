@@ -199,8 +199,13 @@ class AbstractFile implements FileInterface
                 throw new \RuntimeException("Opening file for writing failed on error {$error['message']}");
             }
         }
+
         $lock = $block ? LOCK_EX : LOCK_EX | LOCK_NB;
-        return $this->locked = $this->handle ? flock($this->handle, $lock) : false;
+
+        // Some filesystems do not support file locks, only fail if another process holds the lock.
+        $this->locked = flock($this->handle, $lock, $wouldblock) || !$wouldblock;
+
+        return $this->locked;
     }
 
     /**
@@ -213,10 +218,12 @@ class AbstractFile implements FileInterface
         if (!$this->handle) {
             return false;
         }
+
         if ($this->locked) {
             flock($this->handle, LOCK_UN);
             $this->locked = false;
         }
+
         fclose($this->handle);
         $this->handle = null;
 
@@ -275,27 +282,24 @@ class AbstractFile implements FileInterface
      */
     public function save($data): void
     {
-        $lock = false;
-        if (!$this->locked) {
-            // Obtain blocking lock or fail.
-            if (!$this->lock()) {
-                throw new \RuntimeException('Obtaining write lock failed on file: ' . $this->filepath);
-            }
-            $lock = true;
+        $filepath = $this->filepath;
+        $dir = $this->getPath();
+
+        // Create file with a temporary name and rename it to make the save action atomic.
+        $tmp = tempnam($dir, basename($filepath));
+        if ($tmp && @file_put_contents($tmp, $data) && @rename($tmp, $filepath)) {
+            @chmod($filepath, 0666 & ~umask());
+        } elseif ($tmp) {
+            @unlink($tmp);
+            $tmp = false;
         }
 
-        // As we are using non-truncating locking, make sure that the file is empty before writing.
-        if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, $data) === false) {
-            $this->unlock();
-            throw new \RuntimeException('Saving file failed: ' . $this->filepath);
-        }
-
-        if ($lock) {
-            $this->unlock();
+        if ($tmp === false) {
+            throw new \RuntimeException('Failed to save file ' . $filepath);
         }
 
         // Touch the directory as well, thus marking it modified.
-        @touch($this->getPath());
+        @touch($dir);
     }
 
     /**
