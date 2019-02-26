@@ -5,7 +5,7 @@
     * Grav 1.6: Renamed `$grav['users']` service to `$grav['accounts']`
 1. [](#improved)
     * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
-    * Improved `File::save()` not to use file lock, but a temporary file
+    * Improved `File::save()` to use a temporary file if file isn't locked
 1. [](#bugfix)
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found
