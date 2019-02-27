@@ -35,7 +35,7 @@ class BackupCommand extends ConsoleCommand
             ->addArgument(
                 'id',
                 InputArgument::OPTIONAL,
-                'The ID of the backup to perform without prompting'
+                'The ID of the backup profile to perform without prompting'
 
             )
             ->setDescription('Creates a backup of the Grav instance')

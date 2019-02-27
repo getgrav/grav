@@ -194,7 +194,7 @@ class Backups
         }
 
         // Log the backup
-        Grav::instance()['log']->error('Backup Created: ' . $destination);
+        Grav::instance()['log']->notice('Backup Created: ' . $destination);
 
         // Fire Finished event
         Grav::instance()->fireEvent('onBackupFinished', new Event(['backup' => $destination]));
