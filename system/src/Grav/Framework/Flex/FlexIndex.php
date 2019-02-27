@@ -558,6 +558,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         static::onChanges($index, $added, $updated, $removed);
 
         $indexFile->save(['count' => \count($index), 'index' => $index]);
+        $indexFile->unlock();
 
         return $index;
     }
