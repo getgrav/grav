@@ -13,6 +13,7 @@ namespace Grav\Framework\Flex;
 
 use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Object\ObjectCollection;
 
 /**
  * Class Flex
@@ -68,23 +69,40 @@ class Flex implements \Countable
     }
 
     /**
+     * @param string $type
+     * @return bool
+     */
+    public function hasDirectory(string $type): bool
+    {
+        return isset($this->types[$type]);
+    }
+
+    /**
+     * @param array|string[] $types
+     * @param bool $keepMissing
      * @return array|FlexDirectory[]
      */
-    public function getDirectories(): array
+    public function getDirectories(array $types = null, bool $keepMissing = false): array
     {
-        return $this->types;
+        if ($types === null) {
+            return $this->types;
+        }
+
+        // Return the directories in the given order.
+        $directories = [];
+        foreach ($types as $type) {
+            $directories = $this->types[$type] ?? null;
+        }
+
+        return $keepMissing ? $directories : array_filter($directories);
     }
 
     /**
      * @param string|null $type
      * @return FlexDirectory|null
      */
-    public function getDirectory(string $type = null): ?FlexDirectory
+    public function getDirectory(string $type): ?FlexDirectory
     {
-        if (!$type) {
-            return reset($this->types) ?: null;
-        }
-
         return $this->types[$type] ?? null;
     }
 
@@ -102,14 +120,117 @@ class Flex implements \Countable
     }
 
     /**
-     * @param string $type
+     * @param array $keys
+     * @param array $options            In addition to the options in getObjects(), following options can be passed:
+     *                                  collection_class:   Class to be used to create the collection. Defaults to ObjectCollection.
+     * @return CollectionInterface
+     * @throws \RuntimeException
+     */
+    public function getMixedCollection(array $keys, array $options = []): CollectionInterface
+    {
+        $collectionClass = $options['collection_class'] ?? ObjectCollection::class;
+        if (!class_exists($collectionClass)) {
+            throw new \RuntimeException(sprintf('Cannot create collection: Class %s does not exist', $collectionClass));
+        }
+
+        $objects = $this->getObjects($keys, $options);
+
+        return new $collectionClass($objects);
+    }
+
+    /**
+     * @param array $keys
+     * @param array $options    Following optional options can be passed:
+     *                          types:          List of allowed types.
+     *                          type:           Allowed type if types isn't defined, otherwise acts as default_type.
+     *                          default_type:   Set default type for objects given without type (only used if key_field isn't set).
+     *                          keep_missing:   Set to true if you want to return missing objects as null.
+     *                          key_field:      Key field which is used to match the objects.
+     * @return array
+     */
+    public function getObjects(array $keys, array $options = []): array
+    {
+        $type = $options['type'] ?? null;
+        $defaultType = $options['default_type'] ?? $type ?? null;
+        $keyField = $options['key_field'] ?? 'flex_key';
+
+        // Prepare empty result lists for all requested Flex types.
+        $types = $options['types'] ?? (array)$type ?: null;
+        if ($types) {
+            $types = array_fill_keys($types, []);
+        }
+        $strict = isset($types);
+
+        if ($keyField === 'flex_key') {
+            // We need to split Flex key lookups into individual directories.
+            $undefined = [];
+            $keyField = 'storage_key';
+
+            foreach ($keys as $key) {
+                // Normalize key and type using fallback to default type if it was set.
+                [$key, $type] = $this->resolveKeyAndType($key, $defaultType);
+
+                if ($type === '') {
+                    // Add keys which are not associated to any Flex type. They will be included to every Flex type.
+                    $undefined[] = $key;
+                } elseif (!$strict || isset($types[$type])) {
+                    // Collect keys by their Flex type. If allowed types are defined, only include values from those types.
+                    $types[$type][] = $key;
+                }
+            }
+        } else {
+            // We are using a specific key field, make every key undefined.
+            $undefined = $keys;
+        }
+
+        if (!$types) {
+            return [];
+        }
+
+        $list = [[]];
+        foreach ($types as $type => $typeKeys) {
+            // Also remember to look up keys from undefined Flex types.
+            $lookupKeys = $undefined ? array_merge($typeKeys, $undefined) : $typeKeys;
+            $collection = $this->getCollection($type, $lookupKeys, $keyField);
+
+            $list[] = $collection ? $collection->toArray() : [];
+        }
+
+        // Merge objects from individual types back together.
+        $list = array_merge(...$list);
+
+        // Use the original key ordering.
+        $list = array_replace(array_fill_keys($keys, null), $list);
+
+        // Remove missing objects if not asked to keep them.
+        if (empty($option['keep_missing'])) {
+            $list = array_filter($list);
+        }
+
+        return $list;
+    }
+
+    /**
      * @param string $key
+     * @param string|null $type
      * @param string|null $keyField
      * @return FlexObjectInterface|null
      */
-    public function getObject(string $type, string $key, string $keyField = null): ?FlexObjectInterface
+    public function getObject(string $key, string $type = null, string $keyField = null): ?FlexObjectInterface
     {
-        $directory = $type ? $this->getDirectory($type) : null;
+        if (null === $type && null === $keyField) {
+            // Special handling for quick Flex key lookups.
+            $keyField = 'storage_key';
+            [$type, $key] = $this->resolveKeyAndType($key, $type);
+        } else {
+            $type = $this->resolveType($type);
+        }
+
+        if ($type === '' || $key === '') {
+            return null;
+        }
+
+        $directory = $this->getDirectory($type);
 
         return $directory ? $directory->getObject($key, $keyField) : null;
     }
@@ -117,8 +238,28 @@ class Flex implements \Countable
     /**
      * @return int
      */
-    public function count() : int
+    public function count(): int
     {
         return \count($this->types);
+    }
+
+    protected function resolveKeyAndType(string $key, string $type = null): array
+    {
+        if (strpos($key, ':') !== false) {
+            [$type, $key] = explode(':',  $key, 2);
+
+            $type = $this->resolveType($type);
+        }
+
+        return [$key, $type];
+    }
+
+    protected function resolveType(string $type = null): string
+    {
+        if (null !== $type && strpos($type, '.') !== false) {
+            return preg_replace('|\.obj$|', '', $type);
+        }
+
+        return $type ?? '';
     }
 }
