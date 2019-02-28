@@ -68,6 +68,15 @@ class Flex implements \Countable
     }
 
     /**
+     * @param string $type
+     * @return bool
+     */
+    public function hasDirectory(string $type): bool
+    {
+        return isset($this->types[$type]);
+    }
+
+    /**
      * @return array|FlexDirectory[]
      */
     public function getDirectories(): array
@@ -79,12 +88,8 @@ class Flex implements \Countable
      * @param string|null $type
      * @return FlexDirectory|null
      */
-    public function getDirectory(string $type = null): ?FlexDirectory
+    public function getDirectory(string $type): ?FlexDirectory
     {
-        if (!$type) {
-            return reset($this->types) ?: null;
-        }
-
         return $this->types[$type] ?? null;
     }
 
@@ -103,11 +108,11 @@ class Flex implements \Countable
 
     /**
      * @param string $type
-     * @param string $key
+     * @param string|null $key
      * @param string|null $keyField
      * @return FlexObjectInterface|null
      */
-    public function getObject(string $type, string $key, string $keyField = null): ?FlexObjectInterface
+    public function getObject(string $type, string $key = null, string $keyField = null): ?FlexObjectInterface
     {
         $directory = $type ? $this->getDirectory($type) : null;
 

@@ -285,6 +285,10 @@ class AbstractFile implements FileInterface
         $filepath = $this->filepath;
         $dir = $this->getPath();
 
+        if (!$this->mkdir($dir)) {
+            throw new \RuntimeException('Creating directory failed for ' . $filepath);
+        }
+
         if ($this->handle) {
             $tmp = true;
             // As we are using non-truncating locking, make sure that the file is empty before writing.
