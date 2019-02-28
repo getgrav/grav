@@ -14,6 +14,7 @@
     * Grav 1.6: Fixed `FlexObject::update()` removing fields on save
     * Fixed `mkdir(...)` race condition
     * Fixed `Obtaining write lock failed on file...`
+    * Fixed potential undefined property in `onPageNotFound` event handling
 
 # v1.6.0-rc.3
 ## 02/18/2019
