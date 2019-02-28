@@ -725,23 +725,31 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         // One time check and assignment of admin provided tu filter
         if ($admin_call == null) {
             $filters = $twig->getFilters();
-            $admin_translate = $filters['tu'] ?? false;
 
-            if ($admin_translate) {
-                list($class, $method) = $admin_translate->getCallable();
-                $admin_call = [$class->getName(),$method];
+            if (isset($filters['tu'])) {
+                $admin_call = true;
             } else {
                 $admin_call = false;
             }
         }
 
-        // shift of the environment
+        // shift off the environment
         $args = func_get_args();
         array_shift($args);
 
         // If admin and tu filter provided, use it
-        if (is_array($admin_call)) {
-            return call_user_func_array($admin_call, $args);
+        if ($admin_call) {
+            $numargs = count($args);
+            $lang = null;
+
+            if (($numargs === 3 && is_array($args[1])) || ($numargs === 2 && !is_array($args[1]))) {
+                $lang = array_pop($args);
+            } elseif ($numargs === 2 && is_array($args[1])) {
+                $subs = array_pop($args);
+                $args = array_merge($args, $subs);
+            }
+
+            return $this->grav['admin']->translate($args, $lang);
         }
 
         // else use the default grav translate functionality
