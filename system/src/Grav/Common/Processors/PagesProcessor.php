@@ -36,7 +36,9 @@ class PagesProcessor extends ProcessorBase
 
         if (!$page->routable()) {
             // If no page found, fire event
-            $event = $this->container->fireEvent('onPageNotFound', new Event(['page' => $page]));
+            $event = new Event(['page' => $page]);
+            $event->page = null;
+            $event = $this->container->fireEvent('onPageNotFound', $event);
 
             if (isset($event->page)) {
                 unset ($this->container['page']);
