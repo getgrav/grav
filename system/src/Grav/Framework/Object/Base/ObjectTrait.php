@@ -57,6 +57,14 @@ trait ObjectTrait
     }
 
     /**
+     * @return bool
+     */
+    public function hasKey()
+    {
+        return !empty($this->_key);
+    }
+
+    /**
      * @param string $property      Object property name.
      * @return bool                 True if property has been defined (can be null).
      */

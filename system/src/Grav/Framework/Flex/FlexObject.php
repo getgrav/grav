@@ -481,6 +481,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $storageKey = key($result);
         if ($value && $storageKey) {
             $this->setStorageKey($storageKey);
+            if (!$this->hasKey()) {
+                $this->setKey($storageKey);
+            }
         }
 
         if (method_exists($this, 'saveUpdatedMedia')) {
