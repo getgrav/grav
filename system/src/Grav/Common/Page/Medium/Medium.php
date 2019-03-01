@@ -16,6 +16,12 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Utils;
 
+/**
+ * Class Medium
+ * @package Grav\Common\Page\Medium
+ *
+ * @property string $mime
+ */
 class Medium extends Data implements RenderableInterface, MediaObjectInterface
 {
     use ParsedownHtmlTrait;
@@ -135,6 +141,20 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
         }
 
         return filemtime($path) ?: null;
+    }
+
+    /**
+     * @return int
+     */
+    public function size()
+    {
+        $path = $this->get('filepath');
+
+        if (!file_exists($path)) {
+            return 0;
+        }
+
+        return filesize($path) ?: 0;
     }
 
     /**

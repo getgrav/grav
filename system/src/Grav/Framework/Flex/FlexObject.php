@@ -685,7 +685,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $this->_storage['storage_timestamp'] = (int)$elements['storage_timestamp'];
         }
 
-        unset ($elements['storage_key'], $elements['storage_timestamp']);
+        unset ($elements['storage_key'], $elements['storage_timestamp'], $elements['_post_entries_save']);
     }
 
     /**
