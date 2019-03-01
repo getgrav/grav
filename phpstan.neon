@@ -1,0 +1,18 @@
+includes:
+	#- vendor/phpstan/phpstan-strict-rules/rules.neon
+parameters:
+	fileExtensions:
+		- php
+		- dist
+	reportUnmatchedIgnoredErrors: true
+	ignoreErrors:
+		# Those errors can be ignored (they depends on installed extensions)
+		-
+			message: '#Instantiated class Memcache not found#'
+			path: system/src/Grav/Common/Cache.php
+		-
+			message: '#Instantiated class Redis not found#'
+			path: system/src/Grav/Common/Cache.php
+		-
+			message: '#Instantiated class RedisException not found#'
+			path: system/src/Grav/Common/Cache.php

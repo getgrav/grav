@@ -53,6 +53,8 @@
     },
     "require-dev": {
         "codeception/codeception": "^2.4",
+        "phpstan/phpstan": "^0.11",
+        "phpstan/phpstan-strict-rules": "^0.11",
         "phpunit/php-code-coverage": "~6.0",
         "fzaninotto/faker": "^1.8",
         "victorjonsson/markdowndocs": "dev-master"
@@ -80,6 +82,7 @@
     },
     "scripts": {
         "post-create-project-cmd": "bin/grav install",
+        "phpstan": "vendor/bin/phpstan analyse -l 0 -c phpstan.neon system/src",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"
     },
