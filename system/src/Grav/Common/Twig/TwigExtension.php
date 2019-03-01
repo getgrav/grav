@@ -134,7 +134,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('array_key_exists', 'array_key_exists'),
             new \Twig_SimpleFunction('array_unique', 'array_unique'),
             new \Twig_SimpleFunction('array_intersect', [$this, 'arrayIntersectFunc']),
-            new \Twig_simpleFunction('authorize', [$this, 'authorize']),
+            new \Twig_SimpleFunction('authorize', [$this, 'authorize']),
             new \Twig_SimpleFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new \Twig_SimpleFunction('vardump', [$this, 'vardumpFunc']),
@@ -145,7 +145,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('gist', [$this, 'gistFunc']),
             new \Twig_SimpleFunction('nonce_field', [$this, 'nonceFieldFunc']),
             new \Twig_SimpleFunction('pathinfo', 'pathinfo'),
-            new \Twig_simpleFunction('random_string', [$this, 'randomStringFunc']),
+            new \Twig_SimpleFunction('random_string', [$this, 'randomStringFunc']),
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFunction('regex_filter', [$this, 'regexFilter']),
@@ -170,13 +170,13 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
 
             // Translations
-            new \Twig_simpleFunction('t', [$this, 'translate'], ['needs_environment' => true]),
-            new \Twig_simpleFunction('tl', [$this, 'translateLanguage']),
-            new \Twig_simpleFunction('ta', [$this, 'translateArray']),
+            new \Twig_SimpleFunction('t', [$this, 'translate'], ['needs_environment' => true]),
+            new \Twig_SimpleFunction('tl', [$this, 'translateLanguage']),
+            new \Twig_SimpleFunction('ta', [$this, 'translateArray']),
 
             // Object Types
-            new \Twig_simpleFunction('get_type', [$this, 'getTypeFunc']),
-            new \Twig_simpleFunction('of_type', [$this, 'ofTypeFunc'])
+            new \Twig_SimpleFunction('get_type', [$this, 'getTypeFunc']),
+            new \Twig_SimpleFunction('of_type', [$this, 'ofTypeFunc'])
         ];
     }
 
