@@ -5,7 +5,7 @@ parameters:
         - php
         - dist
     excludes_analyse:
-        - system/src/Grav/Common/Errors/Resources/*.html.php
+        - system/src/Grav/Common/Errors/Resources/layout.html.php
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
         # Those errors can be ignored (they depends on installed extensions)
