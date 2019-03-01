@@ -23,7 +23,7 @@ use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
 use Grav\Framework\Object\ObjectIndex;
 use Monolog\Logger;
-use PSR\SimpleCache\InvalidArgumentException;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
 {
