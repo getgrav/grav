@@ -720,19 +720,12 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function translate(\Twig_Environment $twig)
     {
-        static $admin_call;
-
-        // One time check and assignment of admin provided tu filter
-        if ($admin_call == null) {
-            $admin_call = isset($this->grav['admin']);
-        }
-
         // shift off the environment
         $args = func_get_args();
         array_shift($args);
 
         // If admin and tu filter provided, use it
-        if ($admin_call) {
+        if (isset($this->grav['admin'])) {
             $numargs = count($args);
             $lang = null;
 
