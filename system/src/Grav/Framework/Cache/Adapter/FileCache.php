@@ -139,7 +139,7 @@ class FileCache extends AbstractCache
      * @param string $directory
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    private function init($namespace, $directory)
+    protected function init($namespace, $directory)
     {
         if (!isset($directory[0])) {
             $directory = sys_get_temp_dir() . '/grav-cache';
