@@ -8,6 +8,7 @@
 1. [](#improved)
     * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
     * Improved `File::save()` to use a temporary file if file isn't locked
+    * Improved `|t` filter to better support admin `|tu` style filter if in admin
 1. [](#bugfix)
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found

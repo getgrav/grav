@@ -724,13 +724,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         // One time check and assignment of admin provided tu filter
         if ($admin_call == null) {
-            $filters = $twig->getFilters();
-
-            if (isset($filters['tu'])) {
-                $admin_call = true;
-            } else {
-                $admin_call = false;
-            }
+            $admin_call = isset($this->grav['admin']);
         }
 
         // shift off the environment
