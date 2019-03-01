@@ -17,6 +17,7 @@ class CachedCollection extends Iterator {
 
     public function __construct($items)
     {
+        parent::__construct();
         // local cache to speed things up
         if (!isset(self::$cache[get_called_class() . __METHOD__])) {
             self::$cache[get_called_class() . __METHOD__] = $items;
