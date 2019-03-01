@@ -25,7 +25,7 @@ form:
             options:
                 space: Maximum Backup Space
                 number: Maximum Number of Backups
-                time: maximum Rention Time
+                time: maximum Retention Time
             validate:
                 required: true
 
@@ -55,7 +55,7 @@ form:
 
         purge.max_backups_time:
             type: number
-            label: Maximum Rention Time
+            label: Maximum Retention Time
             append: in Days
             size: x-small
             default: 365
