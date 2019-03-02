@@ -82,7 +82,7 @@
     },
     "scripts": {
         "post-create-project-cmd": "bin/grav install",
-        "phpstan": "vendor/bin/phpstan analyse -l 0 -c phpstan.neon system/src",
+        "phpstan": "vendor/bin/phpstan analyse -l 0 -c ./tests/phpstan/phpstan.neon system/src",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"
     },
