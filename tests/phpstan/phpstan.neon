@@ -6,9 +6,16 @@ parameters:
         - dist
     excludes_analyse:
         - system/src/Grav/Common/Errors/Resources/layout.html.php
+        # This to prevent LogicException in User.php
+        # as phpstan does not accept this in ignoreError section
+        # This can be removed > 1.6 when deprecation is removed
+        # or safer approach
+        - system/src/Grav/Common/User/User.php
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
+
         # Those errors can be ignored (they depends on installed extensions)
+
         -
             message: '#Instantiated class Memcache not found#'
             path: system/src/Grav/Common/Cache.php
@@ -18,3 +25,13 @@ parameters:
         -
             message: '#Instantiated class RedisException not found#'
             path: system/src/Grav/Common/Cache.php
+
+        # Those errors are about plugins
+
+        -
+            message: '#Instantiated class RedisException not found#'
+            path: system/src/Grav/Common/Cache.php
+
+
+
+
