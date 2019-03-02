@@ -14,6 +14,22 @@ use Grav\Common\Utils;
 
 class Languages extends Data
 {
+    /**
+     * @var string|null
+     */
+    protected $checksum;
+
+    /**
+     * @var string|null
+     */
+    protected $modified;
+
+    /**
+     * @var string|null
+     */
+    protected $timestamp;
+
+
     public function checksum($checksum = null)
     {
         if ($checksum !== null) {
