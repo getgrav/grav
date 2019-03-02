@@ -17,6 +17,9 @@ class Language
 {
     protected $grav;
     protected $enabled = true;
+    /**
+     * @var array
+     */
     protected $languages = [];
     protected $page_extensions = [];
     protected $fallback_languages = [];
@@ -78,7 +81,7 @@ class Language
     /**
      * Sets the current supported languages manually
      *
-     * @param $langs
+     * @param array $langs
      */
     public function setLanguages($langs)
     {
@@ -487,6 +490,8 @@ class Language
             } else {
                 return $accept_langs;
             }
+
+            $langs = [];
 
             foreach (explode(',', $accept_langs) as $k => $pref) {
                 // split $pref again by ';q='
