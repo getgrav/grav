@@ -11,9 +11,16 @@ parameters:
     ignoreErrors:
 
         # Errors that needs some more thinking (design...)
+
+        # Needed: full coverage (probably with admin plugin...) then redesign constructor
         -
             message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
             path: system/src/Grav/Common/GPM/Remote/GravCore.php
+
+        # Needed: psr-17 (http-factories) support (through decorator or further investigations)
+        -
+            message: '#Call to an undefined static method Grav\\Framework\\Psr7\\Stream::create\(\).#'
+            path: system/src/Grav/Framework/Form/FormFlashFile.php
 
 
         # Those errors are about plugins (need to find a better solution)
