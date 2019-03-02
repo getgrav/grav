@@ -13,6 +13,9 @@ use Grav\Common\Data\Data;
 
 class Package {
 
+    /**
+     * @var Data
+     */
     protected $data;
 
     public function __construct(Data $package, $type = null)
@@ -24,6 +27,9 @@ class Package {
         }
     }
 
+    /**
+     * @return Data
+     */
     public function getData()
     {
         return $this->data;
@@ -54,6 +60,9 @@ class Package {
         return $this->data->toJson();
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return $this->data->toArray();
