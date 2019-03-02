@@ -4,15 +4,23 @@ parameters:
     fileExtensions:
         - php
         - dist
+    bootstrap: tests/phpstan/phpstan-bootstrap.php
     excludes_analyse:
         - system/src/Grav/Common/Errors/Resources/layout.html.php
-        # This to prevent LogicException in User.php
-        # as phpstan does not accept this in ignoreError section
-        # This can be removed > 1.6 when deprecation is removed
-        # or safer approach
-        - system/src/Grav/Common/User/User.php
     reportUnmatchedIgnoredErrors: true
     ignoreErrors:
+
+        # Errors that needs some more thinking (design...)
+        -
+            message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
+            path: system/src/Grav/Common/GPM/Remote/GravCore.php
+
+
+        # Those errors are about plugins (need to find a better solution)
+
+        -
+            message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils.#'
+            path: system/src/Grav/Common/Scheduler/Job.php
 
         # Those errors can be ignored (they depends on installed extensions)
 
@@ -26,11 +34,6 @@ parameters:
             message: '#Instantiated class RedisException not found#'
             path: system/src/Grav/Common/Cache.php
 
-        # Those errors are about plugins
-
-        -
-            message: '#Instantiated class RedisException not found#'
-            path: system/src/Grav/Common/Cache.php
 
 
 
