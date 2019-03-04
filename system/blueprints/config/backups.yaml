@@ -19,7 +19,7 @@ form:
 
         purge.trigger:
             type: select
-            label: Backup Storage Purge Trigger
+            label: PLUGIN_ADMIN.BACKUPS_STORAGE_PURGE_TRIGGER
             size: medium
             default: space
             options:
@@ -31,10 +31,10 @@ form:
 
         purge.max_backups_count:
             type: number
-            label: Maximum Number of Backups
+            label: PLUGIN_ADMIN.BACKUPS_MAX_COUNT
             default: 25
             size: x-small
-            help: "0 is unlimited"
+            help: PLUGIN_ADMIN.BACKUPS_MAX_COUNT
             validate:
                 min: 0
                 type: number
@@ -43,7 +43,7 @@ form:
 
         purge.max_backups_space:
             type: number
-            label: Maximum Backups Space
+            label: PLUGIN_ADMIN.BACKUPS_MAX_SPACE
             append: in GB
             size: x-small
             default: 5
@@ -55,8 +55,8 @@ form:
 
         purge.max_backups_time:
             type: number
-            label: Maximum Retention Time
-            append: in Days
+            label: PLUGIN_ADMIN.BACKUPS_MAX_RETENTION_TIME
+            append: PLUGIN_ADMIN.BACKUPS_MAX_RETENTION_TIME_APPEND
             size: x-small
             default: 365
             validate:
@@ -80,35 +80,35 @@ form:
           fields:
             .name:
               type: text
-              label: Name
-              placeholder: 'Clear Backup Name'
+              label: PLUGIN_ADMIN.NAME
+              placeholder: PLUGIN_ADMIN.BACKUPS_PROFILE_NAME
               validate:
                   max: 20
                   message: 'Name must be less than 20 characters'
                   required: true
             .root:
               type: text
-              label: Root Folder
-              help: Can be an absolute path or a stream
+              label: PLUGIN_ADMIN.BACKUPS_PROFILE_ROOT_FOLDER
+              help: PLUGIN_ADMIN.BACKUPS_PROFILE_ROOT_FOLDER_HELP
               placeholder: '/'
               default: '/'
               validate:
                   required: true
             .exclude_paths:
               type: textarea
-              label: Exclude Paths
+              label: PLUGIN_ADMIN.BACKUPS_PROFILE_EXCLUDE_PATHS
               rows: 5
               placeholder: "/backup\r/cache\r/images\r/logs\r/tmp"
-              help: Absolute paths to exclude, one per line
+              help: PLUGIN_ADMIN.BACKUPS_PROFILE_EXCLUDE_PATHS_HELP
             .exclude_files:
                 type: textarea
-                label: Exclude Files
+                label: PLUGIN_ADMIN.BACKUPS_PROFILE_EXCLUDE_FILES
                 rows: 5
                 placeholder: ".DS_Store\r.git\r.svn\r.hg\r.idea\r.vscode\rnode_modules"
-                help: Specfic Files or Folders to exclude, one per line
+                help: PLUGIN_ADMIN.BACKUPS_PROFILE_EXCLUDE_FILES_HELP
             .schedule:
                 type: toggle
-                label: Enable Scheduled Job
+                label: PLUGIN_ADMIN.BACKUPS_PROFILE_SCHEDULE
                 highlight: 1
                 default: 1
                 options:
@@ -118,7 +118,7 @@ form:
                     type: bool
             .schedule_at:
                 type: cron
-                label: Run Scheduled Job
+                label: PLUGIN_ADMIN.BACKUPS_PROFILE_SCHEDULE_AT
                 default: '* 3 * * *'
                 validate:
                     required: true

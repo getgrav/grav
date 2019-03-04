@@ -38,37 +38,37 @@ form:
                   message: 'ID must be lowercase with dashes/underscores only and less than 20 characters'
             .command:
               type: text
-              label: Command
+              label: PLUGIN_ADMIN.COMMAND
               placeholder: 'cd ~;ls -lah;'
               validate:
                   required: true
             .args:
               type: text
-              label: Extra Arguments
+              label: PLUGIN_ADMIN.EXTRA_ARGUMENTS
             .at:
               type: cron
-              label: Run At
-              help: 'Cron formatted "at" syntax'
+              label: PLUGIN_ADMIN.SCHEDULER_RUNAT
+              help: PLUGIN_ADMIN.SCHEDULER_RUNAT_HELP
               placeholder: '* * * * *'
               validate:
                   required: true
             .output:
               type: text
-              label: Output File
-              help: 'The path/filename of the output file (from the root of the Grav installation)'
+              label: PLUGIN_ADMIN.SCHEDULER_OUTPUT
+              help: PLUGIN_ADMIN.SCHEDULER_OUTPUT_HELP
               placeholder: 'logs/ls-cron.out'
             .output_mode:
               type: select
-              label: Output Type
-              help: 'Either append to the same file each run, or overwrite the file with each run'
+              label: PLUGIN_ADMIN.SCHEDULER_OUTPUT_TYPE
+              help: PLUGIN_ADMIN.SCHEDULER_OUTPUT_TYPE_HELP
               default: append
               options:
                   append: Append
                   overwrite: Overwrite
             .email:
                 type: text
-                label: Email
-                help: 'Email to send output to. NOTE: requires output file to be set'
+                label: PLUGIN_ADMIN.SCHEDULER_EMAIL
+                help: PLUGIN_ADMIN.SCHEDULER_EMAIL_HELP
                 placeholder: 'notifications@yoursite.com'
 
 
