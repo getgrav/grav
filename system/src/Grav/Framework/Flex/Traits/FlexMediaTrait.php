@@ -72,9 +72,11 @@ trait FlexMediaTrait
                     $media->add($filename, MediumFactory::fromUploadedFile($upload));
                 }
             }
+
+            $media->setTimestamps();
         }
 
-        return $this->media->setTimestamps();
+        return $this->media;
     }
 
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
@@ -307,6 +309,17 @@ trait FlexMediaTrait
         $file = $uri && $locator->isStream($uri) ? $locator->findResource($uri) : $uri;
 
         return $file && file_exists($file) ? MediumFactory::fromFile($file) : null;
+    }
+
+
+    protected function offsetLoad_media()
+    {
+        return $this->getMedia();
+    }
+
+    protected function offsetSerialize_media()
+    {
+        return null;
     }
 
     abstract public function getFlexDirectory(): FlexDirectory;
