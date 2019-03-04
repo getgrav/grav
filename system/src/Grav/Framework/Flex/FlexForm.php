@@ -174,14 +174,14 @@ class FlexForm implements FlexFormInterface
         return $object->route('/edit.json/task:media.delete');
     }
 
-    public function getMediaTaskRoute(): string
+    public function getMediaTaskRoute(array $params = [], $extension = null): string
     {
         $grav = Grav::instance();
         /** @var Flex $flex */
         $flex = $grav['flex_objects'];
 
         if (method_exists($flex, 'adminRoute')) {
-            return $flex->adminRoute($this->getObject()) . '.json';
+            return $flex->adminRoute($this->getObject(), $params, $extension ?? 'json');
         }
 
         return '';
