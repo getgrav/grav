@@ -58,7 +58,6 @@ $grav['users'];
 $grav['plugins']->init();
 $grav['themes']->init();
 
-
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
 $pattern = '([A-Z]\w+Command\.php)';
 
@@ -73,11 +72,25 @@ $argv = array_merge([$bin], $argv);
 
 $input = new ArgvInput($argv);
 
+/** @var \Grav\Common\Data\Data $plugin */
 $plugin = $grav['plugins']->get($name);
 
 $output = new ConsoleOutput();
 $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, array('bold')));
 $output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
+
+if (is_null($plugin)) {
+    $output->writeln('');
+    $output->writeln("<red>$name plugin not found</red>");
+    die;
+}
+
+if (!$plugin->enabled) {
+    $output->writeln('');
+    $output->writeln("<red>$name not enabled</red>");
+    die;
+}
+
 
 if (!$name) {
     $output->writeln('');

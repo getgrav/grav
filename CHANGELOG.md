@@ -10,6 +10,7 @@
     * Improved `File::save()` to use a temporary file if file isn't locked
     * Improved `|t` filter to better support admin `|tu` style filter if in admin
     * Update all classes to rely on `PageInterface` instead of `Page` class
+    * Better error checking in `bin/plugin` for existence and enabled
 1. [](#bugfix)
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found
