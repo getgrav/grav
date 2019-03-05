@@ -18,6 +18,7 @@ use Grav\Common\Utils;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
+use RocketTheme\Toolbox\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Backups
@@ -201,6 +202,14 @@ class Backups
 
         // Purge anything required
         static::purge();
+
+        // Log
+        $log = JsonFile::instance(Grav::instance()['locator']->findResource("log://backup.log", true, true));
+        $log->content([
+            'time'     => time(),
+            'location' => $destination
+        ]);
+        $log->save();
 
         return $destination;
     }
