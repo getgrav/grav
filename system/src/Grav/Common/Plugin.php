@@ -10,7 +10,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Data\Data;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
@@ -258,7 +258,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Merge global and page configurations.
      *
-     * @param Page $page The page to merge the configurations with the
+     * @param PageInterface $page The page to merge the configurations with the
      *                       plugin settings.
      * @param mixed $deep false = shallow|true = recursive|merge = recursive+unique
      * @param array $params Array of additional configuration options to
@@ -267,7 +267,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @return Data
      */
-    protected function mergeConfig(Page $page, $deep = false, $params = [], $type = 'plugins')
+    protected function mergeConfig(PageInterface $page, $deep = false, $params = [], $type = 'plugins')
     {
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';

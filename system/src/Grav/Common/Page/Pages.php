@@ -16,6 +16,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -33,7 +34,7 @@ class Pages
     protected $grav;
 
     /**
-     * @var array|Page[]
+     * @var array|PageInterface[]
      */
     protected $instances;
 
@@ -261,7 +262,7 @@ class Pages
     /**
      * Returns a list of all pages.
      *
-     * @return array|Page[]
+     * @return array|PageInterface[]
      */
     public function instances()
     {
@@ -281,10 +282,10 @@ class Pages
     /**
      * Adds a page and assigns a route to it.
      *
-     * @param Page   $page  Page to be added.
+     * @param PageInterface   $page  Page to be added.
      * @param string $route Optional route (uses route from the object if not set).
      */
-    public function addPage(Page $page, $route = null)
+    public function addPage(PageInterface $page, $route = null)
     {
         if (!isset($this->instances[$page->path()])) {
             $this->instances[$page->path()] = $page;
@@ -301,13 +302,13 @@ class Pages
     /**
      * Sort sub-pages in a page.
      *
-     * @param Page   $page
+     * @param PageInterface   $page
      * @param string $order_by
      * @param string $order_dir
      *
      * @return array
      */
-    public function sort(Page $page, $order_by = null, $order_dir = null, $sort_flags = null)
+    public function sort(PageInterface $page, $order_by = null, $order_dir = null, $sort_flags = null)
     {
         if ($order_by === null) {
             $order_by = $page->orderBy();
@@ -373,7 +374,7 @@ class Pages
      *
      * @param  string $path The filesystem full path of the page
      *
-     * @return Page
+     * @return PageInterface
      * @throws \Exception
      */
     public function get($path)
@@ -401,7 +402,7 @@ class Pages
      * @param  string $route The relative URL of the page
      * @param  string $path The relative path of the ancestor folder
      *
-     * @return Page|null
+     * @return PageInterface|null
      */
     public function ancestor($route, $path = null)
     {
@@ -427,7 +428,7 @@ class Pages
      * @param  string $route The relative route of the page
      * @param  string $field The field name of the ancestor to query for
      *
-     * @return Page|null
+     * @return PageInterface|null
      */
     public function inherited($route, $field = null)
     {
@@ -453,7 +454,7 @@ class Pages
      * @param string $route The relative URL of the page
      * @param bool   $all
      *
-     * @return Page|null
+     * @return PageInterface|null
      */
     public function find($route, $all = false)
     {
@@ -467,7 +468,7 @@ class Pages
      * @param bool $all
      *
      * @param bool $redirect
-     * @return Page|null
+     * @return PageInterface|null
      * @throws \Exception
      */
     public function dispatch($route, $all = false, $redirect = true)
@@ -549,7 +550,7 @@ class Pages
     /**
      * Get root page.
      *
-     * @return Page
+     * @return PageInterface
      */
     public function root()
     {
@@ -589,15 +590,15 @@ class Pages
     /**
      * Get all pages
      *
-     * @param \Grav\Common\Page\Page $current
+     * @param PageInterface $current
      *
      * @return \Grav\Common\Page\Collection
      */
-    public function all(Page $current = null)
+    public function all(PageInterface $current = null)
     {
         $all = new Collection();
 
-        /** @var Page $current */
+        /** @var PageInterface $current */
         $current = $current ?: $this->root();
 
         if (!$current->root()) {
@@ -659,7 +660,7 @@ class Pages
     /**
      * Get list of route/title of all pages.
      *
-     * @param Page $current
+     * @param PageInterface $current
      * @param int $level
      * @param bool $rawRoutes
      *
@@ -670,7 +671,7 @@ class Pages
      * @param bool $limitLevels
      * @return array
      */
-    public function getList(Page $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $showModular = false, $limitLevels = false)
+    public function getList(PageInterface $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $showModular = false, $limitLevels = false)
     {
         if (!$current) {
             if ($level) {
@@ -811,7 +812,7 @@ class Pages
             /** @var Admin $admin */
             $admin = Grav::instance()['admin'];
 
-            /** @var Page $page */
+            /** @var PageInterface $page */
             $page = $admin->getPage($admin->route);
 
             if ($page && $page->modular()) {
@@ -1007,13 +1008,13 @@ class Pages
      * Recursive function to load & build page relationships.
      *
      * @param string    $directory
-     * @param Page|null $parent
+     * @param PageInterface|null $parent
      *
-     * @return Page
+     * @return PageInterface
      * @throws \RuntimeException
      * @internal
      */
-    protected function recurse($directory, Page $parent = null)
+    protected function recurse($directory, PageInterface $parent = null)
     {
         $directory = rtrim($directory, DS);
         $page = new Page;
@@ -1186,7 +1187,7 @@ class Pages
         $home = self::resetHomeRoute();
 
         // Build routes and taxonomy map.
-        /** @var $page Page */
+        /** @var PageInterface $page */
         foreach ($this->instances as $page) {
             if (!$page->root()) {
                 // process taxonomy

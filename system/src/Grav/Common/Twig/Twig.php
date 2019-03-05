@@ -13,7 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
@@ -248,13 +248,13 @@ class Twig
      * 1) Handles modular pages by rendering a specific page based on its modular twig template
      * 2) Renders individual page items for twig processing before the site rendering
      *
-     * @param  Page   $item    The page item to render
+     * @param  PageInterface   $item    The page item to render
      * @param  string $content Optional content override
      *
      * @return string          The rendered output
      * @throws \Twig_Error_Loader
      */
-    public function processPage(Page $item, $content = null)
+    public function processPage(PageInterface $item, $content = null)
     {
         $content = $content ?? $item->content();
 

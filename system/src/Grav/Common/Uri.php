@@ -11,7 +11,7 @@ namespace Grav\Common;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Framework\Route\RouteFactory;
 use Grav\Framework\Uri\UriFactory;
@@ -724,14 +724,14 @@ class Uri
     /**
      * Converts links from absolute '/' or relative (../..) to a Grav friendly format
      *
-     * @param Page $page the current page to use as reference
+     * @param PageInterface $page the current page to use as reference
      * @param string|array $url the URL as it was written in the markdown
      * @param string $type the type of URL, image | link
      * @param bool $absolute if null, will use system default, if true will use absolute links internally
      * @param bool $route_only only return the route, not full URL path
-     * @return string the more friendly formatted url
+     * @return string|array the more friendly formatted url
      */
-    public static function convertUrl(Page $page, $url, $type = 'link', $absolute = false, $route_only = false)
+    public static function convertUrl(PageInterface $page, $url, $type = 'link', $absolute = false, $route_only = false)
     {
         $grav = Grav::instance();
 
@@ -807,7 +807,7 @@ class Uri
                     // get page instances and try to find one that fits
                     $instances = $grav['pages']->instances();
                     if (isset($instances[$page_path])) {
-                        /** @var Page $target */
+                        /** @var PageInterface $target */
                         $target = $instances[$page_path];
                         $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
 
@@ -936,14 +936,14 @@ class Uri
     /**
      * Converts links from absolute '/' or relative (../..) to a Grav friendly format
      *
-     * @param Page   $page         the current page to use as reference
+     * @param PageInterface   $page         the current page to use as reference
      * @param string $markdown_url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
      * @param null   $relative     if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
-    public static function convertUrlOld(Page $page, $markdown_url, $type = 'link', $relative = null)
+    public static function convertUrlOld(PageInterface $page, $markdown_url, $type = 'link', $relative = null)
     {
         $grav = Grav::instance();
 
@@ -1023,7 +1023,7 @@ class Uri
         // get page instances and try to find one that fits
         $instances = $grav['pages']->instances();
         if (isset($instances[$page_path])) {
-            /** @var Page $target */
+            /** @var PageInterface $target */
             $target = $instances[$page_path];
             $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
 

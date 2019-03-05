@@ -19,7 +19,7 @@ class ExcerptsTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
-    /** @var Page $page */
+    /** @var PageInterface $page */
     protected $page;
 
     /** @var Pages $pages */

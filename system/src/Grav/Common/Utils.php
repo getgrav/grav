@@ -10,7 +10,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Helpers\Truncator;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use RocketTheme\Toolbox\Event\Event;
@@ -1212,11 +1212,11 @@ abstract class Utils
      * Get's path based on a token
      *
      * @param $path
-     * @param Page|null $page
+     * @param PageInterface|null $page
      * @return string
      * @throws \RuntimeException
      */
-    public static function getPagePathFromToken($path, $page = null)
+    public static function getPagePathFromToken($path, PageInterface $page = null)
     {
         $path_parts = pathinfo($path);
         $grav       = Grav::instance();

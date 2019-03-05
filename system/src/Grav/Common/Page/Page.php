@@ -96,7 +96,7 @@ class Page implements PageInterface
     protected $forms;
 
     /**
-     * @var Page Unmodified (original) version of the page. Used for copying and moving the page.
+     * @var PageInterface Unmodified (original) version of the page. Used for copying and moving the page.
      */
     private $_original;
 
@@ -1023,11 +1023,11 @@ class Page implements PageInterface
      *
      * You need to call $this->save() in order to perform the move.
      *
-     * @param Page $parent New parent page.
+     * @param PageInterface $parent New parent page.
      *
      * @return $this
      */
-    public function move(Page $parent)
+    public function move(PageInterface $parent)
     {
         if (!$this->_original) {
             $clone = clone $this;
@@ -1067,11 +1067,11 @@ class Page implements PageInterface
      * Returns a new Page object for the copy.
      * You need to call $this->save() in order to perform the move.
      *
-     * @param Page $parent New parent page.
+     * @param PageInterface $parent New parent page.
      *
      * @return $this
      */
-    public function copy($parent)
+    public function copy(PageInterface $parent)
     {
         $this->move($parent);
         $this->_action = 'copy';
@@ -1240,6 +1240,9 @@ class Page implements PageInterface
         return $this->forms;
     }
 
+    /**
+     * @param array $new
+     */
     public function addForms(array $new)
     {
         // Initialize forms.
@@ -1445,7 +1448,7 @@ class Page implements PageInterface
         }
 
         // if not set in the page get the value from system config
-        if (empty($this->url_extension)) {
+        if (null === $this->url_extension) {
             $this->url_extension = Grav::instance()['config']->get('system.pages.append_url_extension', '');
         }
 
@@ -2338,11 +2341,11 @@ class Page implements PageInterface
     /**
      * Gets and Sets the parent object for this page
      *
-     * @param  Page $var the parent page object
+     * @param  PageInterface $var the parent page object
      *
-     * @return Page|null the parent page object if it exists.
+     * @return PageInterface|null the parent page object if it exists.
      */
-    public function parent(Page $var = null)
+    public function parent(PageInterface $var = null)
     {
         if ($var) {
             $this->parent = $var->path();
@@ -2359,7 +2362,7 @@ class Page implements PageInterface
     /**
      * Gets the top parent object for this page
      *
-     * @return Page|null the top parent page object if it exists.
+     * @return PageInterface|null the top parent page object if it exists.
      */
     public function topParent()
     {
@@ -2384,7 +2387,7 @@ class Page implements PageInterface
     /**
      * Returns children of this page.
      *
-     * @return \Grav\Common\Page\Collection
+     * @return Collection
      */
     public function children()
     {
@@ -2430,7 +2433,7 @@ class Page implements PageInterface
     /**
      * Gets the previous sibling based on current position.
      *
-     * @return Page the previous Page item
+     * @return PageInterface the previous Page item
      */
     public function prevSibling()
     {
@@ -2440,7 +2443,7 @@ class Page implements PageInterface
     /**
      * Gets the next sibling based on current position.
      *
-     * @return Page the next Page item
+     * @return PageInterface the next Page item
      */
     public function nextSibling()
     {
@@ -2452,7 +2455,7 @@ class Page implements PageInterface
      *
      * @param  integer $direction either -1 or +1
      *
-     * @return Page|bool             the sibling page
+     * @return PageInterface|bool             the sibling page
      */
     public function adjacentSibling($direction = 1)
     {
@@ -2510,7 +2513,7 @@ class Page implements PageInterface
         $routes = Grav::instance()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
-            /** @var Page $child_page */
+            /** @var PageInterface $child_page */
             $child_page = $pages->dispatch($uri->route())->parent();
             if ($child_page) {
                 while (!$child_page->root()) {
@@ -2553,7 +2556,7 @@ class Page implements PageInterface
      * @param string $url The url of the page
      * @param bool $lookup Name of the parent folder
      *
-     * @return \Grav\Common\Page\Page page you were looking for if it exists
+     * @return PageInterface page you were looking for if it exists
      */
     public function ancestor($lookup = null)
     {
@@ -2569,7 +2572,7 @@ class Page implements PageInterface
      *
      * @param string $field Name of the parent folder
      *
-     * @return Page
+     * @return PageInterface
      */
     public function inherited($field)
     {
@@ -2623,7 +2626,7 @@ class Page implements PageInterface
      * @param string $url the url of the page
      * @param bool $all
      *
-     * @return \Grav\Common\Page\Page page you were looking for if it exists
+     * @return PageInterface page you were looking for if it exists
      */
     public function find($url, $all = false)
     {
@@ -3134,8 +3137,7 @@ class Page implements PageInterface
     /**
      * Gets the Page Unmodified (original) version of the page.
      *
-     * @return Page
-     *   The original version of the page.
+     * @return PageInterface The original version of the page.
      */
     public function getOriginal()
     {
@@ -3145,8 +3147,7 @@ class Page implements PageInterface
     /**
      * Gets the action.
      *
-     * @return string
-     *   The Action string.
+     * @return string The Action string.
      */
     public function getAction()
     {

@@ -9,7 +9,7 @@
 
 namespace Grav\Common\Processors;
 
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -31,7 +31,7 @@ class PagesProcessor extends ProcessorBase
         $this->container->fireEvent('onPagesInitialized', new Event(['pages' => $this->container['pages']]));
         $this->container->fireEvent('onPageInitialized', new Event(['page' => $this->container['page']]));
 
-        /** @var Page $page */
+        /** @var PageInterface $page */
         $page = $this->container['page'];
 
         if (!$page->routable()) {

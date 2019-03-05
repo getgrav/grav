@@ -9,7 +9,7 @@
 
 namespace Grav\Common\Processors;
 
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Framework\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -49,7 +49,7 @@ class RenderProcessor extends ProcessorBase
 
         $html = ob_get_clean();
 
-        /** @var Page $page */
+        /** @var PageInterface $page */
         $page = $this->container['page'];
         $this->stopTimer();
 

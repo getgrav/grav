@@ -11,9 +11,9 @@ namespace Grav\Common;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Config\Setup;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
-use Grav\Common\Page\Page;
 use Grav\Common\Processors\AssetsProcessor;
 use Grav\Common\Processors\BackupsProcessor;
 use Grav\Common\Processors\ConfigurationProcessor;
@@ -335,7 +335,7 @@ class Grav extends Container
     public function header(ResponseInterface $response = null)
     {
         if (null === $response) {
-            /** @var Page $page */
+            /** @var PageInterface $page */
             $page = $this['page'];
             $response = new Response($page->httpResponseCode(), $page->httpHeaders(), '');
         }
@@ -526,7 +526,7 @@ class Grav extends Container
 
         $path_parts = pathinfo($path);
 
-        /** @var Page $page */
+        /** @var PageInterface $page */
         $page = $this['pages']->dispatch($path_parts['dirname'], true);
 
         if ($page) {

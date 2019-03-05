@@ -11,6 +11,7 @@ namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
 
 class Collection extends Iterator
@@ -53,11 +54,11 @@ class Collection extends Iterator
     /**
      * Add a single page to a collection
      *
-     * @param Page $page
+     * @param PageInterface $page
      *
      * @return $this
      */
-    public function addPage(Page $page)
+    public function addPage(PageInterface $page)
     {
         $this->items[$page->path()] = ['slug' => $page->slug()];
 
@@ -140,7 +141,7 @@ class Collection extends Iterator
     /**
      * Returns current page.
      *
-     * @return Page
+     * @return PageInterface
      */
     public function current()
     {
@@ -194,14 +195,14 @@ class Collection extends Iterator
     /**
      * Remove item from the list.
      *
-     * @param Page|string|null $key
+     * @param PageInterface|string|null $key
      *
      * @return $this
      * @throws \InvalidArgumentException
      */
     public function remove($key = null)
     {
-        if ($key instanceof Page) {
+        if ($key instanceof PageInterface) {
             $key = $key->path();
         } elseif (null === $key) {
             $key = (string)key($this->items);
@@ -261,7 +262,7 @@ class Collection extends Iterator
      *
      * @param  string $path
      *
-     * @return Page  The previous item.
+     * @return PageInterface  The previous item.
      */
     public function prevSibling($path)
     {
@@ -273,7 +274,7 @@ class Collection extends Iterator
      *
      * @param  string $path
      *
-     * @return Page The next item.
+     * @return PageInterface The next item.
      */
     public function nextSibling($path)
     {
@@ -286,7 +287,7 @@ class Collection extends Iterator
      * @param  string  $path
      * @param  integer $direction either -1 or +1
      *
-     * @return Page|Collection    The sibling item.
+     * @return PageInterface|Collection    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {

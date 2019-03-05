@@ -11,12 +11,12 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Grav;
 use Grav\Common\Helpers\Excerpts;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use RocketTheme\Toolbox\Event\Event;
 
 trait ParsedownGravTrait
 {
-    /** @var Page $page */
+    /** @var PageInterface $page */
     protected $page;
 
     protected $special_chars;
