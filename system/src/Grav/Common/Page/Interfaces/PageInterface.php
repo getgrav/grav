@@ -9,9 +9,11 @@
 
 namespace Grav\Common\Page\Interfaces;
 
+use Grav\Common\Media\Interfaces\MediaInterface;
+
 /**
  * Class implements page interface.
  */
-interface PageInterface
+interface PageInterface extends PageContentInterface, PageRoutableInterface, MediaInterface, PageLegacyInterface
 {
 }
