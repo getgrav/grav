@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Traits\FormTrait;
@@ -122,7 +123,7 @@ class FlexForm implements FlexFormInterface
     {
         if (null === $this->blueprint) {
             try {
-                $blueprint = $this->getObject()->getBlueprint($this->name);
+                $blueprint = $this->getObject()->getBlueprint(Utils::isAdminPlugin() ? '' : $this->name);
                 if ($this->form) {
                     // We have field overrides available.
                     $blueprint->extend(['form' => $this->form], true);
@@ -174,14 +175,14 @@ class FlexForm implements FlexFormInterface
         return $object->route('/edit.json/task:media.delete');
     }
 
-    public function getMediaTaskRoute(): string
+    public function getMediaTaskRoute(array $params = [], $extension = null): string
     {
         $grav = Grav::instance();
         /** @var Flex $flex */
         $flex = $grav['flex_objects'];
 
         if (method_exists($flex, 'adminRoute')) {
-            return $flex->adminRoute($this->getObject()) . '.json';
+            return $flex->adminRoute($this->getObject(), $params, $extension ?? 'json');
         }
 
         return '';
