@@ -14,6 +14,6 @@ use Grav\Common\Media\Interfaces\MediaInterface;
 /**
  * Class implements page interface.
  */
-interface PageInterface extends PageContentInterface, PageRoutableInterface, MediaInterface, PageLegacyInterface
+interface PageInterface extends PageContentInterface, PageRoutableInterface, PageTranslateInterface, MediaInterface, PageLegacyInterface
 {
 }
