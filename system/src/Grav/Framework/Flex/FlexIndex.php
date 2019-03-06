@@ -530,7 +530,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $updated = $added = [];
         foreach ($rows as $key => $row) {
             if (null !== $row) {
-                $entry = $entries[$key] + static::getIndexData($key, $row);
+                $entry = ['key' => $key] + $entries[$key];
+                static::updateIndexData($entry, $row);
                 if (isset($row['__error'])) {
                     $entry['__error'] = true;
                     static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__error'])));
@@ -563,11 +564,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $index;
     }
 
-    protected static function getIndexData($key, ?array $row)
+    protected static function updateIndexData(array &$entry, array $data)
     {
-        return [
-            'key' => $key,
-        ];
     }
 
     protected static function loadEntriesFromIndex(FlexStorageInterface $storage)

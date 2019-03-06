@@ -100,12 +100,10 @@ class UserIndex extends FlexIndex
         return $this->load('');
     }
 
-    protected static function getIndexData($key, ?array $row)
+    protected static function updateIndexData(array &$entry, array $data)
     {
-        return [
-            'key' => mb_strtolower($row['username'] ?? $key),
-            'email' => mb_strtolower($row['email'] ?? ''),
-        ];
+        $entry['key'] = mb_strtolower($data['username'] ?? $data['email'] ?? $entry['key']);
+        $entry['email'] = mb_strtolower($data['email']) ?? null;
     }
 
     protected static function getIndexFile(FlexStorageInterface $storage)
