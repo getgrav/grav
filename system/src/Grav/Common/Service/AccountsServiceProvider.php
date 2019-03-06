@@ -64,7 +64,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
                 'storage' => $this->getFlexStorage($config->get('system.accounts.storage', 'file')),
                 'search' => [
                     'options' => [
-                        'contains' => true
+                        'contains' => 1
                     ],
                     'fields' => [
                         'key',
