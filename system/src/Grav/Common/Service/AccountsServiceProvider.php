@@ -61,7 +61,16 @@ class AccountsServiceProvider implements ServiceProviderInterface
                 'object' => User::class, // Use User class for backwards compatibility.
                 'collection' => FlexUser\UserCollection::class,
                 'index' => FlexUser\UserIndex::class,
-                'storage' => $this->getFlexStorage($config->get('system.accounts.storage', 'file'))
+                'storage' => $this->getFlexStorage($config->get('system.accounts.storage', 'file')),
+                'search' => [
+                    'options' => [
+                        'contains' => true
+                    ],
+                    'fields' => [
+                        'key',
+                        'email'
+                    ]
+                ]
             ]
         ] + ($config->get('plugins.flex-objects.object') ?: []);
 

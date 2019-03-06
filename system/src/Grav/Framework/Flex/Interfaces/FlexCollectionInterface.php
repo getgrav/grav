@@ -38,6 +38,14 @@ interface FlexCollectionInterface extends ObjectCollectionInterface, NestedObjec
     public function __construct(array $elements, FlexDirectory $type);
 
     /**
+     * @param string $search
+     * @param string|string[]|null $properties
+     * @param array|null $options
+     * @return FlexCollectionInterface
+     */
+    public function search(string $search, $properties = null, array $options = null); // : FlexCollection
+
+    /**
      * @return FlexDirectory
      */
     public function getFlexDirectory(); //: FlexDirectory;

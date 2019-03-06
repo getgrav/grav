@@ -98,34 +98,4 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
 
         return $exists;
     }
-
-    /**
-     * @param string $text
-     * @param bool $case_sensitive
-     * @param bool $strict
-     * @return UserCollection
-     */
-    public function search(string $text, bool $case_sensitive = false, bool $strict = false) : UserCollection
-    {
-        $text = trim($text);
-
-        if (!$text) {
-            return $this;
-        }
-
-        $matching = [];
-        /**
-         * @var string $key
-         * @var User $object
-         */
-        foreach ($this as $key => $object) {
-            if ($strict && Utils::startsWith($object->getProperty('email'), $text, $case_sensitive)) {
-                $matching[$key] = $object;
-            } elseif (!$strict && Utils::contains($object->getProperty('email'), $text, $case_sensitive)) {
-                $matching[$key] = $object;
-            }
-        }
-
-        return $this->createFrom($matching);
-    }
 }

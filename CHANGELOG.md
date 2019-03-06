@@ -5,6 +5,7 @@
     * Grav 1.6: Renamed `$grav['users']` service to `$grav['accounts']`
     * Added `Flex::getObjects()` and `Flex::getMixedCollection()` methods for co-mingled collections
     * Added support to use single Flex key parameter in `Flex::getObject()` method
+    * Added `FlexObjectInterface::search()` and `FlexCollectionInterface::search()` methods
 1. [](#improved)
     * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
     * Improved `File::save()` to use a temporary file if file isn't locked

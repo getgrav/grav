@@ -53,6 +53,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
             'render' => false,
             'isAuthorized' => 'session',
+            'search' => true,
             'sort' => true,
         ];
     }
@@ -122,6 +123,27 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $type = $prefix ? $this->getTypePrefix() : '';
 
         return $type . $this->_flexDirectory->getType();
+    }
+
+
+    /**
+     * @param string $search
+     * @param string|string[]|null $properties
+     * @param array|null $options
+     * @return FlexCollectionInterface
+     */
+    public function search(string $search, $properties = null, array $options = null) // : FlexCollectionInterface
+    {
+        $matching = $this->call('search', [$search, $properties, $options]);
+        $matching = array_filter($matching);
+
+        if ($matching) {
+            uksort($matching, function ($a, $b) {
+                return -($a <=> $b);
+            });
+        }
+
+        return $this->select(array_keys($matching));
     }
 
     public function sort(array $order) // : FlexCollection

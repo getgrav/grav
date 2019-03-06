@@ -32,6 +32,18 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
     public function __construct(array $elements, $key, FlexDirectory $type);
 
     /**
+     * Search object, returns weight between 0 and 1.
+     *
+     * Note: If you override this function, make sure you return value in range 0...1!
+     *
+     * @param string $search
+     * @param string|string[]|null $properties
+     * @param array|null $options
+     * @return float    Weight between 0...1
+     */
+    public function search(string $search, $properties = null, array $options = null): float;
+
+    /**
      * Returns the directory where the object belongs into.
      *
      * @return FlexDirectory

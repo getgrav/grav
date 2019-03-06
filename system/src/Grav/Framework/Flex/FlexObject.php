@@ -109,6 +109,86 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * @param string $search
+     * @param string|string[]|null $properties
+     * @param array|null $options
+     * @return float
+     */
+    public function search(string $search, $properties = null, array $options = null): float
+    {
+        $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
+        $properties = $properties ?? $this->getFlexDirectory()->getConfig('data.search.fields', []);
+
+        $weight = 0;
+        foreach ((array)$properties as $property) {
+            $weight += $this->searchNestedProperty($property, $search, $options);
+        }
+
+        return $weight > 0 ? min($weight, 1) : 0;
+    }
+
+    /**
+     * @param string $property
+     * @param string $search
+     * @param array|null $options
+     * @return float
+     */
+    public function searchProperty(string $property, string $search, array $options = null): float
+    {
+        $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
+        $value = $this->getProperty($property);
+
+        return $this->searchValue($property, $value, $search, $options);
+    }
+
+    /**
+     * @param string $property
+     * @param string $search
+     * @param array|null $options
+     * @return float
+     */
+    public function searchNestedProperty(string $property, string $search, array $options = null): float
+    {
+        $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
+        $value = $this->getNestedProperty($property);
+
+        return $this->searchValue($property, $value, $search, $options);
+    }
+
+    /**
+     * @param string $name
+     * @param $value
+     * @param string $search
+     * @param array|null $options
+     * @return float
+     */
+    protected function searchValue(string $name, $value, string $search, array $options = null): float
+    {
+        $search = trim($search);
+
+        if ($search === '') {
+            return 0;
+        }
+
+        if (!\is_string($value) || $value === '') {
+            return 0;
+        }
+
+        $tested = false;
+        if (($tested |= !empty($options['starts_with'])) && Utils::startsWith($value, $search, $options['case_sensitive'] ?? false)) {
+            return (float)$options['starts_with'];
+        }
+        if (($tested |= !empty($options['ends_with'])) && Utils::endsWith($value, $search, $options['case_sensitive'] ?? false)) {
+            return (float)$options['ends_with'];
+        }
+        if ((!$tested || !empty($options['contains'])) && Utils::contains($value, $search, $options['case_sensitive'] ?? false)) {
+            return (float)$options['contains'];
+        }
+
+        return 0;
+    }
+
+    /**
      * @param array $data
      * @param array $files
      * @return $this
