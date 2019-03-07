@@ -161,26 +161,35 @@ class Flex implements \Countable
         }
         $strict = isset($types);
 
+        $guessed = [];
         if ($keyField === 'flex_key') {
             // We need to split Flex key lookups into individual directories.
             $undefined = [];
-            $keyField = 'storage_key';
+            $keyFieldFind = 'storage_key';
 
-            foreach ($keys as $key) {
+            foreach ($keys as $flexKey) {
                 // Normalize key and type using fallback to default type if it was set.
-                [$key, $type] = $this->resolveKeyAndType($key, $defaultType);
+                [$key, $type, $guess] = $this->resolveKeyAndType($flexKey, $defaultType);
 
                 if ($type === '') {
                     // Add keys which are not associated to any Flex type. They will be included to every Flex type.
-                    $undefined[] = $key;
+                    foreach ($types as $type => &$array) {
+                        $array[] = $key;
+                        $guessed[$key][] = "{$type}.obj:{$key}";
+                    }
+                    unset($array);
                 } elseif (!$strict || isset($types[$type])) {
                     // Collect keys by their Flex type. If allowed types are defined, only include values from those types.
                     $types[$type][] = $key;
+                    if ($guess) {
+                        $guessed[$key][] = "{$type}.obj:{$key}";
+                    }
                 }
             }
         } else {
             // We are using a specific key field, make every key undefined.
             $undefined = $keys;
+            $keyFieldFind = $keyField;
         }
 
         if (!$types) {
@@ -191,7 +200,11 @@ class Flex implements \Countable
         foreach ($types as $type => $typeKeys) {
             // Also remember to look up keys from undefined Flex types.
             $lookupKeys = $undefined ? array_merge($typeKeys, $undefined) : $typeKeys;
-            $collection = $this->getCollection($type, $lookupKeys, $keyField);
+
+            $collection = $this->getCollection($type, $lookupKeys, $keyFieldFind);
+            if ($collection && $keyFieldFind !== $keyField) {
+                $collection = $collection->withKeyField($keyField);
+            }
 
             $list[] = $collection ? $collection->toArray() : [];
         }
@@ -200,7 +213,29 @@ class Flex implements \Countable
         $list = array_merge(...$list);
 
         // Use the original key ordering.
-        $list = array_replace(array_fill_keys($keys, null), $list);
+        if (!$guessed) {
+            $list = array_replace(array_fill_keys($keys, null), $list);
+        } else {
+            // We have mixed keys, we need to map flex keys back to storage keys.
+            $results = [];
+            foreach ($keys as $key) {
+                $flexKey = $guessed[$key] ?? $key;
+                if (\is_array($flexKey)) {
+                    foreach ($flexKey as $tryKey) {
+                        if ($result = $list[$tryKey] ?? null) {
+                            // Use the first matching object (conflicting objects will be ignored for now).
+                            break;
+                        }
+                    }
+                } else {
+                    $result = $list[$flexKey] ?? null;
+                }
+
+                $results[$key] = $result;
+            }
+
+            $list = $results;
+        }
 
         // Remove missing objects if not asked to keep them.
         if (empty($option['keep_missing'])) {
@@ -243,15 +278,20 @@ class Flex implements \Countable
         return \count($this->types);
     }
 
-    protected function resolveKeyAndType(string $key, string $type = null): array
+    protected function resolveKeyAndType(string $flexKey, string $type = null): array
     {
-        if (strpos($key, ':') !== false) {
-            [$type, $key] = explode(':',  $key, 2);
+        $guess = false;
+        if (strpos($flexKey, ':') !== false) {
+            [$type, $key] = explode(':',  $flexKey, 2);
 
             $type = $this->resolveType($type);
+        } else {
+            $key = $flexKey;
+            $type = (string)$type;
+            $guess = true;
         }
 
-        return [$key, $type];
+        return [$key, $type, $guess];
     }
 
     protected function resolveType(string $type = null): string
