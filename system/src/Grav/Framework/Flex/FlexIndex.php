@@ -83,6 +83,17 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
+     * @param string $search
+     * @param string|string[]|null $properties
+     * @param array|null $options
+     * @return FlexCollectionInterface
+     */
+    public function search(string $search, $properties = null, array $options = null) // : FlexCollectionInterface
+    {
+        return $this->__call('search', [$search, $properties, $options]);
+    }
+
+    /**
      * @return FlexDirectory
      */
     public function getFlexDirectory() : FlexDirectory
