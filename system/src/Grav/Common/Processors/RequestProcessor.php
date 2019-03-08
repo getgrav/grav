@@ -25,6 +25,7 @@ class RequestProcessor extends ProcessorBase
         $this->startTimer();
         $request = $request
             ->withAttribute('grav', $this->container)
+            ->withAttribute('time', $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME)
             ->withAttribute('route', Uri::getCurrentRoute())
             ->withAttribute('referrer', $this->container['uri']->referrer());
 
