@@ -45,9 +45,10 @@ class FlexForm implements FlexFormInterface
     {
         $this->name = $name;
         $this->form = $form;
+        $uniqueId = $object->exists() ? $object->getStorageKey() : "{$object->getType()}:new";
         $this->setObject($object);
         $this->setId($this->getName());
-        $this->setUniqueId(md5($this->getObject()->getStorageKey()));
+        $this->setUniqueId(md5($uniqueId));
         $this->errors = [];
         $this->submitted = false;
 
