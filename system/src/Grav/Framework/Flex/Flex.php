@@ -171,7 +171,7 @@ class Flex implements \Countable
                 // Normalize key and type using fallback to default type if it was set.
                 [$key, $type, $guess] = $this->resolveKeyAndType($flexKey, $defaultType);
 
-                if ($type === '') {
+                if ($type === '' && $types) {
                     // Add keys which are not associated to any Flex type. They will be included to every Flex type.
                     foreach ($types as $type => &$array) {
                         $array[] = $key;
