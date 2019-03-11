@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Service;
 
+use Grav\Common\Uri;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Pimple\Container;
@@ -28,6 +29,10 @@ class RequestServiceProvider implements ServiceProviderInterface
             );
 
             return $creator->fromGlobals();
+        };
+
+        $container['route'] = function() {
+            return Uri::getCurrentRoute();
         };
     }
 }
