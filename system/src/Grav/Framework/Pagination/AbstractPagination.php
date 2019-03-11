@@ -48,7 +48,7 @@ class AbstractPagination implements PaginationInterface
     protected $defaultOptions = [
         'type' => 'page',
         'limit' => 10,
-        'display' => 3,
+        'display' => 5,
         'opening' => 0,
         'ending' => 0,
         'url' => null
@@ -186,8 +186,8 @@ class AbstractPagination implements PaginationInterface
 
         // Make list like: 1 ... 4 5 6 ... 10
         $range = range($this->pagesStart, $this->pagesStop);
-        $range[] = 1;
-        $range[] = $this->pages;
+        //$range[] = 1;
+        //$range[] = $this->pages;
         natsort($range);
         $range = array_unique($range);
 
