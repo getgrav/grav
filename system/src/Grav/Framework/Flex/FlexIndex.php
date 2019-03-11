@@ -307,7 +307,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             if ($type === 'session') {
                 /** @var Session $session */
                 $session = Grav::instance()['session'];
-                $cacheKey = $session->getId();
+                $cacheKey = $session->getId() . $session->user->username;
             } else {
                 $cacheKey = '';
             }
