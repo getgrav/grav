@@ -284,7 +284,7 @@ class User extends Data
             return Grav::instance()['base_url'] . '/' . $avatar['path'];
         }
 
-        return 'https://www.gravatar.com/avatar/' . md5($this->email);
+        return 'https://www.gravatar.com/avatar/' . md5( strtolower( trim($this->email) ) );
     }
 
     /**
