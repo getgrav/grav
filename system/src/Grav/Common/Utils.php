@@ -148,6 +148,30 @@ abstract class Utils
     }
 
     /**
+     * Function that can match wildcards
+     *
+     * match_wildcard('foo*', $test),      // TRUE
+     * match_wildcard('bar*', $test),      // FALSE
+     * match_wildcard('*bar*', $test),     // TRUE
+     * match_wildcard('**blob**', $test),  // TRUE
+     * match_wildcard('*a?d*', $test),     // TRUE
+     * match_wildcard('*etc**', $test)     // TRUE
+     *
+     * @param $wildcard_pattern
+     * @param $haystack
+     * @return false|int
+     */
+    public static function matchWildcard( $wildcard_pattern, $haystack) {
+        $regex = str_replace(
+            array("\*", "\?"), // wildcard chars
+            array('.*','.'),   // regexp chars
+            preg_quote($wildcard_pattern)
+        );
+
+        return preg_match('/^'.$regex.'$/is', $haystack);
+    }
+
+    /**
      * Returns the substring of a string up to a specified needle.  if not found, return the whole haystack
      *
      * @param $haystack
@@ -346,6 +370,24 @@ abstract class Utils
         }
 
         return $date_formats;
+    }
+
+    /**
+     * Get current date/time
+     *
+     * @param null $default_format
+     * @return string
+     * @throws \Exception
+     */
+    public static function dateNow($default_format = null)
+    {
+        $now = new \DateTime();
+
+        if (is_null($default_format)) {
+            $default_format = Grav::instance()['config']->get('system.pages.dateformat.default');
+        }
+
+        return $now->format($default_format);
     }
 
     /**

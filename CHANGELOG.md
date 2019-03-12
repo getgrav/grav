@@ -12,6 +12,7 @@
     * Improved `|t` filter to better support admin `|tu` style filter if in admin
     * Update all classes to rely on `PageInterface` instead of `Page` class
     * Better error checking in `bin/plugin` for existence and enabled
+    * Removed `media.upload_limit` references
 1. [](#bugfix)
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found
@@ -561,6 +562,8 @@
 # v1.3.7
 ## 10/18/2017
 
+1. [](#new)
+    * Override `system.media.upload_limit` with PHP's `post_max_size` or `upload_max_filesize`
 1. [](#bugfix)
     * Regression Uri: `base_url_absolute` always has the port number [#1690](https://github.com/getgrav/grav-plugin-admin/issues/1690)
     * Uri: Prefer using REQUEST_SCHEME instead of HTTPS [#1698](https://github.com/getgrav/grav-plugin-admin/issues/1698)

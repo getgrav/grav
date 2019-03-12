@@ -109,9 +109,8 @@ class Config extends Data
             }
         }
 
-        // Override the media.upload_limit based on PHP values
-        $upload_limit = Utils::getUploadLimit();
-        $this->items['system']['media']['upload_limit'] = $upload_limit > 0 ? $upload_limit : 1024*1024*1024;
+        // Legacy value - Override the media.upload_limit based on PHP values
+        $this->items['system']['media']['upload_limit'] = Utils::getUploadLimit();
     }
 
     /**
