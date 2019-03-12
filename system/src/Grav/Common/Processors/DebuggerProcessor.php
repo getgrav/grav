@@ -13,7 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class DebuggerInitProcessor extends ProcessorBase
+class DebuggerProcessor extends ProcessorBase
 {
     public $id = '_debugger';
     public $title = 'Init Debugger';

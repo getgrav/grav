@@ -37,9 +37,6 @@ class RenderProcessor extends ProcessorBase
         $container->output = $output;
         $container->fireEvent('onOutputGenerated');
 
-        // Set the header type
-        $container->header();
-
         echo $container->output;
 
         // remove any output

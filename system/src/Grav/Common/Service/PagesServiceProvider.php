@@ -18,10 +18,14 @@ use Grav\Common\Uri;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
-class PageServiceProvider implements ServiceProviderInterface
+class PagesServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
+        $container['pages'] = function ($c) {
+            return new Pages($c);
+        };
+
         $container['page'] = function ($c) {
             /** @var Grav $c */
 

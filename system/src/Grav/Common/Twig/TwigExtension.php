@@ -101,6 +101,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('print_r', 'print_r'),
             new \Twig_SimpleFilter('yaml_encode', [$this, 'yamlEncodeFilter']),
             new \Twig_SimpleFilter('yaml_decode', [$this, 'yamlDecodeFilter']),
+            new \Twig_SimpleFilter('nicecron', [$this, 'niceCronFilter']),
 
             // Translations
             new \Twig_SimpleFilter('t', [$this, 'translate'], ['needs_environment' => true]),
@@ -113,7 +114,6 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('bool', [$this, 'boolFilter']),
             new \Twig_SimpleFilter('float', [$this, 'floatFilter'], ['is_safe' => ['all']]),
             new \Twig_SimpleFilter('array', [$this, 'arrayFilter']),
-            new \Twig_SimpleFilter('nicecron', [$this, 'niceCronFilter']),
 
             // Object Types
             new \Twig_SimpleFilter('get_type', [$this, 'getTypeFunc']),

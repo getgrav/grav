@@ -15,6 +15,7 @@ use Grav\Common\Config\CompiledLanguages;
 use Grav\Common\Config\Config;
 use Grav\Common\Config\ConfigFileFinder;
 use Grav\Common\Config\Setup;
+use Grav\Common\Language\Language;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -25,7 +26,10 @@ class ConfigServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['setup'] = function ($c) {
-            return static::setup($c);
+            $setup = new Setup($c);
+            $setup->init();
+
+            return $setup;
         };
 
         $container['blueprints'] = function ($c) {
@@ -46,11 +50,10 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $container['languages'] = function ($c) {
             return static::languages($c);
         };
-    }
 
-    public static function setup(Container $container)
-    {
-        return new Setup($container);
+        $container['language'] = function ($c) {
+            return new Language($c);
+        };
     }
 
     public static function blueprints(Container $container)

@@ -18,7 +18,7 @@ use Grav\Common\Processors\AssetsProcessor;
 use Grav\Common\Processors\BackupsProcessor;
 use Grav\Common\Processors\ConfigurationProcessor;
 use Grav\Common\Processors\DebuggerAssetsProcessor;
-use Grav\Common\Processors\DebuggerInitProcessor;
+use Grav\Common\Processors\DebuggerProcessor;
 use Grav\Common\Processors\ErrorsProcessor;
 use Grav\Common\Processors\InitializeProcessor;
 use Grav\Common\Processors\LoggerProcessor;
@@ -60,23 +60,19 @@ class Grav extends Container
         'Grav\Common\Service\BackupsServiceProvider',
         'Grav\Common\Service\ConfigServiceProvider',
         'Grav\Common\Service\ErrorServiceProvider',
+        'Grav\Common\Service\FilesystemServiceProvider',
         'Grav\Common\Service\InflectorServiceProvider',
         'Grav\Common\Service\LoggerServiceProvider',
         'Grav\Common\Service\OutputServiceProvider',
-        'Grav\Common\Service\PageServiceProvider',
+        'Grav\Common\Service\PagesServiceProvider',
         'Grav\Common\Service\RequestServiceProvider',
         'Grav\Common\Service\SessionServiceProvider',
-        'Grav\Common\Service\SetupServiceProvider',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\TaskServiceProvider',
         'browser'    => 'Grav\Common\Browser',
         'cache'      => 'Grav\Common\Cache',
         'events'     => 'RocketTheme\Toolbox\Event\EventDispatcher',
         'exif'       => 'Grav\Common\Helpers\Exif',
-        'filesystem' => 'Grav\Framework\Filesystem\Filesystem',
-        'inflector'  => 'Grav\Common\Inflector',
-        'language'   => 'Grav\Common\Language\Language',
-        'pages'      => 'Grav\Common\Page\Pages',
         'plugins'    => 'Grav\Common\Plugins',
         'scheduler'  => 'Grav\Common\Scheduler\Scheduler',
         'taxonomy'   => 'Grav\Common\Taxonomy',
@@ -92,7 +88,7 @@ class Grav extends Container
         'configurationProcessor',
         'loggerProcessor',
         'errorsProcessor',
-        'debuggerInitProcessor',
+        'debuggerProcessor',
         'initializeProcessor',
         'pluginsProcessor',
         'themesProcessor',
@@ -194,8 +190,8 @@ class Grav extends Container
                 'errorsProcessor' => function () {
                     return new ErrorsProcessor($this);
                 },
-                'debuggerInitProcessor' => function () {
-                    return new DebuggerInitProcessor($this);
+                'debuggerProcessor' => function () {
+                    return new DebuggerProcessor($this);
                 },
                 'initializeProcessor' => function () {
                     return new InitializeProcessor($this);
