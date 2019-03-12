@@ -107,10 +107,7 @@ trait FlexMediaTrait
             throw new RuntimeException(sprintf($language->translate('PLUGIN_ADMIN.FILEUPLOAD_UNABLE_TO_UPLOAD'), $filename, 'Bad filename'), 400);
         }
 
-        /** @var Config $config */
-        $config = $grav['config'];
-        $grav_limit = (int) $config->get('system.media.upload_limit', 0);
-
+        $grav_limit = Utils::getUploadLimit();
         if ($grav_limit > 0 && $uploadedFile->getSize() > $grav_limit) {
             throw new RuntimeException($language->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
         }
