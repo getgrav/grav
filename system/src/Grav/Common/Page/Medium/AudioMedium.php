@@ -17,7 +17,7 @@ class AudioMedium extends Medium
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     protected function sourceParsedownElement(array $attributes, $reset = true)
@@ -51,7 +51,7 @@ class AudioMedium extends Medium
     /**
      * Allows to set the preload behaviour
      *
-     * @param $preload
+     * @param string $preload
      * @return $this
      */
     public function preload($preload)
@@ -69,7 +69,7 @@ class AudioMedium extends Medium
      * Allows to set the controlsList behaviour
      * Separate multiple values with a hyphen
      *
-     * @param $controlsList
+     * @param string $controlsList
      * @return $this
      */
     public function controlsList($controlsList)

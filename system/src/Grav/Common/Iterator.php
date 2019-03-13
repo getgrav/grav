@@ -63,7 +63,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     /**
      * Remove item from the list.
      *
-     * @param $key
+     * @param string $key
      */
     public function remove($key)
     {

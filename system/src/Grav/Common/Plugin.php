@@ -9,6 +9,7 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
@@ -120,7 +121,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Determine if this route is in Admin and active for the plugin
      *
-     * @param $plugin_route
+     * @param string $plugin_route
      * @return bool
      */
     protected function isPluginActiveAdmin($plugin_route)
@@ -183,7 +184,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Whether or not an offset exists.
      *
-     * @param mixed $offset  An offset to check for.
+     * @param string $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
     public function offsetExists($offset)
@@ -199,7 +200,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Returns the value at specified offset.
      *
-     * @param mixed $offset  The offset to retrieve.
+     * @param string $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
      */
     public function offsetGet($offset)
@@ -215,7 +216,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Assigns a value to the specified offset.
      *
-     * @param mixed $offset  The offset to assign the value to.
+     * @param string $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
      * @throws \LogicException
      */
@@ -227,7 +228,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Unsets an offset.
      *
-     * @param mixed $offset  The offset to unset.
+     * @param string $offset  The offset to unset.
      * @throws \LogicException
      */
     public function offsetUnset($offset)
@@ -304,12 +305,12 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Merge arrays based on deepness
      *
-     * @param bool $deep
-     * @param $array1
-     * @param $array2
-     * @return array|mixed
+     * @param string|bool $deep
+     * @param array $array1
+     * @param array $array2
+     * @return array
      */
-    private function mergeArrays($deep = false, $array1, $array2)
+    private function mergeArrays($deep, $array1, $array2)
     {
         if ($deep === 'merge') {
             return Utils::arrayMergeRecursiveUnique($array1, $array2);
@@ -326,7 +327,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param string $plugin_name The name of the plugin whose config it should store.
      *
-     * @return true
+     * @return bool
      */
     public static function saveConfig($plugin_name)
     {
@@ -348,7 +349,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Simpler getter for the plugin blueprint
      *
-     * @return mixed
+     * @return Blueprint
      */
     public function getBlueprint()
     {

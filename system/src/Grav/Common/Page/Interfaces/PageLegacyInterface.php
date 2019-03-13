@@ -39,8 +39,8 @@ interface PageLegacyInterface
     /**
      * Modify a header value directly
      *
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
      */
     public function modifyHeader($key, $value);
 
@@ -68,15 +68,15 @@ interface PageLegacyInterface
     /**
      * Add an entry to the page's contentMeta array
      *
-     * @param $name
-     * @param $value
+     * @param string $name
+     * @param string $value
      */
     public function addContentMeta($name, $value);
 
     /**
      * Return the whole contentMeta array as it currently stands
      *
-     * @param null $name
+     * @param string|null $name
      *
      * @return mixed
      */
@@ -85,9 +85,9 @@ interface PageLegacyInterface
     /**
      * Sets the whole content meta array in one shot
      *
-     * @param $content_meta
+     * @param array $content_meta
      *
-     * @return mixed
+     * @return array
      */
     public function setContentMeta($content_meta);
 
@@ -284,9 +284,9 @@ interface PageLegacyInterface
     /**
      * Gets and sets the option to show the etag header for the page.
      *
-     * @param  boolean $var show etag header
+     * @param  bool $var show etag header
      *
-     * @return boolean      show etag header
+     * @return bool      show etag header
      */
     public function eTag($var = null);
 
@@ -381,14 +381,14 @@ interface PageLegacyInterface
     /**
      * Check to see if this item is the first in an array of sub-pages.
      *
-     * @return boolean True if item is first.
+     * @return bool True if item is first.
      */
     public function isFirst();
 
     /**
      * Check to see if this item is the last in an array of sub-pages.
      *
-     * @return boolean True if item is last
+     * @return bool True if item is last
      */
     public function isLast();
 
@@ -409,7 +409,7 @@ interface PageLegacyInterface
     /**
      * Returns the adjacent sibling based on a direction.
      *
-     * @param  integer $direction either -1 or +1
+     * @param  int $direction either -1 or +1
      *
      * @return PageInterface|bool             the sibling page
      */
@@ -418,7 +418,6 @@ interface PageLegacyInterface
     /**
      * Helper method to return an ancestor page.
      *
-     * @param string $url The url of the page
      * @param bool $lookup Name of the parent folder
      *
      * @return PageInterface page you were looking for if it exists
@@ -459,7 +458,7 @@ interface PageLegacyInterface
      * Get a collection of pages in the current context.
      *
      * @param string|array $params
-     * @param boolean $pagination
+     * @param bool $pagination
      *
      * @return Collection
      * @throws \InvalidArgumentException

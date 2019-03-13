@@ -466,7 +466,7 @@ class Page implements PageInterface
     /**
      * Get page language
      *
-     * @param $var
+     * @param string $var
      *
      * @return mixed
      */
@@ -482,8 +482,8 @@ class Page implements PageInterface
     /**
      * Modify a header value directly
      *
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
      */
     public function modifyHeader($key, $value)
     {
@@ -548,7 +548,7 @@ class Page implements PageInterface
      *
      * @param  int $size Max summary size.
      *
-     * @param boolean $textOnly Only count text size.
+     * @param bool $textOnly Only count text size.
      *
      * @return string
      */
@@ -770,8 +770,8 @@ class Page implements PageInterface
     /**
      * Add an entry to the page's contentMeta array
      *
-     * @param $name
-     * @param $value
+     * @param string $name
+     * @param string $value
      */
     public function addContentMeta($name, $value)
     {
@@ -781,9 +781,9 @@ class Page implements PageInterface
     /**
      * Return the whole contentMeta array as it currently stands
      *
-     * @param null $name
+     * @param string|null $name
      *
-     * @return mixed
+     * @return string
      */
     public function getContentMeta($name = null)
     {
@@ -801,9 +801,9 @@ class Page implements PageInterface
     /**
      * Sets the whole content meta array in one shot
      *
-     * @param $content_meta
+     * @param array $content_meta
      *
-     * @return mixed
+     * @return array
      */
     public function setContentMeta($content_meta)
     {
@@ -873,7 +873,7 @@ class Page implements PageInterface
     /**
      * Needed by the onPageContentProcessed event to set the raw page content
      *
-     * @param $content
+     * @param string $content
      */
     public function setRawContent($content)
     {
@@ -965,9 +965,9 @@ class Page implements PageInterface
     /**
      * Gets and Sets the Page raw content
      *
-     * @param null $var
+     * @param string|null $var
      *
-     * @return null
+     * @return string
      */
     public function rawMarkdown($var = null)
     {
@@ -2036,9 +2036,9 @@ class Page implements PageInterface
     /**
      * Gets and sets the option to show the etag header for the page.
      *
-     * @param  boolean $var show etag header
+     * @param  bool $var show etag header
      *
-     * @return boolean      show etag header
+     * @return bool      show etag header
      */
     public function eTag($var = null)
     {
@@ -2055,9 +2055,9 @@ class Page implements PageInterface
     /**
      * Gets and sets the option to show the last_modified header for the page.
      *
-     * @param  boolean $var show last_modified header
+     * @param  bool $var show last_modified header
      *
-     * @return boolean      show last_modified header
+     * @return bool      show last_modified header
      */
     public function lastModified($var = null)
     {
@@ -2401,7 +2401,7 @@ class Page implements PageInterface
     /**
      * Check to see if this item is the first in an array of sub-pages.
      *
-     * @return boolean True if item is first.
+     * @return bool True if item is first.
      */
     public function isFirst()
     {
@@ -2417,7 +2417,7 @@ class Page implements PageInterface
     /**
      * Check to see if this item is the last in an array of sub-pages.
      *
-     * @return boolean True if item is last
+     * @return bool True if item is last
      */
     public function isLast()
     {
@@ -2453,7 +2453,7 @@ class Page implements PageInterface
     /**
      * Returns the adjacent sibling based on a direction.
      *
-     * @param  integer $direction either -1 or +1
+     * @param  int $direction either -1 or +1
      *
      * @return PageInterface|bool             the sibling page
      */
@@ -2471,9 +2471,7 @@ class Page implements PageInterface
     /**
      * Returns the item in the current position.
      *
-     * @param  string $path the path the item
-     *
-     * @return Integer   the index of the current page.
+     * @return int   the index of the current page.
      */
     public function currentPosition()
     {
@@ -2483,7 +2481,7 @@ class Page implements PageInterface
             return $collection->currentPosition($this->path());
         }
 
-        return true;
+        return 1;
     }
 
     /**
@@ -2553,7 +2551,6 @@ class Page implements PageInterface
     /**
      * Helper method to return an ancestor page.
      *
-     * @param string $url The url of the page
      * @param bool $lookup Name of the parent folder
      *
      * @return PageInterface page you were looking for if it exists
@@ -2640,7 +2637,7 @@ class Page implements PageInterface
      * Get a collection of pages in the current context.
      *
      * @param string|array $params
-     * @param boolean $pagination
+     * @param bool $pagination
      *
      * @return Collection
      * @throws \InvalidArgumentException
@@ -3031,7 +3028,7 @@ class Page implements PageInterface
     /**
      * Reorders all siblings according to a defined order
      *
-     * @param $new_order
+     * @param array|null $new_order
      */
     protected function doReorder($new_order)
     {

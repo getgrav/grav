@@ -30,7 +30,7 @@ interface PageContentInterface
      *
      * @param  int $size Max summary size.
      *
-     * @param boolean $textOnly Only count text size.
+     * @param bool $textOnly Only count text size.
      *
      * @return string
      */
@@ -55,14 +55,14 @@ interface PageContentInterface
     /**
      * Needed by the onPageContentProcessed event to set the raw page content
      *
-     * @param $content
+     * @param string $content
      */
     public function setRawContent($content);
 
     /**
      * Gets and Sets the Page raw content
      *
-     * @param null $var
+     * @param string|null $var
      *
      * @return null
      */

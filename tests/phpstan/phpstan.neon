@@ -34,10 +34,19 @@ parameters:
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
 
+        # Medium __call() methods
+        - '#Call to an undefined method Grav\\Common\\Page\\Medium\\(\w*)Medium::#'
+
         # Those errors are about plugins (need to find a better solution)
         -
-            message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils.#'
+            message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils#'
             path: 'system/src/Grav/Common/Scheduler/Job.php'
+        -
+            message: '#on an unknown class Grav\\Plugin\\Admin#'
+            path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#Call to method getFlash\(\) on an unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
+            path: 'system/src/Grav/Common/Session.php'
 
         # Can be ignored, after fopen there's always an $http_response_header locally available
         -

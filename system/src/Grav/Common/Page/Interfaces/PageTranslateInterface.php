@@ -24,7 +24,7 @@ interface PageTranslateInterface
     /**
      * Get page language
      *
-     * @param $var
+     * @param string $var
      *
      * @return mixed
      */

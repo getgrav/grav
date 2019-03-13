@@ -176,7 +176,9 @@ class Twig
 
             // set default date format if set in config
             if ($config->get('system.pages.dateformat.long')) {
-                $this->twig->getExtension('Twig_Extension_Core')->setDateFormat($config->get('system.pages.dateformat.long'));
+                /** @var \Twig_Extension_Core $extension */
+                $extension = $this->twig->getExtension('Twig_Extension_Core');
+                $extension->setDateFormat($config->get('system.pages.dateformat.long'));
             }
             // enable the debug extension if required
             if ($config->get('system.twig.debug')) {
@@ -404,8 +406,8 @@ class Twig
 
     /**
      * Wraps the Twig_Loader_Filesystem addPath method (should be used only in `onTwigLoader()` event
-     * @param $template_path
-     * @param null $namespace
+     * @param string $template_path
+     * @param string $namespace
      */
     public function addPath($template_path, $namespace = '__main__')
     {
@@ -414,8 +416,8 @@ class Twig
 
     /**
      * Wraps the Twig_Loader_Filesystem prependPath method (should be used only in `onTwigLoader()` event
-     * @param $template_path
-     * @param null $namespace
+     * @param string $template_path
+     * @param string $namespace
      */
     public function prependPath($template_path, $namespace = '__main__')
     {
@@ -438,7 +440,7 @@ class Twig
     /**
      * Overrides the autoescape setting
      *
-     * @param boolean $state
+     * @param bool $state
      * @deprecated 1.5 Auto-escape should always be turned on to protect against XSS issues (can be disabled per template file).
      */
     public function setAutoescape($state)

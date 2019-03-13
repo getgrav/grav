@@ -33,10 +33,10 @@ class Licenses
     /**
      * Returns the license for a Premium package
      *
-     * @param $slug
-     * @param $license
+     * @param string $slug
+     * @param string $license
      *
-     * @return boolean
+     * @return bool
      */
     public static function set($slug, $license)
     {
@@ -67,7 +67,7 @@ class Licenses
     /**
      * Returns the license for a Premium package
      *
-     * @param $slug
+     * @param string $slug
      *
      * @return array|string
      */
@@ -89,7 +89,7 @@ class Licenses
     /**
      * Validates the License format
      *
-     * @param $license
+     * @param string $license
      *
      * @return bool
      */

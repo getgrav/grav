@@ -471,7 +471,7 @@ class Grav extends Container
         };
 
         $container->measureTime('_services', 'Services', function () use ($container) {
-            $container->registerServices($container);
+            $container->registerServices();
         });
 
         return $container;
@@ -501,7 +501,7 @@ class Grav extends Container
     /**
      * This attempts to find media, other files, and download them
      *
-     * @param $path
+     * @param string $path
      */
     public function fallbackUrl($path)
     {

@@ -40,12 +40,12 @@ class Installer
     protected static $target;
 
     /**
-     * @var integer Error Code
+     * @var int Error Code
      */
     protected static $error = 0;
 
     /**
-     * @var integer Zip Error Code
+     * @var int Zip Error Code
      */
     protected static $error_zip = 0;
 
@@ -75,7 +75,7 @@ class Installer
      * @param  string $destination The local path to the Grav Instance
      * @param  array $options Options to use for installing. ie, ['install_path' => 'user/themes/antimatter']
      * @param  string $extracted The local path to the extacted ZIP package
-     * @param bool $keepExtracted True if you want to keep the original files
+     * @param  bool $keepExtracted True if you want to keep the original files
      * @return bool True if everything went fine, False otherwise.
      */
     public static function install($zip, $destination, $options = [], $extracted = null, $keepExtracted = false)
@@ -166,8 +166,8 @@ class Installer
     /**
      * Unzip a file to somewhere
      *
-     * @param $zip_file
-     * @param $destination
+     * @param string $zip_file
+     * @param string $destination
      * @return bool|string
      */
     public static function unZip($zip_file, $destination)
@@ -253,8 +253,8 @@ class Installer
     }
 
     /**
-     * @param             $source_path
-     * @param             $install_path
+     * @param string            $source_path
+     * @param string            $install_path
      *
      * @return bool
      */
@@ -270,8 +270,8 @@ class Installer
     }
 
     /**
-     * @param             $source_path
-     * @param             $install_path
+     * @param string            $source_path
+     * @param string            $install_path
      *
      * @return bool
      */
@@ -287,10 +287,10 @@ class Installer
     }
 
     /**
-     * @param             $source_path
-     * @param             $install_path
-     * @param             $ignores
-     * @param             $keep_source
+     * @param string            $source_path
+     * @param string            $install_path
+     * @param array             $ignores
+     * @param bool              $keep_source
      *
      * @return bool
      */
@@ -332,7 +332,7 @@ class Installer
      * @param  string $path    The slug of the package(s)
      * @param  array  $options Options to use for uninstalling
      *
-     * @return boolean True if everything went fine, False otherwise.
+     * @return bool True if everything went fine, False otherwise.
      */
     public static function uninstall($path, $options = [])
     {
@@ -374,7 +374,7 @@ class Installer
      * @param  string $destination The directory to run validations at
      * @param  array  $exclude     An array of constants to exclude from the validation
      *
-     * @return boolean True if validation passed. False otherwise
+     * @return bool True if validation passed. False otherwise
      */
     public static function isValidDestination($destination, $exclude = [])
     {
@@ -403,7 +403,7 @@ class Installer
      *
      * @param  string $target The local path to the Grav Instance
      *
-     * @return boolean True if is a Grav Instance. False otherwise
+     * @return bool True if is a Grav Instance. False otherwise
      */
     public static function isGravInstance($target)
     {
@@ -523,7 +523,7 @@ class Installer
 
     /**
      * Returns the last error code of the occurred error
-     * @return integer The code of the last error
+     * @return int The code of the last error
      */
     public static function lastErrorCode()
     {

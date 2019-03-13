@@ -20,7 +20,11 @@ use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
  * @package Grav\Common\User\Interfaces
  *
  * @property string $username
+ * @property string $fullname
  * @property string $email
+ *
+ * @property-read bool $authenticated
+ * @property-read bool $authorized
  */
 interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \JsonSerializable, ExportInterface
 {

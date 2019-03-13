@@ -20,8 +20,8 @@ trait WriteCacheFileTrait
      * This exists so template cache files use the same
      * group between apache and cli
      *
-     * @param $file
-     * @param $content
+     * @param string $file
+     * @param string $content
      */
     protected function writeCacheFile($file, $content)
     {

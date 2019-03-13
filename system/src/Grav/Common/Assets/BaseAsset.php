@@ -178,9 +178,9 @@ abstract class BaseAsset extends PropertyObject
     /**
      * Placeholder for AssetUtilsTrait method
      *
-     * @param $file
-     * @param $dir
-     * @param $local
+     * @param string $file
+     * @param string $dir
+     * @param bool $local
      */
     protected function cssRewrite($file, $dir, $local)
     {

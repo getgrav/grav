@@ -339,10 +339,10 @@ class Pages
 
     /**
      * @param Collection $collection
-     * @param            $orderBy
+     * @param string|int $orderBy
      * @param string     $orderDir
-     * @param null       $orderManual
-     * @param null       $sort_flags
+     * @param array|null $orderManual
+     * @param int|null   $sort_flags
      *
      * @return array
      * @internal
@@ -985,7 +985,7 @@ class Pages
     /**
      * Accessible method to manually reset the pages cache
      *
-     * @param $pages_dir
+     * @param string $pages_dir
      */
     public function resetPages($pages_dir)
     {
@@ -1180,7 +1180,7 @@ class Pages
      */
     protected function buildRoutes()
     {
-        /** @var $taxonomy Taxonomy */
+        /** @var Taxonomy $taxonomy */
         $taxonomy = $this->grav['taxonomy'];
 
         // Get the home route
@@ -1233,8 +1233,8 @@ class Pages
      * @param string $path
      * @param array  $pages
      * @param string $order_by
-     * @param array  $manual
-     * @param int    $sort_flags
+     * @param array|null  $manual
+     * @param int|null    $sort_flags
      *
      * @throws \RuntimeException
      * @internal

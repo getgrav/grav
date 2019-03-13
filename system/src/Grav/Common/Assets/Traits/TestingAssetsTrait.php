@@ -152,7 +152,7 @@ trait TestingAssetsTrait
     /**
      * Sets the state of CSS Pipeline
      *
-     * @param boolean $value
+     * @param bool $value
      *
      * @return $this
      */
@@ -166,7 +166,7 @@ trait TestingAssetsTrait
     /**
      * Sets the state of JS Pipeline
      *
-     * @param boolean $value
+     * @param bool $value
      *
      * @return $this
      */

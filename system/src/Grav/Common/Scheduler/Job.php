@@ -175,7 +175,7 @@ class Job
     /**
      * Force the Job to run in foreground.
      *
-     * @return self
+     * @return $this
      */
     public function inForeground()
     {
@@ -187,7 +187,7 @@ class Job
     /**
      * Sets/Gets an option backlink
      *
-     * @param $link string
+     * @param string $link
      *
      * @return null|string
      */
@@ -298,7 +298,6 @@ class Job
         if (is_callable($this->command)) {
             $this->output = $this->exec();
         } else {
-            /** @var Process process */
             $args = \is_string($this->args) ? $this->args : implode(' ', $this->args);
             $command = $this->command . ' ' . $args;
             $process = new Process($command);

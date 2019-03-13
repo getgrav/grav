@@ -183,7 +183,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * Add meta file for the medium.
      *
-     * @param $filepath
+     * @param string $filepath
      */
     public function addMetaFile($filepath)
     {
@@ -194,7 +194,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * Add alternative Medium to this Medium.
      *
-     * @param $ratio
+     * @param int|float $ratio
      * @param Medium $alternative
      */
     public function addAlternative($ratio, Medium $alternative)
@@ -282,7 +282,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * Get/set querystring for the file's url
      *
      * @param  string  $querystring
-     * @param  boolean $withQuestionmark
+     * @param  bool $withQuestionmark
      * @return string
      */
     public function querystring($querystring = null, $withQuestionmark = true)
@@ -311,7 +311,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * Get the URL with full querystring
      *
-     * @param $url
+     * @param string $url
      * @return string
      */
     public function urlQuerystring($url)
@@ -328,7 +328,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * Get/set hash for the file's url
      *
      * @param  string  $hash
-     * @param  boolean $withHash
+     * @param  bool $withHash
      * @return string
      */
     public function urlHash($hash = null, $withHash = true)
@@ -349,7 +349,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * @param  string  $alt
      * @param  string  $class
      * @param  string  $id
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
@@ -430,7 +430,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     protected function sourceParsedownElement(array $attributes, $reset = true)
@@ -442,7 +442,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * Parsedown element for text display mode
      *
      * @param  array $attributes
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     protected function textParsedownElement(array $attributes, $reset = true)
@@ -534,7 +534,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * Turn the current Medium into a Link
      *
-     * @param  boolean $reset
+     * @param  bool $reset
      * @param  array  $attributes
      * @return Link
      */
@@ -558,7 +558,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      *
      * @param  int  $width
      * @param  int  $height
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return Link
      */
     public function lightbox($width = null, $height = null, $reset = true)
@@ -593,7 +593,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * Add an id to the element from Markdown or Twig
      * Example: ![Example](myimg.png?id=primary-img)
      *
-     * @param $id
+     * @param string $id
      * @return $this
      */
     public function id($id)

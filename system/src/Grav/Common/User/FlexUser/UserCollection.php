@@ -22,7 +22,6 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
-     *
      * @return User
      */
     public function load($username): UserInterface

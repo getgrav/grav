@@ -49,7 +49,7 @@ class GPM extends Iterator
 
     /**
      * Creates a new GPM instance with Local and Remote packages available
-     * @param boolean $refresh Applies to Remote Packages only and forces a refetch of data
+     * @param bool $refresh Applies to Remote Packages only and forces a refetch of data
      * @param callable $callback Either a function or callback in array notation
      */
     public function __construct($refresh = false, $callback = null)
@@ -97,7 +97,7 @@ class GPM extends Iterator
 
     /**
      * Returns the amount of locally installed packages
-     * @return integer Amount of installed packages
+     * @return int Amount of installed packages
      */
     public function countInstalled()
     {
@@ -147,7 +147,7 @@ class GPM extends Iterator
     /**
      * Checks if a Plugin is installed
      * @param  string $slug The slug of the Plugin
-     * @return boolean True if the Plugin has been installed. False otherwise
+     * @return bool True if the Plugin has been installed. False otherwise
      */
     public function isPluginInstalled($slug)
     {
@@ -181,7 +181,7 @@ class GPM extends Iterator
     /**
      * Checks if a Theme is installed
      * @param  string $slug The slug of the Theme
-     * @return boolean True if the Theme has been installed. False otherwise
+     * @return bool True if the Theme has been installed. False otherwise
      */
     public function isThemeInstalled($slug)
     {
@@ -190,7 +190,7 @@ class GPM extends Iterator
 
     /**
      * Returns the amount of updates available
-     * @return integer Amount of available updates
+     * @return int Amount of available updates
      */
     public function countUpdates()
     {
@@ -287,7 +287,7 @@ class GPM extends Iterator
     /**
      * Check if a Plugin or Theme is updatable
      * @param  string $slug The slug of the package
-     * @return boolean True if updatable. False otherwise or if not found
+     * @return bool True if updatable. False otherwise or if not found
      */
     public function isUpdatable($slug)
     {
@@ -297,7 +297,7 @@ class GPM extends Iterator
     /**
      * Checks if a Plugin is updatable
      * @param  string $plugin The slug of the Plugin
-     * @return boolean True if the Plugin is updatable. False otherwise
+     * @return bool True if the Plugin is updatable. False otherwise
      */
     public function isPluginUpdatable($plugin)
     {
@@ -343,7 +343,7 @@ class GPM extends Iterator
     /**
      * Checks if a Theme is Updatable
      * @param  string $theme The slug of the Theme
-     * @return boolean True if the Theme is updatable. False otherwise
+     * @return bool True if the Theme is updatable. False otherwise
      */
     public function isThemeUpdatable($theme)
     {
@@ -378,7 +378,7 @@ class GPM extends Iterator
      *
      * @param string $package_name
      *
-     * @return boolean
+     * @return bool
      */
     public function isStableRelease($package_name)
     {
@@ -390,7 +390,7 @@ class GPM extends Iterator
      *
      * @param string $package_name
      *
-     * @return boolean
+     * @return bool
      */
     public function isTestingRelease($package_name)
     {
@@ -618,7 +618,7 @@ class GPM extends Iterator
     /**
      * Find/Parse the blueprint file
      *
-     * @param $source
+     * @param string $source
      * @return array|bool
      */
     public static function getBlueprints($source)
@@ -744,8 +744,8 @@ class GPM extends Iterator
     /**
      * Get the required version of a dependency of a package
      *
-     * @param $package_slug
-     * @param $dependency_slug
+     * @param string $package_slug
+     * @param string $dependency_slug
      *
      * @return mixed
      */
@@ -1100,7 +1100,7 @@ class GPM extends Iterator
      *
      * Example: returns true for $version: '~2.0'
      *
-     * @param $version
+     * @param string $version
      *
      * @return bool
      */
@@ -1114,7 +1114,7 @@ class GPM extends Iterator
      *
      * Example: returns true for $version: '>=2.0'
      *
-     * @param $version
+     * @param string $version
      *
      * @return bool
      */

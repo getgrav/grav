@@ -28,7 +28,7 @@ class Base32
     /**
      * Encode in Base32
      *
-     * @param $bytes
+     * @param string $bytes
      * @return string
      */
     public static function encode($bytes)
@@ -69,7 +69,7 @@ class Base32
     /**
      * Decode in Base32
      *
-     * @param $base32
+     * @param string $base32
      * @return string
      */
     public static function decode($base32)

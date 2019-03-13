@@ -24,7 +24,7 @@ class AbstractPackageCollection extends BaseCollection
 
     /**
      * The lifetime to store the entry in seconds
-     * @var integer
+     * @var int
      */
     private $lifetime = 86400;
 

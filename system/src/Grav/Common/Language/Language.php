@@ -105,7 +105,7 @@ class Language
     /**
      * Gets language, active if set, else default
      *
-     * @return mixed
+     * @return string
      */
     public function getLanguage()
     {
@@ -125,7 +125,7 @@ class Language
     /**
      * Sets default language manually
      *
-     * @param $lang
+     * @param string $lang
      *
      * @return bool
      */
@@ -143,7 +143,7 @@ class Language
     /**
      * Gets current active language
      *
-     * @return mixed
+     * @return string
      */
     public function getActive()
     {
@@ -153,9 +153,9 @@ class Language
     /**
      * Sets active language manually
      *
-     * @param $lang
+     * @param string $lang
      *
-     * @return bool
+     * @return string|bool
      */
     public function setActive($lang)
     {
@@ -171,9 +171,9 @@ class Language
     /**
      * Sets the active language based on the first part of the URL
      *
-     * @param $uri
+     * @param string $uri
      *
-     * @return mixed
+     * @return string
      */
     public function setActiveFromUri($uri)
     {
@@ -224,7 +224,7 @@ class Language
     /**
      * Get's a URL prefix based on configuration
      *
-     * @param null $lang
+     * @param string|null $lang
      * @return string
      */
     public function getLanguageURLPrefix($lang = null)
@@ -240,7 +240,7 @@ class Language
     /**
      * Test to see if language is default and language should be included in the URL
      *
-     * @param null $lang
+     * @param string|null $lang
      * @return bool
      */
     public function isIncludeDefaultLanguage($lang = null)
@@ -352,7 +352,7 @@ class Language
     /**
      * Ensures the language is valid and supported
      *
-     * @param $lang
+     * @param string $lang
      *
      * @return bool
      */
@@ -364,7 +364,7 @@ class Language
     /**
      * Translate a key and possibly arguments into a string using current lang and fallbacks
      *
-     * @param mixed $args      The first argument is the lookup key value
+     * @param string|array $args      The first argument is the lookup key value
      *                         Other arguments can be passed and replaced in the translation with sprintf syntax
      * @param array $languages
      * @param bool  $array_support
@@ -417,9 +417,9 @@ class Language
     /**
      * Translate Array
      *
-     * @param      $key
-     * @param      $index
-     * @param null $languages
+     * @param string $key
+     * @param string $index
+     * @param array|null $languages
      * @param bool $html_out
      *
      * @return string
@@ -513,7 +513,7 @@ class Language
     /**
      * Accessible wrapper to LanguageCodes
      *
-     * @param $code
+     * @param string $code
      * @param string $type
      * @return bool
      */

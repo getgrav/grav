@@ -16,7 +16,7 @@ class LogViewer
     /**
      * Get the objects of a tailed file
      *
-     * @param $filepath
+     * @param string $filepath
      * @param int $lines
      * @param bool $desc
      * @return array
@@ -37,7 +37,7 @@ class LogViewer
     /**
      * Optimized way to get just the last few entries of a log file
      *
-     * @param $filepath
+     * @param string $filepath
      * @param int $lines
      * @return bool|string
      */
@@ -82,7 +82,7 @@ class LogViewer
     /**
      * Helper class to get level color
      *
-     * @param $level
+     * @param string $level
      * @return mixed|string
      */
     public static function levelColor($level)
@@ -103,7 +103,7 @@ class LogViewer
     /**
      * Parse a monolog row into array bits
      *
-     * @param $line
+     * @param string $line
      * @return array
      */
     public function parse($line)
@@ -136,8 +136,8 @@ class LogViewer
     /**
      * Parse text of trace into an array of lines
      *
-     * @param $trace
-     * @param $rows
+     * @param string $trace
+     * @param int $rows
      * @return array
      */
     public static function parseTrace($trace, $rows = 10)

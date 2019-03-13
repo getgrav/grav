@@ -68,8 +68,8 @@ class Collection extends Iterator
     /**
      * Add a page with path and slug
      *
-     * @param $path
-     * @param $slug
+     * @param string $path
+     * @param string $slug
      * @return $this
      */
     public function add($path, $slug)
@@ -177,7 +177,7 @@ class Collection extends Iterator
     /**
      * Split collection into array of smaller collections.
      *
-     * @param $size
+     * @param int $size
      * @return array|Collection[]
      */
     public function batch($size)
@@ -238,7 +238,7 @@ class Collection extends Iterator
      *
      * @param  string $path
      *
-     * @return boolean True if item is first.
+     * @return bool True if item is first.
      */
     public function isFirst($path)
     {
@@ -250,7 +250,7 @@ class Collection extends Iterator
      *
      * @param  string $path
      *
-     * @return boolean True if item is last.
+     * @return bool True if item is last.
      */
     public function isLast($path)
     {
@@ -285,7 +285,7 @@ class Collection extends Iterator
      * Returns the adjacent sibling based on a direction.
      *
      * @param  string  $path
-     * @param  integer $direction either -1 or +1
+     * @param  int $direction either -1 or +1
      *
      * @return PageInterface|Collection    The sibling item.
      */
@@ -309,7 +309,7 @@ class Collection extends Iterator
      *
      * @param  string $path the path the item
      *
-     * @return Integer   the index of the current page.
+     * @return int   the index of the current page.
      */
     public function currentPosition($path)
     {
@@ -322,14 +322,14 @@ class Collection extends Iterator
      * Dates can be passed in as text that strtotime() can process
      * http://php.net/manual/en/function.strtotime.php
      *
-     * @param      $startDate
+     * @param string $startDate
      * @param bool $endDate
-     * @param      $field
+     * @param string|null $field
      *
      * @return $this
      * @throws \Exception
      */
-    public function dateRange($startDate, $endDate = false, $field = false)
+    public function dateRange($startDate, $endDate = false, $field = null)
     {
         $start = Utils::date2timestamp($startDate);
         $end = $endDate ? Utils::date2timestamp($endDate) : false;

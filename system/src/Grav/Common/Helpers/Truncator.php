@@ -31,7 +31,7 @@ class Truncator {
     /**
      * Safely truncates HTML by a given number of words.
      * @param  string  $html     Input HTML.
-     * @param  integer $limit    Limit to how many words we preserve.
+     * @param  int     $limit    Limit to how many words we preserve.
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
@@ -90,7 +90,7 @@ class Truncator {
     /**
      * Safely truncates HTML by a given number of letters.
      * @param  string  $html     Input HTML.
-     * @param  integer $limit    Limit to how many letters we preserve.
+     * @param  int     $limit    Limit to how many letters we preserve.
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
@@ -217,7 +217,7 @@ class Truncator {
     /**
      * Returns the innerHTML of a particular DOMElement
      *
-     * @param $element
+     * @param DOMElement $element
      * @return string
      */
     private static function innerHTML($element) {

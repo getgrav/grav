@@ -37,8 +37,6 @@ class UserCollection implements UserCollectionInterface
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
-     * @param bool $setConfig
-     *
      * @return UserInterface
      */
     public function load($username): UserInterface

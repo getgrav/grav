@@ -106,7 +106,6 @@ class Scheduler
     /**
      * Get all jobs if they are disabled or not as one array
      *
-     * @param bool $all
      * @return array
      */
     public function getAllJobs()
@@ -151,10 +150,9 @@ class Scheduler
     /**
      * Run the scheduler.
      *
-     * @param  \DateTime  $runTime  Optional, run at specific moment
-     * @return array  Executed jobs
+     * @param  \DateTime|null  $runTime  Optional, run at specific moment
      */
-    public function run(\Datetime $runTime = null)
+    public function run(\DateTime $runTime = null)
     {
         $this->loadSavedJobs();
 

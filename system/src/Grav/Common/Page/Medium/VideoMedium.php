@@ -17,7 +17,7 @@ class VideoMedium extends Medium
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     protected function sourceParsedownElement(array $attributes, $reset = true)
@@ -51,7 +51,7 @@ class VideoMedium extends Medium
     /**
      * Allows to set the video's poster image
      *
-     * @param $urlImage
+     * @param string $urlImage
      * @return $this
      */
     public function poster($urlImage)

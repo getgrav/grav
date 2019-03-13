@@ -83,7 +83,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     /**
      * Get a list of all media.
      *
-     * @return array|MediaObjectInterface[]
+     * @return MediaObjectInterface[]
      */
     public function all()
     {
@@ -95,7 +95,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     /**
      * Get a list of all image media.
      *
-     * @return array|MediaObjectInterface[]
+     * @return MediaObjectInterface[]
      */
     public function images()
     {
@@ -106,7 +106,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     /**
      * Get a list of all video media.
      *
-     * @return array|MediaObjectInterface[]
+     * @return MediaObjectInterface[]
      */
     public function videos()
     {
@@ -117,7 +117,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     /**
      * Get a list of all audio media.
      *
-     * @return array|MediaObjectInterface[]
+     * @return MediaObjectInterface[]
      */
     public function audios()
     {
@@ -128,7 +128,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     /**
      * Get a list of all file media.
      *
-     * @return array|MediaObjectInterface[]
+     * @return MediaObjectInterface[]
      */
     public function files()
     {
@@ -161,7 +161,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     /**
      * Order the media based on the page's media_order
      *
-     * @param $media
+     * @param array $media
      * @return array
      */
     protected function orderMedia($media)

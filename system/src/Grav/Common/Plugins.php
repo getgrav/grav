@@ -90,7 +90,7 @@ class Plugins extends Iterator
     /**
      * Registers all plugins.
      *
-     * @return array|Plugin[] array of Plugin objects
+     * @return Plugin[] array of Plugin objects
      * @throws \RuntimeException
      */
     public function init()
@@ -117,7 +117,7 @@ class Plugins extends Iterator
     /**
      * Add a plugin
      *
-     * @param $plugin
+     * @param Plugin $plugin
      */
     public function add($plugin)
     {

@@ -80,7 +80,7 @@ class Excerpts
     /**
      * Rebuild HTML tag from an excerpt array
      *
-     * @param $excerpt
+     * @param array $excerpt
      * @return string
      */
     public static function getHtmlFromExcerpt($excerpt)
@@ -111,7 +111,7 @@ class Excerpts
     /**
      * Process a Link excerpt
      *
-     * @param $excerpt
+     * @param array $excerpt
      * @param PageInterface $page
      * @param string $type
      * @return mixed
@@ -193,7 +193,7 @@ class Excerpts
      *
      * @param array $excerpt
      * @param PageInterface $page
-     * @return mixed
+     * @return array
      */
     public static function processImageExcerpt(array $excerpt, PageInterface $page)
     {
@@ -268,9 +268,9 @@ class Excerpts
     /**
      * Process media actions
      *
-     * @param $medium
-     * @param $url
-     * @return mixed
+     * @param Medium $medium
+     * @param string|array $url
+     * @return Medium
      */
     public static function processMediaActions($medium, $url)
     {
@@ -355,6 +355,10 @@ class Excerpts
         return $url_parts;
     }
 
+    /**
+     * @param string $url
+     * @return bool|string
+     */
     protected static function resolveStream($url)
     {
         /** @var UniformResourceLocator $locator */

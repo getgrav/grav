@@ -38,7 +38,7 @@ class Link implements RenderableInterface
      * @param  string  $alt
      * @param  string  $class
      * @param  string  $id
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)

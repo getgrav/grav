@@ -23,7 +23,7 @@ abstract class Utils
     /**
      * Simple helper method to make getting a Grav URL easier
      *
-     * @param $input
+     * @param string $input
      * @param bool $domain
      * @return bool|null|string
      */
@@ -157,15 +157,15 @@ abstract class Utils
      * match_wildcard('*a?d*', $test),     // TRUE
      * match_wildcard('*etc**', $test)     // TRUE
      *
-     * @param $wildcard_pattern
-     * @param $haystack
+     * @param string $wildcard_pattern
+     * @param string $haystack
      * @return false|int
      */
-    public static function matchWildcard( $wildcard_pattern, $haystack) {
+    public static function matchWildcard($wildcard_pattern, $haystack) {
         $regex = str_replace(
             array("\*", "\?"), // wildcard chars
             array('.*','.'),   // regexp chars
-            preg_quote($wildcard_pattern)
+            preg_quote($wildcard_pattern, '/')
         );
 
         return preg_match('/^'.$regex.'$/is', $haystack);
@@ -174,9 +174,9 @@ abstract class Utils
     /**
      * Returns the substring of a string up to a specified needle.  if not found, return the whole haystack
      *
-     * @param $haystack
-     * @param $needle
-     * @param  bool $case_sensitive
+     * @param string $haystack
+     * @param string $needle
+     * @param bool $case_sensitive
      *
      * @return string
      */
@@ -194,11 +194,11 @@ abstract class Utils
     /**
      * Utility method to replace only the first occurrence in a string
      *
-     * @param $search
-     * @param $replace
-     * @param $subject
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
      *
-     * @return mixed
+     * @return string
      */
     public static function replaceFirstOccurrence($search, $replace, $subject)
     {
@@ -218,10 +218,10 @@ abstract class Utils
     /**
      * Utility method to replace only the last occurrence in a string
      *
-     * @param $search
-     * @param $replace
-     * @param $subject
-     * @return mixed
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     * @return string
      */
     public static function replaceLastOccurrence($search, $replace, $subject)
     {
@@ -268,9 +268,9 @@ abstract class Utils
     /**
      * Recursive Merge with uniqueness
      *
-     * @param $array1
-     * @param $array2
-     * @return mixed
+     * @param array $array1
+     * @param array $array2
+     * @return array
      */
     public static function arrayMergeRecursiveUnique($array1, $array2)
     {
@@ -292,8 +292,8 @@ abstract class Utils
     /**
      * Returns an array with the differences between $array1 and $array2
      *
-     * @param array $aArray1
-     * @param array $aArray2
+     * @param array $array1
+     * @param array $array2
      * @return array
      */
     public static function arrayDiffMultidimensional($array1, $array2)
@@ -322,8 +322,8 @@ abstract class Utils
     /**
      * Array combine but supports different array lengths
      *
-     * @param $arr1
-     * @param $arr2
+     * @param  array $arr1
+     * @param  array $arr2
      * @return array|false
      */
     public static function arrayCombine($arr1, $arr2)
@@ -336,7 +336,7 @@ abstract class Utils
     /**
      * Array is associative or not
      *
-     * @param $arr
+     * @param  array $arr
      * @return bool
      */
     public static function arrayIsAssociative($arr)
@@ -375,7 +375,7 @@ abstract class Utils
     /**
      * Get current date/time
      *
-     * @param null $default_format
+     * @param string|null $default_format
      * @return string
      * @throws \Exception
      */
@@ -909,7 +909,7 @@ abstract class Utils
     /**
      * Opposite of flatten, convert flat dot notation array to multi dimensional array
      *
-     * @param $array
+     * @param array $array
      * @param string $separator
      * @return array
      */
@@ -950,11 +950,7 @@ abstract class Utils
 
         $languages_enabled = Grav::instance()['config']->get('system.languages.supported', []);
 
-        if ($string[0] === '/' && $string[3] === '/' && \in_array(substr($string, 1, 2), $languages_enabled, true)) {
-            return true;
-        }
-
-        return false;
+        return $string[0] === '/' && $string[3] === '/' && \in_array(substr($string, 1, 2), $languages_enabled, true);
     }
 
     /**
@@ -1119,8 +1115,8 @@ abstract class Utils
     /**
      * Get a portion of an array (passed by reference) with dot-notation key
      *
-     * @param $array
-     * @param $key
+     * @param array $array
+     * @param string|int $key
      * @param null $default
      * @return mixed
      */
@@ -1149,10 +1145,10 @@ abstract class Utils
      * Set portion of array (passed by reference) for a dot-notation key
      * and set the value
      *
-     * @param      $array
-     * @param      $key
-     * @param      $value
-     * @param bool $merge
+     * @param array      $array
+     * @param string|int $key
+     * @param mixed      $value
+     * @param bool       $merge
      *
      * @return mixed
      */
@@ -1227,8 +1223,8 @@ abstract class Utils
     /**
      * Sort an array by a key value in the array
      *
-     * @param $array
-     * @param $array_key
+     * @param mixed $array
+     * @param string|int $array_key
      * @param int $direction
      * @param int $sort_flags
      * @return array
@@ -1253,7 +1249,7 @@ abstract class Utils
     /**
      * Get's path based on a token
      *
-     * @param $path
+     * @param string $path
      * @param PageInterface|null $page
      * @return string
      * @throws \RuntimeException
@@ -1325,11 +1321,11 @@ abstract class Utils
     /**
      * Convert bytes to the unit specified by the $to parameter.
      *
-     * @param integer $bytes The filesize in Bytes.
+     * @param int $bytes The filesize in Bytes.
      * @param string $to The unit type to convert to. Accepts K, M, or G for Kilobytes, Megabytes, or Gigabytes, respectively.
-     * @param integer $decimal_places The number of decimal places to return.
+     * @param int $decimal_places The number of decimal places to return.
      *
-     * @return integer Returns only the number of units, not the type letter. Returns 0 if the $to unit type is out of scope.
+     * @return int Returns only the number of units, not the type letter. Returns 0 if the $to unit type is out of scope.
      *
      */
     public static function convertSize($bytes, $to, $decimal_places = 1)
@@ -1367,7 +1363,7 @@ abstract class Utils
     /**
      * Parse a readable file size and return a value in bytes
      *
-     * @param $size
+     * @param string|int $size
      * @return int
      */
     public static function parseSize($size)
@@ -1375,7 +1371,7 @@ abstract class Utils
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
         $size = preg_replace('/[^0-9\.]/', '', $size);
         if ($unit) {
-            return (int)($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+            return (int)((int)$size * (1024 ** stripos('bkmgtpezy', $unit[0])));
         }
 
         return (int)$size;
@@ -1384,8 +1380,8 @@ abstract class Utils
     /**
      * Multibyte-safe Parse URL function
      *
-     * @param $url
-     * @return mixed
+     * @param string $url
+     * @return array
      * @throws \InvalidArgumentException
      */
     public static function multibyteParseUrl($url)
@@ -1414,10 +1410,10 @@ abstract class Utils
     /**
      * Process a string as markdown
      *
-     * @param $string
+     * @param string $string
      *
      * @param bool $block  Block or Line processing
-     * @return mixed|string
+     * @return string
      */
     public static function processMarkdown($string, $block = true)
     {

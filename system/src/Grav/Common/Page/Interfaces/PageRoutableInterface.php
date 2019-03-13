@@ -76,9 +76,9 @@ interface PageRoutableInterface
     /**
      * Gets and Sets the page raw route
      *
-     * @param null $var
+     * @param string|null $var
      *
-     * @return null|string
+     * @return string
      */
     public function rawRoute($var = null);
 
@@ -95,7 +95,7 @@ interface PageRoutableInterface
      * Gets the canonical route for this page if its set. If provided it will use
      * that value, else if it's `true` it will use the default route.
      *
-     * @param null $var
+     * @param string|null $var
      *
      * @return bool|string
      */
@@ -153,9 +153,7 @@ interface PageRoutableInterface
     /**
      * Returns the item in the current position.
      *
-     * @param  string $path the path the item
-     *
-     * @return Integer   the index of the current page.
+     * @return int   the index of the current page.
      */
     public function currentPosition();
 

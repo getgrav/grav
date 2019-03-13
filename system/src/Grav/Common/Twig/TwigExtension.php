@@ -10,7 +10,10 @@
 namespace Grav\Common\Twig;
 
 use Cron\CronExpression;
+use Grav\Common\Config\Config;
+use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
@@ -30,8 +33,13 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
+    /** @var Grav */
     protected $grav;
+
+    /** @var Debugger */
     protected $debugger;
+
+    /** @var Config */
     protected $config;
 
     /**
@@ -304,7 +312,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param string $data
      * @param int    $count
      *
-     * @return mixed
+     * @return string
      */
     public function inflectorFilter($action, $data, $count = null)
     {
@@ -342,7 +350,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Return Base32 encoded string
      *
-     * @param $str
+     * @param string $str
      * @return string
      */
     public function base32EncodeFilter($str)
@@ -353,7 +361,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Return Base32 decoded string
      *
-     * @param $str
+     * @param string $str
      * @return bool|string
      */
     public function base32DecodeFilter($str)
@@ -364,7 +372,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Return Base64 encoded string
      *
-     * @param $str
+     * @param string $str
      * @return string
      */
     public function base64EncodeFilter($str)
@@ -375,7 +383,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Return Base64 decoded string
      *
-     * @param $str
+     * @param string $str
      * @return bool|string
      */
     public function base64DecodeFilter($str)
@@ -419,8 +427,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Wrapper for chunk_split() function
      *
-     * @param $value
-     * @param $chars
+     * @param string $value
+     * @param int $chars
      * @param string $split
      * @return string
      */
@@ -432,10 +440,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * determine if a string contains another
      *
-     * @param String $haystack
-     * @param String $needle
+     * @param string $haystack
+     * @param string $needle
      *
-     * @return boolean
+     * @return bool
      */
     public function containsFilter($haystack, $needle)
     {
@@ -451,7 +459,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Get Cron object for a crontab 'at' format
      *
-     * @param $at
+     * @param string $at
      * @return CronExpression
      */
     public function cronFunc($at)
@@ -462,11 +470,11 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * displays a facebook style 'time ago' formatted date/time
      *
-     * @param $date
+     * @param string $date
      * @param bool $long_strings
      *
      * @param bool $show_tense
-     * @return boolean
+     * @return bool
      */
     public function nicetimeFunc($date, $long_strings = true, $show_tense = true)
     {
@@ -561,17 +569,16 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Allow quick check of a string for XSS Vulnerabilities
      *
-     * @param $string
+     * @param string|array $data
      * @return bool|string|array
      */
     public function xssFunc($data)
     {
-        if (\is_array($data)) {
-            $results = Security::detectXssFromArray($data);
-        } else {
+        if (!\is_array($data)) {
             return Security::detectXss($data);
         }
 
+        $results = Security::detectXssFromArray($data);
         $results_parts = array_map(function($value, $key) {
             return $key.': \''.$value . '\'';
         }, array_values($results), array_keys($results));
@@ -580,7 +587,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param $string
+     * @param string $string
      *
      * @return mixed
      */
@@ -594,7 +601,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param $string
+     * @param string $string
      *
      * @param bool $block  Block or Line processing
      * @return mixed|string
@@ -605,8 +612,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param $haystack
-     * @param $needle
+     * @param string $haystack
+     * @param string $needle
      *
      * @return bool
      */
@@ -616,8 +623,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param $haystack
-     * @param $needle
+     * @param string $haystack
+     * @param string $needle
      *
      * @return bool
      */
@@ -627,7 +634,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param      $value
+     * @param mixed $value
      * @param null $default
      *
      * @return null
@@ -638,7 +645,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         }
 
     /**
-     * @param      $value
+     * @param string $value
      * @param null $chars
      *
      * @return string
@@ -649,7 +656,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param      $value
+     * @param string $value
      * @param null $chars
      *
      * @return string
@@ -716,7 +723,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function translate(\Twig_Environment $twig)
     {
@@ -746,27 +753,32 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Translate Strings
      *
-     * @param $args
+     * @param string|array $args
      * @param array|null $languages
      * @param bool $array_support
      * @param bool $html_out
-     * @return mixed
+     * @return string
      */
     public function translateLanguage($args, array $languages = null, $array_support = false, $html_out = false)
     {
-        return $this->grav['language']->translate($args, $languages, $array_support, $html_out);
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        return $language->translate($args, $languages, $array_support, $html_out);
     }
 
     /**
-     * @param      $key
-     * @param      $index
-     * @param null $lang
-     *
-     * @return mixed
+     * @param string $key
+     * @param string $index
+     * @param array|null $lang
+     * @return string
      */
     public function translateArray($key, $index, $lang = null)
     {
-        return $this->grav['language']->translateArray($key, $index, $lang);
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        return $language->translateArray($key, $index, $lang);
     }
 
     /**
@@ -817,8 +829,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * This function will evaluate a $string through the $environment, and return its results.
      *
-     * @param $context
-     * @param $string
+     * @param array $context
+     * @param string $string
      * @return mixed
      */
     public function evaluateStringFunc($context, $string )
@@ -832,7 +844,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * (c) 2011 Fabien Potencier
      *
      * @param \Twig_Environment $env
-     * @param                   $context
+     * @param string $context
      */
     public function dump(\Twig_Environment $env, $context)
     {
@@ -894,8 +906,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Pad a string to a certain length with another string
      *
-     * @param        $input
-     * @param        $pad_length
+     * @param string $input
+     * @param int    $pad_length
      * @param string $pad_string
      * @param int    $pad_type
      *
@@ -930,8 +942,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Wrapper for array_intersect() method
      *
-     * @param $array1
-     * @param $array2
+     * @param array $array1
+     * @param array $array2
      * @return array
      */
     public function arrayIntersectFunc($array1, $array2)
@@ -946,7 +958,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Returns a string from a value. If the value is array, return it json encoded
      *
-     * @param $value
+     * @param array|string $value
      *
      * @return string
      */
@@ -1025,8 +1037,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      *
      * @param  string  $str
      * @param  bool  $assoc
-     * @param int $depth
-     * @param int $options
+     * @param  int $depth
+     * @param  int $options
      * @return array
      */
     public function jsonDecodeFilter($str, $assoc = false, $depth = 512, $options = 0)
@@ -1054,7 +1066,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param mixed $replace the replacement value either as a string or an array of replacements
      * @param int   $limit   the maximum possible replacements for each pattern in each subject
      *
-     * @return mixed the resulting content
+     * @return string|string[]|null the resulting content
      */
     public function regexReplace($subject, $pattern, $replace, $limit = -1)
     {
@@ -1064,8 +1076,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Twig wrapper for PHP's preg_grep method
      *
-     * @param $array
-     * @param $regex
+     * @param array $array
+     * @param string $regex
      * @param int $flags
      * @return array
      */
@@ -1104,7 +1116,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * Check if HTTP_X_REQUESTED_WITH has been set to xmlhttprequest,
      * in which case we may unsafely assume ajax. Non critical use only.
      *
-     * @return true if HTTP_X_REQUESTED_WITH exists and has been set to xmlhttprequest
+     * @return bool True if HTTP_X_REQUESTED_WITH exists and has been set to xmlhttprequest
      */
     public function isAjaxFunc()
     {
@@ -1116,7 +1128,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Get's the Exif data for a file
      *
-     * @param $image
+     * @param string $image
      * @param bool $raw
      * @return mixed
      */
@@ -1132,7 +1144,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
             $exif_reader = $this->grav['exif']->getReader();
 
-            if (file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
+            if ($image & file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
 
                 $exif_data = $exif_reader->read($image);
 
@@ -1152,7 +1164,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Simple function to read a file based on a filepath and output it
      *
-     * @param $filepath
+     * @param string $filepath
      * @return bool|string
      */
     public function readFileFunc($filepath)
@@ -1164,7 +1176,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             $filepath = $locator->findResource($filepath);
         }
 
-        if (file_exists($filepath)) {
+        if ($filepath && file_exists($filepath)) {
             return file_get_contents($filepath);
         }
 
@@ -1174,7 +1186,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Process a folder as Media and return a media object
      *
-     * @param $media_dir
+     * @param string $media_dir
      * @return Media|null
      */
     public function mediaDirFunc($media_dir)
@@ -1186,7 +1198,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             $media_dir = $locator->findResource($media_dir);
         }
 
-        if (file_exists($media_dir)) {
+        if ($media_dir && file_exists($media_dir)) {
             return new Media($media_dir);
         }
 
@@ -1196,7 +1208,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Dump a variable to the browser
      *
-     * @param $var
+     * @param mixed $var
      */
     public function vardumpFunc($var)
     {
@@ -1206,7 +1218,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Returns a nicer more readable filesize based on bytes
      *
-     * @param $bytes
+     * @param int $bytes
      * @return string
      */
     public function niceFilesizeFunc($bytes)
@@ -1250,7 +1262,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Get a theme variable
      *
-     * @param $var
+     * @param string $var
      * @param bool $default
      * @return string
      */
@@ -1266,7 +1278,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * takes an array of classes, and if they are not set on body_classes
      * look to see if they are set in theme config
      *
-     * @param $classes
+     * @param string|string[] $classes
      * @return string
      */
     public function bodyClassFunc($classes)
@@ -1290,8 +1302,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Look for a page header variable in an array of pages working its way through until a value is found
      *
-     * @param $var
-     * @param null $pages
+     * @param string $var
+     * @param string|string[]|null $pages
      * @return mixed
      */
     public function pageHeaderVarFunc($var, $pages = null)
@@ -1325,9 +1337,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Dump/Encode data into YAML format
      *
-     * @param $data
-     * @param $inline integer number of levels of inline syntax
-     * @return mixed
+     * @param array $data
+     * @param int $inline integer number of levels of inline syntax
+     * @return string
      */
     public function yamlEncodeFilter($data, $inline = 10)
     {
@@ -1337,8 +1349,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Decode/Parse data from YAML format
      *
-     * @param $data
-     * @return mixed
+     * @param string $data
+     * @return array
      */
     public function yamlDecodeFilter($data)
     {
@@ -1348,7 +1360,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Function/Filter to return the type of variable
      *
-     * @param $var
+     * @param mixed $var
      * @return string
      */
     public function getTypeFunc($var)
@@ -1359,9 +1371,9 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Function/Filter to test type of variable
      *
-     * @param $var
-     * @param null $typeTest
-     * @param null $className
+     * @param mixed $var
+     * @param string|null $typeTest
+     * @param string|null $className
      * @return bool
      */
     public function ofTypeFunc($var, $typeTest=null, $className=null)

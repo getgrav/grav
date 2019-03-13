@@ -9,6 +9,8 @@
 
 namespace Grav\Common\Markdown;
 
+use Grav\Common\Page\Interfaces\PageInterface;
+
 class ParsedownExtra extends \ParsedownExtra
 {
     use ParsedownGravTrait;
@@ -16,8 +18,8 @@ class ParsedownExtra extends \ParsedownExtra
     /**
      * ParsedownExtra constructor.
      *
-     * @param $page
-     * @param $defaults
+     * @param PageInterface $page
+     * @param array|null $defaults
      * @throws \Exception
      */
     public function __construct($page, $defaults)

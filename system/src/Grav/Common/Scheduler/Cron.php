@@ -128,7 +128,7 @@ class Cron
 
     /**
      *
-     * @param string $cron
+     * @param string|null $cron
      */
     public function __construct($cron = null)
     {
@@ -459,7 +459,7 @@ class Cron
 
     /**
      *
-     * @param int|string|\Datetime $date
+     * @param int|string|\DateTime $date
      */
     public function matchExact($date)
     {
@@ -476,7 +476,7 @@ class Cron
 
     /**
      *
-     * @param int|string|\Datetime $date
+     * @param int|string|\DateTime $date
      * @param int $minuteBefore
      * @param int $minuteAfter
      */

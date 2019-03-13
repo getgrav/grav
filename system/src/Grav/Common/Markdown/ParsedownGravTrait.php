@@ -28,8 +28,8 @@ trait ParsedownGravTrait
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
      *
-     * @param $page
-     * @param $defaults
+     * @param PageInterface $page
+     * @param array|null $defaults
      */
     protected function init($page, $defaults)
     {
@@ -40,7 +40,7 @@ trait ParsedownGravTrait
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
         if ($defaults === null) {
-            $defaults = Grav::instance()['config']->get('system.pages.markdown');
+            $defaults = (array)Grav::instance()['config']->get('system.pages.markdown');
         }
 
         $this->setBreaksEnabled($defaults['auto_line_breaks']);
@@ -55,11 +55,11 @@ trait ParsedownGravTrait
     /**
      * Be able to define a new Block type or override an existing one
      *
-     * @param $type
-     * @param $tag
+     * @param string $type
+     * @param string $tag
      * @param bool $continuable
      * @param bool $completable
-     * @param $index
+     * @param int|null $index
      */
     public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
     {
@@ -88,9 +88,9 @@ trait ParsedownGravTrait
     /**
      * Be able to define a new Inline type or override an existing one
      *
-     * @param $type
-     * @param $tag
-     * @param $index
+     * @param string $type
+     * @param string $tag
+     * @param int|null $index
      */
     public function addInlineType($type, $tag, $index = null)
     {
@@ -108,7 +108,7 @@ trait ParsedownGravTrait
     /**
      * Overrides the default behavior to allow for plugin-provided blocks to be continuable
      *
-     * @param $Type
+     * @param string $Type
      *
      * @return bool
      */
@@ -122,7 +122,7 @@ trait ParsedownGravTrait
     /**
      *  Overrides the default behavior to allow for plugin-provided blocks to be completable
      *
-     * @param $Type
+     * @param string $Type
      *
      * @return bool
      */
@@ -149,7 +149,7 @@ trait ParsedownGravTrait
     /**
      * Setter for special chars
      *
-     * @param $special_chars
+     * @param array $special_chars
      *
      * @return $this
      */

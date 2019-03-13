@@ -183,7 +183,7 @@ class Response
     /**
      * Checks if cURL is available
      *
-     * @return boolean
+     * @return bool
      */
     public static function isCurlAvailable()
     {
@@ -193,7 +193,7 @@ class Response
     /**
      * Checks if the remote fopen request is enabled in PHP
      *
-     * @return boolean
+     * @return bool
      */
     public static function isFopenAvailable()
     {
@@ -203,7 +203,7 @@ class Response
     /**
      * Is this a remote file or not
      *
-     * @param $file
+     * @param string $file
      * @return bool
      */
     public static function isRemote($file)
@@ -359,9 +359,9 @@ class Response
     }
 
     /**
-     * @param $ch
-     * @param $options
-     * @param $callback
+     * @param resource $ch
+     * @param array $options
+     * @param bool $callback
      *
      * @return bool|mixed
      */

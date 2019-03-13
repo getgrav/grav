@@ -17,7 +17,7 @@ class ThumbnailImageMedium extends ImageMedium
     public $parent = null;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $linked = false;
 
@@ -39,7 +39,7 @@ class ThumbnailImageMedium extends ImageMedium
      * @param  string $alt
      * @param  string $class
      * @param  string $id
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
@@ -91,7 +91,7 @@ class ThumbnailImageMedium extends ImageMedium
     /**
      * Turn the current Medium into a Link
      *
-     * @param  boolean $reset
+     * @param  bool $reset
      * @param  array  $attributes
      * @return Link
      */
@@ -105,7 +105,7 @@ class ThumbnailImageMedium extends ImageMedium
      *
      * @param  int  $width
      * @param  int  $height
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return Link
      */
     public function lightbox($width = null, $height = null, $reset = true)
@@ -118,7 +118,7 @@ class ThumbnailImageMedium extends ImageMedium
      *
      * @param  string  $method
      * @param  array  $arguments
-     * @param  boolean $testLinked
+     * @param  bool $testLinked
      * @return Medium
      */
     protected function bubble($method, array $arguments = [], $testLinked = true)

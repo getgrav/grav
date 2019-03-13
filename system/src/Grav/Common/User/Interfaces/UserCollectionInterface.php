@@ -17,8 +17,6 @@ interface UserCollectionInterface
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
-     * @param bool $setConfig
-     *
      * @return UserInterface
      */
     public function load($username): UserInterface;
@@ -36,7 +34,6 @@ interface UserCollectionInterface
      * Delete user account.
      *
      * @param string $username
-     *
      * @return bool True if user account was found and was deleted.
      */
     public function delete($username): bool;

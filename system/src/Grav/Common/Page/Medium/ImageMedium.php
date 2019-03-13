@@ -42,7 +42,7 @@ class ImageMedium extends Medium
     protected $default_quality;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $debug_watermarked = false;
 
@@ -122,7 +122,7 @@ class ImageMedium extends Medium
     /**
      * Add meta file for the medium.
      *
-     * @param $filepath
+     * @param string $filepath
      * @return $this
      */
     public function addMetaFile($filepath)
@@ -234,7 +234,7 @@ class ImageMedium extends Medium
     /**
      * Allows the ability to override the Inmage's Pretty name stored in cache
      *
-     * @param $name
+     * @param string $name
      */
     public function setImagePrettyName($name)
     {
@@ -263,8 +263,8 @@ class ImageMedium extends Medium
      * widths. Existing image alternatives won't be overwritten.
      *
      * @param  int|int[] $min_width
-     * @param  int       [$max_width=2500]
-     * @param  int       [$step=200]
+     * @param  int       $max_width
+     * @param  int       $step
      * @return $this
      */
     public function derivatives($min_width, $max_width = 2500, $step = 200)
@@ -335,7 +335,7 @@ class ImageMedium extends Medium
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     public function sourceParsedownElement(array $attributes, $reset = true)
@@ -378,7 +378,7 @@ class ImageMedium extends Medium
     /**
      * Turn the current Medium into a Link
      *
-     * @param  boolean $reset
+     * @param  bool $reset
      * @param  array  $attributes
      * @return Link
      */
@@ -398,7 +398,7 @@ class ImageMedium extends Medium
      *
      * @param  int  $width
      * @param  int  $height
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return Link
      */
     public function lightbox($width = null, $height = null, $reset = true)

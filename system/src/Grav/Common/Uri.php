@@ -1064,7 +1064,7 @@ class Uri
     /**
      * Is the passed in URL a valid URL?
      *
-     * @param $url
+     * @param string $url
      * @return bool
      */
     public static function isValidUrl($url)
@@ -1080,7 +1080,7 @@ class Uri
     /**
      * Removes extra double slashes and fixes back-slashes
      *
-     * @param $path
+     * @param string $path
      * @return mixed|string
      */
     public static function cleanPath($path)
@@ -1363,7 +1363,7 @@ class Uri
     /**
      * Process any params based in this URL, supports any valid delimiter
      *
-     * @param        $uri
+     * @param string $uri
      * @param string $delimiter
      *
      * @return string
