@@ -174,4 +174,16 @@ abstract class BaseAsset extends PropertyObject
     {
         return ['type' => $this->getType(), 'elements' => $this->getElements()];
     }
+
+    /**
+     * Placeholder for AssetUtilsTrait method
+     *
+     * @param $file
+     * @param $dir
+     * @param $local
+     */
+    protected function cssRewrite($file, $dir, $local)
+    {
+        return;
+    }
 }
