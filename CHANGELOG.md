@@ -1,3 +1,9 @@
+# v1.5.9
+## mm/dd/2019
+
+1. [](#improved)
+    * Fixed phpdoc generation
+
 # v1.5.8
 ## 02/07/2019
 
