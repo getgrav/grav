@@ -7,6 +7,7 @@
     * Added `Flex::getObjects()` and `Flex::getMixedCollection()` methods for co-mingled collections
     * Added support to use single Flex key parameter in `Flex::getObject()` method
     * Added `FlexObjectInterface::search()` and `FlexCollectionInterface::search()` methods
+    * Override `system.media.upload_limit` with PHP's `post_max_size` or `upload_max_filesize`
 1. [](#improved)
     * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
     * Improved `File::save()` to use a temporary file if file isn't locked
@@ -237,6 +238,12 @@
 1. [](#improved)
     * Doctrine filecache is now namespaced with prefix to support purging
     * Register all page types into `blueprint://pages` stream
+
+# v1.5.9
+## mm/dd/2019
+
+1. [](#improved)
+    * Fixed phpdoc generation
 
 # v1.5.8
 ## 02/07/2019
@@ -564,8 +571,6 @@
 # v1.3.7
 ## 10/18/2017
 
-1. [](#new)
-    * Override `system.media.upload_limit` with PHP's `post_max_size` or `upload_max_filesize`
 1. [](#bugfix)
     * Regression Uri: `base_url_absolute` always has the port number [#1690](https://github.com/getgrav/grav-plugin-admin/issues/1690)
     * Uri: Prefer using REQUEST_SCHEME instead of HTTPS [#1698](https://github.com/getgrav/grav-plugin-admin/issues/1698)

@@ -160,7 +160,7 @@ trait UserTrait
         $email = $this->get('email');
 
         // By default fall back to gravatar image.
-        return $email ? 'https://www.gravatar.com/avatar/' . md5($email) : '';
+        return $email ? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) : '';
     }
 
     abstract public function get($name, $default = null, $separator = null);
