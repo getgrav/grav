@@ -39,8 +39,8 @@ interface FlexFormInterface extends \Serializable, FormInterface
     public function getFileUploadAjaxRoute(): ?Route;
 
     /**
-     * @param $field
-     * @param $filename
+     * @param string $field
+     * @param string $filename
      * @return Route|null
      */
     public function getFileDeleteAjaxRoute($field, $filename): ?Route;

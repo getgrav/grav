@@ -15,6 +15,16 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 class GlobalMedia extends AbstractMedia
 {
     /**
+     * Return media path.
+     *
+     * @return null
+     */
+    public function getPath()
+    {
+        return null;
+    }
+
+    /**
      * @param mixed $offset
      *
      * @return bool

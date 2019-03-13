@@ -129,4 +129,14 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
      * @throws \Twig_Error_Syntax
      */
     public function render($layout = null, array $context = []);
+
+    /**
+     * Form field compatibility.
+     *
+     * @param  string $name
+     * @param  mixed  $default
+     * @param  string $separator
+     * @return mixed
+     */
+    public function value($name, $default = null, $separator = null);
 }

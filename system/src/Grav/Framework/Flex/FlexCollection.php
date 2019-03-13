@@ -64,7 +64,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string $keyField
      * @return static
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null) : FlexCollectionInterface
+    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null): FlexCollectionInterface
     {
         $instance = new static($entries, $directory);
         $instance->setKeyField($keyField);
@@ -146,7 +146,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $this->select(array_keys($matching));
     }
 
-    public function sort(array $order) // : FlexCollection
+    public function sort(array $order) // : FlexCollectionInterface
     {
         $criteria = Criteria::create()->orderBy($order);
 
@@ -329,10 +329,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
-     * @param string $keyField
-     * @return FlexIndex
+     * @param string|null $keyField
+     * @return FlexCollectionInterface
      */
-    public function withKeyField(string $keyField = null) : self
+    public function withKeyField(string $keyField = null): FlexCollectionInterface
     {
         $keyField = $keyField ?: 'key';
         if ($keyField === $this->getKeyField()) {
@@ -357,7 +357,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @return string
      */
-    public function getKeyField() : string
+    public function getKeyField(): string
     {
         return $this->_keyField ?? 'storage_key';
     }
@@ -445,10 +445,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
-     * @param $type
+     * @param string $type
      * @return FlexDirectory
      */
-    protected function getRelatedDirectory($type) : ?FlexDirectory
+    protected function getRelatedDirectory($type): ?FlexDirectory
     {
         /** @var Flex $flex */
         $flex = Grav::instance()['flex_objects'];

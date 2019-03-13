@@ -11,6 +11,7 @@ namespace Grav\Framework\Cache\Adapter;
 
 use Doctrine\Common\Cache\CacheProvider;
 use Grav\Framework\Cache\AbstractCache;
+use Grav\Framework\Cache\Exception\InvalidArgumentException;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using Doctrine Cache backend.
@@ -29,7 +30,7 @@ class DoctrineCache extends AbstractCache
      * @param CacheProvider $doctrineCache
      * @param string $namespace
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function __construct(CacheProvider $doctrineCache, $namespace = '', $defaultLifetime = null)
     {
@@ -96,7 +97,7 @@ class DoctrineCache extends AbstractCache
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function doDeleteMultiple($keys)
     {

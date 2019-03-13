@@ -73,7 +73,7 @@ class FlexForm implements FlexFormInterface
         $object = $this->getObject();
         $name = $this->name ?: 'object';
 
-        return "flex-{$object->getType(false)}-{$name}";
+        return "flex-{$object->getType()}-{$name}";
     }
 
     /**
@@ -162,8 +162,8 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
-     * @param $field
-     * @param $filename
+     * @param string $field
+     * @param string $filename
      * @return Route|null
      */
     public function getFileDeleteAjaxRoute($field, $filename): ?Route

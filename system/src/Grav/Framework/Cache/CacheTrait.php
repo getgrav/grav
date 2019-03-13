@@ -34,7 +34,7 @@ trait CacheTrait
      *
      * @param string $namespace
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     protected function init($namespace = '', $defaultLifetime = null)
     {
@@ -44,7 +44,7 @@ trait CacheTrait
     }
 
     /**
-     * @param $validation
+     * @param bool $validation
      */
     public function setValidation($validation)
     {
@@ -69,7 +69,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function get($key, $default = null)
     {
@@ -82,7 +82,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function set($key, $value, $ttl = null)
     {
@@ -96,7 +96,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function delete($key)
     {
@@ -115,7 +115,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function getMultiple($keys, $default = null)
     {
@@ -155,7 +155,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function setMultiple($values, $ttl = null)
     {
@@ -186,7 +186,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function deleteMultiple($keys)
     {
@@ -212,7 +212,7 @@ trait CacheTrait
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function has($key)
     {
@@ -280,7 +280,7 @@ trait CacheTrait
 
     /**
      * @param string $key
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     protected function validateKey($key)
     {
@@ -309,7 +309,7 @@ trait CacheTrait
 
     /**
      * @param array $keys
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     protected function validateKeys($keys)
     {
@@ -325,7 +325,7 @@ trait CacheTrait
     /**
      * @param null|int|\DateInterval    $ttl
      * @return int|null
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     protected function convertTtl($ttl)
     {

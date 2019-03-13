@@ -14,4 +14,10 @@ namespace Grav\Common\Media\Interfaces;
  */
 interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\MediaCollectionInterface
 {
+    /**
+     * Return media path.
+     *
+     * @return string|null
+     */
+    public function getPath();
 }

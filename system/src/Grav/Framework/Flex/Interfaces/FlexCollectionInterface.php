@@ -49,4 +49,10 @@ interface FlexCollectionInterface extends ObjectCollectionInterface, NestedObjec
      * @return FlexDirectory
      */
     public function getFlexDirectory(); //: FlexDirectory;
+
+    /**
+     * @param string|null $keyField
+     * @return FlexCollectionInterface
+     */
+    public function withKeyField(string $keyField = null): FlexCollectionInterface;
 }

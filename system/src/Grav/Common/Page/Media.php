@@ -52,6 +52,16 @@ class Media extends AbstractMedia
     }
 
     /**
+     * Return media path.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
      * @param mixed $offset
      *
      * @return bool
@@ -206,12 +216,11 @@ class Media extends AbstractMedia
     }
 
     /**
-     * Enable accessing the media path
-     *
-     * @return mixed
+     * @return string
+     * @deprecated 1.6 Use $this->getPath() instead.
      */
     public function path()
     {
-        return $this->path;
+        return $this->getPath();
     }
 }

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex;
 
-use Grav\Framework\Collection\CollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
 
@@ -98,7 +98,7 @@ class Flex implements \Countable
     }
 
     /**
-     * @param string|null $type
+     * @param string $type
      * @return FlexDirectory|null
      */
     public function getDirectory(string $type): ?FlexDirectory
@@ -110,9 +110,9 @@ class Flex implements \Countable
      * @param string $type
      * @param array|null $keys
      * @param string|null $keyField
-     * @return CollectionInterface|null
+     * @return FlexCollectionInterface|null
      */
-    public function getCollection(string $type, array $keys = null, string $keyField = null): ?CollectionInterface
+    public function getCollection(string $type, array $keys = null, string $keyField = null): ?FlexCollectionInterface
     {
         $directory = $type ? $this->getDirectory($type) : null;
 
@@ -123,10 +123,10 @@ class Flex implements \Countable
      * @param array $keys
      * @param array $options            In addition to the options in getObjects(), following options can be passed:
      *                                  collection_class:   Class to be used to create the collection. Defaults to ObjectCollection.
-     * @return CollectionInterface
+     * @return FlexCollectionInterface
      * @throws \RuntimeException
      */
-    public function getMixedCollection(array $keys, array $options = []): CollectionInterface
+    public function getMixedCollection(array $keys, array $options = []): FlexCollectionInterface
     {
         $collectionClass = $options['collection_class'] ?? ObjectCollection::class;
         if (!class_exists($collectionClass)) {

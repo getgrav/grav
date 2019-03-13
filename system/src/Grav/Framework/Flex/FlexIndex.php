@@ -181,9 +181,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param string $keyField
-     * @return FlexIndex
+     * @return FlexCollectionInterface
      */
-    public function withKeyField(string $keyField = null) : self
+    public function withKeyField(string $keyField = null): FlexCollectionInterface
     {
         $keyField = $keyField ?: 'key';
         if ($keyField === $this->getKeyField()) {
@@ -451,18 +451,18 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param mixed $value
      * @return ObjectInterface|null
      */
-    protected function loadElement($key, $value) : ?ObjectInterface
+    protected function loadElement($key, $value): ?ObjectInterface
     {
         $objects = $this->_flexDirectory->loadObjects([$key => $value]);
 
-        return $objects ? reset($objects) : null;
+        return $objects ? reset($objects): null;
     }
 
     /**
      * @param array|null $entries
      * @return ObjectInterface[]
      */
-    protected function loadElements(array $entries = null) : array
+    protected function loadElements(array $entries = null): array
     {
         return $this->_flexDirectory->loadObjects($entries ?? $this->getEntries());
     }
@@ -471,7 +471,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param array|null $entries
      * @return ObjectCollectionInterface
      */
-    protected function loadCollection(array $entries = null) : CollectionInterface
+    protected function loadCollection(array $entries = null): CollectionInterface
     {
         return $this->_flexDirectory->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
     }
@@ -480,7 +480,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param mixed $value
      * @return bool
      */
-    protected function isAllowedElement($value) : bool
+    protected function isAllowedElement($value): bool
     {
         return $value instanceof FlexObject;
     }
@@ -500,7 +500,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param array $entries    Updated index
      * @return array            Compiled list of entries
      */
-    protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries) : array
+    protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries): array
     {
         // Calculate removed objects.
         $removed = array_diff_key($index, $entries);

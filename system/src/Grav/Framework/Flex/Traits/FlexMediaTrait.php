@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex\Traits;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\Medium;
@@ -58,6 +59,9 @@ trait FlexMediaTrait
         return $this->getFlexDirectory()->getMediaFolder($this->getStorageKey());
     }
 
+    /**
+     * @return MediaCollectionInterface
+     */
     public function getMedia()
     {
         if ($this->media === null) {
@@ -147,7 +151,7 @@ trait FlexMediaTrait
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        $path = $media->path();
+        $path = $media->getPath();
         if ($locator->isStream($path)) {
             $path = $locator->findResource($path, true, true);
             $locator->clearCache($path);
@@ -201,8 +205,8 @@ trait FlexMediaTrait
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
-        $targetPath = $media->path() . '/' . $dirname;
-        $targetFile = $media->path() . '/' . $filename;
+        $targetPath = $media->getPath() . '/' . $dirname;
+        $targetFile = $media->getPath() . '/' . $filename;
         if ($locator->isStream($targetFile)) {
             $targetPath = $locator->findResource($targetPath, true, true);
             $targetFile = $locator->findResource($targetFile, true, true);

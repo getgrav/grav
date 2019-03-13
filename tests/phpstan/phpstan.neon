@@ -22,6 +22,8 @@ parameters:
             message: '#Call to an undefined static method Grav\\Framework\\Psr7\\Stream::create\(\).#'
             path: 'system/src/Grav/Framework/Form/FormFlashFile.php'
 
+        # PSR-16 Exception interfaces do not extend \Throwable
+        - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
 
         # Those errors are about plugins (need to find a better solution)
 

@@ -228,7 +228,6 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param array $data
      * @param string|null $key
-     * @param bool $isFullUpdate
      * @return FlexObject
      */
     public function update(array $data, string $key = null): FlexObject

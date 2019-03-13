@@ -157,7 +157,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param string $name
-     * @param $value
+     * @param mixed $value
      * @param string $search
      * @param array|null $options
      * @return float
@@ -712,7 +712,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param $type
+     * @param string $type
      * @return FlexDirectory
      * @throws \RuntimeException
      */
