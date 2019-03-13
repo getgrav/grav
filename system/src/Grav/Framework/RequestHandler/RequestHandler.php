@@ -37,11 +37,11 @@ class RequestHandler implements RequestHandlerInterface
     /**
      * Add callable initializing Middleware that will be executed as soon as possible.
      *
-     * @param $name
+     * @param string $name
      * @param callable $callable
      * @return $this
      */
-    public function addCallable($name, callable $callable): self
+    public function addCallable(string $name, callable $callable): self
     {
         $this->container[$name] = $callable;
         array_unshift($this->middleware, $name);
@@ -52,11 +52,11 @@ class RequestHandler implements RequestHandlerInterface
     /**
      * Add Middleware that will be executed as soon as possible.
      *
-     * @param $name
-     * @param callable $callable
+     * @param string $name
+     * @param MiddlewareInterface $middleware
      * @return $this
      */
-    public function addMiddleware($name, MiddlewareInterface $middleware): self
+    public function addMiddleware(string $name, MiddlewareInterface $middleware): self
     {
         $this->container[$name] = $middleware;
         array_unshift($this->middleware, $name);

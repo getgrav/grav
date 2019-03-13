@@ -476,7 +476,7 @@ trait FormTrait
     }
 
     /**
-     * @return string
+     * @return array
      */
     protected function doSerialize(): array
     {

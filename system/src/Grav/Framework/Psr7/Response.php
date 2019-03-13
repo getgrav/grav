@@ -63,7 +63,7 @@ class Response implements ResponseInterface
             throw new RuntimeException(json_last_error_msg(), json_last_error());
         }
 
-        $response = $this->message
+        $response = $this->getResponse()
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
             ->withBody(new Stream($json));
 
@@ -91,7 +91,7 @@ class Response implements ResponseInterface
      */
     public function withRedirect(string $url, $status = null): ResponseInterface
     {
-        $response = $this->message->withHeader('Location', $url);
+        $response = $this->getResponse()->withHeader('Location', $url);
 
         if ($status === null) {
             $status = 302;
@@ -112,7 +112,7 @@ class Response implements ResponseInterface
      */
     public function isEmpty(): bool
     {
-        return \in_array($this->message->getStatusCode(), [204, 205, 304], true);
+        return \in_array($this->getResponse()->getStatusCode(), [204, 205, 304], true);
     }
 
 
@@ -125,7 +125,7 @@ class Response implements ResponseInterface
      */
     public function isOk(): bool
     {
-        return $this->message->getStatusCode() === 200;
+        return $this->getResponse()->getStatusCode() === 200;
     }
 
     /**
@@ -137,7 +137,7 @@ class Response implements ResponseInterface
      */
     public function isRedirect(): bool
     {
-        return \in_array($this->message->getStatusCode(), [301, 302, 303, 307, 308], true);
+        return \in_array($this->getResponse()->getStatusCode(), [301, 302, 303, 307, 308], true);
     }
 
     /**
@@ -150,7 +150,7 @@ class Response implements ResponseInterface
      */
     public function isForbidden(): bool
     {
-        return $this->message->getStatusCode() === 403;
+        return $this->getResponse()->getStatusCode() === 403;
     }
 
     /**
@@ -162,7 +162,7 @@ class Response implements ResponseInterface
      */
     public function isNotFound(): bool
     {
-        return $this->message->getStatusCode() === 404;
+        return $this->getResponse()->getStatusCode() === 404;
     }
 
     /**
@@ -174,7 +174,9 @@ class Response implements ResponseInterface
      */
     public function isInformational(): bool
     {
-        return $this->message->getStatusCode() >= 100 && $this->message->getStatusCode() < 200;
+        $response = $this->getResponse();
+
+        return $response->getStatusCode() >= 100 && $response->getStatusCode() < 200;
     }
 
     /**
@@ -186,7 +188,9 @@ class Response implements ResponseInterface
      */
     public function isSuccessful(): bool
     {
-        return $this->message->getStatusCode() >= 200 && $this->message->getStatusCode() < 300;
+        $response = $this->getResponse();
+
+        return $response->getStatusCode() >= 200 && $response->getStatusCode() < 300;
     }
 
     /**
@@ -198,7 +202,9 @@ class Response implements ResponseInterface
      */
     public function isRedirection(): bool
     {
-        return $this->message->getStatusCode() >= 300 && $this->message->getStatusCode() < 400;
+        $response = $this->getResponse();
+
+        return $response->getStatusCode() >= 300 && $response->getStatusCode() < 400;
     }
 
     /**
@@ -210,7 +216,9 @@ class Response implements ResponseInterface
      */
     public function isClientError(): bool
     {
-        return $this->message->getStatusCode() >= 400 && $this->message->getStatusCode() < 500;
+        $response = $this->getResponse();
+
+        return $response->getStatusCode() >= 400 && $response->getStatusCode() < 500;
     }
 
     /**
@@ -222,7 +230,9 @@ class Response implements ResponseInterface
      */
     public function isServerError(): bool
     {
-        return $this->message->getStatusCode() >= 500 && $this->message->getStatusCode() < 600;
+        $response = $this->getResponse();
+
+        return $response->getStatusCode() >= 500 && $response->getStatusCode() < 600;
     }
 
     /**
@@ -234,20 +244,21 @@ class Response implements ResponseInterface
      */
     public function __toString(): string
     {
+        $response = $this->getResponse();
         $output = sprintf(
             'HTTP/%s %s %s%s',
-            $this->message->getProtocolVersion(),
-            $this->message->getStatusCode(),
-            $this->message->getReasonPhrase(),
+            $response->getProtocolVersion(),
+            $response->getStatusCode(),
+            $response->getReasonPhrase(),
             self::EOL
         );
 
-        foreach ($this->message->getHeaders() as $name => $values) {
-            $output .= sprintf('%s: %s', $name, $this->message->getHeaderLine($name)) . self::EOL;
+        foreach ($response->getHeaders() as $name => $values) {
+            $output .= sprintf('%s: %s', $name, $response->getHeaderLine($name)) . self::EOL;
         }
 
         $output .= self::EOL;
-        $output .= (string) $this->message->getBody();
+        $output .= (string) $response->getBody();
 
         return $output;
     }

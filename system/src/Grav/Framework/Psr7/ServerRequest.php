@@ -64,7 +64,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getContentType(): ?string
     {
-        $result = $this->message->getHeader('Content-Type');
+        $result = $this->getRequest()->getHeader('Content-Type');
 
         return $result ? $result[0] : null;
     }
@@ -78,7 +78,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getContentLength(): ?int
     {
-        $result = $this->message->getHeader('Content-Length');
+        $result = $this->getRequest()->getHeader('Content-Length');
 
         return $result ? (int) $result[0] : null;
     }
@@ -95,7 +95,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getCookieParam($key, $default = null)
     {
-        $cookies = $this->message->getCookieParams();
+        $cookies = $this->getRequest()->getCookieParams();
         $result = $default;
 
         if (isset($cookies[$key])) {
@@ -256,7 +256,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getServerParam($key, $default = null)
     {
-        $serverParams = $this->message->getServerParams();
+        $serverParams = $this->getRequest()->getServerParams();
 
         return $serverParams[$key] ?? $default;
     }
@@ -271,7 +271,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function isMethod($method): bool
     {
-        return $this->message->getMethod() === $method;
+        return $this->getRequest()->getMethod() === $method;
     }
 
     /**
@@ -367,6 +367,6 @@ class ServerRequest implements ServerRequestInterface
      */
     public function isXhr(): bool
     {
-        return $this->message->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
+        return $this->getRequest()->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
     }
 }

@@ -11,16 +11,34 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Psr7\Traits;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 trait ServerRequestDecoratorTrait
 {
     use RequestDecoratorTrait;
+
+    /**
+     * Returns the decorated request.
+     *
+     * Since the underlying Request is immutable as well
+     * exposing it is not an issue, because it's state cannot be altered
+     *
+     * @return ServerRequestInterface
+     */
+    public function getRequest(): ServerRequestInterface
+    {
+        /** @var ServerRequestInterface $message */
+        $message = $this->getMessage();
+
+        return $message;
+    }
 
     /**
      * @inheritdoc
      */
     public function getAttribute($name, $default = null)
     {
-        return $this->message->getAttribute($name, $default);
+        return $this->getRequest()->getAttribute($name, $default);
     }
 
     /**
@@ -28,7 +46,7 @@ trait ServerRequestDecoratorTrait
      */
     public function getAttributes()
     {
-        return $this->message->getAttributes();
+        return $this->getRequest()->getAttributes();
     }
 
 
@@ -37,7 +55,7 @@ trait ServerRequestDecoratorTrait
      */
     public function getCookieParams()
     {
-        return $this->message->getCookieParams();
+        return $this->getRequest()->getCookieParams();
     }
 
     /**
@@ -45,7 +63,7 @@ trait ServerRequestDecoratorTrait
      */
     public function getParsedBody()
     {
-        return $this->message->getParsedBody();
+        return $this->getRequest()->getParsedBody();
     }
 
     /**
@@ -53,7 +71,7 @@ trait ServerRequestDecoratorTrait
      */
     public function getQueryParams()
     {
-        return $this->message->getQueryParams();
+        return $this->getRequest()->getQueryParams();
     }
 
     /**
@@ -61,7 +79,7 @@ trait ServerRequestDecoratorTrait
      */
     public function getServerParams()
     {
-        return $this->message->getServerParams();
+        return $this->getRequest()->getServerParams();
     }
 
     /**
@@ -69,7 +87,7 @@ trait ServerRequestDecoratorTrait
      */
     public function getUploadedFiles()
     {
-        return $this->message->getUploadedFiles();
+        return $this->getRequest()->getUploadedFiles();
     }
 
     /**
@@ -78,7 +96,7 @@ trait ServerRequestDecoratorTrait
     public function withAttribute($name, $value)
     {
         $new = clone $this;
-        $new->message = $this->message->withAttribute($name, $value);
+        $new->message = $this->getRequest()->withAttribute($name, $value);
 
         return $new;
     }
@@ -102,7 +120,7 @@ trait ServerRequestDecoratorTrait
     public function withoutAttribute($name)
     {
         $new = clone $this;
-        $new->message = $this->message->withoutAttribute($name);
+        $new->message = $this->getRequest()->withoutAttribute($name);
 
         return $new;
     }
@@ -113,7 +131,7 @@ trait ServerRequestDecoratorTrait
     public function withCookieParams(array $cookies)
     {
         $new = clone $this;
-        $new->message = $this->message->withCookieParams($cookies);
+        $new->message = $this->getRequest()->withCookieParams($cookies);
 
         return $new;
     }
@@ -124,7 +142,7 @@ trait ServerRequestDecoratorTrait
     public function withParsedBody($data)
     {
         $new = clone $this;
-        $new->message = $this->message->withParsedBody($data);
+        $new->message = $this->getRequest()->withParsedBody($data);
 
         return $new;
     }
@@ -135,7 +153,7 @@ trait ServerRequestDecoratorTrait
     public function withQueryParams(array $query)
     {
         $new = clone $this;
-        $new->message = $this->message->withQueryParams($query);
+        $new->message = $this->getRequest()->withQueryParams($query);
 
         return $new;
     }
@@ -146,7 +164,7 @@ trait ServerRequestDecoratorTrait
     public function withUploadedFiles(array $uploadedFiles)
     {
         $new = clone $this;
-        $new->message = $this->message->withUploadedFiles($uploadedFiles);
+        $new->message = $this->getRequest()->withUploadedFiles($uploadedFiles);
 
         return $new;
     }

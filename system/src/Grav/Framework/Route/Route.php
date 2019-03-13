@@ -187,7 +187,7 @@ class Route
     /**
      * Allow the ability to set the route to something else
      *
-     * @param $route
+     * @param string $route
      * @return $this
      */
     public function withRoute($route)
@@ -199,7 +199,7 @@ class Route
     /**
      * Allow the ability to set the root to something else
      *
-     * @param $root
+     * @param string $root
      * @return $this
      */
     public function withRoot($root)

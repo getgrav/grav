@@ -20,14 +20,29 @@ use Psr\Http\Message\UriInterface;
 trait RequestDecoratorTrait
 {
     use MessageDecoratorTrait {
-        getMessage as getRequest;
+        getMessage as private;
+    }
+
+    /**
+     * Returns the decorated request.
+     *
+     * Since the underlying Request is immutable as well
+     * exposing it is not an issue, because it's state cannot be altered
+     *
+     * @return RequestInterface
+     */
+    public function getRequest(): RequestInterface
+    {
+        /** @var RequestInterface $message */
+        $message = $this->getMessage();
+
+        return $message;
     }
 
     /**
      * Exchanges the underlying request with another.
      *
      * @param RequestInterface $request
-     *
      * @return self
      */
     public function withRequest(RequestInterface $request): self
@@ -43,7 +58,7 @@ trait RequestDecoratorTrait
      */
     public function getRequestTarget(): string
     {
-        return $this->message->getRequestTarget();
+        return $this->getRequest()->getRequestTarget();
     }
 
     /**
@@ -52,7 +67,7 @@ trait RequestDecoratorTrait
     public function withRequestTarget($requestTarget): self
     {
         $new = clone $this;
-        $new->message = $this->message->withRequestTarget($requestTarget);
+        $new->message = $this->getRequest()->withRequestTarget($requestTarget);
 
         return $new;
     }
@@ -62,7 +77,7 @@ trait RequestDecoratorTrait
      */
     public function getMethod(): string
     {
-        return $this->message->getMethod();
+        return $this->getRequest()->getMethod();
     }
 
     /**
@@ -71,7 +86,7 @@ trait RequestDecoratorTrait
     public function withMethod($method): self
     {
         $new = clone $this;
-        $new->message = $this->message->withMethod($method);
+        $new->message = $this->getRequest()->withMethod($method);
 
         return $new;
     }
@@ -81,7 +96,7 @@ trait RequestDecoratorTrait
      */
     public function getUri(): UriInterface
     {
-        return $this->message->getUri();
+        return $this->getRequest()->getUri();
     }
 
     /**
@@ -90,7 +105,7 @@ trait RequestDecoratorTrait
     public function withUri(UriInterface $uri, $preserveHost = false): self
     {
         $new = clone $this;
-        $new->message = $this->message->withUri($uri, $preserveHost);
+        $new->message = $this->getRequest()->withUri($uri, $preserveHost);
 
         return $new;
     }

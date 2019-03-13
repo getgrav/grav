@@ -19,7 +19,23 @@ use Psr\Http\Message\ResponseInterface;
 trait ResponseDecoratorTrait
 {
     use MessageDecoratorTrait {
-        getMessage as getResponse;
+        getMessage as private;
+    }
+
+    /**
+     * Returns the decorated response.
+     *
+     * Since the underlying Response is immutable as well
+     * exposing it is not an issue, because it's state cannot be altered
+     *
+     * @return ResponseInterface
+     */
+    public function getResponse(): ResponseInterface
+    {
+        /** @var ResponseInterface $message */
+        $message = $this->getMessage();
+
+        return $message;
     }
 
     /**
@@ -42,7 +58,7 @@ trait ResponseDecoratorTrait
      */
     public function getStatusCode(): int
     {
-        return $this->message->getStatusCode();
+        return $this->getResponse()->getStatusCode();
     }
 
     /**
@@ -51,7 +67,7 @@ trait ResponseDecoratorTrait
     public function withStatus($code, $reasonPhrase = ''): self
     {
         $new = clone $this;
-        $new->message = $this->message->withStatus($code, $reasonPhrase);
+        $new->message = $this->getResponse()->withStatus($code, $reasonPhrase);
 
         return $new;
     }
@@ -61,6 +77,6 @@ trait ResponseDecoratorTrait
      */
     public function getReasonPhrase(): string
     {
-        return $this->message->getReasonPhrase();
+        return $this->getResponse()->getReasonPhrase();
     }
 }
