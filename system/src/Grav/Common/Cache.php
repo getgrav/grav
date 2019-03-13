@@ -167,7 +167,7 @@ class Cache extends Getters
     /**
      * Public accessor to set the enabled state of the cache
      *
-     * @param $enabled
+     * @param bool|int $enabled
      */
     public function setEnabled($enabled)
     {
@@ -561,7 +561,7 @@ class Cache extends Getters
     /**
      * is this driver a volatile driver in that it resides in PHP process memory
      *
-     * @param $setting
+     * @param string $setting
      * @return bool
      */
     public function isVolatileDriver($setting)
@@ -588,7 +588,7 @@ class Cache extends Getters
     /**
      * Static function to call as a scheduled Job to clear Grav cache
      *
-     * @param $type
+     * @param string $type
      */
     public static function clearJob($type)
     {

@@ -153,7 +153,6 @@ abstract class BaseAsset extends PropertyObject
      * Build local links including grav asset shortcodes
      *
      * @param  string $asset    the asset string reference
-     * @param  bool   $absolute build absolute asset link
      *
      * @return string           the final link url to the asset
      */

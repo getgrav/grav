@@ -39,7 +39,7 @@ class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
      */
     public function accept()
     {
-        /** @var $file \SplFileInfo */
+        /** @var \SplFileInfo $file */
         $file = $this->current();
         $filename = $file->getFilename();
         $relative_filename = str_replace($this::$root . '/', '', $file->getPathname());
@@ -57,7 +57,11 @@ class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
         return false;
     }
 
-    public function getChildren() {
-        return new self($this->getInnerIterator()->getChildren(), $this::$root, $this::$ignore_folders, $this::$ignore_files);
+    public function getChildren()
+    {
+        /** @var RecursiveDirectoryFilterIterator $iterator */
+        $iterator = $this->getInnerIterator();
+
+        return new self($iterator->getChildren(), $this::$root, $this::$ignore_folders, $this::$ignore_files);
     }
 }

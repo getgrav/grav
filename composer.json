@@ -60,6 +60,7 @@
         "victorjonsson/markdowndocs": "dev-master"
     },
     "suggest": {
+        "ext-zend-opcache": "Recommended for better performance",
         "ext-intl": "Recommended for multi-language sites",
         "ext-memcache": "Needed to support Memcache servers",
         "ext-memcached": "Needed to support Memcached servers",

@@ -62,7 +62,7 @@ class Errors
                 } catch (\Exception $e) {
                     echo $e;
                 }
-            }, 'log');
+            });
         }
 
         $whoops->register();

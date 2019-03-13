@@ -59,7 +59,7 @@ class SimplePageHandler extends Handler
     }
 
     /**
-     * @param $resource
+     * @param string $resource
      *
      * @return string
      * @throws \RuntimeException

@@ -14,6 +14,11 @@ use Grav\Common\Assets;
 trait LegacyAssetsTrait
 {
 
+    /**
+     * @param array $args
+     * @param string $type
+     * @return array
+     */
     protected function unifyLegacyArguments($args, $type = Assets::CSS_TYPE)
     {
         // First argument is always the asset
@@ -77,10 +82,10 @@ trait LegacyAssetsTrait
     /**
      * Convenience wrapper for async loading of JavaScript
      *
-     * @param        $asset
-     * @param int    $priority
-     * @param bool   $pipeline
-     * @param string $group name of the group
+     * @param string|array  $asset
+     * @param int           $priority
+     * @param bool          $pipeline
+     * @param string        $group name of the group
      *
      * @return \Grav\Common\Assets
      * @deprecated Please use dynamic method with ['loading' => 'async'].
@@ -95,10 +100,10 @@ trait LegacyAssetsTrait
     /**
      * Convenience wrapper for deferred loading of JavaScript
      *
-     * @param        $asset
-     * @param int    $priority
-     * @param bool   $pipeline
-     * @param string $group name of the group
+     * @param string|array  $asset
+     * @param int           $priority
+     * @param bool          $pipeline
+     * @param string        $group name of the group
      *
      * @return \Grav\Common\Assets
      * @deprecated Please use dynamic method with ['loading' => 'defer'].

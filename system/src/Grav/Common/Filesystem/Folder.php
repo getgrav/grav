@@ -49,7 +49,7 @@ abstract class Folder
     /**
      * Recursively find the last modified time under given path by file.
      *
-     * @param  string $path
+     * @param string  $path
      * @param string  $extensions   which files to search for specifically
      *
      * @return int
@@ -87,7 +87,7 @@ abstract class Folder
     /**
      * Recursively md5 hash all files in a path
      *
-     * @param $path
+     * @param string $path
      * @return string
      */
     public static function hashAllFiles($path)
@@ -437,8 +437,8 @@ abstract class Folder
     /**
      * Recursive copy of one directory to another
      *
-     * @param $src
-     * @param $dest
+     * @param string $src
+     * @param string $dest
      *
      * @return bool
      * @throws \RuntimeException

@@ -37,7 +37,7 @@ class GPM extends Iterator
 
     /**
      * Internal cache
-     * @var
+     * @var array
      */
     protected $cache;
 
@@ -55,6 +55,7 @@ class GPM extends Iterator
     public function __construct($refresh = false, $callback = null)
     {
         parent::__construct();
+        $this->cache = [];
         $this->installed = new Local\Packages();
         try {
             $this->repository = new Remote\Packages($refresh, $callback);
@@ -263,7 +264,7 @@ class GPM extends Iterator
     /**
      * Get the latest release of a package from the GPM
      *
-     * @param $package_name
+     * @param string $package_name
      *
      * @return string|null
      */
@@ -352,7 +353,7 @@ class GPM extends Iterator
     /**
      * Get the release type of a package (stable / testing)
      *
-     * @param $package_name
+     * @param string $package_name
      *
      * @return string|null
      */
@@ -375,7 +376,7 @@ class GPM extends Iterator
     /**
      * Returns true if the package latest release is stable
      *
-     * @param $package_name
+     * @param string $package_name
      *
      * @return boolean
      */
@@ -387,7 +388,7 @@ class GPM extends Iterator
     /**
      * Returns true if the package latest release is testing
      *
-     * @param $package_name
+     * @param string $package_name
      *
      * @return boolean
      */
@@ -504,8 +505,8 @@ class GPM extends Iterator
     /**
      * Download the zip package via the URL
      *
-     * @param $package_file
-     * @param $tmp
+     * @param string $package_file
+     * @param string $tmp
      * @return null|string
      */
     public static function downloadPackage($package_file, $tmp)
@@ -531,8 +532,8 @@ class GPM extends Iterator
     /**
      * Copy the local zip package to tmp
      *
-     * @param $package_file
-     * @param $tmp
+     * @param string $package_file
+     * @param string $tmp
      * @return null|string
      */
     public static function copyPackage($package_file, $tmp)
@@ -552,7 +553,7 @@ class GPM extends Iterator
     /**
      * Try to guess the package type from the source files
      *
-     * @param $source
+     * @param string $source
      * @return bool|string
      */
     public static function getPackageType($source)
@@ -597,7 +598,7 @@ class GPM extends Iterator
     /**
      * Try to guess the package name from the source files
      *
-     * @param $source
+     * @param string $source
      * @return bool|string
      */
     public static function getPackageName($source)
@@ -637,8 +638,8 @@ class GPM extends Iterator
     /**
      * Get the install path for a name and a particular type of package
      *
-     * @param $type
-     * @param $name
+     * @param string $type
+     * @param string $name
      * @return string
      */
     public static function getInstallPath($type, $name)
@@ -807,7 +808,7 @@ class GPM extends Iterator
     /**
      * Check the passed packages list can be updated
      *
-     * @param $packages_names_list
+     * @param array $packages_names_list
      *
      * @throws \Exception
      */

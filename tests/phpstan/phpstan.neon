@@ -26,22 +26,22 @@ parameters:
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
 
         # Those errors are about plugins (need to find a better solution)
-
         -
             message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils.#'
             path: 'system/src/Grav/Common/Scheduler/Job.php'
 
         # Can be ignored, after fopen there's always an $http_response_header locally available
-
         -
             message: '#Variable \$http_response_header in isset\(\) always exists and is not nullable.#'
             path: 'system/src/Grav/Common/GPM/Response.php'
 
 
         # Those errors can be ignored (they depends on installed extensions)
-
         -
             message: '#Instantiated class (Memcache|Memcached|Redis|RedisException) not found#'
+            path: 'system/src/Grav/Common/Cache.php'
+        -
+            message: '#on an unknown class (Memcache|Memcached|Redis|RedisException)#'
             path: 'system/src/Grav/Common/Cache.php'
         -
             message: '#on an unknown class Collator#'

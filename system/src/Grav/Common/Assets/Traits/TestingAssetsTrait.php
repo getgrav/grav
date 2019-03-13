@@ -16,7 +16,7 @@ trait TestingAssetsTrait
     /**
      * Determines if an asset exists as a collection, CSS or JS reference
      *
-     * @param $asset
+     * @param string $asset
      *
      * @return bool
      */
@@ -38,7 +38,7 @@ trait TestingAssetsTrait
     /**
      * Set the array of collections explicitly
      *
-     * @param $collections
+     * @param array $collections
      *
      * @return $this
      */
@@ -90,7 +90,7 @@ trait TestingAssetsTrait
     /**
      * Set the whole array of CSS assets
      *
-     * @param $css
+     * @param array $css
      *
      * @return $this
      */
@@ -104,7 +104,7 @@ trait TestingAssetsTrait
     /**
      * Set the whole array of JS assets
      *
-     * @param $js
+     * @param array $js
      *
      * @return $this
      */
@@ -219,7 +219,7 @@ trait TestingAssetsTrait
     /**
      * Explicitly set's a timestamp for assets
      *
-     * @param $value
+     * @param string|int $value
      */
     public function setTimestamp($value)
     {

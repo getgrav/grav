@@ -123,7 +123,7 @@ class Assets extends PropertyObject
      * It automatically detects the asset type (JavaScript, CSS or collection).
      * You may add more than one asset passing an array as argument.
      *
-     * @param $asset
+     * @param array|string $asset
      * @return $this
      */
     public function add($asset)

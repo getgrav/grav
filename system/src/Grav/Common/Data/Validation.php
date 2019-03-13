@@ -18,7 +18,7 @@ class Validation
     /**
      * Validate value against a blueprint field definition.
      *
-     * @param $value
+     * @param mixed $value
      * @param array $field
      * @return array
      */

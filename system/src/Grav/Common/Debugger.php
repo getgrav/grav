@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use DebugBar\DataCollector\ConfigCollector;
+use DebugBar\DataCollector\DataCollectorInterface;
 use DebugBar\DataCollector\ExceptionsCollector;
 use DebugBar\DataCollector\MemoryCollector;
 use DebugBar\DataCollector\MessagesCollector;
@@ -181,7 +182,7 @@ class Debugger
     /**
      * Adds a data collector
      *
-     * @param $collector
+     * @param DataCollectorInterface $collector
      *
      * @return $this
      * @throws \DebugBar\DebugBarException
@@ -196,9 +197,9 @@ class Debugger
     /**
      * Returns a data collector
      *
-     * @param $collector
+     * @param DataCollectorInterface $collector
      *
-     * @return \DebugBar\DataCollector\DataCollectorInterface
+     * @return DataCollectorInterface
      * @throws \DebugBar\DebugBarException
      */
     public function getCollector($collector)
@@ -297,7 +298,7 @@ class Debugger
     /**
      * Dump variables into the Messages tab of the Debug Bar
      *
-     * @param        $message
+     * @param mixed  $message
      * @param string $label
      * @param bool   $isString
      *
