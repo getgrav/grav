@@ -36,7 +36,6 @@ class CsvFormatterTest extends \Codeception\TestCase\Test
 
         self::assertCount(2, $lines);
         self::assertEquals('0,1,2', $lines[0]);
-
     }
 
     public function testEncodeEmptyData()
