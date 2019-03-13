@@ -43,6 +43,9 @@ class CsvFormatter extends AbstractFormatter
      */
     public function encode($data, $delimiter = null): string
     {
+        if (count($data) === 0) {
+            return '';
+        }
         $delimiter = $delimiter ?? $this->getDelimiter();
         $header = array_keys(reset($data));
 
