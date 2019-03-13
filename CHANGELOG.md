@@ -2,6 +2,7 @@
 ## mm/dd/2019
 
 1. [](#new)
+    * Added phpstan: PHP Static Analysis Tool [#2393](https://github.com/getgrav/grav/pull/2393)
     * Grav 1.6: Renamed `$grav['users']` service to `$grav['accounts']`
     * Added `Flex::getObjects()` and `Flex::getMixedCollection()` methods for co-mingled collections
     * Added support to use single Flex key parameter in `Flex::getObject()` method
@@ -21,6 +22,7 @@
     * Fixed `Obtaining write lock failed on file...`
     * Fixed potential undefined property in `onPageNotFound` event handling
     * Grav 1.6: Fixed settion caching in `FlexIndex`
+    * Fixed some potential issues found by phpstan
 
 # v1.6.0-rc.3
 ## 02/18/2019

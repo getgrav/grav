@@ -60,7 +60,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * @var FileInterface|null
      */
-    protected $storage;
+    protected $_storage;
 
     /**
      * @return array
@@ -405,10 +405,10 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     public function file(FileInterface $storage = null)
     {
         if (null !== $storage) {
-            $this->storage = $storage;
+            $this->_storage = $storage;
         }
 
-        return $this->storage;
+        return $this->_storage;
     }
 
     public function isValid(): bool
