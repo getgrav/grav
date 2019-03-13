@@ -89,14 +89,14 @@ class Group extends Data
         $blueprints = new Blueprints();
         $blueprint = $blueprints->get('user/group');
 
-        $config->set("groups.{$this->groupname}", []);
+        $config->set("groups.{$this->get('groupname')}", []);
 
         $fields = $blueprint->fields();
         foreach ($fields as $field) {
             if ($field['type'] === 'text') {
                 $value = $field['name'];
                 if (isset($this->items['data'][$value])) {
-                    $config->set("groups.{$this->groupname}.{$value}", $this->items['data'][$value]);
+                    $config->set("groups.{$this->get('groupname')}.{$value}", $this->items['data'][$value]);
                 }
             }
             if ($field['type'] === 'array' || $field['type'] === 'permissions') {
@@ -105,7 +105,7 @@ class Group extends Data
 
                 if ($arrayValues) {
                     foreach ($arrayValues as $arrayIndex => $arrayValue) {
-                        $config->set("groups.{$this->groupname}.{$value}.{$arrayIndex}", $arrayValue);
+                        $config->set("groups.{$this->get('groupname')}.{$value}.{$arrayIndex}", $arrayValue);
                     }
                 }
             }

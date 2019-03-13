@@ -328,7 +328,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 $debugger->addException($e);
             }
 
-            if (null === $result) {
+            if (!isset($result)) {
                 $collection = $this->loadCollection();
                 $result = $collection->{$name}(...$arguments);
 

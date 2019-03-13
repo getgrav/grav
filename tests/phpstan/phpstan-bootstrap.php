@@ -4,3 +4,4 @@
  */
 
 define('GRAV_USER_INSTANCE', 'FLEX');
+define('GRAV_REQUEST_TIME', microtime(true));

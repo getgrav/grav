@@ -268,6 +268,7 @@ class Twig
 
         $local_twig = clone $this->twig;
 
+        $output = '';
         try {
             // Process Modular Twig
             if ($item->modularTwig()) {

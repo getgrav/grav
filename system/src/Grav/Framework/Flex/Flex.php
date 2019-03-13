@@ -221,6 +221,7 @@ class Flex implements \Countable
             foreach ($keys as $key) {
                 $flexKey = $guessed[$key] ?? $key;
                 if (\is_array($flexKey)) {
+                    $result = null;
                     foreach ($flexKey as $tryKey) {
                         if ($result = $list[$tryKey] ?? null) {
                             // Use the first matching object (conflicting objects will be ignored for now).

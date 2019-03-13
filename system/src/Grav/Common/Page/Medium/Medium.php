@@ -413,6 +413,8 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
             case 'source':
                 $element = $this->sourceParsedownElement($attributes, false);
                 break;
+            default:
+                $element = [];
         }
 
         if ($reset) {

@@ -13,6 +13,7 @@ use Grav\Common\Getters;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Page\Page;
 use Grav\Common\Utils;
 
 abstract class AbstractMedia extends Getters implements MediaCollectionInterface
@@ -166,7 +167,8 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     protected function orderMedia($media)
     {
         if (null === $this->media_order) {
-            $page = Grav::instance()['pages']->get($this->path);
+            /** @var Page $page */
+            $page = Grav::instance()['pages']->get($this->__get('path'));
 
             if ($page && isset($page->header()->media_order)) {
                 $this->media_order = array_map('trim', explode(',', $page->header()->media_order));

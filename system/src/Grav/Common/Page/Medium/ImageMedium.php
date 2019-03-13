@@ -408,7 +408,7 @@ class ImageMedium extends Medium
         }
 
         if ($width && $height) {
-            $this->cropResize($width, $height);
+            $this->__call('cropResize', [$width, $height]);
         }
 
         return parent::lightbox($width, $height, $reset);
@@ -418,7 +418,7 @@ class ImageMedium extends Medium
      * Sets or gets the quality of the image
      *
      * @param  int $quality 0-100 quality
-     * @return Medium
+     * @return int|$this
      */
     public function quality($quality = null)
     {
