@@ -16,9 +16,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 class NewProjectCommand extends ConsoleCommand
 {
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -39,9 +36,6 @@ class NewProjectCommand extends ConsoleCommand
             ->setHelp("The <info>new-project</info> command is a combination of the `setup` and `install` commands.\nCreates a new Grav instance and performs the installation of all the required dependencies.");
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $sandboxCommand = $this->getApplication()->find('sandbox');
@@ -61,6 +55,5 @@ class NewProjectCommand extends ConsoleCommand
 
         $sandboxCommand->run($sandboxArguments, $this->output);
         $installCommand->run($installArguments, $this->output);
-
     }
 }

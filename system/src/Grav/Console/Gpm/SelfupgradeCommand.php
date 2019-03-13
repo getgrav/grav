@@ -12,6 +12,7 @@ namespace Grav\Console\Gpm;
 use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Installer;
+use Grav\Common\GPM\Remote\Package;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
@@ -22,41 +23,29 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class SelfupgradeCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var array */
     protected $data;
-    /**
-     * @var
-     */
+
     protected $extensions;
-    /**
-     * @var
-     */
+
     protected $updatable;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $file;
-    /**
-     * @var array
-     */
+
+    /** @var array */
     protected $types = ['plugins', 'themes'];
-    /**
-     * @var
-     */
+
+    /** @var string */
     private $tmp;
-    /**
-     * @var
-     */
+
     private $upgrader;
 
+    /** @var string */
     protected $all_yes;
+
     protected $overwrite;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -84,9 +73,6 @@ class SelfupgradeCommand extends ConsoleCommand
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $this->upgrader = new Upgrader($this->input->getOption('force'));
@@ -191,7 +177,7 @@ class SelfupgradeCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param Package $package
      *
      * @return string
      */
@@ -248,7 +234,7 @@ class SelfupgradeCommand extends ConsoleCommand
     }
 
     /**
-     * @param $progress
+     * @param array $progress
      */
     public function progress($progress)
     {
@@ -258,7 +244,7 @@ class SelfupgradeCommand extends ConsoleCommand
     }
 
     /**
-     * @param     $size
+     * @param int|float $size
      * @param int $precision
      *
      * @return string

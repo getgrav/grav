@@ -65,7 +65,7 @@ trait UriDecorationTrait
 
     public function withScheme($scheme): UriInterface
     {
-        /** @var UriInterface $new */
+        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withScheme($scheme);
 
@@ -74,7 +74,7 @@ trait UriDecorationTrait
 
     public function withUserInfo($user, $password = null): UriInterface
     {
-        /** @var UriInterface $new */
+        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withUserInfo($user, $password);
 
@@ -83,7 +83,7 @@ trait UriDecorationTrait
 
     public function withHost($host): UriInterface
     {
-        /** @var UriInterface $new */
+        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withHost($host);
 
@@ -92,7 +92,7 @@ trait UriDecorationTrait
 
     public function withPort($port): UriInterface
     {
-        /** @var UriInterface $new */
+        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withPort($port);
 
@@ -101,7 +101,7 @@ trait UriDecorationTrait
 
     public function withPath($path): UriInterface
     {
-        /** @var UriInterface $new */
+        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withPath($path);
 
@@ -110,7 +110,7 @@ trait UriDecorationTrait
 
     public function withQuery($query): UriInterface
     {
-        /** @var UriInterface $new */
+        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withQuery($query);
 
@@ -119,7 +119,7 @@ trait UriDecorationTrait
 
     public function withFragment($fragment): UriInterface
     {
-        /** @var UriInterface $new */
+        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withFragment($fragment);
 

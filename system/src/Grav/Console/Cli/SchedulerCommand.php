@@ -47,9 +47,6 @@ class SchedulerCommand extends ConsoleCommand
             ->setHelp("Running without any options will force the Scheduler to run through it's jobs and process them");
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
 //        error_reporting(1);

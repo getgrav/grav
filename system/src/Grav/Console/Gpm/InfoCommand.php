@@ -17,15 +17,13 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class InfoCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var array */
     protected $data;
-    /**
-     * @var
-     */
+
+    /** @var GPM */
     protected $gpm;
 
+    /** @var string */
     protected $all_yes;
 
     /**

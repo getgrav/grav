@@ -25,9 +25,6 @@ class BackupCommand extends ConsoleCommand
     /** @var ProgressBar $progress */
     protected $progress;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -44,9 +41,6 @@ class BackupCommand extends ConsoleCommand
         $this->source = getcwd();
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $this->progress = new ProgressBar($this->output);
@@ -96,7 +90,7 @@ class BackupCommand extends ConsoleCommand
     }
 
     /**
-     * @param $args
+     * @param array $args
      */
     public function outputProgress($args)
     {

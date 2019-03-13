@@ -15,9 +15,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 class CacheCommand extends ConsoleCommand
 {
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -34,9 +31,6 @@ class CacheCommand extends ConsoleCommand
             ->setHelp('The <info>cache</info> command allows you to interact with Grav cache');
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $this->cleanPaths();

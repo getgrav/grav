@@ -9,7 +9,6 @@
 
 namespace Grav\Console\Cli;
 
-
 use Grav\Common\Grav;
 use Grav\Common\Helpers\LogViewer;
 use Grav\Common\Utils;
@@ -39,9 +38,6 @@ class LogViewerCommand extends ConsoleCommand
             ->setHelp("Display the last few entries of Grav log");
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $grav = Grav::instance();

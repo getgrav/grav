@@ -18,14 +18,9 @@ use Symfony\Component\Console\Input\InputOption;
 
 class VersionCommand extends ConsoleCommand
 {
-    /**
-     * @var GPM
-     */
+    /** @var GPM */
     protected $gpm;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this

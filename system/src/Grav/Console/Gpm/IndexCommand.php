@@ -9,7 +9,9 @@
 
 namespace Grav\Console\Gpm;
 
+use Grav\Common\GPM\Remote\Package;
 use Grav\Common\GPM\GPM;
+use Grav\Common\GPM\Remote\Packages;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use League\CLImate\CLImate;
@@ -17,28 +19,18 @@ use Symfony\Component\Console\Input\InputOption;
 
 class IndexCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var array */
     protected $data;
-    /**
-     * @var
-     */
+
+    /** @var GPM */
     protected $gpm;
 
-    /**
-     * @var
-     */
+    /** @var array */
     protected $options;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $sortKeys = ['name', 'slug', 'author', 'date'];
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -97,9 +89,6 @@ class IndexCommand extends ConsoleCommand
         ;
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $this->options = $this->input->getOptions();
@@ -158,7 +147,7 @@ class IndexCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param Package $package
      *
      * @return string
      */
@@ -184,7 +173,7 @@ class IndexCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param Package $package
      *
      * @return string
      */
@@ -199,7 +188,7 @@ class IndexCommand extends ConsoleCommand
     }
 
     /**
-     * @param $data
+     * @param array $data
      *
      * @return mixed
      */
@@ -255,7 +244,7 @@ class IndexCommand extends ConsoleCommand
     }
 
     /**
-     * @param $packages
+     * @param Packages $packages
      */
     public function sort($packages)
     {

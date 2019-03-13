@@ -22,9 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 trait ConsoleTrait
 {
-    /**
-     * @var
-     */
     protected $argv;
 
     /* @var InputInterface $output */
@@ -62,7 +59,7 @@ trait ConsoleTrait
     }
 
     /**
-     * @param $path
+     * @param string $path
      */
     public function isGravInstance($path)
     {

@@ -16,26 +16,18 @@ use Symfony\Component\Console\Input\InputOption;
 
 class InstallCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var array */
     protected $config;
-    /**
-     * @var
-     */
+
+    /** @var array */
     protected $local_config;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $destination;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $user_path;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -55,9 +47,6 @@ class InstallCommand extends ConsoleCommand
             ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $dependencies_file = '.dependencies';

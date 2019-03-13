@@ -11,6 +11,7 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
+use Grav\Common\GPM\Remote\Package;
 use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,34 +20,27 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class UninstallCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var array */
     protected $data;
 
     /** @var GPM */
     protected $gpm;
 
-    /**
-     * @var
-     */
+    /** @var string */
     protected $destination;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $file;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $tmp;
 
-    protected $dependencies= [];
+    /** @var array */
+    protected $dependencies = [];
 
+    /** @var string */
     protected $all_yes;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -66,9 +60,6 @@ class UninstallCommand extends ConsoleCommand
             ->setHelp('The <info>uninstall</info> command allows to uninstall plugins and themes');
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $this->gpm = new GPM();
@@ -78,16 +69,18 @@ class UninstallCommand extends ConsoleCommand
         $packages = array_map('strtolower', $this->input->getArgument('package'));
         $this->data = ['total' => 0, 'not_found' => []];
 
+        $total = 0;
         foreach ($packages as $package) {
             $plugin = $this->gpm->getInstalledPlugin($package);
             $theme = $this->gpm->getInstalledTheme($package);
             if ($plugin || $theme) {
                 $this->data[strtolower($package)] = $plugin ?: $theme;
-                $this->data['total']++;
+                $total++;
             } else {
                 $this->data['not_found'][] = $package;
             }
         }
+        $this->data['total'] = $total;
 
         $this->output->writeln('');
 
@@ -131,8 +124,8 @@ class UninstallCommand extends ConsoleCommand
 
 
     /**
-     * @param $slug
-     * @param $package
+     * @param string $slug
+     * @param Package $package
      *
      * @return bool
      */
@@ -247,8 +240,8 @@ class UninstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $slug
-     * @param $package
+     * @param string $slug
+     * @param Package $package
      *
      * @return bool
      */
@@ -289,8 +282,8 @@ class UninstallCommand extends ConsoleCommand
     /**
      * Check if package exists
      *
-     * @param $slug
-     * @param $package
+     * @param string $slug
+     * @param Package $package
      * @return int
      */
     private function packageExists($slug, $package)

@@ -22,12 +22,12 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class DirectInstallCommand extends ConsoleCommand
 {
+    /** @var string */
     protected $all_yes;
+
+    /** @var string */
     protected $destination;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this

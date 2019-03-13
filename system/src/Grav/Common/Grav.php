@@ -38,6 +38,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 
+/**
+ * Grav container is the heart of Grav.
+ *
+ * @package Grav\Common
+ */
 class Grav extends Container
 {
     /**

@@ -20,47 +20,33 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class UpdateCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var array */
     protected $data;
-    /**
-     * @var
-     */
+
     protected $extensions;
-    /**
-     * @var
-     */
+
     protected $updatable;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $destination;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $file;
-    /**
-     * @var array
-     */
+
+    /** @var array */
     protected $types = ['plugins', 'themes'];
-    /**
-     * @var GPM $gpm
-     */
+
+    /** @var GPM  */
     protected $gpm;
 
+    /** @var string */
     protected $all_yes;
 
     protected $overwrite;
 
-    /**
-     * @var Upgrader
-     */
+    /** @var Upgrader */
     protected $upgrader;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -111,9 +97,6 @@ class UpdateCommand extends ConsoleCommand
             ->setHelp('The <info>update</info> command updates plugins and themes when a new version is available');
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $this->upgrader = new Upgrader($this->input->getOption('force'));
@@ -234,7 +217,7 @@ class UpdateCommand extends ConsoleCommand
     }
 
     /**
-     * @param $only_packages
+     * @param array $only_packages
      *
      * @return array
      */

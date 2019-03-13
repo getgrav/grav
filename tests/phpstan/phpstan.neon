@@ -8,6 +8,15 @@ parameters:
     excludes_analyse:
         - system/src/Grav/Common/Errors/Resources/layout.html.php
     reportUnmatchedIgnoredErrors: false
+    universalObjectCratesClasses:
+        - Grav\Common\Config\Config
+        - Grav\Common\Config\Languages
+        - Grav\Common\Config\Setup
+        - Grav\Common\Data\Data
+        - Grav\Common\GPM\Common\Package
+        - Grav\Common\GPM\Local\Package
+        - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Session
     ignoreErrors:
 
         # Errors that needs some more thinking (design...)

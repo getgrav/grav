@@ -14,7 +14,7 @@ use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Licenses;
 use Grav\Common\GPM\Response;
-use Grav\Common\GPM\Remote\Package as Package;
+use Grav\Common\GPM\Remote\Package;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
@@ -26,22 +26,22 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class InstallCommand extends ConsoleCommand
 {
-    /** @var */
+    /** @var array */
     protected $data;
 
     /** @var GPM */
     protected $gpm;
 
-    /** @var */
+    /** @var string */
     protected $destination;
 
-    /** @var */
+    /** @var string */
     protected $file;
 
-    /** @var */
+    /** @var string */
     protected $tmp;
 
-    /** @var */
+    /** @var array */
     protected $local_config;
 
     /** @var bool */
@@ -50,11 +50,9 @@ class InstallCommand extends ConsoleCommand
     /** @var array */
     protected $demo_processing = [];
 
+    /** @var string */
     protected $all_yes;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -90,9 +88,9 @@ class InstallCommand extends ConsoleCommand
     /**
      * Allows to set the GPM object, used for testing the class
      *
-     * @param $gpm
+     * @param GPM $gpm
      */
-    public function setGpm($gpm)
+    public function setGpm(GPM $gpm)
     {
         $this->gpm = $gpm;
     }
@@ -232,7 +230,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * If the package is updated from an older major release, show warning and ask confirmation
      *
-     * @param $package
+     * @param Package $package
      */
     public function askConfirmationIfMajorVersionUpdated($package)
     {
@@ -320,8 +318,8 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param      $package
-     * @param bool $is_update      True if the package is an update
+     * @param Package $package
+     * @param bool    $is_update      True if the package is an update
      */
     private function processPackage($package, $is_update = false)
     {
@@ -346,7 +344,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * Add package to the queue to process the demo content, if demo content exists
      *
-     * @param $package
+     * @param Package $package
      */
     private function processDemo($package)
     {
@@ -359,7 +357,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * Prompt to install the demo content of a package
      *
-     * @param $package
+     * @param Package $package
      */
     private function installDemoContent($package)
     {
@@ -415,7 +413,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param Package $package
      *
      * @return array|bool
      */
@@ -433,7 +431,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $package
+     * @param Package $package
      *
      * @return bool|string
      */
@@ -462,7 +460,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param      $package
+     * @param  Package    $package
      */
     private function processSymlink($package)
     {
@@ -506,8 +504,8 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param      $package
-     * @param bool $is_update
+     * @param Package   $package
+     * @param bool      $is_update
      *
      * @return bool
      */
@@ -603,7 +601,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param      $package
+     * @param Package     $package
      *
      * @return bool
      */
@@ -682,7 +680,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param $progress
+     * @param array $progress
      */
     public function progress($progress)
     {

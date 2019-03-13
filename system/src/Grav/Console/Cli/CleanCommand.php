@@ -23,9 +23,7 @@ class CleanCommand extends Command
     /* @var OutputInterface $output */
     protected $output;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $paths_to_remove = [
         'codeception.yml',
         'tests/',
@@ -250,9 +248,6 @@ class CleanCommand extends Command
         'vendor/willdurand/negotiation/tests',
     ];
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -264,8 +259,6 @@ class CleanCommand extends Command
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
-     *
-     * @return int|null|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

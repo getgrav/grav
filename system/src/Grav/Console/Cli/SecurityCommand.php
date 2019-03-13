@@ -22,9 +22,6 @@ class SecurityCommand extends ConsoleCommand
 
     protected $source;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
@@ -35,9 +32,6 @@ class SecurityCommand extends ConsoleCommand
         $this->source = getcwd();
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         /** @var Grav $grav */
@@ -87,7 +81,7 @@ class SecurityCommand extends ConsoleCommand
     }
 
     /**
-     * @param $args
+     * @param array $args
      */
     public function outputProgress($args)
     {
