@@ -4153,16 +4153,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.11.2",
+            "version": "0.11.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "8e185a74004920419ee97bf9dc62e6a175e8dca5"
+                "reference": "e4644b4a8fd393c346f1137305fb2f76a7dc20a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8e185a74004920419ee97bf9dc62e6a175e8dca5",
-                "reference": "8e185a74004920419ee97bf9dc62e6a175e8dca5",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e4644b4a8fd393c346f1137305fb2f76a7dc20a7",
+                "reference": "e4644b4a8fd393c346f1137305fb2f76a7dc20a7",
                 "shasum": ""
             },
             "require": {
@@ -4222,7 +4222,7 @@
                 "MIT"
             ],
             "description": "PHPStan - PHP Static Analysis Tool",
-            "time": "2019-02-12T14:54:38+00:00"
+            "time": "2019-03-10T16:25:30+00:00"
         },
         {
             "name": "phpstan/phpstan-strict-rules",
