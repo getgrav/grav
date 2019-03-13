@@ -41,6 +41,7 @@ class AbstractPackageCollection extends BaseCollection
      */
     public function __construct($repository = null, $refresh = false, $callback = null)
     {
+        parent::__construct();
         if ($repository === null) {
             throw new \RuntimeException("A repository is required to indicate the origin of the remote collection");
         }

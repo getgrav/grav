@@ -303,7 +303,7 @@ class Response
         if ($content === false) {
             $code = null;
             if (isset($http_response_header)) {
-                $code = explode(' ', $http_response_header[0])[1];
+                $code = explode(' ', $http_response_header[0] ?? '')[1] ?? null;
             }
 
             switch ($code) {

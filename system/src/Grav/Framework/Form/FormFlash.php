@@ -32,6 +32,8 @@ class FormFlash implements \JsonSerializable
     protected $files;
     /** @var array */
     protected $uploadedFiles;
+    /** @var array<string, mixed> */
+    protected $uploadObjects;
     /** @var bool */
     protected $exists;
 

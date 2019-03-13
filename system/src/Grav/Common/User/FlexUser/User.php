@@ -58,6 +58,11 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected $_uploads_original;
 
     /**
+     * @var FileInterface|null
+     */
+    protected $storage;
+
+    /**
      * @return array
      */
     public static function getCachedMethods()
@@ -399,7 +404,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      */
     public function file(FileInterface $storage = null)
     {
-        if ($storage) {
+        if (null !== $storage) {
             $this->storage = $storage;
         }
 
