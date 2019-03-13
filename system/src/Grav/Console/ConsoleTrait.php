@@ -33,6 +33,9 @@ trait ConsoleTrait
     /* @var OutputInterface $output */
     protected $output;
 
+    /** @var array */
+    protected $local_config;
+
     /**
      * Set colors style definition for the formatter.
      *

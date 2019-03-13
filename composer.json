@@ -59,6 +59,12 @@
         "fzaninotto/faker": "^1.8",
         "victorjonsson/markdowndocs": "dev-master"
     },
+    "suggest": {
+        "ext-intl": "Recommended for multi-language sites",
+        "ext-memcache": "Needed to support Memcache servers",
+        "ext-memcached": "Needed to support Memcached servers",
+        "ext-redis": "Needed to support Redis servers"
+    },
     "config": {
         "apcu-autoloader": true,
         "platform": {
@@ -82,7 +88,7 @@
     },
     "scripts": {
         "post-create-project-cmd": "bin/grav install",
-        "phpstan": "vendor/bin/phpstan analyse -l 0 -c ./tests/phpstan/phpstan.neon system/src",
+        "phpstan": "vendor/bin/phpstan analyse -l 0 -c ./tests/phpstan/phpstan.neon system/src --memory-limit=256M",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"
     },

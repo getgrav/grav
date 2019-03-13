@@ -1,5 +1,5 @@
 includes:
-	#- vendor/phpstan/phpstan-strict-rules/rules.neon
+    #- vendor/phpstan/phpstan-strict-rules/rules.neon
 parameters:
     fileExtensions:
         - php
@@ -7,7 +7,7 @@ parameters:
     bootstrap: tests/phpstan/phpstan-bootstrap.php
     excludes_analyse:
         - system/src/Grav/Common/Errors/Resources/layout.html.php
-    reportUnmatchedIgnoredErrors: true
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
 
         # Errors that needs some more thinking (design...)
@@ -15,40 +15,32 @@ parameters:
         # Needed: full coverage (probably with admin plugin...) then redesign constructor
         -
             message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
-            path: system/src/Grav/Common/GPM/Remote/GravCore.php
+            path: 'system/src/Grav/Common/GPM/Remote/GravCore.php'
 
         # Needed: psr-17 (http-factories) support (through decorator or further investigations)
         -
             message: '#Call to an undefined static method Grav\\Framework\\Psr7\\Stream::create\(\).#'
-            path: system/src/Grav/Framework/Form/FormFlashFile.php
+            path: 'system/src/Grav/Framework/Form/FormFlashFile.php'
 
 
         # Those errors are about plugins (need to find a better solution)
 
         -
             message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils.#'
-            path: system/src/Grav/Common/Scheduler/Job.php
+            path: 'system/src/Grav/Common/Scheduler/Job.php'
 
         # Can be ignored, after fopen there's always an $http_response_header locally available
 
         -
             message: '#Variable \$http_response_header in isset\(\) always exists and is not nullable.#'
-            path: system/src/Grav/Common/GPM/Response.php
+            path: 'system/src/Grav/Common/GPM/Response.php'
 
 
         # Those errors can be ignored (they depends on installed extensions)
 
         -
-            message: '#Instantiated class Memcache not found#'
-            path: system/src/Grav/Common/Cache.php
+            message: '#Instantiated class (Memcache|Memcached|Redis|RedisException) not found#'
+            path: 'system/src/Grav/Common/Cache.php'
         -
-            message: '#Instantiated class Redis not found#'
-            path: system/src/Grav/Common/Cache.php
-        -
-            message: '#Instantiated class RedisException not found#'
-            path: system/src/Grav/Common/Cache.php
-
-
-
-
-
+            message: '#on an unknown class Collator#'
+            path: 'system/src/Grav/Common/Page/Pages.php'

@@ -44,7 +44,7 @@ class CsvFormatter extends AbstractFormatter
     public function encode($data, $delimiter = null): string
     {
         $delimiter = $delimiter ?? $this->getDelimiter();
-        $header = array_keys(reset($lines));
+        $header = array_keys(reset($data));
 
         // Encode the field names
         $string = implode($delimiter, $header). "\n";

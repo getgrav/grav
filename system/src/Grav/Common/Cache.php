@@ -21,8 +21,6 @@ use RocketTheme\Toolbox\Event\EventDispatcher;
  * It uses DoctrineCache library and supports a variety of caching mechanisms. Those include:
  *
  * APCu
- * APC
- * XCache
  * RedisCache
  * MemCache
  * MemCacheD
@@ -237,40 +235,52 @@ class Cache extends Getters
                 break;
 
             case 'memcache':
-                $memcache = new \Memcache();
-                $memcache->connect($this->config->get('system.cache.memcache.server', 'localhost'),
-                    $this->config->get('system.cache.memcache.port', 11211));
-                $driver = new DoctrineCache\MemcacheCache();
-                $driver->setMemcache($memcache);
+                if (extension_loaded('memcache')) {
+                    $memcache = new \Memcache();
+                    $memcache->connect($this->config->get('system.cache.memcache.server', 'localhost'),
+                        $this->config->get('system.cache.memcache.port', 11211));
+                    $driver = new DoctrineCache\MemcacheCache();
+                    $driver->setMemcache($memcache);
+                } else {
+                    throw new \LogicException('Memcache PHP extension has not been installed');
+                }
                 break;
 
             case 'memcached':
-                $memcached = new \Memcached();
-                $memcached->addServer($this->config->get('system.cache.memcached.server', 'localhost'),
-                    $this->config->get('system.cache.memcached.port', 11211));
-                $driver = new DoctrineCache\MemcachedCache();
-                $driver->setMemcached($memcached);
+                if (extension_loaded('memcached')) {
+                    $memcached = new \Memcached();
+                    $memcached->addServer($this->config->get('system.cache.memcached.server', 'localhost'),
+                        $this->config->get('system.cache.memcached.port', 11211));
+                    $driver = new DoctrineCache\MemcachedCache();
+                    $driver->setMemcached($memcached);
+                } else {
+                    throw new \LogicException('Memcached PHP extension has not been installed');
+                }
                 break;
 
             case 'redis':
-                $redis = new \Redis();
-                $socket = $this->config->get('system.cache.redis.socket', false);
-                $password = $this->config->get('system.cache.redis.password', false);
+                if (extension_loaded('redis')) {
+                    $redis = new \Redis();
+                    $socket = $this->config->get('system.cache.redis.socket', false);
+                    $password = $this->config->get('system.cache.redis.password', false);
 
-                if ($socket) {
-                    $redis->connect($socket);
+                    if ($socket) {
+                        $redis->connect($socket);
+                    } else {
+                        $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
+                            $this->config->get('system.cache.redis.port', 6379));
+                    }
+
+                    // Authenticate with password if set
+                    if ($password && !$redis->auth($password)) {
+                        throw new \RedisException('Redis authentication failed');
+                    }
+
+                    $driver = new DoctrineCache\RedisCache();
+                    $driver->setRedis($redis);
                 } else {
-                    $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
-                    $this->config->get('system.cache.redis.port', 6379));
+                    throw new \LogicException('Redis PHP extension has not been installed');
                 }
-
-                // Authenticate with password if set
-                if ($password && !$redis->auth($password)) {
-                    throw new \RedisException('Redis authentication failed');
-                }
-
-                $driver = new DoctrineCache\RedisCache();
-                $driver->setRedis($redis);
                 break;
 
             default:

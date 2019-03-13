@@ -70,7 +70,7 @@ class Group extends Data
         $content = $groups[$groupname] ?? [];
         $content += ['groupname' => $groupname];
 
-        $blueprints = new Blueprints;
+        $blueprints = new Blueprints();
         $blueprint = $blueprints->get('user/group');
 
         return new Group($content, $blueprint);
@@ -86,7 +86,7 @@ class Group extends Data
         /** @var Config $config */
         $config = $grav['config'];
 
-        $blueprints = new Blueprints;
+        $blueprints = new Blueprints();
         $blueprint = $blueprints->get('user/group');
 
         $config->set("groups.{$this->groupname}", []);
@@ -112,7 +112,7 @@ class Group extends Data
         }
 
         $type = 'groups';
-        $blueprints = $this->blueprints("config/{$type}");
+        $blueprints = $this->blueprints();
 
         $filename = CompiledYamlFile::instance($grav['locator']->findResource("config://{$type}.yaml"));
 
@@ -135,7 +135,7 @@ class Group extends Data
         /** @var Config $config */
         $config = $grav['config'];
 
-        $blueprints = new Blueprints;
+        $blueprints = new Blueprints();
         $blueprint = $blueprints->get('user/group');
 
         $type = 'groups';

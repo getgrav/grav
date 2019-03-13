@@ -13,6 +13,7 @@ namespace Grav\Framework\Flex\Traits;
 
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
  * Implements basic ACL
@@ -39,7 +40,7 @@ trait FlexAuthorizeTrait
     {
         $scope = $scope ?? isset(Grav::instance()['admin']) ? 'admin' : 'site';
 
-        if ($action === 'save') {
+        if ($action === 'save' && $this instanceof FlexObjectInterface) {
             $action = $this->exists() ? 'update' : 'create';
         }
 

@@ -28,9 +28,11 @@ class FileCache extends AbstractCache
     /**
      * @inheritdoc
      */
-    public function __construct($namespace = '', $defaultLifetime = null)
+    public function __construct($namespace = '', $defaultLifetime = null, $folder = null)
     {
         parent::__construct($namespace, $defaultLifetime ?: 31557600); // = 1 year
+
+        $this->initFileCache($namespace, $folder ?? '');
     }
 
     /**
@@ -139,7 +141,7 @@ class FileCache extends AbstractCache
      * @param string $directory
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    protected function init($namespace, $directory)
+    protected function initFileCache($namespace, $directory)
     {
         if (!isset($directory[0])) {
             $directory = sys_get_temp_dir() . '/grav-cache';

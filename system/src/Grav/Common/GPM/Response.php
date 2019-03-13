@@ -302,6 +302,7 @@ class Response
 
         if ($content === false) {
             $code = null;
+            // Function file_get_contents() creates local variable $http_response_header, check it
             if (isset($http_response_header)) {
                 $code = explode(' ', $http_response_header[0] ?? '')[1] ?? null;
             }
