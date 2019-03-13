@@ -101,9 +101,6 @@ trait ServerRequestDecoratorTrait
         return $new;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function withAttributes(array $attributes)
     {
         $new = clone $this;

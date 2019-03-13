@@ -41,9 +41,6 @@ class Session implements SessionInterface
         return self::$instance;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function __construct(array $options = [])
     {
         // Session is a singleton.
