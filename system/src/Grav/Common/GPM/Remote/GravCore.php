@@ -73,7 +73,7 @@ class GravCore extends AbstractPackageCollection
 
         $diffLog = [];
         foreach ((array)$this->data['changelog'] as $version => $changelog) {
-            preg_match("/[\w-\.]+/", $version, $cleanVersion);
+            preg_match("/[\w\-\.]+/", $version, $cleanVersion);
 
             if (!$cleanVersion || version_compare($diff, $cleanVersion[0], '>=')) {
                 continue;
