@@ -252,7 +252,7 @@ class GPM extends Iterator
                 $repository[$slug]->available = $remote_version;
                 $repository[$slug]->version = $local_version;
                 $repository[$slug]->type = $repository[$slug]->release_type;
-                $items[$slug] = $repository[$slug]->toArray();
+                $items[$slug] = $repository[$slug];
             }
         }
 
@@ -331,7 +331,7 @@ class GPM extends Iterator
                 $repository[$slug]->available = $remote_version;
                 $repository[$slug]->version = $local_version;
                 $repository[$slug]->type = $repository[$slug]->release_type;
-                $items[$slug] = $repository[$slug]->toArray();
+                $items[$slug] = $repository[$slug];
             }
         }
 
