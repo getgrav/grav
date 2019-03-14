@@ -10,6 +10,9 @@
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeScript;
+use Twig\Node\Node;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
 /**
  * Adds a script to head/bottom/custom location in the document.
@@ -21,16 +24,16 @@ use Grav\Common\Twig\Node\TwigNodeScript;
  * {% endscript %}
 
  */
-class TwigTokenParserScript extends \Twig_TokenParser
+class TwigTokenParserScript extends AbstractTokenParser
 {
     /**
      * Parses a token and returns a node.
      *
-     * @param \Twig_Token $token A Twig_Token instance
+     * @param Token $token A Twig_Token instance
      *
-     * @return \Twig_Node A Twig_Node instance
+     * @return Node A Twig_Node instance
      */
-    public function parse(\Twig_Token $token)
+    public function parse(Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -40,51 +43,51 @@ class TwigTokenParserScript extends \Twig_TokenParser
         $content = null;
         if ($file === null) {
             $content = $this->parser->subparse([$this, 'decideBlockEnd'], true);
-            $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+            $stream->expect(Token::BLOCK_END_TYPE);
         }
 
         return new TwigNodeScript($content, $file, $group, $priority, $attributes, $lineno, $this->getTag());
     }
 
     /**
-     * @param \Twig_Token $token
+     * @param Token $token
      * @return array
      */
-    protected function parseArguments(\Twig_Token $token)
+    protected function parseArguments(Token $token)
     {
         $stream = $this->parser->getStream();
 
         $file = null;
-        if (!$stream->test(\Twig_Token::NAME_TYPE) && !$stream->test(\Twig_Token::OPERATOR_TYPE) && !$stream->test(\Twig_Token::BLOCK_END_TYPE)) {
+        if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE) && !$stream->test(Token::BLOCK_END_TYPE)) {
             $file = $this->parser->getExpressionParser()->parseExpression();
         }
 
         $group = null;
-        if ($stream->nextIf(\Twig_Token::OPERATOR_TYPE, 'in')) {
+        if ($stream->nextIf(Token::OPERATOR_TYPE, 'in')) {
             $group = $this->parser->getExpressionParser()->parseExpression();
         }
 
         $priority = null;
-        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'priority')) {
-            $stream->expect(\Twig_Token::PUNCTUATION_TYPE, ':');
+        if ($stream->nextIf(Token::NAME_TYPE, 'priority')) {
+            $stream->expect(Token::PUNCTUATION_TYPE, ':');
             $priority = $this->parser->getExpressionParser()->parseExpression();
         }
 
         $attributes = null;
-        if ($stream->nextIf(\Twig_Token::NAME_TYPE, 'with')) {
+        if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
             $attributes = $this->parser->getExpressionParser()->parseExpression();
         }
 
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         return [$file, $group, $priority, $attributes];
     }
 
     /**
-     * @param \Twig_Token $token
+     * @param Token $token
      * @return bool
      */
-    public function decideBlockEnd(\Twig_Token $token)
+    public function decideBlockEnd(Token $token)
     {
         return $token->test('endscript');
     }

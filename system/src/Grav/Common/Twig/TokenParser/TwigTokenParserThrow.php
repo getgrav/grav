@@ -10,6 +10,9 @@
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeThrow;
+use Twig\Node\Node;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
 /**
  * Handles try/catch in template file.
@@ -18,23 +21,23 @@ use Grav\Common\Twig\Node\TwigNodeThrow;
  * {% throw 404 'Not Found' %}
  * </pre>
  */
-class TwigTokenParserThrow extends \Twig_TokenParser
+class TwigTokenParserThrow extends AbstractTokenParser
 {
     /**
      * Parses a token and returns a node.
      *
-     * @param \Twig_Token $token A Twig_Token instance
+     * @param Token $token A Twig_Token instance
      *
-     * @return \Twig_Node A Twig_Node instance
+     * @return Node A Twig_Node instance
      */
-    public function parse(\Twig_Token $token)
+    public function parse(Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
 
-        $code = $stream->expect(\Twig_Token::NUMBER_TYPE)->getValue();
+        $code = $stream->expect(Token::NUMBER_TYPE)->getValue();
         $message = $this->parser->getExpressionParser()->parseExpression();
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         return new TwigNodeThrow($code, $message, $lineno, $this->getTag());
     }

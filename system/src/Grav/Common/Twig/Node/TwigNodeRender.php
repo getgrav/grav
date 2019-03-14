@@ -9,21 +9,26 @@
 
 namespace Grav\Common\Twig\Node;
 
-class TwigNodeRender extends \Twig_Node implements \Twig_NodeCaptureInterface
+use Twig\Compiler;
+use Twig\Node\Expression\AbstractExpression;
+use Twig\Node\Node;
+use Twig\Node\NodeCaptureInterface;
+
+class TwigNodeRender extends Node implements NodeCaptureInterface
 {
     protected $tagName = 'render';
 
     /**
-     * @param \Twig_Node_Expression $object
-     * @param \Twig_Node_Expression|null $layout
-     * @param \Twig_Node_Expression|null $context
+     * @param AbstractExpression $object
+     * @param AbstractExpression|null $layout
+     * @param AbstractExpression|null $context
      * @param int $lineno
      * @param string|null $tag
      */
     public function __construct(
-        \Twig_Node_Expression $object,
-        ?\Twig_Node_Expression $layout,
-        ?\Twig_Node_Expression $context,
+        AbstractExpression $object,
+        ?AbstractExpression $layout,
+        ?AbstractExpression $context,
         $lineno,
         $tag = null
     )
@@ -33,10 +38,10 @@ class TwigNodeRender extends \Twig_Node implements \Twig_NodeCaptureInterface
     /**
      * Compiles the node to PHP.
      *
-     * @param \Twig_Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig_Compiler instance
      * @throws \LogicException
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
         $compiler->write('$object = ')->subcompile($this->getNode('object'))->raw(';' . PHP_EOL);

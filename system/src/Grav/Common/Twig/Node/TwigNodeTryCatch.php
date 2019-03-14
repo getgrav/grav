@@ -9,18 +9,21 @@
 
 namespace Grav\Common\Twig\Node;
 
-class TwigNodeTryCatch extends \Twig_Node
+use Twig\Compiler;
+use Twig\Node\Node;
+
+class TwigNodeTryCatch extends Node
 {
     /**
      * TwigNodeTryCatch constructor.
-     * @param \Twig_Node $try
-     * @param \Twig_Node|null $catch
+     * @param Node $try
+     * @param Node|null $catch
      * @param int $lineno
      * @param string|null $tag
      */
     public function __construct(
-        \Twig_Node $try,
-        \Twig_Node $catch = null,
+        Node $try,
+        Node $catch = null,
         $lineno = 0,
         $tag = null
     )
@@ -31,10 +34,10 @@ class TwigNodeTryCatch extends \Twig_Node
     /**
      * Compiles the node to PHP.
      *
-     * @param \Twig_Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig_Compiler instance
      * @throws \LogicException
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
 

@@ -9,18 +9,21 @@
 
 namespace Grav\Common\Twig\Node;
 
-class TwigNodeThrow extends \Twig_Node
+use Twig\Compiler;
+use Twig\Node\Node;
+
+class TwigNodeThrow extends Node
 {
     /**
      * TwigNodeThrow constructor.
-     * @param $code
-     * @param \Twig_Node $message
+     * @param int $code
+     * @param Node $message
      * @param int $lineno
      * @param string|null $tag
      */
     public function __construct(
         $code,
-        \Twig_Node $message,
+        Node $message,
         $lineno = 0,
         $tag = null
     )
@@ -31,10 +34,10 @@ class TwigNodeThrow extends \Twig_Node
     /**
      * Compiles the node to PHP.
      *
-     * @param \Twig_Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig_Compiler instance
      * @throws \LogicException
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
 

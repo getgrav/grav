@@ -9,26 +9,31 @@
 
 namespace Grav\Common\Twig\Node;
 
-class TwigNodeStyle extends \Twig_Node implements \Twig_NodeCaptureInterface
+use Twig\Compiler;
+use Twig\Node\Expression\AbstractExpression;
+use Twig\Node\Node;
+use Twig\Node\NodeCaptureInterface;
+
+class TwigNodeStyle extends Node implements NodeCaptureInterface
 {
     protected $tagName = 'style';
 
     /**
      * TwigNodeAssets constructor.
-     * @param \Twig_Node|null $body
-     * @param \Twig_Node_Expression|null $file
-     * @param \Twig_Node_Expression|null $group
-     * @param \Twig_Node_Expression|null $priority
-     * @param \Twig_Node_Expression|null $attributes
+     * @param Node|null $body
+     * @param AbstractExpression|null $file
+     * @param AbstractExpression|null $group
+     * @param AbstractExpression|null $priority
+     * @param AbstractExpression|null $attributes
      * @param int $lineno
      * @param string|null $tag
      */
     public function __construct(
-        \Twig_Node $body = null,
-        \Twig_Node_Expression $file = null,
-        \Twig_Node_Expression $group = null,
-        \Twig_Node_Expression $priority = null,
-        \Twig_Node_Expression $attributes = null,
+        Node $body = null,
+        AbstractExpression $file = null,
+        AbstractExpression $group = null,
+        AbstractExpression $priority = null,
+        AbstractExpression $attributes = null,
         $lineno = 0,
         $tag = null
     )
@@ -38,10 +43,10 @@ class TwigNodeStyle extends \Twig_Node implements \Twig_NodeCaptureInterface
     /**
      * Compiles the node to PHP.
      *
-     * @param \Twig_Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig_Compiler instance
      * @throws \LogicException
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
 
