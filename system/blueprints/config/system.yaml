@@ -1062,11 +1062,11 @@ form:
                             validate:
                                 type: bool
 
-                        images.prettyname_prefix:
+                        images.seofriendly:
                             type: toggle
-                            label: PLUGIN_ADMIN.IMAGES_PRETTYNAME_PREFIX
-                            help: PLUGIN_ADMIN.IMAGES_PRETTYNAME_PREFIX_HELP
-                            highlight: 1
+                            label: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY
+                            help: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY_HELP
+                            highlight: 0
                             options:
                                 1: PLUGIN_ADMIN.YES
                                 0: PLUGIN_ADMIN.NO

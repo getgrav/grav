@@ -52,19 +52,14 @@ class ImageFile extends Image
         // Computes the hash
         $this->hash = $this->getHash($type, $quality);
 
-        // Generates the cache file
-        $cacheFile = '';
+        // Seo friendly image names
+        $seofriendly = Grav::instance()['config']->get('system.images.seofriendly', false);
 
-        if (!$this->prettyName || $this->prettyPrefix) {
-            $cacheFile .= $this->hash;
-        }
-
-        if ($this->prettyPrefix) {
-            $cacheFile .= '-';
-        }
-
-        if ($this->prettyName) {
-            $cacheFile .= $this->prettyName;
+        if ($seofriendly) {
+            $mini_hash = substr($this->hash, 0, 4) . substr($this->hash, -4);
+            $cacheFile = "{$this->prettyName}-{$mini_hash}";
+        } else {
+            $cacheFile = "{$this->hash}-{$this->prettyName}";
         }
 
         $cacheFile .= '.' . $type;
