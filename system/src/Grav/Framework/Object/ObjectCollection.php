@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Object;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Grav\Framework\Collection\ArrayCollection;
 use Grav\Framework\Object\Access\NestedPropertyCollectionTrait;
@@ -41,7 +42,7 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
 
     /**
      * @param array $ordering
-     * @return static
+     * @return Collection|static
      */
     public function orderBy(array $ordering)
     {

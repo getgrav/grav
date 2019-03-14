@@ -18,10 +18,10 @@ use Grav\Common\Utils;
 use Grav\Framework\Cache\Adapter\DoctrineCache;
 use Grav\Framework\Cache\Adapter\MemoryCache;
 use Grav\Framework\Cache\CacheInterface;
-use Grav\Framework\Collection\CollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Storage\SimpleStorage;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
@@ -45,9 +45,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $blueprints;
     /** @var bool[] */
     protected $blueprints_init;
-    /** @var FlexIndex */
+    /** @var FlexIndexInterface|null */
     protected $index;
-    /** @var FlexCollection */
+    /** @var FlexCollectionInterface|null */
     protected $collection;
     /** @var bool */
     protected $enabled;
@@ -55,7 +55,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $defaults;
     /** @var Config */
     protected $config;
-    /** @var object */
+    /** @var FlexStorageInterface */
     protected $storage;
     /** @var CacheInterface */
     protected $cache;
@@ -170,9 +170,9 @@ class FlexDirectory implements FlexAuthorizeInterface
      *
      * @param array|null $keys  Array of keys.
      * @param string|null $keyField  Field to be used as the key.
-     * @return FlexIndex|FlexCollection
+     * @return FlexCollectionInterface
      */
-    public function getCollection(array $keys = null, string $keyField = null): CollectionInterface
+    public function getCollection(array $keys = null, string $keyField = null): FlexCollectionInterface
     {
         // Get all selected entries.
         $index = $this->getIndex($keys, $keyField);
@@ -196,10 +196,9 @@ class FlexDirectory implements FlexAuthorizeInterface
      *
      * @param array|null $keys  Array of keys.
      * @param string|null $keyField  Field to be used as the key.
-     * @return FlexIndex|FlexCollection
-     * @internal
+     * @return FlexIndexInterface
      */
-    public function getIndex(array $keys = null, string $keyField = null): CollectionInterface
+    public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface
     {
         $index = clone $this->loadIndex();
         $index = $index->withKeyField($keyField);
@@ -208,7 +207,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             $index = $index->select($keys);
         }
 
-        return $index;
+        return $index->getIndex();
     }
 
     /**
@@ -218,9 +217,9 @@ class FlexDirectory implements FlexAuthorizeInterface
      *
      * @param string $key
      * @param string|null $keyField  Field to be used as the key.
-     * @return FlexObject|null
+     * @return FlexObjectInterface|null
      */
-    public function getObject($key, string $keyField = null): ?FlexObject
+    public function getObject($key, string $keyField = null): ?FlexObjectInterface
     {
         return $this->getIndex(null, $keyField)->get($key);
     }
@@ -228,9 +227,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param array $data
      * @param string|null $key
-     * @return FlexObject
+     * @return FlexObjectInterface
      */
-    public function update(array $data, string $key = null): FlexObject
+    public function update(array $data, string $key = null): FlexObjectInterface
     {
         $object = null !== $key ? $this->getIndex()->get($key): null;
 
@@ -274,9 +273,9 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param string $key
-     * @return FlexObject|null
+     * @return FlexObjectInterface|null
      */
-    public function remove(string $key): ?FlexObject
+    public function remove(string $key): ?FlexObjectInterface
     {
         $object = null !== $key ? $this->getIndex()->get($key): null;
         if (!$object) {
@@ -295,8 +294,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getCache(string $namespace = null): CacheInterface
     {
         $namespace = $namespace ?: 'index';
+        $cache = $this->cache[$namespace] ?? null;
 
-        if (!isset($this->cache[$namespace])) {
+        if (null === $cache) {
             try {
                 $grav = Grav::instance();
 
@@ -312,20 +312,21 @@ class FlexDirectory implements FlexAuthorizeInterface
                 if (Utils::isAdminPlugin()) {
                     $key = substr($key, 0, -1);
                 }
-                $this->cache[$namespace] = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getType() . $key, $timeout);
+                $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getType() . $key, $timeout);
             } catch (\Exception $e) {
                 /** @var Debugger $debugger */
                 $debugger = Grav::instance()['debugger'];
                 $debugger->addException($e);
 
-                $this->cache[$namespace] = new MemoryCache('flex-objects-' . $this->getType());
+                $cache = new MemoryCache('flex-objects-' . $this->getType());
             }
 
             // Disable cache key validation.
-            $this->cache[$namespace]->setValidation(false);
+            $cache->setValidation(false);
+            $this->cache[$namespace] = $cache;
         }
 
-        return $this->cache[$namespace];
+        return $cache;
     }
 
     /**
@@ -386,11 +387,11 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $data
      * @param string $key
      * @param bool $validate
-     * @return FlexObject
+     * @return FlexObjectInterface
      */
-    public function createObject(array $data, string $key = '', bool $validate = false): FlexObject
+    public function createObject(array $data, string $key = '', bool $validate = false): FlexObjectInterface
     {
-        /** @var string|FlexObject $className */
+        /** @var string|FlexObjectInterface $className */
         $className = $this->objectClassName ?: $this->getObjectClass();
 
         return new $className($data, $key, $this, $validate);
@@ -412,7 +413,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param array $entries
      * @param string $keyField
-     * @return FlexCollectionInterface
+     * @return FlexCollectionInterface|FlexIndexInterface
      */
     public function createIndex(array $entries, string $keyField = null): FlexCollectionInterface
     {
@@ -472,7 +473,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @return FlexObject[]
+     * @return FlexObjectInterface[]
      * @internal
      */
     public function loadObjects(array $entries): array
@@ -600,13 +601,15 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
-     * @return FlexIndex|FlexCollection
+     * @return FlexIndexInterface
      */
-    protected function loadIndex(): CollectionInterface
+    protected function loadIndex(): FlexIndexInterface
     {
         static $i = 0;
 
-        if (null === $this->index) {
+        $index = $this->index;
+
+        if (null === $index) {
             $i++; $j = $i;
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
@@ -636,12 +639,14 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
 
             // We need to do this in two steps as orderBy() calls loadIndex() again and we do not want infinite loop.
-            $this->index = $this->createIndex($keys);
-            $this->index = $this->index->orderBy($this->getConfig('data.ordering', []));
+            $index = $this->createIndex($keys);
+            /** @var FlexCollectionInterface $collection */
+            $collection = $index->orderBy($this->getConfig('data.ordering', []));
+            $this->index = $index = $collection->getIndex();
 
             $debugger->stopTimer('flex-keys-' . $this->type . $j);
         }
 
-        return $this->index;
+        return $index;
     }
 }

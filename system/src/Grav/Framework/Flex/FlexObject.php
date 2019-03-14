@@ -16,6 +16,7 @@ use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\ContentBlock\ContentBlockInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
@@ -28,6 +29,9 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\Property\LazyPropertyTrait;
 use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\TemplateWrapper;
 
 /**
  * Class FlexObject
@@ -46,7 +50,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /** @var FlexDirectory */
     private $_flexDirectory;
-    /** @var FlexForm[] */
+    /** @var FlexFormInterface[] */
     private $_forms = [];
     /** @var array */
     private $_storage;
@@ -272,9 +276,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param string $name
      * @param array|null $form
-     * @return FlexForm
+     * @return FlexFormInterface
      */
-    public function getForm(string $name = '', array $form = null)
+    public function getForm(string $name = '', array $form = null): FlexFormInterface
     {
         if (!isset($this->_forms[$name])) {
             $this->_forms[$name] = $this->createFormObject($name, $form);
@@ -389,11 +393,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      *
      * @param string $layout
      * @param array $context
-     * @return HtmlBlock
+     * @return ContentBlockInterface|HtmlBlock
      * @throws \Exception
      * @throws \Throwable
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Syntax
+     * @throws LoaderError
+     * @throws SyntaxError
      */
     public function render($layout = null, array $context = [])
     {
@@ -706,6 +710,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $collection = $directory->getCollection();
         $list = $this->getNestedProperty($property) ?: [];
 
+        /** @var FlexCollection $collection */
         $collection = $collection->filter(function ($object) use ($list) { return \in_array($object->id, $list, true); });
 
         return $collection;
@@ -730,9 +735,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param string $layout
-     * @return \Twig_Template
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Syntax
+     * @return TemplateWrapper
+     * @throws LoaderError
+     * @throws SyntaxError
      */
     protected function getTemplate($layout)
     {
@@ -743,7 +748,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         try {
             return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getType(false)}/object/{$layout}.html.twig"]);
-        } catch (\Twig_Error_Loader $e) {
+        } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);

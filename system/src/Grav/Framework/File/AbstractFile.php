@@ -22,19 +22,19 @@ class AbstractFile implements FileInterface
     /** @var string */
     private $filepath;
 
-    /** @var string */
+    /** @var string|null */
     private $filename;
 
-    /** @var string */
+    /** @var string|null */
     private $path;
 
-    /** @var string */
+    /** @var string|null */
     private $basename;
 
-    /** @var string */
+    /** @var string|null */
     private $extension;
 
-    /** @var resource */
+    /** @var resource|null */
     private $handle;
 
     /** @var bool */

@@ -95,6 +95,11 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
     public function exists();
 
     /**
+     * @return array
+     */
+    public function prepareStorage();
+
+    /**
      * @param array $data
      * @param array $files
      * @return $this

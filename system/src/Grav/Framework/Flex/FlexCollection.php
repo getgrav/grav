@@ -15,11 +15,16 @@ use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\ContentBlock\ContentBlockInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\TemplateWrapper;
 
 /**
  * Class FlexCollection
@@ -158,11 +163,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      *
      * @param string $layout
      * @param array $context
-     * @return HtmlBlock
+     * @return ContentBlockInterface|HtmlBlock
      * @throws \Exception
      * @throws \Throwable
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Syntax
+     * @throws LoaderError
+     * @throws SyntaxError
      */
     public function render($layout = null, array $context = [])
     {
@@ -301,7 +306,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getTimestamps()
     {
-        return $this->call('getTimestamp');
+        /** @var int[] $timestamps */
+        $timestamps = $this->call('getTimestamp');
+
+        return $timestamps;
     }
 
     /**
@@ -309,7 +317,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getStorageKeys()
     {
-        return $this->call('getStorageKey');
+        /** @var string[] $keys */
+        $keys = $this->call('getStorageKey');
+
+        return $keys;
     }
 
     /**
@@ -317,13 +328,16 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getFlexKeys()
     {
-        return $this->call('getFlexKey');
+        /** @var string[] $keys */
+        $keys = $this->call('getFlexKey');
+
+        return $keys;
     }
 
     /**
-     * @return FlexIndex
+     * @return FlexIndexInterface
      */
-    public function getIndex(): FlexIndex
+    public function getIndex(): FlexIndexInterface
     {
         return $this->getFlexDirectory()->getIndex($this->getKeys(), $this->getKeyField());
     }
@@ -422,9 +436,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
     /**
      * @param string $layout
-     * @return \Twig_Template
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Syntax
+     * @return TemplateWrapper
+     * @throws LoaderError
+     * @throws SyntaxError
      */
     protected function getTemplate($layout) //: \Twig_Template
     {
@@ -435,7 +449,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         try {
             return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getType(false)}/collection/{$layout}.html.twig"]);
-        } catch (\Twig_Error_Loader $e) {
+        } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);

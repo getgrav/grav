@@ -147,7 +147,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /**
      * @return $this
      */
-    public function getIndex()
+    public function getIndex(): FlexIndexInterface
     {
         return $this;
     }

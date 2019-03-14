@@ -36,11 +36,11 @@ trait FormTrait
     private $submitted;
     /** @var string[] */
     private $errors;
-    /** @var \ArrayAccess */
+    /** @var \ArrayAccess|null */
     private $data;
     /** @var array|UploadedFileInterface[] */
     private $files;
-    /** @var FormFlash */
+    /** @var FormFlash|null */
     private $flash;
     /** @var Blueprint */
     private $blueprint;
