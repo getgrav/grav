@@ -639,9 +639,9 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
 
             // We need to do this in two steps as orderBy() calls loadIndex() again and we do not want infinite loop.
-            $index = $this->createIndex($keys);
+            $this->index = $this->createIndex($keys);
             /** @var FlexCollectionInterface $collection */
-            $collection = $index->orderBy($this->getConfig('data.ordering', []));
+            $collection = $this->index->orderBy($this->getConfig('data.ordering', []));
             $this->index = $index = $collection->getIndex();
 
             $debugger->stopTimer('flex-keys-' . $this->type . $j);
