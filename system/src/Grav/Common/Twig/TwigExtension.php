@@ -1229,31 +1229,39 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /**
      * Returns a nicer more readable number
      *
-     * @param int|float $n
-     * @return bool|string
+     * @param int|float|string $n
+     * @return string|bool
      */
     public function niceNumberFunc($n)
     {
-        // first strip any formatting;
-        $n = 0 + str_replace(',', '', $n);
+        if (!\is_float($n) && !\is_int($n)) {
+            if (!\is_string($n) || $n === '') {
+                return false;
+            }
 
-        // is this a number?
-        if (!is_numeric($n)) {
-            return false;
+            // Strip any thousand formatting and find the first number.
+            $list = array_filter(preg_split("/\D+/", str_replace(',', '', $n)));
+            $n = reset($list);
+
+            if (!\is_numeric($n)) {
+                return false;
+            }
+
+            $n = (float)$n;
         }
 
         // now filter it;
         if ($n > 1000000000000) {
-            return round(($n/1000000000000), 2).' t';
+            return round($n/1000000000000, 2).' t';
         }
         if ($n > 1000000000) {
-            return round(($n/1000000000), 2).' b';
+            return round($n/1000000000, 2).' b';
         }
         if ($n > 1000000) {
-            return round(($n/1000000), 2).' m';
+            return round($n/1000000, 2).' m';
         }
         if ($n > 1000) {
-            return round(($n/1000), 2).' k';
+            return round($n/1000, 2).' k';
         }
 
         return number_format($n);
