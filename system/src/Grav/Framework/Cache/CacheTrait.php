@@ -279,7 +279,7 @@ trait CacheTrait
     abstract public function doHas($key);
 
     /**
-     * @param string $key
+     * @param string|mixed $key
      * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     protected function validateKey($key)
@@ -323,7 +323,7 @@ trait CacheTrait
     }
 
     /**
-     * @param null|int|\DateInterval    $ttl
+     * @param null|int|\DateInterval|mixed    $ttl
      * @return int|null
      * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
@@ -338,7 +338,7 @@ trait CacheTrait
         }
 
         if ($ttl instanceof \DateInterval) {
-            $ttl = (int) \DateTime::createFromFormat('U', 0)->add($ttl)->format('U');
+            $ttl = (int) \DateTime::createFromFormat('U', '0')->add($ttl)->format('U');
         }
 
         throw new InvalidArgumentException(

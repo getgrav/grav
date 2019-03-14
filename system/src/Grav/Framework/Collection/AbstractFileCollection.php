@@ -38,7 +38,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     protected $createObjectFunction;
 
     /**
-     * @var callable
+     * @var callable|null
      */
     protected $filterFunction;
 

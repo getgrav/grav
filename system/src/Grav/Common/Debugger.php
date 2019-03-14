@@ -96,7 +96,7 @@ class Debugger
         $this->config = $this->grav['config'];
 
         // Enable/disable debugger based on configuration.
-        $this->enabled = $this->config->get('system.debugger.enabled');
+        $this->enabled = (bool)$this->config->get('system.debugger.enabled');
 
         if ($this->enabled()) {
             $this->initialized = true;
@@ -121,12 +121,12 @@ class Debugger
      *
      * @param bool $state If null, the method returns the enabled value. If set, the method sets the enabled state
      *
-     * @return null
+     * @return bool
      */
     public function enabled($state = null)
     {
         if ($state !== null) {
-            $this->enabled = $state;
+            $this->enabled = (bool)$state;
         }
 
         return $this->enabled;

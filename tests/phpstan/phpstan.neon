@@ -46,6 +46,11 @@ parameters:
         # Medium __call() methods
         - '#Call to an undefined method Grav\\Common\\Page\\Medium\\(\w*)Medium::#'
 
+        # Filesystem::getInstance()
+        -
+            message: '#Strict comparison using === between null and static#'
+            path: 'system/src/Grav/Framework/Filesystem/Filesystem.php'
+
         # These errors are about plugins (need to find a better solution)
         -
             message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils#'

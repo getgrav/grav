@@ -277,7 +277,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function remove(string $key): ?FlexObjectInterface
     {
-        $object = null !== $key ? $this->getIndex()->get($key): null;
+        $object = $this->getIndex()->get($key);
         if (!$object) {
             return null;
         }
@@ -376,7 +376,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function getStorage(): FlexStorageInterface
     {
-        if (!$this->storage) {
+        if (null === $this->storage) {
             $this->storage = $this->createStorage();
         }
 
@@ -413,9 +413,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param array $entries
      * @param string $keyField
-     * @return FlexCollectionInterface|FlexIndexInterface
+     * @return FlexIndexInterface
      */
-    public function createIndex(array $entries, string $keyField = null): FlexCollectionInterface
+    public function createIndex(array $entries, string $keyField = null): FlexIndexInterface
     {
         /** @var string|FlexIndexInterface $className */
         $className = $this->indexClassName ?: $this->getIndexClass();

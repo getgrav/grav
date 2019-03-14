@@ -88,6 +88,11 @@ interface FlexObjectInterface extends NestedObjectInterface, \ArrayAccess
     public function getTimestamp() : int;
 
     /**
+     * @return array
+     */
+    public function getMetaData();
+
+    /**
      * Returns true if the object exists in the storage.
      *
      * @return bool

@@ -40,7 +40,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
      */
     public function unserialize($serialized): void
     {
-        $this->doUnserialize(unserialize($serialized, false));
+        $this->doUnserialize(unserialize($serialized, ['allowed_classes' => false]));
     }
 
     /**

@@ -431,7 +431,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function unserialize($serialized)
     {
-        $data = unserialize($serialized, false);
+        $data = unserialize($serialized, ['allowed_classes' => false]);
 
         $this->entries = $data['entries'];
     }

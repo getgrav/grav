@@ -18,6 +18,7 @@ use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\ContentBlock\ContentBlockInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
@@ -270,10 +271,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getMetaData(string $key) : array
     {
-        /** @var FlexObject $object */
         $object = $this->get($key);
 
-        return $object ? $object->getMetaData() : [];
+        return $object instanceof FlexObjectInterface ? $object->getMetaData() : [];
     }
 
     /**
@@ -415,7 +415,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         /**
          * @var string $key
-         * @var FlexObject $object
+         * @var array|FlexObject $object
          */
         foreach ($this->getElements() as $key => $object) {
             $elements[$key] = \is_array($object) ? $object : $object->jsonSerialize();

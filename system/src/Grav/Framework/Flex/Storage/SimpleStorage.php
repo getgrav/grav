@@ -82,7 +82,9 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->data[$key] = $list[$key] = $row;
         }
 
-        $list && $this->save();
+        if ($list) {
+            $this->save();
+        }
 
         return $list;
     }
@@ -121,7 +123,9 @@ class SimpleStorage extends AbstractFilesystemStorage
             }
         }
 
-        $list && $this->save();
+        if ($list) {
+            $this->save();
+        }
 
         return $list;
     }
@@ -139,7 +143,9 @@ class SimpleStorage extends AbstractFilesystemStorage
             }
         }
 
-        $list && $this->save();
+        if ($list) {
+            $this->save();
+        }
 
         return $list;
     }
@@ -154,7 +160,9 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->data[$key] = $list[$key] = $row;
         }
 
-        $list && $this->save();
+        if ($list) {
+            $this->save();
+        }
 
         return $list;
     }

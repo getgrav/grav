@@ -520,7 +520,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 }
             }
 
-            if (!$entries && !$removed) {
+            if (empty($entries) && empty($removed)) {
                 // No objects were added, updated or removed.
                 return $index;
             }

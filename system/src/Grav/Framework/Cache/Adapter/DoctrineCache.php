@@ -39,7 +39,9 @@ class DoctrineCache extends AbstractCache
 
         // Set namespace to Doctrine Cache provider if it was given.
         $namespace = $this->getNamespace();
-        $namespace && $doctrineCache->setNamespace($namespace);
+        if ($namespace) {
+            $doctrineCache->setNamespace($namespace);
+        }
 
         $this->driver = $doctrineCache;
     }
