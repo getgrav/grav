@@ -15,6 +15,7 @@
     * Update all classes to rely on `PageInterface` instead of `Page` class
     * Better error checking in `bin/plugin` for existence and enabled
     * Removed `media.upload_limit` references
+    * Twig `nicenumber`: do not use 0 + string casting hack
 1. [](#bugfix)
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found
@@ -23,7 +24,7 @@
     * Fixed `Obtaining write lock failed on file...`
     * Fixed potential undefined property in `onPageNotFound` event handling
     * Grav 1.6: Fixed settion caching in `FlexIndex`
-    * Fixed some potential issues found by phpstan
+    * Fixed some potential issues/bugs found by phpstan
     * Fixed regression in GPM packages casted to Array (ref, getgrav/grav-plugin-admin@e3fc4ce)
 
 # v1.6.0-rc.3
