@@ -11,6 +11,7 @@ namespace Grav\Common\Language;
 
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
+use Negotiation\AcceptLanguage;
 use Negotiation\LanguageNegotiator;
 
 class Language
@@ -208,7 +209,7 @@ class Language
                     $negotiator = new LanguageNegotiator();
                     $best_language = $negotiator->getBest($accept, $this->languages);
 
-                    if ($best_language) {
+                    if ($best_language instanceof AcceptLanguage) {
                         $this->active = $best_language->getType();
                     } else {
                         $this->active = $this->getDefault();

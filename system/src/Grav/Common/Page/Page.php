@@ -23,6 +23,7 @@ use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
+use Negotiation\Accept;
 use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
@@ -1405,7 +1406,8 @@ class Page implements PageInterface
             $priorities = Utils::getMimeTypes($supported_types);
 
             $media_type = $negotiator->getBest($http_accept, $priorities);
-            $mimetype = $media_type ? $media_type->getValue() : '';
+            $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
+
             $this->template_format = Utils::getExtensionByMime($mimetype);
 
             return $this->template_format;

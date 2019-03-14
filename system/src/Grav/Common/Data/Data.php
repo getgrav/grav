@@ -26,7 +26,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     /** @var array */
     protected $items;
 
-    /** @var Blueprints */
+    /** @var Blueprint */
     protected $blueprints;
 
     /** @var File */
