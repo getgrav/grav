@@ -16,6 +16,7 @@
     * Better error checking in `bin/plugin` for existence and enabled
     * Removed `media.upload_limit` references
     * Twig `nicenumber`: do not use 0 + string casting hack
+    * Converted Twig tags to use namespaced Twig classes
 1. [](#bugfix)
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found
