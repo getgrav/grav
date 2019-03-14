@@ -1062,6 +1062,17 @@ form:
                             validate:
                                 type: bool
 
+                        images.prettyname_prefix:
+                            type: toggle
+                            label: PLUGIN_ADMIN.IMAGES_PRETTYNAME_PREFIX
+                            help: PLUGIN_ADMIN.IMAGES_PRETTYNAME_PREFIX_HELP
+                            highlight: 1
+                            options:
+                                1: PLUGIN_ADMIN.YES
+                                0: PLUGIN_ADMIN.NO
+                            validate:
+                                type: bool
+
                         media.enable_media_timestamp:
                             type: toggle
                             label: PLUGIN_ADMIN.ENABLE_MEDIA_TIMESTAMP

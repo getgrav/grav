@@ -240,7 +240,8 @@ class ImageMedium extends Medium
     {
         $this->set('prettyname', $name);
         if ($this->image) {
-            $this->image->setPrettyName($name);
+            $prefix = Grav::instance()['config']->get('system.images.prettyname_prefix', true);
+            $this->image->setPrettyName($name, $prefix);
         }
     }
 
@@ -583,10 +584,13 @@ class ImageMedium extends Medium
         // Make sure we free previous image.
         unset($this->image);
 
+        // Get prefix
+        $prefix = Grav::instance()['config']->get('system.images.prettyname_prefix', true);
+
         $this->image = ImageFile::open($file)
             ->setCacheDir($cacheDir)
             ->setActualCacheDir($cacheDir)
-            ->setPrettyName($this->getImagePrettyName());
+            ->setPrettyName($this->getImagePrettyName(), $prefix);
 
         return $this;
     }
