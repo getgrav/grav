@@ -38,7 +38,7 @@ trait ObjectPropertyTrait
     {
         $this->initObjectProperties();
         $this->setElements($elements);
-        $this->setKey($key);
+        $this->setKey($key ?? '');
     }
 
     /**

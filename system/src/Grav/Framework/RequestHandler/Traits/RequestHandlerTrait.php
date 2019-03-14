@@ -19,13 +19,13 @@ use Psr\Http\Server\MiddlewareInterface;
 
 trait RequestHandlerTrait
 {
-    /** @var string[]|MiddlewareInterface[]|array */
+    /** @var array<string|MiddlewareInterface> */
     protected $middleware;
 
     /** @var callable */
     private $handler;
 
-    /** @var ContainerInterface */
+    /** @var ContainerInterface|null */
     private $container;
 
     /**
@@ -45,7 +45,7 @@ trait RequestHandlerTrait
             return $middleware->process($request, clone $this);
         }
 
-        if (!$this->container || !$this->container->has($middleware)) {
+        if (null === $this->container || !$this->container->has($middleware)) {
             throw new InvalidArgumentException(
                 sprintf('The middleware is not a valid %s and is not passed in the Container', MiddlewareInterface::class),
                 $middleware

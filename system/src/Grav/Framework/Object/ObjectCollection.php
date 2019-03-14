@@ -36,7 +36,7 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
     {
         parent::__construct($this->setElements($elements));
 
-        $this->setKey($key);
+        $this->setKey($key ?? '');
     }
 
     /**
@@ -76,11 +76,17 @@ class ObjectCollection extends ArrayCollection implements ObjectCollectionInterf
 
         if ($orderings = $criteria->getOrderings()) {
             $next = null;
+            /**
+             * @var string $field
+             * @var string $ordering
+             */
             foreach (array_reverse($orderings) as $field => $ordering) {
                 $next = ObjectExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
             }
 
-            uasort($filtered, $next);
+            if ($next) {
+                uasort($filtered, $next);
+            }
         }
 
         $offset = $criteria->getFirstResult();

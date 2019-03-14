@@ -35,7 +35,10 @@ class Exceptions implements MiddlewareInterface
                 ]
             ];
 
-            return new Response($exception->getCode() ?: 500, [], json_encode($response));
+            /** @var string $json */
+            $json = json_encode($response);
+
+            return new Response($exception->getCode() ?: 500, [], $json);
         }
     }
 }

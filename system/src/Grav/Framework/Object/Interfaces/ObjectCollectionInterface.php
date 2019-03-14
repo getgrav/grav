@@ -37,13 +37,6 @@ interface ObjectCollectionInterface extends CollectionInterface, Selectable, Obj
     public function getObjectKeys();
 
     /**
-     * @param string $property      Object property to be fetched.
-     * @param mixed $default        Default value if not set.
-     * @return array                Property value.
-     */
-    public function getProperty($property, $default = null);
-
-    /**
      * @param string $name          Method name.
      * @param array  $arguments     List of arguments passed to the function.
      * @return array                Return values.

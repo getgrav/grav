@@ -126,9 +126,9 @@ class UriFactory
             $url
         );
 
-        $parts = parse_url($encodedUrl);
+        $parts = \is_string($encodedUrl) ? parse_url($encodedUrl) : false;
         if ($parts === false) {
-            throw new \InvalidArgumentException('Malformed URL: ' . $encodedUrl);
+            throw new \InvalidArgumentException("Malformed URL: {$url}");
         }
 
         return $parts;
@@ -155,6 +155,12 @@ class UriFactory
      */
     public static function buildQuery(array $params)
     {
-        return $params ? http_build_query($params,  null, ini_get('arg_separator.output'), PHP_QUERY_RFC3986) : '';
+        if (!$params) {
+            return '';
+        }
+
+        $separator = ini_get('arg_separator.output') ?: '&';
+
+        return http_build_query($params, '', $separator, PHP_QUERY_RFC3986);
     }
 }

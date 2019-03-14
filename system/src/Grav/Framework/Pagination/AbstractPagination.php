@@ -17,10 +17,10 @@ class AbstractPagination implements PaginationInterface
     /** @var Route Base rouse used for the pagination. */
     protected $route;
 
-    /** @var int  Current page. */
+    /** @var int|null  Current page. */
     protected $page;
 
-    /** @var int  The record number to start displaying from. */
+    /** @var int|null  The record number to start displaying from. */
     protected $start;
 
     /** @var int  Number of records to display per page. */

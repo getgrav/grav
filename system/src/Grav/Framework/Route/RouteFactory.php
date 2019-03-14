@@ -73,7 +73,7 @@ class RouteFactory
 
     public static function setParamValueDelimiter($delimiter)
     {
-        self::$delimiter = $delimiter;
+        self::$delimiter = $delimiter ?: ':';
     }
 
     /**
@@ -134,13 +134,21 @@ class RouteFactory
      */
     public static function parseParams($str)
     {
+        if ($str === '') {
+            return [];
+        }
+
         $delimiter = self::$delimiter;
 
+        /** @var array $params */
         $params = explode('/', $str);
         foreach ($params as &$param) {
+            /** @var array $parts */
             $parts = explode($delimiter, $param, 2);
             if (isset($parts[1])) {
-                $param[rawurldecode($parts[0])] = rawurldecode($parts[1]);
+                $var = rawurldecode($parts[0]);
+                $val = rawurldecode($parts[1]);
+                $param = [$var => $val];
             }
         }
 

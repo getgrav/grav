@@ -50,7 +50,7 @@ class UriPartsFilter
                 return rawurlencode($match[0]);
             },
             $info
-        );
+        ) ?? '';
     }
 
     /**
@@ -114,7 +114,7 @@ class UriPartsFilter
                 return rawurlencode($match[0]);
             },
             $path
-        );
+        ) ?? '';
     }
 
     /**
@@ -136,6 +136,6 @@ class UriPartsFilter
                 return rawurlencode($match[0]);
             },
             $query
-        );
+        ) ?? '';
     }
 }

@@ -32,7 +32,7 @@ trait ArrayPropertyTrait
     public function __construct(array $elements = [], $key = null)
     {
         $this->setElements($elements);
-        $this->setKey($key);
+        $this->setKey($key ?? '');
     }
 
     /**

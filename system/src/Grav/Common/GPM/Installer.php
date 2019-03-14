@@ -523,7 +523,7 @@ class Installer
 
     /**
      * Returns the last error code of the occurred error
-     * @return int The code of the last error
+     * @return int|string The code of the last error
      */
     public static function lastErrorCode()
     {
