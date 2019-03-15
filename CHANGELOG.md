@@ -17,6 +17,7 @@
     * Removed `media.upload_limit` references
     * Twig `nicenumber`: do not use 0 + string casting hack
     * Converted Twig tags to use namespaced Twig classes
+    * Site shows error on page rather than hard-crash when page has invalid frontmatter [#2343](https://github.com/getgrav/grav/issues/2343)
 1. [](#bugfix)
     * Grav 1.6: Fixed `FlexUser` loosing ACL information
     * Grav 1.6: Fixed `FlexUser::find()` breaking when nothing is found

@@ -346,7 +346,7 @@ class Page implements PageInterface
                             $this->processFrontmatter();
                         }
                     }
-                } catch (ParseException $e) {
+                } catch (\Exception $e) {
                     $file->raw(Grav::instance()['language']->translate([
                         'GRAV.FRONTMATTER_ERROR_PAGE',
                         $this->slug(),
