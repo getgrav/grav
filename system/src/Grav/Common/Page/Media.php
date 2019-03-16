@@ -169,7 +169,8 @@ class Media extends AbstractMedia
                     $meta_data = $meta->getData();
                     $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
                     if ($meta_trimmed) {
-                        $file = File::instance($meta_path);
+                        $full_meta_path = Grav::instance()['locator']->findResource($meta_path, true, true);
+                        $file = File::instance($full_meta_path);
                         $file->save(Yaml::dump($meta_trimmed));
                         $types['meta']['file'] = $meta_path;
                     }
