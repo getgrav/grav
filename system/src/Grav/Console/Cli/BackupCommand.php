@@ -36,7 +36,7 @@ class BackupCommand extends ConsoleCommand
 
             )
             ->setDescription('Creates a backup of the Grav instance')
-            ->setHelp('The <info>backup</info> creates a zipped backup. Optionally can be saved in a different destination.');
+            ->setHelp('The <info>backup</info> creates a zipped backup.');
 
         $this->source = getcwd();
     }
