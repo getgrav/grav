@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added phpstan: PHP Static Analysis Tool [#2393](https://github.com/getgrav/grav/pull/2393)
+    * Added `composer test-plugins` to test plugin issues with the current version of Grav
     * Grav 1.6: Renamed `$grav['users']` service to `$grav['accounts']`
     * Added `Flex::getObjects()` and `Flex::getMixedCollection()` methods for co-mingled collections
     * Added support to use single Flex key parameter in `Flex::getObject()` method
