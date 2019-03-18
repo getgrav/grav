@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File\Formatter;
 
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
+
 class JsonFormatter extends AbstractFormatter
 {
     public function __construct(array $config = [])
@@ -68,6 +70,7 @@ class JsonFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::encode()
      */
     public function encode($data): string
     {
@@ -82,6 +85,7 @@ class JsonFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::decode()
      */
     public function decode($data)
     {

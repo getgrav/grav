@@ -13,6 +13,11 @@ namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
+/**
+ * Abstract file formatter.
+ *
+ * @package Grav\Framework\File\Formatter
+ */
 abstract class AbstractFormatter implements FileFormatterInterface
 {
     /** @var array */
@@ -45,6 +50,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::getDefaultFileExtension()
      */
     public function getDefaultFileExtension(): string
     {
@@ -56,6 +62,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::getSupportedFileExtensions()
      */
     public function getSupportedFileExtensions(): array
     {
@@ -67,11 +74,13 @@ abstract class AbstractFormatter implements FileFormatterInterface
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::encode()
      */
     abstract public function encode($data): string;
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::decode()
      */
     abstract public function decode($data);
 

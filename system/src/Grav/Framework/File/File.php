@@ -14,9 +14,8 @@ namespace Grav\Framework\File;
 class File extends AbstractFile
 {
     /**
-     * Load a file from the filesystem.
-     *
-     * @return string|false
+     * {@inheritdoc}
+     * @see FileInterface::load()
      */
     public function load()
     {
@@ -24,10 +23,8 @@ class File extends AbstractFile
     }
 
     /**
-     * Save file.
-     *
-     * @param  string $data
-     * @throws \RuntimeException
+     * {@inheritdoc}
+     * @see FileInterface::save()
      */
     public function save($data): void
     {

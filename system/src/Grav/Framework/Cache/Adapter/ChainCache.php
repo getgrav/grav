@@ -21,7 +21,7 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
 class ChainCache extends AbstractCache
 {
     /**
-     * @var array|CacheInterface[]
+     * @var CacheInterface[]
      */
     protected $caches;
 

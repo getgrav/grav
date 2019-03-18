@@ -83,9 +83,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Get full path to the file.
-     *
-     * @return string
+     * {@inheritdoc}
+     * @see FileInterface::getFilePath()
      */
     public function getFilePath(): string
     {
@@ -93,9 +92,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Get path to the file.
-     *
-     * @return string
+     * {@inheritdoc}
+     * @see FileInterface::getPath()
      */
     public function getPath(): string
     {
@@ -107,9 +105,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Get filename.
-     *
-     * @return string
+     * {@inheritdoc}
+     * @see FileInterface::getFilename()
      */
     public function getFilename(): string
     {
@@ -121,9 +118,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Return name of the file without extension.
-     *
-     * @return string
+     * {@inheritdoc}
+     * @see FileInterface::getBasename()
      */
     public function getBasename(): string
     {
@@ -135,10 +131,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Return file extension.
-     *
-     * @param bool $withDot
-     * @return string
+     * {@inheritdoc}
+     * @see FileInterface::getExtension()
      */
     public function getExtension(bool $withDot = false): string
     {
@@ -150,9 +144,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Check if file exits.
-     *
-     * @return bool
+     * {@inheritdoc}
+     * @see FileInterface::exists()
      */
     public function exists(): bool
     {
@@ -160,9 +153,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Return file modification time.
-     *
-     * @return int Unix timestamp. If file does not exist, method returns current time.
+     * {@inheritdoc}
+     * @see FileInterface::getCreationTime()
      */
     public function getCreationTime(): int
     {
@@ -170,9 +162,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Return file modification time.
-     *
-     * @return int Unix timestamp. If file does not exist, method returns current time.
+     * {@inheritdoc}
+     * @see FileInterface::getModificationTime()
      */
     public function getModificationTime(): int
     {
@@ -180,11 +171,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Lock file for writing. You need to manually unlock().
-     *
-     * @param bool $block  For non-blocking lock, set the parameter to false.
-     * @return bool
-     * @throws \RuntimeException
+     * {@inheritdoc}
+     * @see FileInterface::lock()
      */
     public function lock(bool $block = true): bool
     {
@@ -209,9 +197,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Unlock file.
-     *
-     * @return bool
+     * {@inheritdoc}
+     * @see FileInterface::unlock()
      */
     public function unlock(): bool
     {
@@ -231,9 +218,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Returns true if file has been locked for writing.
-     *
-     * @return bool True = locked, false = not locked.
+     * {@inheritdoc}
+     * @see FileInterface::isLocked()
      */
     public function isLocked(): bool
     {
@@ -241,9 +227,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Check if file exists and can be read.
-     *
-     * @return bool
+     * {@inheritdoc}
+     * @see FileInterface::isReadable()
      */
     public function isReadable(): bool
     {
@@ -251,9 +236,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Check if file can be written.
-     *
-     * @return bool
+     * {@inheritdoc}
+     * @see FileInterface::isWritable()
      */
     public function isWritable(): bool
     {
@@ -265,9 +249,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * (Re)Load a file and return file contents.
-     *
-     * @return string|array|false
+     * {@inheritdoc}
+     * @see FileInterface::load()
      */
     public function load()
     {
@@ -275,10 +258,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Save file.
-     *
-     * @param  mixed $data
-     * @throws \RuntimeException
+     * {@inheritdoc}
+     * @see FileInterface::save()
      */
     public function save($data): void
     {
@@ -316,10 +297,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Rename file in the filesystem if it exists.
-     *
-     * @param string $path
-     * @return bool
+     * {@inheritdoc}
+     * @see FileInterface::rename()
      */
     public function rename(string $path): bool
     {
@@ -333,9 +312,8 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * Delete file from filesystem.
-     *
-     * @return bool
+     * {@inheritdoc}
+     * @see FileInterface::delete()
      */
     public function delete(): bool
     {

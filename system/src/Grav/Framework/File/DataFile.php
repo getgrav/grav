@@ -32,10 +32,8 @@ class DataFile extends AbstractFile
     }
 
     /**
-     * (Re)Load a file and return RAW file contents.
-     *
-     * @return array|false
-     * @throws RuntimeException
+     * {@inheritdoc}
+     * @see FileInterface::load()
      */
     public function load()
     {
@@ -49,10 +47,8 @@ class DataFile extends AbstractFile
     }
 
     /**
-     * Save file.
-     *
-     * @param  string|array  $data  Data to be saved.
-     * @throws RuntimeException
+     * {@inheritdoc}
+     * @see FileInterface::save()
      */
     public function save($data): void
     {

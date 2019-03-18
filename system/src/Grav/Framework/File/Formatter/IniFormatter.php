@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File\Formatter;
 
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
+
 class IniFormatter extends AbstractFormatter
 {
     /**
@@ -28,6 +30,7 @@ class IniFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::encode()
      */
     public function encode($data): string
     {
@@ -45,6 +48,7 @@ class IniFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::decode()
      */
     public function decode($data): array
     {

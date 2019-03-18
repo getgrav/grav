@@ -75,6 +75,7 @@ class MarkdownFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::encode()
      */
     public function encode($data): string
     {
@@ -99,6 +100,7 @@ class MarkdownFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::decode()
      */
     public function decode($data): array
     {

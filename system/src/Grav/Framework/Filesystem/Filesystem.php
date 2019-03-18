@@ -20,13 +20,16 @@ class Filesystem implements FilesystemInterface
 
     /** @var static */
     static protected $default;
+
     /** @var static */
     static protected $unsafe;
+
     /** @var static */
     static protected $safe;
 
     /**
      * @param bool|null $normalize See $this->setNormalization()
+     *
      * @return Filesystem
      */
     public static function getInstance(bool $normalize = null): Filesystem
@@ -64,6 +67,7 @@ class Filesystem implements FilesystemInterface
      * not normalized.
      *
      * @param bool|null $normalize
+     *
      * @return Filesystem
      */
     public function setNormalization(bool $normalize = null): self
@@ -92,7 +96,8 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     * @see FilesystemInterface::parent()
      */
     public function parent(string $path, int $levels = 1): string
     {
@@ -112,7 +117,8 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     * @see FilesystemInterface::normalize()
      */
     public function normalize(string $path): string
     {
@@ -124,7 +130,8 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     * @see FilesystemInterface::dirname()
      */
     public function dirname(string $path, int $levels = 1): string
     {
@@ -140,7 +147,8 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     * @see FilesystemInterface::pathinfo()
      */
     public function pathinfo(string $path, int $options = null)
     {
@@ -157,6 +165,7 @@ class Filesystem implements FilesystemInterface
      * @param string|null $scheme
      * @param string $path
      * @param int $levels
+     *
      * @return array
      */
     protected function dirnameInternal(?string $scheme, string $path, int $levels = 1): array
@@ -174,6 +183,8 @@ class Filesystem implements FilesystemInterface
      * @param string|null $scheme
      * @param string $path
      * @param int|null $options
+     *
+     * @return array
      */
     protected function pathinfoInternal(?string $scheme, string $path, int $options = null)
     {
@@ -197,6 +208,7 @@ class Filesystem implements FilesystemInterface
      * Gets a 2-tuple of scheme (may be null) and hierarchical part of a filename (e.g. file:///tmp -> array(file, tmp)).
      *
      * @param string $filename
+     *
      * @return array
      */
     protected function getSchemeAndHierarchy(string $filename): array
@@ -209,6 +221,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @param string|null $scheme
      * @param string $path
+     *
      * @return string
      */
     protected function toString(?string $scheme, string $path): string
@@ -222,6 +235,7 @@ class Filesystem implements FilesystemInterface
 
     /**
      * @param string $path
+     *
      * @return string
      * @throws \RuntimeException
      */

@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File\Formatter;
 
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
+
 class CsvFormatter extends AbstractFormatter
 {
     /**
@@ -40,6 +42,7 @@ class CsvFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::encode()
      */
     public function encode($data, $delimiter = null): string
     {
@@ -62,6 +65,7 @@ class CsvFormatter extends AbstractFormatter
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::decode()
      */
     public function decode($data, $delimiter = null): array
     {
