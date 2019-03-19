@@ -9,7 +9,6 @@
 
 namespace Grav\Common\User\FlexUser;
 
-use Grav\Common\Data\ValidationException;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
@@ -18,7 +17,6 @@ use Grav\Common\Page\Medium\Medium;
 use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
-use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
@@ -65,7 +63,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * @return array
      */
-    public static function getCachedMethods()
+    public static function getCachedMethods(): array
     {
         return [
             'load' => false,
@@ -78,12 +76,12 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         ] + parent::getCachedMethods();
     }
 
-    public function __construct(array $elements, $key, FlexDirectory $flexDirectory, bool $validate = false)
+    public function __construct(array $elements, $key, FlexDirectory $directory, bool $validate = false)
     {
         // User can only be authenticated via login.
         unset($elements['authenticated'], $elements['authorized']);
 
-        parent::__construct($elements, $key, $flexDirectory, $validate);
+        parent::__construct($elements, $key, $directory, $validate);
 
         // Define username and state if they aren't set.
         $this->defProperty('username', $key);
@@ -435,7 +433,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * @return array
      */
-    public function prepareStorage()
+    public function prepareStorage(): array
     {
         $elements = parent::prepareStorage();
 
@@ -628,7 +626,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * @return array
      */
-    protected function doSerialize()
+    protected function doSerialize(): array
     {
         return [
             'type' => 'accounts',
@@ -641,7 +639,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * @param array $serialized
      */
-    protected function doUnserialize(array $serialized)
+    protected function doUnserialize(array $serialized): void
     {
         $grav = Grav::instance();
 

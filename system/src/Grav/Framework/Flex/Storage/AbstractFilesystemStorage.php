@@ -69,7 +69,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      * @param string $filename
      * @return File
      */
-    protected function getFile(string $filename): File
+    protected function getFile(string $filename)
     {
         $filename = $this->resolvePath($filename);
 

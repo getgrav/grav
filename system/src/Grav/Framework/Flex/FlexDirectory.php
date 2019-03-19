@@ -132,7 +132,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string $context
      * @return Blueprint
      */
-    public function getBlueprint(string $type = '', string $context = ''): Blueprint
+    public function getBlueprint(string $type = '', string $context = '')
     {
         $blueprint = $this->getBlueprintInternal($type, $context);
 
@@ -291,7 +291,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null): CacheInterface
+    public function getCache(string $namespace = null)
     {
         $namespace = $namespace ?: 'index';
         $cache = $this->cache[$namespace] ?? null;
@@ -332,7 +332,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @return $this
      */
-    public function clearCache(): self
+    public function clearCache()
     {
         $grav = Grav::instance();
 
@@ -553,7 +553,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string $context
      * @return Blueprint
      */
-    protected function getBlueprintInternal(string $type_view = '', string $context = ''): Blueprint
+    protected function getBlueprintInternal(string $type_view = '', string $context = '')
     {
         if (!isset($this->blueprints[$type_view])) {
             if (!file_exists($this->blueprint_file)) {

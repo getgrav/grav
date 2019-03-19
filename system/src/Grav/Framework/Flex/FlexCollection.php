@@ -40,9 +40,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     private $_keyField;
 
     /**
-     * @return array
+     * Get list of cached methods.
+     *
+     * @return array Returns a list of methods with their caching information.
      */
-    public static function getCachedMethods()
+    public static function getCachedMethods(): array
     {
         return [
             'getTypePrefix' => true,
@@ -65,12 +67,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
-     * @param array $entries
-     * @param FlexDirectory $directory
-     * @param string $keyField
-     * @return static
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::createFromArray()
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null): FlexCollectionInterface
+    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null)
     {
         $instance = new static($entries, $directory);
         $instance->setKeyField($keyField);
@@ -79,66 +79,23 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
-     * @param array $elements
-     * @param FlexDirectory|null $flexDirectory
-     * @throws \InvalidArgumentException
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::__construct()
      */
-    public function __construct(array $elements = [], FlexDirectory $flexDirectory = null)
+    public function __construct(array $entries = [], FlexDirectory $directory = null)
     {
-        parent::__construct($elements);
+        parent::__construct($entries);
 
-        if ($flexDirectory) {
-            $this->setFlexDirectory($flexDirectory)->setKey($flexDirectory->getType());
+        if ($directory) {
+            $this->setFlexDirectory($directory)->setKey($directory->getType());
         }
     }
 
     /**
-     * Creates a new instance from the specified elements.
-     *
-     * This method is provided for derived classes to specify how a new
-     * instance should be created when constructor semantics have changed.
-     *
-     * @param array $elements Elements.
-     * @param string|null $keyField
-     *
-     * @return static
-     * @throws \InvalidArgumentException
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::search()
      */
-    protected function createFrom(array $elements, $keyField = null)
-    {
-        $collection = new static($elements, $this->_flexDirectory);
-        $collection->setKeyField($keyField ?: $this->_keyField);
-
-        return $collection;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getTypePrefix()
-    {
-        return 'c.';
-    }
-
-    /**
-     * @param bool $prefix
-     * @return string
-     */
-    public function getType($prefix = false)
-    {
-        $type = $prefix ? $this->getTypePrefix() : '';
-
-        return $type . $this->_flexDirectory->getType();
-    }
-
-
-    /**
-     * @param string $search
-     * @param string|string[]|null $properties
-     * @param array|null $options
-     * @return FlexCollectionInterface
-     */
-    public function search(string $search, $properties = null, array $options = null) // : FlexCollectionInterface
+    public function search(string $search, $properties = null, array $options = null)
     {
         $matching = $this->call('search', [$search, $properties, $options]);
         $matching = array_filter($matching);
@@ -152,35 +109,154 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $this->select(array_keys($matching));
     }
 
-    public function sort(array $order) // : FlexCollectionInterface
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::sort()
+     */
+    public function sort(array $order)
     {
         $criteria = Criteria::create()->orderBy($order);
 
-        return $this->matching($criteria);
+        /** @var FlexCollectionInterface $matching */
+        $matching = $this->matching($criteria);
+
+        return $matching;
     }
 
     /**
-     * Twig example: {% render collection layout 'edit' with {my_check: true} %}
-     *
-     * @param string $layout
-     * @param array $context
-     * @return ContentBlockInterface|HtmlBlock
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws LoaderError
-     * @throws SyntaxError
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexType()
+     */
+    public function getFlexType(): string
+    {
+        return $this->_flexDirectory->getType();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexDirectory()
+     */
+    public function getFlexDirectory(): FlexDirectory
+    {
+        return $this->_flexDirectory;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getTimestamp()
+     */
+    public function getTimestamp(): int
+    {
+        $timestamps = $this->getTimestamps();
+
+        return $timestamps ? max($timestamps) : time();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexDirectory()
+     */
+    public function getCacheKey(): string
+    {
+        return $this->getTypePrefix() . $this->getFlexType() . '.' . sha1(json_encode($this->call('getKey')));
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexDirectory()
+     */
+    public function getCacheChecksum(): string
+    {
+        return sha1(json_encode($this->getTimestamps()));
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexDirectory()
+     */
+    public function getTimestamps(): array
+    {
+        /** @var int[] $timestamps */
+        $timestamps = $this->call('getTimestamp');
+
+        return $timestamps;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexDirectory()
+     */
+    public function getStorageKeys(): array
+    {
+        /** @var string[] $keys */
+        $keys = $this->call('getStorageKey');
+
+        return $keys;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexDirectory()
+     */
+    public function getFlexKeys(): array
+    {
+        /** @var string[] $keys */
+        $keys = $this->call('getFlexKey');
+
+        return $keys;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::withKeyField()
+     */
+    public function withKeyField(string $keyField = null)
+    {
+        $keyField = $keyField ?: 'key';
+        if ($keyField === $this->getKeyField()) {
+            return $this;
+        }
+
+        $entries = [];
+        foreach ($this as $key => $object) {
+            // TODO: remove hardcoded logic
+            if ($keyField === 'storage_key') {
+                $entries[$object->getStorageKey()] = $object;
+            } elseif ($keyField === 'flex_key') {
+                $entries[$object->getFlexKey()] = $object;
+            } elseif ($keyField === 'key') {
+                $entries[$object->getKey()] = $object;
+            }
+        }
+
+        return $this->createFrom($entries, $keyField);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getIndex()
+     */
+    public function getIndex()
+    {
+        return $this->getFlexDirectory()->getIndex($this->getKeys(), $this->getKeyField());
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::render()
      */
     public function render($layout = null, array $context = [])
     {
         if (null === $layout) {
             $layout = 'default';
         }
+        $type = $this->getFlexType();
 
         $grav = Grav::instance();
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];
-        $debugger->startTimer('flex-collection-' . ($debugKey =  uniqid($this->getType(false), false)), 'Render Collection ' . $this->getType(false) . ' (' . $layout . ')');
+        $debugger->startTimer('flex-collection-' . ($debugKey =  uniqid($type, false)), 'Render Collection ' . $type . ' (' . $layout . ')');
 
         $cache = $key = null;
         foreach ($context as $value) {
@@ -229,8 +305,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             );
 
             if ($debugger->enabled()) {
-                $name = $this->getType(false);
-                $output = "\n<!–– START {$name} collection ––>\n{$output}\n<!–– END {$name} collection ––>\n";
+                $output = "\n<!–– START {$type} collection ––>\n{$output}\n<!–– END {$type} collection ––>\n";
             }
 
             $block->setContent($output);
@@ -248,6 +323,20 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @param bool $prefix
+     * @return string
+     * @deprecated 1.6 Use `->getFlexType()` instead.
+     */
+    public function getType($prefix = false)
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
+        $type = $prefix ? $this->getTypePrefix() : '';
+
+        return $type . $this->getFlexType();
+    }
+
+    /**
      * @param FlexDirectory $type
      * @return $this
      */
@@ -256,14 +345,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $this->_flexDirectory = $type;
 
         return $this;
-    }
-
-    /**
-     * @return FlexDirectory
-     */
-    public function getFlexDirectory() //: FlexDirectory
-    {
-        return $this->_flexDirectory;
     }
 
     /**
@@ -280,92 +361,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null): CacheInterface
+    public function getCache(string $namespace = null)
     {
         return $this->_flexDirectory->getCache($namespace);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCacheKey()
-    {
-        return $this->getType(true) . '.' . sha1(json_encode($this->call('getKey')));
-    }
-
-    /**
-     * @return string
-     */
-    public function getCacheChecksum()
-    {
-        return sha1(json_encode($this->getTimestamps()));
-    }
-
-    /**
-     * @return int[]
-     */
-    public function getTimestamps()
-    {
-        /** @var int[] $timestamps */
-        $timestamps = $this->call('getTimestamp');
-
-        return $timestamps;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getStorageKeys()
-    {
-        /** @var string[] $keys */
-        $keys = $this->call('getStorageKey');
-
-        return $keys;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getFlexKeys()
-    {
-        /** @var string[] $keys */
-        $keys = $this->call('getFlexKey');
-
-        return $keys;
-    }
-
-    /**
-     * @return FlexIndexInterface
-     */
-    public function getIndex(): FlexIndexInterface
-    {
-        return $this->getFlexDirectory()->getIndex($this->getKeys(), $this->getKeyField());
-    }
-
-    /**
-     * @param string|null $keyField
-     * @return FlexCollectionInterface
-     */
-    public function withKeyField(string $keyField = null): FlexCollectionInterface
-    {
-        $keyField = $keyField ?: 'key';
-        if ($keyField === $this->getKeyField()) {
-            return $this;
-        }
-
-        $entries = [];
-        foreach ($this as $key => $object) {
-            // TODO: remove hardcoded logic
-            if ($keyField === 'storage_key') {
-                $entries[$object->getStorageKey()] = $object;
-            } elseif ($keyField === 'flex_key') {
-                $entries[$object->getFlexKey()] = $object;
-            } elseif ($keyField === 'key') {
-                $entries[$object->getKey()] = $object;
-            }
-        }
-
-        return $this->createFrom($entries, $keyField);
     }
 
     /**
@@ -427,11 +425,39 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function __debugInfo()
     {
         return [
-            'type:private' => $this->getType(false),
+            'type:private' => $this->getFlexType(),
             'key:private' => $this->getKey(),
             'objects_key:private' => $this->getKeyField(),
             'objects:private' => $this->getElements()
         ];
+    }
+
+    /**
+     * Creates a new instance from the specified elements.
+     *
+     * This method is provided for derived classes to specify how a new
+     * instance should be created when constructor semantics have changed.
+     *
+     * @param array $elements Elements.
+     * @param string|null $keyField
+     *
+     * @return static
+     * @throws \InvalidArgumentException
+     */
+    protected function createFrom(array $elements, $keyField = null)
+    {
+        $collection = new static($elements, $this->_flexDirectory);
+        $collection->setKeyField($keyField ?: $this->_keyField);
+
+        return $collection;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTypePrefix(): string
+    {
+        return 'c.';
     }
 
     /**
@@ -440,7 +466,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @throws LoaderError
      * @throws SyntaxError
      */
-    protected function getTemplate($layout) //: \Twig_Template
+    protected function getTemplate($layout)
     {
         $grav = Grav::instance();
 
@@ -448,7 +474,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getType(false)}/collection/{$layout}.html.twig"]);
+            return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getFlexType()}/collection/{$layout}.html.twig"]);
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
@@ -470,7 +496,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $flex->getDirectory($type);
     }
 
-    protected function setKeyField($keyField = null)
+    protected function setKeyField($keyField = null): void
     {
         $this->_keyField = $keyField ?? 'storage_key';
     }

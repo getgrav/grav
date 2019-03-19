@@ -11,53 +11,106 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Interfaces;
 
+use Grav\Framework\Flex\Flex;
 use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 use Grav\Framework\Flex\FlexDirectory;
 
 /**
- * Interface FlexCollectionInterface
- * @package Grav\Framework\Flex\Interfaces
+ * Defines a collection of Flex Objects.
+ *
+ * @used-by \Grav\Framework\Flex\FlexCollection
+ * @since 1.6
  */
-interface FlexCollectionInterface extends ObjectCollectionInterface, NestedObjectInterface
+interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionInterface, NestedObjectInterface
 {
-
     /**
-     * @param array $entries
-     * @param FlexDirectory $directory
-     * @param string $keyField
-     * @return static
+     * Creates a Flex Collection from an array.
+     *
+     * @used-by FlexDirectory::createCollection()   Official method to create a Flex Collection.
+     *
+     * @param FlexObjectInterface[] $entries    Associated array of Flex Objects to be included in the collection.
+     * @param FlexDirectory         $directory  Flex Directory where all the objects belong into.
+     * @param string                $keyField   Key field used to index the collection.
+     *
+     * @return static                           Returns a new Flex Collection.
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null) : FlexCollectionInterface;
+    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null);
 
     /**
-     * @param array $elements
-     * @param FlexDirectory $type
+     * Creates a new Flex Collection.
+     *
+     * @used-by FlexDirectory::createCollection()   Official method to create Flex Collection.
+     *
+     * @param FlexObjectInterface[] $entries    Associated array of Flex Objects to be included in the collection.
+     * @param FlexDirectory         $directory  Flex Directory where all the objects belong into.
+     *
      * @throws \InvalidArgumentException
      */
-    public function __construct(array $elements, FlexDirectory $type);
+    public function __construct(array $entries = [], FlexDirectory $directory = null);
 
     /**
-     * @param string $search
-     * @param string|string[]|null $properties
-     * @param array|null $options
-     * @return FlexCollectionInterface
+     * Search a string from the collection.
+     *
+     * @param string                $search     Search string.
+     * @param string|string[]|null  $properties Properties to search for, defaults to configured properties.
+     * @param array|null            $options    Search options, defaults to configured options.
+     *
+     * @return FlexCollectionInterface          Returns a Flex Collection with only matching objects.
+     * @api
      */
-    public function search(string $search, $properties = null, array $options = null); // : FlexCollection
+    public function search(string $search, $properties = null, array $options = null);
 
     /**
-     * @return FlexDirectory
+     * Sort the collection.
+     *
+     * @param array $orderings Pair of [property => 'ASC'|'DESC', ...].
+     *
+     * @return FlexCollectionInterface Returns a sorted version from the collection.
      */
-    public function getFlexDirectory(); //: FlexDirectory;
+    public function sort(array $orderings);
 
     /**
-     * @param string|null $keyField
-     * @return FlexCollectionInterface
+     * Get timestamps from all the objects in the collection.
+     *
+     * This method can be used for example in caching.
+     *
+     * @return int[] Returns [key => timestamp, ...] pairs.
      */
-    public function withKeyField(string $keyField = null): FlexCollectionInterface;
+    public function getTimestamps(): array;
 
     /**
-     * @return FlexIndexInterface
+     * Get storage keys from all the objects in the collection.
+     *
+     * @see FlexDirectory::getObject()  If you want to get Flex Object from the Flex Directory.
+     *
+     * @return string[] Returns [key => storage_key, ...] pairs.
      */
-    public function getIndex(): FlexIndexInterface;
+    public function getStorageKeys(): array;
+
+    /**
+     * Get Flex keys from all the objects in the collection.
+     *
+     * @see Flex::getObjects()  If you want to get list of Flex Objects from any Flex Directory.
+     *
+     * @return string[] Returns[key => flex_key, ...] pairs.
+     */
+    public function getFlexKeys(): array;
+
+    /**
+     * Return new collection with a different key.
+     *
+     * @param string|null $keyField Switch key field of the collection.
+     *
+     * @return FlexCollectionInterface  Returns a new Flex Collection with new key field.
+     * @api
+     */
+    public function withKeyField(string $keyField = null);
+
+    /**
+     * Get Flex Index from the Flex Collection.
+     *
+     * @return FlexIndexInterface   Returns a Flex Index from the current collection.
+     */
+    public function getIndex();
 }

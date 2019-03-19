@@ -79,7 +79,7 @@ class FlexForm implements FlexFormInterface
     /**
      * @return Data|FlexObjectInterface
      */
-    public function getData(): \ArrayAccess
+    public function getData()
     {
         return $this->data ?? $this->getObject();
     }
@@ -187,11 +187,6 @@ class FlexForm implements FlexFormInterface
         }
 
         return '';
-    }
-
-    public function getMediaRoute(): string
-    {
-        return '/' . $this->getObject()->getKey();
     }
 
     /**

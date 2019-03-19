@@ -10,15 +10,14 @@
 namespace Grav\Framework\Flex;
 
 use Grav\Common\Data\Blueprint;
-use Grav\Common\Data\ValidationException;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
-use Grav\Framework\ContentBlock\ContentBlockInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Grav\Framework\Object\Access\NestedArrayAccessTrait;
@@ -26,6 +25,7 @@ use Grav\Framework\Object\Access\NestedPropertyTrait;
 use Grav\Framework\Object\Access\OverloadedPropertyTrait;
 use Grav\Framework\Object\Base\ObjectTrait;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Object\Interfaces\ObjectInterface;
 use Grav\Framework\Object\Property\LazyPropertyTrait;
 use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
@@ -60,11 +60,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return array
      */
-    public static function getCachedMethods()
+    public static function getCachedMethods(): array
     {
         return [
             'getTypePrefix' => true,
             'getType' => true,
+            'getFlexType' => true,
             'getFlexDirectory' => true,
             'getCacheKey' => true,
             'getCacheChecksum' => true,
@@ -79,25 +80,21 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         ];
     }
 
-    public static function createFromStorage(array $elements, array $storage, FlexDirectory $flexDirectory, $validate = false)
+    public static function createFromStorage(array $elements, array $storage, FlexDirectory $directory, bool $validate = false)
     {
-        $instance = new static($elements, $storage['key'], $flexDirectory, $validate);
+        $instance = new static($elements, $storage['key'], $directory, $validate);
         $instance->setStorage($storage);
 
         return $instance;
     }
 
     /**
-     * @param array $elements
-     * @param string $key
-     * @param FlexDirectory $flexDirectory
-     * @param bool $validate
-     * @throws \InvalidArgumentException
-     * @throws ValidationException
+     * {@inheritdoc}
+     * @see FlexObjectInterface::__construct()
      */
-    public function __construct(array $elements, $key, FlexDirectory $flexDirectory, $validate = false)
+    public function __construct(array $elements, $key, FlexDirectory $directory, bool $validate = false)
     {
-        $this->_flexDirectory = $flexDirectory;
+        $this->_flexDirectory = $directory;
 
         if ($validate) {
             $blueprint = $this->getFlexDirectory()->getBlueprint();
@@ -113,10 +110,53 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param string $search
-     * @param string|string[]|null $properties
-     * @param array|null $options
-     * @return float
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getFlexType()
+     */
+    public function getFlexType(): string
+    {
+        return $this->_flexDirectory->getType();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getFlexDirectory()
+     */
+    public function getFlexDirectory(): FlexDirectory
+    {
+        return $this->_flexDirectory;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getTimestamp()
+     */
+    public function getTimestamp(): int
+    {
+        return $this->_storage['storage_timestamp'] ?? 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getCacheKey()
+     */
+    public function getCacheKey(): string
+    {
+        return $this->getTypePrefix() . $this->getFlexType() . '.' . $this->getStorageKey();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getCacheChecksum()
+     */
+    public function getCacheChecksum(): string
+    {
+        return (string)$this->getTimestamp();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::search()
      */
     public function search(string $search, $properties = null, array $options = null): float
     {
@@ -129,6 +169,53 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         return $weight > 0 ? min($weight, 1) : 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see ObjectInterface::getFlexKey()
+     */
+    public function getKey()
+    {
+        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_hash($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getFlexKey()
+     */
+    public function getFlexKey(): string
+    {
+        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getType() . '.obj:' . $this->getStorageKey();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getStorageKey()
+     */
+    public function getStorageKey(): string
+    {
+        return $this->_storage['storage_key'] ?? $this->getTypePrefix() . $this->getFlexType() . '@@' . spl_object_hash($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getMetaData()
+     */
+    public function getMetaData(): array
+    {
+        return $this->getStorage();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::exists()
+     */
+    public function exists(): bool
+    {
+        $key = $this->getStorageKey();
+
+        return $key && $this->getFlexDirectory()->getStorage()->hasKey($key);
     }
 
     /**
@@ -193,55 +280,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param array $data
-     * @param array $files
-     * @return $this
-     * @throws ValidationException
-     */
-    public function update(array $data, array $files = [])
-    {
-        if ($data) {
-            $blueprint = $this->getBlueprint();
-
-            // Process updated data through the object filters.
-            $this->filterElements($data);
-
-            // Get currently stored data.
-            $elements = $this->getElements();
-
-            // Merge existing object to the test data to be validated.
-            $test = $blueprint->mergeData($elements, $data);
-
-            // Validate and filter elements and throw an error if any issues were found.
-            $blueprint->validate($test + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
-            $data = $blueprint->filter($data, false, true);
-
-            // Finally update the object.
-            foreach ($blueprint->flattenData($data) as $key => $value) {
-                if ($value === null) {
-                    $this->unsetNestedProperty($key);
-                } else {
-                    $this->setNestedProperty($key, $value);
-                }
-            }
-
-            // Store the changes
-            $this->_changes = Utils::arrayDiffMultidimensional($this->getElements(), $elements);
-        }
-
-        if ($files && method_exists($this, 'setUpdatedMedia')) {
-            $this->setUpdatedMedia($files);
-        }
-
-        return $this;
-    }
-
-    /**
      * Get any changes based on data sent to update
      *
      * @return array
      */
-    public function getChanges()
+    public function getChanges(): array
     {
         return $this->_changes ?? [];
     }
@@ -249,7 +292,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return string
      */
-    protected function getTypePrefix()
+    protected function getTypePrefix(): string
     {
         return 'o.';
     }
@@ -257,43 +300,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param bool $prefix
      * @return string
+     * @deprecated 1.6 Use `->getFlexType()` instead.
      */
     public function getType($prefix = false)
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
         $type = $prefix ? $this->getTypePrefix() : '';
 
-        return $type . $this->_flexDirectory->getType();
-    }
-
-    /**
-     * @return FlexDirectory
-     */
-    public function getFlexDirectory() : FlexDirectory
-    {
-        return $this->_flexDirectory;
-    }
-
-    /**
-     * @param string $name
-     * @param array|null $form
-     * @return FlexFormInterface
-     */
-    public function getForm(string $name = '', array $form = null): FlexFormInterface
-    {
-        if (!isset($this->_forms[$name])) {
-            $this->_forms[$name] = $this->createFormObject($name, $form);
-        }
-
-        return $this->_forms[$name];
-    }
-
-    /**
-     * @param string $name
-     * @return Blueprint
-     */
-    public function getBlueprint(string $name = '')
-    {
-        return $this->_flexDirectory->getBlueprint($name ? '.' . $name : $name);
+        return $type . $this->getFlexType();
     }
 
     /**
@@ -308,54 +323,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * Returns a string representation of this object.
-     *
-     * @return string
-     */
-    public function getFlexKey()
-    {
-        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getType() . '.obj:' . $this->getStorageKey();
-    }
-
-    /**
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null): CacheInterface
+    public function getCache(string $namespace = null)
     {
         return $this->_flexDirectory->getCache($namespace);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCacheKey()
-    {
-        return $this->getType(true) . '.' . $this->getStorageKey();
-    }
-
-    /**
-     * @return string
-     */
-    public function getCacheChecksum()
-    {
-        return (string)$this->getTimestamp();
-    }
-
-    /**
-     * @return array
-     */
-    public function getMetaData()
-    {
-        return $this->getStorage();
-    }
-
-    /**
-     * @return string
-     */
-    public function getStorageKey()
-    {
-        return $this->_storage['storage_key'] ?? $this->getType(true) . '@@' . spl_object_hash($this);
     }
 
     /**
@@ -370,14 +343,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @return int
-     */
-    public function getTimestamp() : int
-    {
-        return $this->_storage['storage_timestamp'] ?? 0;
-    }
-
-    /**
      * @param int $timestamp
      * @return $this
      */
@@ -389,15 +354,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * Twig example: {% render object layout 'edit' with {my_check: true} %}
-     *
-     * @param string $layout
-     * @param array $context
-     * @return ContentBlockInterface|HtmlBlock
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws LoaderError
-     * @throws SyntaxError
+     * {@inheritdoc}
+     * @see FlexObjectInterface::render()
      */
     public function render($layout = null, array $context = [])
     {
@@ -405,11 +363,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $layout = 'default';
         }
 
+        $type = $this->getFlexType();
+
         $grav = Grav::instance();
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];
-        $debugger->startTimer('flex-object-' . ($debugKey =  uniqid($this->getType(false), false)), 'Render Object ' . $this->getType(false) . ' (' . $layout . ')');
+        $debugger->startTimer('flex-object-' . ($debugKey =  uniqid($type, false)), 'Render Object ' . $type . ' (' . $layout . ')');
 
         $cache = $key = null;
         foreach ($context as $value) {
@@ -460,7 +420,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             );
 
             if ($debugger->enabled()) {
-                $name = $this->getKey() . ' (' . $this->getType(false) . ')';
+                $name = $this->getKey() . ' (' . $type . ')';
                 $output = "\n<!–– START {$name} object ––>\n{$output}\n<!–– END {$name} object ––>\n";
             }
 
@@ -479,36 +439,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * Form field compatibility.
-     *
-     * @param  string $name
-     * @param  mixed  $default
-     * @param  string $separator
-     * @return mixed
-     */
-    public function value($name, $default = null, $separator = null)
-    {
-        if ($name === 'storage_key') {
-            return $this->getStorageKey();
-        }
-        if ($name === 'storage_timestamp') {
-            return $this->getTimestamp();
-        }
-
-        return $this->getNestedProperty($name, $default, $separator);
-    }
-
-    /**
-     * @return bool
-     */
-    public function exists()
-    {
-        $key = $this->getStorageKey();
-
-        return $key && $this->getFlexDirectory()->getStorage()->hasKey($key);
-    }
-
-    /**
      * @return array
      */
     public function jsonSerialize()
@@ -517,9 +447,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
+     * @see FlexObjectInterface::prepareStorage()
      */
-    public function prepareStorage()
+    public function prepareStorage(): array
     {
         return $this->getElements();
     }
@@ -534,10 +465,50 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * Create new object into storage.
-     *
-     * @param string|null $key Optional new key.
-     * @return $this
+     * {@inheritdoc}
+     * @see FlexObjectInterface::update()
+     */
+    public function update(array $data, array $files = [])
+    {
+        if ($data) {
+            $blueprint = $this->getBlueprint();
+
+            // Process updated data through the object filters.
+            $this->filterElements($data);
+
+            // Get currently stored data.
+            $elements = $this->getElements();
+
+            // Merge existing object to the test data to be validated.
+            $test = $blueprint->mergeData($elements, $data);
+
+            // Validate and filter elements and throw an error if any issues were found.
+            $blueprint->validate($test + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
+            $data = $blueprint->filter($data, false, true);
+
+            // Finally update the object.
+            foreach ($blueprint->flattenData($data) as $key => $value) {
+                if ($value === null) {
+                    $this->unsetNestedProperty($key);
+                } else {
+                    $this->setNestedProperty($key, $value);
+                }
+            }
+
+            // Store the changes
+            $this->_changes = Utils::arrayDiffMultidimensional($this->getElements(), $elements);
+        }
+
+        if ($files && method_exists($this, 'setUpdatedMedia')) {
+            $this->setUpdatedMedia($files);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::create()
      */
     public function create($key = null)
     {
@@ -553,7 +524,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @return $this
+     * {@inheritdoc}
+     * @see FlexObjectInterface::save()
      */
     public function save()
     {
@@ -593,7 +565,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @return $this
+     * {@inheritdoc}
+     * @see FlexObjectInterface::delete()
      */
     public function delete()
     {
@@ -620,6 +593,44 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getBlueprint()
+     */
+    public function getBlueprint(string $name = '')
+    {
+        return $this->_flexDirectory->getBlueprint($name ? '.' . $name : $name);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getForm()
+     */
+    public function getForm(string $name = '', array $form = null)
+    {
+        if (!isset($this->_forms[$name])) {
+            $this->_forms[$name] = $this->createFormObject($name, $form);
+        }
+
+        return $this->_forms[$name];
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::value()
+     */
+    public function value($name, $default = null, $separator = null)
+    {
+        if ($name === 'storage_key') {
+            return $this->getStorageKey();
+        }
+        if ($name === 'storage_timestamp') {
+            return $this->getTimestamp();
+        }
+
+        return $this->getNestedProperty($name, $default, $separator);
+    }
+
+    /**
      * Returns a string representation of this object.
      *
      * @return string
@@ -632,7 +643,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function __debugInfo()
     {
         return [
-            'type:private' => $this->getType(false),
+            'type:private' => $this->getFlexType(),
             'key:private' => $this->getKey(),
             'elements:private' => $this->getElements(),
             'storage:private' => $this->getStorage()
@@ -642,10 +653,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return array
      */
-    protected function doSerialize()
+    protected function doSerialize(): array
     {
         return [
-            'type' => $this->getType(false),
+            'type' => $this->getFlexType(),
             'key' => $this->getKey(),
             'elements' => $this->getElements(),
             'storage' => $this->getStorage()
@@ -655,7 +666,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param array $serialized
      */
-    protected function doUnserialize(array $serialized)
+    protected function doUnserialize(array $serialized): void
     {
         $type = $serialized['type'] ?? 'unknown';
 
@@ -679,7 +690,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param FlexDirectory $directory
      */
-    public function setFlexDirectory(FlexDirectory $directory)
+    public function setFlexDirectory(FlexDirectory $directory): void
     {
         $this->_flexDirectory = $directory;
     }
@@ -702,7 +713,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param string $type
      * @param string $property
-     * @return FlexCollection
+     * @return FlexCollectionInterface
      */
     protected function getCollectionByProperty($type, $property)
     {
@@ -721,7 +732,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @return FlexDirectory
      * @throws \RuntimeException
      */
-    protected function getRelatedDirectory($type)
+    protected function getRelatedDirectory($type): FlexDirectory
     {
         /** @var Flex $flex */
         $flex = Grav::instance()['flex_objects'];
@@ -747,7 +758,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getType(false)}/object/{$layout}.html.twig"]);
+            return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getFlexType()}/object/{$layout}.html.twig"]);
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
@@ -764,7 +775,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      *
      * @param array $elements
      */
-    protected function filterElements(array &$elements)
+    protected function filterElements(array &$elements): void
     {
         if (!empty($elements['storage_key'])) {
             $this->_storage['storage_key'] = trim($elements['storage_key']);
@@ -783,7 +794,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param array|null $form Form fields
      * @return FlexFormInterface
      */
-    protected function createFormObject(string $name, array $form = null): FlexFormInterface
+    protected function createFormObject(string $name, array $form = null)
     {
         return new FlexForm($name, $this, $form);
     }

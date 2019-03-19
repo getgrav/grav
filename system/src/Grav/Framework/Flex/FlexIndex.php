@@ -40,18 +40,16 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param FlexDirectory $directory
      * @return static
      */
-    public static function createFromStorage(FlexDirectory $directory) : FlexCollectionInterface
+    public static function createFromStorage(FlexDirectory $directory)
     {
         return static::createFromArray(static::loadEntriesFromStorage($directory->getStorage()), $directory);
     }
 
     /**
-     * @param array[] $entries
-     * @param FlexDirectory $directory
-     * @param string $keyField
-     * @return static
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::createFromArray()
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null) : FlexCollectionInterface
+    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null)
     {
         $instance = new static($entries, $directory);
         $instance->setKeyField($keyField);
@@ -63,7 +61,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param FlexStorageInterface $storage
      * @return array
      */
-    public static function loadEntriesFromStorage(FlexStorageInterface $storage) : array
+    public static function loadEntriesFromStorage(FlexStorageInterface $storage): array
     {
         return $storage->getExistingKeys();
     }
@@ -72,58 +70,104 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * Initializes a new FlexIndex.
      *
      * @param array $entries
-     * @param FlexDirectory $flexDirectory
+     * @param FlexDirectory|null $directory
      */
-    public function __construct(array $entries, FlexDirectory $flexDirectory)
+    public function __construct(array $entries = [], FlexDirectory $directory = null)
     {
         parent::__construct($entries);
 
-        $this->_flexDirectory = $flexDirectory;
+        $this->_flexDirectory = $directory;
         $this->setKeyField(null);
     }
 
     /**
-     * @param string $search
-     * @param string|string[]|null $properties
-     * @param array|null $options
-     * @return FlexCollectionInterface
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::search()
      */
-    public function search(string $search, $properties = null, array $options = null) // : FlexCollectionInterface
+    public function search(string $search, $properties = null, array $options = null)
     {
         return $this->__call('search', [$search, $properties, $options]);
     }
 
     /**
-     * @return FlexDirectory
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::sort()
      */
-    public function getFlexDirectory() : FlexDirectory
+    public function sort(array $orderings)
+    {
+        return $this->orderBy($orderings);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexType()
+     */
+    public function getFlexType(): string
+    {
+        return $this->_flexDirectory->getType();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexDirectory()
+     */
+    public function getFlexDirectory(): FlexDirectory
     {
         return $this->_flexDirectory;
     }
 
     /**
-     * @param bool $prefix
-     * @return string
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getTimestamp()
      */
-    public function getType($prefix = false)
+    public function getTimestamp(): int
     {
-        $type = $prefix ? $this->getTypePrefix() : '';
+        $timestamps = $this->getTimestamps();
 
-        return $type . $this->_flexDirectory->getType();
+        return $timestamps ? max($timestamps) : time();
     }
 
     /**
-     * @return string[]
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getCacheKey()
      */
-    public function getStorageKeys()
+    public function getCacheKey(): string
+    {
+        return $this->getTypePrefix() . $this->getFlexType() . '.' . sha1(json_encode($this->getKeys()) . $this->_keyField);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getCacheChecksum()
+     */
+    public function getCacheChecksum(): string
+    {
+        return sha1($this->getCacheKey() . json_encode($this->getTimestamps()));
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getTimestamps()
+     */
+    public function getTimestamps(): array
+    {
+        return $this->getIndexMap('storage_timestamp');
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getStorageKeys()
+     */
+    public function getStorageKeys(): array
     {
         return $this->getIndexMap('storage_key');
     }
 
     /**
-     * @return string[]
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getFlexKeys()
      */
-    public function getFlexKeys()
+    public function getFlexKeys(): array
     {
         // Get storage keys for the objects.
         $keys = [];
@@ -137,53 +181,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
-     * @return int[]
+     * {@inheritdoc}
+     * @see FlexIndexInterface::withKeyField()
      */
-    public function getTimestamps()
-    {
-        return $this->getIndexMap('storage_timestamp');
-    }
-
-    /**
-     * @return $this
-     */
-    public function getIndex(): FlexIndexInterface
-    {
-        return $this;
-    }
-
-    /**
-     * @param string $indexKey
-     * @return array
-     */
-    public function getIndexMap(string $indexKey = null)
-    {
-        if (null === $indexKey) {
-            return $this->getEntries();
-        }
-
-        // Get storage keys for the objects.
-        $index = [];
-        foreach ($this->getEntries() as $key => $value) {
-            $index[$key] = $value[$indexKey] ?? null;
-        }
-
-        return $index;
-    }
-
-    /**
-     * @return array
-     */
-    public function getMetaData(string $key) : array
-    {
-        return $this->getEntries()[$key] ?? [];
-    }
-
-    /**
-     * @param string $keyField
-     * @return FlexCollectionInterface
-     */
-    public function withKeyField(string $keyField = null): FlexCollectionInterface
+    public function withKeyField(string $keyField = null)
     {
         $keyField = $keyField ?: 'key';
         if ($keyField === $this->getKeyField()) {
@@ -208,6 +209,65 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getIndex()
+     */
+    public function getIndex()
+    {
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::render()
+     */
+    public function render($layout = null, array $context = [])
+    {
+        return $this->__call('render', [$layout, $context]);
+    }
+
+    /**
+     * @param bool $prefix
+     * @return string
+     * @deprecated 1.6 Use `->getFlexType()` instead.
+     */
+    public function getType($prefix = false)
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
+        $type = $prefix ? $this->getTypePrefix() : '';
+
+        return $type . $this->getFlexType();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexIndexInterface::getFlexKeys()
+     */
+    public function getIndexMap(string $indexKey = null)
+    {
+        if (null === $indexKey) {
+            return $this->getEntries();
+        }
+
+        // Get storage keys for the objects.
+        $index = [];
+        foreach ($this->getEntries() as $key => $value) {
+            $index[$key] = $value[$indexKey] ?? null;
+        }
+
+        return $index;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMetaData(string $key): array
+    {
+        return $this->getEntries()[$key] ?? [];
+    }
+
+    /**
      * @return string
      */
     public function getKeyField() : string
@@ -219,25 +279,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null): CacheInterface
+    public function getCache(string $namespace = null)
     {
         return $this->_flexDirectory->getCache($namespace);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCacheKey()
-    {
-        return $this->getType(true) . '.' . sha1(json_encode($this->getKeys()) . $this->_keyField);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCacheChecksum()
-    {
-        return sha1($this->getCacheKey() . json_encode($this->getTimestamps()));
     }
 
     /**
@@ -302,6 +346,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $className = $this->_flexDirectory->getCollectionClass();
         $cachedMethods = $className::getCachedMethods();
 
+        $flexType = $this->getFlexType();
+
         if (!empty($cachedMethods[$name])) {
             $type = $cachedMethods[$name];
             if ($type === 'session') {
@@ -311,7 +357,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             } else {
                 $cacheKey = '';
             }
-            $key = $this->getType(true) . '.' . sha1($name . '.' . $cacheKey . json_encode($arguments) . $this->getCacheKey());
+            $key = "{$flexType}.idx." . sha1($name . '.' . $cacheKey . json_encode($arguments) . $this->getCacheKey());
 
             $cache = $this->getCache('object');
 
@@ -319,7 +365,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 $result = $cache->get($key);
 
                 // Make sure the keys aren't changed if the returned type is the same index type.
-                if ($result instanceof self && $this->getType(true) === $result->getType(true)) {
+                if ($result instanceof self && $flexType === $result->getFlexType()) {
                     $result = $result->withKeyField($this->getKeyField());
                 }
             } catch (InvalidArgumentException $e) {
@@ -368,7 +414,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function serialize()
     {
-        return serialize(['type' => $this->getType(false), 'entries' => $this->getEntries()]);
+        return serialize(['type' => $this->getFlexType(), 'entries' => $this->getEntries()]);
     }
 
     /**
@@ -376,7 +422,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function unserialize($serialized)
     {
-        $data = unserialize($serialized);
+        $data = unserialize($serialized, ['allowed_classes' => false]);
 
         $this->_flexDirectory = Grav::instance()['flex_objects']->getDirectory($data['type']);
         $this->setEntries($data['entries']);
@@ -637,7 +683,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     public function __debugInfo()
     {
         return [
-            'type:private' => $this->getType(false),
+            'type:private' => $this->getFlexType(),
             'key:private' => $this->getKey(),
             'entries_key:private' => $this->getKeyField(),
             'entries:private' => $this->getEntries()

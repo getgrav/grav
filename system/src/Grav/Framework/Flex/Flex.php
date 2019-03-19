@@ -48,7 +48,7 @@ class Flex implements \Countable
      * @param array  $config
      * @return $this
      */
-    public function addDirectoryType(string $type, string $blueprint, array $config = []): self
+    public function addDirectoryType(string $type, string $blueprint, array $config = [])
     {
         $config = array_merge_recursive(['enabled' => true], $this->config['object'] ?? [], $config);
 

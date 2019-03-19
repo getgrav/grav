@@ -36,7 +36,7 @@ trait FormTrait
     private $submitted;
     /** @var string[] */
     private $errors;
-    /** @var \ArrayAccess|null */
+    /** @var Data|object|null */
     private $data;
     /** @var array|UploadedFileInterface[] */
     private $files;
@@ -115,7 +115,7 @@ trait FormTrait
 
     /**
      * @param ServerRequestInterface $request
-     * @return $this
+     * @return FormInterface|$this
      */
     public function handleRequest(ServerRequestInterface $request): FormInterface
     {
@@ -132,7 +132,7 @@ trait FormTrait
 
     /**
      * @param ServerRequestInterface $request
-     * @return $this
+     * @return FormInterface|$this
      */
     public function setRequest(ServerRequestInterface $request): FormInterface
     {
@@ -187,7 +187,7 @@ trait FormTrait
     /**
      * @param array $data
      * @param UploadedFileInterface[] $files
-     * @return $this
+     * @return FormInterface|$this
      */
     public function submit(array $data, array $files = null): FormInterface
     {

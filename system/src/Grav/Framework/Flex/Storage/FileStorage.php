@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Storage;
 
+use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
+
 /**
  * Class FileStorage
  * @package Grav\Framework\Flex\Storage
@@ -19,6 +21,7 @@ class FileStorage extends FolderStorage
 {
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::__construct()
      */
     public function __construct(array $options)
     {
@@ -33,8 +36,9 @@ class FileStorage extends FolderStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null) : string
+    public function getMediaPath(string $key = null): string
     {
         return $key ? \dirname($this->getStoragePath($key)) . '/' . $key : $this->getStoragePath();
     }
@@ -42,7 +46,7 @@ class FileStorage extends FolderStorage
     /**
      * {@inheritdoc}
      */
-    protected function getKeyFromPath(string $path) : string
+    protected function getKeyFromPath(string $path): string
     {
         return basename($path, $this->dataFormatter->getDefaultFileExtension());
     }
@@ -50,7 +54,7 @@ class FileStorage extends FolderStorage
     /**
      * {@inheritdoc}
      */
-    protected function buildIndex() : array
+    protected function buildIndex(): array
     {
         if (!file_exists($this->getStoragePath())) {
             return [];

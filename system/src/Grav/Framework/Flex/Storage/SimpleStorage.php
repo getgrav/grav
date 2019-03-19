@@ -29,6 +29,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::__construct()
      */
     public function __construct(array $options)
     {
@@ -57,24 +58,27 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::getExistingKeys()
      */
-    public function getExistingKeys() : array
+    public function getExistingKeys(): array
     {
         return $this->buildIndex();
     }
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::hasKey()
      */
-    public function hasKey(string $key) : bool
+    public function hasKey(string $key): bool
     {
         return $key && !strpos($key, '@@') && isset($this->data[$key]);
     }
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::createRows()
      */
-    public function createRows(array $rows) : array
+    public function createRows(array $rows): array
     {
         $list = [];
         foreach ($rows as $key => $row) {
@@ -91,8 +95,9 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::readRows()
      */
-    public function readRows(array $rows, array &$fetched = null) : array
+    public function readRows(array $rows, array &$fetched = null): array
     {
         $list = [];
         foreach ($rows as $key => $row) {
@@ -113,8 +118,9 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::updateRows()
      */
-    public function updateRows(array $rows) : array
+    public function updateRows(array $rows): array
     {
         $list = [];
         foreach ($rows as $key => $row) {
@@ -132,8 +138,9 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::deleteRows()
      */
-    public function deleteRows(array $rows) : array
+    public function deleteRows(array $rows): array
     {
         $list = [];
         foreach ($rows as $key => $row) {
@@ -152,8 +159,9 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::replaceRows()
      */
-    public function replaceRows(array $rows) : array
+    public function replaceRows(array $rows): array
     {
         $list = [];
         foreach ($rows as $key => $row) {
@@ -169,8 +177,9 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::renameRow()
      */
-    public function renameRow(string $src, string $dst) : bool
+    public function renameRow(string $src, string $dst): bool
     {
         if ($this->hasKey($dst)) {
             throw new \RuntimeException("Cannot rename object: key '{$dst}' is already taken");
@@ -191,16 +200,18 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null) : string
+    public function getStoragePath(string $key = null): string
     {
         return $this->dataFolder . '/' . $this->dataPattern;
     }
 
     /**
      * {@inheritdoc}
+     * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null) : string
+    public function getMediaPath(string $key = null): string
     {
         return sprintf('%s/%s/%s', $this->dataFolder, basename($this->dataPattern, $this->dataFormatter->getDefaultFileExtension()), $key);
     }
@@ -222,7 +233,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * @param  string $path
      * @return string
      */
-    protected function getKeyFromPath(string $path) : string
+    protected function getKeyFromPath(string $path): string
     {
         return basename($path);
     }
@@ -232,7 +243,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      *
      * @return array
      */
-    protected function buildIndex() : array
+    protected function buildIndex(): array
     {
         $file = $this->getFile($this->getStoragePath());
         $modified = $file->modified();
@@ -253,7 +264,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     /**
      * @return string
      */
-    protected function getNewKey() : string
+    protected function getNewKey(): string
     {
         if (null === $this->data) {
             $this->buildIndex();

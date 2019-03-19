@@ -31,7 +31,7 @@ use RuntimeException;
 trait FlexMediaTrait
 {
     use MediaTrait {
-        MediaTrait::getMedia as private getTraitMedia;
+        MediaTrait::getMedia as protected getExistingMedia;
     }
 
     protected $_uploads;
@@ -66,7 +66,7 @@ trait FlexMediaTrait
     {
         if ($this->media === null) {
             /** @var AbstractMedia $media */
-            $media = $this->getTraitMedia();
+            $media = $this->getExistingMedia();
 
             // Include uploaded media to the object media.
             /** @var FormFlashFile $upload */
@@ -136,7 +136,7 @@ trait FlexMediaTrait
         }
     }
 
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null) : void
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null): void
     {
         $this->checkUploadedMediaFile($uploadedFile);
 
@@ -187,7 +187,7 @@ trait FlexMediaTrait
         $this->clearMediaCache();
     }
 
-    public function deleteMediaFile(string $filename) : void
+    public function deleteMediaFile(string $filename): void
     {
         $grav = Grav::instance();
         $language = $grav['language'];
