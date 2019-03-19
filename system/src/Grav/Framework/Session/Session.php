@@ -61,13 +61,13 @@ class Session implements SessionInterface
         }
 
         // Set default options.
-        $options += array(
+        $options += [
             'cache_limiter' => 'nocache',
             'use_trans_sid' => 0,
             'use_cookies' => 1,
             'lazy_write' => 1,
             'use_strict_mode' => 1
-        );
+        ];
 
         $this->setOptions($options);
 
@@ -160,11 +160,11 @@ class Session implements SessionInterface
                 foreach ($value as $key2 => $value2) {
                     $ckey = "{$key}.{$key2}";
                     if (isset($value2, $allowedOptions[$ckey])) {
-                        $this->ini_set("session.{$ckey}", $value2);
+                        $this->setOption($ckey, $value2);
                     }
                 }
             } elseif (isset($value, $allowedOptions[$key])) {
-                $this->ini_set("session.{$key}", $value);
+                $this->setOption($key, $value);
             }
         }
     }
@@ -195,7 +195,9 @@ class Session implements SessionInterface
             $error = $last ? $last['message'] : 'Unknown error';
 
             throw new SessionException('Failed to start session: ' . $error, 500);
-        } elseif ($user && !$user->isValid()) {
+        }
+
+        if ($user && !$user->isValid()) {
             $this->clear();
             throw new SessionException('User Invalid', 500);
         }
@@ -337,7 +339,7 @@ class Session implements SessionInterface
      * @param string $key
      * @param mixed $value
      */
-    protected function ini_set($key, $value)
+    protected function setOption($key, $value)
     {
         if (!\is_string($value)) {
             if (\is_bool($value)) {
@@ -348,6 +350,6 @@ class Session implements SessionInterface
         }
 
         $this->options[$key] = $value;
-        ini_set($key, $value);
+        ini_set("session.{$key}", $value);
     }
 }

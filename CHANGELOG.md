@@ -31,6 +31,7 @@
     * Grav 1.6: Fixed settion caching in `FlexIndex`
     * Fixed some potential issues/bugs found by phpstan
     * Fixed regression in GPM packages casted to Array (ref, getgrav/grav-plugin-admin@e3fc4ce)
+    * Fixed session_start(): Setting option 'session.name' failed [#2408](https://github.com/getgrav/grav/issues/2408)
 
 # v1.6.0-rc.3
 ## 02/18/2019
