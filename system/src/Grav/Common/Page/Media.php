@@ -20,8 +20,6 @@ class Media extends AbstractMedia
 {
     protected static $global;
 
-    protected $path;
-
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
 
     /**
@@ -31,7 +29,7 @@ class Media extends AbstractMedia
      */
     public function __construct($path, array $media_order = null, $load = true)
     {
-        $this->path = $path;
+        $this->setPath($path);
         $this->media_order = $media_order;
 
         $this->__wakeup();
@@ -49,16 +47,6 @@ class Media extends AbstractMedia
             // Add fallback to global media.
             static::$global = new GlobalMedia();
         }
-    }
-
-    /**
-     * Return media path.
-     *
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->path;
     }
 
     /**
@@ -91,11 +79,11 @@ class Media extends AbstractMedia
         $media_types = array_keys(Grav::instance()['config']->get('media.types'));
 
         // Handle special cases where page doesn't exist in filesystem.
-        if (!is_dir($this->path)) {
+        if (!is_dir($this->getPath())) {
             return;
         }
 
-        $iterator = new \FilesystemIterator($this->path, \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
+        $iterator = new \FilesystemIterator($this->getPath(), \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
 
         $media = [];
 

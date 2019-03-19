@@ -9,6 +9,7 @@
     * Added support to use single Flex key parameter in `Flex::getObject()` method
     * Added `FlexObjectInterface::search()` and `FlexCollectionInterface::search()` methods
     * Override `system.media.upload_limit` with PHP's `post_max_size` or `upload_max_filesize`
+    * Class `Grav\Common\Page\Medium\AbstractMedia` now use array traits instead of extending `Grav\Common\Getters`
 1. [](#improved)
     * Renamed `Grav\Framework\File\Formatter\FormatterInterface` to `Grav\Framework\File\Interfaces\FileFormatterInterface`
     * Improved `File::save()` to use a temporary file if file isn't locked

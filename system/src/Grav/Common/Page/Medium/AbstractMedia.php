@@ -9,23 +9,46 @@
 
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Getters;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Page\Page;
 use Grav\Common\Utils;
+use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
+use RocketTheme\Toolbox\ArrayTraits\Countable;
+use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
+use RocketTheme\Toolbox\ArrayTraits\Iterator;
 
-abstract class AbstractMedia extends Getters implements MediaCollectionInterface
+abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface
 {
-    protected $gettersVariable = 'instances';
+    use ArrayAccess;
+    use Countable;
+    use Iterator;
+    use Export;
 
-    protected $instances = [];
+    protected $items;
+    protected $path;
     protected $images = [];
     protected $videos = [];
     protected $audios = [];
     protected $files = [];
     protected $media_order;
+
+    /**
+     * Return media path.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    public function setPath(?string $path)
+    {
+        $this->path = $path;
+    }
 
     /**
      * Get medium by filename.
@@ -50,21 +73,6 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     }
 
     /**
-     * @param mixed $offset
-     *
-     * @return mixed
-     */
-    public function offsetGet($offset)
-    {
-        $object = parent::offsetGet($offset);
-
-        // It would be nice if previous image modification would not affect the later ones.
-        //$object = $object ? clone($object) : null;
-
-        return $object;
-    }
-
-    /**
      * Set file modification timestamps (query params) for all the media files.
      *
      * @param string|int|null $timestamp
@@ -73,7 +81,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     public function setTimestamps($timestamp = null)
     {
         /** @var Medium $instance */
-        foreach ($this->instances as $instance) {
+        foreach ($this->items as $instance) {
             $instance->setTimestamp($timestamp);
         }
 
@@ -87,9 +95,9 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
      */
     public function all()
     {
-        $this->instances = $this->orderMedia($this->instances);
+        $this->items = $this->orderMedia($this->items);
 
-        return $this->instances;
+        return $this->items;
     }
 
     /**
@@ -100,6 +108,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     public function images()
     {
         $this->images = $this->orderMedia($this->images);
+
         return $this->images;
     }
 
@@ -111,6 +120,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     public function videos()
     {
         $this->videos = $this->orderMedia($this->videos);
+
         return $this->videos;
     }
 
@@ -122,6 +132,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     public function audios()
     {
         $this->audios = $this->orderMedia($this->audios);
+
         return $this->audios;
     }
 
@@ -133,6 +144,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     public function files()
     {
         $this->files = $this->orderMedia($this->files);
+
         return $this->files;
     }
 
@@ -142,7 +154,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
      */
     public function add($name, $file)
     {
-        $this->instances[$name] = $file;
+        $this->offsetSet($name, $file);
         switch ($file->type) {
             case 'image':
                 $this->images[$name] = $file;
@@ -168,7 +180,7 @@ abstract class AbstractMedia extends Getters implements MediaCollectionInterface
     {
         if (null === $this->media_order) {
             /** @var Page $page */
-            $page = Grav::instance()['pages']->get($this->__get('path'));
+            $page = Grav::instance()['pages']->get($this->getPath());
 
             if ($page && isset($page->header()->media_order)) {
                 $this->media_order = array_map('trim', explode(',', $page->header()->media_order));
