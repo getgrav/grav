@@ -27,7 +27,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     use Iterator;
     use Export;
 
-    protected $items;
+    protected $items = [];
     protected $path;
     protected $images = [];
     protected $videos = [];
