@@ -54,7 +54,7 @@
     "require-dev": {
         "codeception/codeception": "^2.4",
         "phpstan/phpstan": "^0.11",
-        "phpstan/phpstan-strict-rules": "^0.11",
+        "phpstan/phpstan-deprecation-rules": "^0.11.0",
         "phpunit/php-code-coverage": "~6.0",
         "fzaninotto/faker": "^1.8",
         "victorjonsson/markdowndocs": "dev-master"

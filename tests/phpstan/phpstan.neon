@@ -1,5 +1,6 @@
 includes:
-    #- vendor/phpstan/phpstan-strict-rules/rules.neon
+    #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
+    - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
 parameters:
     fileExtensions:
         - php
@@ -29,6 +30,11 @@ parameters:
         -
             message: '#Cannot call method path\(\) on string#'
             path: 'system/src/Grav/Common/Page/Media.php'
+
+        # TODO: system.twig.umask_fix will not work with Twig 2 anymore
+        -
+            message: '#Call to deprecated method writeCacheFile\(\) of class Twig\\Environment#'
+            path: 'system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
 
         # Needed: full coverage (probably with admin plugin...) then redesign constructor
         -
@@ -78,3 +84,23 @@ parameters:
         -
             message: '#on an unknown class Collator#'
             path: 'system/src/Grav/Common/Page/Pages.php'
+
+        # Support for deprecated features
+        -
+            message: '#Instantiation of deprecated class Doctrine\\Common\\Cache\\MemcacheCache#'
+            path: 'system/src/Grav/Common/Cache.php'
+        -
+            message: '#Call to deprecated method order#'
+            path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#Fetching class constant class of deprecated class Grav\\Common\\User\\User#'
+            path: 'system/src/Grav/Common/Service/AccountsServiceProvider.php'
+        -
+            message: '#Call to deprecated method getLegacyFiles\(\)#'
+            path: 'system/src/Grav/Common/Session.php'
+        -
+            message: '#Call to deprecated method getType\(\) of class#'
+            path: 'system/src/Grav/Framework/Object/Base/ObjectTrait.php'
+        -
+            message: '#deprecated class#'
+            path: 'system/src/Grav/Framework/Uri/Uri.php'
