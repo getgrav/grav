@@ -450,6 +450,12 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         return (strpos($haystack, $needle) !== false);
     }
 
+    /**
+     * Gets a human readable output for cron sytnax
+     *
+     * @param $at
+     * @return string
+     */
     public function niceCronFilter($at)
     {
         $cron = new Cron($at);
