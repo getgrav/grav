@@ -73,6 +73,7 @@ class Media extends AbstractMedia
     protected function init()
     {
         $config = Grav::instance()['config'];
+        $locator = Grav::instance()['locator'];
         $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
         $media_types = array_keys(Grav::instance()['config']->get('media.types'));
 
@@ -155,7 +156,11 @@ class Media extends AbstractMedia
                     $meta_data = $meta->getData();
                     $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
                     if ($meta_trimmed) {
-                        $file = File::instance($meta_path);
+                        if ($locator->isStream($meta_path)) {
+                            $file = File::instance($locator->findResource($meta_path, true, true));
+                        } else {
+                            $file = File::instance($meta_path);
+                        }
                         $file->save(Yaml::dump($meta_trimmed));
                         $types['meta']['file'] = $meta_path;
                     }
