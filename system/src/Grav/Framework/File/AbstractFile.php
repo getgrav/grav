@@ -278,8 +278,14 @@ class AbstractFile implements FileInterface
                 $tmp = false;
             }
         } else {
+            // First check if we can create temporary file to the current folder.
+            $tmp = strpos($dir, '://') === false ? tempnam($dir, basename($filepath)) : false;
+            if ($tmp === false) {
+                // If not, use the system wide tmp folder instead.
+                $tmp = tempnam(sys_get_temp_dir(), basename($filepath));
+            }
+
             // Create file with a temporary name and rename it to make the save action atomic.
-            $tmp = tempnam($dir, basename($filepath));
             if ($tmp && @file_put_contents($tmp, $data) && @rename($tmp, $filepath)) {
                 @chmod($filepath, 0666 & ~umask());
             } elseif ($tmp) {
