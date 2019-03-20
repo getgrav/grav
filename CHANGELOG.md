@@ -7,6 +7,7 @@
     * Fixed phpdoc generation
     * Updated vendor libraries
 1. [](#bugfix)
+    * EXIF fix for streams
     * Fix for User avatar not working due to uppercase or spaces in email [#2403](https://github.com/getgrav/grav/pull/2403)
 
 # v1.5.8
