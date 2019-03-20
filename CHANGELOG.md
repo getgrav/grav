@@ -1,5 +1,5 @@
 # v1.5.9
-## mm/dd/2019
+## 03/20/2019
 
 1. [](#new)
     * Added new `onPageContent()` event for every call to `Page::content()`
