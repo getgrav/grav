@@ -33,6 +33,7 @@
     * Fixed regression in GPM packages casted to Array (ref, getgrav/grav-plugin-admin@e3fc4ce)
     * Fixed session_start(): Setting option 'session.name' failed [#2408](https://github.com/getgrav/grav/issues/2408)
     * Grav 1.6: Fixed file saving when temporary file cannot be created to the current folder / stream
+    * Grav 1.6: Fixed `File::save()` silently ignoring failures with read only streams
 
 # v1.6.0-rc.3
 ## 02/18/2019

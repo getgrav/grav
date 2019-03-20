@@ -270,28 +270,26 @@ class AbstractFile implements FileInterface
             throw new \RuntimeException('Creating directory failed for ' . $filepath);
         }
 
-        if ($this->handle) {
-            $tmp = true;
-            // As we are using non-truncating locking, make sure that the file is empty before writing.
-            if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, $data) === false) {
-                // Writing file failed, throw an error.
-                $tmp = false;
+        try {
+            if ($this->handle) {
+                $tmp = true;
+                // As we are using non-truncating locking, make sure that the file is empty before writing.
+                if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, $data) === false) {
+                    // Writing file failed, throw an error.
+                    $tmp = false;
+                }
+            } else {
+                // Create file with a temporary name and rename it to make the save action atomic.
+                $tmp = $this->tempname($filepath);
+                if (@file_put_contents($tmp, $data) === false) {
+                    $tmp = false;
+                } elseif (@rename($tmp, $filepath) === false) {
+                    @unlink($tmp);
+                    $tmp = false;
+                }
             }
-        } else {
-            // First check if we can create temporary file to the current folder.
-            $tmp = strpos($dir, '://') === false ? tempnam($dir, basename($filepath)) : false;
-            if ($tmp === false) {
-                // If not, use the system wide tmp folder instead.
-                $tmp = tempnam(sys_get_temp_dir(), basename($filepath));
-            }
-
-            // Create file with a temporary name and rename it to make the save action atomic.
-            if ($tmp && @file_put_contents($tmp, $data) && @rename($tmp, $filepath)) {
-                @chmod($filepath, 0666 & ~umask());
-            } elseif ($tmp) {
-                @unlink($tmp);
-                $tmp = false;
-            }
+        } catch (\Exception $e) {
+            $tmp = false;
         }
 
         if ($tmp === false) {
@@ -409,5 +407,19 @@ class AbstractFile implements FileInterface
         }
 
         return is_dir($dir) && is_writable($dir);
+    }
+
+    /**
+     * @param string $filename
+     * @param int $length
+     * @return string
+     */
+    protected function tempname(string $filename, int $length = 5)
+    {
+        do {
+            $test = $filename . substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, $length);
+        } while (file_exists($test));
+
+        return $test;
     }
 }
