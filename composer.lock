@@ -1673,16 +1673,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.4.5",
+            "version": "1.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "72d191fba4d049d2c52356f51c9254abd6946582"
+                "reference": "e7010c2a956aff241dfa100ab8aef5b6cf83892a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/72d191fba4d049d2c52356f51c9254abd6946582",
-                "reference": "72d191fba4d049d2c52356f51c9254abd6946582",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/e7010c2a956aff241dfa100ab8aef5b6cf83892a",
+                "reference": "e7010c2a956aff241dfa100ab8aef5b6cf83892a",
                 "shasum": ""
             },
             "require": {
@@ -1719,7 +1719,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2019-02-28T23:09:45+00:00"
+            "time": "2019-03-20T19:59:17+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -2018,7 +2018,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
