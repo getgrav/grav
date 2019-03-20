@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2ab76ae21295d87c6ff140947c160865",
+    "content-hash": "655f3e16c1c33d89e1baf6383b2efb26",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -969,6 +969,49 @@
                 "psr-3"
             ],
             "time": "2018-11-05T09:00:11+00:00"
+        },
+        {
+            "name": "phive/twig-extensions-deferred",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rybakit/twig-deferred-extension.git",
+                "reference": "5a2426d622afa74034e754ca5ea1d1ff7887627f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rybakit/twig-deferred-extension/zipball/5a2426d622afa74034e754ca5ea1d1ff7887627f",
+                "reference": "5a2426d622afa74034e754ca5ea1d1ff7887627f",
+                "shasum": ""
+            },
+            "require": {
+                "twig/twig": "~1.18"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Phive\\Twig\\Extensions\\Deferred\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eugene Leonovich",
+                    "email": "gen.work@gmail.com"
+                }
+            ],
+            "description": "An extension for Twig that allows to defer block rendering",
+            "homepage": "https://github.com/rybakit/twig-extensions-deferred",
+            "keywords": [
+                "defer",
+                "extension",
+                "lazy",
+                "twig"
+            ],
+            "time": "2017-03-17T21:39:21+00:00"
         },
         {
             "name": "pimple/pimple",
