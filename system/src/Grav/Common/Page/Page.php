@@ -687,6 +687,8 @@ class Page implements PageInterface
                 $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
             }
 
+            // Fire event when Page::content() is called
+            Grav::instance()->fireEvent('onPageContent', new Event(['page' => $this]));
         }
 
         return $this->content;
