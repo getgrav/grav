@@ -251,10 +251,17 @@
     * Register all page types into `blueprint://pages` stream
 
 # v1.5.9
-## mm/dd/2019
+## 03/20/2019
 
+1. [](#new)
+    * Added new `onPageContent()` event for every call to `Page::content()`
 1. [](#improved)
     * Fixed phpdoc generation
+    * Updated vendor libraries
+    * Force Toolbox v1.4.2
+1. [](#bugfix)
+    * EXIF fix for streams
+    * Fix for User avatar not working due to uppercase or spaces in email [#2403](https://github.com/getgrav/grav/pull/2403)
 
 # v1.5.8
 ## 02/07/2019
