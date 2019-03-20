@@ -1,3 +1,14 @@
+# v1.5.9
+## 03/20/2019
+
+1. [](#new)
+    * Added new `onPageContent()` event for every call to `Page::content()`
+1. [](#improved)
+    * Fixed phpdoc generation
+    * Updated vendor libraries
+1. [](#bugfix)
+    * Fix for User avatar not working due to uppercase or spaces in email [#2403](https://github.com/getgrav/grav/pull/2403)
+
 # v1.5.8
 ## 02/07/2019
 
