@@ -15,6 +15,7 @@ use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
 use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Media extends AbstractMedia
 {
@@ -74,6 +75,8 @@ class Media extends AbstractMedia
      */
     protected function init()
     {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
         $config = Grav::instance()['config'];
         $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
         $media_types = array_keys(Grav::instance()['config']->get('media.types'));
@@ -157,8 +160,11 @@ class Media extends AbstractMedia
                     $meta_data = $meta->getData();
                     $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
                     if ($meta_trimmed) {
-                        $full_meta_path = Grav::instance()['locator']->findResource($meta_path, true, true);
-                        $file = File::instance($full_meta_path);
+                        if ($locator->isStream($meta_path)) {
+                            $file = File::instance(Grav::instance()['locator']->findResource($meta_path, true, true));
+                        } else {
+                            $file = File::instance($meta_path);
+                        }
                         $file->save(Yaml::dump($meta_trimmed));
                         $types['meta']['file'] = $meta_path;
                     }
