@@ -2,6 +2,7 @@
 ## mm/dd/2019
 
 1. [](#new)
+    * Added new `onPageContent()` event for every call to `Page::content()`
     * Added phpstan: PHP Static Analysis Tool [#2393](https://github.com/getgrav/grav/pull/2393)
     * Added `composer test-plugins` to test plugin issues with the current version of Grav
     * Grav 1.6: Renamed `$grav['users']` service to `$grav['accounts']`
