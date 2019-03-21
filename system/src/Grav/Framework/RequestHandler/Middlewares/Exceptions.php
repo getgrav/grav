@@ -19,7 +19,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Exceptions implements MiddlewareInterface
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
             return $handler->handle($request);
@@ -38,7 +38,7 @@ class Exceptions implements MiddlewareInterface
             /** @var string $json */
             $json = json_encode($response);
 
-            return new Response($exception->getCode() ?: 500, [], $json);
+            return new Response($exception->getCode() ?: 500, ['Content-Type' => 'application/json'], $json);
         }
     }
 }
