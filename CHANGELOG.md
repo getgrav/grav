@@ -1,5 +1,5 @@
 # v1.5.10
-## mm/dd/2019
+## 03/21/2019
 
 1. [](#new)
     * Added new `deferred` Twig extension
