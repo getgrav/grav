@@ -1,3 +1,9 @@
+# v1.5.10
+## 03/21/2019
+
+1. [](#new)
+    * Added new `deferred` Twig extension
+
 # v1.5.9
 ## 03/20/2019
 

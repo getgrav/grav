@@ -16,6 +16,7 @@ use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
+use Phive\Twig\Extensions\Deferred\DeferredExtension;
 
 class Twig
 {
@@ -181,6 +182,7 @@ class Twig
                 $this->twig->addExtension(new \Twig_Extension_Debug());
             }
             $this->twig->addExtension(new TwigExtension());
+            $this->twig->addExtension(new DeferredExtension());
 
             $this->grav->fireEvent('onTwigExtensions');
 
