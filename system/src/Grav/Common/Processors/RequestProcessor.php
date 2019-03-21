@@ -23,6 +23,13 @@ class RequestProcessor extends ProcessorBase
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
         $this->startTimer();
+
+        $header = $request->getHeaderLine('Content-Type');
+        $type = trim(strstr($header, ';', true) ?: $header);
+        if ($type === 'application/json') {
+            $request = $request->withParsedBody(json_decode($request->getBody()->getContents(), true));
+        }
+
         $request = $request
             ->withAttribute('grav', $this->container)
             ->withAttribute('time', $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME)

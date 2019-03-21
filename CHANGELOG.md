@@ -1,3 +1,9 @@
+# v1.6.0-rc.5
+## mm/dd/2019
+
+1. [](#improved)
+    * Added `Content-Type: application/json` body support for PSR-7 `ServerRequest`
+
 # v1.6.0-rc.4
 ## 03/20/2019
 
