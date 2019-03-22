@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Added `Content-Type: application/json` body support for PSR-7 `ServerRequest`
+1. [](#bugfix)
+    * Fixed `Undefined method closure::fields()` when getting avatar for user, thanks @Romarain [#2422](https://github.com/getgrav/grav/issues/2422)
 
 # v1.6.0-rc.4
 ## 03/20/2019
