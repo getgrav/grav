@@ -47,7 +47,7 @@ trait ParsedownGravTrait
         $this->setMarkupEscaped($defaults['escape_markup']);
         $this->setSpecialChars($defaults['special_chars']);
 
-        $grav->fireEvent('onMarkdownInitialized', new Event(['markdown' => $this]));
+        $grav->fireEvent('onMarkdownInitialized', new Event(['markdown' => $this, 'page' => $page]));
 
     }
 
