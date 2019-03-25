@@ -106,6 +106,7 @@ If you discover a possible security issue related to Grav or one of its plugins,
 * Dive into more [advanced](https://learn.getgrav.org/advanced) functions
 * Learn about the [Grav CLI](https://learn.getgrav.org/cli-console/grav-cli)
 * Review examples in the [Grav Cookbook](https://learn.getgrav.org/cookbook)
+* More [Awesome Grav Stuff](https://github.com/getgrav/awesome-grav)
 
 # Backers
 Support Grav with a monthly donation to help us continue development. [[Become a backer](https://opencollective.com/grav#backer)]

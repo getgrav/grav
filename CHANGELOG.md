@@ -258,6 +258,18 @@
     * Doctrine filecache is now namespaced with prefix to support purging
     * Register all page types into `blueprint://pages` stream
 
+# v1.5.11
+## mm/dd/2019
+
+1. [](#improved)
+    *  Add the page to onMarkdownInitialized event [#2412](https://github.com/getgrav/grav/issues/2412)
+
+# v1.5.10
+## 03/21/2019
+
+1. [](#new)
+    * Added new `deferred` Twig extension
+
 # v1.5.9
 ## 03/20/2019
 
