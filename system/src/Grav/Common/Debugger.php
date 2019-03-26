@@ -425,20 +425,20 @@ class Debugger
                 $debugInfo = $object->getDebugInfo();
 
                 $line = 1;
-                foreach ($debugInfo as $codeLine => $templateLine) {
-                    if ($codeLine <= $current['line']) {
-                        $line = $templateLine;
-                        break;
+                if (!$reflection) {
+                    foreach ($debugInfo as $codeLine => $templateLine) {
+                        if ($codeLine <= $current['line']) {
+                            $line = $templateLine;
+                            break;
+                        }
                     }
                 }
 
                 $src = $object->getSourceContext();
                 $code = preg_split('/\r\n|\r|\n/', $src->getCode());
+                $current['twig']['twig'] = trim($code[$line - 1]);
                 $current['twig']['file'] = $src->getPath();
-                if (!$reflection) {
-                    $current['twig']['twig'] = trim($code[$line - 1]);
-                    $current['twig']['line'] = $line;
-                }
+                $current['twig']['line'] = $line;
 
                 $prevFile = $previous['file'] ?? null;
                 if ($prevFile && $file === $prevFile) {
@@ -531,7 +531,7 @@ class Debugger
             unset($current['class'], $current['type'], $current['function'], $current['args']);
 
             if (isset($current['twig'])) {
-                $trace[] = array_merge(['twig' => null], $current['twig']);
+                $trace[] = $current['twig'];
             } else {
                 $trace[] = ['call' => $class . $type . $function] + $current;
             }
