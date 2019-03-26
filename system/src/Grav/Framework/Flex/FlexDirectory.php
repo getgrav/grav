@@ -91,8 +91,19 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @return string
+     * @deprecated 1.6 Use ->getFlexType() method instead.
      */
     public function getType(): string
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
+        return $this->type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFlexType(): string
     {
         return $this->type;
     }
@@ -102,7 +113,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function getTitle(): string
     {
-        return $this->getBlueprintInternal()->get('title', ucfirst($this->getType()));
+        return $this->getBlueprintInternal()->get('title', ucfirst($this->getFlexType()));
     }
 
     /**
@@ -312,13 +323,13 @@ class FlexDirectory implements FlexAuthorizeInterface
                 if (Utils::isAdminPlugin()) {
                     $key = substr($key, 0, -1);
                 }
-                $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getType() . $key, $timeout);
+                $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $timeout);
             } catch (\Exception $e) {
                 /** @var Debugger $debugger */
                 $debugger = Grav::instance()['debugger'];
                 $debugger->addException($e);
 
-                $cache = new MemoryCache('flex-objects-' . $this->getType());
+                $cache = new MemoryCache('flex-objects-' . $this->getFlexType());
             }
 
             // Disable cache key validation.

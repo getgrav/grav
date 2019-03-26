@@ -45,7 +45,7 @@ class FlexForm implements FlexFormInterface
     {
         $this->name = $name;
         $this->form = $form;
-        $uniqueId = $object->exists() ? $object->getStorageKey() : "{$object->getType()}:new";
+        $uniqueId = $object->exists() ? $object->getStorageKey() : "{$object->getFlexType()}:new";
         $this->setObject($object);
         $this->setId($this->getName());
         $this->setUniqueId(md5($uniqueId));
@@ -73,7 +73,7 @@ class FlexForm implements FlexFormInterface
         $object = $this->getObject();
         $name = $this->name ?: 'object';
 
-        return "flex-{$object->getType()}-{$name}";
+        return "flex-{$object->getFlexType()}-{$name}";
     }
 
     /**
@@ -99,6 +99,14 @@ class FlexForm implements FlexFormInterface
 
         // Return the form data or fall back to the object property.
         return $value ?? $this->getObject()->value($name);
+    }
+
+    /**
+     * @return string
+     */
+    public function getFlexType(): string
+    {
+        return $this->object->getFlexType();
     }
 
     /**

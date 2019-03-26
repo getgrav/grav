@@ -87,7 +87,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         parent::__construct($entries);
 
         if ($directory) {
-            $this->setFlexDirectory($directory)->setKey($directory->getType());
+            $this->setFlexDirectory($directory)->setKey($directory->getFlexType());
         }
     }
 
@@ -129,7 +129,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getFlexType(): string
     {
-        return $this->_flexDirectory->getType();
+        return $this->_flexDirectory->getFlexType();
     }
 
     /**

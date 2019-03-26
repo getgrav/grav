@@ -115,7 +115,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexType(): string
     {
-        return $this->_flexDirectory->getType();
+        return $this->_flexDirectory->getFlexType();
     }
 
     /**
@@ -186,7 +186,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexKey(): string
     {
-        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getType() . '.obj:' . $this->getStorageKey();
+        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getFlexType() . '.obj:' . $this->getStorageKey();
     }
 
     /**
