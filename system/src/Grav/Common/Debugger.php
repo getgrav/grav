@@ -21,6 +21,9 @@ use DebugBar\DebugBar;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
+use Grav\Common\Processors\ProcessorInterface;
+use Twig\Template;
+use Twig\TemplateWrapper;
 
 class Debugger
 {
@@ -356,7 +359,7 @@ class Debugger
             return true;
         }
 
-        $backtrace = debug_backtrace(false);
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
 
         // Skip current call.
         array_shift($backtrace);
@@ -377,7 +380,8 @@ class Debugger
         array_unshift($backtrace, $current);
 
         // Filter arguments.
-        foreach ($backtrace as &$current) {
+        $cut = 0;
+        foreach ($backtrace as $i => &$current) {
             if (isset($current['args'])) {
                 $args = [];
                 foreach ($current['args'] as $arg) {
@@ -397,8 +401,54 @@ class Debugger
                 }
                 $current['args'] = $args;
             }
+
+            $object = $current['object'] ?? null;
+            unset($current['object']);
+
+            $reflection = null;
+            if ($object instanceof TemplateWrapper) {
+                $reflection = new \ReflectionObject($object);
+                $property = $reflection->getProperty('template');
+                $property->setAccessible(true);
+                $object = $property->getValue($object);
+            }
+
+            if ($object instanceof Template) {
+                $file = $current['file'] ?? null;
+                if (preg_match('`(Template.php|TemplateWrapper.php)$`', $file)) {
+                    $current = null;
+                    continue;
+                }
+                $src = $object->getSourceContext();
+                $current['file'] = $src->getPath();
+                $line = 1;
+                foreach ($object->getDebugInfo() as $codeLine => $templateLine) {
+                    if ($codeLine <= $current['line']) {
+                        $line = $templateLine;
+                        break;
+                    }
+                }
+                if (!$reflection) {
+                    $code = preg_split('/\r\n|\r|\n/', $src->getCode());
+                    $current['twig'] = $code[$line - 1];
+                    $current['line'] = $line;
+                } else {
+                    $current['twig'] = false;
+                    unset($current['line']);
+                }
+
+                $cut = $i;
+            } elseif ($object instanceof ProcessorInterface) {
+                $cut = $cut ?: $i;
+                break;
+            }
         }
         unset($current);
+
+        if ($cut) {
+            $backtrace = array_slice($backtrace, 0, $cut + 1);
+        }
+        $backtrace = array_values(array_filter($backtrace));
 
         $this->deprecations[] = [
             'message' => $errstr,
@@ -455,7 +505,16 @@ class Debugger
 
             unset($current['class'], $current['type'], $current['function'], $current['args']);
 
-            $trace[] = ['call' => $class . $type . $function] + $current;
+            if (isset($current['twig'])) {
+                if ($current['twig']) {
+                    $trace[] = array_merge(['twig' => null], $current);
+                } else {
+                    unset($current['twig']);
+                    $trace[] = $current;
+                }
+            } else {
+                $trace[] = ['call' => $class . $type . $function] + $current;
+            }
         }
 
         return [
@@ -473,6 +532,6 @@ class Debugger
             return '';
         }
 
-        return $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
+        return $trace['function'] . '(' . implode(', ', $trace['args'] ?? []) . ')';
     }
 }
