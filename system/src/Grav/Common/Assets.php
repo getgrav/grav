@@ -94,6 +94,10 @@ class Assets
     protected $css_no_pipeline = [];
     protected $js_no_pipeline = [];
 
+    // Default values for asset precompression.
+    protected $precompress = false;
+    protected $precompress_level = 9;
+
     /**
      * Assets constructor.
      *
@@ -172,6 +176,15 @@ class Assets
         // Set JS Minify state
         if (isset($config['js_minify'])) {
             $this->js_minify = $config['js_minify'];
+        }
+
+        // Asset precompression
+        if (isset($config['precompress'])) {
+            $this->precompress = $config['precompress'];
+        }
+
+        if (isset($config['precompress_level'])) {
+            $this->precompress_level = $config['precompress_level'];
         }
 
         // Set collections
@@ -738,6 +751,10 @@ class Assets
         // Write non-pipeline files out
         if (!empty($this->css_no_pipeline)) {
             file_put_contents($this->assets_dir . $inline_file, json_encode($this->css_no_pipeline));
+
+            if ($this->precompress) {
+                $this->compressFile($this->assets_dir . $inline_file);
+            }
         }
 
 
@@ -761,6 +778,10 @@ class Assets
         // Write file
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
+
+            if ($this->precompress) {
+                $this->compressFile($this->assets_dir . $file);
+            }
 
             if ($returnURL) {
                 return $relative_path . $this->getTimestamp();
@@ -831,6 +852,10 @@ class Assets
         // Write non-pipeline files out
         if (!empty($this->js_no_pipeline)) {
             file_put_contents($this->assets_dir . $inline_file, json_encode($this->js_no_pipeline));
+
+            if ($this->precompress) {
+                $this->compressFile($this->assets_dir . $inline_file);
+            }
         }
 
         // Concatenate files
@@ -845,6 +870,10 @@ class Assets
         if (strlen(trim($buffer)) > 0) {
             file_put_contents($this->assets_dir . $file, $buffer);
 
+            if ($this->precompress) {
+                $this->compressFile($this->assets_dir . $file);
+            }
+
             if ($returnURL) {
                 return $relative_path . $this->getTimestamp();
             }
@@ -854,6 +883,49 @@ class Assets
         } else {
             return false;
         }
+    }
+
+    /**
+     * Compresses the given file.
+     *
+     * @param string $filename  File to compress
+     * @return bool             true if succesful, false if not.
+     */
+    protected function compressFile($filename = null)
+    {
+        // Test if we have gzencode()
+        if (!function_exists('gzencode')) {
+            return false;
+        }
+
+        // Test if $filename is set
+        if (!empty($filename)) {
+
+            // Test if the source file exists and can be read
+            if (!is_readable($filename)) {
+                return false;
+            }
+
+            // Test if we can write to the target file
+            $fp = fopen($filename . ".gz", "w");
+            if (!$fp) {
+                return false;
+            }
+
+            // Load source file, gzencode it, and write it out
+            $written = fwrite($fp, gzencode(file_get_contents($filename), $this->precompress_level));
+            fclose($fp);
+
+            if ($written === false) {
+                return false;
+            }
+
+            // Make the file modification time identical to that of the source file
+            touch($filename . ".gz", filemtime($filename));
+
+            return true;
+        }
+        return false;
     }
 
     /**
