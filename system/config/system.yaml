@@ -53,7 +53,7 @@ pages:
     special_chars:                               # List of special characters to automatically convert to entities
       '>': 'gt'
       '<': 'lt'
-  types: [html,htm,json,xml,txt,rss,atom]        # list of valid page types
+  types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
   cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
