@@ -47,7 +47,7 @@ class Debugger
     /** @var array */
     protected $timers = [];
 
-    /** @var string[] $deprecations */
+    /** @var array $deprecations */
     protected $deprecations = [];
 
     /** @var callable */
@@ -381,6 +381,7 @@ class Debugger
 
         // Filter arguments.
         $cut = 0;
+        $previous = null;
         foreach ($backtrace as $i => &$current) {
             if (isset($current['args'])) {
                 $args = [];
@@ -415,26 +416,45 @@ class Debugger
 
             if ($object instanceof Template) {
                 $file = $current['file'] ?? null;
+
                 if (preg_match('`(Template.php|TemplateWrapper.php)$`', $file)) {
                     $current = null;
                     continue;
                 }
-                $src = $object->getSourceContext();
-                $current['file'] = $src->getPath();
+
+                $debugInfo = $object->getDebugInfo();
+
                 $line = 1;
-                foreach ($object->getDebugInfo() as $codeLine => $templateLine) {
+                foreach ($debugInfo as $codeLine => $templateLine) {
                     if ($codeLine <= $current['line']) {
                         $line = $templateLine;
                         break;
                     }
                 }
+
+                $src = $object->getSourceContext();
+                $code = preg_split('/\r\n|\r|\n/', $src->getCode());
+                $current['twig']['file'] = $src->getPath();
                 if (!$reflection) {
-                    $code = preg_split('/\r\n|\r|\n/', $src->getCode());
-                    $current['twig'] = $code[$line - 1];
-                    $current['line'] = $line;
-                } else {
-                    $current['twig'] = false;
-                    unset($current['line']);
+                    $current['twig']['twig'] = trim($code[$line - 1]);
+                    $current['twig']['line'] = $line;
+                }
+
+                $prevFile = $previous['file'] ?? null;
+                if ($prevFile && $file === $prevFile) {
+                    $prevLine = $previous['line'];
+
+                    $line = 1;
+                    foreach ($debugInfo as $codeLine => $templateLine) {
+                        if ($codeLine <= $prevLine) {
+                            $line = $templateLine;
+                            break;
+                        }
+                    }
+
+                    $previous['twig']['twig'] = trim($code[$line - 1]);
+                    $previous['twig']['file'] = $src->getPath();
+                    $previous['twig']['line'] = $line;
                 }
 
                 $cut = $i;
@@ -442,6 +462,8 @@ class Debugger
                 $cut = $cut ?: $i;
                 break;
             }
+
+            $previous = &$backtrace[$i];
         }
         unset($current);
 
@@ -450,12 +472,15 @@ class Debugger
         }
         $backtrace = array_values(array_filter($backtrace));
 
-        $this->deprecations[] = [
+        $deprecation = [
             'message' => $errstr,
             'file' => $errfile,
             'line' => $errline,
             'trace' => $backtrace,
+            'count' => 1
         ];
+
+        $this->deprecations[] = $deprecation;
 
         // Do not pass forward.
         return true;
@@ -506,12 +531,7 @@ class Debugger
             unset($current['class'], $current['type'], $current['function'], $current['args']);
 
             if (isset($current['twig'])) {
-                if ($current['twig']) {
-                    $trace[] = array_merge(['twig' => null], $current);
-                } else {
-                    unset($current['twig']);
-                    $trace[] = $current;
-                }
+                $trace[] = array_merge(['twig' => null], $current['twig']);
             } else {
                 $trace[] = ['call' => $class . $type . $function] + $current;
             }
