@@ -359,25 +359,42 @@ class Debugger
             return true;
         }
 
+        // Figure out error scope from the error.
+        $scope = 'unknown';
+        if (stripos($errstr, 'grav') !== false) {
+            $scope = 'grav';
+        } elseif (strpos($errfile, '/twig/') !== false) {
+            $scope = 'twig';
+        } elseif (stripos($errfile, '/yaml/') !== false) {
+            $scope = 'yaml';
+        } elseif (strpos($errfile, '/vendor/') !== false) {
+            $scope = 'vendor';
+        }
+
+        // Clean up backtrace to make it more useful.
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
 
         // Skip current call.
         array_shift($backtrace);
 
-        // Skip vendor libraries and the method where error was triggered.
-        while ($current = array_shift($backtrace)) {
-            if (isset($current['file']) && strpos($current['file'], 'vendor') !== false) {
-                continue;
-            }
-            if (isset($current['function']) && ($current['function'] === 'user_error' || $current['function'] === 'trigger_error')) {
-                $current = array_shift($backtrace);
-            }
+        // Find yaml file where the error happened.
+        if ($scope === 'yaml') {
+            foreach ($backtrace as $current) {
+                if (isset($current['args'])) {
+                    foreach ($current['args'] as $arg) {
+                        if ($arg instanceof \SplFileInfo) {
+                            $arg = $arg->getPathname();
+                        }
+                        if (\is_string($arg) && preg_match('/.+\.(yaml|md)$/i', $arg)) {
+                            $errfile = $arg;
+                            $errline = 0;
 
-            break;
+                            break 2;
+                        }
+                    }
+                }
+            }
         }
-
-        // Add back last call.
-        array_unshift($backtrace, $current);
 
         // Filter arguments.
         $cut = 0;
@@ -387,18 +404,23 @@ class Debugger
                 $args = [];
                 foreach ($current['args'] as $arg) {
                     if (\is_string($arg)) {
-                        $args[] = "'" . $arg . "'";
+                        $arg = "'" . $arg . "'";
+                        if (mb_strlen($arg) > 100) {
+                            $arg = 'string';
+                        }
                     } elseif (\is_bool($arg)) {
-                        $args[] = $arg ? 'true' : 'false';
+                        $arg = $arg ? 'true' : 'false';
                     } elseif (\is_scalar($arg)) {
-                        $args[] = $arg;
+                        $arg = $arg;
                     } elseif (\is_object($arg)) {
-                        $args[] = get_class($arg) . ' $object';
+                        $arg = get_class($arg) . ' $object';
                     } elseif (\is_array($arg)) {
-                        $args[] = '$array';
+                        $arg = '$array';
                     } else {
-                        $args[] = '$object';
+                        $arg = '$object';
                     }
+
+                    $args[] = $arg;
                 }
                 $current['args'] = $args;
             }
@@ -435,8 +457,8 @@ class Debugger
                 }
 
                 $src = $object->getSourceContext();
-                $code = preg_split('/\r\n|\r|\n/', $src->getCode());
-                $current['twig']['twig'] = trim($code[$line - 1]);
+                //$code = preg_split('/\r\n|\r|\n/', $src->getCode());
+                //$current['twig']['twig'] = trim($code[$line - 1]);
                 $current['twig']['file'] = $src->getPath();
                 $current['twig']['line'] = $line;
 
@@ -452,7 +474,7 @@ class Debugger
                         }
                     }
 
-                    $previous['twig']['twig'] = trim($code[$line - 1]);
+                    //$previous['twig']['twig'] = trim($code[$line - 1]);
                     $previous['twig']['file'] = $src->getPath();
                     $previous['twig']['line'] = $line;
                 }
@@ -472,7 +494,39 @@ class Debugger
         }
         $backtrace = array_values(array_filter($backtrace));
 
+        // Skip vendor libraries and the method where error was triggered.
+        foreach ($backtrace as $i => $current) {
+            if (!isset($current['file'])) {
+                continue;
+            }
+            if (strpos($current['file'], '/vendor/') !== false) {
+                $cut = $i + 1;
+                continue;
+            }
+            if (isset($current['function']) && ($current['function'] === 'user_error' || $current['function'] === 'trigger_error')) {
+                $cut = $i + 1;
+                continue;
+            }
+
+            break;
+        }
+
+        if ($cut) {
+            $backtrace = array_slice($backtrace, $cut);
+        }
+        $backtrace = array_values(array_filter($backtrace));
+
+        $current = reset($backtrace);
+
+        // If the issue happened inside twig file, change the file and line to match that file.
+        $file = $current['twig']['file'] ?? '';
+        if ($file) {
+            $errfile = $file;
+            $errline = $current['twig']['line'] ?? 0;
+        }
+
         $deprecation = [
+            'scope' => $scope,
             'message' => $errstr,
             'file' => $errfile,
             'line' => $errline,
@@ -506,42 +560,37 @@ class Debugger
 
     protected function getDepracatedMessage($deprecated)
     {
-        $scope = 'unknown';
-        if (stripos($deprecated['message'], 'grav') !== false) {
-            $scope = 'grav';
-        } elseif (!isset($deprecated['file'])) {
-            $scope = 'unknown';
-        } elseif (stripos($deprecated['file'], 'twig') !== false) {
-            $scope = 'twig';
-        } elseif (stripos($deprecated['file'], 'yaml') !== false) {
-            $scope = 'yaml';
-        } elseif (stripos($deprecated['file'], 'vendor') !== false) {
-            $scope = 'vendor';
-        }
+        $scope = $deprecated['scope'];
 
         $trace = [];
-        foreach ($deprecated['trace'] as $current) {
-            $class = $current['class'] ?? '';
-            $type = $current['type'] ?? '';
-            $function = $this->getFunction($current);
-            if (isset($current['file'])) {
-                $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
-            }
+        if (isset($deprecated['trace'])) {
+            foreach ($deprecated['trace'] as $current) {
+                $class = $current['class'] ?? '';
+                $type = $current['type'] ?? '';
+                $function = $this->getFunction($current);
+                if (isset($current['file'])) {
+                    $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
+                }
 
-            unset($current['class'], $current['type'], $current['function'], $current['args']);
+                unset($current['class'], $current['type'], $current['function'], $current['args']);
 
-            if (isset($current['twig'])) {
-                $trace[] = $current['twig'];
-            } else {
-                $trace[] = ['call' => $class . $type . $function] + $current;
+                if (isset($current['twig'])) {
+                    $trace[] = $current['twig'];
+                } else {
+                    $trace[] = ['call' => $class . $type . $function] + $current;
+                }
             }
         }
 
+        $array = [
+            'message' => $deprecated['message'],
+            'file' => $deprecated['file'],
+            'line' => $deprecated['line'],
+            'trace' => $trace
+        ];
+
         return [
-            [
-                'message' => $deprecated['message'],
-                'trace' => $trace
-            ],
+            array_filter($array),
             $scope
         ];
     }
