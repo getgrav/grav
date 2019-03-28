@@ -245,7 +245,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
      */
-    public function render($layout = null, array $context = [])
+    public function render(string $layout = null, array $context = [])
     {
         if (null === $layout) {
             $layout = 'default';

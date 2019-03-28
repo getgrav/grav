@@ -221,7 +221,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
      */
-    public function render($layout = null, array $context = [])
+    public function render(string $layout = null, array $context = [])
     {
         return $this->__call('render', [$layout, $context]);
     }

@@ -357,7 +357,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::render()
      */
-    public function render($layout = null, array $context = [])
+    public function render(string $layout = null, array $context = [])
     {
         if (null === $layout) {
             $layout = 'default';
