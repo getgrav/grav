@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Added `Content-Type: application/json` body support for PSR-7 `ServerRequest`
+    * Remove PHP time limit in `ZipArchive`
 1. [](#bugfix)
     * Fixed `Undefined method closure::fields()` when getting avatar for user, thanks @Romarain [#2422](https://github.com/getgrav/grav/issues/2422)
 

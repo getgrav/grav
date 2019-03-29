@@ -9,6 +9,8 @@
 
 namespace Grav\Common\Filesystem;
 
+use Grav\Common\Utils;
+
 abstract class Archiver
 {
     protected $options = [
@@ -35,6 +37,11 @@ abstract class Archiver
 
     public function setOptions($options)
     {
+        // Set infinite PHP execution time if possible.
+        if (function_exists('set_time_limit') && !Utils::isFunctionDisabled('set_time_limit')) {
+            set_time_limit(0);
+        }
+
         $this->options = $options + $this->options;
         return $this;
     }
