@@ -183,7 +183,10 @@ trait ObjectPropertyTrait
 
         $elements = [];
         foreach ($properties as $offset => $value) {
-            $elements[$offset] = $this->offsetSerialize($offset, $value);
+            $serialized = $this->offsetSerialize($offset, $value);
+            if ($serialized !== null) {
+                $elements[$offset] = $this->offsetSerialize($offset, $value);
+            }
         }
 
         return $elements;
