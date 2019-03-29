@@ -101,6 +101,18 @@ class FlexForm implements FlexFormInterface
         return $value ?? $this->getObject()->value($name);
     }
 
+    public function getDefaultValue(string $name)
+    {
+        return $this->object->getDefaultValue($name);
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultValues(): array
+    {
+        return $this->object->getDefaultValues();
+    }
     /**
      * @return string
      */

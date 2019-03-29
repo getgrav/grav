@@ -1,6 +1,8 @@
 # v1.6.0-rc.5
 ## mm/dd/2019
 
+1. [](#new)
+    * Added `FlexObjectInterface::getDefaultValue()` and `FormInterface::getDefaultValue()`
 1. [](#improved)
     * Added `Content-Type: application/json` body support for PSR-7 `ServerRequest`
     * DebugBar: Resolve twig templates in deprecated backtraces in order to help locating Twig issues 
