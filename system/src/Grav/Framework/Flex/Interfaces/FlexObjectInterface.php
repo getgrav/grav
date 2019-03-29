@@ -129,7 +129,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @throws \RuntimeException if object already exists.
      * @api
      */
-    public function create($key = null);
+    public function create(string $key = null);
 
     /**
      * Save object into the storage.
@@ -173,12 +173,36 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
     public function getForm(string $name = '', array $form = null);
 
     /**
-     * Form field compatibility.
+     * Returns default value suitable to be used in a form for the given property.
      *
-     * @param  string $name     Property name.
-     * @param  mixed  $default  Default value.
-     * @param  string $separator Optional nested property separator.
-     * @return mixed    Returns value of the field.
+     * @see FlexObjectInterface::getForm()
+     *
+     * @param  string $name         Property name.
+     * @param  string $separator    Optional nested property separator.
+     *
+     * @return mixed|null           Returns default value of the field, null if there is no default value.
      */
-    public function value($name, $default = null, $separator = null);
+    public function getDefaultValue(string $name, string $separator = null);
+
+    /**
+     * Returns default values suitable to be used in a form for the given property.
+     *
+     * @see FlexObjectInterface::getForm()
+     *
+     * @return array                Returns default values.
+     */
+    public function getDefaultValues(): array;
+
+    /**
+     * Returns raw value suitable to be used in a form for the given property.
+     *
+     * @see FlexObjectInterface::getForm()
+     *
+     * @param  string $name         Property name.
+     * @param  mixed  $default      Default value.
+     * @param  string $separator    Optional nested property separator.
+     *
+     * @return mixed                Returns value of the field.
+     */
+    public function getFormValue(string $name, $default = null, string $separator = null);
 }

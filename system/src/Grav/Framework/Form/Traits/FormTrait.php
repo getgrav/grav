@@ -113,6 +113,42 @@ trait FormTrait
         return $this->data[$name] ?? null;
     }
 
+    public function getDefaultValue(string $name)
+    {
+        $path = explode('.', $name) ?: [];
+        $offset = array_shift($path) ?? '';
+
+        $current = $this->getDefaultValues();
+
+        if (!isset($current[$offset])) {
+            return null;
+        }
+
+        $current = $current[$offset];
+
+        while ($path) {
+            $offset = array_shift($path);
+
+            if ((\is_array($current) || $current instanceof \ArrayAccess) && isset($current[$offset])) {
+                $current = $current[$offset];
+            } elseif (\is_object($current) && isset($current->{$offset})) {
+                $current = $current->{$offset};
+            } else {
+                return null;
+            }
+        };
+
+        return $current;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultValues(): array
+    {
+        return $this->getBlueprint()->getDefaults();
+    }
+
     /**
      * @param ServerRequestInterface $request
      * @return FormInterface|$this

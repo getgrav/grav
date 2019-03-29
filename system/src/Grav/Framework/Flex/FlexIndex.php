@@ -104,7 +104,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getFlexType(): string
     {
-        return $this->_flexDirectory->getType();
+        return $this->_flexDirectory->getFlexType();
     }
 
     /**
@@ -171,7 +171,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
         // Get storage keys for the objects.
         $keys = [];
-        $type = $this->_flexDirectory->getType() . '.obj:';
+        $type = $this->_flexDirectory->getFlexType() . '.obj:';
 
         foreach ($this->getEntries() as $key => $value) {
             $keys[$key] = $value['flex_key'] ?? $type . $value['storage_key'];
@@ -191,7 +191,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             return $this;
         }
 
-        $type = $keyField === 'flex_key' ? $this->_flexDirectory->getType() . '.obj:' : '';
+        $type = $keyField === 'flex_key' ? $this->_flexDirectory->getFlexType() . '.obj:' : '';
         $entries = [];
         foreach ($this->getEntries() as $key => $value) {
             if (!isset($value['key'])) {
@@ -221,7 +221,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
      */
-    public function render($layout = null, array $context = [])
+    public function render(string $layout = null, array $context = [])
     {
         return $this->__call('render', [$layout, $context]);
     }

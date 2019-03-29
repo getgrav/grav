@@ -1,11 +1,16 @@
 # v1.6.0-rc.5
 ## mm/dd/2019
 
+1. [](#new)
+    * Added `FlexObjectInterface::getDefaultValue()` and `FormInterface::getDefaultValue()`
 1. [](#improved)
     * Added `Content-Type: application/json` body support for PSR-7 `ServerRequest`
     * Remove PHP time limit in `ZipArchive`
+    * DebugBar: Resolve twig templates in deprecated backtraces in order to help locating Twig issues 
 1. [](#bugfix)
     * Fixed `Undefined method closure::fields()` when getting avatar for user, thanks @Romarain [#2422](https://github.com/getgrav/grav/issues/2422)
+    * Grav 1.6: Added `Flex[Class]::getFlexType()` to all flex classes to have the interface for all Flex classes
+    * FlexObjects: Remove null values during save
 
 # v1.6.0-rc.4
 ## 03/20/2019

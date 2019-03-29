@@ -11,11 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Interfaces;
 
-use Grav\Framework\ContentBlock\ContentBlockInterface;
-use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\FlexDirectory;
-use Twig\Error\LoaderError;
-use Twig\Error\SyntaxError;
+use Grav\Framework\Interfaces\RenderInterface;
 
 /**
  * Defines common interface shared with both Flex Objects and Collections.
@@ -23,7 +20,7 @@ use Twig\Error\SyntaxError;
  * @used-by \Grav\Framework\Flex\FlexObject
  * @since 1.6
  */
-interface FlexCommonInterface
+interface FlexCommonInterface extends RenderInterface
 {
     /**
      * Get Flex Type of the object / collection.
@@ -64,22 +61,4 @@ interface FlexCommonInterface
      * @return string Returns cache checksum.
      */
     public function getCacheChecksum(): string;
-
-    /**
-     * Renders the object / collection.
-     *
-     * @example {% render object layout 'edit' with { limited: true } %}
-     * @example {% render collection layout 'list' %}
-     *
-     * @param string $layout Layout name.
-     * @param array $context Context given to the renderer.
-     *
-     * @return ContentBlockInterface|HtmlBlock Returns `HtmlBlock` containing the rendered output.
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws LoaderError
-     * @throws SyntaxError
-     * @api
-     */
-    public function render($layout = null, array $context = []);
 }

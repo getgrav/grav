@@ -25,6 +25,9 @@ class Blueprint extends BlueprintForm
     /** @var BlueprintSchema */
     protected $blueprintSchema;
 
+    /** @var array */
+    protected $defaults;
+
     public function setScope($scope)
     {
         $this->scope = $scope;
@@ -56,7 +59,11 @@ class Blueprint extends BlueprintForm
     {
         $this->initInternals();
 
-        return $this->blueprintSchema->getDefaults();
+        if (null === $this->defaults) {
+            $this->defaults = $this->blueprintSchema->getDefaults();
+        }
+
+        return $this->defaults;
     }
 
     /**
@@ -174,6 +181,7 @@ class Blueprint extends BlueprintForm
 
             $this->blueprintSchema->embed('', $this->items);
             $this->blueprintSchema->init();
+            $this->defaults = null;
         }
     }
 

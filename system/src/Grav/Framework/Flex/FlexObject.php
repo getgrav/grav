@@ -115,7 +115,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexType(): string
     {
-        return $this->_flexDirectory->getType();
+        return $this->_flexDirectory->getFlexType();
     }
 
     /**
@@ -186,7 +186,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexKey(): string
     {
-        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getType() . '.obj:' . $this->getStorageKey();
+        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getFlexType() . '.obj:' . $this->getStorageKey();
     }
 
     /**
@@ -357,7 +357,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::render()
      */
-    public function render($layout = null, array $context = [])
+    public function render(string $layout = null, array $context = [])
     {
         if (null === $layout) {
             $layout = 'default';
@@ -616,9 +616,50 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * {@inheritdoc}
-     * @see FlexObjectInterface::value()
+     * @see FlexObjectInterface::getDefaultValue()
      */
-    public function value($name, $default = null, $separator = null)
+    public function getDefaultValue(string $name, string $separator = null)
+    {
+        $separator = $separator ?: '.';
+        $path = explode($separator, $name) ?: [];
+        $offset = array_shift($path) ?? '';
+
+        $current = $this->getDefaultValues();
+
+        if (!isset($current[$offset])) {
+            return null;
+        }
+
+        $current = $current[$offset];
+
+        while ($path) {
+            $offset = array_shift($path);
+
+            if ((\is_array($current) || $current instanceof \ArrayAccess) && isset($current[$offset])) {
+                $current = $current[$offset];
+            } elseif (\is_object($current) && isset($current->{$offset})) {
+                $current = $current->{$offset};
+            } else {
+                return null;
+            }
+        };
+
+        return $current;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultValues(): array
+    {
+        return $this->getBlueprint()->getDefaults();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getFormValue()
+     */
+    public function getFormValue(string $name, $default = null, string $separator = null)
     {
         if ($name === 'storage_key') {
             return $this->getStorageKey();
@@ -628,6 +669,19 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         return $this->getNestedProperty($name, $default, $separator);
+    }
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @param string|null $separator
+     * @return mixed
+     *
+     * @deprecated 1.6 Use ->getFormValue() method instead.
+     */
+    public function value($name, $default = null, $separator = null)
+    {
+        return $this->getFormValue($name, $default, $separator);
     }
 
     /**

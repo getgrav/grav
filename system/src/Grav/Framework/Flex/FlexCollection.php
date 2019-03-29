@@ -87,7 +87,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         parent::__construct($entries);
 
         if ($directory) {
-            $this->setFlexDirectory($directory)->setKey($directory->getType());
+            $this->setFlexDirectory($directory)->setKey($directory->getFlexType());
         }
     }
 
@@ -129,7 +129,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getFlexType(): string
     {
-        return $this->_flexDirectory->getType();
+        return $this->_flexDirectory->getFlexType();
     }
 
     /**
@@ -245,7 +245,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
      */
-    public function render($layout = null, array $context = [])
+    public function render(string $layout = null, array $context = [])
     {
         if (null === $layout) {
             $layout = 'default';

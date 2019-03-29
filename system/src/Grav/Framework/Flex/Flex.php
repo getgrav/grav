@@ -63,7 +63,7 @@ class Flex implements \Countable
      */
     public function addDirectory(FlexDirectory $directory)
     {
-        $this->types[$directory->getType()] = $directory;
+        $this->types[$directory->getFlexType()] = $directory;
 
         return $this;
     }

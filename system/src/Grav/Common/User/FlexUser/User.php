@@ -161,9 +161,9 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      * @param string|null $separator
      * @return mixed
      */
-    public function value($name, $default = null, $separator = null)
+    public function getFormValue(string $name, $default = null, string $separator = null)
     {
-        $value = parent::value($name, null, $separator);
+        $value = parent::getFormValue($name, null, $separator);
 
         if ($name === 'avatar') {
             return $this->parseFileProperty($value);

@@ -21,6 +21,9 @@ use DebugBar\DebugBar;
 use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
+use Grav\Common\Processors\ProcessorInterface;
+use Twig\Template;
+use Twig\TemplateWrapper;
 
 class Debugger
 {
@@ -44,7 +47,7 @@ class Debugger
     /** @var array */
     protected $timers = [];
 
-    /** @var string[] $deprecations */
+    /** @var array $deprecations */
     protected $deprecations = [];
 
     /** @var callable */
@@ -356,56 +359,182 @@ class Debugger
             return true;
         }
 
-        $backtrace = debug_backtrace(false);
+        // Figure out error scope from the error.
+        $scope = 'unknown';
+        if (stripos($errstr, 'grav') !== false) {
+            $scope = 'grav';
+        } elseif (strpos($errfile, '/twig/') !== false) {
+            $scope = 'twig';
+        } elseif (stripos($errfile, '/yaml/') !== false) {
+            $scope = 'yaml';
+        } elseif (strpos($errfile, '/vendor/') !== false) {
+            $scope = 'vendor';
+        }
+
+        // Clean up backtrace to make it more useful.
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
 
         // Skip current call.
         array_shift($backtrace);
 
+        // Find yaml file where the error happened.
+        if ($scope === 'yaml') {
+            foreach ($backtrace as $current) {
+                if (isset($current['args'])) {
+                    foreach ($current['args'] as $arg) {
+                        if ($arg instanceof \SplFileInfo) {
+                            $arg = $arg->getPathname();
+                        }
+                        if (\is_string($arg) && preg_match('/.+\.(yaml|md)$/i', $arg)) {
+                            $errfile = $arg;
+                            $errline = 0;
+
+                            break 2;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Filter arguments.
+        $cut = 0;
+        $previous = null;
+        foreach ($backtrace as $i => &$current) {
+            if (isset($current['args'])) {
+                $args = [];
+                foreach ($current['args'] as $arg) {
+                    if (\is_string($arg)) {
+                        $arg = "'" . $arg . "'";
+                        if (mb_strlen($arg) > 100) {
+                            $arg = 'string';
+                        }
+                    } elseif (\is_bool($arg)) {
+                        $arg = $arg ? 'true' : 'false';
+                    } elseif (\is_scalar($arg)) {
+                        $arg = $arg;
+                    } elseif (\is_object($arg)) {
+                        $arg = get_class($arg) . ' $object';
+                    } elseif (\is_array($arg)) {
+                        $arg = '$array';
+                    } else {
+                        $arg = '$object';
+                    }
+
+                    $args[] = $arg;
+                }
+                $current['args'] = $args;
+            }
+
+            $object = $current['object'] ?? null;
+            unset($current['object']);
+
+            $reflection = null;
+            if ($object instanceof TemplateWrapper) {
+                $reflection = new \ReflectionObject($object);
+                $property = $reflection->getProperty('template');
+                $property->setAccessible(true);
+                $object = $property->getValue($object);
+            }
+
+            if ($object instanceof Template) {
+                $file = $current['file'] ?? null;
+
+                if (preg_match('`(Template.php|TemplateWrapper.php)$`', $file)) {
+                    $current = null;
+                    continue;
+                }
+
+                $debugInfo = $object->getDebugInfo();
+
+                $line = 1;
+                if (!$reflection) {
+                    foreach ($debugInfo as $codeLine => $templateLine) {
+                        if ($codeLine <= $current['line']) {
+                            $line = $templateLine;
+                            break;
+                        }
+                    }
+                }
+
+                $src = $object->getSourceContext();
+                //$code = preg_split('/\r\n|\r|\n/', $src->getCode());
+                //$current['twig']['twig'] = trim($code[$line - 1]);
+                $current['twig']['file'] = $src->getPath();
+                $current['twig']['line'] = $line;
+
+                $prevFile = $previous['file'] ?? null;
+                if ($prevFile && $file === $prevFile) {
+                    $prevLine = $previous['line'];
+
+                    $line = 1;
+                    foreach ($debugInfo as $codeLine => $templateLine) {
+                        if ($codeLine <= $prevLine) {
+                            $line = $templateLine;
+                            break;
+                        }
+                    }
+
+                    //$previous['twig']['twig'] = trim($code[$line - 1]);
+                    $previous['twig']['file'] = $src->getPath();
+                    $previous['twig']['line'] = $line;
+                }
+
+                $cut = $i;
+            } elseif ($object instanceof ProcessorInterface) {
+                $cut = $cut ?: $i;
+                break;
+            }
+
+            $previous = &$backtrace[$i];
+        }
+        unset($current);
+
+        if ($cut) {
+            $backtrace = array_slice($backtrace, 0, $cut + 1);
+        }
+        $backtrace = array_values(array_filter($backtrace));
+
         // Skip vendor libraries and the method where error was triggered.
-        while ($current = array_shift($backtrace)) {
-            if (isset($current['file']) && strpos($current['file'], 'vendor') !== false) {
+        foreach ($backtrace as $i => $current) {
+            if (!isset($current['file'])) {
+                continue;
+            }
+            if (strpos($current['file'], '/vendor/') !== false) {
+                $cut = $i + 1;
                 continue;
             }
             if (isset($current['function']) && ($current['function'] === 'user_error' || $current['function'] === 'trigger_error')) {
-                $current = array_shift($backtrace);
+                $cut = $i + 1;
+                continue;
             }
 
             break;
         }
 
-        // Add back last call.
-        array_unshift($backtrace, $current);
-
-        // Filter arguments.
-        foreach ($backtrace as &$current) {
-            if (isset($current['args'])) {
-                $args = [];
-                foreach ($current['args'] as $arg) {
-                    if (\is_string($arg)) {
-                        $args[] = "'" . $arg . "'";
-                    } elseif (\is_bool($arg)) {
-                        $args[] = $arg ? 'true' : 'false';
-                    } elseif (\is_scalar($arg)) {
-                        $args[] = $arg;
-                    } elseif (\is_object($arg)) {
-                        $args[] = get_class($arg) . ' $object';
-                    } elseif (\is_array($arg)) {
-                        $args[] = '$array';
-                    } else {
-                        $args[] = '$object';
-                    }
-                }
-                $current['args'] = $args;
-            }
+        if ($cut) {
+            $backtrace = array_slice($backtrace, $cut);
         }
-        unset($current);
+        $backtrace = array_values(array_filter($backtrace));
 
-        $this->deprecations[] = [
+        $current = reset($backtrace);
+
+        // If the issue happened inside twig file, change the file and line to match that file.
+        $file = $current['twig']['file'] ?? '';
+        if ($file) {
+            $errfile = $file;
+            $errline = $current['twig']['line'] ?? 0;
+        }
+
+        $deprecation = [
+            'scope' => $scope,
             'message' => $errstr,
             'file' => $errfile,
             'line' => $errline,
             'trace' => $backtrace,
+            'count' => 1
         ];
+
+        $this->deprecations[] = $deprecation;
 
         // Do not pass forward.
         return true;
@@ -431,38 +560,37 @@ class Debugger
 
     protected function getDepracatedMessage($deprecated)
     {
-        $scope = 'unknown';
-        if (stripos($deprecated['message'], 'grav') !== false) {
-            $scope = 'grav';
-        } elseif (!isset($deprecated['file'])) {
-            $scope = 'unknown';
-        } elseif (stripos($deprecated['file'], 'twig') !== false) {
-            $scope = 'twig';
-        } elseif (stripos($deprecated['file'], 'yaml') !== false) {
-            $scope = 'yaml';
-        } elseif (stripos($deprecated['file'], 'vendor') !== false) {
-            $scope = 'vendor';
-        }
+        $scope = $deprecated['scope'];
 
         $trace = [];
-        foreach ($deprecated['trace'] as $current) {
-            $class = $current['class'] ?? '';
-            $type = $current['type'] ?? '';
-            $function = $this->getFunction($current);
-            if (isset($current['file'])) {
-                $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
+        if (isset($deprecated['trace'])) {
+            foreach ($deprecated['trace'] as $current) {
+                $class = $current['class'] ?? '';
+                $type = $current['type'] ?? '';
+                $function = $this->getFunction($current);
+                if (isset($current['file'])) {
+                    $current['file'] = str_replace(GRAV_ROOT . '/', '', $current['file']);
+                }
+
+                unset($current['class'], $current['type'], $current['function'], $current['args']);
+
+                if (isset($current['twig'])) {
+                    $trace[] = $current['twig'];
+                } else {
+                    $trace[] = ['call' => $class . $type . $function] + $current;
+                }
             }
-
-            unset($current['class'], $current['type'], $current['function'], $current['args']);
-
-            $trace[] = ['call' => $class . $type . $function] + $current;
         }
 
+        $array = [
+            'message' => $deprecated['message'],
+            'file' => $deprecated['file'],
+            'line' => $deprecated['line'],
+            'trace' => $trace
+        ];
+
         return [
-            [
-                'message' => $deprecated['message'],
-                'trace' => $trace
-            ],
+            array_filter($array),
             $scope
         ];
     }
@@ -473,6 +601,6 @@ class Debugger
             return '';
         }
 
-        return $trace['function'] . '(' . implode(', ', $trace['args']) . ')';
+        return $trace['function'] . '(' . implode(', ', $trace['args'] ?? []) . ')';
     }
 }
