@@ -9,6 +9,7 @@ namespace Grav\Framework\Flex\Traits;
  * @license    MIT License; see LICENSE file for details.
  */
 
+use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
@@ -312,6 +313,13 @@ trait FlexMediaTrait
         return $file && file_exists($file) ? MediumFactory::fromFile($file) : null;
     }
 
+    /**
+     * @return Cache
+     */
+    protected function getMediaCache()
+    {
+        return $this->getCache('object');
+    }
 
     protected function offsetLoad_media()
     {

@@ -13,6 +13,7 @@ use \Doctrine\Common\Cache as DoctrineCache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Scheduler\Scheduler;
+use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 
@@ -43,6 +44,11 @@ class Cache extends Getters
      * @var DoctrineCache\CacheProvider
      */
     protected $driver;
+
+    /**
+     * @var CacheInterface
+     */
+    protected $simpleCache;
 
     protected $driver_name;
 
@@ -138,6 +144,23 @@ class Cache extends Getters
         /** @var EventDispatcher $dispatcher */
         $dispatcher = Grav::instance()['events'];
         $dispatcher->addListener('onSchedulerInitialized', [$this, 'onSchedulerInitialized']);
+    }
+
+    /**
+     * @return CacheInterface
+     */
+    public function getSimpleCache()
+    {
+        if (null === $this->simpleCache) {
+            $cache = new \Grav\Framework\Cache\Adapter\DoctrineCache($this->driver, $this->key, $this->getLifetime());
+
+            // Disable cache key validation.
+            $cache->setValidation(false);
+
+            $this->simpleCache = $cache;
+        }
+
+        return $this->simpleCache;
     }
 
     /**

@@ -13,6 +13,7 @@ use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
+use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 trait MediaTrait
@@ -71,9 +72,9 @@ trait MediaTrait
 
             // Use cached media if possible.
             $cacheKey = md5('media' . $this->getCacheKey());
-            if (!$media = $cache->fetch($cacheKey)) {
+            if (!$media = $cache->get($cacheKey)) {
                 $media = new Media($this->getMediaFolder(), $this->getMediaOrder());
-                $cache->save($cacheKey, $media);
+                $cache->set($cacheKey, $media);
             }
             $this->media = $media;
         }
@@ -91,7 +92,7 @@ trait MediaTrait
     {
         $cache = $this->getMediaCache();
         $cacheKey = md5('media' . $this->getCacheKey());
-        $cache->save($cacheKey, $media);
+        $cache->set($cacheKey, $media);
 
         $this->media = $media;
 
@@ -111,11 +112,14 @@ trait MediaTrait
     }
 
     /**
-     * @return Cache
+     * @return CacheInterface
      */
     protected function getMediaCache()
     {
-        return Grav::instance()['cache'];
+        /** @var Cache $cache */
+        $cache = Grav::instance()['cache'];
+
+        return $cache->getSimpleCache();
     }
 
     /**
