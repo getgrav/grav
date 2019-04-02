@@ -152,7 +152,7 @@ class Cache extends Getters
     public function getSimpleCache()
     {
         if (null === $this->simpleCache) {
-            $cache = new \Grav\Framework\Cache\Adapter\DoctrineCache($this->driver, $this->key, $this->getLifetime());
+            $cache = new \Grav\Framework\Cache\Adapter\DoctrineCache($this->driver, '', $this->getLifetime());
 
             // Disable cache key validation.
             $cache->setValidation(false);
