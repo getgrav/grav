@@ -33,13 +33,14 @@ class ImageFile extends Image
     /**
      * This is the same as the Gregwar Image class except this one fires a Grav Event on creation of new cached file
      *
-     * @param string $type    the image type
-     * @param int    $quality the quality (for JPEG)
-     * @param bool   $actual
+     * @param string $type the image type
+     * @param int $quality the quality (for JPEG)
+     * @param bool $actual
+     * @param array $extras
      *
      * @return string
      */
-    public function cacheFile($type = 'jpg', $quality = 80, $actual = false)
+    public function cacheFile($type = 'jpg', $quality = 80, $actual = false, $extras = [])
     {
         if ($type === 'guess') {
             $type = $this->guessType();
@@ -50,7 +51,7 @@ class ImageFile extends Image
         }
 
         // Computes the hash
-        $this->hash = $this->getHash($type, $quality);
+        $this->hash = $this->getHash($type, $quality, $extras);
 
         // Seo friendly image names
         $seofriendly = Grav::instance()['config']->get('system.images.seofriendly', false);
@@ -103,4 +104,42 @@ class ImageFile extends Image
 
         return $this->getFilename($file);
     }
+
+    /**
+     * Gets the hash.
+     * @param string $type
+     * @param int $quality
+     * @param [] $extras
+     * @return null
+     */
+    public function getHash($type = 'guess', $quality = 80, $extras = [])
+    {
+        if (null === $this->hash) {
+            $this->generateHash($type, $quality, $extras);
+        }
+
+        return $this->hash;
+    }
+
+    /**
+     * Generates the hash.
+     * @param string $type
+     * @param int $quality
+     * @param array $extras
+     */
+    public function generateHash($type = 'guess', $quality = 80, $extras = [])
+    {
+        $inputInfos = $this->source->getInfos();
+
+        $datas = array(
+            $inputInfos,
+            $this->serializeOperations(),
+            $type,
+            $quality,
+            $extras
+        );
+
+        $this->hash = sha1(serialize($datas));
+    }
+
 }

@@ -13,6 +13,7 @@
     * Fixed `Undefined method closure::fields()` when getting avatar for user, thanks @Romarain [#2422](https://github.com/getgrav/grav/issues/2422)
     * Grav 1.6: Added `Flex[Class]::getFlexType()` to all flex classes to have the interface for all Flex classes
     * FlexObjects: Remove null values during save
+    * Fix issue with processed images not being updated when existing image is modified
 
 # v1.6.0-rc.4
 ## 03/20/2019

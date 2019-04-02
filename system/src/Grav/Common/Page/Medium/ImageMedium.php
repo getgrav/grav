@@ -619,7 +619,7 @@ class ImageMedium extends Medium
             $this->image->merge(ImageFile::open($overlay));
         }
 
-        return $this->image->cacheFile($this->format, $this->quality);
+        return $this->image->cacheFile($this->format, $this->quality, false, [$this->get('width'), $this->get('height'), $this->get('modified')]);
     }
 
     /**
