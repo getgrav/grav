@@ -767,7 +767,7 @@ class Uri
                 $normalized_path = Utils::normalizePath($pages_dir . $url_path);
             } else {
                 $page_route = ($page->home() && !empty($url_path)) ? $page->rawRoute() : $page->route();
-                $normalized_url = $base_url . Utils::normalizePath($page_route . '/' . $url_path);
+                $normalized_url = $base_url . Utils::normalizePath(rtrim($page_route, '/') . '/' . $url_path);
                 $normalized_path = Utils::normalizePath($page->path() . '/' . $url_path);
             }
 

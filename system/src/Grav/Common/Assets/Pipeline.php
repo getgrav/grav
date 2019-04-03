@@ -33,6 +33,8 @@ class Pipeline extends PropertyObject
     /** @const Regex to match CSS import content */
     protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
+    protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
+
     protected $css_minify;
     protected $css_minify_windows;
     protected $css_rewrite;
@@ -251,13 +253,21 @@ class Pipeline extends PropertyObject
             $old_url = $matches[2];
 
             // Ensure link is not rooted to web server, a data URL, or to a remote host
-            if (Utils::startsWith($old_url, '/') || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
+            if (preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url) || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
                 return $matches[0];
             }
 
-            $new_url = ($local ? $this->base_url: '') . ltrim(Utils::normalizePath($dir . '/' . $old_url), '/');
+            // clean leading /
+            $old_url = Utils::normalizePath($dir . '/' . $old_url);
+            if (preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url)) {
+                ltrim($old_url, '/');
+            }
 
-            return str_replace($old_url, $new_url, $matches[0]);
+            $new_url = ($local ? $this->base_url: '') . $old_url;
+
+            $fixed = str_replace($matches[2], $new_url, $matches[0]);
+
+            return $fixed;
         }, $file);
 
         return $file;

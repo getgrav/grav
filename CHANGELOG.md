@@ -9,6 +9,7 @@
     * DebugBar: Resolve twig templates in deprecated backtraces in order to help locating Twig issues
     * Added `$grav['cache']->getSimpleCache()` method for getting PSR-16 compatible cache
     * MediaTrait: Use PSR-16 cache
+    * Improved `Utils::normalizePath()` to support non-protocol URLs
 1. [](#bugfix)
     * Fixed `Undefined method closure::fields()` when getting avatar for user, thanks @Romarain [#2422](https://github.com/getgrav/grav/issues/2422)
     * Grav 1.6: Added `Flex[Class]::getFlexType()` to all flex classes to have the interface for all Flex classes

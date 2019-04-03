@@ -216,6 +216,9 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('/test', Utils::normalizePath('/../test'));
         $this->assertEquals('/test2', Utils::normalizePath('/test/../test2'));
         $this->assertEquals('/test/test2', Utils::normalizePath('/test/./test2'));
+        $this->assertEquals('//something/test/test2', Utils::normalizePath('//../something/test/test2'));
+        $this->assertEquals('//something/test2', Utils::normalizePath('//something/test/../test2'));
+        $this->assertEquals('//test2', Utils::normalizePath('//something/../test/../test2'));
     }
 
     public function testIsFunctionDisabled()

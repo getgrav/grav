@@ -53,7 +53,6 @@ class AssetsTest extends \Codeception\TestCase\Test
                  "type":"text\/css",
                  "rel":"stylesheet"
               },
-              "timestamp":null,
               "modified":false,
               "query":""
            }
@@ -82,7 +81,6 @@ class AssetsTest extends \Codeception\TestCase\Test
               "attributes":[  
         
               ],
-              "timestamp":null,
               "modified":false,
               "query":""
            }
@@ -113,7 +111,6 @@ class AssetsTest extends \Codeception\TestCase\Test
                  "type":"text\/css",
                  "rel":"stylesheet"
               },
-              "timestamp":null,
               "modified":false,
               "query":""
            }
@@ -144,8 +141,6 @@ class AssetsTest extends \Codeception\TestCase\Test
                  "type":"text\/css",
                  "rel":"stylesheet"
               },
-              "timestamp":null,
-              "modified":null,
               "query":""
            }
         }';
@@ -178,7 +173,6 @@ class AssetsTest extends \Codeception\TestCase\Test
               "position":"pipeline",
               "priority":10,
               "attributes":[],
-              "timestamp":null,
               "modified":false,
               "query":""
            }
@@ -211,7 +205,6 @@ class AssetsTest extends \Codeception\TestCase\Test
               "type": "text/css",
               "rel": "stylesheet"
             },
-            "timestamp": null,
             "modified": false,
             "query": ""
           }
@@ -242,7 +235,6 @@ class AssetsTest extends \Codeception\TestCase\Test
             "position": "pipeline",
             "priority": 10,
             "attributes": [],
-            "timestamp": null,
             "modified": false,
             "query": ""
           }
@@ -272,7 +264,6 @@ class AssetsTest extends \Codeception\TestCase\Test
             "attributes": {
               "loading": "async"
             },
-            "timestamp": null,
             "modified": false,
             "query": ""
           }
@@ -301,7 +292,6 @@ class AssetsTest extends \Codeception\TestCase\Test
             "attributes": {
               "loading": "defer"
             },
-            "timestamp": null,
             "modified": false,
             "query": ""
           }
@@ -410,7 +400,6 @@ class AssetsTest extends \Codeception\TestCase\Test
                  "rel":"stylesheet",
                  "loading":"async"
               },
-              "timestamp":null,
               "modified":false,
               "query":""
            }
@@ -439,7 +428,6 @@ class AssetsTest extends \Codeception\TestCase\Test
             "attributes": {
               "loading": "defer"
             },
-            "timestamp": null,
             "modified": false,
             "query": ""
           }

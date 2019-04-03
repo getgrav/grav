@@ -20,6 +20,8 @@ abstract class Utils
 {
     protected static $nonces = [];
 
+    protected const ROOTURL_REGEX = '{^(\/*)}';
+
     /**
      * Simple helper method to make getting a Grav URL easier
      *
@@ -777,9 +779,14 @@ abstract class Utils
      */
     public static function normalizePath($path)
     {
-        $root = strpos($path, '/') === 0 ? '/' : '';
+        $root = '';
+        preg_match(self::ROOTURL_REGEX, $path, $matches);
+        if ($matches) {
+            $root = $matches[0];
+        }
 
-        $segments = explode('/', trim($path, '/'));
+        $clean_path = static::replaceFirstOccurrence($root, '', $path);
+        $segments = explode('/', trim($clean_path, '/'));
         $ret = [];
         foreach ($segments as $segment) {
             if (($segment === '.') || $segment === '') {
@@ -791,8 +798,8 @@ abstract class Utils
                 $ret[] = $segment;
             }
         }
-
-        return $root . implode('/', $ret);
+        $normalized = $root . implode('/', $ret);
+        return $normalized;
     }
 
     /**
