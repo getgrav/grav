@@ -510,7 +510,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::create()
      */
-    public function create($key = null)
+    public function create(string $key = null)
     {
         if ($key) {
             $this->setStorageKey($key);

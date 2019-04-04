@@ -390,11 +390,11 @@ class FormFlash implements \JsonSerializable
      */
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {
+        $field = $field ?: 'undefined';
         if (!isset($this->files[$field])) {
             $this->files[$field] = [];
         }
 
-        $field = $field ?: 'undefined';
         $oldUpload = $this->files[$field][$name] ?? null;
 
         if ($crop) {
