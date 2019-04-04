@@ -260,7 +260,7 @@ class Pipeline extends PropertyObject
             // clean leading /
             $old_url = Utils::normalizePath($dir . '/' . $old_url);
             if (preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url)) {
-                ltrim($old_url, '/');
+                $old_url = ltrim($old_url, '/');
             }
 
             $new_url = ($local ? $this->base_url: '') . $old_url;
