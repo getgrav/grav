@@ -41,9 +41,7 @@ class Truncator {
             return $html;
         }
 
-        $doc = new DOMDocument();
-        $doc->loadHTML("<div>$html</div>");
-
+        $doc = self::htmlToDomDocument($html);
         $container = $doc->getElementsByTagName('div')->item(0);
         $container = $container->parentNode->removeChild($container);
 
@@ -101,9 +99,7 @@ class Truncator {
             return $html;
         }
 
-        $doc = new DOMDocument();
-        $doc->loadHTML("<div>$html</div>");
-
+        $doc = self::htmlToDomDocument($html);
         $container = $doc->getElementsByTagName('div')->item(0);
         $container = $container->parentNode->removeChild($container);
 
@@ -157,7 +153,7 @@ class Truncator {
         // Instantiate new DOMDocument object, and then load in UTF-8 HTML.
         $dom = new DOMDocument();
         $dom->encoding = 'UTF-8';
-        $dom->loadHTML($html);
+        $dom->loadHTML("<div>$html</div>");
 
         return $dom;
     }
@@ -190,6 +186,13 @@ class Truncator {
         }
     }
 
+    /**
+     * Clean extra code
+     *
+     * @param DOMDocument $doc
+     * @param $container
+     * @return string
+     */
     private static function getCleanedHTML(DOMDocument $doc, $container)
     {
         while ($doc->firstChild) {
@@ -228,24 +231,6 @@ class Truncator {
             // Append to current node
             $domNode->nodeValue = rtrim($domNode->nodeValue) . $ellipsis;
         }
-    }
-
-    /**
-     * Returns the innerHTML of a particular DOMElement
-     *
-     * @param DOMElement $element
-     * @return string
-     */
-    private static function innerHTML($element) {
-        $innerHTML = '';
-        $children = $element->childNodes;
-        foreach ($children as $child)
-        {
-            $tmp_dom = new DOMDocument();
-            $tmp_dom->appendChild($tmp_dom->importNode($child, true));
-            $innerHTML.=trim($tmp_dom->saveHTML());
-        }
-        return $innerHTML;
     }
 
     /**
