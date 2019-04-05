@@ -15,6 +15,7 @@
     * Grav 1.6: Added `Flex[Class]::getFlexType()` to all flex classes to have the interface for all Flex classes
     * FlexObjects: Remove null values during save
     * Fixed cached images not being updated when source image is modified
+    * Fixed deleting last list item in the form
 
 # v1.6.0-rc.4
 ## 03/20/2019

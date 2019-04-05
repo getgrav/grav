@@ -216,12 +216,12 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     }
 
     /**
-     * @param array $data
+     * @param array|null $data
      * @param array $toggles
      * @param array $nested
-     * @return array
+     * @return array|null
      */
-    protected function processFormRecursive(array $data, array $toggles, array $nested)
+    protected function processFormRecursive(?array $data, array $toggles, array $nested)
     {
         foreach ($nested as $key => $value) {
             if ($key === '') {
@@ -233,11 +233,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             }
             if (is_array($value)) {
                 // Recursively fetch the items.
-                $array = $this->processFormRecursive($data[$key] ?? [], $toggles[$key] ?? [], $value);
-
-                if (!empty($array)) {
-                    $data[$key] = $array;
-                }
+                $data[$key] = $this->processFormRecursive($data[$key] ?? null, $toggles[$key] ?? [], $value);
             } else {
                 $field = $this->get($value);
                 // Do not add the field if:
