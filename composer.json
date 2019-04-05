@@ -12,6 +12,7 @@
         "ext-openssl": "*",
         "ext-curl": "*",
         "ext-zip": "*",
+        "ext-dom": "*",
         "symfony/polyfill-iconv": "^1.9",
         "symfony/polyfill-php72": "^1.9",
         "symfony/polyfill-php73": "^1.9",

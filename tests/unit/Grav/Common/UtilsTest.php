@@ -146,6 +146,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testTruncateHtml()
     {
+        $this->assertEquals('T...', Utils::truncateHtml('This is a string to truncate', 1));
+        $this->assertEquals('This is...', Utils::truncateHtml('This is a string to truncate', 7));
         $this->assertEquals('<p>T...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 1));
         $this->assertEquals('<p>This...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
         $this->assertEquals('<p>This is a...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 10));
@@ -157,6 +159,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testSafeTruncateHtml()
     {
+        $this->assertEquals('This...', Utils::safeTruncateHtml('This is a string to truncate', 1));
+        $this->assertEquals('This is a...', Utils::safeTruncateHtml('This is a string to truncate', 3));
         $this->assertEquals('<p>This...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1));
         $this->assertEquals('<p>This is...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 2));
         $this->assertEquals('<p>This is a string to...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 5));
