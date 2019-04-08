@@ -103,6 +103,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         foreach ($rows as $key => $row) {
             if (null === $row || (!\is_object($row) && !\is_array($row))) {
                 // Only load rows which haven't been loaded before.
+                $key = (string)$key;
                 $list[$key] = $this->hasKey($key) ? $this->data[$key] : null;
                 if (null !== $fetched) {
                     $fetched[$key] = $list[$key];
@@ -124,6 +125,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
+            $key = (string)$key;
             if ($this->hasKey($key)) {
                 $this->data[$key] = $list[$key] = $row;
             }
@@ -144,6 +146,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
+            $key = (string)$key;
             if ($this->hasKey($key)) {
                 unset($this->data[$key]);
                 $list[$key] = $row;

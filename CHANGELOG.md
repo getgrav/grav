@@ -17,6 +17,7 @@
     * FlexObjects: Remove null values during save
     * Fixed cached images not being updated when source image is modified
     * Fixed deleting last list item in the form
+    * Fixed Flex erroring out with all numeric keys in an entry
 
 # v1.6.0-rc.4
 ## 03/20/2019

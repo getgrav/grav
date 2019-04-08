@@ -102,6 +102,7 @@ class FolderStorage extends AbstractFilesystemStorage
         foreach ($rows as $key => $row) {
             if (null === $row || (!\is_object($row) && !\is_array($row))) {
                 // Only load rows which haven't been loaded before.
+                $key = (string)$key;
                 if (!$this->hasKey($key)) {
                     $list[$key] = null;
                 } else {
@@ -129,6 +130,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
+            $key = (string)$key;
             if (!$this->hasKey($key)) {
                 $list[$key] = null;
             } else {
@@ -149,6 +151,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
+            $key = (string)$key;
             if (!$this->hasKey($key)) {
                 $list[$key] = null;
             } else {
@@ -175,6 +178,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
+            $key = (string)$key;
             if (strpos($key, '@@')) {
                 $key = $this->getNewKey();
             }
