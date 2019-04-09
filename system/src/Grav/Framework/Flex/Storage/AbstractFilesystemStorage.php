@@ -32,6 +32,16 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
 {
     /** @var FileFormatterInterface */
     protected $dataFormatter;
+    /** @var string */
+    protected $keyField = 'storage_key';
+
+    /**
+     * @return string
+     */
+    public function getKeyField(): string
+    {
+        return $this->keyField;
+    }
 
     protected function initDataFormatter($formatter): void
     {

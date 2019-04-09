@@ -583,11 +583,16 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $keys = array_fill_keys(array_keys($entries), null);
         $rows = $storage->readRows($keys);
 
+        $keyField = $storage->getKeyField();
+
         // Go through all the updated objects and refresh their index data.
         $updated = $added = [];
         foreach ($rows as $key => $row) {
             if (null !== $row) {
                 $entry = ['key' => $key] + $entries[$key];
+                if ($keyField !== 'storage_key' && isset($row[$keyField])) {
+                    $entry['key'] = $row[$keyField];
+                }
                 static::updateIndexData($entry, $row);
                 if (isset($row['__error'])) {
                     $entry['__error'] = true;

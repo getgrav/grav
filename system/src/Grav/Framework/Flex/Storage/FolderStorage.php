@@ -460,6 +460,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $this->dataFolder = $options['folder'];
         $this->prefixed = (bool)($options['prefixed'] ?? strpos($pattern, '/{KEY:2}/'));
         $this->indexed = (bool)($options['indexed'] ?? false);
+        $this->keyField = $options['key'] ?? 'storage_key';
 
         $pattern = preg_replace(['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/'], ['%1$s', '%2$s', '%3$s'], $pattern);
         $this->dataPattern = \dirname($pattern) . '/' . basename($pattern, $extension) . $extension;

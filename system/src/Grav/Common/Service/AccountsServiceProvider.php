@@ -10,6 +10,7 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Debugger;
 use Grav\Common\User\DataUser;
 use Grav\Common\User\FlexUser;
 use Grav\Common\User\User;
@@ -26,7 +27,10 @@ class AccountsServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['accounts'] = function (Container $container) {
+            /** @var Debugger $debugger */
+            $debugger = $container['debugger'];
             if ($container['config']->get('system.accounts.type') === 'flex') {
+                $debugger->addMessage('User Accounts: Flex Directory');
                 return $this->flexAccounts($container);
             }
 
@@ -100,8 +104,9 @@ class AccountsServiceProvider implements ServiceProviderInterface
                     'formatter' => ['class' => YamlFormatter::class],
                     'folder' => 'account://',
                     'pattern' => '{FOLDER}/{KEY:2}/{KEY}/user.yaml',
+                    'key' => 'username',
                     'indexed' => true
-                ]
+                ],
             ];
         }
 
@@ -111,8 +116,9 @@ class AccountsServiceProvider implements ServiceProviderInterface
                 'formatter' => ['class' => YamlFormatter::class],
                 'folder' => 'account://',
                 'pattern' => '{FOLDER}/{KEY}.yaml',
+                'key' => 'storage_key',
                 'indexed' => true
-            ]
+            ],
         ];
     }
 }
