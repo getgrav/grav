@@ -14,10 +14,11 @@
     * Fixed issue with `Truncator::truncateWords` and `Truncator::truncateLetters` when string not wrapped in tags [#2432](https://github.com/getgrav/grav/issues/2432)
     * Fixed `Undefined method closure::fields()` when getting avatar for user, thanks @Romarain [#2422](https://github.com/getgrav/grav/issues/2422)
     * Grav 1.6: Added `Flex[Class]::getFlexType()` to all flex classes to have the interface for all Flex classes
-    * FlexObjects: Remove null values during save
+    * Grav 1.6: FlexObjects: Remove null values during save
     * Fixed cached images not being updated when source image is modified
     * Fixed deleting last list item in the form
-    * Fixed Flex erroring out with all numeric keys in storage
+    * Grav 1.6: Fixed Flex erroring out with all numeric keys in storage
+    * Grav 1.6: Fixed error in `FlexUserIndex` if there are users without an email address
 
 # v1.6.0-rc.4
 ## 03/20/2019
