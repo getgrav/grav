@@ -491,7 +491,7 @@ class Assets
             'priority' => intval($priority ?: 10),
             'order'    => count($this->js),
             'group'    => $group ?: 'head',
-            'type'     => $attributes ?: '',
+            'type'     => $attributes ?: 'text/javascript',
         ];
 
         // check for dynamic array and merge with defaults
@@ -667,16 +667,11 @@ class Assets
 
         // Render Inline JS
         foreach ($this->inline_js as $inline) {
-            if ($group && $inline['group'] == $group) {
-                $inline_js .= $inline['asset'] . "\n";
-            }
+           if ($group && $inline['group'] === $group) {
+                $attributeString = " type=\"" . $inline['type'] . "\""; 
+                $output .= "\n<script" . $attributeString . ">\n" . $inline['asset'] . "\n</script>\n";
+            } 
         }
-
-        if ($inline_js) {
-            $attribute_string = isset($inline) && $inline['type'] ? " type=\"" . $inline['type'] . "\"" : '';
-            $output .= "\n<script" . $attribute_string . ">\n" . $inline_js . "\n</script>\n";
-        }
-
         return $output;
     }
 
