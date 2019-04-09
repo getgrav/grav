@@ -51,7 +51,13 @@ class Language
      */
     public function init()
     {
-        $this->default = reset($this->languages);
+        $default = $this->config->get('system.languages.default_lang');
+        if (isset($default) && $this->validate($default)) {
+            $this->default = $default;
+        } else {
+            $this->default = reset($this->languages);
+        }
+
         $this->page_extensions = null;
 
         if (empty($this->languages)) {

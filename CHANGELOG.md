@@ -4,6 +4,7 @@
 1. [](#new)
     * Added `FlexObjectInterface::getDefaultValue()` and `FormInterface::getDefaultValue()`
 1. [](#improved)
+    * Added `languages.default_lang` option to override the default lang (usually first supported language)
     * Added `Content-Type: application/json` body support for PSR-7 `ServerRequest`
     * Remove PHP time limit in `ZipArchive`
     * DebugBar: Resolve twig templates in deprecated backtraces in order to help locating Twig issues
