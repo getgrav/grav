@@ -1745,6 +1745,14 @@ class Page implements PageInterface
     }
 
     /**
+     * Reset the metadata and pull from header again
+     */
+    public function resetMetadata()
+    {
+        $this->metadata = null;
+    }
+
+    /**
      * Gets and Sets the slug for the Page. The slug is used in the URL routing. If not set it uses
      * the parent folder from the path
      *
