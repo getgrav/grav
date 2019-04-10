@@ -245,6 +245,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      */
     public function join($name, $value, $separator = null)
     {
+        $separator = $separator ?? '.';
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
             if (!\is_array($old)) {
