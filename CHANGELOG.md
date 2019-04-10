@@ -11,6 +11,7 @@
     * Added `$grav['cache']->getSimpleCache()` method for getting PSR-16 compatible cache
     * MediaTrait: Use PSR-16 cache
     * Improved `Utils::normalizePath()` to support non-protocol URLs
+    * Added ability to reset `Page::metadata` to allow rebuilding from automatically generated values
 1. [](#bugfix)
     * Fixed issue with `Truncator::truncateWords` and `Truncator::truncateLetters` when string not wrapped in tags [#2432](https://github.com/getgrav/grav/issues/2432)
     * Fixed `Undefined method closure::fields()` when getting avatar for user, thanks @Romarain [#2422](https://github.com/getgrav/grav/issues/2422)
