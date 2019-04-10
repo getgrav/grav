@@ -234,7 +234,7 @@ class Scheduler
     {
         $phpBinaryFinder = new PhpExecutableFinder();
         $php = $phpBinaryFinder->find();
-        $command = 'cd ' . GRAV_ROOT . ';' . $php . ' bin/grav scheduler';
+        $command = 'cd ' . str_replace(' ', '\ ', GRAV_ROOT) . ';' . $php . ' bin/grav scheduler';
 
         return "(crontab -l; echo \"* * * * * {$command} 1>> /dev/null 2>&1\") | crontab -";
     }
