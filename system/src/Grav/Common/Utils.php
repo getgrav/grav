@@ -43,6 +43,12 @@ abstract class Utils
             return $input;
         }
 
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        $root = $uri->rootUrl();
+        $input = Utils::replaceFirstOccurrence($root, '', $input);
+
         $input = ltrim((string)$input, '/');
 
         if (Utils::contains((string)$input, '://')) {
@@ -67,8 +73,7 @@ abstract class Utils
             $resource = $input;
         }
 
-        /** @var Uri $uri */
-        $uri = Grav::instance()['uri'];
+
 
         return $resource ? rtrim($uri->rootUrl($domain), '/') . '/' . $resource : null;
     }

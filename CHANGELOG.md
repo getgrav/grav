@@ -21,6 +21,7 @@
     * Grav 1.6: Fixed Flex erroring out with all numeric keys in storage
     * Grav 1.6: Fixed error in `FlexUserIndex` if there are users without an email address
     * Grav 1.6: Fixed bad key in Flex Users if file storage is being used
+    * Fixed issue with `Utils::url()` method would append extra `base_url` if URL already included it
 
 # v1.6.0-rc.4
 ## 03/20/2019
