@@ -30,8 +30,24 @@ div.phpdebugbar {
 }
 
 .phpdebugbar .phpdebugbar-widgets-toolbar {
+    border-top: 1px solid #ddd;
     padding-left: 5px;
+    padding-right: 2px;
+    padding-top: 2px;
+    background-color: #fafafa !important;
+    width: auto !important;
+    left: 0;
+    right: 0;
 }
+
+.phpdebugbar .phpdebugbar-widgets-toolbar input {
+    background: transparent !important;
+}
+
+.phpdebugbar .phpdebugbar-widgets-toolbar .phpdebugbar-widgets-filter {
+
+}
+
 
 .phpdebugbar input[type=text] {
     padding: 0;
