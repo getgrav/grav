@@ -37,12 +37,6 @@ class Assets extends PropertyObject
     /** @const Regex to match JavaScript files */
     const JS_REGEX = '/.\.js$/i';
 
-    /**
-     * @const Regex to match <script> or <style> tag when adding inline style/script. Note that this only supports a
-     * single tag, so the check is greedy to avoid issues in JS.
-     */
-    const HTML_TAG_REGEX = '#(<([A-Z][A-Z0-9]*)>)+(.*)(<\/\2>)#is';
-
     protected $assets_dir;
     protected $assets_url;
 
