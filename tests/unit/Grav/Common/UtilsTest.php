@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Common\Uri;
 use Grav\Common\Utils;
 
 /**
@@ -12,10 +13,14 @@ class UtilsTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
+    /** @var Uri $uri */
+    protected $uri;
+
     protected function _before()
     {
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
+        $this->uri = $this->grav['uri'];
     }
 
     protected function _after()
@@ -359,5 +364,66 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testVerifyNonce()
     {
         $this->assertTrue(Utils::verifyNonce(Utils::getNonce('test-action'), 'test-action'));
+    }
+
+    public function testUrl()
+    {
+        $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
+
+        $this->assertSame('http://testing.dev/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/', Utils::url('', true));
+        $this->assertSame('http://testing.dev/path1', Utils::url('/path1', true));
+        $this->assertSame('/', Utils::url('/'));
+        $this->assertSame('/', Utils::url(''));
+        $this->assertSame('/path1', Utils::url('/path1'));
+        $this->assertSame('/path1/path2', Utils::url('/path1/path2'));
+
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('foobar.jpg', true));
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('/foobar.jpg', Utils::url('/foobar.jpg'));
+        $this->assertSame('/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
+    }
+
+    public function testUrlWithRoot()
+    {
+        $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/path1/path2', '/subdir')->init();
+
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/path1', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/subdir/path1', true));
+        $this->assertSame('/subdir/', Utils::url('/'));
+        $this->assertSame('/subdir/', Utils::url(''));
+        $this->assertSame('/subdir/path1', Utils::url('/path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('/path1/path2'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
+
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('/foobar.jpg'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg'));
+        $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg'));
+    }
+
+    public function testUrlWithStreams()
+    {
+
+    }
+
+    public function testUrlwithExternals()
+    {
+        $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
+        $this->assertSame('http://foo.com', Utils::url('http://foo.com'));
+        $this->assertSame('https://foo.com', Utils::url('https://foo.com'));
+        $this->assertSame('//foo.com', Utils::url('//foo.com'));
+        $this->assertSame('//foo.com?param=x', Utils::url('//foo.com?param=x'));
     }
 }
