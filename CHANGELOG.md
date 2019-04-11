@@ -6,10 +6,9 @@
     * New `Scheduler` functionality for periodic jobs
     * New `Backup` functionality with multiple backup profiles and scheduler integration
     * Refactored `Assets Manager` to be more powerful and flexible
-    * Updated Doctrine Collections to 1.5
+    * Updated Doctrine Collections to 1.6
     * Updated Doctrine Cache to 1.8
-    * Updated Symfony Components to 4.1
-    * Added a new Deferred Twig extension to allow adding content to Twig blocks after render
+    * Updated Symfony Components to 4.2
     * Added new Cache purge functionality old cache manually via CLI/Admin as well as scheduler integration
     * Added new `{% throw 404 'Not Found' %}` twig tag (with custom code/message)
     * Added `Grav\Framework\File` classes for handling YAML, Markdown, JSON, INI and PHP serialized files
@@ -17,8 +16,7 @@
     * Added `Grav\Framework\Object\ObjectIndex` class
     * Added `Grav\Framework\Flex` classes
     * Added support for hiding form fields in blueprints by using dynamic property like `security@: admin.foobar`, `scope@: object` or `scope-ignore@: object` to any field
-    * New experimental **FlexObjects** powered `Users` for increased performance and capability (**disabled** by default)
-    * Updated Symfony Components to 4.2
+    * New experimental **FlexObjects** powered `Users` for increased performance and capability (**disabled** by default)    
     * Added PSR-7 and PSR-15 classes
     * Added `Grav\Framework\DI\Container` class
     * Added `Grav\Framework\RequestHandler\RequestHandler` class
