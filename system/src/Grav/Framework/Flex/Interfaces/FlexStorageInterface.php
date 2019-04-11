@@ -46,6 +46,15 @@ interface FlexStorageInterface
     public function hasKey(string $key): bool;
 
     /**
+     * Check if the key exists in the storage.
+     *
+     * @param string[] $keys Storage key of an object.
+     *
+     * @return bool[] Returns keys with `true` if the key exists in the storage, `false` otherwise.
+     */
+    public function hasKeys(array $keys): array;
+
+    /**
      * Create new rows into the storage.
      *
      * New keys will be assigned when the objects are created.

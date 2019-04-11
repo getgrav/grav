@@ -35,6 +35,21 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     /** @var string */
     protected $keyField = 'storage_key';
 
+
+    /**
+     * {@inheritdoc}
+     * @see FlexStorageInterface::hasKey()
+     */
+    public function hasKeys(array $keys): array
+    {
+        $list = [];
+        foreach ($keys as $key) {
+            $list[$key] = $this->hasKey((string)$key);
+        }
+
+        return $list;
+    }
+
     /**
      * @return string
      */
