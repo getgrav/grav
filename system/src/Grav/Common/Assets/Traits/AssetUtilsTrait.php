@@ -113,7 +113,7 @@ trait AssetUtilsTrait
     {
         $imports = [];
 
-        $file = (string)preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) {
+        $file = (string)preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) use (&$imports) {
             $imports[] = $matches[0];
 
             return '';

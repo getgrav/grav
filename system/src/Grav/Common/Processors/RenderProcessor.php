@@ -20,7 +20,7 @@ class RenderProcessor extends ProcessorBase
     public $id = 'render';
     public $title = 'Render';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request = null, RequestHandlerInterface $handler = null) : ResponseInterface
     {
         $this->startTimer();
 
