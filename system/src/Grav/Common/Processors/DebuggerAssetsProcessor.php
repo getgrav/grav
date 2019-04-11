@@ -19,14 +19,8 @@ class DebuggerAssetsProcessor extends ProcessorBase
     public $id = 'debugger_assets';
     public $title = 'Debugger Assets';
 
-    public function process(ServerRequestInterface $request = null, RequestHandlerInterface $handler = null) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
-        // Backwards compatibility
-        if (is_null($request) && is_null($handler)) {
-            $this->container['debugger']->addAssets();
-            return new Response();
-        }
-
         $this->startTimer();
         $this->container['debugger']->addAssets();
         $this->stopTimer();

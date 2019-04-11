@@ -20,26 +20,8 @@ class RenderProcessor extends ProcessorBase
     public $id = 'render';
     public $title = 'Render';
 
-    public function process(ServerRequestInterface $request = null, RequestHandlerInterface $handler = null) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
-        // Backwards compatibility
-        if (is_null($request) && is_null($handler)) {
-            $container = $this->container;
-            $output =  $container['output'];
-
-            $container->output = $output;
-            $container->fireEvent('onOutputGenerated');
-
-            // Set the header type
-            $container->header();
-            echo $container->output;
-
-            // remove any output
-            $container->output = '';
-            $this->container->fireEvent('onOutputRendered');
-            return new Response();
-        }
-
         $this->startTimer();
 
         $container = $this->container;
