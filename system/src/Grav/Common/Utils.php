@@ -32,7 +32,7 @@ abstract class Utils
     public static function url($input, $domain = false)
     {
         if (!trim((string)$input)) {
-            return false;
+            $input = '/';
         }
 
         if (Grav::instance()['config']->get('system.absolute_urls', false)) {
@@ -75,7 +75,7 @@ abstract class Utils
 
 
 
-        return $resource ? rtrim($uri->rootUrl($domain), '/') . '/' . $resource : null;
+        return rtrim($uri->rootUrl($domain), '/') . '/' . ($resource ?? '');
     }
 
     /**
